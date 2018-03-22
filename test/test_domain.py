@@ -2,9 +2,9 @@
 
 import dbus
 import libvirttest
-import unittest
 
-class TestDomain(libvirttest.TestCase):
+
+class TestDomain(libvirttest.BaseTestClass):
     def domain(self):
         path = self.connect.ListDomains(0)[0]
         obj = self.bus.get_object('org.libvirt', path)
@@ -14,21 +14,21 @@ class TestDomain(libvirttest.TestCase):
         obj, domain = self.domain()
 
         props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
-        self.assertEqual(type(props['Name']), dbus.String)
-        self.assertEqual(type(props['UUID']), dbus.String)
-        self.assertEqual(type(props['Id']), dbus.UInt32)
-        self.assertEqual(type(props['Vcpus']), dbus.UInt32)
-        self.assertEqual(type(props['OSType']), dbus.String)
-        self.assertEqual(type(props['Active']), dbus.Boolean)
-        self.assertEqual(type(props['Persistent']), dbus.Boolean)
-        self.assertEqual(type(props['State']), dbus.String)
-        self.assertEqual(type(props['Autostart']), dbus.Boolean)
+        assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['UUID'], dbus.String)
+        assert isinstance(props['Id'], dbus.UInt32)
+        assert isinstance(props['Vcpus'], dbus.UInt32)
+        assert isinstance(props['OSType'], dbus.String)
+        assert isinstance(props['Active'], dbus.Boolean)
+        assert isinstance(props['Persistent'], dbus.Boolean)
+        assert isinstance(props['State'], dbus.String)
+        assert isinstance(props['Autostart'], dbus.Boolean)
 
         # Call all methods except Reset and GetStats, because the test backend
         # doesn't support those
 
         xml = domain.GetXMLDesc(0)
-        self.assertEqual(type(xml), dbus.String)
+        assert isinstance(xml, dbus.String)
 
         domain.Reboot(0)
         domain.Shutdown()
@@ -38,8 +38,8 @@ class TestDomain(libvirttest.TestCase):
 
     def test_shutdown(self):
         def domain_stopped(name, path):
-            self.assertEqual(name, 'test')
-            self.assertEqual(type(path), dbus.ObjectPath)
+            assert name == 'test'
+            assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
         self.connect.connect_to_signal('DomainStopped', domain_stopped)
@@ -48,14 +48,14 @@ class TestDomain(libvirttest.TestCase):
         domain.Shutdown()
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        self.assertEqual(state, 'shutoff')
+        assert state == 'shutoff'
 
         self.main_loop()
 
     def test_undefine(self):
         def domain_undefined(name, path):
-            self.assertEqual(name, 'test')
-            self.assertEqual(type(path), dbus.ObjectPath)
+            assert name == 'test'
+            assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
         self.connect.connect_to_signal('DomainUndefined', domain_undefined)
@@ -66,5 +66,6 @@ class TestDomain(libvirttest.TestCase):
 
         self.main_loop()
 
+
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    libvirttest.run()

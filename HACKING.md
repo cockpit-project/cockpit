@@ -35,7 +35,7 @@ Running from git repository
     make check
     ```
 
-    The test tool requires python3 and python3-dbus.
+    The test tool requires python3, python3-pytest and python3-dbus.
 
 
   * To run libvirt-dbus directly from the build dir without installing it

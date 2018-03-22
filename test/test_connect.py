@@ -2,9 +2,10 @@
 
 import dbus
 import libvirttest
-import unittest
 
-minimal_xml = '''
+
+class TestConnect(libvirttest.BaseTestClass):
+    minimal_xml = '''
     <domain type="test">
       <name>foo</name>
       <memory>1024</memory>
@@ -12,16 +13,15 @@ minimal_xml = '''
         <type>hvm</type>
       </os>
     </domain>
-'''
+    '''
 
-class TestConnect(libvirttest.TestCase):
     def test_list_domains(self):
         domains = self.connect.ListDomains(0)
-        self.assertEqual(type(domains), dbus.Array)
-        self.assertEqual(len(domains), 1)
+        assert isinstance(domains, dbus.Array)
+        assert len(domains) == 1
 
         for path in domains:
-            self.assertEqual(type(path), dbus.ObjectPath)
+            assert isinstance(path, dbus.ObjectPath)
             domain = self.bus.get_object('org.libvirt', path)
 
             # ensure the path exists by calling Introspect on it
@@ -29,29 +29,30 @@ class TestConnect(libvirttest.TestCase):
 
     def test_create(self):
         def domain_started(name, path):
-            self.assertEqual(name, 'foo')
-            self.assertEqual(type(path), dbus.ObjectPath)
+            assert name == 'foo'
+            assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
         self.connect.connect_to_signal('DomainStarted', domain_started)
 
-        path = self.connect.CreateXML(minimal_xml, 0)
-        self.assertEqual(type(path), dbus.ObjectPath)
+        path = self.connect.CreateXML(self.minimal_xml, 0)
+        assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
 
     def test_define(self):
         def domain_defined(name, path):
-            self.assertEqual(name, 'foo')
-            self.assertEqual(type(path), dbus.ObjectPath)
+            assert name == 'foo'
+            assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
         self.connect.connect_to_signal('DomainDefined', domain_defined)
 
-        path = self.connect.DefineXML(minimal_xml)
-        self.assertEqual(type(path), dbus.ObjectPath)
+        path = self.connect.DefineXML(self.minimal_xml)
+        assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
 
+
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    libvirttest.run()

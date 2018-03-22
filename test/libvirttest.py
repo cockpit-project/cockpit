@@ -1,34 +1,37 @@
-#!/usr/bin/python3
-
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import dbus
 import os
+import pytest
 import subprocess
+import sys
 import time
-import unittest
+
 
 root = os.environ.get('abs_top_builddir', os.path.dirname(os.path.dirname(__file__)))
 exe = os.path.join(root, 'src', 'libvirt-dbus')
 
 DBusGMainLoop(set_as_default=True)
 
-class TestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.bus = subprocess.Popen(['dbus-daemon', '--session', '--print-address'],
-            stdout=subprocess.PIPE, universal_newlines=True)
-        os.environ['DBUS_SESSION_BUS_ADDRESS'] = cls.bus.stdout.readline().strip()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.bus.terminate()
-        cls.bus.wait(timeout=10)
+def run():
+    exit(pytest.main(sys.argv))
 
-    def setUp(self):
+
+class BaseTestClass():
+    """ Base test class for whole test suite
+    """
+    connect = None
+    bus = None
+    libvirt_dbus = None
+    loop = False
+
+    @pytest.fixture(autouse=True)
+    def libvirt_dbus_setup(self, request):
+        """Start libvirt-dbus for each test function
+        """
         os.environ['LIBVIRT_DEBUG'] = '3'
-
-        self.daemon = subprocess.Popen([exe])
+        self.libvirt_dbus = subprocess.Popen([exe])
         self.bus = dbus.SessionBus()
 
         for i in range(10):
@@ -41,12 +44,18 @@ class TestCase(unittest.TestCase):
         obj = self.bus.get_object('org.libvirt', '/org/libvirt/Test')
         self.connect = dbus.Interface(obj, 'org.libvirt.Connect')
 
-    def tearDown(self):
-        self.daemon.terminate()
-        self.daemon.wait(timeout=10)
+    @pytest.fixture(autouse=True)
+    def libvirt_dbus_teardown(self):
+        """Terminate libvirt-dbus at the teardown of each test
+        """
+        yield
+        self.libvirt_dbus.terminate()
+        self.libvirt_dbus.wait(timeout=10)
 
     def main_loop(self):
-        self.assertFalse(getattr(self, 'loop', False))
+        """Initializes the mainloop
+        """
+        assert getattr(self, 'loop', False) is False
 
         def timeout():
             self.loop.quit()

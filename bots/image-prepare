@@ -208,6 +208,9 @@ def get_build_image(image):
         image = "rhel-7"
     elif test_os == "continuous-atomic":
         image = "centos-7"
+    elif test_os == "rhel-8":
+        # RHEL 8 does not yet have EPEL and thus no "mock"
+        image = "fedora-27"
     return image
 
 if __name__ == "__main__":

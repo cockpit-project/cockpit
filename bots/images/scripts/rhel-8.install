@@ -1,0 +1,18 @@
+#! /bin/bash
+
+set -e
+
+# HACK: kubernetes and libvirt are not currently available in RHEL-8
+/var/lib/testvm/fedora.install --rhel --skip cockpit-kubernetes --skip cockpit-machines --skip cockpit-machines-ovirt "$@"
+
+# HACK: ipa-client-install expects this unit (https://bugzilla.redhat.com/show_bug.cgi?id=1560452)
+cat <<EOF > /etc/systemd/system/rhel-domainname.service
+[Unit]
+Description=dummy
+
+[Service]
+ExecStart=/bin/true
+EOF
+
+# HACK: kinit fails without sssd-kcm.socket (https://bugzilla.redhat.com/show_bug.cgi?id=1559815)
+systemctl enable sssd-kcm.socket

@@ -299,7 +299,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_text("#journal-entry-message", "[no data]")
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4", "rhel-7-5")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8")
     def testAbrtSegv(self):
         b = self.browser
         m = self.machine
@@ -334,7 +334,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present(sel)
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4", "rhel-7-5")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8")
     def testAbrtDelete(self):
         b = self.browser
         m = self.machine
@@ -371,7 +371,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-4", "rhel-7-5")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8")
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems

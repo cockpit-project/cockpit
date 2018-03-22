@@ -791,6 +791,11 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { dac_override }.*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { module_request }.*')
 
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820
+        # this affects every boot (so naughty override causes too much spamming)
+        if self.image == 'rhel-8':
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for  pid=1 comm="systemd" name="bpf".*')
+
         all_found = True
         first = None
         for m in messages:

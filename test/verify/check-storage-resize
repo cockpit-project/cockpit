@@ -23,7 +23,7 @@ import parent
 from testlib import *
 from storagelib import *
 
-@skipImage("UDisks doesn't have support for LVM", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("UDisks doesn't have support for LVM", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "rhel-8")
 class TestStorage(StorageCase):
     def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount = None, grow_needs_unmount = None):
         m = self.machine
@@ -101,7 +101,7 @@ class TestStorage(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "centos-7", "rhel-7-5", "rhel-7-4", "rhel-7")
+    @skipImage("No NTFS support installed", "centos-7", "rhel-7-5", "rhel-7-4", "rhel-7", "rhel-8")
     def testResizeNtfs(self):
         if self.machine.image in [ "fedora-26" ]:
             self.checkResize("ntfs",

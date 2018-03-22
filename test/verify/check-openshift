@@ -51,7 +51,7 @@ def wait_project(machine, project):
             time.sleep(2)
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
-@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "rhel-8")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },
@@ -485,7 +485,7 @@ class TestOpenshiftPrerelease(TestOpenshift):
 
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
-@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "rhel-8")
 class TestRegistry(MachineCase, RegistryTests):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },

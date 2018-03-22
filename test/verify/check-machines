@@ -360,9 +360,6 @@ class TestMachines(MachineCase):
         b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone
         b.wait_not_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert") # triangle by status is gone
 
-        # HACK: restarting libvirtd causes this completely unrelated SELinux issue
-        self.allow_journal_messages('.*denied.*search.*"systemd-machine".*dev="proc".*')
-
     def wait_for_disk_stats(self, name, target):
         b = self.browser
         try:
@@ -431,9 +428,6 @@ class TestMachines(MachineCase):
         b.leave_page()
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))
-
-        # HACK: restarting libvirtd causes this completely unrelated SELinux issue
-        # self.allow_journal_messages('.*denied.*search.*"systemd-machine".*dev="proc".*')
 
     def testDisks(self):
         b = self.browser

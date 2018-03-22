@@ -74,6 +74,7 @@ if [ -n "$do_build" ]; then
     LC_ALL=C.UTF-8 su builder -c "/usr/bin/mock --offline --no-clean --resultdir build-results $mock_opts --rebuild $srpm"
 
     su builder -c "/usr/bin/mock --offline --shell" <<EOF
+rm -rf /builddir/build
 if type rpmlint >/dev/null 2>&1; then
     # blacklist "E: no-changelogname-tag" rpmlint error, expected due to our template cockpit.spec
     mkdir -p ~/.config

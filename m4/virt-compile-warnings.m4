@@ -160,6 +160,8 @@ AC_DEFUN([LIBVIRT_COMPILE_WARNINGS],[
     # Need -fipa-pure-const in order to make -Wsuggest-attribute=pure
     # fire even without -O.
     wantwarn="$wantwarn -fipa-pure-const"
+    # We do "bad" function cast to define glib auto cleanup functions
+    wantwarn="$wantwarn -Wno-cast-function-type"
 
     if test "$enable_werror" = "yes"
     then

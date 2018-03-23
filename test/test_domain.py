@@ -35,7 +35,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Shutdown(0)
         domain.Create(0)
         domain.Destroy()
-        domain.Undefine()
+        domain.Undefine(0)
 
     def test_shutdown(self):
         def domain_stopped(name, path):
@@ -63,7 +63,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         _, domain = self.domain()
         domain.Shutdown(0)
-        domain.Undefine()
+        domain.Undefine(0)
 
         self.main_loop()
 

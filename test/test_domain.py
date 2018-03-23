@@ -3,6 +3,7 @@
 import dbus
 import libvirttest
 
+DBUS_EXCEPTION_MISSING_FUNCTION = 'this function is not supported by the connection driver'
 
 class TestDomain(libvirttest.BaseTestClass):
     def domain(self):
@@ -34,7 +35,11 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Reboot(0)
         domain.Shutdown(0)
         domain.Create(0)
-        domain.Destroy()
+        try:
+            domain.Destroy(0)
+        except dbus.exceptions.DBusException as e:
+            if not any(DBUS_EXCEPTION_MISSING_FUNCTION in arg for arg in e.args):
+                raise e
         domain.Undefine(0)
 
     def test_shutdown(self):

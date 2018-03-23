@@ -32,7 +32,7 @@ class TestDomain(libvirttest.BaseTestClass):
         assert isinstance(vcpus, dbus.UInt32)
 
         domain.Reboot(0)
-        domain.Shutdown()
+        domain.Shutdown(0)
         domain.Create()
         domain.Destroy()
         domain.Undefine()
@@ -46,7 +46,7 @@ class TestDomain(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('DomainStopped', domain_stopped)
 
         obj, domain = self.domain()
-        domain.Shutdown()
+        domain.Shutdown(0)
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
         assert state == 'shutoff'
@@ -62,7 +62,7 @@ class TestDomain(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('DomainUndefined', domain_undefined)
 
         _, domain = self.domain()
-        domain.Shutdown()
+        domain.Shutdown(0)
         domain.Undefine()
 
         self.main_loop()

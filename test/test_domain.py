@@ -33,7 +33,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         domain.Reboot(0)
         domain.Shutdown(0)
-        domain.Create()
+        domain.Create(0)
         domain.Destroy()
         domain.Undefine()
 

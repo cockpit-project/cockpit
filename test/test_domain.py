@@ -17,7 +17,6 @@ class TestDomain(libvirttest.BaseTestClass):
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['UUID'], dbus.String)
         assert isinstance(props['Id'], dbus.UInt32)
-        assert isinstance(props['Vcpus'], dbus.UInt32)
         assert isinstance(props['OSType'], dbus.String)
         assert isinstance(props['Active'], dbus.Boolean)
         assert isinstance(props['Persistent'], dbus.Boolean)
@@ -29,6 +28,8 @@ class TestDomain(libvirttest.BaseTestClass):
 
         xml = domain.GetXMLDesc(0)
         assert isinstance(xml, dbus.String)
+        vcpus = domain.GetVcpus(0)
+        assert isinstance(vcpus, dbus.UInt32)
 
         domain.Reboot(0)
         domain.Shutdown()

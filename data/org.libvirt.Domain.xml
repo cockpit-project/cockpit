@@ -6,12 +6,15 @@
     <property name="Name" type="s" access="read"/>
     <property name="UUID" type="s" access="read"/>
     <property name="Id" type="u" access="read"/>
-    <property name="Vcpus" type="u" access="read"/>
     <property name="OSType" type="s" access="read"/>
     <property name="Active" type="b" access="read"/>
     <property name="Persistent" type="b" access="read"/>
     <property name="State" type="s" access="read"/>
     <property name="Autostart" type="b" access="read"/>
+    <method name="GetVcpus">
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="vcpus" type="u" direction="out"/>
+    </method>
     <method name="GetXMLDesc">
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>

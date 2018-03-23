@@ -87,27 +87,6 @@ virtDBusDomainGetId(const gchar *objectPath,
 }
 
 static void
-virtDBusDomainGetVcpus(const gchar *objectPath,
-                       gpointer userData,
-                       GVariant **value,
-                       GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    gint vcpus;
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    vcpus = virDomainGetVcpusFlags(domain, VIR_DOMAIN_VCPU_CURRENT);
-    if (vcpus < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *value = g_variant_new("u", vcpus);
-}
-
-static void
 virtDBusDomainGetOsType(const gchar *objectPath,
                         gpointer userData,
                         GVariant **value,
@@ -237,6 +216,34 @@ virtDBusDomainGetAutostart(const gchar *objectPath,
         return virtDBusUtilSetLastVirtError(error);
 
     *value = g_variant_new("b", !!autostart);
+}
+
+static void
+virtDBusDomainGetVcpus(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint vcpus;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    vcpus = virDomainGetVcpusFlags(domain, flags);
+    if (vcpus < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(u)", vcpus);
 }
 
 static void
@@ -435,7 +442,6 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Name", virtDBusDomainGetName, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
     { "Id", virtDBusDomainGetId, NULL },
-    { "Vcpus", virtDBusDomainGetVcpus, NULL },
     { "OSType", virtDBusDomainGetOsType, NULL },
     { "Active", virtDBusDomainGetActive, NULL },
     { "Persistent", virtDBusDomainGetPersistent, NULL },
@@ -445,6 +451,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
+    { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "GetStats", virtDBusDomainGetStats },
     { "Shutdown", virtDBusDomainShutdown },

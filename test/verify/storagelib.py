@@ -142,7 +142,7 @@ class StorageCase(MachineCase):
             row_item = row + " tr.listing-ct-item"
             tab_btn = row + " .listing-ct-head li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
-            cell = tab + " table.info-table-ct tr:contains(%s) td:nth-child(2)" % title
+            cell = tab + " table.info-table-ct tr:contains(%s) > td:nth-child(2)" % title
 
             if not b.is_present(row + ".open"):
                 if not b.is_present(row_item):

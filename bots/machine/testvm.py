@@ -1313,7 +1313,7 @@ class VirtMachine(Machine):
     def add_netiface(self, networking=None, vlan=0):
         if not networking:
             networking = VirtNetwork().interface()
-        cmd = "device_add e1000,mac={0}".format(networking["mac"])
+        cmd = "device_add virtio-net-pci,mac={0}".format(networking["mac"])
         if vlan == 0:
             self._qemu_monitor("netdev_add socket,mcast=230.0.0.1:{mcast},id={id}".format(mcast=networking["mcast"], id=networking["hostnet"]))
             cmd += ",netdev={id}".format(id=networking["hostnet"])

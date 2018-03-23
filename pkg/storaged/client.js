@@ -750,7 +750,7 @@
 
         function create(options) {
             var args = [ "create", "--name", options.name,
-                         "--device", utils.decode_filename(options.block.PreferredDevice) ];
+                         "--device", utils.stable_device_name(options.block) ];
             if (options.logical_size !== undefined)
                 args.push("--vdoLogicalSize", options.logical_size + "B");
             if (options.index_mem !== undefined)

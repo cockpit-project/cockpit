@@ -42,7 +42,9 @@ export class VDOsPanel extends React.Component {
                     break;
             }
 
-            var spaces = get_available_spaces(client).map(available_space_to_option);
+            var spaces = get_available_spaces(client).map(function (spc) {
+                return available_space_to_option(spc, true);
+            });
 
             dialog.open({ Title: _("Create VDO Device"),
                           Fields: [

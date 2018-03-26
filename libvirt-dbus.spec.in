@@ -18,9 +18,11 @@ BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: libvirt-devel >= %{libvirt_version}
 BuildRequires: libvirt-glib-devel >= %{libvirt_glib_version}
 
+Requires: dbus
 Requires: glib2 >= %{glib2_version}
 Requires: libvirt-libs >= %{libvirt_version}
 Requires: libvirt-glib >= %{libvirt_glib_version}
+Requires: polkit
 
 Requires(pre): shadow-utils
 

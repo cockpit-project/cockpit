@@ -292,7 +292,20 @@
 
         function call_manager_with_reload(method, args) {
             return call_manager(method, args).then(function () {
-                return call_manager("Reload", [ ]);
+                var dfd = cockpit.defer();
+                call_manager("Reload", [ ]).
+                    done(function () { dfd.resolve(); }).
+                    fail(function (error) {
+                        // HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1560549
+                        // some systemd versions disconnect too fast from the bus
+                        if (error.name === "org.freedesktop.DBus.Error.NoReply") {
+                            refresh();
+                            dfd.resolve();
+                        } else {
+                            dfd.reject(error);
+                        }
+                    });
+                return dfd.promise();
             });
         }
 

@@ -1,19 +1,17 @@
 # -*- rpm-spec -*-
 
-%define glib2_version @GLIB2_REQUIRED@
-%define libvirt_version @LIBVIRT_REQUIRED@
-%define libvirt_glib_version @LIBVIRT_GLIB_REQUIRED@
-%define system_user @SYSTEM_USER@
+%global glib2_version @GLIB2_REQUIRED@
+%global libvirt_version @LIBVIRT_REQUIRED@
+%global libvirt_glib_version @LIBVIRT_GLIB_REQUIRED@
+%global system_user @SYSTEM_USER@
 
 Name: @PACKAGE@
 Version: @VERSION@
-Release: 1%{?dist}%{?extra_release}
+Release: 1%{?dist}
 Summary: libvirt dbus API binding
-Group: Development/Libraries
 License: LGPLv2+
 URL: https://libvirt.org/
 Source0: https://libvirt.org/sources/dbus/%{name}-%{version}.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: gcc
 BuildRequires: glib2-devel >= %{glib2_version}
@@ -30,18 +28,14 @@ Requires(pre): shadow-utils
 This package provides integration between libvirt and the DBus
 
 %prep
-%setup -q
+%autosetup
 
 %build
 %configure
-%__make %{?_smp_mflags}
+%make_build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%__make install  DESTDIR=$RPM_BUILD_ROOT
-
-%clean
-rm -rf $RPM_BUILD_ROOT
+%make_install
 
 %pre
 getent group %{system_user} >/dev/null || groupadd -r %{system_user}
@@ -51,8 +45,8 @@ getent passwd %{system_user} >/dev/null || \
 exit 0
 
 %files
-%defattr(-,root,root,-)
-%doc README.md HACKING.md COPYING AUTHORS NEWS
+%doc README.md HACKING.md AUTHORS NEWS
+%license COPYING
 %{_sysconfdir}/polkit-1/rules.d/libvirt-dbus.rules
 %{_bindir}/libvirt-dbus
 %{_datadir}/dbus-1/services/org.libvirt.service

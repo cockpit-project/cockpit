@@ -8,7 +8,7 @@
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1%{?dist}
-Summary: libvirt dbus API binding
+Summary: libvirt D-Bus API binding
 License: LGPLv2+
 URL: https://libvirt.org/
 Source0: https://libvirt.org/sources/dbus/%{name}-%{version}.tar.gz
@@ -27,7 +27,7 @@ Requires: polkit
 Requires(pre): shadow-utils
 
 %description
-This package provides integration between libvirt and the DBus
+This package provides D-Bus API for libvirt
 
 %prep
 %autosetup
@@ -43,7 +43,7 @@ This package provides integration between libvirt and the DBus
 getent group %{system_user} >/dev/null || groupadd -r %{system_user}
 getent passwd %{system_user} >/dev/null || \
     useradd -r -g %{system_user} -d / -s /sbin/nologin \
-    -c "Libvirt DBus bridge" %{system_user}
+    -c "Libvirt D-Bus bridge" %{system_user}
 exit 0
 
 %files

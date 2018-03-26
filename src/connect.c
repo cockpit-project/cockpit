@@ -81,6 +81,24 @@ virtDBusConnectOpen(virtDBusConnect *connect,
 }
 
 static void
+virtDBusConnectGetVersion(const gchar *objectPath G_GNUC_UNUSED,
+                          gpointer userData,
+                          GVariant **value,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    gulong hvVer;
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectGetVersion(connect->connection, &hvVer) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("t", hvVer);
+}
+
+static void
 virtDBusConnectListDomains(GVariant *inArgs,
                            GUnixFDList *inFDs G_GNUC_UNUSED,
                            const gchar *objectPath G_GNUC_UNUSED,
@@ -177,6 +195,11 @@ virtDBusConnectDefineXML(GVariant *inArgs,
     *outArgs = g_variant_new("(o)", path);
 }
 
+static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
+    { "Version", virtDBusConnectGetVersion, NULL },
+    { NULL, NULL, NULL }
+};
+
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "ListDomains", virtDBusConnectListDomains },
     { "CreateXML", virtDBusConnectCreateXML },
@@ -228,7 +251,7 @@ virtDBusConnectNew(virtDBusConnect **connectp,
                                 connect->connectPath,
                                 interfaceInfo,
                                 virtDBusConnectMethodTable,
-                                NULL,
+                                virtDBusConnectPropertyTable,
                                 connect);
 
     virtDBusDomainRegister(connect, error);

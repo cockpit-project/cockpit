@@ -3,6 +3,10 @@
 
 <node name="/org/libvirt/connect">
   <interface name="org.libvirt.Connect">
+    <property name="Version" type="t" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetVersion"/>
+    </property>
     <method name="ListDomains">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectListAllDomains"/>

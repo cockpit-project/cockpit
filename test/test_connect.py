@@ -2,6 +2,7 @@
 
 import dbus
 import libvirttest
+import pytest
 
 
 class TestConnect(libvirttest.BaseTestClass):
@@ -52,6 +53,14 @@ class TestConnect(libvirttest.BaseTestClass):
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
+
+    @pytest.mark.parametrize("property_name,expected_type", [
+        ("Version", dbus.UInt64),
+    ])
+    def test_connect_properties_return_type(self, property_name, expected_type):
+        obj = self.bus.get_object('org.libvirt', '/org/libvirt/Test')
+        props = obj.GetAll('org.libvirt.Connect', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props[property_name], expected_type)
 
 
 if __name__ == '__main__':

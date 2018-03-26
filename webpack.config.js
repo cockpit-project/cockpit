@@ -127,7 +127,7 @@ var info = {
             "systemd/init.js",
         ],
         "systemd/logs": [
-            "systemd/logs.js",
+            "systemd/logs.jsx",
         ],
         "systemd/system": [
             "systemd/host.js",
@@ -248,6 +248,7 @@ var info = {
 
         "systemd/index.html",
         "systemd/logs.html",
+        "systemd/datetimepicker.css",
         "systemd/services.html",
         "systemd/terminal.html",
         "systemd/hwinfo.html",

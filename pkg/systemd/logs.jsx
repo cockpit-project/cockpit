@@ -17,13 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-$(function() {
+(function() {
     "use strict";
 
+    var $ = require("jquery");
     var cockpit = require("cockpit");
-
+    var React = require("react");
     var journal = require("journal");
+
+    let moment = require("moment");
+    require("bootstrap-datetime-picker/js/bootstrap-datetimepicker.js");
 
     cockpit.translate();
     var _ = cockpit.gettext;
@@ -71,7 +74,7 @@ $(function() {
         problems.wait(function() {
             try {
                 service.GetProblems(0, {})
-                    .done(function(problem_paths, options) {
+                    .done(function(problem_paths) {
                         update_problems(problem_paths);
                         r.resolve();
                     });
@@ -206,12 +209,10 @@ $(function() {
         };
 
         var all = false;
-        if (start == 'boot') {
-            options["boot"] = null;
-        } else if (start == 'last-24h') {
+        if (start == "recent") {
             options["since"] = "-1days";
-        } else if (start == 'last-week') {
-            options["since"] = "-7days";
+        } else if (start !== undefined) {
+            options["since"] = start;
         } else {
             all = true;
         }
@@ -309,8 +310,9 @@ $(function() {
             match.push('SYSLOG_IDENTIFIER=' + options['tag']);
 
         var query_start = cockpit.location.options['start'] || "recent";
-        if (query_start == 'recent')
+        if (query_start == 'recent') {
             $(window).scrollTop($(document).height());
+        }
 
         journalbox($("#journal-box"), query_start, match, $('#journal-current-day'));
     }
@@ -512,7 +514,7 @@ $(function() {
     }
 
     function create_problem_details(problem, pi, pd) {
-        service.GetProblemData(problem.path).done(function(args, options) {
+        service.GetProblemData(problem.path).done(function(args) {
             var i, elem, val;
             // Render first column of problem info
             var c1 = $('<table>').css('display', 'inline-block')
@@ -631,18 +633,18 @@ $(function() {
     }
 
     function render_mountinfo(orig) {
-        return render_multitable(orig[2].replace(/  +/g, ':'), ' ');
+        return render_multitable(orig[2].replace(new RegExp('//\s/\s+/g'), ':'), ' ');
     }
 
     function render_maps(orig) {
-        return render_multitable(orig[2].replace(/  +/g, ':'), ' ');
+        return render_multitable(orig[2].replace(new RegExp('//\s/\s+/g'), ':'), ' ');
     }
 
     function render_limits(orig) {
         var lines = orig[2].split('\n');
         lines[0] ='":' + lines[0].replace(/(\S+) (\S+) /g, '$1:$2 ');
         for (var i = 1; i < lines.length - 1; i++) {
-                lines[i] = lines[i].replace(/  +/g, ':');
+            lines[i] = lines[i].replace(new RegExp('//\s/\s+/g'), ':');
         }
 
         return render_multitable(lines.join('\n'), ':');
@@ -805,11 +807,131 @@ $(function() {
         $("body").show();
     }
 
-    $(cockpit).on("locationchanged", update);
+    let parseDate = function(date) {
+        let regex = new RegExp(/^\s*(\d\d\d\d-\d\d-\d\d)(\s+(\d\d:\d\d(:\d\d)?))?\s*$/);
 
-    $('#journal-current-day-menu a').on('click', function() {
-        cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).attr("data-op") }));
-    });
+        let captures = regex.exec(date);
+
+        if (captures != null)
+        {
+            let date = captures[1];
+            if (captures[3]) {
+                date = date + " " + captures[3];
+            }
+            if (moment(date, ["YYYY-M-D H:m:s", "YYYY-M-D H:m", "YYYY-M-D"], true).isValid()) {
+                return date;
+            }
+        }
+
+        if (date === "" || date === null) {
+            return true;
+        }
+
+        return false;
+    };
+
+    /*
+      * A component representing a date & time picker based on bootstrap-datetime-picker.
+      * Requires jQuery, bootstrap-datetime-picker, moment.js
+      * Properties:
+      * - onDateChange: function to call on date change event of datepicker.
+      * - date: variable to pass which will be used as initial value.
+      */
+    let Datetimepicker = class extends React.Component {
+        constructor(props) {
+            super(props);
+            this.handleDateChange = this.handleDateChange.bind(this);
+            this.clearField = this.clearField.bind(this);
+            this.markDateField = this.markDateField.bind(this);
+            this.state = {
+                invalid: false,
+                date: this.props.date,
+                dateLastValid: null,
+            };
+        }
+
+        componentDidMount() {
+            let funcDate = this.handleDateChange;
+            let datepicker = $(this.refs.datepicker).datetimepicker({
+                format: 'yyyy-mm-dd hh:ii:00',
+                autoclose: true,
+                todayBtn: true,
+                pickerPosition: 'bottom-right',
+            });
+            datepicker.on('changeDate', function(e) {
+                funcDate(e);
+            });
+            $(this.refs.datepicker_input).datetimepicker('remove');
+            this.markDateField();
+        }
+
+        componentWillUnmount() {
+            $(this.textInput).datetimepicker('remove');
+        }
+
+        handleDateChange(e) {
+            if (e.type === "changeDate") {
+                let event = new Event('input', { bubbles: true });
+                e.currentTarget.firstChild.dispatchEvent(event);
+            }
+
+            if (e.type === "input") {
+                this.setState({date: e.target.value});
+                if (parseDate(e.target.value)) {
+                    this.setState({dateLastValid: e.target.value});
+                    this.setState({invalid: false});
+                    this.props.onDateChange(e.target.value, e.target.value.trim());
+                } else {
+                    this.setState({invalid: true});
+                    this.props.onDateChange(e.target.value, this.state.dateLastValid.trim());
+                }
+            }
+        }
+
+        clearField() {
+            $(this.refs.datepicker_input).val("");
+            let event = new Event('input', { bubbles: true });
+            this.refs.datepicker_input.dispatchEvent(event);
+            this.handleDateChange(event);
+            this.setState({invalid: false});
+        }
+
+        markDateField() {
+            let date = $(this.refs.datepicker_input).val().trim();
+            if (!parseDate(date)) {
+                this.setState({invalid: true});
+            } else {
+                this.setState({dateLastValid: date});
+                this.setState({invalid: false});
+            }
+        }
+
+        render() {
+            const style = {
+                'width': '11em',
+            };
+
+            return (
+                <div ref="datepicker" className="input-group date input-append date form_datetime"
+                     data-date="12-02-2012" data-date-format="dd-mm-yyyy">
+                    <input ref="datepicker_input" type="text" size="16" style={style}
+                           className={"form-control bootstrap-datepicker " + (this.state.invalid ? "invalid" : "valid")}
+                           readonly value={this.state.date} onChange={this.handleDateChange} />
+                    <span className="input-group-addon add-on"><i className="fa fa-calendar"></i></span>
+                    <span className="input-group-addon add-on" onClick={this.clearField}>
+                            <i className="fa fa-remove"></i></span>
+                </div>
+            );
+        }
+    };
+
+    let changeDate = function(date) {
+        cockpit.location.go([], $.extend(cockpit.location.options, { start: date }));
+    };
+
+    React.render(<Datetimepicker onDateChange={changeDate} />, document.getElementById('datepicker'));
+
+    $(cockpit).on("locationchanged", update);
 
     $('#journal-box').on('click', '.cockpit-logline', function() {
          var cursor = $(this).attr('data-cursor');
@@ -826,4 +948,4 @@ $(function() {
     });
 
     update();
-});
+}());

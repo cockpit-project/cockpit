@@ -32,7 +32,7 @@
             $('#' + t).on('click', function () {
                 proxy[t]().
                     fail(function (error) {
-                        console.log(error);
+                        console.error("action", t, "failed:", JSON.stringify(error));
                     });
             });
         }

@@ -281,7 +281,7 @@ virtDBusDomainLookupByUUID(GVariant *inArgs,
 
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Version", virtDBusConnectGetVersion, NULL },
-    { NULL, NULL, NULL }
+    { 0 }
 };
 
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
@@ -291,7 +291,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByID", virtDBusDomainLookupByID },
     { "DomainLookupByName", virtDBusDomainLookupByName },
     { "DomainLookupByUUID", virtDBusDomainLookupByUUID },
-    { NULL, NULL }
+    { 0 }
 };
 
 static GDBusInterfaceInfo *interfaceInfo = NULL;

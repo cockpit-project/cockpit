@@ -113,7 +113,7 @@ main(gint argc, gchar *argv[])
             "Connect to the session bus", NULL },
         { "threads", 't', 0, G_OPTION_ARG_INT, &maxThreads,
             "Configure maximal number of worker threads", "N" },
-        { NULL }
+        { 0 }
     };
 
     context = g_option_context_new("Provide a D-Bus interface to a libvirtd.");

@@ -459,7 +459,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Persistent", virtDBusDomainGetPersistent, NULL },
     { "State", virtDBusDomainGetState, NULL },
     { "Autostart", virtDBusDomainGetAutostart, NULL },
-    { NULL, NULL, NULL }
+    { 0 }
 };
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
@@ -472,7 +472,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Reset", virtDBusDomainReset },
     { "Create", virtDBusDomainCreate },
     { "Undefine", virtDBusDomainUndefine },
-    { NULL, NULL }
+    { 0 }
 };
 
 static gchar **

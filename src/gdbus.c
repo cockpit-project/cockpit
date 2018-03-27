@@ -294,7 +294,7 @@ static const GDBusInterfaceVTable virtDBusGDBusVtable = {
     virtDBusGDBusHandleMethodCall,
     NULL,
     NULL,
-    { NULL }
+    { 0 }
 };
 
 /**
@@ -378,7 +378,7 @@ static const GDBusSubtreeVTable virtDBusGDBusSubreeVtable = {
     virtDBusGDBusEnumerate,
     virtDBusGDBusIntrospect,
     virtDBusGDBusDispatch,
-    { NULL }
+    { 0 }
 };
 
 static void

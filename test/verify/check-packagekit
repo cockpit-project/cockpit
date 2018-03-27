@@ -375,6 +375,9 @@ class TestUpdates(PackageCase):
         b.wait_present(".container-fluid #history h2")
         assertHistory("#history ul", ["secdeclare", "secparse", "sevcritical"])
 
+        # stop PackageKit (e. g. idle timeout) to make sure the page survives that
+        m.execute("systemctl kill --signal=KILL packagekit.service")
+
         # new security versions are now installed
         m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2 && test -f /stamp-sevcritical-5-2")
         # but the three others are untouched

@@ -54,13 +54,31 @@ export const Enum = {
 
 export const transactionInterface = "org.freedesktop.PackageKit.Transaction";
 
-const dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
+var _dbus_client = null;
+
+/**
+ * Get PackageKit D-Bus client
+ *
+ * This will get lazily initialized and re-initialized after PackageKit
+ * disconnects (due to a crash or idle timeout).
+ */
+function dbus_client() {
+    if (_dbus_client === null) {
+        _dbus_client = cockpit.dbus("org.freedesktop.PackageKit", { superuser: "try", "track": true });
+        _dbus_client.addEventListener("close", () => {
+            console.log("PackageKit went away from D-Bus");
+            _dbus_client = null;
+        });
+    }
+
+    return _dbus_client;
+}
 
 /**
  * Call a PackageKit method
  */
 export function call(objectPath, iface, method, args, opts) {
-    return dbus_client.call(objectPath, iface, method, args, opts);
+    return dbus_client().call(objectPath, iface, method, args, opts);
 }
 
 /**
@@ -73,6 +91,7 @@ export function call(objectPath, iface, method, args, opts) {
 export function watchTransaction(transactionPath, signalHandlers, notifyHandler) {
     var subscriptions = [];
     var notifyReturn;
+    var client = dbus_client();
 
     // Listen for PackageKit crashes while the transaction runs
     function onClose(event, ex) {
@@ -82,30 +101,30 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
         if (signalHandlers.Finished)
             signalHandlers.Finished(Enum.EXIT_FAILED);
     }
-    dbus_client.addEventListener("close", onClose);
+    client.addEventListener("close", onClose);
 
     if (signalHandlers) {
         Object.keys(signalHandlers).forEach(handler => subscriptions.push(
-            dbus_client.subscribe({ interface: transactionInterface, path: transactionPath, member: handler },
-                                  (path, iface, signal, args) => signalHandlers[handler](...args)))
+            client.subscribe({ interface: transactionInterface, path: transactionPath, member: handler },
+                             (path, iface, signal, args) => signalHandlers[handler](...args)))
         );
     }
 
     if (notifyHandler) {
-        notifyReturn = dbus_client.watch(transactionPath);
+        notifyReturn = client.watch(transactionPath);
         subscriptions.push(notifyReturn);
-        dbus_client.addEventListener("notify", reply => {
+        client.addEventListener("notify", reply => {
             if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
                 notifyHandler(reply.detail[transactionPath][transactionInterface], transactionPath);
         });
     }
 
     // unsubscribe when transaction finished
-    subscriptions.push(dbus_client.subscribe(
+    subscriptions.push(client.subscribe(
         { interface: transactionInterface, path: transactionPath, member: "Finished" },
         () => {
             subscriptions.map(s => s.remove());
-            dbus_client.removeEventListener("close", onClose);
+            client.removeEventListener("close", onClose);
         })
     );
 

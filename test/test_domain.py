@@ -6,11 +6,6 @@ import libvirttest
 DBUS_EXCEPTION_MISSING_FUNCTION = 'this function is not supported by the connection driver'
 
 class TestDomain(libvirttest.BaseTestClass):
-    def domain(self):
-        path = self.connect.ListDomains(0)[0]
-        obj = self.bus.get_object('org.libvirt', path)
-        return obj, dbus.Interface(obj, 'org.libvirt.Domain')
-
     def test_api(self):
         obj, domain = self.domain()
 

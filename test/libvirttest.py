@@ -65,3 +65,8 @@ class BaseTestClass():
         self.loop = GLib.MainLoop()
         GLib.timeout_add(1000, timeout)
         self.loop.run()
+
+    def domain(self):
+        path = self.connect.ListDomains(0)[0]
+        obj = self.bus.get_object('org.libvirt', path)
+        return obj, dbus.Interface(obj, 'org.libvirt.Domain')

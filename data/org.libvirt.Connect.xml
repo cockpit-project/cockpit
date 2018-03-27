@@ -26,6 +26,12 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="domain" type="o" direction="out"/>
     </method>
+    <method name="DomainLookupByID">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainLookupByID"/>
+      <arg name="id" type="u" direction="in"/>
+      <arg name="domain" type="o" direction="out"/>
+    </method>
     <signal name="DomainCrashed">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_CRASHED"/>

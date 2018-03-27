@@ -195,6 +195,34 @@ virtDBusConnectDefineXML(GVariant *inArgs,
     *outArgs = g_variant_new("(o)", path);
 }
 
+static void
+virtDBusDomainLookupByID(GVariant *inArgs,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath G_GNUC_UNUSED,
+                         gpointer userData,
+                         GVariant **outArgs,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *path = NULL;
+    guint id;
+
+    g_variant_get(inArgs, "(u)", &id);
+
+    if (!virtDBusConnectOpen(connect, NULL))
+        return;
+
+    domain = virDomainLookupByID(connect->connection, id);
+    if (!domain)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Version", virtDBusConnectGetVersion, NULL },
     { NULL, NULL, NULL }
@@ -204,6 +232,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "ListDomains", virtDBusConnectListDomains },
     { "CreateXML", virtDBusConnectCreateXML },
     { "DefineXML", virtDBusConnectDefineXML },
+    { "DomainLookupByID", virtDBusDomainLookupByID },
     { NULL, NULL }
 };
 

@@ -54,6 +54,18 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    @pytest.mark.parametrize("lookup_method_name,lookup_item", [
+        ("DomainLookupByID", 'Id'),
+    ])
+    def test_connect_domain_lookup_by_id(self, lookup_method_name, lookup_item):
+        """Parameterized test for all DomainLookupBy* API calls of Connect interface
+        """
+        original_path = self.connect.ListDomains(0)[0]
+        obj, _ = self.domain()
+        props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
+        path = getattr(self.connect, lookup_method_name)(props[lookup_item])
+        assert original_path == path
+
     @pytest.mark.parametrize("property_name,expected_type", [
         ("Version", dbus.UInt64),
     ])

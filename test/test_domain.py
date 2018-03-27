@@ -83,5 +83,22 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_resume(self):
+        def domain_resumed(name, path):
+            assert name == 'test'
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('DomainResumed', domain_resumed)
+
+        obj, domain = self.domain()
+        domain.Suspend()
+        domain.Resume()
+
+        state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert state == 'running'
+
+        self.main_loop()
+
 if __name__ == '__main__':
     libvirttest.run()

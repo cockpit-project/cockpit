@@ -56,7 +56,7 @@ gboolean
 virtDBusConnectOpen(virtDBusConnect *connect,
                     GError **error)
 {
-    g_autoptr(GMutexLocker) lock = g_mutex_locker_new(&connect->lock);
+    virtDBusUtilAutoLock lock = g_mutex_locker_new(&connect->lock);
 
     if (connect->connection) {
         if (virConnectIsAlive(connect->connection))

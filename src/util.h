@@ -6,6 +6,8 @@
 
 #define VIRT_DBUS_ERROR virtDBusErrorQuark()
 
+#define virtDBusUtilAutoLock g_autoptr(GMutexLocker) G_GNUC_UNUSED
+
 typedef enum {
     VIRT_DBUS_ERROR_LIBVIRT,
     VIRT_DBUS_N_ERRORS /*< skip >*/

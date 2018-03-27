@@ -68,7 +68,7 @@ class TestApps(PackageCase):
 </components>
             """.format(body)})
         self.enableRepo()
-        self.machine.execute("pkcon refresh force")
+        self.machine.execute("systemctl stop packagekit && pkcon refresh force")
         self.machine.execute("pkcon -y install appstream-data-test")
 
     def testBasic(self):

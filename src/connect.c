@@ -251,6 +251,34 @@ virtDBusDomainLookupByName(GVariant *inArgs,
     *outArgs = g_variant_new("(o)", path);
 }
 
+static void
+virtDBusDomainLookupByUUID(GVariant *inArgs,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath G_GNUC_UNUSED,
+                           gpointer userData,
+                           GVariant **outArgs,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *path = NULL;
+    const gchar *uuidstr;
+
+    g_variant_get(inArgs, "(s)", &uuidstr);
+
+    if (!virtDBusConnectOpen(connect, NULL))
+        return;
+
+    domain = virDomainLookupByUUIDString(connect->connection, uuidstr);
+    if (!domain)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Version", virtDBusConnectGetVersion, NULL },
     { NULL, NULL, NULL }
@@ -262,6 +290,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DefineXML", virtDBusConnectDefineXML },
     { "DomainLookupByID", virtDBusDomainLookupByID },
     { "DomainLookupByName", virtDBusDomainLookupByName },
+    { "DomainLookupByUUID", virtDBusDomainLookupByUUID },
     { NULL, NULL }
 };
 

@@ -57,6 +57,7 @@ class TestConnect(libvirttest.BaseTestClass):
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("DomainLookupByID", 'Id'),
         ("DomainLookupByName", 'Name'),
+        ("DomainLookupByUUID", 'UUID'),
     ])
     def test_connect_domain_lookup_by_id(self, lookup_method_name, lookup_item):
         """Parameterized test for all DomainLookupBy* API calls of Connect interface

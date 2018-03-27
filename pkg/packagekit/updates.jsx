@@ -430,7 +430,7 @@ class ApplyUpdates extends React.Component {
                 let pfields = packageId.split(";");
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
-                PK.dbus_client.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], {timeout: 500})
+                PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], {timeout: 500})
                     .done(reply => {
                         let percent = reply[0].Percentage.v;
                         let remain = -1;
@@ -544,10 +544,10 @@ class OsUpdates extends React.Component {
 
     componentDidMount() {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
-        PK.dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
+        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
             .done(result => {
                 let transactions = result[0];
-                let promises = transactions.map(transactionPath => PK.dbus_client.call(
+                let promises = transactions.map(transactionPath => PK.call(
                     transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"], {timeout: 5000}));
 
                 cockpit.all(promises)
@@ -569,28 +569,14 @@ class OsUpdates extends React.Component {
                         this.initialLoadOrRefresh();
                     });
 
-            });
-
-        PK.dbus_client.addEventListener("close", (event, ex) => {
-            console.log("close:", event, ex);
-            let err;
-            if (ex.problem == "not-found")
-                err = _("PackageKit is not installed")
-            else
-                err = _("PackageKit crashed");
-            if (this.state.state == "loading" || this.state.state == "refreshing") {
-                this.handleLoadError(err);
-            } else if (this.state.state == "applying") {
-                this.state.errorMessages.push(err);
-                this.setState({state: "updateError"});
-            } else {
-                console.log("PackageKit went away in state", this.state.state);
-            }
-        });
+            })
+        .fail(this.handleLoadError);
     }
 
     handleLoadError(ex) {
         console.error("loading available updates failed:", JSON.stringify(ex));
+        if (ex.problem === "not-found")
+            ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
         this.setState({state: "loadError"});
     }
@@ -667,7 +653,7 @@ class OsUpdates extends React.Component {
                 }
                 this.loadHistory();
             })
-            .catch(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+            .catch(this.handleLoadError);
     }
 
     loadHistory() {
@@ -707,7 +693,7 @@ class OsUpdates extends React.Component {
     initialLoadOrRefresh() {
         PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
-        PK.dbus_client.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
+        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                      [PK.Enum.ROLE_REFRESH_CACHE], {timeout: 5000})
             .done(seconds => {
                 this.setState({timeSinceRefresh: seconds});
@@ -719,13 +705,13 @@ class OsUpdates extends React.Component {
                     this.loadUpdates();
 
             })
-            .fail(ex => this.handleLoadError((ex.problem == "not-found") ? _("PackageKit is not installed") : ex));
+            .fail(this.handleLoadError);
     }
 
     watchUpdates(transactionPath) {
         this.setState({ state: "applying", applyTransaction: transactionPath, allowCancel: false });
 
-        PK.dbus_client.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
+        PK.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
             .done(reply => this.setState({ allowCancel: reply[0].v }));
 
         return PK.watchTransaction(transactionPath,
@@ -755,6 +741,10 @@ class OsUpdates extends React.Component {
             notify => {
                 if ("AllowCancel" in notify)
                     this.setState({allowCancel: notify.AllowCancel});
+            })
+            .fail(ex => {
+                this.state.errorMessages.push(ex);
+                this.setState({state: "updateError"});
             });
     }
 
@@ -767,7 +757,7 @@ class OsUpdates extends React.Component {
             .then(transactionPath => {
                 this.watchUpdates(transactionPath)
                 .then(() => {
-                    PK.dbus_client.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
+                    PK.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
                     .fail(ex => {
                         // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                         // show this if we don't have anything else
@@ -965,7 +955,7 @@ class OsUpdates extends React.Component {
                            timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
                            unregistered={this.state.unregistered}
                            allowCancel={this.state.allowCancel}
-                           onCancel={ () => PK.dbus_client.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
+                           onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

@@ -450,6 +450,26 @@ virtDBusDomainUndefine(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusDomainSuspend(GVariant *inArgs G_GNUC_UNUSED,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSuspend(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Name", virtDBusDomainGetName, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
@@ -472,6 +492,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Reset", virtDBusDomainReset },
     { "Create", virtDBusDomainCreate },
     { "Undefine", virtDBusDomainUndefine },
+    { "Suspend", virtDBusDomainSuspend },
     { 0 }
 };
 

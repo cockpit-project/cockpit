@@ -67,6 +67,21 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_suspend(self):
+        def domain_suspended(name, path):
+            assert name == 'test'
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('DomainSuspended', domain_suspended)
+
+        obj, domain = self.domain()
+        domain.Suspend()
+
+        state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert state == 'paused'
+
+        self.main_loop()
 
 if __name__ == '__main__':
     libvirttest.run()

@@ -38,12 +38,11 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Undefine(0)
 
     def test_shutdown(self):
-        def domain_stopped(name, path):
-            assert name == 'test'
+        def domain_stopped(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainStopped', domain_stopped)
+        self.connect.connect_to_signal('DomainEvent', domain_stopped, arg1='Stopped')
 
         obj, domain = self.domain()
         domain.Shutdown(0)
@@ -54,12 +53,11 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_undefine(self):
-        def domain_undefined(name, path):
-            assert name == 'test'
+        def domain_undefined(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainUndefined', domain_undefined)
+        self.connect.connect_to_signal('DomainEvent', domain_undefined, arg1='Undefined')
 
         _, domain = self.domain()
         domain.Shutdown(0)
@@ -68,12 +66,11 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_suspend(self):
-        def domain_suspended(name, path):
-            assert name == 'test'
+        def domain_suspended(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainSuspended', domain_suspended)
+        self.connect.connect_to_signal('DomainEvent', domain_suspended, arg1='Suspended')
 
         obj, domain = self.domain()
         domain.Suspend()
@@ -84,12 +81,11 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_resume(self):
-        def domain_resumed(name, path):
-            assert name == 'test'
+        def domain_resumed(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainResumed', domain_resumed)
+        self.connect.connect_to_signal('DomainEvent', domain_resumed, arg1='Resumed')
 
         obj, domain = self.domain()
         domain.Suspend()

@@ -44,59 +44,11 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="domain" type="o" direction="out"/>
     </method>
-    <signal name="DomainCrashed">
+    <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_CRASHED"/>
-      <arg name="reason" type="s"/>
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>
       <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainDefined">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_DEFINED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainPMSuspended">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_SUSPENDED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainResumed">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_RESUMED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainShutdown">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_SHUTDOWN"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainStarted">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_STARTED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainStopped">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_STOPPED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainSuspended">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_SUSPENDED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
-    </signal>
-    <signal name="DomainUndefined">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#VIR_DOMAIN_EVENT_UNDEFINED"/>
-      <arg name="reason" type="s"/>
-      <arg name="domain" type="o"/>
+      <arg name="event" type="s"/>
     </signal>
   </interface>
 </node>

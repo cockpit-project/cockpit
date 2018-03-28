@@ -7,15 +7,15 @@
 VIRT_DBUS_ENUM_DECL(virtDBusEventsDomainEvent)
 VIRT_DBUS_ENUM_IMPL(virtDBusEventsDomainEvent,
                     VIR_DOMAIN_EVENT_LAST,
-                    "DomainDefined",
-                    "DomainUndefined",
-                    "DomainStarted",
-                    "DomainSuspended",
-                    "DomainResumed",
-                    "DomainStopped",
-                    "DomainShutdown",
-                    "DomainPMSuspended",
-                    "DomainCrashed")
+                    "Defined",
+                    "Undefined",
+                    "Started",
+                    "Suspended",
+                    "Resumed",
+                    "Stopped",
+                    "Shutdown",
+                    "PMSuspended",
+                    "Crashed")
 
 static const gchar *
 virtDBusEventsDomainEventToString(gint event)
@@ -32,22 +32,20 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    const gchar *name;
     g_autofree gchar *path = NULL;
     const gchar *eventStr = virtDBusEventsDomainEventToString(event);
 
     if (!eventStr)
         return 0;
 
-    name = virDomainGetName(domain);
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
     g_dbus_connection_emit_signal(connect->bus,
                                   NULL,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
-                                  eventStr,
-                                  g_variant_new("(so)", name, path),
+                                  "DomainEvent",
+                                  g_variant_new("(os)", path, eventStr),
                                   NULL);
 
     return 0;

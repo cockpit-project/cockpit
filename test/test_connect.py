@@ -29,12 +29,11 @@ class TestConnect(libvirttest.BaseTestClass):
             domain.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
 
     def test_create(self):
-        def domain_started(name, path):
-            assert name == 'foo'
+        def domain_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainStarted', domain_started)
+        self.connect.connect_to_signal('DomainEvent', domain_started, arg1='Started')
 
         path = self.connect.CreateXML(self.minimal_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
@@ -42,12 +41,11 @@ class TestConnect(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_define(self):
-        def domain_defined(name, path):
-            assert name == 'foo'
+        def domain_defined(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainDefined', domain_defined)
+        self.connect.connect_to_signal('DomainEvent', domain_defined, arg1='Defined')
 
         path = self.connect.DefineXML(self.minimal_xml)
         assert isinstance(path, dbus.ObjectPath)

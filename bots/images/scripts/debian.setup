@@ -173,7 +173,7 @@ rm -f /var/cache/apt/*cache.bin
 # Final tweaks
 
 # Enable persistent journal
-mkdir /var/log/journal
+mkdir -p /var/log/journal
 
 # Allow root login with password
 sed -i 's/^[# ]*PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config

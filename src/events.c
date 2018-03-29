@@ -4,6 +4,26 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusEventsDomainEvent)
+VIRT_DBUS_ENUM_IMPL(virtDBusEventsDomainEvent,
+                    VIR_DOMAIN_EVENT_LAST,
+                    "DomainDefined",
+                    "DomainUndefined",
+                    "DomainStarted",
+                    "DomainSuspended",
+                    "DomainResumed",
+                    "DomainStopped",
+                    "DomainShutdown",
+                    "DomainPMSuspended",
+                    "DomainCrashed")
+
+static const gchar *
+virtDBusEventsDomainEventToString(gint event)
+{
+    const gchar *str = virtDBusEventsDomainEventTypeToString(event);
+    return str ? str : "unknown";
+}
+
 static gint
 virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
@@ -12,41 +32,12 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
-    const gchar *signal = NULL;
     const gchar *name;
     g_autofree gchar *path = NULL;
+    const gchar *eventStr = virtDBusEventsDomainEventToString(event);
 
-    switch (event) {
-    case VIR_DOMAIN_EVENT_DEFINED:
-        signal = "DomainDefined";
-        break;
-    case VIR_DOMAIN_EVENT_UNDEFINED:
-        signal = "DomainUndefined";
-        break;
-    case VIR_DOMAIN_EVENT_STARTED:
-        signal = "DomainStarted";
-        break;
-    case VIR_DOMAIN_EVENT_SUSPENDED:
-        signal = "DomainSuspended";
-        break;
-    case VIR_DOMAIN_EVENT_RESUMED:
-        signal = "DomainResumed";
-        break;
-    case VIR_DOMAIN_EVENT_STOPPED:
-        signal = "DomainStopped";
-        break;
-    case VIR_DOMAIN_EVENT_SHUTDOWN:
-        signal = "DomainShutdown";
-        break;
-    case VIR_DOMAIN_EVENT_PMSUSPENDED:
-        signal = "DomainPMSuspended";
-        break;
-    case VIR_DOMAIN_EVENT_CRASHED:
-        signal = "DomainCrashed";
-        break;
-    default:
+    if (!eventStr)
         return 0;
-    }
 
     name = virDomainGetName(domain);
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
@@ -55,7 +46,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   NULL,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
-                                  signal,
+                                  eventStr,
                                   g_variant_new("(so)", name, path),
                                   NULL);
 

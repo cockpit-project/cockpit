@@ -1,6 +1,7 @@
 #include "connect.h"
 #include "domain.h"
 #include "events.h"
+#include "network.h"
 #include "util.h"
 
 #include <glib/gprintf.h>
@@ -303,6 +304,7 @@ virtDBusConnectFree(virtDBusConnect *connect)
         virtDBusConnectClose(connect, TRUE);
 
     g_free(connect->domainPath);
+    g_free(connect->networkPath);
     g_free(connect);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virtDBusConnect, virtDBusConnectFree);
@@ -342,6 +344,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
                                 connect);
 
     virtDBusDomainRegister(connect, error);
+    if (error && *error)
+        return;
+
+    virtDBusNetworkRegister(connect, error);
     if (error && *error)
         return;
 

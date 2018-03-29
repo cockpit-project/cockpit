@@ -65,3 +65,18 @@ virtDBusUtilEnumToString(const gchar *const *types,
 #define VIRT_DBUS_ENUM_DECL(name) \
     const gchar *name ##TypeToString(gint type) G_GNUC_PURE; \
     gint name ##TypeFromString(const gchar *type) G_GNUC_PURE;
+
+virNetworkPtr
+virtDBusUtilVirNetworkFromBusPath(virConnectPtr connection,
+                                 const gchar *path,
+                                 const gchar *networkPath);
+
+gchar *
+virtDBusUtilBusPathForVirNetwork(virNetworkPtr network,
+                                 const gchar *networkPath);
+
+void
+virtDBusUtilVirNetworkListFree(virNetworkPtr *networks);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetwork, virNetworkFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetworkPtr, virtDBusUtilVirNetworkListFree);

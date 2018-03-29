@@ -151,3 +151,36 @@ virtDBusUtilEnumFromString(const gchar *const *types,
 
     return -1;
 }
+
+virNetworkPtr
+virtDBusUtilVirNetworkFromBusPath(virConnectPtr connection,
+                                  const gchar *path,
+                                  const gchar *networkPath)
+{
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(networkPath) + 1;
+
+    name = virtDBusUtilDecodeUUID(path+prefixLen);
+
+    return virNetworkLookupByUUIDString(connection, name);
+}
+
+gchar *
+virtDBusUtilBusPathForVirNetwork(virNetworkPtr network,
+                                 const gchar *networkPath)
+{
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+    g_autofree gchar *newUuid = NULL;
+    virNetworkGetUUIDString(network, uuid);
+    newUuid = virtDBusUtilEncodeUUID(uuid);
+    return g_strdup_printf("%s/%s", networkPath, newUuid);
+}
+
+void
+virtDBusUtilVirNetworkListFree(virNetworkPtr *networks)
+{
+    for (gint i = 0; networks[i] != NULL; i += 1)
+        virNetworkFree(networks[i]);
+
+    g_free(networks);
+}

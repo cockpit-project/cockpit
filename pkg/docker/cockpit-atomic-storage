@@ -1,5 +1,8 @@
 #! /usr/bin/python2
 
+# XXX - This was written without really taking overlay2 into account.
+#       It needs to be redone.
+
 # This utility fills in the gaps between the Atomic image storage API
 # and the Cockpit UI.  Specifically, it replicates some bits of
 # Storaged and hosts some code that is too experimental to even
@@ -173,9 +176,12 @@ def get_driver_info():
     vgroup = None
 
     def get_dev_lvol_and_vgroup(dev):
-        try:
-            return check_output([ "lvs", "--noheadings", "-o",  "lv_name,vg_name", dev ]).split()
-        except:
+        if len(dev.split("/")) >= 4:
+            try:
+                return check_output([ "lvs", "--noheadings", "-o",  "lv_name,vg_name", dev ]).split()
+            except:
+                return (None, None)
+        else:
             return (None, None)
 
     def get_rootfs_lvol_and_vgroup():
@@ -407,8 +413,14 @@ def get_info(got_uevent):
         #
         can_reset = (driver != "rootfs" or loopback)
 
+        # If the pool is in the rootfs but the rootfs is not in a
+        # volumegroup, there is nothing to manage.  An exception is
+        # again the "loopback" mode.
+        #
+        cur_can_manage = can_manage and (driver != "rootfs" or vgroup is not None or loopback)
+
         return { "loopback": loopback,
-                 "can_manage": can_manage,
+                 "can_manage": cur_can_manage,
                  "can_reset": can_reset,
                  "vgroup": vgroup,
                  "total": total,

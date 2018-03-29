@@ -86,6 +86,17 @@ class TestConnect(libvirttest.BaseTestClass):
             # ensure the path exists by calling Introspect on it
             network.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
 
+    @pytest.mark.parametrize("lookup_method_name,lookup_item", [
+        ("NetworkLookupByName", 'Name'),
+    ])
+    def test_connect_network_lookup_by_property(self, lookup_method_name, lookup_item):
+        """Parameterized test for all NetworkLookupBy* API calls of Connect interface
+        """
+        original_path, obj = self.test_network()
+        prop = obj.Get('org.libvirt.Network', lookup_item, dbus_interface=dbus.PROPERTIES_IFACE)
+        path = getattr(self.connect, lookup_method_name)(prop)
+        assert original_path == path
+
 
 if __name__ == '__main__':
     libvirttest.run()

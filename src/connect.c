@@ -320,6 +320,34 @@ virtDBusConnectListNetworks(GVariant *inArgs,
     *outArgs = g_variant_new_tuple(&gnetworks, 1);
 }
 
+static void
+virtDBusNetworkLookupByName(GVariant *inArgs,
+                            GUnixFDList *inFDs G_GNUC_UNUSED,
+                            const gchar *objectPath G_GNUC_UNUSED,
+                            gpointer userData,
+                            GVariant **outArgs,
+                            GUnixFDList **outFDs G_GNUC_UNUSED,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    g_autofree gchar *path = NULL;
+    const gchar *name;
+
+    g_variant_get(inArgs, "(s)", &name);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    network = virNetworkLookupByName(connect->connection, name);
+    if (!network)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirNetwork(network, connect->networkPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Version", virtDBusConnectGetVersion, NULL },
     { 0 }
@@ -333,6 +361,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByName", virtDBusDomainLookupByName },
     { "DomainLookupByUUID", virtDBusDomainLookupByUUID },
     { "ListNetworks", virtDBusConnectListNetworks },
+    { "NetworkLookupByName", virtDBusNetworkLookupByName },
     { 0 }
 };
 

@@ -487,7 +487,6 @@
                      $("#storage-overview")[0]);
 
         function update() {
-            console.log(model);
             if (model.error) {
                 if (model.error == "access-denied")
                     $('#storage-unsupported-message').text(

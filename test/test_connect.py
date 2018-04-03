@@ -74,6 +74,18 @@ class TestConnect(libvirttest.BaseTestClass):
         props = obj.GetAll('org.libvirt.Connect', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props[property_name], expected_type)
 
+    def test_list_networks(self):
+        networks = self.connect.ListNetworks(0)
+        assert isinstance(networks, dbus.Array)
+        assert len(networks) == 1
+
+        for path in networks:
+            assert isinstance(path, dbus.ObjectPath)
+            network = self.bus.get_object('org.libvirt', path)
+
+            # ensure the path exists by calling Introspect on it
+            network.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
+
 
 if __name__ == '__main__':
     libvirttest.run()

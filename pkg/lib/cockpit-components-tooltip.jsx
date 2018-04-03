@@ -33,6 +33,9 @@ require('./tooltip.css');
  *
  * Whenever the mouse hovers over the children of a Tooltip,
  * the text (or arbitrary element) in the "tip" property is shown.
+ *
+ * If "className" prop is given, its contents is added to the classes of the
+ * outermost element of the tooltip.
  */
 
 var Tooltip = React.createClass({
@@ -138,7 +141,7 @@ var Tooltip = React.createClass({
             classes += " in";
 
         return (
-            <div className="tooltip-ct-outer">
+            <div className={ "tooltip-ct-outer " + self.props.className || '' }>
                 <div className="tooltip-ct-inner"
                      onMouseover={this.onMouseover}
                      onMouseout={this.onMouseout}>

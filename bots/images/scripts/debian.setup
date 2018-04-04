@@ -10,7 +10,6 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default
 # We install all dependencies of the cockpit packages since we want
 # them to not spontaneously change from one test run to the next when
 # the distribution repository is updated.
-# docker.io \
 #
 COCKPIT_DEPS="\
 cryptsetup \
@@ -76,11 +75,6 @@ case "$RELEASE" in
 
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
-        ;;
-
-    zesty)
-        # HACK: https://launchpad.net/bugs/1693154
-        mkdir /etc/krb5.conf.d/
         ;;
 
     xenial)

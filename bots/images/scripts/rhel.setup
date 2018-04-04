@@ -140,7 +140,7 @@ cryptsetup \
 qemu-kvm \
 "
 
-if [ "$IMAGE" = "rhel-7" ] || [ "$IMAGE" = "rhel-7-4" ]; then
+if [ "$IMAGE" = "rhel-7" ] || [ "$IMAGE" = "rhel-7-4" ] || [ "$IMAGE" = "centos-7" ]; then
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
 else
     UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"

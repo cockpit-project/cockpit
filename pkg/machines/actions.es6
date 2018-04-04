@@ -183,32 +183,23 @@ export function updateOsInfoList(osInfoList) {
     };
 }
 
-export function vmCreateInProgress(vm) {
+export function addUiVm(vm) {
     return {
-        type: 'VM_CREATE_IN_PROGRESS',
+        type: 'ADD_UI_VM',
         vm,
     };
 }
 
-export function vmCreateCompleted(vm) {
+export function updateUiVm(vm) {
     return {
-        type: 'VM_CREATE_COMPLETED',
+        type: 'UPDATE_UI_VM',
         vm,
     };
 }
 
-
-
-export function vmInstallInProgress(vm) {
+export function deleteUiVm(vm) {
     return {
-        type: 'VM_INSTALL_IN_PROGRESS',
-        vm,
-    };
-}
-
-export function vmInstallCompleted(vm) {
-    return {
-        type: 'VM_INSTALL_COMPLETED',
+        type: 'DELETE_UI_VM',
         vm,
     };
 }

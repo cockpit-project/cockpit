@@ -878,7 +878,7 @@ class TestMachines(MachineCase):
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
     class VmDialog:
-        def __init__(self, env, name, is_filesystem_location=True, location='',
+        def __init__(self, test_obj, name, is_filesystem_location=True, location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=1, storage_size_unit='GiB',
                      os_vendor=None,
@@ -888,8 +888,9 @@ class TestMachines(MachineCase):
             if not is_filesystem_location and start_vm:
                 raise Exception("cannot start vm because url specified (no connection available in this test)")
 
-            self.browser = env.browser
-            self.machine = env.machine
+            self.browser = test_obj.browser
+            self.machine = test_obj.machine
+            self.assertTrue = test_obj.assertTrue
 
             self.name = name
             self.is_filesystem_location = is_filesystem_location
@@ -1018,6 +1019,10 @@ class TestMachines(MachineCase):
         def create(self):
             b = self.browser
             b.click(".modal-footer button:contains(Create)")
+            init_state = "creating VM installation" if self.start_vm else "creating VM"
+            second_state = "running" if self.start_vm else "shut off"
+
+            TestMachines.CreateVmRunner.assertVmStates(self, self.name, None, init_state, second_state)
             b.wait_not_present("#cockpit_modal_dialog")
             return self
 
@@ -1111,14 +1116,40 @@ class TestMachines(MachineCase):
             b.wait_val(selector, value)
 
     class CreateVmRunner:
-        def __init__(self, env):
-            self.browser = env.browser
-            self.machine = env.machine
+        def __init__(self, test_obj):
+            self.browser = test_obj.browser
+            self.machine = test_obj.machine
+            self.assertTrue = test_obj.assertTrue
 
             self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
 
         def destroy(self):
             self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+
+        @staticmethod
+        def assertVmStates(test_obj, name, before, wanted, after):
+            b = test_obj.browser
+            selector = "#vm-{0}-state".format(name)
+
+            def waitForWanted(accepted, wanted):
+                b.wait_present(selector)
+                try:
+                    text = b.text(selector)
+                except:  # if selector disappears
+                    return False
+
+                if (accepted and accepted in text) or text == 'in transition':
+                    return False
+                elif wanted in text:
+                    return True
+                else:
+                    raise Exception("invalid vm state")
+
+            with b.wait_timeout(4):
+                b.wait_present(selector)
+                b.wait(lambda: waitForWanted(before, wanted))
+
+            b.wait(lambda: waitForWanted(wanted, after))
 
         def tryCreate(self, dialog):
             b = self.browser
@@ -1131,15 +1162,14 @@ class TestMachines(MachineCase):
             # successfully created
             b.wait_present("#vm-{0}-row".format(name))
             b.wait_in_text("#vm-{0}-row".format(name), name)
-            b.wait_present("#vm-{0}-state".format(name))
-            b.wait_in_text("#vm-{0}-state".format(name), "running" if dialog.start_vm else "shut off")
 
-            # wait for vm with console tab to open
             if dialog.start_vm:
+                # wait for console tab to open
                 b.expect_load_frame("vm-{0}-novnc-frame-container".format(name))
             else:
-                b.wait_present(
-                    ".listing-ct-body div:contains(Please start the virtual machine to access its console.)")
+                # wait for Overview tab to open
+                b.wait_present("#vm-{0}-memory".format(name))
+                b.wait_present("#vm-{0}-vcpus".format(name))
 
             # check memory
             b.wait_present("#vm-{0}-usage".format(name))
@@ -1179,18 +1209,14 @@ class TestMachines(MachineCase):
             # should fail because of memory error
             b.click("#vm-{0}-install".format(name))
             # install script redefines vm
-            b.wait_not_present("#app .listing-ct tbody:nth-of-type(1) th")
+            self.assertVmStates(self, name, "shut off", "creating VM installation", "shut off")
             # install
             b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
             b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", name)
             b.wait_present("#app .listing-ct tbody:nth-of-type(1) tr td span span.pficon-warning-triangle-o")
-            # depends on timeout
-            if not b.is_present(".listing-ct-panel .listing-ct-head"):
-                # automatic selection of console timed out and listing is closed
-                b.click("#app .listing-ct tbody:nth-of-type(1) th")
 
             b.wait_present("#vm-{0}-install".format(name))
-            b.click("#app .listing-ct tbody:nth-of-type(1) .listing-ct-panel .listing-ct-head a:contains(Overview)")
+            # Overview should be opened
             b.wait_present("#vm-{0}-last-message".format(name))
             b.wait_in_text("#vm-{0}-last-message".format(name), "INSTALL VM action failed")
             b.click("#app .listing-ct tbody:nth-of-type(1) a:contains(show more)")

@@ -28,6 +28,7 @@ import createVmScript from 'raw!./scripts/create_machine.sh';
 import installVmScript from 'raw!./scripts/install_machine.sh';
 import getOSListScript from 'raw!./scripts/get_os_list.sh';
 import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
+import store from './store.es6';
 
 import {
     updateOrAddVm,
@@ -40,10 +41,6 @@ import {
     vmActionFailed,
     getOsInfoList,
     updateOsInfoList,
-    vmCreateInProgress,
-    vmCreateCompleted,
-    vmInstallInProgress,
-    vmInstallCompleted,
     checkLibvirtStatus,
     updateLibvirtState,
 } from './actions.es6';
@@ -64,15 +61,21 @@ import {
     prepareDisplaysParam,
 } from './libvirtUtils.es6';
 
+import {
+    setVmCreateInProgress,
+    setVmInstallInProgress,
+    finishVmCreateInProgress,
+    finishVmInstallInProgress,
+    removeVmCreateInProgress,
+    clearVmUiState,
+} from './components/create-vm-dialog/uiState.es6';
+
+
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
 
 const METADATA_NAMESPACE="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
-
-const CREATE_IN_PROGRESS_UI_TIMEOUT = 10000;
-const INSTALL_IN_PROGRESS_UI_TIMEOUT = 4000;
-const VM_RECOVER_IN_UI_TIMEOUT = 3000;
 
 /**
  * Parse non-XML stdout of virsh.
@@ -147,7 +150,7 @@ LIBVIRT_PROVIDER = {
     canDelete: (vmState, vmId, providerState) => true,
     isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
     canRun: (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off',
-    canInstall: (vmState, hasInstallPhase, installInProgress) => vmState != 'running' && hasInstallPhase && !installInProgress,
+    canInstall: (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase,
     canConsole: (vmState) => vmState == 'running',
     canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
 
@@ -283,34 +286,14 @@ LIBVIRT_PROVIDER = {
         });
     },
 
-    CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm}) {
+    CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm }) {
         logDebug(`${this.name}.CREATE_VM(${vmName}):`);
         return dispatch => {
-            // presume that vm gets created, because we can get response from virsh before createVmScript finishes
-            dispatch(vmCreateInProgress({
-                name: vmName,
-                openConsoleTab: true,
-            }));
+            // shows dummy vm  until we get vm from virsh (cleans up inProgress)
+            setVmCreateInProgress(dispatch, vmName, { openConsoleTab: startVm });
 
             if (startVm) {
-                dispatch(vmInstallInProgress({
-                    name: vmName,
-                }));
-            }
-
-            // wait few secs for ui to get the new vm and to see that this ui created the vm
-            window.setTimeout(() => {
-                dispatch(vmCreateCompleted({
-                    name: vmName,
-                }));
-            }, CREATE_IN_PROGRESS_UI_TIMEOUT);
-
-            if (startVm) {
-                window.setTimeout(() => {
-                    dispatch(vmInstallCompleted({
-                        name: vmName,
-                    }));
-                }, INSTALL_IN_PROGRESS_UI_TIMEOUT);
+                setVmInstallInProgress(dispatch, vmName);
             }
 
             return cockpit.script(createVmScript, [
@@ -320,22 +303,26 @@ LIBVIRT_PROVIDER = {
                 memorySize,
                 storageSize,
                 startVm,
-            ], { err: "message", environ: ['LC_ALL=C'] });
+            ], { err: "message", environ: ['LC_ALL=C'] })
+                .done(() => {
+                    finishVmCreateInProgress(dispatch, vmName);
+                    if (startVm) {
+                        finishVmInstallInProgress(dispatch, vmName);
+                    }
+                })
+                .fail((exception, data) => {
+                    clearVmUiState(dispatch, vmName); // inProgress cleanup
+                    console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+                });
         };
     },
 
     INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName }) {
         logDebug(`${this.name}.INSTALL_VM(${name}):`);
         return dispatch => {
-            dispatch(vmInstallInProgress({
-                name,
-            }));
-
-            window.setTimeout(() => {
-                dispatch(vmInstallCompleted({
-                    name,
-                }));
-            }, INSTALL_IN_PROGRESS_UI_TIMEOUT);
+            // shows dummy vm until we get vm from virsh (cleans up inProgress)
+            // vm should be returned even if script fails
+            setVmInstallInProgress(dispatch, name);
 
             return cockpit.script(installVmScript, [
                 name,
@@ -346,13 +333,17 @@ LIBVIRT_PROVIDER = {
                 prepareDisksParam(disks),
                 prepareDisplaysParam(displays),
             ], { err: "message", environ: ['LC_ALL=C'] })
-                .fail(buildScriptTimeoutFailHandler({
+                .done(() => finishVmInstallInProgress(dispatch, name))
+                .fail(({ message, exception }) => {
+                    finishVmInstallInProgress(dispatch, name, { openConsoleTab: false });
+                    const handler = buildScriptTimeoutFailHandler({
                         dispatch,
                         name,
                         connectionName,
                         message: _("INSTALL VM action failed"),
-                    },
-                    VM_RECOVER_IN_UI_TIMEOUT));
+                    }, VMS_CONFIG.WaitForRetryInstallVm);
+                    handler({ message, exception });
+                });
         };
     },
 
@@ -576,6 +567,8 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         osVariant,
     };
 
+    const ui = resolveUiState(dispatch, name);
+
     dispatch(updateOrAddVm({
         connectionName, name, id,
         osType,
@@ -588,8 +581,33 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         displays,
         interfaces,
         metadata,
+        ui,
     }));
 }
+
+function resolveUiState(dispatch, name) {
+    const result = {
+        // used just the first time vm is shown
+        initiallyExpanded: false,
+        initiallyOpenedConsoleTab: false,
+    };
+
+    const uiState = store.getState().ui.vms[name];
+
+    if (uiState) {
+        result.initiallyExpanded = uiState.expanded;
+        result.initiallyOpenedConsoleTab = uiState.openConsoleTab;
+
+        if (uiState.installInProgress) {
+            removeVmCreateInProgress(dispatch, name);
+        } else {
+            clearVmUiState(dispatch, name);
+        }
+    }
+
+    return result;
+}
+
 
 function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);

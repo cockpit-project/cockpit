@@ -460,9 +460,7 @@ CMD ["/bin/sh"]
 
         # Restart docker, docker.socket needs special handling
         b.logout()
-        if m.image in [ "debian-x8" ]:
-            m.execute("systemctl stop docker.socket")
-        m.execute("systemctl restart docker || systemctl restart docker-latest")
+        m.execute("(systemctl kill --signal=9 docker-containerd && systemctl restart docker-containerd ) || systemctl restart docker || systemctl restart docker-latest")
         self.login_and_go("/docker")
 
         # show all containers to interact with stopped ones

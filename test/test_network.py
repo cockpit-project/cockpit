@@ -15,6 +15,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(props['Autostart'], dbus.Boolean)
         assert isinstance(props['BridgeName'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['UUID'], dbus.String)
 
 
 if __name__ == '__main__':

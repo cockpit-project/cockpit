@@ -87,10 +87,31 @@ virtDBusNetworkGetName(const gchar *objectPath,
     *value = g_variant_new("s", name);
 }
 
+static void
+virtDBusNetworkGetUUID(const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **value,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    if (virNetworkGetUUIDString(network, uuid) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", uuid);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Autostart", virtDBusNetworkGetAutostart, NULL },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
     { "Name", virtDBusNetworkGetName, NULL },
+    { "UUID", virtDBusNetworkGetUUID, NULL },
     { 0 }
 };
 

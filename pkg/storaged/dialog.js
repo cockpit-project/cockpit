@@ -23,6 +23,7 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
+    var React = require("react");
     var mustache = require("mustache");
     var utils = require("./utils.js");
     require("patterns");
@@ -67,7 +68,7 @@
 
         function empty(obj) { return !obj || obj.length === 0; }
 
-        def.HasBody = !empty(def.Fields) || !empty(def.Alerts) || !empty(def.Blocking);
+        def.HasBody = def.Body || def.ReactBody || !empty(def.Fields) || !empty(def.Alerts) || !empty(def.Blocking);
 
         function toggle_arrow(event) {
             /* jshint validthis:true */
@@ -96,6 +97,9 @@
         var $dialog = $(mustache.render(storage_dialog_tmpl, def));
         $('body').append($dialog);
         cur_dialog = $dialog;
+
+        if (def.ReactBody)
+            React.render(def.ReactBody, $dialog.find('.react-body')[0]);
 
         $dialog.on('hidden.bs.modal', function () {
             $dialog.remove();

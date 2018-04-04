@@ -40,12 +40,12 @@ virtDBusConnectClose(virtDBusConnect *connect,
 {
 
     for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
-        if (connect->callback_ids[i] >= 0) {
+        if (connect->domainCallbackIds[i] >= 0) {
             if (deregisterEvents) {
                 virConnectDomainEventDeregisterAny(connect->connection,
-                                                   connect->callback_ids[i]);
+                                                   connect->domainCallbackIds[i]);
             }
-            connect->callback_ids[i] = -1;
+            connect->domainCallbackIds[i] = -1;
         }
     }
 
@@ -429,7 +429,7 @@ virtDBusConnectNew(virtDBusConnect **connectp,
     g_mutex_init(&connect->lock);
 
     for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
-        connect->callback_ids[i] = -1;
+        connect->domainCallbackIds[i] = -1;
 
     connect->bus = bus;
     connect->uri = uri;

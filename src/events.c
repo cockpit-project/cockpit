@@ -175,14 +175,14 @@ virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
                                   gint id,
                                   virConnectDomainEventGenericCallback callback)
 {
-    g_assert(connect->callback_ids[id] == -1);
+    g_assert(connect->domainCallbackIds[id] == -1);
 
-    connect->callback_ids[id] = virConnectDomainEventRegisterAny(connect->connection,
-                                                                 NULL,
-                                                                 id,
-                                                                 VIR_DOMAIN_EVENT_CALLBACK(callback),
-                                                                 connect,
-                                                                 NULL);
+    connect->domainCallbackIds[id] = virConnectDomainEventRegisterAny(connect->connection,
+                                                                      NULL,
+                                                                      id,
+                                                                      VIR_DOMAIN_EVENT_CALLBACK(callback),
+                                                                      connect,
+                                                                      NULL);
 }
 
 void

@@ -17,7 +17,7 @@ struct virtDBusConnect {
     virConnectPtr connection;
     GMutex lock;
 
-    gint callback_ids[VIR_DOMAIN_EVENT_ID_LAST];
+    gint domainCallbackIds[VIR_DOMAIN_EVENT_ID_LAST];
 };
 typedef struct virtDBusConnect virtDBusConnect;
 

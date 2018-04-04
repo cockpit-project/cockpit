@@ -466,9 +466,9 @@ class TestMachines(MachineCase):
         # Test domstats
         self.wait_for_disk_stats("subVmTest1", "hda")
         if b.is_present("#vm-subVmTest1-disks-hda-used"):
-            b.wait_in_text("#vm-subVmTest1-disks-hda-used", "0.00")
+            b.wait_in_text("#vm-subVmTest1-disks-hda-used", "0.0")
             b.wait_present("#vm-subVmTest1-disks-hdb-used")
-            b.wait_in_text("#vm-subVmTest1-disks-hdb-used", "0.00")
+            b.wait_in_text("#vm-subVmTest1-disks-hdb-used", "0.0")
 
             b.wait_in_text("#vm-subVmTest1-disks-hdb-capacity", "1")
 

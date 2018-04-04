@@ -17,6 +17,20 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['UUID'], dbus.String)
 
+    def test_network_create(self):
+        def domain_started(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('NetworkEvent', domain_started, arg1='Started')
+
+        _,test_network = self.test_network()
+        interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
+        interface_obj.Destroy()
+        interface_obj.Create()
+
+        self.main_loop()
+
     def test_network_destroy(self):
         def network_stopped(path, _event):
             assert isinstance(path, dbus.ObjectPath)

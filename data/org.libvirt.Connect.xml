@@ -56,6 +56,12 @@
       <arg name="name" type="s" direction="in"/>
       <arg name="network" type="o" direction="out"/>
     </method>
+    <method name="NetworkLookupByUUID">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkLookupByUUIDString"/>
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="network" type="o" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

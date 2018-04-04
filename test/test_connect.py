@@ -88,6 +88,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("NetworkLookupByName", 'Name'),
+        ("NetworkLookupByUUID", 'UUID'),
     ])
     def test_connect_network_lookup_by_property(self, lookup_method_name, lookup_item):
         """Parameterized test for all NetworkLookupBy* API calls of Connect interface

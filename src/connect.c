@@ -49,6 +49,16 @@ virtDBusConnectClose(virtDBusConnect *connect,
         }
     }
 
+    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i += 1) {
+        if (connect->networkCallbackIds[i] >= 0) {
+            if (deregisterEvents) {
+                virConnectNetworkEventDeregisterAny(connect->connection,
+                                                    connect->networkCallbackIds[i]);
+            }
+            connect->networkCallbackIds[i] = -1;
+        }
+    }
+
     virConnectClose(connect->connection);
     connect->connection = NULL;
 }
@@ -430,6 +440,9 @@ virtDBusConnectNew(virtDBusConnect **connectp,
 
     for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
         connect->domainCallbackIds[i] = -1;
+
+    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i += 1)
+        connect->networkCallbackIds[i] = -1;
 
     connect->bus = bus;
     connect->uri = uri;

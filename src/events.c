@@ -170,6 +170,41 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
     return 0;
 }
 
+VIRT_DBUS_ENUM_DECL(virtDBusEventsNetworkEvent)
+VIRT_DBUS_ENUM_IMPL(virtDBusEventsNetworkEvent,
+                    VIR_NETWORK_EVENT_LAST,
+                    "Defined",
+                    "Undefined",
+                    "Started",
+                    "Stopped")
+
+static gint
+virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+                               virNetworkPtr network,
+                               gint event,
+                               gint detail G_GNUC_UNUSED,
+                               gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+    const gchar *eventStr = virtDBusEventsNetworkEventTypeToString(event);
+
+    if (!eventStr)
+        return 0;
+
+    path = virtDBusUtilBusPathForVirNetwork(network, connect->networkPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  connect->connectPath,
+                                  VIRT_DBUS_CONNECT_INTERFACE,
+                                  "NetworkEvent",
+                                  g_variant_new("(os)", path, eventStr),
+                                  NULL);
+
+    return 0;
+}
+
 static void
 virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
                                   gint id,
@@ -183,6 +218,21 @@ virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
                                                                       VIR_DOMAIN_EVENT_CALLBACK(callback),
                                                                       connect,
                                                                       NULL);
+}
+
+static void
+virtDBusEventsRegisterNetworkEvent(virtDBusConnect *connect,
+                                   gint id,
+                                   virConnectNetworkEventGenericCallback callback)
+{
+    g_assert(connect->networkCallbackIds[id] == -1);
+
+    connect->networkCallbackIds[id] = virConnectNetworkEventRegisterAny(connect->connection,
+                                                                        NULL,
+                                                                        id,
+                                                                        VIR_NETWORK_EVENT_CALLBACK(callback),
+                                                                        connect,
+                                                                        NULL);
 }
 
 void
@@ -208,4 +258,7 @@ virtDBusEventsRegister(virtDBusConnect *connect)
                                       VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
 
+    virtDBusEventsRegisterNetworkEvent(connect,
+                                       VIR_NETWORK_EVENT_ID_LIFECYCLE,
+                                       VIR_NETWORK_EVENT_CALLBACK(virtDBusEventsNetworkLifecycle));
 }

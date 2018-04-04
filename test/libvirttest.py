@@ -70,3 +70,15 @@ class BaseTestClass():
         path = self.connect.ListDomains(0)[0]
         obj = self.bus.get_object('org.libvirt', path)
         return obj, dbus.Interface(obj, 'org.libvirt.Domain')
+
+    def test_network(self):
+        """Fetch information for the test network from test driver
+
+        Returns:
+            (dbus.proxies.ProxyObject, dbus.proxies.ProxyObject):
+            Test Network Object, Local proxy for the test Network Object.
+
+        """
+        path = self.connect.ListNetworks(0)[0]
+        obj = self.bus.get_object('org.libvirt', path)
+        return path, obj

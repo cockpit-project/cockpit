@@ -3,7 +3,50 @@
 
 #include <libvirt/libvirt.h>
 
+static virNetworkPtr
+virtDBusNetworkGetVirNetwork(virtDBusConnect *connect,
+                             const gchar *objectPath,
+                             GError **error)
+{
+    virNetworkPtr network;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    network = virtDBusUtilVirNetworkFromBusPath(connect->connection,
+                                                objectPath,
+                                                connect->networkPath);
+    if (!network) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return network;
+}
+
+static void
+virtDBusNetworkGetName(const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **value,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    const gchar *name;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    name = virNetworkGetName(network);
+    if (!name)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", name);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
+    { "Name", virtDBusNetworkGetName, NULL },
     { 0 }
 };
 

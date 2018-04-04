@@ -4,7 +4,8 @@ test_helpers = \
 
 test_programs = \
 	test_connect.py \
-	test_domain.py
+	test_domain.py \
+	test_network.py
 
 EXTRA_DIST = \
 	$(test_helpers) \

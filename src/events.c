@@ -171,9 +171,9 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static void
-virtDBusEventsRegisterEvent(virtDBusConnect *connect,
-                            gint id,
-                            virConnectDomainEventGenericCallback callback)
+virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
+                                  gint id,
+                                  virConnectDomainEventGenericCallback callback)
 {
     g_assert(connect->callback_ids[id] == -1);
 
@@ -188,24 +188,24 @@ virtDBusEventsRegisterEvent(virtDBusConnect *connect,
 void
 virtDBusEventsRegister(virtDBusConnect *connect)
 {
-    virtDBusEventsRegisterEvent(connect,
-                                VIR_DOMAIN_EVENT_ID_LIFECYCLE,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_LIFECYCLE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));
 
-    virtDBusEventsRegisterEvent(connect,
-                                VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceAdded));
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceAdded));
 
-    virtDBusEventsRegisterEvent(connect,
-                                VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceRemoved));
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_DEVICE_REMOVED,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDeviceRemoved));
 
-    virtDBusEventsRegisterEvent(connect,
-                                VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
 
-    virtDBusEventsRegisterEvent(connect,
-                                VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
-                                VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
 
 }

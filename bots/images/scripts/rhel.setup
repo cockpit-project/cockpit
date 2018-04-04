@@ -142,12 +142,12 @@ qemu-kvm \
 
 if [ "$IMAGE" = "rhel-7" ] || [ "$IMAGE" = "rhel-7-4" ]; then
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
-    TEST_PACKAGES="$TEST_PACKAGES systemtap-runtime-virtguest"
 else
     UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
 fi
 if [ "$IMAGE" = "rhel-7-5" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
+    TEST_PACKAGES="${TEST_PACKAGES/systemtap-runtime-virtguest /}"
 fi
 if [ "$IMAGE" = "rhel-8" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"

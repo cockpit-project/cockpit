@@ -12,6 +12,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         """
         _, obj = self.test_network()
         props = obj.GetAll('org.libvirt.Network', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props['BridgeName'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
 
 

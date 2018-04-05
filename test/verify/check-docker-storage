@@ -23,63 +23,26 @@ import testvm
 
 from testlib import *
 
-# The Docker Storage Setup behaves differently depending on
-# whether the "atomic" utility is recent enough, on whether or not
-# the OS disk is part of a volume group, and on the storage driver
-# that Docker uses by default.
-#
-# These predicates here encode what we expect right now.  If
-# conditions on the distributions change, they need to be updated, but
-# the rest of the test should be able to stay the same.
+non_manageable_images = [
+    # No "atomic" utility
+    "debian-stable",
+    "debian-testing",
+    "ubuntu-1604",
+    "ubuntu-stable"
+]
 
-# Returns whether Cockpit can add disks and reset the pool.
-#
+rootfs_not_in_volume_group_images = [
+    "centos-7",
+    "rhel-7",
+]
+
+devicemapper_is_default_images = [
+    "rhel-atomic"
+]
+
 def can_manage(machine):
-    return machine.image in [ "fedora-26",
-                              "fedora-27",
-                              "fedora-28",
-                              "fedora-testing",
-                              "rhel-7-5",
-                              "rhel-8",
-                              "rhel-atomic",
-                              "fedora-atomic",
-                              "continuous-atomic" ]
-
-# Returns whether Cockpit offers to reset the pool
-#
-def can_reset(machine):
-    # Adding a disk will grow the xfs root filesystem to cover it, and
-    # there is no way back.
-    if machine.image in [ "fedora-atomic", "rhel-7-5" ]:
-        return False
-
-    return True
-
-# Returns whether Docker uses devmapper with loopback by default.
-# Cockpit will force the user away from this.
-#
-def initially_loopbacked(machine):
-    # The Atomics leave space in the root volume group for a
-    # proper thin pool.
-    if machine.atomic_image:
-        return False
-
-    # use the overlayfs or aufs driver by default on some distros
-    if machine.image in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable",
-                          "fedora-26", "fedora-testing", "fedora-27", "fedora-28", "fedora-atomic",
-                          "centos-7", "rhel-7", "rhel-7-5", "rhel-8" ]:
-        return False
-
-    # The rest don't have space in the root volume group, or don't
-    # have a root volume group at all.
-    return True
-
-# Returns whether the pool is initially in a volume group or not.  If
-# not, Cockpit will create a dedicated volume group when the first
-# device is added.
-#
-def initially_without_vgroup(machine):
-    return machine.image in [ "rhel-7", "centos-7" ]
+    return (machine.image not in non_manageable_images and
+            machine.image not in rootfs_not_in_volume_group_images)
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built
@@ -96,7 +59,7 @@ def get_build_image(test_os):
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 @skipPackage("cockpit-docker")
-class TestDockerStorage(MachineCase):
+class TestDockerStorageDirect(MachineCase):
 
     def testOverview(self):
         b = self.browser
@@ -113,7 +76,7 @@ class TestDockerStorage(MachineCase):
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 @skipPackage("cockpit-docker")
-class TestDockerStorageMapper(MachineCase):
+class TestDockerStorage(MachineCase):
     provision = { "machine1" : { "address": "10.111.113.1/20" } }
 
     def setUp(self):
@@ -135,35 +98,13 @@ class TestDockerStorageMapper(MachineCase):
         self.allow_journal_messages('.*host key for server is not known.*')
         MachineCase.setUp(self)
 
-    def testDevmapper(self):
+    def login(self):
         m = self.machines["machine1"]
         if "login" in self.machines:
             login_machine = self.machines["login"]
         else:
             login_machine = m
         b = self.browser
-
-        if can_manage(m):
-            # Allow docker-storage-setup to be happy with our very small disks
-            m.execute("echo 'MIN_DATA_SIZE=80M\n' >> /etc/sysconfig/docker-storage-setup")
-
-        def check_loopback(val):
-            # We pass the output through logger to diagnose flakey issues
-            if val:
-                m.execute("losetup -l -O BACK-FILE | logger -s 2>&1 | grep -q /var/lib/docker")
-            else:
-                m.execute("! (losetup -l -O BACK-FILE | logger -s 2>&1 | grep -q /var/lib/docker)")
-
-        def check_atomic_vgroup(val):
-            if val:
-                m.execute("vgs atomic-storage")
-            else:
-                m.execute("! vgs atomic-storage")
-
-        m.execute("systemctl start docker")
-
-        check_loopback(initially_loopbacked(m))
-        check_atomic_vgroup(False)
 
         if login_machine == m:
             self.login_and_go("/docker#/storage")
@@ -201,6 +142,19 @@ class TestDockerStorageMapper(MachineCase):
             b.enter_page("/docker", host="10.111.113.1")
             b.wait_visible("#storage")
 
+    def total_size(self):
+        sel = "#storage-overview .used-total tr:nth-child(2) td:nth-child(2)"
+        self.browser.wait_present(sel)
+        return self.browser.text(sel)
+
+    def testBasic(self):
+        m = self.machines["machine1"]
+        b = self.browser
+
+        m.execute("systemctl start docker")
+
+        self.login()
+
         if not can_manage(m):
             b.wait_visible("#storage-unsupported")
             return
@@ -210,6 +164,13 @@ class TestDockerStorageMapper(MachineCase):
 
         # Add a disk
 
+        # HACK - The total size should increase by 100 MiB, but it
+        # doesn't always because docker-storage-setup needs to be
+        # specifically told to grow the root filesystem.  So we just
+        # print some numbers for now to see what it's happening.
+
+        print("Initially", self.total_size())
+
         m.add_disk("100M", serial="DISK1")
         b.wait_visible("#storage-drives")
         b.wait_in_text("#storage-drives", "DISK1")
@@ -218,15 +179,11 @@ class TestDockerStorageMapper(MachineCase):
         b.click("#storage-drives .btn-primary")
         b.wait_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        if initially_loopbacked(m) or initially_without_vgroup(m):
-            b.wait_in_text(".modal-dialog:contains(Add Additional Storage) .alert-message",
-                           "The storage pool will be reset")
         b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK1")
 
-        check_loopback(False)
-        check_atomic_vgroup(initially_without_vgroup(m))
+        print("1 extra disk", self.total_size())
 
         # Add a second disk
 
@@ -237,17 +194,55 @@ class TestDockerStorageMapper(MachineCase):
         b.wait_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
         b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        b.wait_not_present(".modal-dialog:contains(Add Additional Storage) .alert-message")
         b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_not_in_text("#storage-drives", "DISK2")
 
-        # adding disks should keep images, unless the above created the VG and thus reset the pool
-        if not (initially_loopbacked(m) or initially_without_vgroup(m)):
-            self.assertNotEqual(m.execute("docker images -q"), "")
+        print("2 extra disks", self.total_size())
 
-        if not can_reset(m):
-            return
+        # should still have images
+        self.assertNotEqual(m.execute("docker images -q"), "")
+
+    @skipImage("Can't manage docker storage here", *non_manageable_images)
+    def testDevicemapper(self):
+        m = self.machines["machine1"]
+        b = self.browser
+
+        # Allow docker-storage-setup to be happy with our very small disks
+        m.execute("echo 'MIN_DATA_SIZE=100M\n' >> /etc/sysconfig/docker-storage-setup")
+
+        # Switch to devicemapper driver in a dedicated volume group.
+        # We use a dedicated volume group so that this also works for
+        # images that don't have a volume group already.
+
+        m.add_disk("200M", serial="DISK1")
+        wait(lambda: m.execute("test -e /dev/sda && echo exists"))
+
+        m.execute("systemctl stop docker")
+        m.execute("atomic storage reset")
+        m.execute("atomic storage modify --driver devicemapper --vgroup docker --add-device /dev/sda")
+        m.execute("systemctl start docker")
+        m.execute("docker info | grep 'Storage Driver: devicemapper'")
+        print(m.execute("docker info"))
+
+        self.login()
+
+        print("1 disk", self.total_size())
+
+        # Add a second disk
+
+        m.add_disk("100M", serial="DISK2")
+        b.wait_in_text("#storage-drives", "DISK2")
+        b.click("#storage-drives tr:contains(DISK2)")
+        b.click("#storage-drives .btn-primary")
+        b.wait_present(".modal-dialog:contains(Add Additional Storage)")
+        b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
+        b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
+        b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
+        b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
+        b.wait_not_in_text("#storage-drives", "DISK2")
+
+        print("2 disks", self.total_size())
 
         # Reset
 
@@ -256,32 +251,13 @@ class TestDockerStorageMapper(MachineCase):
         b.click(".modal-dialog:contains(Reset Storage Pool) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Reset Storage Pool)")
 
-        check_loopback(initially_loopbacked(m))
-        check_atomic_vgroup(False)
-
-        # resetting pool should wipe all images
-        self.assertEqual(m.execute("docker images -q"), "")
-
         b.wait_in_text("#storage-drives", "DISK1")
         b.wait_in_text("#storage-drives", "DISK2")
 
-        # Add both disks at the same time
-
-        b.click("#storage-drives tr:contains(DISK1)")
-        b.click("#storage-drives tr:contains(DISK2)")
-        b.click("#storage-drives .btn-primary")
-        b.wait_present(".modal-dialog:contains(Add Additional Storage)")
-        b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
-        b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
-        if initially_loopbacked(m) or initially_without_vgroup(m):
-            b.wait_in_text(".modal-dialog:contains(Add Additional Storage) .alert-message",
-                           "The storage pool will be reset")
-        b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
-        b.wait_not_in_text("#storage-drives", "DISK1")
-        b.wait_not_in_text("#storage-drives", "DISK2")
-
-        check_loopback(False)
-        check_atomic_vgroup(initially_without_vgroup(m))
+        if m.image in devicemapper_is_default_images:
+            m.execute("docker info | grep 'Storage Driver: devicemapper'")
+        else:
+            m.execute("docker info | grep 'Storage Driver: overlay2'")
 
 if __name__ == '__main__':
     test_main()

@@ -32,7 +32,6 @@ done
 
 docker_pull kubevirt/iscsi-demo-target-tgtd:latest
 docker_pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
-docker_pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
 
 # Reuse test VM and its disk from kubevirt project since its being developed along the Kubevirt itself
 TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`

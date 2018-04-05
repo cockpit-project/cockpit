@@ -179,13 +179,13 @@ virtDBusConnectDomainCreateXML(GVariant *inArgs,
 }
 
 static void
-virtDBusConnectDefineXML(GVariant *inArgs,
-                         GUnixFDList *inFDs G_GNUC_UNUSED,
-                         const gchar *objectPath G_GNUC_UNUSED,
-                         gpointer userData,
-                         GVariant **outArgs,
-                         GUnixFDList **outFDs G_GNUC_UNUSED,
-                         GError **error)
+virtDBusConnectDomainDefineXML(GVariant *inArgs,
+                               GUnixFDList *inFDs G_GNUC_UNUSED,
+                               const gchar *objectPath G_GNUC_UNUSED,
+                               gpointer userData,
+                               GVariant **outArgs,
+                               GUnixFDList **outFDs G_GNUC_UNUSED,
+                               GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -394,7 +394,7 @@ static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "ListDomains", virtDBusConnectListDomains },
     { "DomainCreateXML", virtDBusConnectDomainCreateXML },
-    { "DefineXML", virtDBusConnectDefineXML },
+    { "DomainDefineXML", virtDBusConnectDomainDefineXML },
     { "DomainLookupByID", virtDBusDomainLookupByID },
     { "DomainLookupByName", virtDBusDomainLookupByName },
     { "DomainLookupByUUID", virtDBusDomainLookupByUUID },

@@ -81,12 +81,14 @@ else
     comp="not"
 fi
 
+set +x
 VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if $comp x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
     echo "Failed to parse latest release:" >&2
     echo "$RELEASES_JSON" >&2
     echo "------------------------------------" >&2
     exit 1
 }
+set -x
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
@@ -97,8 +99,6 @@ docker run --rm --entrypoint tar "openshift/origin:$VERSION" -C /usr/bin -c open
 cat > /openshift-prep <<EOF
 #!/bin/sh -ex
 /usr/bin/hostnamectl set-hostname f1.cockpit.lan
-# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1401561
-/usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
 /usr/bin/systemctl enable rpcbind
 /usr/bin/systemctl start rpcbind
 /usr/bin/systemctl start nfs-server

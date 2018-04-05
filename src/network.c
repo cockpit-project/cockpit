@@ -127,6 +127,26 @@ virtDBusNetworkDestroy(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusNetworkUndefine(GVariant *inArgs G_GNUC_UNUSED,
+                        GUnixFDList *inFDs G_GNUC_UNUSED,
+                        const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **outArgs G_GNUC_UNUSED,
+                        GUnixFDList **outFDs G_GNUC_UNUSED,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    if (virNetworkUndefine(network) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Autostart", virtDBusNetworkGetAutostart, NULL },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
@@ -137,6 +157,7 @@ static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
 
 static virtDBusGDBusMethodTable virtDBusNetworkMethodTable[] = {
     { "Destroy", virtDBusNetworkDestroy },
+    { "Undefine", virtDBusNetworkUndefine },
     { 0 }
 };
 

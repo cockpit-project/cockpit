@@ -30,6 +30,19 @@ class TestNetwork(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_network_undefine(self):
+        def domain_undefined(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('NetworkEvent', domain_undefined, arg1='Undefined')
+
+        _,test_network = self.test_network()
+        interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
+        interface_obj.Destroy()
+        interface_obj.Undefine()
+
+        self.main_loop()
 
 if __name__ == '__main__':
     libvirttest.run()

@@ -26,7 +26,7 @@ class PackageCase(MachineCase):
     }
 
     def setUp(self):
-        MachineCase.setUp(self)
+        super(PackageCase, self).setUp()
 
         self.repo_dir = "/var/tmp/repo"
 

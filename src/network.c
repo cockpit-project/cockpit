@@ -107,6 +107,26 @@ virtDBusNetworkGetUUID(const gchar *objectPath,
     *value = g_variant_new("s", uuid);
 }
 
+static void
+virtDBusNetworkDestroy(GVariant *inArgs G_GNUC_UNUSED,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    if (virNetworkDestroy(network) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Autostart", virtDBusNetworkGetAutostart, NULL },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
@@ -116,6 +136,7 @@ static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusNetworkMethodTable[] = {
+    { "Destroy", virtDBusNetworkDestroy },
     { 0 }
 };
 

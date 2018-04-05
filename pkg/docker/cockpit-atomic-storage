@@ -1,12 +1,7 @@
 #! /usr/bin/python2
 
-# XXX - This was written without really taking overlay2 into account.
-#       It needs to be redone.
-
 # This utility fills in the gaps between the Atomic image storage API
-# and the Cockpit UI.  Specifically, it replicates some bits of
-# Storaged and hosts some code that is too experimental to even
-# consider adding it to "atomic storage".
+# and the Cockpit UI.
 #
 # It can 'monitor', 'reset-and-reduce', 'add', 'reset-and-add', and
 # 'create-vgroup'.
@@ -60,22 +55,12 @@
 
 # ADD
 #
-# This combines simple wiping of block devices with adding them to the
+# This combines wiping of block devices with adding them to the
 # pool.
-
-# RESET-AND-ADD
 #
-# This resets the pool before adding the devices, with the hope that
-# this will get us into a better configuration.  This is used when the
-# pool is in the devicemapper-on-loopback emergency mode, and the
-# reset will allow docker-storage-setup to finally succeed and create
-# a proper thinpool.
-
-# CREATE-VGROUP
-#
-# This both resets the pool before adding the devices, and also
-# configures docker-storage-setup to use the given volume group.  This
-# is used on systems that don't already have a volume group.
+# You can specify a driver to be used, the vgroup, and whether the
+# pool should be reset.  Resetting is necessary when the driver
+# changes.
 
 import sys
 import os
@@ -195,12 +180,17 @@ def get_driver_info():
         conf = open(ds_conf_file, "r").read()
     else:
         conf = ""
-    m = re.search("dm.thinpooldev=([^ ]*)", conf)
+    m = re.search("--storage-driver[= ]+([^ ]*)", conf)
     if m:
-        driver = "thinpool"
-        (lvol, vgroup) = get_dev_lvol_and_vgroup(m.group(1))
+        driver = m.group(1)
     else:
-        driver = "rootfs"
+        driver = "overlay2"
+
+    if driver == "devicemapper":
+        m = re.search("dm.thinpooldev=([^ ]*)", conf)
+        if m:
+            (lvol, vgroup) = get_dev_lvol_and_vgroup(m.group(1))
+    else:
         (lvol, vgroup) = get_rootfs_lvol_and_vgroup()
 
     return (driver, lvol, vgroup)
@@ -219,12 +209,12 @@ def get_adjusted_thinpool_size(lvol, vgroup):
 
     return lv_size
 
-def get_overlayfs_usage():
+def get_overlayfs_usage(fs):
     # We sum up all the reported layer sizes.  This is quite cheap to
     # compute but seems to be off by about 20%.  We artificially
     # compensate for the missing 20%.
     usage = 0
-    layerdb = "/var/lib/docker/image/overlay/layerdb/sha256"
+    layerdb = "/var/lib/docker/image/%s/layerdb/sha256" % fs
     if os.path.exists(layerdb):
         for name in os.listdir(layerdb):
             try:
@@ -244,12 +234,6 @@ def get_graph_usage():
             except:
                 pass
     return int(usage*1.1)
-
-def get_loopback_usage():
-    if os.path.exists("/var/lib/docker/devicemapper/devicemapper/data"):
-        return os.stat("/var/lib/docker/devicemapper/devicemapper/data").st_blocks * 512
-    else:
-        return 0
 
 def get_devicemapper_thinpool_usage(dev):
     table_fields = check_output([ "dmsetup", "table", dev ]).split()
@@ -390,12 +374,12 @@ def get_info(got_uevent):
             if d not in pool_drives:
                 extra_devices.append(drives[d])
 
-        if driver == "thinpool":
+        if driver == "devicemapper":
             total = get_adjusted_thinpool_size(lvol, vgroup)
             dm_path = query_lvs(lvol, vgroup, "lv_dm_path")[0]
             used = get_devicemapper_thinpool_usage(dm_path)
         else:
-            used = get_overlayfs_usage() + get_loopback_usage() + get_graph_usage()
+            used = get_overlayfs_usage("overlay") + get_overlayfs_usage("overlay2") + get_graph_usage()
             fs_stat = os.statvfs("/var")
             fs_used = (fs_stat.f_blocks - fs_stat.f_bfree)*fs_stat.f_frsize
             if lvol:
@@ -404,24 +388,8 @@ def get_info(got_uevent):
                 fs_total = fs_stat.f_blocks * fs_stat.f_frsize
             total =  fs_total - fs_used + used
 
-        loopback = os.path.exists("/var/lib/docker/devicemapper/devicemapper/data")
-
-        # If the pool is in the rootfs, resetting it wont free any
-        # devices (since the rootfs has been grown to cover them).  An
-        # exception is when the pool uses loopback devices: Resetting
-        # it will change the whole setup to not use loopback anymore.
-        #
-        can_reset = (driver != "rootfs" or loopback)
-
-        # If the pool is in the rootfs but the rootfs is not in a
-        # volumegroup, there is nothing to manage.  An exception is
-        # again the "loopback" mode.
-        #
-        cur_can_manage = can_manage and (driver != "rootfs" or vgroup is not None or loopback)
-
-        return { "loopback": loopback,
-                 "can_manage": cur_can_manage,
-                 "can_reset": can_reset,
+        return { "can_manage": can_manage,
+                 "driver": driver,
                  "vgroup": vgroup,
                  "total": total,
                  "used": used,
@@ -517,36 +485,24 @@ def cmd_reset_and_reduce():
 
 ## Add
 
-def cmd_add(devs):
+def cmd_add(args):
     atomic_cmd = [ "atomic", "storage", "modify" ]
-    for d in devs:
+    if "driver" in args:
+        atomic_cmd.extend([ "--driver", args["driver"]])
+    if "vgroup" in args:
+        atomic_cmd.extend([ "--vgroup", args["vgroup"]])
+    for d in args["devs"]:
         check_call([ "wipefs", "-a", d ])
         atomic_cmd.extend([ "--add-device", d ])
-    check_call(atomic_cmd)
-
-def cmd_reset_and_add(devs):
-    atomic_cmd = [ "atomic", "storage", "modify" ]
-    for d in devs:
-        check_call([ "wipefs", "-a", d ])
-        atomic_cmd.extend([ "--add-device", d ])
-    try:
-        check_call([ "systemctl", "stop", "docker" ])
-        check_call([ "atomic", "storage", "reset" ])
+    if args.get("reset", False):
+        try:
+            check_call([ "systemctl", "stop", "docker" ])
+            check_call([ "atomic", "storage", "reset" ])
+            check_call(atomic_cmd)
+        finally:
+            call([ "systemctl", "start", "docker" ])
+    else:
         check_call(atomic_cmd)
-    finally:
-        call([ "systemctl", "start", "docker" ])
-
-def cmd_create_vgroup(devs):
-    atomic_cmd = [ "atomic", "storage", "modify", "--vgroup", "atomic-storage" ]
-    for d in devs:
-        check_call([ "wipefs", "-a", d ])
-        atomic_cmd.extend([ "--add-device", d ])
-    try:
-        check_call([ "systemctl", "stop", "docker" ])
-        check_call([ "atomic", "storage", "reset" ])
-        check_call(atomic_cmd)
-    finally:
-        call([ "systemctl", "start", "docker" ])
 
 ## Main
 
@@ -555,8 +511,4 @@ if sys.argv[1] == "monitor":
 elif sys.argv[1] == "reset-and-reduce":
     cmd_reset_and_reduce()
 elif sys.argv[1] == "add":
-    cmd_add(sys.argv[2:])
-elif sys.argv[1] == "reset-and-add":
-    cmd_reset_and_add(sys.argv[2:])
-elif sys.argv[1] == "create-vgroup":
-    cmd_create_vgroup(sys.argv[2:])
+    cmd_add(json.loads(sys.argv[2]))

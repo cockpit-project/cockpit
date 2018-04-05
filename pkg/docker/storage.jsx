@@ -54,15 +54,14 @@
                                 .stream(function (data) {
                                     // XXX - find the newlines here
                                     var info = JSON.parse(data);
-                                    self.loopback = info.loopback;
-                                    self.can_reset = info.can_reset;
+                                    self.driver = info.driver;
                                     self.vgroup = info.vgroup;
                                     self.pool_devices = info.pool_devices.sort(cmp_drive);
                                     self.extra_devices = info.extra_devices.sort(cmp_drive);
                                     self.total = info.total;
                                     self.used = info.used;
                                     self.error = null;
-                                    if (!info.can_manage)
+                                    if (!info.can_manage || !info.vgroup)
                                         self.error = "unsupported";
                                     $(self).triggerHandler("changed");
                                 })
@@ -253,7 +252,7 @@
         }
     });
 
-    /* A overview of the Docker Storage pool size and how is used.
+    /* An overview of the Docker Storage pool size and how much is used.
      *
      * model: The model as returned by get_storage_model.
      *
@@ -344,34 +343,11 @@
             });
         }
 
-        var reset_warning = null;
-        var storage_action = "add";
+        // This will never be true right now, but it might once
+        // Cockpit can change the driver, and we have all the code from a
+        // time when the driver might have changed, so why not keep it.
+        //
         var docker_will_be_stopped = false;
-        var action_caption = _("Reformat and add disks");
-
-        if (!model.vgroup) {
-            reset_warning = (
-                <div className="alert alert-danger">
-                    <span className="fa fa-exclamation-triangle"></span>
-                    <span className="alert-message">
-                        {_("The storage pool will be reset to optimize its layout.  All containers will be erased.")}
-                    </span>
-                </div>);
-            storage_action = "create-vgroup";
-            docker_will_be_stopped = true;
-            action_caption = _("Erase containers, reformat disks, and add them");
-        } else if (model.loopback) {
-            reset_warning = (
-                <div className="alert alert-danger">
-                    <span className="fa fa-exclamation-triangle"></span>
-                    <span className="alert-message">
-                        {_("The storage pool will be reset to optimize its layout.  All containers will be erased.")}
-                    </span>
-                </div>);
-            storage_action = "reset-and-add";
-            docker_will_be_stopped = true;
-            action_caption = _("Erase containers, reformat disks, and add them");
-        }
 
         dialog_view.show_modal_dialog({ 'title': _("Add Additional Storage"),
                                         'body': (
@@ -380,10 +356,9 @@
                                                 <table className="drive-list">
                                                     { render_drive_rows() }
                                                 </table>
-                                                { reset_warning }
                                             </div>),
                                       },
-                                      { 'actions': [ { 'caption': action_caption,
+                                      { 'actions': [ { 'caption': _("Reformat and add disks"),
                                                        'clicked': add_drives,
                                                        'style': "danger" } ]
                                       });
@@ -393,7 +368,15 @@
             var devs = drives.map(function (d) { return d.path; });
             if (docker_will_be_stopped)
                 client.close();
-            var process = python.spawn(cockpit_atomic_storage, [storage_action].concat(devs),
+
+            // We specify the driver explicitly here.  This is to make
+            // sure that docker-storage-setup uses the driver that docker
+            // is currently using, and doesn't unexpectantly change it to
+            // something else.
+            //
+            var args = { "devs": devs, "driver": model.driver };
+
+            var process = python.spawn(cockpit_atomic_storage, [ "add", JSON.stringify(args) ],
                                        { 'err': 'out',
                                          'superuser': true })
                                 .done(function () {
@@ -499,7 +482,7 @@
             } else {
                 $("#storage-unsupported").hide();
                 $("#storage-details").show();
-                $("#storage-reset").toggle(model.can_reset === true);
+                $("#storage-reset").toggle(model.driver == "devicemapper");
             }
         }
 

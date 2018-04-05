@@ -28,14 +28,14 @@ class TestConnect(libvirttest.BaseTestClass):
             # ensure the path exists by calling Introspect on it
             domain.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
 
-    def test_create(self):
+    def test_connect_domain_create_xml(self):
         def domain_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
         self.connect.connect_to_signal('DomainEvent', domain_started, arg1='Started')
 
-        path = self.connect.CreateXML(self.minimal_domain_xml, 0)
+        path = self.connect.DomainCreateXML(self.minimal_domain_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()

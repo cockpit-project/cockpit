@@ -32,7 +32,7 @@ class StorageCase(MachineCase):
         if "atomic" in os.getenv("TEST_OS", ""):
             self.skipTest("No storage on Atomic")
 
-        MachineCase.setUp(self)
+        super(StorageCase, self).setUp()
         self.storagectl_cmd = self.machine.execute("for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
 
         if "udisksctl" in self.storagectl_cmd:

@@ -148,6 +148,33 @@ virtDBusNetworkDestroy(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusNetworkGetXMLDesc(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    xml = virNetworkGetXMLDesc(network, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
+static void
 virtDBusNetworkUndefine(GVariant *inArgs G_GNUC_UNUSED,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -178,6 +205,7 @@ static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusNetworkMethodTable[] = {
     { "Create", virtDBusNetworkCreate },
     { "Destroy", virtDBusNetworkDestroy },
+    { "GetXMLDesc", virtDBusNetworkGetXMLDesc },
     { "Undefine", virtDBusNetworkUndefine },
     { 0 }
 };

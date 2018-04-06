@@ -27,6 +27,12 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkDestroy"/>
     </method>
+    <method name="GetXMLDesc">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkGetXMLDesc"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="xml" type="s" direction="out"/>
+    </method>
     <method name="Undefine">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkUndefine"/>

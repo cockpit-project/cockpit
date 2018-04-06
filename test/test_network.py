@@ -44,6 +44,11 @@ class TestNetwork(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_network_get_xml_description(self):
+        _,test_network = self.test_network()
+        interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
+        assert isinstance(interface_obj.GetXMLDesc(0), dbus.String)
+
     def test_network_undefine(self):
         def domain_undefined(path, _event):
             assert isinstance(path, dbus.ObjectPath)

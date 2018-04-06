@@ -19,6 +19,14 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
+    def test_network_autostart(self):
+        _,test_network = self.test_network()
+        interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
+        autostart_expected = True
+        interface_obj.Set('org.libvirt.Network', 'Autostart', autostart_expected, dbus_interface=dbus.PROPERTIES_IFACE)
+        autostart_current = interface_obj.Get('org.libvirt.Network', 'Autostart', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert autostart_current == dbus.Boolean(autostart_expected)
+
     def test_network_create(self):
         def domain_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)

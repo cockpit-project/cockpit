@@ -150,6 +150,26 @@ virtDBusNetworkGetUUID(const gchar *objectPath,
 }
 
 static void
+virtDBusNetworkSetAutostart(GVariant *value,
+                            const gchar *objectPath,
+                            gpointer userData,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    gboolean autostart;
+
+    g_variant_get(value, "b", &autostart);
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    if (virNetworkSetAutostart(network, autostart) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusNetworkCreate(GVariant *inArgs G_GNUC_UNUSED,
                       GUnixFDList *inFDs G_GNUC_UNUSED,
                       const gchar *objectPath,
@@ -238,7 +258,7 @@ virtDBusNetworkUndefine(GVariant *inArgs G_GNUC_UNUSED,
 
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Active", virtDBusNetworkGetActive, NULL },
-    { "Autostart", virtDBusNetworkGetAutostart, NULL },
+    { "Autostart", virtDBusNetworkGetAutostart, virtDBusNetworkSetAutostart },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
     { "Name", virtDBusNetworkGetName, NULL },
     { "Persistent", virtDBusNetworkGetPersistent, NULL },

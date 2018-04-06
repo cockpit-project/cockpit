@@ -81,6 +81,7 @@ class TestConnect(libvirttest.BaseTestClass):
         assert original_path == path
 
     @pytest.mark.parametrize("property_name,expected_type", [
+        ("Hostname", dbus.String),
         ("Version", dbus.UInt64),
     ])
     def test_connect_properties_return_type(self, property_name, expected_type):

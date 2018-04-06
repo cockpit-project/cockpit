@@ -63,7 +63,7 @@ class BaseTestClass():
             raise TimeoutError()
 
         self.loop = GLib.MainLoop()
-        GLib.timeout_add(1000, timeout)
+        GLib.timeout_add(2000, timeout)
         self.loop.run()
 
     def domain(self):

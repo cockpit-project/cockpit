@@ -16,6 +16,20 @@ class TestConnect(libvirttest.BaseTestClass):
     </domain>
     '''
 
+    minimal_network_xml = '''
+    <network>
+      <name>bar</name>
+      <uuid>004b96e12d78c30f5aa5f03c87d21e69</uuid>
+      <bridge name='brdefault'/>
+      <forward dev='eth0'/>
+      <ip address='192.168.122.1' netmask='255.255.255.0'>
+        <dhcp>
+          <range start='192.168.122.128' end='192.168.122.253'/>
+        </dhcp>
+      </ip>
+    </network>
+    '''
+
     def test_list_domains(self):
         domains = self.connect.ListDomains(0)
         assert isinstance(domains, dbus.Array)
@@ -85,6 +99,18 @@ class TestConnect(libvirttest.BaseTestClass):
 
             # ensure the path exists by calling Introspect on it
             network.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
+
+    def test_connect_network_create_xml(self):
+        def network_started(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('NetworkEvent', network_started, arg1='Started')
+
+        path = self.connect.NetworkCreateXML(self.minimal_network_xml)
+        assert isinstance(path, dbus.ObjectPath)
+
+        self.main_loop()
 
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("NetworkLookupByName", 'Name'),

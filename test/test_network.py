@@ -16,6 +16,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(props['Autostart'], dbus.Boolean)
         assert isinstance(props['BridgeName'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
     def test_network_create(self):

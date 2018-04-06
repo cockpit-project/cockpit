@@ -109,6 +109,27 @@ virtDBusNetworkGetName(const gchar *objectPath,
 }
 
 static void
+virtDBusNetworkGetPersistent(const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **value,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    gint persistent;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    persistent = virNetworkIsPersistent(network);
+    if (persistent < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!persistent);
+}
+
+static void
 virtDBusNetworkGetUUID(const gchar *objectPath,
                        gpointer userData,
                        GVariant **value,
@@ -220,6 +241,7 @@ static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Autostart", virtDBusNetworkGetAutostart, NULL },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
     { "Name", virtDBusNetworkGetName, NULL },
+    { "Persistent", virtDBusNetworkGetPersistent, NULL },
     { "UUID", virtDBusNetworkGetUUID, NULL },
     { 0 }
 };

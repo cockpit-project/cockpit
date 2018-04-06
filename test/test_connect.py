@@ -100,6 +100,9 @@ class TestConnect(libvirttest.BaseTestClass):
             # ensure the path exists by calling Introspect on it
             network.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
 
+    def test_connect_get_capabilities(self):
+        assert isinstance(self.connect.GetCapabilities(), dbus.String)
+
     def test_connect_network_create_xml(self):
         def network_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)

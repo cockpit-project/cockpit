@@ -44,6 +44,11 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="domain" type="o" direction="out"/>
     </method>
+    <method name="GetCapabilities">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>
+      <arg name="capabilities" type="s" direction="out"/>
+    </method>
     <method name="ListNetworks">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virConnectListAllNetworks"/>

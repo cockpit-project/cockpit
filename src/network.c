@@ -25,6 +25,27 @@ virtDBusNetworkGetVirNetwork(virtDBusConnect *connect,
 }
 
 static void
+virtDBusNetworkGetActive(const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **value,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    gint active;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    active = virNetworkIsActive(network);
+    if (active < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!active);
+}
+
+static void
 virtDBusNetworkGetAutostart(const gchar *objectPath,
                             gpointer userData,
                             GVariant **value,
@@ -195,6 +216,7 @@ virtDBusNetworkUndefine(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
+    { "Active", virtDBusNetworkGetActive, NULL },
     { "Autostart", virtDBusNetworkGetAutostart, NULL },
     { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
     { "Name", virtDBusNetworkGetName, NULL },

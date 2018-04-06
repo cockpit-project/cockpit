@@ -3,6 +3,10 @@
 
 <node name="/org/libvirt/network">
   <interface name="org.libvirt.Network">
+    <property name="Active" type="b" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkIsActive"/>
+    </property>
     <property name="Autostart" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkGetAutostart"/>

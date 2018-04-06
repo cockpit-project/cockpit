@@ -82,6 +82,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
     @pytest.mark.parametrize("property_name,expected_type", [
         ("Hostname", dbus.String),
+        ("LibVersion", dbus.UInt64),
         ("Version", dbus.UInt64),
     ])
     def test_connect_properties_return_type(self, property_name, expected_type):

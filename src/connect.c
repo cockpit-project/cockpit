@@ -111,6 +111,24 @@ virtDBusConnectGetHostname(const gchar *objectPath G_GNUC_UNUSED,
 }
 
 static void
+virtDBusConnectGetLibVersion(const gchar *objectPath G_GNUC_UNUSED,
+                             gpointer userData,
+                             GVariant **value,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    gulong libVer;
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectGetLibVersion(connect->connection, &libVer) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("t", libVer);
+}
+
+static void
 virtDBusConnectGetVersion(const gchar *objectPath G_GNUC_UNUSED,
                           gpointer userData,
                           GVariant **value,
@@ -485,6 +503,7 @@ virtDBusNetworkLookupByUUID(GVariant *inArgs,
 
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Hostname", virtDBusConnectGetHostname, NULL },
+    { "LibVersion", virtDBusConnectGetLibVersion, NULL },
     { "Version", virtDBusConnectGetVersion, NULL },
     { 0 }
 };

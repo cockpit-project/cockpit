@@ -3,6 +3,11 @@
 
 <node name="/org/libvirt/connect">
   <interface name="org.libvirt.Connect">
+    <property name="Encrypted" type="b" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectIsEncrypted
+               Note that monitoring of traffic on the D-Bus message bus is out of the scope of this property"/>
+    </property>
     <property name="Hostname" type="s" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetHostname"/>

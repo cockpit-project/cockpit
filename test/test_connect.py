@@ -81,6 +81,7 @@ class TestConnect(libvirttest.BaseTestClass):
         assert original_path == path
 
     @pytest.mark.parametrize("property_name,expected_type", [
+        ("Encrypted", dbus.Boolean),
         ("Hostname", dbus.String),
         ("LibVersion", dbus.UInt64),
         ("Version", dbus.UInt64),

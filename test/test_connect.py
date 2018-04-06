@@ -6,7 +6,7 @@ import pytest
 
 
 class TestConnect(libvirttest.BaseTestClass):
-    minimal_xml = '''
+    minimal_domain_xml = '''
     <domain type="test">
       <name>foo</name>
       <memory>1024</memory>
@@ -35,7 +35,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_started, arg1='Started')
 
-        path = self.connect.CreateXML(self.minimal_xml, 0)
+        path = self.connect.CreateXML(self.minimal_domain_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -47,7 +47,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_defined, arg1='Defined')
 
-        path = self.connect.DefineXML(self.minimal_xml)
+        path = self.connect.DefineXML(self.minimal_domain_xml)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()

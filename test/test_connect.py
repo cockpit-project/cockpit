@@ -84,6 +84,7 @@ class TestConnect(libvirttest.BaseTestClass):
         ("Encrypted", dbus.Boolean),
         ("Hostname", dbus.String),
         ("LibVersion", dbus.UInt64),
+        ("Secure", dbus.Boolean),
         ("Version", dbus.UInt64),
     ])
     def test_connect_properties_return_type(self, property_name, expected_type):

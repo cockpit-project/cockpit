@@ -16,6 +16,11 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetLibVersion"/>
     </property>
+    <property name="Secure" type="b" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectIsSecure
+               Note that monitoring of traffic on the D-Bus message bus is out of the scope of this property"/>
+    </property>
     <property name="Version" type="t" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetVersion"/>

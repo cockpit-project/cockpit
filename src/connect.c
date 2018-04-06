@@ -148,6 +148,25 @@ virtDBusConnectGetLibVersion(const gchar *objectPath G_GNUC_UNUSED,
 }
 
 static void
+virtDBusConnectGetSecure(const gchar *objectPath G_GNUC_UNUSED,
+                         gpointer userData,
+                         GVariant **value,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    gint secure;
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    secure = virConnectIsEncrypted(connect->connection);
+    if (secure < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!secure);
+}
+
+static void
 virtDBusConnectGetVersion(const gchar *objectPath G_GNUC_UNUSED,
                           gpointer userData,
                           GVariant **value,
@@ -524,6 +543,7 @@ static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
     { "LibVersion", virtDBusConnectGetLibVersion, NULL },
+    { "Secure", virtDBusConnectGetSecure, NULL },
     { "Version", virtDBusConnectGetVersion, NULL },
     { 0 }
 };

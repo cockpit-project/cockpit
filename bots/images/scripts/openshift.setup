@@ -161,7 +161,7 @@ update-ca-trust extract
 # multiple O= RDNs; if it's in the "wrong" order, create a new admin
 # certificate that swaps it around
 # See https://github.com/openshift/origin/issues/18715
-if [ -n "$PRERELEASE" ] && openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
+if openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
     echo "Regenerating admin certificate to work around https://github.com/openshift/origin/issues/18715"
     pushd /openshift.local.config/master/
     mv admin.key admin.key.orig

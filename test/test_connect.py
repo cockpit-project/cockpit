@@ -112,6 +112,18 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_connect_network_define_xml(self):
+        def network_defined(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('NetworkEvent', network_defined, arg1='Defined')
+
+        path = self.connect.NetworkDefineXML(self.minimal_network_xml)
+        assert isinstance(path, dbus.ObjectPath)
+
+        self.main_loop()
+
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("NetworkLookupByName", 'Name'),
         ("NetworkLookupByUUID", 'UUID'),

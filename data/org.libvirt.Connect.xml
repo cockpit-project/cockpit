@@ -56,6 +56,12 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="network" type="o" direction="out"/>
     </method>
+    <method name="NetworkDefineXML">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkDefineXML"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="network" type="o" direction="out"/>
+    </method>
     <method name="NetworkLookupByName">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkLookupByName"/>

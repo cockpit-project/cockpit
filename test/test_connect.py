@@ -92,6 +92,10 @@ class TestConnect(libvirttest.BaseTestClass):
         props = obj.GetAll('org.libvirt.Connect', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props[property_name], expected_type)
 
+    def test_connect_get_sysinfo(self):
+        sysinfo = self.connect.GetSysinfo(0)
+        assert isinstance(sysinfo, dbus.String)
+
     def test_list_networks(self):
         networks = self.connect.ListNetworks(0)
         assert isinstance(networks, dbus.Array)

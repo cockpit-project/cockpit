@@ -388,6 +388,32 @@ virtDBusDomainLookupByUUID(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectGetSysinfo(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath G_GNUC_UNUSED,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    guint flags;
+    g_autofree gchar *sysinfo = NULL;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    sysinfo = virConnectGetSysinfo(connect->connection, flags);
+    if (!sysinfo)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", sysinfo);
+}
+
+static void
 virtDBusConnectListNetworks(GVariant *inArgs,
                             GUnixFDList *inFDs G_GNUC_UNUSED,
                             const gchar *objectPath G_GNUC_UNUSED,
@@ -556,6 +582,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByName", virtDBusDomainLookupByName },
     { "DomainLookupByUUID", virtDBusDomainLookupByUUID },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
+    { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListNetworks", virtDBusConnectListNetworks },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },

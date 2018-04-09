@@ -150,6 +150,28 @@ virtDBusDomainGetPersistent(const gchar *objectPath,
 }
 
 static void
+virtDBusDomainGetSchedulerType(const gchar *objectPath,
+                               gpointer userData,
+                               GVariant **value,
+                               GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *schedtype = NULL;
+    gint nparams;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    schedtype = virDomainGetSchedulerType(domain, &nparams);
+    if (!schedtype)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("(si)", schedtype, nparams);
+}
+
+static void
 virtDBusDomainGetState(const gchar *objectPath,
                        gpointer userData,
                        GVariant **value,
@@ -517,6 +539,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Name", virtDBusDomainGetName, NULL },
     { "OSType", virtDBusDomainGetOsType, NULL },
     { "Persistent", virtDBusDomainGetPersistent, NULL },
+    { "SchedulerType", virtDBusDomainGetSchedulerType, NULL},
     { "State", virtDBusDomainGetState, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
     { 0 }

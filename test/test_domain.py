@@ -16,6 +16,9 @@ class TestDomain(libvirttest.BaseTestClass):
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['OSType'], dbus.String)
         assert isinstance(props['Persistent'], dbus.Boolean)
+        assert any([isinstance(props['SchedulerType'], dbus.Struct),
+                    isinstance(props['SchedulerType'][0], dbus.String),
+                    isinstance(props['SchedulerType'][1], dbus.Int32)])
         assert isinstance(props['State'], dbus.String)
         assert isinstance(props['UUID'], dbus.String)
 

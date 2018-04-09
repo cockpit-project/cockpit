@@ -11,7 +11,7 @@
 
     var SERVICE = "org.freedesktop.realmd.Service";
     var PROVIDER = "org.freedesktop.realmd.Provider";
-    var KERBEROS = "org.freedesktop.realmd.KerberosMembership";
+    var KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
     var REALM = "org.freedesktop.realmd.Realm";
 
     function instance(realmd, mode, realm, button) {
@@ -27,7 +27,7 @@
         var operation = null;
         var checking = null;
         var checked = null;
-        var kerberos = null;
+        var kerberos_membership = null;
 
         /* If in an operation first time cancel is clicked, cancel operation */
         $(".realms-op-cancel").on("click", function() {
@@ -160,12 +160,12 @@
                         }
 
                         realm = null;
-                        kerberos = null;
+                        kerberos_membership = null;
 
                         dfd.reject(new Error(message));
                     } else {
-                        kerberos = realmd.proxy(KERBEROS, path);
-                        $(kerberos).on("changed", update);
+                        kerberos_membership = realmd.proxy(KERBEROS_MEMBERSHIP, path);
+                        $(kerberos_membership).on("changed", update);
 
                         realm = realmd.proxy(REALM, path);
                         $(realm).on("changed", update);
@@ -225,7 +225,7 @@
 
             var server = find_detail(realm, "server-software");
 
-            if (realm && kerberos && !kerberos.valid) {
+            if (realm && kerberos_membership && !kerberos_membership.valid) {
                 message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
                 $(".realms-op-address-spinner").hide();
                 $(".realms-op-address-error").show().attr('title', message);
@@ -248,14 +248,14 @@
             }
 
             var placeholder = "";
-            if (kerberos) {
-                if (kerberos.SuggestedAdministrator)
-                    placeholder = cockpit.format(_("e.g. \"$0\""), kerberos.SuggestedAdministrator);
+            if (kerberos_membership) {
+                if (kerberos_membership.SuggestedAdministrator)
+                    placeholder = cockpit.format(_("e.g. \"$0\""), kerberos_membership.SuggestedAdministrator);
             }
             $(".realms-op-admin")[0].placeholder = placeholder;
 
             var list = $(".realms-op-auth .dropdown-menu");
-            var supported = (kerberos && kerberos.SupportedJoinCredentials) || [ ];
+            var supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [ ];
             supported.push(["password", "administrator"]);
 
             var first = true;
@@ -350,8 +350,8 @@
                         computer_ou = $(".realms-join-computer-ou").val();
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
-                        if (kerberos.valid) {
-                            call = kerberos.call("Join", [ credentials(), options ]);
+                        if (kerberos_membership.valid) {
+                            call = kerberos_membership.call("Join", [ credentials(), options ]);
                         } else {
                             busy(null);
                             $(".realms-op-message").empty().text(_("Joining this domain is not supported"));

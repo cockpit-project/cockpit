@@ -37,6 +37,13 @@ class TestDomain(libvirttest.BaseTestClass):
                 raise e
         domain.Undefine(0)
 
+    def test_domain_autostart(self):
+        _, domain = self.domain()
+        autostart_expected = True
+        domain.Set('org.libvirt.Domain', 'Autostart', autostart_expected, dbus_interface=dbus.PROPERTIES_IFACE)
+        autostart_current = domain.Get('org.libvirt.Domain', 'Autostart', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert autostart_current == dbus.Boolean(autostart_expected)
+
     def test_resume(self):
         def domain_resumed(path, _event):
             assert isinstance(path, dbus.ObjectPath)

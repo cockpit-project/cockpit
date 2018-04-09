@@ -219,6 +219,26 @@ virtDBusDomainGetUUID(const gchar *objectPath,
 }
 
 static void
+virtDBusDomainSetAutostart(GVariant *value,
+                           const gchar *objectPath,
+                           gpointer userData,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gboolean autostart;
+
+    g_variant_get(value, "b", &autostart);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSetAutostart(domain, autostart) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainCreate(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -492,7 +512,7 @@ virtDBusDomainUndefine(GVariant *inArgs,
 
 static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Active", virtDBusDomainGetActive, NULL },
-    { "Autostart", virtDBusDomainGetAutostart, NULL },
+    { "Autostart", virtDBusDomainGetAutostart, virtDBusDomainSetAutostart },
     { "Id", virtDBusDomainGetId, NULL },
     { "Name", virtDBusDomainGetName, NULL },
     { "OSType", virtDBusDomainGetOsType, NULL },

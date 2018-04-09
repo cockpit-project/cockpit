@@ -76,10 +76,10 @@ class checklogin_raw(Test):
             '/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
 
         c.allow_journal_messages("Returning error-response ... with reason .*",
-                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
-                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
-                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
-                                    "couldn't parse login input: Malformed input",
-                                    "couldn't parse login input: Authentication failed")
+                                    r"pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    r"pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    r"couldn't parse login input: Malformed input",
+                                    r"couldn't parse login input: Authentication failed")
 if __name__ == "__main__":
     main()

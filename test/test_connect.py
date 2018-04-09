@@ -30,18 +30,6 @@ class TestConnect(libvirttest.BaseTestClass):
     </network>
     '''
 
-    def test_list_domains(self):
-        domains = self.connect.ListDomains(0)
-        assert isinstance(domains, dbus.Array)
-        assert len(domains) == 1
-
-        for path in domains:
-            assert isinstance(path, dbus.ObjectPath)
-            domain = self.bus.get_object('org.libvirt', path)
-
-            # ensure the path exists by calling Introspect on it
-            domain.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
-
     def test_connect_domain_create_xml(self):
         def domain_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)
@@ -79,6 +67,18 @@ class TestConnect(libvirttest.BaseTestClass):
         props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
         path = getattr(self.connect, lookup_method_name)(props[lookup_item])
         assert original_path == path
+
+    def test_connect_list_domains(self):
+        domains = self.connect.ListDomains(0)
+        assert isinstance(domains, dbus.Array)
+        assert len(domains) == 1
+
+        for path in domains:
+            assert isinstance(path, dbus.ObjectPath)
+            domain = self.bus.get_object('org.libvirt', path)
+
+            # ensure the path exists by calling Introspect on it
+            domain.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
 
     @pytest.mark.parametrize("property_name,expected_type", [
         ("Encrypted", dbus.Boolean),

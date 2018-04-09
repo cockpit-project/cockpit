@@ -207,46 +207,6 @@ virtDBusConnectGetCapabilities(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
-virtDBusConnectListDomains(GVariant *inArgs,
-                           GUnixFDList *inFDs G_GNUC_UNUSED,
-                           const gchar *objectPath G_GNUC_UNUSED,
-                           gpointer userData,
-                           GVariant **outArgs,
-                           GUnixFDList **outFDs G_GNUC_UNUSED,
-                           GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomainPtr) domains = NULL;
-    guint flags;
-    GVariantBuilder builder;
-    GVariant *gdomains;
-
-    g_variant_get(inArgs, "(u)", &flags);
-
-    if (!virtDBusConnectOpen(connect, error))
-        return;
-
-    if (virConnectListAllDomains(connect->connection, &domains, flags) < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    if (!*domains)
-        return;
-
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
-
-    for (gint i = 0; domains[i]; i++) {
-        g_autofree gchar *path = NULL;
-        path = virtDBusUtilBusPathForVirDomain(domains[i],
-                                               connect->domainPath);
-
-        g_variant_builder_add(&builder, "o", path);
-    }
-
-    gdomains = g_variant_builder_end(&builder);
-    *outArgs = g_variant_new_tuple(&gdomains, 1);
-}
-
-static void
 virtDBusConnectDomainCreateXML(GVariant *inArgs,
                                GUnixFDList *inFDs G_GNUC_UNUSED,
                                const gchar *objectPath G_GNUC_UNUSED,
@@ -414,6 +374,46 @@ virtDBusConnectGetSysinfo(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectListDomains(GVariant *inArgs,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath G_GNUC_UNUSED,
+                           gpointer userData,
+                           GVariant **outArgs,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomainPtr) domains = NULL;
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *gdomains;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectListAllDomains(connect->connection, &domains, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (!*domains)
+        return;
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
+
+    for (gint i = 0; domains[i]; i++) {
+        g_autofree gchar *path = NULL;
+        path = virtDBusUtilBusPathForVirDomain(domains[i],
+                                               connect->domainPath);
+
+        g_variant_builder_add(&builder, "o", path);
+    }
+
+    gdomains = g_variant_builder_end(&builder);
+    *outArgs = g_variant_new_tuple(&gdomains, 1);
+}
+
+static void
 virtDBusConnectListNetworks(GVariant *inArgs,
                             GUnixFDList *inFDs G_GNUC_UNUSED,
                             const gchar *objectPath G_GNUC_UNUSED,
@@ -575,7 +575,6 @@ static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
-    { "ListDomains", virtDBusConnectListDomains },
     { "DomainCreateXML", virtDBusConnectDomainCreateXML },
     { "DomainDefineXML", virtDBusConnectDomainDefineXML },
     { "DomainLookupByID", virtDBusConnectDomainLookupByID },
@@ -583,6 +582,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByUUID", virtDBusConnectDomainLookupByUUID },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
     { "GetSysinfo", virtDBusConnectGetSysinfo },
+    { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },

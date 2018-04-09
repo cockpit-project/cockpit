@@ -25,12 +25,6 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetVersion"/>
     </property>
-    <method name="ListDomains">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectListAllDomains"/>
-      <arg name="flags" type="u" direction="in"/>
-      <arg name="domains" type="ao" direction="out"/>
-    </method>
     <method name="DomainCreateXML">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateXML"/>
@@ -72,6 +66,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetSysinfo"/>
       <arg name="flags" type="u" direction="in"/>
       <arg name="sysinfo" type="s" direction="out"/>
+    </method>
+    <method name="ListDomains">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectListAllDomains"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="domains" type="ao" direction="out"/>
     </method>
     <method name="ListNetworks">
       <annotation name="org.gtk.GDBus.DocString"

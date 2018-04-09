@@ -253,8 +253,8 @@ class TestKerberos(MachineCase):
 
         self.machine.execute("mkdir -p /etc/cockpit")
         keytab = "/etc/cockpit/krb5.keytab"
-        # These only support the default keytab location
-        if self.machine.image in ["rhel-7-4", "rhel-7-5"]:
+        # This only supports the default keytab location
+        if self.machine.image == "rhel-7-4":
             keytab = "/etc/krb5.keytab"
 
         # Pull keytab

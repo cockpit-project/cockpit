@@ -13,7 +13,6 @@
     <para>To authenticate users, the server that Cockpit is running on must be
       joined to a domain. This can usually be accomplished using the
       <ulink url="http://freedesktop.org/software/realmd/docs/realm.html"><code>realm join example.com</code></ulink>
-      
       command.</para>
 
     <para>The domain must be resolvable by DNS. For instance, the SRV records of the
@@ -26,7 +25,7 @@ _kerberos._udp.example.com has SRV record 0 100 88 dc.example.com
 
     <para>The server running Cockpit should have a fully qualified name that ends with
       the domain name.</para>
-  
+
     <para>There must be a valid Kerberos host key for the server in the <code>/etc/krb5.keytab</code>
       file. Alternatively, if you would like to use a different keytab, you can do so
       by placing it in <code>/etc/cockpit/krb5.keytab</code>. It may be necessary to
@@ -44,10 +43,21 @@ _kerberos._udp.example.com has SRV record 0 100 88 dc.example.com
       </varlistentry>
     </variablelist>
 
-    <para>The following command can be used to list the <code>/etc/krb5.keytab</code>:</para>
+    <para>When joining an IPA domain with Cockpit and the <code>ipa</code> command line tool is
+      available, both the service principal name and a <code>/etc/cockpit/krb5.keytab</code> get
+      created automatically, so that Kerberos based single sign on into Cockpit works out of the
+      box. If you want/need to do this by hand or in a script, the
+      corresponding commands with IPA are:</para>
 
 <programlisting>
-$ sudo klist -k
+$ sudo ipa service-add --ok-as-delegate=true --force HTTP/server.example.com@EXAMPLE.COM
+$ sudo ipa-getkeytab -p HTTP/server.example.com@EXAMPLE.COM -k /etc/cockpit/krb5.keytab
+</programlisting>
+
+    <para>The following command can be used to list the <code>/etc/cockpit/krb5.keytab</code>:</para>
+
+<programlisting>
+$ sudo klist -k /etc/cockpit/krb5.keytab
 </programlisting>
 
     <para>Lastly accounts from the domain must be resolvable to unix accounts on the server
@@ -60,7 +70,8 @@ user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
 
     <para>If you wish to delegate your kerberos credentials to Cockpit, and allow Cockpit
       to then connect to other machines using those credentials, you should enable delegation
-      for the hosts running Cockpit, and in some cases the <code>HTTP</code> service as well.</para>
+      for the hosts running Cockpit, and in some cases the <code>HTTP</code> service as well.
+      When joining an IPA domain, this is enabled by default.</para>
 
   </section>
 

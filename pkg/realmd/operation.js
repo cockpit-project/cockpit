@@ -11,6 +11,7 @@
 
     var SERVICE = "org.freedesktop.realmd.Service";
     var PROVIDER = "org.freedesktop.realmd.Provider";
+    var KERBEROS = "org.freedesktop.realmd.Kerberos";
     var KERBEROS_MEMBERSHIP = "org.freedesktop.realmd.KerberosMembership";
     var REALM = "org.freedesktop.realmd.Realm";
 
@@ -28,6 +29,7 @@
         var checking = null;
         var checked = null;
         var kerberos_membership = null;
+        var kerberos = null;
 
         /* If in an operation first time cancel is clicked, cancel operation */
         $(".realms-op-cancel").on("click", function() {
@@ -161,11 +163,14 @@
 
                         realm = null;
                         kerberos_membership = null;
+                        kerberos = null;
 
                         dfd.reject(new Error(message));
                     } else {
                         kerberos_membership = realmd.proxy(KERBEROS_MEMBERSHIP, path);
                         $(kerberos_membership).on("changed", update);
+
+                        kerberos = realmd.proxy(KERBEROS, path);
 
                         realm = realmd.proxy(REALM, path);
                         $(realm).on("changed", update);
@@ -320,6 +325,71 @@
             return creds;
         }
 
+        // Request and install a kerberos keytab for cockpit-ws (with IPA)
+        // This is opportunistic: Some realms might not use IPA, or an unsupported auth mechanism
+        function install_ws_keytab() {
+            // skip this on remote ssh hosts, only set up ws hosts
+            if (cockpit.transport.host !== "localhost")
+                return cockpit.resolve();
+
+            if (auth !== "password/administrator") {
+                console.log("Installing kerberos keytab not supported for auth mode", auth);
+                return cockpit.resolve();
+            }
+
+            var user = $(".realms-op-admin").val();
+            var password = $(".realms-op-admin-password").val();
+
+            // ipa-getkeytab needs root to create the file
+            var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
+            // not an IPA setup? cannot handle this
+            script += 'type ipa >/dev/null 2>&1 || exit 0; ';
+
+            // IPA operations require auth; read password from stdin to avoid quoting issues
+            // if kinit fails, we can't handle this setup, exit cleanly
+            script += 'kinit ' + user + '@' + kerberos.RealmName + ' || exit 0; ';
+
+            // create a kerberos Service Principal Name for cockpit-ws, unless already present
+            script += 'service="HTTP/$(hostname -f)@' + kerberos.RealmName + '"; ' +
+                      'ipa service-show "$service" || ipa service-add --ok-as-delegate=true --force "$service"; ';
+
+            // add cockpit-ws key, unless already present
+            script += 'mkdir -p /etc/cockpit; ';
+            script += 'klist -k /etc/cockpit/krb5.keytab | grep -qF "$service" || ' +
+                      'ipa-getkeytab -p HTTP/$(hostname -f) -k /etc/cockpit/krb5.keytab; ';
+
+            // use a temporary keytab to avoid interfering with the system one
+            var proc = cockpit.script(script, [], { superuser: "require", err: "message",
+                                                    environ: ["KRB5CCNAME=/run/cockpit/keytab-setup"] });
+            proc.input(password);
+            return proc;
+        }
+
+        // Remove SPN from cockpit-ws keytab
+        function cleanup_ws_keytab() {
+            // skip this on remote ssh hosts, only set up ws hosts
+            if (cockpit.transport.host !== "localhost")
+                return cockpit.resolve();
+
+            var dfd = cockpit.defer();
+
+            kerberos = realmd.proxy(KERBEROS, realm.path);
+            kerberos.wait()
+                .done(function() {
+                    cockpit.script('[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
+                                   '"HTTP/$(hostname -f)@' + kerberos.RealmName + '"',
+                                   [], { superuser: "require", err: "message" })
+                        .done(dfd.resolve)
+                        .fail(function(ex) {
+                            console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));
+                            dfd.resolve();
+                        });
+                })
+                .fail(dfd.resolve); // no Kerberos domain? nevermind then
+
+            return dfd.promise();
+        }
+
         var unique = 1;
 
         function perform() {
@@ -351,14 +421,14 @@
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
                         if (kerberos_membership.valid) {
-                            call = kerberos_membership.call("Join", [ credentials(), options ]);
+                            call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_keytab);
                         } else {
                             busy(null);
                             $(".realms-op-message").empty().text(_("Joining this domain is not supported"));
                             $(".realms-op-error").show();
                         }
                     } else if (mode == 'leave') {
-                        call = realm.Deconfigure(options);
+                        call = cleanup_ws_keytab().then(function() { realm.Deconfigure(options); });
                     }
 
                     if (!call) {
@@ -372,7 +442,7 @@
                             if (ex.name == "org.freedesktop.realmd.Error.Cancelled") {
                                 $(dialog).modal("hide");
                             } else {
-                                console.log("Failed to join domain: " + realm.Name + ": " + ex);
+                                console.log("Failed to " + mode + " domain: " + realm.Name + ": " + ex);
                                 $(".realms-op-message").empty().text(ex + " ");
                                 $(".realms-op-error").show();
                                 if (diagnostics) {

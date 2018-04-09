@@ -22,6 +22,34 @@ import parent
 from testlib import *
 
 import re
+import subprocess
+
+WAIT_KRB_SCRIPT = """
+# HACK: This needs to work, but may take a minute
+for x in $(seq 1 60); do
+    if getent passwd admin@cockpit.lan; then
+        break
+    fi
+    if systemctl --quiet is-failed sssd.service; then
+        systemctl status --lines=100 sssd.service >&2
+        exit 1
+    fi
+    sleep $x
+done
+
+# This directory should be owned by the domain user
+getent passwd admin@cockpit.lan
+chown -R admin@cockpit.lan /home/admin
+
+# HACK: This needs to work but may take a minute
+for x in $(seq 1 60); do
+    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l admin@cockpit.lan x0.cockpit.lan true; then
+        break
+    fi
+    sleep $x
+done
+"""
+
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipImage("No freeipa available", "debian-stable", "debian-testing")
@@ -67,6 +95,31 @@ class TestRealms(MachineCase):
             # Check that this has worked
             wait_number_domains(1)
 
+        # should not have any leftover tickets from the joining
+        m.execute("! klist")
+        m.execute("! su -c klist admin")
+
+        # validate Kerberos setup for ws; requires FreeIPA with the "ipa" tool
+        if m.image not in ["rhel-7-5", "ubuntu-1604", "ubuntu-stable"]:
+            m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
+            m.execute(script=WAIT_KRB_SCRIPT, timeout=300)
+
+            # should have added SPN to ws keytab
+            output = m.execute(['klist', '-k', '/etc/cockpit/krb5.keytab'])
+            self.assertIn('HTTP/x0.cockpit.lan@COCKPIT.LAN', output)
+
+            # kerberos login should work
+            output = m.execute(['curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
+                                'http://x0.cockpit.lan:9090/cockpit/login'])
+            self.assertIn("HTTP/1.1 200 OK", output)
+            self.assertIn('"csrf-token"', output)
+        elif m.image != "rhel-7-5":  # on 7.5 with older ws curl succeeds
+            # curl negotiation should fail without a proper ws keytab; this provides a hint
+            # when FreeIPA becomes new enough on the images above to start working
+            self.assertRaisesRegexp(subprocess.CalledProcessError, "returned non-zero exit status 6", m.execute,
+                    ['curl', '-s', '--negotiate', '--delegation', 'always', '-u:', '-D-',
+                     'http://x0.cockpit.lan:9090/cockpit/login'])
+
         # Leave the domain
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
@@ -75,6 +128,9 @@ class TestRealms(MachineCase):
         b.click(".realms-op-apply")
         b.wait_popdown("realms-op")
         wait_number_domains(0)
+
+        # should have cleaned up ws keytab
+        m.execute("! klist -k /etc/cockpit/krb5.keytab | grep COCKPIT.LAN")
 
         # Send a wrong password
         b.click("#system-info-domain a")
@@ -167,30 +223,6 @@ else
     curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
-
-# HACK: This needs to work, but may take a minute
-for x in $(seq 1 60); do
-    if getent passwd admin@cockpit.lan; then
-        break
-    fi
-    if systemctl --quiet is-failed sssd.service; then
-        systemctl status --lines=100 sssd.service >&2
-        exit 1
-    fi
-    sleep $x
-done
-
-# This directory should be owned by the domain user
-getent passwd admin@cockpit.lan
-chown -R admin@cockpit.lan /home/admin
-
-# HACK: This needs to work but may take a minute
-for x in $(seq 1 60); do
-    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l admin@cockpit.lan x0.cockpit.lan true; then
-        break
-    fi
-    sleep $x
-done
 """
 
 # This is here because our test framework can't run ipa VM's twice
@@ -210,6 +242,7 @@ class TestKerberos(MachineCase):
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
         self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
+        self.machine.execute(script=WAIT_KRB_SCRIPT, timeout=300)
 
     def testNegotiate(self):
         self.allow_authorize_journal_messages()

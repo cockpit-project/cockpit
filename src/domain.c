@@ -219,6 +219,29 @@ virtDBusDomainGetUUID(const gchar *objectPath,
 }
 
 static void
+virtDBusDomainCreate(GVariant *inArgs,
+                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                     const gchar *objectPath,
+                     gpointer userData,
+                     GVariant **outArgs G_GNUC_UNUSED,
+                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                     GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainCreateWithFlags(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainGetVcpus(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -405,29 +428,6 @@ virtDBusDomainReset(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainCreate(GVariant *inArgs,
-                     GUnixFDList *inFDs G_GNUC_UNUSED,
-                     const gchar *objectPath,
-                     gpointer userData,
-                     GVariant **outArgs G_GNUC_UNUSED,
-                     GUnixFDList **outFDs G_GNUC_UNUSED,
-                     GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    guint flags;
-
-    g_variant_get(inArgs, "(u)", &flags);
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainCreateWithFlags(domain, flags) < 0)
-        virtDBusUtilSetLastVirtError(error);
-}
-
-static void
 virtDBusDomainUndefine(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -503,6 +503,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
+    { "Create", virtDBusDomainCreate },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "GetStats", virtDBusDomainGetStats },
@@ -510,7 +511,6 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Destroy", virtDBusDomainDestroy },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
-    { "Create", virtDBusDomainCreate },
     { "Undefine", virtDBusDomainUndefine },
     { "Suspend", virtDBusDomainSuspend },
     { "Resume", virtDBusDomainResume },

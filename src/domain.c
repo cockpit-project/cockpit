@@ -242,6 +242,30 @@ virtDBusDomainCreate(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainDestroy(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainDestroyFlags(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+
+static void
 virtDBusDomainGetVcpus(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -353,29 +377,6 @@ virtDBusDomainShutdown(GVariant *inArgs,
         return;
 
     if (virDomainShutdownFlags(domain, flags) < 0)
-        virtDBusUtilSetLastVirtError(error);
-}
-
-static void
-virtDBusDomainDestroy(GVariant *inArgs,
-                      GUnixFDList *inFDs G_GNUC_UNUSED,
-                      const gchar *objectPath,
-                      gpointer userData,
-                      GVariant **outArgs G_GNUC_UNUSED,
-                      GUnixFDList **outFDs G_GNUC_UNUSED,
-                      GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    guint flags;
-
-    g_variant_get(inArgs, "(u)", &flags);
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainDestroyFlags(domain, flags) < 0)
         virtDBusUtilSetLastVirtError(error);
 }
 
@@ -504,11 +505,11 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Create", virtDBusDomainCreate },
+    { "Destroy", virtDBusDomainDestroy },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "GetStats", virtDBusDomainGetStats },
     { "Shutdown", virtDBusDomainShutdown },
-    { "Destroy", virtDBusDomainDestroy },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
     { "Undefine", virtDBusDomainUndefine },

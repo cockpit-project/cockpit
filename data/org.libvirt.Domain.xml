@@ -19,10 +19,6 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetName"/>
     </property>
-    <property name="UUID" type="s" access="read">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetUUIDString"/>
-    </property>
     <property name="OSType" type="s" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetOSType"/>
@@ -34,6 +30,10 @@
     <property name="State" type="s" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetState"/>
+    </property>
+    <property name="UUID" type="s" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetUUIDString"/>
     </property>
     <method name="GetVcpus">
       <annotation name="org.gtk.GDBus.DocString"

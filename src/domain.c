@@ -108,26 +108,6 @@ virtDBusDomainGetName(const gchar *objectPath,
 }
 
 static void
-virtDBusDomainGetUUID(const gchar *objectPath,
-                      gpointer userData,
-                      GVariant **value,
-                      GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainGetUUIDString(domain, uuid) < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *value = g_variant_new("s", uuid);
-}
-
-static void
 virtDBusDomainGetOsType(const gchar *objectPath,
                         gpointer userData,
                         GVariant **value,
@@ -216,6 +196,26 @@ virtDBusDomainGetState(const gchar *objectPath,
     }
 
     *value = g_variant_new("s", string);
+}
+
+static void
+virtDBusDomainGetUUID(const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **value,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetUUIDString(domain, uuid) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", uuid);
 }
 
 static void
@@ -495,10 +495,10 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Autostart", virtDBusDomainGetAutostart, NULL },
     { "Id", virtDBusDomainGetId, NULL },
     { "Name", virtDBusDomainGetName, NULL },
-    { "UUID", virtDBusDomainGetUUID, NULL },
     { "OSType", virtDBusDomainGetOsType, NULL },
     { "Persistent", virtDBusDomainGetPersistent, NULL },
     { "State", virtDBusDomainGetState, NULL },
+    { "UUID", virtDBusDomainGetUUID, NULL },
     { 0 }
 };
 

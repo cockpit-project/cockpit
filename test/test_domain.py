@@ -11,13 +11,13 @@ class TestDomain(libvirttest.BaseTestClass):
 
         props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Active'], dbus.Boolean)
+        assert isinstance(props['Autostart'], dbus.Boolean)
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['UUID'], dbus.String)
         assert isinstance(props['Id'], dbus.UInt32)
         assert isinstance(props['OSType'], dbus.String)
         assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['State'], dbus.String)
-        assert isinstance(props['Autostart'], dbus.Boolean)
 
         # Call all methods except Reset and GetStats, because the test backend
         # doesn't support those

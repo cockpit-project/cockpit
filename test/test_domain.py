@@ -37,6 +37,22 @@ class TestDomain(libvirttest.BaseTestClass):
                 raise e
         domain.Undefine(0)
 
+    def test_resume(self):
+        def domain_resumed(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('DomainEvent', domain_resumed, arg1='Resumed')
+
+        obj, domain = self.domain()
+        domain.Suspend()
+        domain.Resume()
+
+        state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert state == 'running'
+
+        self.main_loop()
+
     def test_shutdown(self):
         def domain_stopped(path, _event):
             assert isinstance(path, dbus.ObjectPath)
@@ -77,22 +93,6 @@ class TestDomain(libvirttest.BaseTestClass):
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
         assert state == 'paused'
-
-        self.main_loop()
-
-    def test_resume(self):
-        def domain_resumed(path, _event):
-            assert isinstance(path, dbus.ObjectPath)
-            self.loop.quit()
-
-        self.connect.connect_to_signal('DomainEvent', domain_resumed, arg1='Resumed')
-
-        obj, domain = self.domain()
-        domain.Suspend()
-        domain.Resume()
-
-        state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        assert state == 'running'
 
         self.main_loop()
 

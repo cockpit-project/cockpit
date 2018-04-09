@@ -428,6 +428,26 @@ virtDBusDomainReset(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
+                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                     const gchar *objectPath,
+                     gpointer userData,
+                     GVariant **outArgs G_GNUC_UNUSED,
+                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                     GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainResume(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainUndefine(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -470,26 +490,6 @@ virtDBusDomainSuspend(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
-static void
-virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
-                     GUnixFDList *inFDs G_GNUC_UNUSED,
-                     const gchar *objectPath,
-                     gpointer userData,
-                     GVariant **outArgs G_GNUC_UNUSED,
-                     GUnixFDList **outFDs G_GNUC_UNUSED,
-                     GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainResume(domain) < 0)
-        virtDBusUtilSetLastVirtError(error);
-}
-
 static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Active", virtDBusDomainGetActive, NULL },
     { "Autostart", virtDBusDomainGetAutostart, NULL },
@@ -511,9 +511,9 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Shutdown", virtDBusDomainShutdown },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
+    { "Resume", virtDBusDomainResume },
     { "Undefine", virtDBusDomainUndefine },
     { "Suspend", virtDBusDomainSuspend },
-    { "Resume", virtDBusDomainResume },
     { 0 }
 };
 

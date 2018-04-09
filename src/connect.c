@@ -304,13 +304,13 @@ virtDBusConnectDomainDefineXML(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainLookupByID(GVariant *inArgs,
-                         GUnixFDList *inFDs G_GNUC_UNUSED,
-                         const gchar *objectPath G_GNUC_UNUSED,
-                         gpointer userData,
-                         GVariant **outArgs,
-                         GUnixFDList **outFDs G_GNUC_UNUSED,
-                         GError **error)
+virtDBusConnectDomainLookupByID(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath G_GNUC_UNUSED,
+                                gpointer userData,
+                                GVariant **outArgs,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -332,13 +332,13 @@ virtDBusDomainLookupByID(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainLookupByName(GVariant *inArgs,
-                           GUnixFDList *inFDs G_GNUC_UNUSED,
-                           const gchar *objectPath G_GNUC_UNUSED,
-                           gpointer userData,
-                           GVariant **outArgs,
-                           GUnixFDList **outFDs G_GNUC_UNUSED,
-                           GError **error)
+virtDBusConnectDomainLookupByName(GVariant *inArgs,
+                                  GUnixFDList *inFDs G_GNUC_UNUSED,
+                                  const gchar *objectPath G_GNUC_UNUSED,
+                                  gpointer userData,
+                                  GVariant **outArgs,
+                                  GUnixFDList **outFDs G_GNUC_UNUSED,
+                                  GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -360,13 +360,13 @@ virtDBusDomainLookupByName(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainLookupByUUID(GVariant *inArgs,
-                           GUnixFDList *inFDs G_GNUC_UNUSED,
-                           const gchar *objectPath G_GNUC_UNUSED,
-                           gpointer userData,
-                           GVariant **outArgs,
-                           GUnixFDList **outFDs G_GNUC_UNUSED,
-                           GError **error)
+virtDBusConnectDomainLookupByUUID(GVariant *inArgs,
+                                  GUnixFDList *inFDs G_GNUC_UNUSED,
+                                  const gchar *objectPath G_GNUC_UNUSED,
+                                  gpointer userData,
+                                  GVariant **outArgs,
+                                  GUnixFDList **outFDs G_GNUC_UNUSED,
+                                  GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -510,13 +510,13 @@ virtDBusConnectNetworkDefineXML(GVariant *inArgs,
 }
 
 static void
-virtDBusNetworkLookupByName(GVariant *inArgs,
-                            GUnixFDList *inFDs G_GNUC_UNUSED,
-                            const gchar *objectPath G_GNUC_UNUSED,
-                            gpointer userData,
-                            GVariant **outArgs,
-                            GUnixFDList **outFDs G_GNUC_UNUSED,
-                            GError **error)
+virtDBusConnectNetworkLookupByName(GVariant *inArgs,
+                                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                                   const gchar *objectPath G_GNUC_UNUSED,
+                                   gpointer userData,
+                                   GVariant **outArgs,
+                                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                                   GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virNetwork) network = NULL;
@@ -538,13 +538,13 @@ virtDBusNetworkLookupByName(GVariant *inArgs,
 }
 
 static void
-virtDBusNetworkLookupByUUID(GVariant *inArgs,
-                            GUnixFDList *inFDs G_GNUC_UNUSED,
-                            const gchar *objectPath G_GNUC_UNUSED,
-                            gpointer userData,
-                            GVariant **outArgs,
-                            GUnixFDList **outFDs G_GNUC_UNUSED,
-                            GError **error)
+virtDBusConnectNetworkLookupByUUID(GVariant *inArgs,
+                                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                                   const gchar *objectPath G_GNUC_UNUSED,
+                                   gpointer userData,
+                                   GVariant **outArgs,
+                                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                                   GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virNetwork) network = NULL;
@@ -578,16 +578,16 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "ListDomains", virtDBusConnectListDomains },
     { "DomainCreateXML", virtDBusConnectDomainCreateXML },
     { "DomainDefineXML", virtDBusConnectDomainDefineXML },
-    { "DomainLookupByID", virtDBusDomainLookupByID },
-    { "DomainLookupByName", virtDBusDomainLookupByName },
-    { "DomainLookupByUUID", virtDBusDomainLookupByUUID },
+    { "DomainLookupByID", virtDBusConnectDomainLookupByID },
+    { "DomainLookupByName", virtDBusConnectDomainLookupByName },
+    { "DomainLookupByUUID", virtDBusConnectDomainLookupByUUID },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListNetworks", virtDBusConnectListNetworks },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },
-    { "NetworkLookupByName", virtDBusNetworkLookupByName },
-    { "NetworkLookupByUUID", virtDBusNetworkLookupByUUID },
+    { "NetworkLookupByName", virtDBusConnectNetworkLookupByName },
+    { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
     { 0 }
 };
 

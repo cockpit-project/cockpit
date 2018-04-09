@@ -64,11 +64,6 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
     </method>
-    <method name="Shutdown">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainShutdownFlags"/>
-      <arg name="flags" type="u" direction="in"/>
-    </method>
     <method name="Reboot">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainReboot"/>
@@ -82,6 +77,11 @@
     <method name="Resume">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
+    </method>
+    <method name="Shutdown">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainShutdownFlags"/>
+      <arg name="flags" type="u" direction="in"/>
     </method>
     <method name="Suspend">
       <annotation name="org.gtk.GDBus.DocString"

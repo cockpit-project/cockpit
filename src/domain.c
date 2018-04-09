@@ -311,7 +311,7 @@ virtDBusDomainGetStats(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainShutdown(GVariant *inArgs G_GNUC_UNUSED,
+virtDBusDomainShutdown(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
                        gpointer userData,
@@ -334,7 +334,7 @@ virtDBusDomainShutdown(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
-virtDBusDomainDestroy(GVariant *inArgs G_GNUC_UNUSED,
+virtDBusDomainDestroy(GVariant *inArgs,
                       GUnixFDList *inFDs G_GNUC_UNUSED,
                       const gchar *objectPath,
                       gpointer userData,
@@ -359,7 +359,7 @@ virtDBusDomainDestroy(GVariant *inArgs G_GNUC_UNUSED,
 static void
 virtDBusDomainReboot(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
-                     const gchar *objectPath G_GNUC_UNUSED,
+                     const gchar *objectPath,
                      gpointer userData,
                      GVariant **outArgs G_GNUC_UNUSED,
                      GUnixFDList **outFDs G_GNUC_UNUSED,
@@ -405,7 +405,7 @@ virtDBusDomainReset(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainCreate(GVariant *inArgs G_GNUC_UNUSED,
+virtDBusDomainCreate(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
                      gpointer userData,
@@ -428,7 +428,7 @@ virtDBusDomainCreate(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
-virtDBusDomainUndefine(GVariant *inArgs G_GNUC_UNUSED,
+virtDBusDomainUndefine(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
                        gpointer userData,

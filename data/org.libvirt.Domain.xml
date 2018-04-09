@@ -45,6 +45,13 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainDestroyFlags"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="GetStats">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainListGetStats"/>
+      <arg name="stats" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="records" type="a{sv}" direction="out"/>
+    </method>
     <method name="GetVcpus">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetVcpusFlags"/>
@@ -56,13 +63,6 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetXMLDesc"/>
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
-    </method>
-    <method name="GetStats">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainListGetStats"/>
-      <arg name="stats" type="u" direction="in"/>
-      <arg name="flags" type="u" direction="in"/>
-      <arg name="records" type="a{sv}" direction="out"/>
     </method>
     <method name="Shutdown">
       <annotation name="org.gtk.GDBus.DocString"

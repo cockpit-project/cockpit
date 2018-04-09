@@ -264,6 +264,42 @@ virtDBusDomainDestroy(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
+
+static void
+virtDBusDomainGetStats(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    virDomainPtr domains[2];
+    g_autoptr(virDomainStatsRecordPtr) records = NULL;
+    guint stats;
+    guint flags;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(uu)", &stats, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    domains[0] = domain;
+    domains[1] = NULL;
+
+    if (virDomainListGetStats(domains, stats, &records, flags) != 1)
+        return virtDBusUtilSetLastVirtError(error);
+
+    grecords = virtDBusUtilTypedParamsToGVariant(records[0]->params,
+                                                 records[0]->nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
 
 static void
 virtDBusDomainGetVcpus(GVariant *inArgs,
@@ -318,43 +354,6 @@ virtDBusDomainGetXMLDesc(GVariant *inArgs,
         return virtDBusUtilSetLastVirtError(error);
 
     *outArgs = g_variant_new("(s)", xml);
-}
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
-
-static void
-virtDBusDomainGetStats(GVariant *inArgs,
-                       GUnixFDList *inFDs G_GNUC_UNUSED,
-                       const gchar *objectPath,
-                       gpointer userData,
-                       GVariant **outArgs,
-                       GUnixFDList **outFDs G_GNUC_UNUSED,
-                       GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    virDomainPtr domains[2];
-    g_autoptr(virDomainStatsRecordPtr) records = NULL;
-    guint stats;
-    guint flags;
-    GVariant *grecords;
-
-    g_variant_get(inArgs, "(uu)", &stats, &flags);
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    domains[0] = domain;
-    domains[1] = NULL;
-
-    if (virDomainListGetStats(domains, stats, &records, flags) != 1)
-        return virtDBusUtilSetLastVirtError(error);
-
-    grecords = virtDBusUtilTypedParamsToGVariant(records[0]->params,
-                                                 records[0]->nparams);
-
-    *outArgs = g_variant_new_tuple(&grecords, 1);
 }
 
 static void
@@ -506,9 +505,9 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },
+    { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
-    { "GetStats", virtDBusDomainGetStats },
     { "Shutdown", virtDBusDomainShutdown },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },

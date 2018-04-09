@@ -25,6 +25,27 @@ virtDBusDomainGetVirDomain(virtDBusConnect *connect,
 }
 
 static void
+virtDBusDomainGetActive(const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **value,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint active;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    active = virDomainIsActive(domain);
+    if (active < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!active);
+}
+
+static void
 virtDBusDomainGetName(const gchar *objectPath,
                       gpointer userData,
                       GVariant **value,
@@ -105,27 +126,6 @@ virtDBusDomainGetOsType(const gchar *objectPath,
         return virtDBusUtilSetLastVirtError(error);
 
     *value = g_variant_new("s", osType);
-}
-
-static void
-virtDBusDomainGetActive(const gchar *objectPath,
-                        gpointer userData,
-                        GVariant **value,
-                        GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    gint active;
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    active = virDomainIsActive(domain);
-    if (active < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *value = g_variant_new("b", !!active);
 }
 
 static void
@@ -491,11 +491,11 @@ virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
+    { "Active", virtDBusDomainGetActive, NULL },
     { "Name", virtDBusDomainGetName, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
     { "Id", virtDBusDomainGetId, NULL },
     { "OSType", virtDBusDomainGetOsType, NULL },
-    { "Active", virtDBusDomainGetActive, NULL },
     { "Persistent", virtDBusDomainGetPersistent, NULL },
     { "State", virtDBusDomainGetState, NULL },
     { "Autostart", virtDBusDomainGetAutostart, NULL },

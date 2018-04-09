@@ -3,6 +3,10 @@
 
 <node name="/org/libvirt/domain">
   <interface name="org.libvirt.Domain">
+    <property name="Active" type="b" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainIsActive"/>
+    </property>
     <property name="Name" type="s" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetName"/>
@@ -18,10 +22,6 @@
     <property name="OSType" type="s" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetOSType"/>
-    </property>
-    <property name="Active" type="b" access="read">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainIsActive"/>
     </property>
     <property name="Persistent" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"

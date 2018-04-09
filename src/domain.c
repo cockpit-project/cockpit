@@ -448,6 +448,26 @@ virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainSuspend(GVariant *inArgs G_GNUC_UNUSED,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSuspend(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainUndefine(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -467,26 +487,6 @@ virtDBusDomainUndefine(GVariant *inArgs,
         return;
 
     if (virDomainUndefineFlags(domain, flags) < 0)
-        virtDBusUtilSetLastVirtError(error);
-}
-
-static void
-virtDBusDomainSuspend(GVariant *inArgs G_GNUC_UNUSED,
-                      GUnixFDList *inFDs G_GNUC_UNUSED,
-                      const gchar *objectPath,
-                      gpointer userData,
-                      GVariant **outArgs G_GNUC_UNUSED,
-                      GUnixFDList **outFDs G_GNUC_UNUSED,
-                      GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainSuspend(domain) < 0)
         virtDBusUtilSetLastVirtError(error);
 }
 
@@ -512,8 +512,8 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
     { "Resume", virtDBusDomainResume },
-    { "Undefine", virtDBusDomainUndefine },
     { "Suspend", virtDBusDomainSuspend },
+    { "Undefine", virtDBusDomainUndefine },
     { 0 }
 };
 

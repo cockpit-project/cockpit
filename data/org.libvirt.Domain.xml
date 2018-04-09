@@ -83,14 +83,14 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
     </method>
+    <method name="Suspend">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSuspend"/>
+    </method>
     <method name="Undefine">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainUndefineFlags"/>
       <arg name="flags" type="u" direction="in"/>
-    </method>
-    <method name="Suspend">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSuspend"/>
     </method>
     <signal name="DeviceAdded">
       <annotation name="org.gtk.GDBus.DocString"

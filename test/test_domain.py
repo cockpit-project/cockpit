@@ -68,19 +68,6 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.main_loop()
 
-    def test_undefine(self):
-        def domain_undefined(path, _event):
-            assert isinstance(path, dbus.ObjectPath)
-            self.loop.quit()
-
-        self.connect.connect_to_signal('DomainEvent', domain_undefined, arg1='Undefined')
-
-        _, domain = self.domain()
-        domain.Shutdown(0)
-        domain.Undefine(0)
-
-        self.main_loop()
-
     def test_suspend(self):
         def domain_suspended(path, _event):
             assert isinstance(path, dbus.ObjectPath)
@@ -93,6 +80,19 @@ class TestDomain(libvirttest.BaseTestClass):
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
         assert state == 'paused'
+
+        self.main_loop()
+
+    def test_undefine(self):
+        def domain_undefined(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('DomainEvent', domain_undefined, arg1='Undefined')
+
+        _, domain = self.domain()
+        domain.Shutdown(0)
+        domain.Undefine(0)
 
         self.main_loop()
 

@@ -21,7 +21,8 @@ polkit_DATA = $(polkit_files:.rules.in=.rules)
 interfaces_files = \
 	org.libvirt.Connect.xml \
 	org.libvirt.Domain.xml \
-	org.libvirt.Network.xml
+	org.libvirt.Network.xml \
+	org.libvirt.StoragePool.xml
 interfacesdir = $(DBUS_INTERFACES_DIR)
 interfaces_DATA = $(interfaces_files)
 

@@ -255,3 +255,36 @@ virtDBusUtilStringListFree(virtDBusCharArray *item)
 
     g_free(item);
 }
+
+virStoragePoolPtr
+virtDBusUtilVirStoragePoolFromBusPath(virConnectPtr connection,
+                                      const gchar *path,
+                                      const gchar *storagePoolPath)
+{
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(storagePoolPath) + 1;
+
+    name = virtDBusUtilDecodeUUID(path + prefixLen);
+
+    return virStoragePoolLookupByUUIDString(connection, name);
+}
+
+gchar *
+virtDBusUtilBusPathForVirStoragePool(virStoragePoolPtr storagePool,
+                                     const gchar *storagePoolPath)
+{
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+    g_autofree gchar *newUuid = NULL;
+    virStoragePoolGetUUIDString(storagePool, uuid);
+    newUuid = virtDBusUtilEncodeUUID(uuid);
+    return g_strdup_printf("%s/%s", storagePoolPath, newUuid);
+}
+
+void
+virtDBusUtilVirStoragePoolListFree(virStoragePoolPtr *storagePools)
+{
+    for (gint i = 0; storagePools[i] != NULL; i++)
+        virStoragePoolFree(storagePools[i]);
+
+    g_free(storagePools);
+}

@@ -14,6 +14,7 @@ struct virtDBusConnect {
     const gchar *connectPath;
     gchar *domainPath;
     gchar *networkPath;
+    gchar *storagePoolPath;
     virConnectPtr connection;
     GMutex lock;
 

@@ -2,6 +2,7 @@
 #include "domain.h"
 #include "events.h"
 #include "network.h"
+#include "storagepool.h"
 #include "util.h"
 
 #include <glib/gprintf.h>
@@ -1105,6 +1106,7 @@ virtDBusConnectFree(virtDBusConnect *connect)
 
     g_free(connect->domainPath);
     g_free(connect->networkPath);
+    g_free(connect->storagePoolPath);
     g_free(connect);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virtDBusConnect, virtDBusConnectFree);
@@ -1151,6 +1153,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
         return;
 
     virtDBusNetworkRegister(connect, error);
+    if (error && *error)
+        return;
+
+    virtDBusStoragePoolRegister(connect, error);
     if (error && *error)
         return;
 

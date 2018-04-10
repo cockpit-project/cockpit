@@ -9,7 +9,8 @@ DAEMON_SOURCES = \
 	domain.c domain.h \
 	events.c events.h \
 	gdbus.c gdbus.h \
-	network.c network.h
+	network.c network.h \
+	storagepool.c storagepool.h
 
 EXTRA_DIST = \
 	$(DAEMON_SOURCES)

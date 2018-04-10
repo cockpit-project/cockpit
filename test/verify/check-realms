@@ -170,12 +170,13 @@ fi
 
 echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN
 
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
+# create SPN and keytab for ws
 if type ipa >/dev/null 2>&1; then
     LC_ALL=C.UTF-8 ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
 else
     curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 fi
+ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
 
 # HACK: This needs to work, but may take a minute
 for x in $(seq 1 60); do
@@ -211,22 +212,14 @@ class TestKerberos(MachineCase):
         "ipa": { "image": "ipa", "memory_mb": 2048 }
     }
 
-    def configure_kerberos(self):
+    def configure_kerberos(self, keytab):
         # Setup a place for kerberos caches
-        args = { "addr": "10.111.112.100", "password": "foobarfoo" }
+        args = { "addr": "10.111.112.100", "password": "foobarfoo", "keytab": keytab }
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
         if "ubuntu" in self.machine.image:
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
         self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
-
-    def tearDown(self):
-        if 'KRB5CCNAME' in os.environ:
-            del os.environ['KRB5CCNAME']
-        if 'KRB_CONFIG' in os.environ:
-            del os.environ['KRB5_CONFIG']
-
-        MachineCase.tearDown(self)
 
     def testNegotiate(self):
         self.allow_authorize_journal_messages()
@@ -247,22 +240,13 @@ class TestKerberos(MachineCase):
         self.assertIn("HTTP/1.1 401", output)
         self.assertNotIn("WWW-Authenticate: Negotiate", output)
 
-        self.configure_kerberos()
-        self.machine.restart_cockpit()
-
-        self.machine.execute("mkdir -p /etc/cockpit")
         keytab = "/etc/cockpit/krb5.keytab"
         # This only supports the default keytab location
         if self.machine.image == "rhel-7-4":
             keytab = "/etc/krb5.keytab"
 
-        # Pull keytab
-        self.machine.execute(["ipa-getkeytab","-q","-s","f0.cockpit.lan",
-                              "-p","HTTP/x0.cockpit.lan","-k",keytab])
-
-        if self.machine.image not in ["rhel-7-4", "rhel-7-5"]:
-            self.machine.execute("chmod 600 /etc/cockpit/krb5.keytab")
-
+        self.configure_kerberos(keytab)
+        self.machine.restart_cockpit()
 
         output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
                                        '--resolve', 'x0.cockpit.lan:9090:10.111.113.1',

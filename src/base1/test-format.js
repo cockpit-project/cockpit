@@ -17,31 +17,45 @@ QUnit.test("format", function() {
 
 QUnit.test("format_number", function () {
     var checks = [
-        [ 23.4, "23.4" ],
-        [ 23.46, "23.5" ],
-        [ 23.44, "23.4" ],
+        [ 23.4, "23.4", "23,4" ],
+        [ 23.46, "23.5", "23,5" ],
+        [ 23.44, "23.4", "23,4" ],
 
-        [ -23.4, "-23.4" ],
-        [ -23.46, "-23.5" ],
-        [ -23.44, "-23.4" ],
+        [ -23.4, "-23.4", "-23,4" ],
+        [ -23.46, "-23.5", "-23,5" ],
+        [ -23.44, "-23.4", "-23,4" ],
 
-        [ 0, "0" ],
-        [ 0.001, "0.001" ],
-        [ -0.001, "-0.001" ],
+        [ 0, "0", "0" ],
+        [ 0.001, "0.001" , "0,001"],
+        [ -0.001, "-0.001", "-0,001" ],
 
-        [ 123.0, "123" ],
-        [ 123.01, "123" ],
-        [ -123.0, "-123" ],
-        [ -123.01, "-123" ],
-        [ null, "" ],
-        [ undefined, "" ],
+        [ 123.0, "123", "123" ],
+        [ 123.01, "123", "123" ],
+        [ -123.0, "-123", "-123" ],
+        [ -123.01, "-123", "-123" ],
+        [ null, "", "" ],
+        [ undefined, "", "" ],
     ];
 
-    assert.expect(checks.length);
-    for (var i = 0; i < checks.length; i++) {
+    var saved_language = cockpit.language;
+    var i;
+
+    assert.expect(checks.length * 2);
+
+    cockpit.language = 'en';
+    for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
-                    "format_number(" + checks[i][0] + ") = " + checks[i][1]);
+                    "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
     }
+
+    cockpit.language = 'de';
+    for (i = 0; i < checks.length; i++) {
+        assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
+                    "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
+    }
+
+  /* restore this as not to break the other tests */
+  cockpit.language = saved_language;
 });
 
 QUnit.test("format_bytes", function() {

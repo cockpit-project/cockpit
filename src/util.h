@@ -79,6 +79,22 @@ virtDBusUtilStringListFree(virtDBusCharArray *item);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virtDBusCharArray, virtDBusUtilStringListFree);
 
+virSecretPtr
+virtDBusUtilVirSecretFromBusPath(virConnectPtr connection,
+                                 const gchar *path,
+                                 const gchar *secretPath);
+
+gchar *
+virtDBusUtilBusPathForVirSecret(virSecretPtr secret,
+                                const gchar *secretPath);
+
+void
+virtDBusUtilVirSecretListFree(virSecretPtr *secrets);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virSecret, virSecretFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virSecretPtr,
+                              virtDBusUtilVirSecretListFree);
+
 virStoragePoolPtr
 virtDBusUtilVirStoragePoolFromBusPath(virConnectPtr connection,
                                       const gchar *path,

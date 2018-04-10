@@ -10,6 +10,7 @@ DAEMON_SOURCES = \
 	events.c events.h \
 	gdbus.c gdbus.h \
 	network.c network.h \
+	secret.c secret.h \
 	storagepool.c storagepool.h
 
 EXTRA_DIST = \

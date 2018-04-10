@@ -256,6 +256,39 @@ virtDBusUtilStringListFree(virtDBusCharArray *item)
     g_free(item);
 }
 
+virSecretPtr
+virtDBusUtilVirSecretFromBusPath(virConnectPtr connection,
+                                 const gchar *path,
+                                 const gchar *secretPath)
+{
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(secretPath) + 1;
+
+    name = virtDBusUtilDecodeUUID(path + prefixLen);
+
+    return virSecretLookupByUUIDString(connection, name);
+}
+
+gchar *
+virtDBusUtilBusPathForVirSecret(virSecretPtr secret,
+                                const gchar *secretPath)
+{
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+    g_autofree gchar *newUuid = NULL;
+    virSecretGetUUIDString(secret, uuid);
+    newUuid = virtDBusUtilEncodeUUID(uuid);
+    return g_strdup_printf("%s/%s", secretPath, newUuid);
+}
+
+void
+virtDBusUtilVirSecretListFree(virSecretPtr *secrets)
+{
+    for (gint i = 0; secrets[i] != NULL; i++)
+        virSecretFree(secrets[i]);
+
+    g_free(secrets);
+}
+
 virStoragePoolPtr
 virtDBusUtilVirStoragePoolFromBusPath(virConnectPtr connection,
                                       const gchar *path,

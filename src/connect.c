@@ -2,6 +2,7 @@
 #include "domain.h"
 #include "events.h"
 #include "network.h"
+#include "secret.h"
 #include "storagepool.h"
 #include "util.h"
 
@@ -1217,6 +1218,7 @@ virtDBusConnectFree(virtDBusConnect *connect)
 
     g_free(connect->domainPath);
     g_free(connect->networkPath);
+    g_free(connect->secretPath);
     g_free(connect->storagePoolPath);
     g_free(connect);
 }
@@ -1267,6 +1269,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
         return;
 
     virtDBusNetworkRegister(connect, error);
+    if (error && *error)
+        return;
+
+    virtDBusSecretRegister(connect, error);
     if (error && *error)
         return;
 

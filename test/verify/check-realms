@@ -176,7 +176,11 @@ fi
 echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN
 
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1144292
-LC_ALL=C.UTF-8 ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
+if type ipa >/dev/null 2>&1; then
+    LC_ALL=C.UTF-8 ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
+else
+    curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
+fi
 
 # HACK: This needs to work, but may take a minute
 for x in $(seq 1 60); do

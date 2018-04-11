@@ -185,7 +185,7 @@ class TestMachines(MachineCase):
             args["console"] = PTYCONSOLE_XML
         else:
             # These operating systems do not log from qemu properly
-            if m.image not in [ "centos-7", "rhel-7", "rhel-7-4" ]:
+            if m.image not in [ "centos-7" ]:
                 m.execute("chmod 777 /var/log/libvirt")
                 args["logfile"] = "/var/log/libvirt/console-{0}.log".format(name)
                 args["console"] = CONSOLE_XML.format(log=args["logfile"])

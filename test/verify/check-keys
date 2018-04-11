@@ -284,13 +284,6 @@ class TestKeys(MachineCase):
             b.click("#credentials-item")
             b.wait_popup("credentials-dialog")
 
-        # Rhel 7.4 has an old shell
-        if m.image == 'rhel-7-4':
-            b.wait_present("#credential-keys")
-            b.wait_not_present("#credential-keys a")
-            b.wait_not_present("tr.load-custom-key")
-            return
-
         # Add bad keys
         # generate a new key
         m.execute("ssh-keygen -t rsa -N '' -f /tmp/new.rsa")

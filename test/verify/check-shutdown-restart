@@ -32,7 +32,6 @@ class TestShutdownRestart(MachineCase):
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
 
-    @skipImage("Shutdown button not disabled in Cockpit 138", "rhel-7-4")
     def testNoPermission(self):
         m = self.machine
         b = self.browser

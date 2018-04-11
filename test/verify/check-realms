@@ -61,8 +61,7 @@ class TestRealms(MachineCase):
             b.wait_attr(".realms-op-admin", "placeholder", 'e.g. "admin"')
             b.set_val(".realms-op-admin", "admin")
             b.set_val(".realms-op-admin-password", "foobarfoo")
-            if m.image not in ["rhel-7-4"]:
-                b.wait_not_visible(".realms-op-leave-only-row")
+            b.wait_not_visible(".realms-op-leave-only-row")
             b.click(".realms-op-apply")
             b.wait_popdown("realms-op")
 
@@ -72,9 +71,8 @@ class TestRealms(MachineCase):
         # Leave the domain
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
-        if m.image not in ["rhel-7-4"]:
-            b.wait_visible(".realms-op-leave-only-row")
-            b.wait_in_text(".realms-op-leave-only-row", "cockpit.lan")
+        b.wait_visible(".realms-op-leave-only-row")
+        b.wait_in_text(".realms-op-leave-only-row", "cockpit.lan")
         b.click(".realms-op-apply")
         b.wait_popdown("realms-op")
         wait_number_domains(0)
@@ -87,12 +85,8 @@ class TestRealms(MachineCase):
         b.set_val(".realms-op-admin", "admin")
         b.set_val(".realms-op-admin-password", "foo")
         b.click(".realms-op-apply")
-        if m.image in ["rhel-7-4"]:
-            b.wait_text_not(".realms-op-error", "")
-        else:
-            b.wait_text_not(".realms-op-message", "")
-        if m.image not in ["rhel-7-4"]:
-            b.wait_not_visible(".realms-op-leave-only-row")
+        b.wait_text_not(".realms-op-message", "")
+        b.wait_not_visible(".realms-op-leave-only-row")
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
 
@@ -144,10 +138,7 @@ class TestRealms(MachineCase):
         b.set_val(".realms-op-admin", "admin")
         b.set_val(".realms-op-admin-password", "foobarfoo")
         b.click(".realms-op-apply")
-        if m.image in ["rhel-7-4"]:
-            b.wait_text(".realms-op-error", "Joining this domain is not supported")
-        else:
-            b.wait_text(".realms-op-message", "Joining this domain is not supported")
+        b.wait_text(".realms-op-message", "Joining this domain is not supported")
 
 JOIN_SCRIPT = """
 set -ex
@@ -242,7 +233,7 @@ class TestKerberos(MachineCase):
 
         keytab = "/etc/cockpit/krb5.keytab"
         # This only supports the default keytab location
-        if self.machine.image == "rhel-7-4":
+        if self.machine.image == "rhel-7-5":
             keytab = "/etc/krb5.keytab"
 
         self.configure_kerberos(keytab)

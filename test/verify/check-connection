@@ -144,7 +144,7 @@ class TestConnection(MachineCase):
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode("admin:foobar"), ))
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
-        if m.image in ["rhel-7-4"]:
+        if m.image in ["rhel-7-5"]:
             self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 ws: wss", headers)
         else:
             self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
@@ -171,12 +171,12 @@ class TestConnection(MachineCase):
     def testSocket(self):
         m = self.machine
 
-        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+        if not m.image in ["rhel-7-5"]:
             self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
             self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
         m.start_cockpit()
 
-        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+        if not m.image in ["rhel-7-5"]:
             self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
             self.assertIn("9090", m.execute("cat /run/cockpit/issue"))
 
@@ -188,14 +188,14 @@ class TestConnection(MachineCase):
         m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443\nExecStartPost=-/bin/ln -sf /etc/cockpit/active.issue /run/cockpit/issue" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+        if not m.image in ["rhel-7-5"]:
             self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
             self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
             self.assertNotIn("custom activemessage", m.execute("cat /run/cockpit/issue"))
         m.start_cockpit(tls=True)
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-4", "rhel-7-5"]:
+        if not m.image in ["rhel-7-5"]:
             self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
             self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
             self.assertIn("custom activemessage", m.execute("cat /run/cockpit/issue"))

@@ -269,15 +269,6 @@ else
   AC_MSG_ERROR(no. Please install intltool package)
 fi
 
-# chromium - same as test/common/cdp.py
-
-AC_PATH_PROGS([CHROMIUM], [chromium-browser chrome], [], [$srcdir/node_modules/chromium/lib/chromium/chrome-linux/chrome$PATH_SEPARATOR$PATH])
-if test -z "$CHROMIUM"; then
-  AC_PATH_PROG([CHROMIUM], [headless_shell], [], [/usr/lib/chromium-browser$PATH_SEPARATOR/usr/lib64/chromium-browser])
-fi
-AM_CONDITIONAL([WITH_CHROMIUM], [test -n "$CHROMIUM"])
-AC_SUBST([CHROMIUM])
-
 # go
 
 AC_PATH_PROG([GOLANG], [go])

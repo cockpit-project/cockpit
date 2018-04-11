@@ -79,6 +79,17 @@ export function injectMockUpdates(updates) {
             "This is total technobabble gibberish for layman users.\n\n").repeat(30)
     };
 
+    updates["verbose-md;1-1"] = {
+        name: "verbose-md",
+        version: "1-1",
+        bug_urls: [],
+        cve_urls: [],
+        severity: 6,
+        description: ("Some longish explanation of some *boring* technical change. " +
+            "This is total technobabble gibberish for layman users.\n\n").repeat(30),
+        markdown: true,
+    };
+
     // many bug fixes
     var bugs = [];
     for (let i = 10000; i < 10025; ++i)

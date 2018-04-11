@@ -14,8 +14,9 @@ tr.listing-ct-item {
     td.type {
         white-space: nowrap;
     }
-    td.changelog {
+    td.changelog, td.changelog p {
         max-width: 60vw;
+        margin-bottom: 0;  // counter-act <Markdown>
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

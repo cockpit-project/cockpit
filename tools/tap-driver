@@ -170,6 +170,7 @@ class TapDriver(Driver):
         self.late_plan = False
         self.errored = False
         self.bail_out = False
+        self.skip_all_reason = None
 
     def report(self, code, num, *args):
         if num:
@@ -203,13 +204,19 @@ class TapDriver(Driver):
         else:
             self.result_fail(num, description)
 
-    def consume_test_plan(self, first, last):
+    def consume_test_plan(self, line):
         # Only one test plan is supported
         if self.test_plan:
             self.report_error("Get a second TAP test plan")
             return
 
+        if line.lower().startswith('1..0 # skip'):
+            self.skip_all_reason = line[5:].strip()
+            self.bail_out = True
+            return
+
         try:
+            (first, unused, last) = line.partition("..")
             first = int(first)
             last = int(last)
         except ValueError:
@@ -235,8 +242,7 @@ class TapDriver(Driver):
             elif line.startswith("not ok "):
                 self.consume_test_line(False, line[7:])
             elif line and line[0].isdigit() and ".." in line:
-                (first, unused, last) = line.partition("..")
-                self.consume_test_plan(first, last)
+                self.consume_test_plan(line)
             elif line.lower().startswith("bail out!"):
                 self.consume_bail_out(line)
 
@@ -245,6 +251,13 @@ class TapDriver(Driver):
 
         failed = False
         skipped = True
+
+        if self.skip_all_reason is not None:
+            self.result_skip("skipping:", self.skip_all_reason)
+            self.trs.write(":global-test-result: SKIP\n")
+            self.trs.write(":test-global-result: SKIP\n")
+            self.trs.write(":recheck: no\n")
+            return 0
 
         # Basic collation of results
         for (num, code) in self.reported.items():

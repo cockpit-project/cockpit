@@ -30,14 +30,16 @@ def browser_path(headless=True):
         g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
         if g:
             return g[0]
-    try:
-        return subprocess.check_output(["which", "chromium-browser"]).strip()
-    except subprocess.CalledProcessError:
-        p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
-        if os.access(p, os.X_OK):
-            return p
-        raise
 
+    p = subprocess.check_output("which chromium-browser || true", shell=True).strip()
+    if p:
+        return p
+
+    p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
+    if os.access(p, os.X_OK):
+        return p
+
+    return None
 
 def jsquote(str):
     return json.dumps(str)
@@ -55,6 +57,7 @@ class CDP:
         self._driver = None
         self._browser = None
         self._browser_home = None
+        self._browser_path = None
         self._cdp_port_lockfile = None
 
     def invoke(self, fn, **kwargs):
@@ -132,6 +135,12 @@ class CDP:
         else:
             raise RuntimeError("unable to find free port")
 
+    def get_browser_path(self):
+        if self._browser_path is None:
+            self._browser_path = browser_path(self.headless)
+
+        return self._browser_path
+
     def start(self):
         environ = os.environ.copy()
         if self.lang:
@@ -159,7 +168,9 @@ class CDP:
             except KeyError:
                 pass
 
-            exe = browser_path(self.headless)
+            exe = self.get_browser_path()
+            if not exe:
+                raise SystemError("chromium not installed")
 
             if self.headless:
                 argv = [exe,  "--headless"]

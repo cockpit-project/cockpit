@@ -362,6 +362,30 @@ virtDBusDomainDestroy(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusDomainDetachDevice(GVariant *inArgs,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath,
+                           gpointer userData,
+                           GVariant **outArgs G_GNUC_UNUSED,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *xml;
+    guint flags;
+
+    g_variant_get(inArgs, "(&su)", &xml, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainDetachDeviceFlags(domain, xml, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
 
 static void
@@ -636,6 +660,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "AttachDevice", virtDBusDomainAttachDevice },
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },
+    { "DetachDevice", virtDBusDomainDetachDevice },
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },

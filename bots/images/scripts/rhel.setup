@@ -45,15 +45,15 @@ set -x
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
 
-    if [ "$IMAGE" = "rhel-7-5" ]; then
+    if [ "$IMAGE" = "rhel-7-6" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
-[EXTRAS-7.5-LATEST]
+[EXTRAS-7.6-LATEST]
 name=rhel-extras-compose
 baseurl=http://download.eng.bos.redhat.com/devel/candidate-trees/latest-EXTRAS-7-RHEL-7/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
 
-[RHEL-7.5-NIGHTLY]
+[RHEL-7.6-NIGHTLY]
 name=base-rhel
 baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
 enabled=1
@@ -141,7 +141,7 @@ cryptsetup \
 qemu-kvm \
 "
 
-if [ "$IMAGE" = "rhel-7" ] || [ "$IMAGE" = "rhel-7-4" ] || [ "$IMAGE" = "centos-7" ]; then
+if [ "$IMAGE" = "centos-7" ]; then
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
 else
     UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
@@ -167,8 +167,8 @@ fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"
 
-# The rhel-7.4 image has the cockpit packages from base preinstalled, to check for API breakages
-if [ "$IMAGE" = "rhel-7-4" ]; then
+# The rhel-7.5 image has the cockpit packages from base preinstalled, to check for API breakages
+if [ "$IMAGE" = "rhel-7-5" ]; then
     DISTRO_COCKPIT_PACKAGES="\
 cockpit
 cockpit-bridge \

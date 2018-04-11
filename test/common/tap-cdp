@@ -54,6 +54,12 @@ opts.server = opts.server[:-1]
 if opts.strip and opts.test.startswith(opts.strip):
     opts.test = opts.test[len(opts.strip):]
 
+cdp = cdp.CDP("C.utf8")
+
+if not cdp.get_browser_path():
+    print('1..0 # skip web browser not found')
+    sys.exit(0)
+
 server = subprocess.Popen(opts.server,
                           stdout=subprocess.PIPE,
                           stdin=subprocess.PIPE,
@@ -61,7 +67,6 @@ server = subprocess.Popen(opts.server,
 
 address = server.stdout.readline()
 
-cdp = cdp.CDP("C.utf8")
 cdp.invoke("Page.navigate", url=address + '/' + opts.test)
 
 success = True

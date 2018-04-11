@@ -111,7 +111,7 @@ class TestUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/system")
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # status on /system front page: no repos at all, thus no updates
             self.wait_checking_updates()
             b.wait_text("#system_information_updates_text", "System Up To Date")
@@ -153,7 +153,7 @@ class TestUpdates(PackageCase):
         self.check_nth_update(1, "chocolate", "2.0-2")
         self.check_nth_update(2, "vanilla", "1.0-2")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # updates are shown on system page
             b.go("/system")
             b.enter_page("/system")
@@ -223,7 +223,7 @@ class TestUpdates(PackageCase):
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # system page has current state as well
             b.go("/system")
             b.enter_page("/system")
@@ -312,7 +312,7 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.text(sel + " .listing-ct-body em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " .listing-ct-body a:first-of-type", "href"), "http://unicorn.example.com")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # updates are shown on system page
             b.go("/system")
             b.enter_page("/system")
@@ -661,7 +661,7 @@ class TestUpdates(PackageCase):
         b.wait_present("#app pre")
         b.wait_in_text("#app pre", "PackageKit is not installed")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # update status on front page should be invisible
             b.go("/system")
             b.enter_page("/system")
@@ -715,7 +715,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # fresh machine, no updates available; by default our rhel-* images are not registered
         m.start_cockpit()
         b.login_and_go("/system")
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # show unregistered status on system front page
             b.wait_present("#system_information_updates_text")
             b.wait_in_text("#system_information_updates_text", "Not Registered")
@@ -746,7 +746,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present(".container-fluid div.blank-slate-pf")
         b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # same on system page
             b.go("/system")
             b.enter_page("/system")
@@ -766,7 +766,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
 
         b.login_and_go("/system")
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # by default our rhel-* images are not registered; show warning on system page
             b.wait_present("#system_information_updates_text")
             b.wait_in_text("#system_information_updates_text", "Not Registered")
@@ -811,7 +811,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present("#app .container-fluid button")
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # show available updates on system page too
             b.go("/system")
             b.enter_page("/system")

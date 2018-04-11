@@ -114,7 +114,7 @@ WantedBy=default.target
 
         b.switch_to_top()
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             # The top bar should not be visible on fedora-atomic because no dashboards
             b.wait_present(".area-ct-body")
             if "atomic" in m.image:
@@ -210,7 +210,7 @@ WantedBy=default.target
         b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
 
-    @skipImage("Shell too old", "rhel-7-4")
+    @skipImage("Shell too old", "rhel-7-5")
     def testShellReload(self):
         b = self.browser
         m = self.machine

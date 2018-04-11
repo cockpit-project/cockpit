@@ -125,16 +125,15 @@ class TestMetrics(MachineCase):
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100*1024, None, 5, "disk io");
         m.execute("kill %d" % disk_pid)
 
-        # Network traffic through loopback. Should be ignored (fixed in 147)
-        if m.image not in ["rhel-7-4"]:
-            m.spawn("ping -w 5 -f -c 10000000 -s 50000  127.0.0.1", "load-net-lo.log")
-            try:
-                with b.wait_timeout(10):
-                    b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
-                self.fail("Unexpected traffic graph for localhost")
-            except Error as ex:
-                if not ex.msg.startswith('timeout'):
-                    raise
+        # Network traffic through loopback. Should be ignored
+        m.spawn("ping -w 5 -f -c 10000000 -s 50000  127.0.0.1", "load-net-lo.log")
+        try:
+            with b.wait_timeout(10):
+                b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+            self.fail("Unexpected traffic graph for localhost")
+        except Error as ex:
+            if not ex.msg.startswith('timeout'):
+                raise
 
         # Network traffic through Ethernet.  Anything above 300 kb/s is good for now.
         #

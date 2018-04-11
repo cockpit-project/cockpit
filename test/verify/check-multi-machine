@@ -247,11 +247,7 @@ class TestMultiMachine(MachineCase):
         # Branding uses m2 pretty name
         b.wait_in_text ("#index-brand", "A Pretty Name")
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
-        if self.machine.image in ["rhel-7-4"]:
-            # only fixed in PR #6512 in 143
-            m2_dashboard_name = "10.111.113.2"
-        else:
-            m2_dashboard_name = "machine2"
+        m2_dashboard_name = "machine2"
 
         # Dashboard is not installed on secondary atomic machines
         if not m2.atomic_image:
@@ -701,9 +697,8 @@ class TestMultiMachine(MachineCase):
         b.wait_present("#troubleshoot-dialog pre")
         b.wait_in_text("#troubleshoot-dialog pre", "10.111.113.2")
         b.wait_in_text("#troubleshoot-dialog pre", "ssh-keygen")
-        if self.machine.image not in ["rhel-7-4"]:
-            # only fixed in 141 (PR #6720)
-            b.wait_in_text("#troubleshoot-dialog pre", "/home/admin/.ssh/known_hosts")
+        # only fixed in 141 (PR #6720)
+        b.wait_in_text("#troubleshoot-dialog pre", "/home/admin/.ssh/known_hosts")
         b.click("#troubleshoot-dialog .btn-default")
         b.wait_popdown('troubleshoot-dialog')
         fix_hostkey(m1, filename="/home/admin/.ssh/known_hosts")
@@ -770,9 +765,8 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
         b.wait_in_text("#login-available", "Login Password")
-        if m1.image != "rhel-7-4":
-            b.wait_not_in_text("#login-available", "Kerberos Ticket")
-            b.wait_not_present("#login-available .empty")
+        b.wait_not_in_text("#login-available", "Kerberos Ticket")
+        b.wait_not_present("#login-available .empty")
 
         fail_login(b)
 
@@ -860,11 +854,10 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
 
-        if m1.image != "rhel-7-4":
-            b.wait_not_in_text("#login-available", "Login Password")
-            b.wait_not_in_text("#login-available", "Kerberos Ticket")
-            b.wait_present("#login-available .empty")
-            b.wait_visible("#login-available .empty")
+        b.wait_not_in_text("#login-available", "Login Password")
+        b.wait_not_in_text("#login-available", "Kerberos Ticket")
+        b.wait_present("#login-available .empty")
+        b.wait_visible("#login-available .empty")
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',

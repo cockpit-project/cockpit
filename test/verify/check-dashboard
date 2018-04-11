@@ -204,7 +204,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.leave_page()
         b.wait_js_cond('ph_select("#machine-dropdown ul li").length == 3')
 
-        if m.image != "rhel-7-4":
+        if m.image != "rhel-7-5":
             b.click("#host-nav-link")
 
         b.click("#machine-link")

@@ -160,7 +160,6 @@ class TestAccounts(MachineCase):
                 return value.strip()
         return None
 
-    @skipImage("Not available with Cockpit 138", "rhel-7-4")
     def testExpire(self):
         m = self.machine
         b = self.browser

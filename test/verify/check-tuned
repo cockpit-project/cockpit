@@ -41,8 +41,8 @@ class TestTuned(MachineCase):
         self.login_and_go("/system")
 
         def check_status_tooltip(expected):
-            if m.image == 'rhel-7-4':
-                # on RHEL 7.4 this was still a popover on a separate (i) button
+            if m.image == 'rhel-7-5':
+                # on RHEL 7.5 this was still a popover on a separate (i) button
                 b.wait_attr('#system-info-performance [data-toggle="popover"]', 'data-content', expected)
                 return
 
@@ -58,7 +58,7 @@ class TestTuned(MachineCase):
 
         # Start tuned manually. The recommended profile will be activated automatically.
         m.execute("systemctl start tuned")
-        if m.image == 'rhel-7-4':
+        if m.image == 'rhel-7-5':
             # versions < 164 required clicking the info button to update the status
             b.click('#system-info-performance [data-toggle="popover"]')
         b.wait_text('#system-info-performance a.action-trigger', recommended_profile)

@@ -31,7 +31,7 @@ def browser_path(headless=True):
         if g:
             return g[0]
 
-    p = subprocess.check_output("which chromium-browser || true", shell=True).strip()
+    p = subprocess.check_output("which chromium-browser || which chromium || true", shell=True).strip()
     if p:
         return p
 

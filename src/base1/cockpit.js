@@ -1446,10 +1446,14 @@ function factory() {
     };
 
     cockpit.format_number = function format_number(number) {
-        /* TODO: Make the decimal separator translatable */
-
         /* We show 3 digits of precison but avoid scientific notation.
          * We also show integers without digits after the comma.
+         *
+         * We want to localise the decimal place, but we never want to
+         * show thousands separators (to avoid ambiguity).  For this
+         * reason, for integers and large enough numbers, we use
+         * non-localised conversions (and in both cases, show no
+         * fractional part).
          */
 
         if (!number && number !== 0)
@@ -1457,13 +1461,16 @@ function factory() {
         else if (number % 1 === 0)
             return number.toString();
         else if (number > 0 && number <= 0.001)
-            return "0.001";
+            return (0.001).toLocaleString(cockpit.language);
         else if (number < 0 && number >= -0.001)
-            return "-0.001";
+            return (-0.001).toLocaleString(cockpit.language);
         else if (number > 999 || number < -999)
             return number.toFixed(0);
         else
-            return number.toPrecision(3);
+            return number.toLocaleString(cockpit.language, {
+                maximumSignificantDigits: 3,
+                minimumSignificantDigits: 3
+            });
     };
 
     function format_units(number, suffixes, factor, separate) {

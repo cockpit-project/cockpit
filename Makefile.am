@@ -257,11 +257,7 @@ SH_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
 HTML_TEST_SERVER = $(builddir)/test-server
 
-if WITH_CHROMIUM
 HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(top_srcdir)/ -- $(HTML_TEST_SERVER)
-else
-HTML_LOG_DRIVER_FLAGS = --missing=chromium
-endif
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
 	--suppressions=valgrind-suppressions --gen-suppressions=all \

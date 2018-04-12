@@ -3,6 +3,38 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainMemoryStat)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainMemoryStat,
+                    VIR_DOMAIN_MEMORY_STAT_LAST,
+                    "swap_in",
+                    "swap_out",
+                    "major_fault",
+                    "minor_fault",
+                    "unused",
+                    "available",
+                    "actual_baloon",
+                    "rss",
+                    "usable",
+                    "last_update")
+
+static GVariant *
+virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
+                                    gint nr_stats)
+{
+    GVariantBuilder builder;
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{st}"));
+
+    for (gint i = 0; i < nr_stats; i++) {
+        const gchar *memoryStat = virtDBusDomainMemoryStatTypeToString(stats[i].tag);
+        if (!memoryStat)
+            continue;
+        g_variant_builder_add(&builder, "{st}", memoryStat, stats[i].val);
+    }
+
+    return g_variant_builder_end(&builder);
+}
+
 static virDomainPtr
 virtDBusDomainGetVirDomain(virtDBusConnect *connect,
                            const gchar *objectPath,
@@ -399,6 +431,37 @@ virtDBusDomainGetXMLDesc(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainMemoryStats(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    virDomainMemoryStatStruct stats[VIR_DOMAIN_MEMORY_STAT_NR];
+    gint nr_stats;
+    guint flags;
+    GVariant *gstats;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    nr_stats = virDomainMemoryStats(domain, stats, VIR_DOMAIN_MEMORY_STAT_NR, flags);
+    if (nr_stats < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    gstats = virtDBusDomainMemoryStatsToGVariant(stats, nr_stats);
+
+    *outArgs = g_variant_new_tuple(&gstats, 1);
+}
+
+static void
 virtDBusDomainReboot(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -551,6 +614,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
+    { "MemoryStats", virtDBusDomainMemoryStats },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
     { "Resume", virtDBusDomainResume },

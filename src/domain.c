@@ -3,6 +3,22 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainControlErrorReason)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlErrorReason,
+                    VIR_DOMAIN_CONTROL_ERROR_REASON_LAST,
+                    "none",
+                    "unknown",
+                    "monitor",
+                    "internal")
+
+VIRT_DBUS_ENUM_DECL(virtDBusDomainControlState)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlState,
+                    VIR_DOMAIN_CONTROL_LAST,
+                    "ok",
+                    "job",
+                    "occupied",
+                    "error")
+
 VIRT_DBUS_ENUM_DECL(virtDBusDomainJob)
 VIRT_DBUS_ENUM_IMPL(virtDBusDomainJob,
                     VIR_DOMAIN_JOB_LAST,
@@ -847,6 +863,51 @@ virtDBusDomainGetBlkioParameters(GVariant *inArgs,
     grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
+virtDBusDomainGetControlInfo(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virDomainControlInfoPtr controlInfo = NULL;
+    const gchar *stateStr;
+    const gchar *errorReasonStr;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    controlInfo = g_new0(virDomainControlInfo, 1);
+    if (virDomainGetControlInfo(domain, controlInfo, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    stateStr = virtDBusDomainControlStateTypeToString(controlInfo->state);
+    if (!stateStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virDomainControlState '%d' to string.",
+                    controlInfo->state);
+        return;
+    }
+    errorReasonStr = virtDBusDomainControlErrorReasonTypeToString(controlInfo->details);
+    if (!errorReasonStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virDomainControlErrorReason '%d' to string.",
+                    controlInfo->details);
+        return;
+    }
+
+    *outArgs = g_variant_new("((sst))", stateStr,
+                             errorReasonStr, controlInfo->stateTime);
 }
 
 static void
@@ -1839,6 +1900,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "FSThaw", virtDBusDomainFSThaw },
     { "FSTrim", virtDBusDomainFSTrim },
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
+    { "GetControlInfo", virtDBusDomainGetControlInfo },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },

@@ -171,6 +171,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="BlkioParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetControlInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetControlInfo"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="controlInfo" type="(sst)" direction="out"/>
+    </method>
     <method name="GetJobInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>

@@ -47,6 +47,21 @@ class TestDomain(libvirttest.BaseTestClass):
         autostart_current = domain.Get('org.libvirt.Domain', 'Autostart', dbus_interface=dbus.PROPERTIES_IFACE)
         assert autostart_current == dbus.Boolean(autostart_expected)
 
+    def test_domain_managed_save(self):
+        def domain_stopped(path, _event):
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('DomainEvent', domain_stopped, arg1='Stopped')
+
+        obj, domain = self.domain()
+        domain.ManagedSave(0)
+
+        state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
+        assert state == 'shutoff'
+
+        self.main_loop()
+
     def test_resume(self):
         def domain_resumed(path, _event):
             assert isinstance(path, dbus.ObjectPath)

@@ -27,8 +27,6 @@ class TestDomain(libvirttest.BaseTestClass):
 
         xml = domain.GetXMLDesc(0)
         assert isinstance(xml, dbus.String)
-        vcpus = domain.GetVcpus(0)
-        assert isinstance(vcpus, dbus.UInt32)
 
         domain.Reboot(0)
         domain.Shutdown(0)
@@ -122,6 +120,13 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Undefine(0)
 
         self.main_loop()
+
+    def test_domain_vcpus(self):
+        obj, domain = self.domain()
+        vcpus_expected = 2
+        domain.SetVcpus(vcpus_expected, 0)
+        assert domain.GetVcpus(0) == dbus.Int32(vcpus_expected)
+
 
 if __name__ == '__main__':
     libvirttest.run()

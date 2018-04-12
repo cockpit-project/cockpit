@@ -773,6 +773,31 @@ virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainSetVcpus(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint vcpus;
+    guint flags;
+
+    g_variant_get(inArgs, "(uu)", &vcpus, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSetVcpusFlags(domain, vcpus, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainShutdown(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -870,6 +895,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
     { "Resume", virtDBusDomainResume },
+    { "SetVcpus", virtDBusDomainSetVcpus },
     { "Shutdown", virtDBusDomainShutdown },
     { "Suspend", virtDBusDomainSuspend },
     { "Undefine", virtDBusDomainUndefine },

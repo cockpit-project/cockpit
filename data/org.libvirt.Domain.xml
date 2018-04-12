@@ -138,6 +138,12 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
     </method>
+    <method name="SetVcpus">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetVcpusFlags"/>
+      <arg name="vcpus" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Shutdown">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainShutdownFlags"/>

@@ -35,6 +35,12 @@ PKG_NAME="Cockpit"
 olddir=$(pwd)
 cd $srcdir
 
+npm_version=$(npm --version)
+if test ${npm_version%%.*} -lt 3; then
+  echo npm version greater than 3.0.0 required, but you have ${npm_version} installed
+  exit 1
+fi
+
 # Development dependencies: See node_modules/README
 npm prune
 npm install # see package.json

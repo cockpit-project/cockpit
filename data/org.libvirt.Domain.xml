@@ -166,6 +166,12 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
     </method>
+    <method name="SetMemory">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMemoryFlags"/>
+      <arg name="memory" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetVcpus">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetVcpusFlags"/>

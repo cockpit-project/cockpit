@@ -772,6 +772,33 @@ virtDBusDomainMigrateGetMaxDowntime(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainMigrateGetMaxSpeed(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **outArgs,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gulong bandwidth;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainMigrateGetMaxSpeed(domain, &bandwidth, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(t)", bandwidth);
+}
+
+static void
 virtDBusDomainMigrateSetMaxDowntime(GVariant *inArgs,
                                     GUnixFDList *inFDs G_GNUC_UNUSED,
                                     const gchar *objectPath,
@@ -985,6 +1012,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "ManagedSaveRemove", virtDBusDomainManagedSaveRemove },
     { "MemoryStats", virtDBusDomainMemoryStats },
     { "MigrateGetMaxDowntime", virtDBusDomainMigrateGetMaxDowntime },
+    { "MigrateGetMaxSpeed", virtDBusDomainMigrateGetMaxSpeed },
     { "MigrateSetMaxDowntime", virtDBusDomainMigrateSetMaxDowntime },
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },

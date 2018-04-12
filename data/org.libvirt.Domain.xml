@@ -134,6 +134,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="downtime" type="t" direction="out"/>
     </method>
+    <method name="MigrateGetMaxSpeed">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainMigrateGetMaxSpeed"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="bandwidth" type="t" direction="out"/>
+    </method>
     <method name="MigrateSetMaxDowntime">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainMigrateSetMaxDowntime"/>

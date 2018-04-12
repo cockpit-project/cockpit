@@ -20,6 +20,7 @@ class TestDomain(libvirttest.BaseTestClass):
                     isinstance(props['SchedulerType'][0], dbus.String),
                     isinstance(props['SchedulerType'][1], dbus.Int32)])
         assert isinstance(props['State'], dbus.String)
+        assert isinstance(props['Updated'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
         # Call all methods except Reset and GetStats, because the test backend

@@ -263,6 +263,27 @@ virtDBusDomainGetState(const gchar *objectPath,
 }
 
 static void
+virtDBusDomainGetUpdated(const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **value,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint updated;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    updated = virDomainIsUpdated(domain);
+    if (updated < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!updated);
+}
+
+static void
 virtDBusDomainGetUUID(const gchar *objectPath,
                       gpointer userData,
                       GVariant **value,
@@ -942,6 +963,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "Persistent", virtDBusDomainGetPersistent, NULL },
     { "SchedulerType", virtDBusDomainGetSchedulerType, NULL},
     { "State", virtDBusDomainGetState, NULL },
+    { "Updated", virtDBusDomainGetUpdated, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
     { 0 }
 };

@@ -172,6 +172,14 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
     </method>
+    <method name="SendKey">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSendKey"/>
+      <arg name="codeset" type="u" direction="in"/>
+      <arg name="holdtime" type="u" direction="in"/>
+      <arg name="keycodes" type="au" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetMemory">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMemoryFlags"/>

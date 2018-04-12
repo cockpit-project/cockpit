@@ -950,6 +950,41 @@ virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainSendKey(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint codeset;
+    guint holdtime;
+    const guint *keycodes;
+    gsize nkeycodes = 0;
+    gint ret;
+    guint flags;
+    GVariant *v;
+
+    g_variant_get(inArgs, "(uu@auu)", &codeset, &holdtime, &v, &flags);
+
+    keycodes = g_variant_get_fixed_array(v, &nkeycodes, sizeof(guint));
+    g_variant_unref(v);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainSendKey(domain, codeset, holdtime, (guint *)keycodes,
+                           nkeycodes, flags);
+    if (ret < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSetMemory(GVariant *inArgs,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -1103,6 +1138,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Reboot", virtDBusDomainReboot },
     { "Reset", virtDBusDomainReset },
     { "Resume", virtDBusDomainResume },
+    { "SendKey", virtDBusDomainSendKey },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },
     { "Shutdown", virtDBusDomainShutdown },

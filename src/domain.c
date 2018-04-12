@@ -303,6 +303,26 @@ virtDBusDomainSetAutostart(GVariant *value,
 }
 
 static void
+virtDBusDomainAbortJob(GVariant *inArgs G_GNUC_UNUSED,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainAbortJob(domain) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainAttachDevice(GVariant *inArgs,
                            GUnixFDList *inFDs G_GNUC_UNUSED,
                            const gchar *objectPath,
@@ -704,6 +724,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
+    { "AbortJob", virtDBusDomainAbortJob },
     { "AttachDevice", virtDBusDomainAttachDevice },
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },

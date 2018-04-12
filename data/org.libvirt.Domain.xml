@@ -71,6 +71,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>
       <arg name="jobInfo" type="(sttttttttttt)" direction="out"/>
     </method>
+    <method name="GetMemoryParameters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetMemoryParameters"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="memoryParameters" type="a{sv}" direction="out"/>
+    </method>
     <method name="GetStats">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainListGetStats"/>

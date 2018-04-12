@@ -453,6 +453,41 @@ virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
                              jobInfo->fileRemaining);
 }
 
+static void
+virtDBusDomainGetMemoryParameters(GVariant *inArgs,
+                                  GUnixFDList *inFDs G_GNUC_UNUSED,
+                                  const gchar *objectPath,
+                                  gpointer userData,
+                                  GVariant **outArgs,
+                                  GUnixFDList **outFDs G_GNUC_UNUSED,
+                                  GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virTypedParameterPtr params = NULL;
+    gint nparams = 0;
+    guint flags;
+    gint ret;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainGetMemoryParameters(domain, NULL, &nparams, flags);
+    if (ret == 0 && nparams != 0) {
+        params = g_new0(virTypedParameter, nparams);
+        if (virDomainGetMemoryParameters(domain, params, &nparams, flags) < 0)
+            return virtDBusUtilSetLastVirtError(error);
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
 
 static void
@@ -883,6 +918,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
+    { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },

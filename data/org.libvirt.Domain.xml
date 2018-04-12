@@ -90,6 +90,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
     </method>
+    <method name="HasManagedSaveImage">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainHasManagedSaveImage"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="managedSaveImage" type="b" direction="out"/>
+    </method>
     <method name="ManagedSave">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainManagedSave"/>

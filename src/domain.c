@@ -546,6 +546,34 @@ virtDBusDomainGetXMLDesc(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainHasManagedSaveImage(GVariant *inArgs,
+                                  GUnixFDList *inFDs G_GNUC_UNUSED,
+                                  const gchar *objectPath,
+                                  gpointer userData,
+                                  GVariant **outArgs,
+                                  GUnixFDList **outFDs G_GNUC_UNUSED,
+                                  GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint managedSaveImage;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    managedSaveImage = virDomainHasManagedSaveImage(domain, flags);
+    if (managedSaveImage < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(b)", managedSaveImage);
+}
+
+static void
 virtDBusDomainManagedSave(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -810,6 +838,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
+    { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },
     { "ManagedSave", virtDBusDomainManagedSave },
     { "MemoryStats", virtDBusDomainMemoryStats },
     { "MigrateGetMaxDowntime", virtDBusDomainMigrateGetMaxDowntime },

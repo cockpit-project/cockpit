@@ -87,6 +87,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="memoryParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetSchedulerParameters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSchedulerParametersFlags"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="SchedulerParameters" type="a{sv}" direction="out"/>
+    </method>
     <method name="GetStats">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainListGetStats"/>

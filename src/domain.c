@@ -544,6 +544,41 @@ virtDBusDomainGetMemoryParameters(GVariant *inArgs,
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }
 
+static void
+virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
+                                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                                     const gchar *objectPath,
+                                     gpointer userData,
+                                     GVariant **outArgs,
+                                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                                     GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virTypedParameterPtr params = NULL;
+    gint nparams;
+    guint flags;
+    GVariant *grecords;
+    g_autofree gchar *ret = NULL;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainGetSchedulerType(domain, &nparams);
+    if (ret && nparams != 0) {
+        params = g_new0(virTypedParameter, nparams);
+        if (virDomainGetSchedulerParametersFlags(domain, params, &nparams, 0))
+            return virtDBusUtilSetLastVirtError(error);
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
 
 static void
@@ -1053,6 +1088,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
+    { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },

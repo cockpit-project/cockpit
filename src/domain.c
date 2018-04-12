@@ -700,6 +700,29 @@ virtDBusDomainHasManagedSaveImage(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainInjectNMI(GVariant *inArgs,
+                        GUnixFDList *inFDs G_GNUC_UNUSED,
+                        const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **outArgs G_GNUC_UNUSED,
+                        GUnixFDList **outFDs G_GNUC_UNUSED,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainInjectNMI(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainManagedSave(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -1128,6 +1151,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },
+    { "InjectNMI", virtDBusDomainInjectNMI },
     { "ManagedSave", virtDBusDomainManagedSave },
     { "ManagedSaveRemove", virtDBusDomainManagedSaveRemove },
     { "MemoryStats", virtDBusDomainMemoryStats },

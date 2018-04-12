@@ -118,6 +118,11 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="managedSaveImage" type="b" direction="out"/>
     </method>
+    <method name="InjectNMI">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainInjectNMI"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="ManagedSave">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainManagedSave"/>

@@ -131,7 +131,7 @@ class StorageCase(MachineCase):
     # XXX - Clicking a button in a tab has the same problem, but we
     # ignore that for now.
 
-    def content_tab_wait_in_info(self, row_index, tab_index, title, val):
+    def content_tab_wait_in_info(self, row_index, tab_index, title, val, alternate_val=None):
         b = self.browser
 
         def setup():
@@ -160,7 +160,7 @@ class StorageCase(MachineCase):
 
             if not b.is_present(cell):
                 return False
-            return val in b.text(cell)
+            return val in b.text(cell) or (alternate_val is not None and alternate_val in b.text(cell))
 
         def teardown():
             pass

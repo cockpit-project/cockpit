@@ -3,6 +3,16 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainJob)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainJob,
+                    VIR_DOMAIN_JOB_LAST,
+                    "none",
+                    "bounded",
+                    "unbounded",
+                    "completed",
+                    "failed",
+                    "canceled")
+
 VIRT_DBUS_ENUM_DECL(virtDBusDomainMemoryStat)
 VIRT_DBUS_ENUM_IMPL(virtDBusDomainMemoryStat,
                     VIR_DOMAIN_MEMORY_STAT_LAST,
@@ -386,6 +396,43 @@ virtDBusDomainDetachDevice(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virDomainJobInfoPtr jobInfo = NULL;
+    const gchar *jobTypeStr;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    jobInfo = g_new0(virDomainJobInfo, 1);
+    if (virDomainGetJobInfo(domain, jobInfo) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    jobTypeStr = virtDBusDomainJobTypeToString(jobInfo->type);
+    if (!jobTypeStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virDomainJobType '%d' to string.", jobInfo->type);
+        return;
+    }
+    *outArgs = g_variant_new("((sttttttttttt))", jobTypeStr,
+                             jobInfo->timeElapsed, jobInfo->timeRemaining,
+                             jobInfo->dataTotal, jobInfo->dataProcessed,
+                             jobInfo->dataRemaining, jobInfo->memTotal,
+                             jobInfo->memProcessed, jobInfo->memRemaining,
+                             jobInfo->fileTotal, jobInfo->fileProcessed,
+                             jobInfo->fileRemaining);
+}
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
 
 static void
@@ -661,6 +708,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },
+    { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetStats", virtDBusDomainGetStats },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },

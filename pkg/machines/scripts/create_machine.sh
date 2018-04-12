@@ -17,6 +17,19 @@ handleFailure(){
     exit $1
 }
 
+spiceSupported(){
+    # map system architecture to qemu-system-* command
+    ARCH=$(uname -m)
+    case "$ARCH" in
+        i?86) QEMU=qemu-system-i386 ;;
+        ppc64*) QEMU=qemu-system-ppc64 ;;
+        *) QEMU=qemu-system-$ARCH;
+    esac
+
+    printf '{"execute":"qmp_capabilities"}\n{"execute":"query-spice"}\n{"execute":"quit"}' | \
+        $QEMU --qmp stdio --nographic -nodefaults  | grep -q '"enabled":'
+}
+
 # prepare virt-install parameters
 COMPARISON=$(awk 'BEGIN{ print "'$STORAGE_SIZE'"<=0 }')
 if [ "$COMPARISON" -eq 1 ]; then
@@ -26,7 +39,10 @@ else
     DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
 fi
 
-GRAPHICS_PARAM="--graphics spice,listen=127.0.0.1 --graphics vnc,listen=127.0.0.1"
+GRAPHICS_PARAM="--graphics vnc,listen=127.0.0.1"
+if spiceSupported; then
+    GRAPHICS_PARAM="--graphics spice,listen=127.0.0.1 $GRAPHICS_PARAM"
+fi
 
 if [ "$OS" = "other-os" -o  -z "$OS" ]; then
     OS="auto"

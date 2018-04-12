@@ -81,6 +81,7 @@ EOF
         yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
         yum-config-manager --enable rhel-7-server-optional-rpms
         yum-config-manager --enable rhel-7-server-extras-rpms
+        yum-config-manager --enable rhel-7-server-ose-3.9-rpms
     fi
 
     # the following don't necessarily need to work
@@ -104,7 +105,7 @@ etcd \
 glib-networking \
 json-glib \
 kexec-tools \
-kubernetes \
+atomic-openshift-clients \
 libssh \
 libvirt \
 libvirt-client \
@@ -157,7 +158,7 @@ if [ "$IMAGE" = "rhel-8" ]; then
     UDISKS="${UDISKS/udisks2-iscsi/}"
     COCKPIT_DEPS="${COCKPIT_DEPS/libvirt /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-client /}"
-    COCKPIT_DEPS="${COCKPIT_DEPS/kubernetes /}"
+    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     TEST_PACKAGES="${TEST_PACKAGES/virt-install /}"
     TEST_PACKAGES="${TEST_PACKAGES/qemu-kvm /}"
     # HACK: recommends are missing in repodata (https://bugzilla.redhat.com/show_bug.cgi?id=1559839)
@@ -244,11 +245,6 @@ echo foobar | passwd --stdin admin
 # To enable persistent logging
 mkdir -p /var/log/journal
 
-# Configure kubernetes
-if [ -d /etc/kubernetes ]; then
-    /var/lib/testvm/kubernetes.setup
-fi
-
 if type "docker" >/dev/null 2>&1; then
     # HACK: docker fails without /etc/resolv.conf
     # https://bugzilla.redhat.com/show_bug.cgi?id=1448331
@@ -258,8 +254,6 @@ if type "docker" >/dev/null 2>&1; then
 
     # HACK: docker falls over regularly, print its log if it does
     systemctl start docker || journalctl -u docker
-
-    docker pull registry.access.redhat.com/rhel7/pod-infrastructure:latest
 
     # docker images that we need for integration testing
     /var/lib/testvm/docker-images.setup

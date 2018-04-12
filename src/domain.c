@@ -597,6 +597,29 @@ virtDBusDomainManagedSave(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainManagedSaveRemove(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath,
+                                gpointer userData,
+                                GVariant **outArgs G_GNUC_UNUSED,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainManagedSaveRemove(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainMemoryStats(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -840,6 +863,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },
     { "ManagedSave", virtDBusDomainManagedSave },
+    { "ManagedSaveRemove", virtDBusDomainManagedSaveRemove },
     { "MemoryStats", virtDBusDomainMemoryStats },
     { "MigrateGetMaxDowntime", virtDBusDomainMigrateGetMaxDowntime },
     { "MigrateSetMaxDowntime", virtDBusDomainMigrateSetMaxDowntime },

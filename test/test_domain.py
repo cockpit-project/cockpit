@@ -59,6 +59,8 @@ class TestDomain(libvirttest.BaseTestClass):
         assert domain.HasManagedSaveImage(0) == dbus.Boolean(True)
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
         assert state == 'shutoff'
+        domain.ManagedSaveRemove(0)
+        assert domain.HasManagedSaveImage(0) == dbus.Boolean(False)
 
         self.main_loop()
 

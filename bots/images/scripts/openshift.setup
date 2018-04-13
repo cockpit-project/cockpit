@@ -81,12 +81,14 @@ else
     comp="not"
 fi
 
+set +x
 VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if $comp x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
     echo "Failed to parse latest release:" >&2
     echo "$RELEASES_JSON" >&2
     echo "------------------------------------" >&2
     exit 1
 }
+set -x
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages
@@ -97,8 +99,6 @@ docker run --rm --entrypoint tar "openshift/origin:$VERSION" -C /usr/bin -c open
 cat > /openshift-prep <<EOF
 #!/bin/sh -ex
 /usr/bin/hostnamectl set-hostname f1.cockpit.lan
-# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1401561
-/usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/rpcbind.conf
 /usr/bin/systemctl enable rpcbind
 /usr/bin/systemctl start rpcbind
 /usr/bin/systemctl start nfs-server
@@ -161,7 +161,7 @@ update-ca-trust extract
 # multiple O= RDNs; if it's in the "wrong" order, create a new admin
 # certificate that swaps it around
 # See https://github.com/openshift/origin/issues/18715
-if [ -n "$PRERELEASE" ] && openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
+if openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
     echo "Regenerating admin certificate to work around https://github.com/openshift/origin/issues/18715"
     pushd /openshift.local.config/master/
     mv admin.key admin.key.orig

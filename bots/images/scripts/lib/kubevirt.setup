@@ -31,8 +31,8 @@ for IMAGE in `grep -h 'image:' *.yaml | sed -e 's/^.*image://g'` ; do
 done
 
 docker_pull kubevirt/iscsi-demo-target-tgtd:latest
+docker_pull kubevirt/cirros-registry-disk-demo:${KUBEVIRT_VERSION}
 docker_pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
-docker_pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
 
 # Reuse test VM and its disk from kubevirt project since its being developed along the Kubevirt itself
 TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`
@@ -42,6 +42,13 @@ cp kubevirt.src/cluster/vm.yaml ./
 cp kubevirt.src/manifests/testing/iscsi-demo-target.yaml.in ./iscsi-demo-target.yaml
 sed -i 's/{{ docker_prefix }}/kubevirt/g' iscsi-demo-target.yaml
 sed -i 's/{{ docker_tag }}/latest/g' iscsi-demo-target.yaml
+sed -i 's/{{ namespace }}/kube-system/g' iscsi-demo-target.yaml
+# HACK: this tag does not exist (https://github.com/kubevirt/kubevirt/issues/874)
+sed -i "s/cirros-registry-disk-demo:devel/cirros-registry-disk-demo:${KUBEVIRT_VERSION}/" vm.yaml
+if grep '{{' iscsi-demo-target.yaml; then
+    echo "Missing macro substitutions" >&2
+    exit 1
+fi
 
 # clean up
 # rm -rf kubevirt.src # Let's keep it. Kubevirt is recently under heavy development and it's more handy to have it available for testing

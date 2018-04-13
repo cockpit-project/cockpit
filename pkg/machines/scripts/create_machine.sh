@@ -1,6 +1,6 @@
 #!/bin/sh
+set -eu -o noglob
 
-set -u -o noglob
 VM_NAME="$1"
 SOURCE="$2"
 OS="$3"
@@ -12,11 +12,9 @@ vmExists(){
    virsh list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
 }
 
-endIfFailed(){
-	if [ $1 -ne 0 ]; then
-	    rm -f "$XMLS_FILE"
-        exit $1
-    fi
+handleFailure(){
+    rm -f "$XMLS_FILE"
+    exit $1
 }
 
 # prepare virt-install parameters
@@ -72,15 +70,12 @@ virt-install \
     $STARTUP_PARAMS \
     $LOCATION_PARAM \
     $GRAPHICS_PARAM \
-> "$XMLS_FILE"
-
-endIfFailed $?
+> "$XMLS_FILE" || handleFailure $?
 
 # add metadata to domain
 
 if [ "$START_VM" = "true" ]; then
-    vmExists "$VM_NAME"
-    endIfFailed $?
+    vmExists "$VM_NAME" || handleFailure $?
     virsh -q dumpxml "$VM_NAME" > "$XMLS_FILE"
 fi
 
@@ -112,8 +107,7 @@ echo "$DOMAIN_MATCHES"  |  sed 's/[^0-9]//g' | while read -r FINISH_LINE ; do
             fi
 
             #inject metadata, and define
-            sed "$METADATA_LINE""i $METADATA" "$XMLS_FILE" | virsh -q define /dev/stdin
-            endIfFailed $?
+            sed "$METADATA_LINE""i $METADATA" "$XMLS_FILE" | virsh -q define /dev/stdin || handleFailure $?
         else
             START_LINE="$QUIT_LINE"
             CURRENT_STEP="`expr $CURRENT_STEP + 1`"

@@ -1,0 +1,18 @@
+.comma-list {
+  display: inline;
+  list-style: none;
+  padding-left: 0;
+}
+
+.comma-list > li {
+  display: inline;
+}
+
+.comma-list > li:not(:last-child):after {
+  content: ",";
+}
+
+table.systemd-unit-relationship-table td:first-child {
+  vertical-align: top;
+  text-align: right;
+}

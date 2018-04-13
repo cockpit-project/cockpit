@@ -652,6 +652,28 @@ $(function() {
                                            UnitButton: unit_action_btn,
                                            FileButton: file_action_btn,
                                            NotMetConditions: not_met_conditions,
+                                           Relationships: [
+                                               { Name: _("Requires"),               Units: cur_unit.Requires },
+                                               { Name: _("Requisite"),              Units: cur_unit.Requisite },
+                                               { Name: _("Wants"),                  Units: cur_unit.Wants },
+                                               { Name: _("Binds To"),               Units: cur_unit.BindsTo },
+                                               { Name: _("Part Of"),                Units: cur_unit.PartOf },
+                                               { Name: _("Required By"),            Units: cur_unit.RequiredBy },
+                                               { Name: _("Requisite Of"),           Units: cur_unit.RequisiteOf },
+                                               { Name: _("Wanted By"),              Units: cur_unit.WantedBy },
+                                               { Name: _("Bound By"),               Units: cur_unit.BoundBy },
+                                               { Name: _("Consists Of"),            Units: cur_unit.ConsistsOf },
+                                               { Name: _("Conflicts"),              Units: cur_unit.Conflicts },
+                                               { Name: _("Conflicted By"),          Units: cur_unit.ConflictedBy },
+                                               { Name: _("Before"),                 Units: cur_unit.Before },
+                                               { Name: _("After"),                  Units: cur_unit.After },
+                                               { Name: _("On Failure"),             Units: cur_unit.OnFailure },
+                                               { Name: _("Triggers"),               Units: cur_unit.Triggers },
+                                               { Name: _("Triggered By"),           Units: cur_unit.TriggeredBy },
+                                               { Name: _("Propagates Reload To"),   Units: cur_unit.PropagatesReloadTo },
+                                               { Name: _("Reload Propagated From"), Units: cur_unit.ReloadPropagatedFrom },
+                                               { Name: _("Joins Namespace Of"),     Units: cur_unit.JoinsNamespaceOf }
+                                           ]
                                        });
             $('#service-unit').html(text);
             $('#service-unit-action').on('click', "[data-action]", unit_action);

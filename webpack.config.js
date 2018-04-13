@@ -129,6 +129,7 @@ var info = {
 
         "systemd/services": [
             "systemd/init.js",
+            "systemd/services.css",
         ],
         "systemd/logs": [
             "systemd/logs.js",

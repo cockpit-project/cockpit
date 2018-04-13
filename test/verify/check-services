@@ -548,6 +548,89 @@ WantedBy=multi-user.target
 
         b.wait_not_present("#service-unit div.cond-fail")
 
+    @skipImage("Introduced in Cockpit 170", "rhel-7-5")
+    def testRelationships(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/test-a.service",
+"""
+[Unit]
+Description=A Service
+Before=test-b.service
+Conflicts=test-c.service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+""")
+
+        m.write("/etc/systemd/system/test-b.service",
+"""
+[Unit]
+Description=B Service
+After=test-a.service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+""")
+
+        m.write("/etc/systemd/system/test-c.service",
+"""
+[Unit]
+Description=C Service
+Conflicts=test-a.service
+PartOf=test-b.service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do sleep 5; done"
+""")
+
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        def rel_sel(reltype):
+            return "table.systemd-unit-relationship-table tr:has(td:contains('%s'))" % reltype
+
+        def wait_relationship(reltype, service):
+            b.wait_present(rel_sel(reltype))
+            b.wait_in_text(rel_sel(reltype), service)
+
+        def click_relationship(reltype, service):
+            b.click(rel_sel(reltype) + (" a:contains('%s')" % service))
+
+        # services page
+        self.login_and_go("/system/services")
+        b.wait_in_text("#services", "test-a.service")
+        b.click(svc_sel("test-a.service"))
+
+        # service a
+        b.wait_js_cond('window.location.hash === "#/test-a.service"')
+        wait_relationship("Before", "test-b.service")
+        wait_relationship("Conflicts", "test-c.service")
+        click_relationship("Before", "test-b.service")
+
+        # service b
+        b.wait_js_cond('window.location.hash === "#/test-b.service"')
+        wait_relationship("After", "test-a.service")
+        click_relationship("After", "test-a.service")
+
+        # service a
+        b.wait_js_cond('window.location.hash === "#/test-a.service"')
+        wait_relationship("Conflicts", "test-c.service")
+        click_relationship("Conflicts", "test-c.service")
+
+        # service c
+        b.wait_js_cond('window.location.hash === "#/test-c.service"')
+        wait_relationship("Conflicts", "test-a.service")
+        wait_relationship("Part Of", "test-b.service")
+        click_relationship("Part Of", "test-b.service")
+
+        # service b
+        b.wait_js_cond('window.location.hash === "#/test-b.service"')
+        wait_relationship("After", "test-a.service")
 
 if __name__ == '__main__':
     test_main()

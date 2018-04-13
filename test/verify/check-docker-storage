@@ -36,10 +36,6 @@ rootfs_not_in_volume_group_images = [
     "rhel-7",
 ]
 
-devicemapper_is_default_images = [
-    "rhel-atomic"
-]
-
 def can_manage(machine):
     return (machine.image not in non_manageable_images and
             machine.image not in rootfs_not_in_volume_group_images)
@@ -254,10 +250,7 @@ class TestDockerStorage(MachineCase):
         b.wait_in_text("#storage-drives", "DISK1")
         b.wait_in_text("#storage-drives", "DISK2")
 
-        if m.image in devicemapper_is_default_images:
-            m.execute("docker info | grep 'Storage Driver: devicemapper'")
-        else:
-            m.execute("docker info | grep 'Storage Driver: overlay2'")
+        m.execute("docker info | grep 'Storage Driver: overlay2'")
 
 if __name__ == '__main__':
     test_main()

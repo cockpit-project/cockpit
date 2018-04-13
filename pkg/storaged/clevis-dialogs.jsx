@@ -18,24 +18,19 @@
  */
 
 import cockpit from "cockpit";
-import dialog from "./dialog";
-import React from "react";
+import React from "react"; React;
+
+import { dialog_open, TextInput, PassInput } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
-// "React" is used implicitly by the <foo>...</foo> expansion but our
-// hinter doesn't know about that.
-React;
-
 export function add(client, block) {
-    dialog.open({ Title: _("Add network key"),
+    dialog_open({ Title: _("Add network key"),
                   Fields: [
-                      { TextInput: "url",
-                        Title: _("Key server address")
-                      },
-                      { PassInput: "passphrase",
-                        Title: _("Existing passphrase")
-                      }
+                      TextInput("url", _("Key server address"),
+                                { validate: val => !val.length && _("Server address cannot be empty") }),
+                      PassInput("passphrase", _("Existing passphrase"),
+                                { validate: val => !val.length && _("Passphrase cannot be empty") })
                   ],
                   Action: {
                       Title: _("Add"),
@@ -64,20 +59,20 @@ function verify_adv( url, info, title, extra, action_title, action) {
     var port = (port_pos >= 0) ? url.substr(port_pos + 1) : "";
     var cmd = cockpit.format("ssh $0 tang-show-keys $1", host, port);
 
-    dialog.open({ Title: title,
-                  Fields: [ ],
-                  ReactBody:
-                  <div>
-                      { extra ? <p>{extra}</p> : null }
-                      <p>
-                          <span>{_("Manually verify the key on the server: ")}</span>
-                          <pre>{cmd}</pre>
-                      </p>
-                      <p>
-                          <span>{_("The output should match this text: ")}</span>
-                          <pre><samp>{info.sigkeys.join("\n")}</samp></pre>
-                      </p>
-                  </div>,
+    dialog_open({ Title: title,
+                  Body: (
+                      <div>
+                          { extra ? <p>{extra}</p> : null }
+                          <p>
+                              <span>{_("Manually verify the key on the server: ")}</span>
+                              <pre>{cmd}</pre>
+                          </p>
+                          <p>
+                              <span>{_("The output should match this text: ")}</span>
+                              <pre><samp>{info.sigkeys.join("\n")}</samp></pre>
+                          </p>
+                      </div>
+                  ),
                   Action: {
                       Title: action_title,
                       action: action
@@ -86,13 +81,13 @@ function verify_adv( url, info, title, extra, action_title, action) {
 }
 
 export function remove(client, block, key) {
-    dialog.open({ Title: _("Please confirm network key removal"),
-                  Fields: [ ],
-                  ReactBody:
-                  <div>
-                      <p>{cockpit.format(_("The key of $0 will be removed."), key.url)}</p>
-                      <p>{_("Removing network keys might prevent unattended booting.")}</p>
-                  </div>,
+    dialog_open({ Title: _("Please confirm network key removal"),
+                  Body: (
+                      <div>
+                          <p>{cockpit.format(_("The key of $0 will be removed."), key.url)}</p>
+                          <p>{_("Removing network keys might prevent unattended booting.")}</p>
+                      </div>
+                  ),
                   Action: {
                       DangerButton: true,
                       Title: _("Remove key"),
@@ -111,20 +106,19 @@ export function check(client, block, key) {
     // 3) can't reach the server -> say that, do nothing
 
     function key_is_okay() {
-        dialog.open({ Title: _("Key is okay"),
-                      Fields: [ ],
-                      ReactBody: <p>{_("This network key works fine right now and the encrypted data can be unlocked with it.")}</p>
+        dialog_open({ Title: _("Key is okay"),
+                      Body: <p>{_("This network key works fine right now and the encrypted data can be unlocked with it.")}</p>
         });
     }
 
     function key_is_broken() {
-        dialog.open({ Title: _("Key does not work"),
-                      Fields: [ ],
-                      ReactBody:
-                      <div>
-                          <p>{_("This network key is not recognized anymore by the server. You might want to remove it.")}</p>
-                          <p>{_("Removing network keys might prevent unattended booting.")}</p>
-                      </div>,
+        dialog_open({ Title: _("Key does not work"),
+                      Body: (
+                          <div>
+                              <p>{_("This network key is not recognized anymore by the server. You might want to remove it.")}</p>
+                              <p>{_("Removing network keys might prevent unattended booting.")}</p>
+                          </div>
+                      ),
                       Action: {
                           DangerButton: true,
                           Title: _("Remove key"),
@@ -142,12 +136,12 @@ export function check(client, block, key) {
 
         for (var i = 0; i < key.sigkeys.length; i++) {
             if (info.sigkeys.indexOf(key.sigkeys[i]) >= 0) {
-                dialog.open({ Title: _("Key is obsolete"),
-                              Fields: [ ],
-                              ReactBody:
-                              <div>
-                                  <p>{_("This network key is obsolete. It is still functional but it should be replaced. A new key has been securely retrieved from the server.")}</p>
-                              </div>,
+                dialog_open({ Title: _("Key is obsolete"),
+                              Body: (
+                                  <div>
+                                      <p>{_("This network key is obsolete. It is still functional but it should be replaced. A new key has been securely retrieved from the server.")}</p>
+                                  </div>
+                              ),
                               Action: {
                                   Title: _("Use new key"),
                                   action: replace
@@ -165,10 +159,10 @@ export function check(client, block, key) {
     }
 
     function server_cant_be_reached() {
-        dialog.open({ Title: _("Server can't be reached"),
-                      Fields: [ ],
-                      ReactBody:
-                      <p>{cockpit.format(_("The key server at $0 can not be reached.  This network key can not unlock the encrypted data right now, but it might be able to when the server becomes reachable again."), key.url)}</p>,
+        dialog_open({ Title: _("Server can't be reached"),
+                      Body: (
+                          <p>{cockpit.format(_("The key server at $0 can not be reached.  This network key can not unlock the encrypted data right now, but it might be able to when the server becomes reachable again."), key.url)}</p>
+                      )
         });
     }
 

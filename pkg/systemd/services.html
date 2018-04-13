@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
     <link href="system.css" type="text/css" rel="stylesheet">
+    <link href="services.css" type="text/css" rel="stylesheet">
     <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
     <script src="../*/po.js"></script>
@@ -139,6 +140,25 @@
           </table>
         </div>
         {{/NotMetConditions.length}}
+        <div class="list-group-item">
+          <table class="form-table-ct systemd-unit-relationship-table">
+          {{#Relationships}}
+          {{#Units.length}}
+            <tr>
+              <td class="top-right">{{Name}}</td>
+              <td>
+                <ul class="comma-list">
+                {{#Units}}
+                  <li><a href='#/{{.}}'>{{.}}</a></li>
+                {{/Units}}
+                </ul>
+              </td>
+              <td></td>
+            </tr>
+          {{/Units.length}}
+          {{/Relationships}}
+          </table>
+        </div>
       </div>
     </div>
   </script>

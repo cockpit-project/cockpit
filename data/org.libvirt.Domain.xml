@@ -54,6 +54,15 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="BlockPeek">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockPeek"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="offset" type="t" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="buffer" type="ay" direction="out"/>
+    </method>
     <method name="Create">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>

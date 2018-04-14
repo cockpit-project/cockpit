@@ -344,6 +344,30 @@ virtDBusDomainAbortJob(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainAddIOThread(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs G_GNUC_UNUSED,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint iothreadId;
+    guint flags;
+
+    g_variant_get(inArgs, "(uu)", &iothreadId, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainAddIOThread(domain, iothreadId, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainAttachDevice(GVariant *inArgs,
                            GUnixFDList *inFDs G_GNUC_UNUSED,
                            const gchar *objectPath,
@@ -1214,6 +1238,7 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
 
 static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "AbortJob", virtDBusDomainAbortJob },
+    { "AddIOThread", virtDBusDomainAddIOThread },
     { "AttachDevice", virtDBusDomainAttachDevice },
     { "BlockPeek", virtDBusDomainBlockPeek },
     { "Create", virtDBusDomainCreate },

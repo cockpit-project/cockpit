@@ -21,6 +21,7 @@
 import gzip
 import json
 import sys
+import zlib
 
 def failures(item):
     return item.get("status") == "failure"
@@ -35,7 +36,11 @@ def load(filename_or_fp, only=failures, limit=None, verbose=False):
         fp = filename_or_fp
     try:
         while True:
-            line = fp.readline().decode('utf-8')
+            try:
+                line = fp.readline().decode('utf-8')
+            except zlib.error as ex:
+                sys.stderr.write("tests-data: {0}\n".format(str(ex)))
+                return
             if not line:
                 return
 

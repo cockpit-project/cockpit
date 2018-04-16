@@ -29,6 +29,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request, urllib.error, urllib.parse
+import zlib
 
 import html.parser
 
@@ -228,7 +229,11 @@ def seed(since, fp, pulls, output):
     known = re.compile("# SKIP Known issue #([0-9]+)", re.IGNORECASE)
 
     while True:
-        line = fp.readline()
+        try:
+            line = fp.readline()
+        except zlib.error as ex:
+            sys.stderr.write("tests-data: {0}\n".format(str(ex)))
+            break
         if not line:
             break
         try:

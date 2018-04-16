@@ -56,6 +56,14 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="domain" type="o" direction="out"/>
     </method>
+    <method name="DomainRestore">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainRestoreFlags
+               Empty string can be used to pass a NULL as @xml argument."/>
+      <arg name="from" type="s" direction="in"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="GetCapabilities">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>

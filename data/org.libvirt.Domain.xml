@@ -107,6 +107,13 @@
       <arg name="size" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="CoreDump">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCoreDumpWithFormat"/>
+      <arg name="to" type="s" direction="in"/>
+      <arg name="dumpformat" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Create">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>

@@ -559,6 +559,31 @@ virtDBusDomainBlockResize(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainCoreDumpWithFormat(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **outArgs G_GNUC_UNUSED,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *to;
+    guint dumpformat;
+    guint flags;
+
+    g_variant_get(inArgs, "(&suu)", &to, &dumpformat, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainCoreDumpWithFormat(domain, to, dumpformat, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainCreate(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -1375,6 +1400,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "BlockPull", virtDBusDomainBlockPull },
     { "BlockRebase", virtDBusDomainBlockRebase },
     { "BlockResize", virtDBusDomainBlockResize },
+    { "CoreDump", virtDBusDomainCoreDumpWithFormat },
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },

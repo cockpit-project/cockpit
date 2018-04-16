@@ -150,6 +150,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="frozenFilesystems" type="u" direction="out"/>
     </method>
+    <method name="FSThaw">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainFSThaw"/>
+      <arg name="mountpoints" type="as" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="thawedFilesystems" type="u" direction="out"/>
+    </method>
     <method name="FSTrim">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainFSTrim

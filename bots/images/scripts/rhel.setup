@@ -135,6 +135,8 @@ TEST_PACKAGES="\
 systemtap-runtime-virtguest \
 valgrind \
 gdb \
+nmap-ncat \
+targetcli \
 yum-utils \
 virt-install \
 cryptsetup \
@@ -153,16 +155,13 @@ fi
 if [ "$IMAGE" = "rhel-8" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     # some packages are still missing from RHEL 8
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1559810
-    UDISKS="${UDISKS/udisks2-lvm2 /}"
-    UDISKS="${UDISKS/udisks2-iscsi/}"
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567736
     COCKPIT_DEPS="${COCKPIT_DEPS/libvirt /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-client /}"
-    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
-    TEST_PACKAGES="${TEST_PACKAGES/virt-install /}"
     TEST_PACKAGES="${TEST_PACKAGES/qemu-kvm /}"
-    # HACK: recommends are missing in repodata (https://bugzilla.redhat.com/show_bug.cgi?id=1559839)
-    COCKPIT_DEPS="$COCKPIT_DEPS cracklib-dicts libsss_sudo nmap-ncat"
+    TEST_PACKAGES="${TEST_PACKAGES/virt-install /}"
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
+    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"

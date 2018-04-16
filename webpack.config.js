@@ -425,8 +425,9 @@ module.exports = {
                 loader: "jshint-loader"
             },
             {
-                test: /\.es6$/, // include .js files
-                loader: "jshint-loader?esversion=6"
+                test: /\.es6$/,
+                exclude: /\/node_modules\/.*\//, // exclude external dependencies
+                loader: "eslint-loader"
             },
             {
                 test: /\.jsx$/,

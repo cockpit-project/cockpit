@@ -37,7 +37,7 @@
   "devDependencies": {
     "axe-core": "^2.6.1",
     "babel-core": "^6.26.0",
-    "babel-eslint": "~7.1.1",
+    "babel-eslint": "^8.2.2",
     "babel-loader": "^6.4.1",
     "babel-plugin-transform-async-to-generator": "~6.24.1",
     "babel-plugin-transform-regenerator": "6.26.0",
@@ -47,10 +47,16 @@
     "clean-css": "~3.4.20",
     "copy-webpack-plugin": "~3.0.1",
     "css-loader": "~0.23.1",
-    "eslint": "^3.0.0",
+    "eslint": "^4.18",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-config-standard-react": "^6.0.0",
     "eslint-loader": "~1.6.1",
     "eslint-plugin-flowtype": "2.39.1",
-    "eslint-plugin-react": "~6.9.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-react": "^7.7.0",
+    "eslint-plugin-standard": "^3.0.1",
     "exports-loader": "~0.6.3",
     "extend": "~3.0.0",
     "extract-text-webpack-plugin": "~1.0.1",
@@ -72,6 +78,10 @@
     "style-loader": "~0.13.1",
     "uglify-js": "~2.6.2",
     "webpack": "~1.13.2"
+  },
+  "scripts": {
+    "eslint": "eslint --ext .jsx --ext .es6 pkg/",
+    "eslint:fix": "eslint --fix --ext .jsx --ext .es6 pkg/"
   },
   "babel": {
     "presets": [

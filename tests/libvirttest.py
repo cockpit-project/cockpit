@@ -60,11 +60,14 @@ class BaseTestClass():
         def timeout():
             self.loop.quit()
             del self.loop
-            raise TimeoutError()
+            self.timeout = True
 
+        self.timeout = False
         self.loop = GLib.MainLoop()
         GLib.timeout_add(2000, timeout)
         self.loop.run()
+        if self.timeout:
+            raise TimeoutError()
 
     def domain(self):
         path = self.connect.ListDomains(0)[0]

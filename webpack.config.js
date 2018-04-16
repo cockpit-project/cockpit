@@ -38,14 +38,6 @@ var info = {
             "machines/machines.less",
         ],
 
-        "machines/vnc": [
-            "machines/vnc.js",
-        ],
-
-        "ovirt/vnc": [
-            "ovirt/vnc.js",
-        ],
-
         "networkmanager/network": [
             "networkmanager/interfaces.js",
             "networkmanager/utils.js"
@@ -205,16 +197,12 @@ var info = {
 
         "machines/base.css",
         "machines/index.html",
-        "machines/vnc.html",
-        "machines/vnc.css",
 
         "networkmanager/index.html",
         "networkmanager/firewall.html",
         "networkmanager/manifest.json",
 
         "ovirt/index.html",
-        "ovirt/vnc.html",
-        "ovirt/vnc.css",
 
         "packagekit/index.html",
 

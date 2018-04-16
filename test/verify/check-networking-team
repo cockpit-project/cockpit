@@ -93,7 +93,6 @@ class TestNetworking(NetworkCase):
     @skipImage("No teams",  "continuous-atomic", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
     def testTeamActive(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/network")
 

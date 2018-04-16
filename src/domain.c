@@ -678,6 +678,33 @@ virtDBusDomainDetachDevice(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainFSTrim(GVariant *inArgs,
+                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                     const gchar *objectPath,
+                     gpointer userData,
+                     GVariant **outArgs G_GNUC_UNUSED,
+                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                     GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *mountpoint;
+    gulong minimum;
+    guint flags;
+
+    g_variant_get(inArgs, "(stu)", &mountpoint, &minimum, &flags);
+    if (g_str_equal(mountpoint, ""))
+        mountpoint = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainFSTrim(domain, mountpoint, minimum, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainGetBlkioParameters(GVariant *inArgs,
                                  GUnixFDList *inFDs G_GNUC_UNUSED,
                                  const gchar *objectPath,
@@ -1429,6 +1456,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "DelIOThread", virtDBusDomainDelIOThread },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },
+    { "FSTrim", virtDBusDomainFSTrim },
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },

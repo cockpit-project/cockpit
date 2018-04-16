@@ -84,6 +84,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="buffer" type="ay" direction="out"/>
     </method>
+    <method name="BlockPull">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockPull"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="bandwidth" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Create">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>

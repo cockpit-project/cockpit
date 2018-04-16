@@ -481,6 +481,31 @@ virtDBusDomainBlockPeek(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainBlockPull(GVariant *inArgs,
+                        GUnixFDList *inFDs G_GNUC_UNUSED,
+                        const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **outArgs G_GNUC_UNUSED,
+                        GUnixFDList **outFDs G_GNUC_UNUSED,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *disk;
+    gulong bandwidth;
+    guint flags;
+
+    g_variant_get(inArgs, "(&stu)", &disk, &bandwidth, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainBlockPull(domain, disk, bandwidth, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainCreate(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -1294,6 +1319,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "BlockCommit", virtDBusDomainBlockCommit },
     { "BlockJobAbort", virtDBusDomainBlockJobAbort },
     { "BlockPeek", virtDBusDomainBlockPeek },
+    { "BlockPull", virtDBusDomainBlockPull },
     { "Create", virtDBusDomainCreate },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },

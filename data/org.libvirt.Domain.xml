@@ -100,6 +100,13 @@
       <arg name="bandwidth" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="BlockResize">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockResize"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="size" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Create">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>

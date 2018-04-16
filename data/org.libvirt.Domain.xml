@@ -143,6 +143,13 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="FSFreeze">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainFSFreeze"/>
+      <arg name="mountpoints" type="as" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="frozenFilesystems" type="u" direction="out"/>
+    </method>
     <method name="FSTrim">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainFSTrim

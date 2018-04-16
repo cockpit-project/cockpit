@@ -710,6 +710,45 @@ virtDBusDomainDetachDevice(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainFSFreeze(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree const gchar **mountpoints = NULL;
+    const gchar **tmp;
+    g_autoptr(GVariantIter) iter;
+    gsize nmountpoints = 0;
+    guint flags;
+    gint ret;
+
+    g_variant_get(inArgs, "(asu)", &iter, &flags);
+
+    nmountpoints = g_variant_iter_n_children(iter);
+    if (nmountpoints > 0) {
+        mountpoints = g_new0(const gchar*, nmountpoints);
+        tmp = mountpoints;
+        while (g_variant_iter_next(iter, "&s", tmp))
+            tmp++;
+    }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainFSFreeze(domain, mountpoints, nmountpoints, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(u)", ret);
+}
+
+static void
 virtDBusDomainFSTrim(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -1757,6 +1796,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "DelIOThread", virtDBusDomainDelIOThread },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },
+    { "FSFreeze", virtDBusDomainFSFreeze },
     { "FSTrim", virtDBusDomainFSTrim },
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
     { "GetJobInfo", virtDBusDomainGetJobInfo },

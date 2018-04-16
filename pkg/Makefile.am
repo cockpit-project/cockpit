@@ -13,19 +13,12 @@ playground_DATA = \
 dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
-dist/machines/base.css: node_modules/noVNC/include/base.css
-	$(COPY_RULE)
-
 ovirtdir = $(pkgdatadir)/ovirt
 ovirt_DATA = \
 	dist/ovirt/install.sh \
-	dist/ovirt/base.css \
 	$(NULL)
 
 dist/ovirt/install.sh: pkg/ovirt/install.sh
-	$(COPY_RULE)
-
-dist/ovirt/base.css: node_modules/noVNC/include/base.css
 	$(COPY_RULE)
 
 metainfodir = ${datarootdir}/metainfo
@@ -41,8 +34,6 @@ EXTRA_DIST += \
 	pkg/playground/extra.de.po \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
-	node_modules/noVNC/package.json \
-	node_modules/noVNC/include/base.css \
 	pkg/ovirt/install.sh \
 	$(playground_DATA) \
 	$(pkg_TESTS) \

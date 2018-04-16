@@ -119,6 +119,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="DelIOThread">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainDelIOThread"/>
+      <arg name="iothreadId" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Destroy">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainDestroyFlags"/>

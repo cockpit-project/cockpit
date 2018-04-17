@@ -1326,6 +1326,33 @@ virtDBusDomainResume(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainSave(GVariant *inArgs,
+                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                   const gchar *objectPath,
+                   gpointer userData,
+                   GVariant **outArgs G_GNUC_UNUSED,
+                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                   GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *to;
+    const gchar *xml;
+    guint flags;
+
+    g_variant_get(inArgs, "(&s&su)", &to, &xml, &flags);
+    if (g_str_equal(xml, ""))
+        xml = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSaveFlags(domain, to, xml, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSendKey(GVariant *inArgs,
                       GUnixFDList *inFDs G_GNUC_UNUSED,
                       const gchar *objectPath,
@@ -1528,6 +1555,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Rename", virtDBusDomainRename },
     { "Reset", virtDBusDomainReset },
     { "Resume", virtDBusDomainResume },
+    { "Save", virtDBusDomainSave },
     { "SendKey", virtDBusDomainSendKey },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },

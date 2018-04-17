@@ -270,6 +270,14 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainResume"/>
     </method>
+    <method name="Save">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSaveFlags
+               Empty string can be used to pass a NULL as @xml argument."/>
+      <arg name="to" type="s" direction="in"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SendKey">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSendKey"/>

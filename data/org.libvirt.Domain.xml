@@ -286,6 +286,13 @@
       <arg name="keycodes" type="au" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SendProcessSignal">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSendProcessSignal"/>
+      <arg name="pidValue" type="x" direction="in"/>
+      <arg name="sigNum" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetMemory">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMemoryFlags"/>

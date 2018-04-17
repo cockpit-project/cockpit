@@ -1388,6 +1388,32 @@ virtDBusDomainSendKey(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSendProcessSignal(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath,
+                                gpointer userData,
+                                GVariant **outArgs G_GNUC_UNUSED,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint64 pidValue;
+    guint sigNum;
+    guint flags;
+
+    g_variant_get(inArgs, "(xuu)", &pidValue, &sigNum, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSendProcessSignal(domain, pidValue, sigNum, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSetMemory(GVariant *inArgs,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -1557,6 +1583,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Resume", virtDBusDomainResume },
     { "Save", virtDBusDomainSave },
     { "SendKey", virtDBusDomainSendKey },
+    { "SendProcessSignal", virtDBusDomainSendProcessSignal },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },
     { "Shutdown", virtDBusDomainShutdown },

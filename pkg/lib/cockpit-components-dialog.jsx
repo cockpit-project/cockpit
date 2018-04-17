@@ -272,10 +272,11 @@ var Dialog = React.createClass({
  */
 var show_modal_dialog = function(props, footerProps) {
     var dialogName = 'cockpit_modal_dialog';
-    // don't allow nested dialogs
-    if (document.getElementById(dialogName)) {
-        console.warn('Unable to create nested dialog');
-        return;
+    // don't allow nested dialogs, just close whatever is open
+    var curElement = document.getElementById(dialogName);
+    if (curElement) {
+        React.unmountComponentAtNode(curElement);
+        curElement.remove();
     }
     // create an element to render into
     var rootElement = document.createElement("div");

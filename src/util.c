@@ -146,7 +146,7 @@ virtDBusUtilEnumFromString(const gchar *const *types,
         return -1;
 
     for (i = 0; i < ntypes; i++)
-        if (g_str_equal(types[i], type) == 0)
+        if (g_str_equal(types[i], type))
             return i;
 
     return -1;

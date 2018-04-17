@@ -319,6 +319,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainUndefineFlags"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="UpdateDevice">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainUpdateDeviceFlags"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <signal name="DeviceAdded">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventDeviceAddedCallback"/>

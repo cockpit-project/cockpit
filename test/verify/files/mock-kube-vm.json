@@ -1,0 +1,69 @@
+{
+  "metadata": {
+    "name": "testvm"
+  },
+  "apiVersion": "kubevirt.io/v1alpha1",
+  "kind": "VirtualMachine",
+  "spec": {
+    "domain": {
+      "devices": {
+        "disks": [
+          {
+            "device": "disk",
+            "driver": {
+              "name": "qemu",
+              "type": "raw",
+              "cache": "none"
+            },
+            "snapshot": "external",
+            "source": {
+              "host": {
+                "name": "iscsi-demo-target.kube-system",
+                "port": "3260"
+              },
+              "name": "iqn.2017-01.io.kubevirt:sn.42/2",
+              "protocol": "iscsi"
+            },
+            "target": {
+              "dev": "vda"
+            },
+            "type": "network"
+          }
+        ],
+        "interfaces": [
+          {
+            "source": {
+              "network": "default"
+            },
+            "type": "network"
+          }
+        ],
+        "video": [
+          {
+            "type": "qxl"
+          }
+        ],
+        "graphics": [
+          {
+            "type": "spice"
+          }
+        ],
+        "consoles": [
+          {
+            "type": "pty"
+          }
+        ]
+      },
+      "memory": {
+        "unit": "MB",
+        "value": 64
+      },
+      "os": {
+        "type": {
+          "os": "hvm"
+        }
+      },
+      "type": "qemu"
+    }
+  }
+}

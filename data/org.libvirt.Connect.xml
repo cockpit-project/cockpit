@@ -64,6 +64,13 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="DomainSaveImageDefineXML">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSaveImageDefineXML"/>
+      <arg name="file" type="s" direction="in"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="GetCapabilities">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>

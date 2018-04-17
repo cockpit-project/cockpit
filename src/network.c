@@ -3,6 +3,32 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusNetworkUpdateCommand)
+VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateCommand,
+                    VIR_NETWORK_UPDATE_COMMAND_LAST,
+                    "none",
+                    "modify",
+                    "delete",
+                    "add-last",
+                    "add-first")
+
+VIRT_DBUS_ENUM_DECL(virtDBusNetworkUpdateSection)
+VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateSection,
+                    VIR_NETWORK_SECTION_LAST,
+                    "none",
+                    "bridge",
+                    "domain",
+                    "ip",
+                    "ip-dhcp-host",
+                    "ip-dhcp-range",
+                    "forward",
+                    "forward-interface",
+                    "forward-pf",
+                    "portgroup",
+                    "dns-host",
+                    "dns-txt",
+                    "dns-srv")
+
 static virNetworkPtr
 virtDBusNetworkGetVirNetwork(virtDBusConnect *connect,
                              const gchar *objectPath,
@@ -256,6 +282,53 @@ virtDBusNetworkUndefine(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusNetworkUpdate(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    const gchar *commandStr;
+    gint command;
+    const gchar *sectionStr;
+    gint section;
+    gint parentIndex;
+    const gchar *xml;
+    guint flags;
+
+    g_variant_get(inArgs, "(&s&si&su)",
+                  &commandStr, &sectionStr,
+                  &parentIndex, &xml, &flags);
+
+    command = virtDBusNetworkUpdateCommandTypeFromString(commandStr);
+    if (command < 0) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't get valid virNetworkUpdateCommand from string '%s'.",
+                    commandStr);
+        return;
+    }
+    section = virtDBusNetworkUpdateSectionTypeFromString(sectionStr);
+    if (section < 0) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't get valid virNetworkUpdateSection from string '%s'.",
+                    sectionStr);
+        return;
+    }
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    if (virNetworkUpdate(network, command, section,
+                         parentIndex, xml, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Active", virtDBusNetworkGetActive, NULL },
     { "Autostart", virtDBusNetworkGetAutostart, virtDBusNetworkSetAutostart },
@@ -271,6 +344,7 @@ static virtDBusGDBusMethodTable virtDBusNetworkMethodTable[] = {
     { "Destroy", virtDBusNetworkDestroy },
     { "GetXMLDesc", virtDBusNetworkGetXMLDesc },
     { "Undefine", virtDBusNetworkUndefine },
+    { "Update", virtDBusNetworkUpdate },
     { 0 }
 };
 

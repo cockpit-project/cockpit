@@ -46,5 +46,14 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkUndefine"/>
     </method>
+    <method name="Update">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkUpdate"/>
+      <arg name="command" type="s" direction="in"/>
+      <arg name="section" type="s" direction="in"/>
+      <arg name="parentIndex" type="i" direction="in"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
   </interface>
 </node>

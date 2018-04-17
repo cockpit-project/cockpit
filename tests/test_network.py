@@ -2,11 +2,17 @@
 
 import dbus
 import libvirttest
+import pytest
 
 
 class TestNetwork(libvirttest.BaseTestClass):
     """ Tests for methods and properties of the Network interface
     """
+
+    ip_dhcp_host_xml = '''
+    <host mac='00:16:3e:77:e2:ed' name='foo.example.com' ip='192.168.122.10'/>
+    '''
+
     def test_network_properties_type(self):
         """ Ensure correct return type for Network properties
         """
@@ -72,6 +78,17 @@ class TestNetwork(libvirttest.BaseTestClass):
         interface_obj.Undefine()
 
         self.main_loop()
+
+    @pytest.mark.parametrize("command, section, parentIndex, xml_str, flags", [
+        ('add-first', 'ip-dhcp-host', 0, ip_dhcp_host_xml, 0),
+    ])
+    def test_network_update(self, command, section, parentIndex, xml_str, flags):
+        _, test_network = self.test_network()
+        interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
+        interface_obj.Update(command, section, parentIndex, xml_str, flags)
+        updated_netxml = interface_obj.GetXMLDesc(0)
+        assert (xml_str.strip() in updated_netxml)
+
 
 if __name__ == '__main__':
     libvirttest.run()

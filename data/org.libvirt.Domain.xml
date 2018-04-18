@@ -312,6 +312,12 @@
       <arg name="memory" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetMemoryStatsPeriod">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMemoryStatsPeriod"/>
+      <arg name="period" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetMetadata">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMetadata

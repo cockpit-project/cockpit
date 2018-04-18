@@ -413,12 +413,12 @@
             {{#Action}}
             {{#Danger}}<div class="modal-footer-danger">{{.}}</div>{{/Danger}}
             <div class="spinner spinner-sm pull-left" hidden></div>
-            <button class="btn btn-default" translatable="yes" data-action="cancel">Cancel</button>
-            <button class="btn {{#DangerButton}}btn-danger{{/DangerButton}}{{^DangerButton}}btn-primary{{/DangerButton}}"
+            <button class="btn btn-default cancel" translatable="yes" data-action="cancel">Cancel</button>
+            <button class="btn {{#DangerButton}}btn-danger{{/DangerButton}}{{^DangerButton}}btn-primary{{/DangerButton}} apply"
                     data-action="apply">{{Title}}</button>
             {{/Action}}
             {{^Action}}
-            <button class="btn btn-default" translatable="yes" data-action="cancel">Close</button>
+            <button class="btn btn-default cancel" translatable="yes" data-action="cancel">Close</button>
             {{/Action}}
           </div>
         </div>

@@ -3,6 +3,12 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusNetworkIPAddr)
+VIRT_DBUS_ENUM_IMPL(virtDBusNetworkIPAddr,
+                    VIR_IP_ADDR_TYPE_LAST,
+                    "ipv4",
+                    "ipv6")
+
 VIRT_DBUS_ENUM_DECL(virtDBusNetworkUpdateCommand)
 VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateCommand,
                     VIR_NETWORK_UPDATE_COMMAND_LAST,
@@ -28,6 +34,17 @@ VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateSection,
                     "dns-host",
                     "dns-txt",
                     "dns-srv")
+
+static void
+virtDBusNetworkDHCPLeaseListFree(virNetworkDHCPLeasePtr *leases)
+{
+    for (gint i = 0; leases[i] != NULL; i += 1)
+        virNetworkDHCPLeaseFree(leases[i]);
+
+    g_free(leases);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetworkDHCPLeasePtr, virtDBusNetworkDHCPLeaseListFree);
 
 static virNetworkPtr
 virtDBusNetworkGetVirNetwork(virtDBusConnect *connect,
@@ -236,6 +253,62 @@ virtDBusNetworkDestroy(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusNetworkGetDHCPLeases(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNetwork) network = NULL;
+    const gchar *mac;
+    guint flags;
+    g_autoptr(virNetworkDHCPLeasePtr) leases = NULL;
+    gint nleases;
+    GVariantBuilder builder;
+    GVariant *res;
+
+    g_variant_get(inArgs, "(&su)", &mac, &flags);
+    if (g_str_equal(mac, ""))
+        mac = NULL;
+
+    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
+    if (!network)
+        return;
+
+    nleases = virNetworkGetDHCPLeases(network, mac, &leases, flags);
+    if (nleases < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stssssuss)"));
+    for (gint i = 0; i < nleases; i++) {
+        const gchar *typeStr;
+
+        virNetworkDHCPLeasePtr lease = leases[i];
+
+        typeStr = virtDBusNetworkIPAddrTypeToString(lease->type);
+        if (!typeStr) {
+            g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                        "Can't format virIPAddrType '%d' to string.", lease->type);
+            return;
+        }
+
+        g_variant_builder_add(&builder, "(stssssuss)",
+                              lease->iface, lease->expirytime,
+                              typeStr, lease->mac,
+                              lease->iaid ? lease->iaid : "" ,
+                              lease->ipaddr, lease->prefix,
+                              lease->hostname ? lease->hostname : "",
+                              lease->clientid ? lease->clientid : "");
+    }
+    res = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&res, 1);
+}
+
+static void
 virtDBusNetworkGetXMLDesc(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -342,6 +415,7 @@ static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusNetworkMethodTable[] = {
     { "Create", virtDBusNetworkCreate },
     { "Destroy", virtDBusNetworkDestroy },
+    { "GetDHCPLeases", virtDBusNetworkGetDHCPLeases },
     { "GetXMLDesc", virtDBusNetworkGetXMLDesc },
     { "Undefine", virtDBusNetworkUndefine },
     { "Update", virtDBusNetworkUpdate },

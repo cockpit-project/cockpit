@@ -36,6 +36,15 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkDestroy"/>
     </method>
+    <method name="GetDHCPLeases">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkGetDHCPLeases
+               Empty string can be used to pass a NULL as @mac argument.
+               Empty string will be returned in output for NULL variables."/>
+      <arg name="mac" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="leases" type="a(stssssuss)" direction="out"/>
+    </method>
     <method name="GetXMLDesc">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkGetXMLDesc"/>

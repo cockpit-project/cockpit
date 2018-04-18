@@ -23,7 +23,7 @@ import parent
 from testlib import *
 from storagelib import *
 
-@skipImage("UDisks doesn't have support for LVM", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("UDisks doesn't have support for LVM", "debian-stable", "ubuntu-1604", "ubuntu-stable")
 class TestStorage(StorageCase):
     def testHiddenLuks(self):
         m = self.machine
@@ -128,6 +128,9 @@ class TestStorage(StorageCase):
                       "mount_point": mount_point_2 })
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_2)
+
+        # we need to wait for mdadm --monitor to stop using the device before delete
+        m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)
 
         self.browser.click('.panel-heading:contains("RAID Device") button:contains("Delete")')
         self.confirm()

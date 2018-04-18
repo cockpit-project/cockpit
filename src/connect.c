@@ -357,7 +357,6 @@ virtDBusConnectDomainRestoreFlags(GVariant *inArgs,
                                   GError **error)
 {
     virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
     const gchar *from;
     const gchar *xml;
     guint flags;
@@ -383,7 +382,6 @@ virtDBusConnectDomainSaveImageDefineXML(GVariant *inArgs,
                                         GError **error)
 {
     virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
     const gchar *file;
     const gchar *xml;
     guint flags;

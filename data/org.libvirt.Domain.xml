@@ -312,6 +312,16 @@
       <arg name="memory" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetMetadata">
+      <annotation name="org.gtk.GDBus.DocString"
+          value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMetadata
+                 Empty string can be used to pass a NULL as @key or @uri argument."/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="metadata" type="s" direction="in"/>
+      <arg name="key" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetUserPassword">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetUserPassword"/>

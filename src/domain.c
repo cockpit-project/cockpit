@@ -27,6 +27,13 @@ VIRT_DBUS_ENUM_IMPL(virtDBusDomainMemoryStat,
                     "usable",
                     "last_update")
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainMetadata)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainMetadata,
+                    VIR_DOMAIN_METADATA_LAST,
+                    "description",
+                    "title",
+                    "element")
+
 static GVariant *
 virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
                                     gint nr_stats)
@@ -1488,6 +1495,47 @@ virtDBusDomainSetMemory(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSetMetadata(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs G_GNUC_UNUSED,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *typeStr;
+    gint type;
+    const gchar *metadata;
+    const gchar *key;
+    const gchar *uri;
+    guint flags;
+
+    g_variant_get(inArgs, "(&s&s&s&su)", &typeStr, &metadata, &key, &uri, &flags);
+    if (g_str_equal(key, ""))
+        key = NULL;
+    if (g_str_equal(uri, ""))
+        uri = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    type = virtDBusDomainMetadataTypeFromString(typeStr);
+    if (type < 0) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't get valid virDomainMetadataType from string '%s'.",
+                    typeStr);
+        return;
+    }
+
+    if (virDomainSetMetadata(domain, type, metadata, key, uri, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSetUserPassword(GVariant *inArgs,
                               GUnixFDList *inFDs G_GNUC_UNUSED,
                               const gchar *objectPath,
@@ -1713,6 +1761,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "SendProcessSignal", virtDBusDomainSendProcessSignal },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },
+    { "SetMetadata", virtDBusDomainSetMetadata },
     { "SetTime", virtDBusDomainSetTime },
     { "SetUserPassword", virtDBusDomainSetUserPassword },
     { "Shutdown", virtDBusDomainShutdown },

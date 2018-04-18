@@ -72,7 +72,7 @@ case "$RELEASE" in
         # https://tracker.debian.org/pcp not currently in testing
         COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
-        COCKPIT_DEPS="${COCKPIT_DEPS} libblockdev-mdraid2"
+        COCKPIT_DEPS="${COCKPIT_DEPS} libblockdev-mdraid2 udisks2-lvm2"
 
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list

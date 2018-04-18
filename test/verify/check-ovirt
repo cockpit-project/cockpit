@@ -52,7 +52,6 @@ done
 TEST_VDSM_CONF_CONTENT = "Dummy content of the vdsm.conf file"
 
 @skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-i386", "fedora-atomic", "rhel-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
-@skipImage("missing libvirt dependencies", "rhel-8")
 class TestOVirtMachines(MachineCase):
     provision = {
         "0": { "address": "10.111.113.1/20" },

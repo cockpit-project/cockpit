@@ -319,6 +319,13 @@
       <arg name="password" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetTime">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetTime"/>
+      <arg name="seconds" type="t" direction="in"/>
+      <arg name="nseconds" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetVcpus">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetVcpusFlags"/>

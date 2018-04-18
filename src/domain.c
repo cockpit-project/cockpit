@@ -1514,6 +1514,32 @@ virtDBusDomainSetUserPassword(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSetTime(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gulong seconds;
+    guint nseconds;
+    guint flags;
+
+    g_variant_get(inArgs, "(tuu)", &seconds, &nseconds, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSetTime(domain, seconds, nseconds, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSetVcpus(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -1687,6 +1713,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "SendProcessSignal", virtDBusDomainSendProcessSignal },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },
+    { "SetTime", virtDBusDomainSetTime },
     { "SetUserPassword", virtDBusDomainSetUserPassword },
     { "Shutdown", virtDBusDomainShutdown },
     { "Suspend", virtDBusDomainSuspend },

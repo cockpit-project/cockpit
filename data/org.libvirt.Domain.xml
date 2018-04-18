@@ -107,6 +107,13 @@
       <arg name="size" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="BlockJobSetSpeed">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockJobSetSpeed"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="bandwidth" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="CoreDump">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCoreDumpWithFormat"/>

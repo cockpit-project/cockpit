@@ -443,6 +443,31 @@ virtDBusDomainBlockJobAbort(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainBlockJobSetSpeed(GVariant *inArgs,
+                               GUnixFDList *inFDs G_GNUC_UNUSED,
+                               const gchar *objectPath,
+                               gpointer userData,
+                               GVariant **outArgs G_GNUC_UNUSED,
+                               GUnixFDList **outFDs G_GNUC_UNUSED,
+                               GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *disk;
+    gulong bandwidth;
+    guint flags;
+
+    g_variant_get(inArgs, "(&stu)", &disk, &bandwidth, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainBlockJobSetSpeed(domain, disk, bandwidth, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainBlockPeek(GVariant *inArgs,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -1573,6 +1598,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "AttachDevice", virtDBusDomainAttachDevice },
     { "BlockCommit", virtDBusDomainBlockCommit },
     { "BlockJobAbort", virtDBusDomainBlockJobAbort },
+    { "BlockJobSetSpeed", virtDBusDomainBlockJobSetSpeed },
     { "BlockPeek", virtDBusDomainBlockPeek },
     { "BlockPull", virtDBusDomainBlockPull },
     { "BlockRebase", virtDBusDomainBlockRebase },

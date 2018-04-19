@@ -26,22 +26,30 @@ import { connect } from "react-redux";
 import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx';
 import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
 import VmActions from './VmActions.jsx';
+import VmMetricsTab from './VmMetricsTab.jsx';
 import VmDisksTab from './VmDisksTabKubevirt.jsx';
 
 import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
 import { NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
 import { vmExpanded } from "../action-creators.jsx";
 
-const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
+const VmsListingRow = ({ vm, vmMessages, pvs, pod, podMetrics, vmUi, onExpandChanged }:
                            { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod, onExpandChanged: Function }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';
     const phase = (vm.status && vm.status.phase) || _("n/a");
     const idPrefix = vmIdPrefx(vm);
 
     const overviewTabRenderer = {
-        name: _("Overview"),
+        name: (<div id={`${idPrefix}-overview-tab`}>{_("Overview")}</div>),
         renderer: VmOverviewTab,
         data: { vm, vmMessages, pod },
+        presence: 'always',
+    };
+
+    const metricsTabRenderer = {
+        name: (<div id={`${idPrefix}-usage-tab`}>{_("Usage")}</div>),
+        renderer: VmMetricsTab,
+        data: { podMetrics },
         presence: 'always',
     };
 
@@ -63,7 +71,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
                 node,
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
             ]}
-            tabRenderers={[ overviewTabRenderer, disksTabRenderer ]}
+            tabRenderers={[ overviewTabRenderer, metricsTabRenderer, disksTabRenderer ]}
             listingActions={[ <VmActions vm={vm} /> ]}
             expandChanged={onExpandChanged(vm)}
             initiallyExpanded={initiallyExpanded} />

@@ -25,6 +25,7 @@ import os
 import unittest
 import time
 import sys
+import re
 
 from kubelib import *
 
@@ -464,6 +465,24 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_in_text("#vm-fedoravm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
         b.wait_present("#vm-fedoravm-pod")
 
+        # switch to the Usage subtab
+        b.wait_present("#vm-fedoravm-usage-tab")
+        b.click("#vm-fedoravm-usage-tab")
+        b.wait_present("#cpu-metric div svg")  # cannot check cpu component because it is an external dependency
+        b.wait_present("#memory-metric")
+        b.wait_present("#network-metric")
+
+        def get_units_value(selector, per_second=False):
+            units_regex = "([0-9]+\.?[0-9]*) .?i?B"
+            if per_second:
+                units_regex += "/s"
+            m = re.match(units_regex, b.text(selector))
+            return m.group(1) if m else None
+
+        wait(lambda: get_units_value("#memory-metric-title") > 0)
+        self.assertGreaterEqual(get_units_value("#download-metric", True), 0)
+        self.assertGreaterEqual(get_units_value("#upload-metric", True), 0)
+
         # switch to the Disks subtab
         b.wait_present("#vm-fedoravm-disks-tab")
         b.click("#vm-fedoravm-disks-tab")
@@ -495,6 +514,19 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
         # Since the VM is created from OVM, it will be automatically restarted (spec.running: true)
         b.wait_present("tr[data-row-id='vm-fedoravm']")
+        if not b.is_present("#vm-fedoravm-usage-tab"):  # if not expanded
+            b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+
+        # check usage still not present because vm is not running yet)
+        b.wait_present("#vm-fedoravm-usage-tab")
+        b.click("#vm-fedoravm-usage-tab")
+        b.wait_present("#usage-metrics")
+        b.wait_in_text("#usage-metrics", "Usage metrics are available after the pod starts")
+        self.assertFalse(b.is_present("#cpu-metric"))
+        self.assertFalse(b.is_present("#memory-metric"))
+        self.assertFalse(b.is_present("#network-metric"))
+        b.click("#vm-fedoravm-overview-tab")
+        b.click("tr[data-row-id='vm-fedoravm']")  # hide row
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"))
 
         # link to node

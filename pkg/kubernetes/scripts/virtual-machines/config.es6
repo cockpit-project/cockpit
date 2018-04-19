@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2018 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-export const SET_VMS = 'SET_VMS';
-export const SET_PVS = 'SET_PVS';
-export const SET_SETTINGS = 'SET_SETTINGS';
-export const SET_PODS = 'SET_PODS';
-export const SET_NODE_METRICS = 'SET_NODE_METRICS';
+/**
+ * Application-wide constants
+ */
+const CONFIG = {
+    MetricsRefreshInterval: 5000, // in ms
+};
 
-export const VM_ACTION_FAILED = 'VM_ACTION_FAILED';
-export const REMOVE_VM_MESSAGE = 'REMOVE_VM_MESSAGE';
-
-export const VM_EXPANDED = 'VM_EXPANDED';
+export default CONFIG;

@@ -67,6 +67,13 @@ export function setPods(pods) {
     };
 }
 
+export function setNodeMetrics(metrics) {
+    return {
+        type: actionConstants.SET_NODE_METRICS,
+        payload: metrics,
+    };
+}
+
 export function vmExpanded({ vm, isExpanded }) {
     return {
         type: actionConstants.VM_EXPANDED,

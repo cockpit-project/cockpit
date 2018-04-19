@@ -239,7 +239,7 @@ def seed(since, fp, pulls, output):
         try:
             item = json.loads(line.decode('utf-8'))
         except ValueError as ex:
-            sys.stderr.write("tests-data: {1}\n".format(str(ex)))
+            sys.stderr.write("tests-data: {0}\n".format(str(ex)))
             continue
 
         # Once we see a new pull treat the old one as complete and seeded

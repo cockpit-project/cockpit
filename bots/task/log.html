@@ -178,15 +178,6 @@ function extract(text) {
         var segments = text.split(test_header_start);
         $('#test-info').text(text.slice(0, text.indexOf('\n')));
 
-        // delete retried segments
-        for (s = 0; s < segments.length; s += 1) {
-            if (segments[s].indexOf("# RETRY") == -1)
-                continue;
-            segments.splice(s, 1);
-            s -= 1;
-            retries += 1;
-        }
-
         var test_links = {};
         segments.forEach(function (segment, segmentIndex) {
             tap_range.lastIndex = 0;
@@ -223,6 +214,9 @@ function extract(text) {
                     } else {
                         passed += 1;
                     }
+		} else if (segment.indexOf("# RETRY") !== -1) {
+                    retries += 1;
+                    entry.passed = false;
                 } else {
                     entry.passed = false;
                     failed += 1;
@@ -280,7 +274,7 @@ function extract(text) {
                                                                 skipped: skipped,
                                                                 retries: retries,
                                                                 total: total,
-                                                                left: total - passed - failed - skipped
+                                                                left: total - passed - failed - skipped - retries
                                                               })
                            );
         $('#testing-progress').html(Mustache.render(progress_template,

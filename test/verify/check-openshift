@@ -77,7 +77,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         wait_project(self.openshift, "marmalade")
 
         # Expect the default container user limitations during testing
-        self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+        self.openshift.execute("oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
         self.browser.wait_timeout(120)
 

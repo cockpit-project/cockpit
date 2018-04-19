@@ -25,6 +25,13 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetVersion"/>
     </property>
+    <method name="BaselineCPU">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectBaselineCPU"/>
+      <arg name="xmlCPUs" type="as" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="cpu" type="s" direction="out"/>
+    </method>
     <method name="DomainCreateXML">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateXML"/>

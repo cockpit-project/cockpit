@@ -207,6 +207,43 @@ virtDBusConnectGetCapabilities(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusConnectBaselineCPU(GVariant *inArgs,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath G_GNUC_UNUSED,
+                           gpointer userData,
+                           GVariant **outArgs,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autofree const gchar **xmlCPUs = NULL;
+    g_autoptr(GVariantIter) iter = NULL;
+    const gchar **tmp;
+    gsize ncpus;
+    g_autofree gchar *cpu = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(asu)", &iter, &flags);
+
+    ncpus = g_variant_iter_n_children(iter);
+    if (ncpus > 0) {
+        xmlCPUs = g_new0(const gchar*, ncpus);
+        tmp = xmlCPUs;
+        while (g_variant_iter_next(iter, "&s", tmp))
+            tmp++;
+    }
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    cpu = virConnectBaselineCPU(connect->connection, xmlCPUs, ncpus, flags);
+    if (!cpu)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", cpu);
+}
+
+static void
 virtDBusConnectDomainCreateXML(GVariant *inArgs,
                                GUnixFDList *inFDs G_GNUC_UNUSED,
                                const gchar *objectPath G_GNUC_UNUSED,
@@ -623,6 +660,7 @@ static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
+    { "BaselineCPU", virtDBusConnectBaselineCPU },
     { "DomainCreateXML", virtDBusConnectDomainCreateXML },
     { "DomainDefineXML", virtDBusConnectDomainDefineXML },
     { "DomainLookupByID", virtDBusConnectDomainLookupByID },

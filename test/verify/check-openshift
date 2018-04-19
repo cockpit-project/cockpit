@@ -76,8 +76,11 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         wait_project(self.openshift, "marmalade")
 
+        self.openshift.execute("oc project default")
+
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+
 
         self.browser.wait_timeout(120)
 
@@ -390,94 +393,99 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o.execute("/root/nested-kvm") # not enabled by default; for troubleshooting use "virt-host-validate qemu"
         o.execute("(cat /sys/module/kvm_intel/parameters/nested || cat /sys/module/kvm_amd/parameters/nested) | grep -q Y")
 
-        o.execute("oc project kube-system")
-        o.execute("oc create serviceaccount -n kube-system kubevirt")
+        o.execute("oc project kubevirt")
+        o.execute("oc create serviceaccount -n kubevirt kubevirt")
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt")
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt-admin")
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z default")
 
-        o.execute("oc apply -f /kubevirt/kubevirt.yaml") # finalize installation of kubevirt
+        # o.execute("oc apply -f /kubevirt/kubevirt.yaml") # finalize installation of kubevirt
+
+        # sit(self.machines)
 
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2) # is it deployed and up?
-        wait(lambda: "No resources found" in o.execute("oc get vm 2>&1"), delay=2) # No VM created yet
+        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2) # No VM created/started yet
 
     def testKubevirtMachinesList(self):
         self.bootstrapKubevirt()
 
         o = self.openshift
-        # *.yaml files comes from kubevirt distribution, see tarball extraction in bots/images/script/lib/kubevirt.setup
-        o.execute("oc create -f /kubevirt/iscsi-demo-target.yaml")  # disk for test VM
-        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
-        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
-        wait(lambda: "virt-launcher-testvm" in o.execute("oc get pods"))
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-testvm"))
+
+        # The "fedoravm" VirtualMachine is created from OfflineVirtualMachine
+        o.execute("oc patch offlinevirtualmachine fedoravm --type=merge -p '{\"spec\":{\"running\": true}}'")  # let's start the VM
+        wait(lambda: "fedoravm" in o.execute("oc get vm"), msg='Start of the "fedoravm" virtual machine failed.')
+        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods"))
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm")) # Example: virt-launcher-fedoravm-----rx59t
 
         b = self.browser
         self.login_and_go("/kubernetes")
         # kubevirt is available, so link should be present
         b.wait_present("#vms-menu-link")
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-testvm']")
-        self.assertEqual(b.text("tr[data-row-id='vm-testvm'] th"), "testvm")
+        b.wait_present("tr[data-row-id='vm-fedoravm']")
+        self.assertEqual(b.text("tr[data-row-id='vm-fedoravm'] th"), "fedoravm")
 
         # expand row and check the Overview subtab
-        b.click("tr[data-row-id='vm-testvm']")
-        b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel")
-        b.wait_in_text("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel", "Node")
-        b.wait_present("#vm-testvm-memory")
-        b.wait_in_text("#vm-testvm-memory", "64M")
-        b.wait_in_text("#vm-testvm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
-        b.wait_present("#vm-testvm-pod")
+        b.click("tr[data-row-id='vm-fedoravm']")
+        b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
+        b.wait_in_text("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel", "Node")
+        b.wait_present("#vm-fedoravm-memory")
+        b.wait_in_text("#vm-fedoravm-memory", "256M")
+        b.wait_in_text("#vm-fedoravm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
+        b.wait_present("#vm-fedoravm-pod")
 
         # switch to the Disks subtab
-        b.wait_present("#vm-testvm-disks-tab")
-        b.click("#vm-testvm-disks-tab")
-        b.wait_present("#vm-testvm-disks-total-value") # wait for the "Count" value
-        b.wait_in_text("#vm-testvm-disks-total-value", "1")
-        b.wait_present("#vm-testvm-disks-vda-device") # check disk properties
-        b.wait_in_text("#vm-testvm-disks-vda-device", "mydisk")
-        b.wait_in_text("#vm-testvm-disks-vda-target", "vda")
-        b.wait_in_text("#vm-testvm-disks-vda-capacity", "1Gi")
-        b.wait_in_text("#vm-testvm-disks-vda-bus", "iSCSI")
-        b.wait_in_text("#vm-testvm-disks-volume", "iscsi-disk-alpine")
-        b.click("tr.listing-ct-item.listing-ct-noexpand") # test navigation to the "Volumes" page
-        b.wait_js_cond('window.location.hash === "#/volumes/iscsi-disk-alpine"')
+        b.wait_present("#vm-fedoravm-disks-tab")
+        b.click("#vm-fedoravm-disks-tab")
+        b.wait_present("#vm-fedoravm-disks-total-value") # wait for the "Count" value
+        b.wait_in_text("#vm-fedoravm-disks-total-value", "2")
+        b.wait_present("#vm-fedoravm-disks-disk0-device") # check disk properties
+        b.wait_present("#vm-fedoravm-disks-disk1-device")
+        b.wait_in_text("#vm-fedoravm-disks-disk0-device", "disk0")
+        b.wait_in_text("#vm-fedoravm-disks-disk1-device", "disk1")
+        b.wait_in_text("#vm-fedoravm-disks-disk0-bus", "virtio")
+        b.wait_in_text("#vm-fedoravm-disks-disk1-bus", "virtio")
+        b.wait_in_text("#vm-fedoravm-disks-disk0-source", "kubevirt/fedora-cloud-registry-disk-demo:latest") # registryvolume
+        b.wait_in_text("#vm-fedoravm-disks-disk1-source", "cloudinitvolume")
+
+        # TODO: add iSCSI disk to the test VM and reenable here
+        # b.click("tr.listing-ct-item.listing-ct-noexpand") # test navigation to the "Volumes" page
+        # b.wait_js_cond('window.location.hash === "#/volumes/iscsi-disk-alpine"')
 
         # return back to the virtual-machines
         b.wait_present("#vms-menu-link") # left-side menu
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-testvm']") # the row is already expanded if saving of UI state works
+        b.wait_present("tr[data-row-id='vm-fedoravm']") # the row is already expanded if saving of UI state works
 
-        # delete VM
-        b.wait_present("#vm-testvm-delete")
-        b.click("#vm-testvm-delete")
+        # delete the VM (not the OVM), the VM pod should be recreated automatically
+        b.wait_present("#vm-fedoravm-delete")
+        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods | grep Running"))
+        b.click("#vm-fedoravm-delete")
         b.wait_present("#kubernetes-virtual-machines-root tr > td:contains(No virtual machines)")
 
-        # start the VM again - TODO: replace this step by OfflineVirtualMachines once implemented
-        o.execute("oc create -f /kubevirt/vm.yaml")  # let's create a VM
-        wait(lambda: "testvm" in o.execute("oc get vm"), msg='Deployment of virtual machine "testvm" failed.')
-        wait(lambda: "virt-launcher-testvm" in o.execute("oc get pods"))
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-testvm"))
+        # Since the VM is created from OVM, it will be automatically restarted (spec.running: true)
+        b.wait_present("tr[data-row-id='vm-fedoravm']")
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"))
 
         # link to node
-        b.wait_present("tr[data-row-id='vm-testvm']") # the just-started VM is listed
-        b.click("tr[data-row-id='vm-testvm']")  # expand row
-        b.wait_present("tr[data-row-id='vm-testvm'] + tr.listing-ct-panel")
-        b.wait_present("#vm-testvm-node")
-        wait(lambda: b.text("#vm-testvm-node > a").strip() != "-") # `-` ==  unassigned ; so wait for a change
-        node_name = b.text("#vm-testvm-node > a").strip()
-        b.click("#vm-testvm-node > a") # jump to "node" detail
+        b.wait_present("tr[data-row-id='vm-fedoravm']") # the just-started VM is listed
+        b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+        b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
+        b.wait_present("#vm-fedoravm-node")
+        wait(lambda: b.text("#vm-fedoravm-node > a").strip() != "-") # `-` ==  unassigned ; so wait for a change
+        node_name = b.text("#vm-fedoravm-node > a").strip()
+        b.click("#vm-fedoravm-node > a") # jump to "node" detail
         b.wait_js_cond('window.location.hash === "#/nodes/%s"' % (node_name,))
 
         # link to pod
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-testvm']") # the row is already expanded if saving of UI state works
-        b.wait_present("#vm-testvm-pod")
-        wait(lambda: b.text("#vm-testvm-pod > a").strip() != "")
-        b.wait_in_text("#vm-testvm-pod", "virt-launcher-testvm---") # Example: virt-launcher-testvm-----rx59t
-        pod_name = b.text("#vm-testvm-pod > a").strip()
-        b.click("#vm-testvm-pod > a")
-        b.wait_js_cond('window.location.hash === "#/l/pods/kube-system/%s"' % (pod_name))
+        b.wait_present("tr[data-row-id='vm-fedoravm']") # the row is already expanded if saving of UI state works
+        b.wait_present("#vm-fedoravm-pod")
+        wait(lambda: b.text("#vm-fedoravm-pod > a").strip() != "")
+        b.wait_in_text("#vm-fedoravm-pod", "virt-launcher-fedoravm")
+        pod_name = b.text("#vm-fedoravm-pod > a").strip()
+        b.click("#vm-fedoravm-pod > a")
+        b.wait_js_cond('window.location.hash === "#/l/pods/kubevirt/%s"' % (pod_name))
 
     def testKubevirtMachinesCreate(self):
         class TestCreateConfig:
@@ -771,6 +779,7 @@ class TestRegistry(MachineCase, RegistryTests):
         with open(tmpfile, "r") as f:
             self.machine.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
         wait_project(self.openshift, "marmalade")
+        self.openshift.execute("oc project default")
 
         self.browser.wait_timeout(120)
 

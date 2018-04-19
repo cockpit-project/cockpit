@@ -1,9 +1,16 @@
 #!/bin/bash
-set -ex
 
-function docker_pull {
-  docker pull $1
-  echo "$1" >> /tmp/pulledImages
+set -x
+
+# Wait for x for many minutes
+function wait() {
+    for i in $(seq 1 100); do
+        if eval "$@"; then
+            return 0
+        fi
+        sleep 6
+    done
+    exit 6
 }
 
 KUBEVIRT_DIR="/kubevirt"
@@ -11,38 +18,50 @@ rm -rf ${KUBEVIRT_DIR}
 mkdir -p ${KUBEVIRT_DIR}
 cd ${KUBEVIRT_DIR}
 
-# download latest Kubevirt release
 curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/latest > kubevirt_latest.json
-KUBEVIRT_RELEASE_ID=`cat kubevirt_latest.json | grep -m 1 \"id\": | sed -e 's/^.*\"id\":\s*\(.*\),/\1/'`
-echo Latest Kubevirt release found: ${KUBEVIRT_RELEASE_ID}
-
-KUBEVIRT_VERSION=`cat kubevirt_latest.json | grep -m 1 \"name\": | sed -e 's/^.*\"name\":\s*\"\(.*\)\",/\1/'`
+KUBEVIRT_VERSION=`cat kubevirt_latest.json | grep -m 1 \"name\": | sed -e 's/^.*\"name\":\s*\"\(.*\)\",/\1/' | sed 's/^v//'`
 echo Kubevirt version found: ${KUBEVIRT_VERSION}
 
-# Store kubevirt's manifests and binaries for later use within tests
-for ASSET in `curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/${KUBEVIRT_RELEASE_ID}/assets | grep \"browser_download_url\": | sed -e 's/^.*\"browser_download_url\":.*\"\(.*\)\".*$/\1/'` ; do
-    curl -sL -O ${ASSET}
-done
+oc login -u system:admin
+oc adm policy add-cluster-role-to-user cluster-admin admin
+oc adm policy add-cluster-role-to-user cluster-admin system:admin
 
-# pre-pull related images (will be applied later)
-for IMAGE in `grep -h 'image:' *.yaml | sed -e 's/^.*image://g'` ; do
-    echo Pulling image for Kubevirt: ${IMAGE}
-    docker_pull ${IMAGE}
-done
+# For emphemeral storage:
+# _apb_plan_id=storage-demo
+# storage_role=storage-demo
 
-docker_pull kubevirt/iscsi-demo-target-tgtd:latest
-docker_pull kubevirt/virt-launcher:${KUBEVIRT_VERSION}
-docker_pull kubevirt/virt-migrator:${KUBEVIRT_VERSION}
+docker run --rm --net=host -v $HOME/.kube:/opt/apb/.kube:z -u $UID \
+   docker.io/ansibleplaybookbundle/kubevirt-apb provision \
+   --extra-vars 'namespace=kubevirt' \
+   --extra-vars '_apb_last_requesting_user=admin' \
+   --extra-vars '_apb_plan_id=default' \
+   --extra-vars 'storage_role=storage-none' \
+   --extra-vars 'admin_user=admin' \
+   --extra-vars 'admin_password=admin' \
+   --extra-vars 'cluster=openshift' \
+   --extra-vars "version=${KUBEVIRT_VERSION}"
 
-# Reuse test VM and its disk from kubevirt project since its being developed along the Kubevirt itself
 TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`
 ( mkdir kubevirt.src && cd kubevirt.src && curl -sL ${TARBALL} > kubevirt.tar.gz && tar -xzf kubevirt.tar.gz --strip=1 )
-cp kubevirt.src/cluster/vm.yaml ./
+cp kubevirt.src/cluster/vm-template-fedora.yaml ./
 
-cp kubevirt.src/manifests/testing/iscsi-demo-target.yaml.in ./iscsi-demo-target.yaml
-sed -i 's/{{ docker_prefix }}/kubevirt/g' iscsi-demo-target.yaml
-sed -i 's/{{ docker_tag }}/latest/g' iscsi-demo-target.yaml
+# change tag
+sed -i 's/:devel/:latest/g' ./vm-template-fedora.yaml
+grep -q 'running:' ./vm-template-fedora.yaml || sed -i '/^  spec:/a\ \ \ \ running: false' ./vm-template-fedora.yaml
 
-# clean up
-# rm -rf kubevirt.src # Let's keep it. Kubevirt is recently under heavy development and it's more handy to have it available for testing
+oc project kubevirt
 
+# Create an OfflineVirtualMachine based on kubevirt's template for Fedora
+oc process -f vm-template-fedora.yaml -p NAME=fedoravm -p MEMORY=256Mi -p CPU_CORES=1 | oc apply -f -
+
+# Start it (means create VirtualMachine from an OfflineVirtualMachine)
+oc patch offlinevirtualmachine fedoravm --type=merge -p '{"spec":{"running": true}}'
+
+# Wait till the VM is running. Means all kubevirt's images are pulled as well
+wait "(oc get pods | grep virt-launcher-fedoravm | grep -q Running)"
+
+# Stop it and remove pod (leftover)
+oc patch offlinevirtualmachine fedoravm --type=merge -p '{"spec":{"running": false}}'
+wait "(oc get pods | grep -qv virt-launcher-fedoravm)"  # pod should be gone
+
+# No VM is running but kubevirt stays deployed

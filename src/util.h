@@ -82,3 +82,10 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetwork, virNetworkFree);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetworkPtr, virtDBusUtilVirNetworkListFree);
+
+typedef gchar *virtDBusCharArray;
+
+void
+virtDBusUtilStringListFree(virtDBusCharArray *item);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virtDBusCharArray, virtDBusUtilStringListFree);

@@ -184,3 +184,12 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks)
 
     g_free(networks);
 }
+
+void
+virtDBusUtilStringListFree(virtDBusCharArray *item)
+{
+    for (gint i = 0; item[i] != NULL; i++)
+        g_free(item[i]);
+
+    g_free(item);
+}

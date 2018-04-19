@@ -33,11 +33,9 @@ const _ = cockpit.gettext;
  * @param pvs - all PersistentVolumes, conforms state.pvs
  * @param vm - a VM the volumeName is from, conforms state.vms[N]
  */
-const getPersistentVolume = (volumeName, pvs, vm) => {
-    const volumes = vm.spec.volumes;
-    let volume;
-    if (volumes) {
-        volume = volumes.find(item => item.name === volumeName);
+const getPersistentVolume = (volume, pvs) => {
+    if (!volume) {
+        return null;
     }
 
     if (!volume || !volume.iscsi) {
@@ -55,26 +53,45 @@ const getPersistentVolume = (volumeName, pvs, vm) => {
 };
 
 const prepareDiskData = (disk, vm, pvs, idPrefix) => {
-    const pv = getPersistentVolume(disk.volumeName, pvs, vm);
+    const volumes = vm.spec.volumes;
+    let volume;
+    if (volumes) {
+        volume = volumes.find(item => item.name === disk.volumeName);
+    }
+
+    const pv = getPersistentVolume(volume, pvs);
 
     let onNavigate;
-    let bus = _("N/A"); // recently only iSCSI is supported
+    let bus = _("N/A"); // recently iSCSI is supported only
     if (pv) {
         bus = _("iSCSI");
         onNavigate = () => cockpit.jump(`/kubernetes#/volumes/${pv.metadata.name}`);
+    } else if (disk.disk.bus) {
+        bus = disk.disk.bus;
     }
+
     const capacity = pv ? (pv.spec.capacity.storage) : undefined;
+    const device = disk.name;
+    const target = getValueOrDefault(() => disk.disk.dev, '');
+
+    const diskSourceCell = (
+        <div id={`${idPrefix}-${target || device}-source`}>
+            {
+                (pv && pv.metadata.name) ||
+                (volume && volume.registryDisk && volume.registryDisk.image) ||
+                (disk.volumeName)}
+        </div>);
 
     return {
         used: undefined, // TODO: how to get this?
         capacity,
 
-        device: disk.name,
-        target: getValueOrDefault(() => disk.disk.dev, ''),
+        device,
+        target,
         bus,
         readonly: undefined, // access modes are more complex here, let's leave this for the detail page
 
-        diskSourceCell: (<div id={`${idPrefix}-volume`}>{(pv && pv.metadata.name) || disk.volumeName}</div>),
+        diskSourceCell,
         onNavigate,
     };
 };

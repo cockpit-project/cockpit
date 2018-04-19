@@ -38,7 +38,7 @@ def load(filename_or_fp, only=failures, limit=None, verbose=False):
         while True:
             try:
                 line = fp.readline().decode('utf-8')
-            except zlib.error as ex:
+            except (OSError, zlib.error) as ex:
                 sys.stderr.write("tests-data: {0}\n".format(str(ex)))
                 return
             if not line:

@@ -231,7 +231,7 @@ def seed(since, fp, pulls, output):
     while True:
         try:
             line = fp.readline()
-        except zlib.error as ex:
+        except (OSError, zlib.error) as ex:
             sys.stderr.write("tests-data: {0}\n".format(str(ex)))
             break
         if not line:

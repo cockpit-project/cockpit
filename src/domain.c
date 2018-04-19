@@ -506,7 +506,7 @@ virtDBusDomainBlockPeek(GVariant *inArgs,
     gsize size;
     guint flags;
     g_autofree guchar *buffer = NULL;
-    GVariantBuilder *builder;
+    GVariantBuilder builder;
     GVariant *res;
 
     g_variant_get(inArgs, "(&sttu)", &disk, &offset, &size, &flags);
@@ -519,11 +519,11 @@ virtDBusDomainBlockPeek(GVariant *inArgs,
     if (virDomainBlockPeek(domain, disk, offset, size, buffer, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    builder = g_variant_builder_new(G_VARIANT_TYPE("ay"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ay"));
     for (unsigned int i = 0; i < size; i++)
-        g_variant_builder_add(builder, "y", buffer[i]);
+        g_variant_builder_add(&builder, "y", buffer[i]);
 
-    res = g_variant_builder_end(builder);
+    res = g_variant_builder_end(&builder);
 
     *outArgs = g_variant_new_tuple(&res, 1);
 }
@@ -1221,7 +1221,7 @@ virtDBusDomainMemoryPeek(GVariant *inArgs,
     gsize size;
     guint flags;
     g_autofree guchar *buffer = NULL;
-    GVariantBuilder *builder;
+    GVariantBuilder builder;
     GVariant *res;
 
     g_variant_get(inArgs, "(ttu)", &offset, &size, &flags);
@@ -1234,11 +1234,11 @@ virtDBusDomainMemoryPeek(GVariant *inArgs,
     if (virDomainMemoryPeek(domain, offset, size, buffer, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    builder = g_variant_builder_new(G_VARIANT_TYPE("ay"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ay"));
     for (unsigned int i = 0; i < size; i++)
-        g_variant_builder_add(builder, "y", buffer[i]);
+        g_variant_builder_add(&builder, "y", buffer[i]);
 
-    res = g_variant_builder_end(builder);
+    res = g_variant_builder_end(&builder);
 
     *outArgs = g_variant_new_tuple(&res, 1);
 }

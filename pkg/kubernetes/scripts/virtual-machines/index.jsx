@@ -27,6 +27,7 @@ import reducers from './reducers.jsx';
 import * as actionCreators from './action-creators.jsx';
 import VmsListing from './components/VmsListing.jsx';
 import { logDebug } from './utils.jsx';
+import { watchMetrics, cleanupMetricsWatch } from "./watch-metrics.es6";
 
 import '../../../machines/machines.less'; // once per component hierarchy
 
@@ -81,12 +82,16 @@ function addScopeVarsToStore ($scope) {
  * @param {kubeLoader} kubeLoader
  * @param {kubeSelect} kubeSelect
  * @param {kubeMethods} kubeMethods
+ * @param {KubeRequest} KubeRequest
  */
-function init($scope, kubeLoader, kubeSelect, kubeMethods) {
+function init($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest) {
     initReduxStore();
     addKubeLoaderListener($scope, kubeLoader, kubeSelect);
-    initMiddleware(kubeMethods, kubeLoader);
+    initMiddleware(kubeMethods, kubeLoader, KubeRequest);
     addScopeVarsToStore($scope);
+
+    watchMetrics(reduxStore);
+    $scope.$on("$destroy", () => cleanupMetricsWatch());
 
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root');
     React.render(<VmsPlugin />, rootElement);

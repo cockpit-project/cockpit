@@ -72,8 +72,9 @@
         'kubeLoader',
         'kubeSelect',
         'kubeMethods',
-        function($scope, loader, select, methods) {
-            vmsReact.init($scope, loader, select, methods);
+        'KubeRequest',
+        function($scope, loader, select, methods, request) {
+            vmsReact.init($scope, loader, select, methods, request);
         }]
     );
 

@@ -85,6 +85,15 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="FindStoragePoolSources">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virConnectFindStoragePoolSources
+               Empty string can be used to pass a NULL as @srcSpec argument."/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="srcSpec" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="storagePoolSources" type="s" direction="out"/>
+    </method>
     <method name="GetCapabilities">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>

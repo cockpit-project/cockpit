@@ -475,6 +475,35 @@ virtDBusConnectDomainSaveImageDefineXML(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectFindStoragePoolSources(GVariant *inArgs,
+                                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                                      const gchar *objectPath G_GNUC_UNUSED,
+                                      gpointer userData,
+                                      GVariant **outArgs,
+                                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    const gchar *type;
+    const gchar *srcSpec;
+    guint flags;
+    g_autofree gchar *ret = NULL;
+
+    g_variant_get(inArgs, "(&s&su)", &type, &srcSpec, &flags);
+    if (g_str_equal(srcSpec, ""))
+        srcSpec = NULL;
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    ret = virConnectFindStoragePoolSources(connect->connection, type, srcSpec, flags);
+    if (!ret)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", ret);
+}
+
+static void
 virtDBusConnectGetSysinfo(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath G_GNUC_UNUSED,
@@ -711,6 +740,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByUUID", virtDBusConnectDomainLookupByUUID },
     { "DomainRestore", virtDBusConnectDomainRestoreFlags },
     { "DomainSaveImageDefineXML", virtDBusConnectDomainSaveImageDefineXML },
+    { "FindStoragePoolSources", virtDBusConnectFindStoragePoolSources },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },

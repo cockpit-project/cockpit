@@ -68,6 +68,11 @@ class TestConnect(libvirttest.BaseTestClass):
         path = getattr(self.connect, lookup_method_name)(props[lookup_item])
         assert original_path == path
 
+    def test_connect_find_storage_pool_sources(self):
+        storageType = "logical"
+        sources = self.connect.FindStoragePoolSources(storageType, "", 0)
+        assert isinstance(sources, dbus.String)
+
     def test_connect_list_domains(self):
         domains = self.connect.ListDomains(0)
         assert isinstance(domains, dbus.Array)

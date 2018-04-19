@@ -6,6 +6,13 @@
 
 #include <glib/gprintf.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusConnectCPUCompareResult)
+VIRT_DBUS_ENUM_IMPL(virtDBusConnectCPUCompareResult,
+                    VIR_CPU_COMPARE_LAST,
+                    "incompatible",
+                    "identical",
+                    "superset")
+
 static gint virtDBusConnectCredType[] = {
     VIR_CRED_AUTHNAME,
     VIR_CRED_ECHOPROMPT,
@@ -241,6 +248,41 @@ virtDBusConnectBaselineCPU(GVariant *inArgs,
         return virtDBusUtilSetLastVirtError(error);
 
     *outArgs = g_variant_new("(s)", cpu);
+}
+
+static void
+virtDBusConnectCompareCPU(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath G_GNUC_UNUSED,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    const gchar *xmlDesc;
+    guint flags;
+    gint compareResult;
+    const gchar* compareResultStr;
+
+    g_variant_get(inArgs, "(&su)", &xmlDesc, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    compareResult = virConnectCompareCPU(connect->connection, xmlDesc, flags);
+    if (compareResult < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    compareResultStr = virtDBusConnectCPUCompareResultTypeToString(compareResult);
+    if (!compareResultStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virCPUCompareResult '%d' to string.",
+                    compareResult);
+        return;
+    }
+
+    *outArgs = g_variant_new("(s)", compareResultStr);
 }
 
 static void
@@ -661,6 +703,7 @@ static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
 
 static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "BaselineCPU", virtDBusConnectBaselineCPU },
+    { "CompareCPU", virtDBusConnectCompareCPU },
     { "DomainCreateXML", virtDBusConnectDomainCreateXML },
     { "DomainDefineXML", virtDBusConnectDomainDefineXML },
     { "DomainLookupByID", virtDBusConnectDomainLookupByID },

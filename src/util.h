@@ -38,6 +38,8 @@ virtDBusUtilVirDomainListFree(virDomainPtr *domains);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomain, virDomainFree);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainPtr, virtDBusUtilVirDomainListFree);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
+
 gint
 virtDBusUtilEnumFromString(const gchar *const *types,
                            guint ntypes,

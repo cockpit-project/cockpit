@@ -1017,8 +1017,6 @@ virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListFree);
-
 static void
 virtDBusDomainGetStats(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,

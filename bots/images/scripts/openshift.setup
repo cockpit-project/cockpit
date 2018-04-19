@@ -314,6 +314,9 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Prepare Kubevirt for later installation
 /var/lib/testvm/kubevirt.setup
 
+# use the pristine kube config; kubevirt.setup changes it
+cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
+
 dnf install -y cockpit-system
 
 docker info

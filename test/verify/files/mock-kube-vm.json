@@ -9,25 +9,12 @@
       "devices": {
         "disks": [
           {
-            "device": "disk",
-            "driver": {
-              "name": "qemu",
-              "type": "raw",
-              "cache": "none"
-            },
-            "snapshot": "external",
-            "source": {
-              "host": {
-                "name": "iscsi-demo-target.kube-system",
-                "port": "3260"
-              },
-              "name": "iqn.2017-01.io.kubevirt:sn.42/2",
-              "protocol": "iscsi"
-            },
-            "target": {
-              "dev": "vda"
-            },
-            "type": "network"
+            "name": "mydisk",
+            "volumeName": "registryvolume",
+            "volumeName": "myvolume",
+            "disk": {
+              "bus": "sata"
+            }
           }
         ],
         "interfaces": [
@@ -65,5 +52,13 @@
       },
       "type": "qemu"
     }
-  }
+  },
+  "volumes": [
+    {
+      "name": "myvolume",
+      "registryDisk": {
+        "image": "kubevirt/cirros-registry-disk-demo:latest"
+      }
+   }
+  ]
 }

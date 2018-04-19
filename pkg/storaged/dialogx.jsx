@@ -317,7 +317,7 @@ export const CheckBox = (tag, title, options) => {
                 <div className="checkbox">
                     <label>
                         <input type="checkbox" data-field={tag} checked={val}
-                               onChange={event => change(event.target.checked)}/>{title}
+                            onChange={event => change(event.target.checked)}/>{title}
                     </label>
                 </div>
             );

@@ -29,6 +29,12 @@ def decode_clevis_slot(dev, slot):
             "key": data['kid'],
             "sigkeys": list(map(compute_thp, filter(is_signing_key, data['clevis']['tang']['adv']['keys']))),
         }
+    if data['clevis']['pin'] == "http":
+        return {
+            "slot": slot,
+            "type": "http",
+            "url": data['clevis']['http']['url'],
+        }
 
 def info(dev):
     result = subprocess.run([ "luksmeta", "show", "-d", dev ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -97,7 +103,7 @@ def is_signing_key(jwk):
         return True
     return False
 
-def get_adv(url):
+def get_tang_adv(url):
     if not "://" in url:
         url = "http://" + url
     with urllib.request.urlopen(url + "/adv") as rsp:
@@ -113,9 +119,8 @@ def get_adv(url):
         sys.stdout.write(json.dumps(info) + "\n")
         sys.stdout.flush()
 
-def add(dev, url, adv, passphrase):
-    config = { "url": url, "adv": json.loads(adv) }
-    subprocess.run([ "clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, "tang", json.dumps(config) ],
+def add(dev, pin, config, passphrase):
+    subprocess.run([ "clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, config ],
                    check=True, input=passphrase.encode())
 
 def check_key(dev, slot):
@@ -123,15 +128,11 @@ def check_key(dev, slot):
     subprocess.run([ "clevis", "decrypt" ],
                    check = True, input = jwe, stdout=subprocess.PIPE).stdout
 
-def replace(dev, slot, url, adv):
+def replace(dev, slot, pin, config):
     jwe = subprocess.check_output([ "luksmeta", "load", "-d", dev, "-s", slot ])
     passphrase = subprocess.run([ "clevis", "decrypt" ],
                                 check = True, input = jwe, stdout=subprocess.PIPE).stdout
-    if len(adv) > 0:
-        config = { "url": url, "adv": json.loads(adv) }
-    else:
-        config = { "url": url }
-    new_jwe = subprocess.run([ "clevis", "encrypt", "tang", json.dumps(config) ],
+    new_jwe = subprocess.run([ "clevis", "encrypt", pin, config ],
                              check = True, input = passphrase, stdout=subprocess.PIPE).stdout
     subprocess.run([ "luksmeta", "wipe", "-d", dev, "-s", slot, "-f" ])
     subprocess.run([ "luksmeta", "save", "-d", dev, "-s", slot, "-u", "cb6e8904-81ff-40da-a84a-07ab9ab5715e" ],
@@ -148,8 +149,8 @@ if sys.argv[1] == "monitor":
     monitor()
 elif sys.argv[1] == "remove":
     remove(sys.argv[2], int(sys.argv[3]))
-elif sys.argv[1] == "get-adv":
-    get_adv(sys.argv[2])
+elif sys.argv[1] == "get-tang-adv":
+    get_tang_adv(sys.argv[2])
 elif sys.argv[1] == "add":
     add(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
 elif sys.argv[1] == "check-key":

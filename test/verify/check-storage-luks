@@ -123,7 +123,7 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
-    def testClevis(self):
+    def testClevisTang(self):
         m = self.machine
         b = self.browser
 
@@ -186,7 +186,8 @@ class TestStorage(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Network keys", "")
         self.content_tab_action(1, 1, "Add")
         self.dialog_wait_open()
-        self.dialog_set_val("url", "127.0.0.1")
+        self.dialog_set_val("method", "tang")
+        self.dialog_set_val("tang_url", "127.0.0.1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         b.wait_in_text("#dialog", "The output should match this text")
@@ -255,6 +256,96 @@ class TestStorage(StorageCase):
         self.content_tab_action(1, 1, "Remove")
         self.confirm()
         b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
+
+    def testClevisHttp(self):
+        m = self.machine
+        b = self.browser
+
+        if m.execute("which clevis || true") == "":
+            self.skipTest("No clevis/tang here")
+
+        # Start our escrow server
+        m.upload([ "verify/files/mock-escrow-server" ], "/usr/local/bin/")
+        escrow_pid = m.spawn("/usr/local/bin/mock-escrow-server /tmp/SECRET 88", "mock-escrow-server.log")
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_tab_action(1, 1, "Format")
+        self.dialog({ "type": "luks+ext4",
+                      "name": "ENCRYPTED",
+                      "passphrase": "vainu-reku-toma-rolle-kaja",
+                      "passphrase2": "vainu-reku-toma-rolle-kaja" })
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # Set the flag and reload the page to make the Clevis stuff appear
+        #
+        b.eval_js('window.localStorage["clevis-feature"] = "on"')
+        b.reload()
+        b.enter_page("/storage")
+
+        # Lock the disk
+        #
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+
+        # Add a key
+        #
+        self.content_tab_wait_in_info(1, 1, "Network keys", "")
+        self.content_tab_action(1, 1, "Add")
+        self.dialog_wait_open()
+        self.dialog_set_val("method", "http")
+        self.dialog_set_val("http_url", "http://127.0.0.1:88")
+        self.dialog_set_val("allow_plain_http", True)
+        self.dialog_set_val("http_method", "PUT")
+        self.dialog_set_val("key_type", "octet-stream")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1:88")
+
+        # Unlock it.  This should succeed without prompting.
+        #
+        self.content_head_action(1, "Unlock")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+
+        # Check the key, should be working right now
+        #
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "This network key works fine right now")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Break the key in the server and check again
+        #
+        m.execute("echo foo >/tmp/SECRET")
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "The server has returned a key that doesn't work.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Kill the server and check
+        #
+        m.execute("kill %s" % escrow_pid)
+        self.content_tab_action(1, 1, "Check")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "Retrieving the key from http://127.0.0.1:88 has failed: Connection refused.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Remove key on client
+        #
+        self.content_tab_action(1, 1, "Remove")
+        self.confirm()
+        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "http://127.0.0.1:88")
 
 if __name__ == '__main__':
     test_main()

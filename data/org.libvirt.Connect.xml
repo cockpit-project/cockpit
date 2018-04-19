@@ -94,6 +94,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="storagePoolSources" type="s" direction="out"/>
     </method>
+    <method name="GetAllDomainStats">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectGetAllDomainStats"/>
+      <arg name="stats" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="records" type="a(sa{sv})" direction="out"/>
+    </method>
     <method name="GetCapabilities">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>

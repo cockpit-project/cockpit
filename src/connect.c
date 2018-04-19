@@ -504,6 +504,52 @@ virtDBusConnectFindStoragePoolSources(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectGetAllDomainStats(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath G_GNUC_UNUSED,
+                                 gpointer userData,
+                                 GVariant **outArgs,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomainStatsRecordPtr) records = NULL;
+    guint stats;
+    gint nstats;
+    guint flags;
+    GVariant *gret;
+    GVariantBuilder builder;
+
+    g_variant_get(inArgs, "(uu)", &stats, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    nstats = virConnectGetAllDomainStats(connect->connection,
+                                         stats, &records, flags);
+    if (nstats < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(sa{sv})"));
+
+    for (gint i = 0; i < nstats; i++) {
+        const gchar* name;
+        GVariant *grecords;
+
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(sa{sv})"));
+        name = virDomainGetName(records[i]->dom);
+        grecords = virtDBusUtilTypedParamsToGVariant(records[i]->params,
+                                                     records[i]->nparams);
+        g_variant_builder_add(&builder, "s", name);
+        g_variant_builder_add_value(&builder, grecords);
+        g_variant_builder_close(&builder);
+    }
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusConnectGetCPUModelNames(GVariant *inArgs,
                                 GUnixFDList *inFDs G_GNUC_UNUSED,
                                 const gchar *objectPath G_GNUC_UNUSED,
@@ -808,6 +854,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainRestore", virtDBusConnectDomainRestoreFlags },
     { "DomainSaveImageDefineXML", virtDBusConnectDomainSaveImageDefineXML },
     { "FindStoragePoolSources", virtDBusConnectFindStoragePoolSources },
+    { "GetAllDomainStats", virtDBusConnectGetAllDomainStats },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
     { "GetCPUModelNames", virtDBusConnectGetCPUModelNames },
     { "GetDomainCapabilities", virtDBusConnectGetDomainCapabilities },

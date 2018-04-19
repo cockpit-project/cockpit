@@ -116,6 +116,10 @@ class TestConnect(libvirttest.BaseTestClass):
     def test_connect_get_capabilities(self):
         assert isinstance(self.connect.GetCapabilities(), dbus.String)
 
+    def test_connect_get_cpu_model_names(self):
+        arch = "x86_64"
+        assert isinstance(self.connect.GetCPUModelNames(arch, 0), dbus.Array)
+
     def test_connect_network_create_xml(self):
         def network_started(path, _event):
             assert isinstance(path, dbus.ObjectPath)

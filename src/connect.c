@@ -504,6 +504,40 @@ virtDBusConnectFindStoragePoolSources(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectGetCPUModelNames(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath G_GNUC_UNUSED,
+                                gpointer userData,
+                                GVariant **outArgs,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    const gchar *arch;
+    guint flags;
+    g_autoptr(virtDBusCharArray) models = NULL;
+    gint nmodels;
+    GVariant *gret;
+    GVariantBuilder builder;
+
+    g_variant_get(inArgs, "(&su)", &arch, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    nmodels = virConnectGetCPUModelNames(connect->connection, arch, &models, flags);
+    if (nmodels < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
+    for (gint i = 0; i < nmodels; i++)
+        g_variant_builder_add(&builder, "s", models[i]);
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusConnectGetSysinfo(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath G_GNUC_UNUSED,
@@ -742,6 +776,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainSaveImageDefineXML", virtDBusConnectDomainSaveImageDefineXML },
     { "FindStoragePoolSources", virtDBusConnectFindStoragePoolSources },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
+    { "GetCPUModelNames", virtDBusConnectGetCPUModelNames },
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },

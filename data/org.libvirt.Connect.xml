@@ -99,6 +99,13 @@
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCapabilities"/>
       <arg name="capabilities" type="s" direction="out"/>
     </method>
+    <method name="GetCPUModelNames">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetCPUModelNames"/>
+      <arg name="arch" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="models" type="as" direction="out"/>
+    </method>
     <method name="GetSysinfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetSysinfo"/>

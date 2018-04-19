@@ -538,6 +538,39 @@ virtDBusConnectGetCPUModelNames(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectGetDomainCapabilities(GVariant *inArgs,
+                                     GUnixFDList *inFDs G_GNUC_UNUSED,
+                                     const gchar *objectPath G_GNUC_UNUSED,
+                                     gpointer userData,
+                                     GVariant **outArgs,
+                                     GUnixFDList **outFDs G_GNUC_UNUSED,
+                                     GError **error)
+{
+    virtDBusConnect *connect = userData;
+    const gchar *emulatorbin;
+    const gchar *arch;
+    const gchar *machine;
+    const gchar *virttype;
+    guint flags;
+    g_autofree gchar* domCapabilities = NULL;
+
+    g_variant_get(inArgs, "(&s&s&s&su)", &emulatorbin, &arch, &machine,
+                  &virttype, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    domCapabilities = virConnectGetDomainCapabilities(connect->connection,
+                                                      emulatorbin, arch,
+                                                      machine, virttype,
+                                                      flags);
+    if (!domCapabilities)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", domCapabilities);
+}
+
+static void
 virtDBusConnectGetSysinfo(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath G_GNUC_UNUSED,
@@ -777,6 +810,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "FindStoragePoolSources", virtDBusConnectFindStoragePoolSources },
     { "GetCapabilities", virtDBusConnectGetCapabilities },
     { "GetCPUModelNames", virtDBusConnectGetCPUModelNames },
+    { "GetDomainCapabilities", virtDBusConnectGetDomainCapabilities },
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },

@@ -106,6 +106,17 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="models" type="as" direction="out"/>
     </method>
+    <method name="GetDomainCapabilities">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectGetDomainCapabilities
+               Empty string can be used to pass a NULL as @emulatorbin, @arch, @machine or @virttype argument."/>
+      <arg name="emulatorbin" type="s" direction="in"/>
+      <arg name="arch" type="s" direction="in"/>
+      <arg name="machine" type="s" direction="in"/>
+      <arg name="virttype" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="domCapabilities" type="s" direction="out"/>
+    </method>
     <method name="GetSysinfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-host.html#virConnectGetSysinfo"/>

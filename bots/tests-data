@@ -387,6 +387,11 @@ def logs(revision):
         count = 0
         for status in data.get("statuses", [ ]):
             count += 1
+            # Make sure to not consider "state": "success" as a success
+            # here because individual tests may have failed, or been retried.
+            #
+            # Always only consider tests individually to have run or failed
+            # not entire test suite statuses
             if status["state"] in [ "pending" ]:
                 continue
             target = status["target_url"]

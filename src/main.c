@@ -52,7 +52,7 @@ virtDBusAcquired(GDBusConnection *connection,
                  gpointer opaque)
 {
     virtDBusRegisterData *data = opaque;
-    GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
     for (gsize i = 0; i < data->ndrivers; i += 1) {
         virtDBusConnectNew(&data->connectList[i], connection,

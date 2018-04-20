@@ -86,7 +86,7 @@ virtDBusGDBusHandlePropertyGet(GVariant *parameters,
     const gchar *interface;
     const gchar *name;
     GVariant *value = NULL;
-    GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
     g_variant_get(parameters, "(&s&s)", &interface, &name);
 
@@ -128,7 +128,7 @@ virtDBusGDBusHandlePropertySet(GVariant *parameters,
     const gchar *interface;
     const gchar *name;
     g_autoptr(GVariant) value = NULL;
-    GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
     g_variant_get(parameters, "(&s&sv)", &interface, &name, &value);
 
@@ -162,7 +162,7 @@ virtDBusGDBusHandlePropertyGetAll(GDBusMethodInvocation *invocation,
 {
     GVariant *value;
     g_auto(GVariantBuilder) builder;
-    GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
     g_variant_builder_init(&builder, G_VARIANT_TYPE("(a{sv})"));
 
@@ -202,7 +202,7 @@ virtDBusGDBusHandleMethod(GVariant *parameters,
     GUnixFDList *inFDs = NULL;
     GVariant *outArgs = NULL;
     GUnixFDList *outFDs = NULL;
-    GError *error = NULL;
+    g_autoptr(GError) error = NULL;
 
     for (gint i = 0; data->methods[i].name; i++) {
         if (g_str_equal(methodName, data->methods[i].name)) {

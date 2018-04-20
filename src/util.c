@@ -69,6 +69,89 @@ virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
     return g_variant_builder_end(&builder);
 }
 
+gboolean
+virtDBusUtilGVariantToTypedParams(GVariantIter *iter,
+                                  virTypedParameterPtr *params,
+                                  gint *nparams,
+                                  GError **error)
+{
+    g_autofree gchar *name = NULL;
+    g_autoptr(GVariant) value = NULL;
+    gint maxParams = 0;
+
+    while (g_variant_iter_loop(iter, "{sv}", &name, &value)) {
+        const gchar *type = g_variant_get_type_string(value);
+
+        switch (type[0]) {
+        case 'i':
+            if (virTypedParamsAddInt(params, nparams, &maxParams, name,
+                                     g_variant_get_int32(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 'u':
+            if (virTypedParamsAddUInt(params, nparams, &maxParams, name,
+                                      g_variant_get_uint32(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 'x':
+            if (virTypedParamsAddLLong(params, nparams, &maxParams, name,
+                                       g_variant_get_int64(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 't':
+            if (virTypedParamsAddULLong(params, nparams, &maxParams, name,
+                                        g_variant_get_uint64(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 'd':
+            if (virTypedParamsAddDouble(params, nparams, &maxParams, name,
+                                        g_variant_get_double(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 'b':
+            if (virTypedParamsAddBoolean(params, nparams, &maxParams, name,
+                                         g_variant_get_boolean(value)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        case 's':
+            if (virTypedParamsAddString(params, nparams, &maxParams, name,
+                                        g_variant_get_string(value, NULL)) < 0) {
+                virtDBusUtilSetLastVirtError(error);
+                return FALSE;
+            }
+            break;
+
+        default:
+            g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                        "Invalid typed parameter '%s'.", type);
+            return FALSE;
+        }
+    }
+
+    name = NULL;
+    value = NULL;
+
+    return TRUE;
+}
+
 void
 virtDBusUtilSetLastVirtError(GError **error)
 {

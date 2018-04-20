@@ -31,6 +31,12 @@ GVariant *
 virtDBusUtilTypedParamsToGVariant(virTypedParameterPtr params,
                                   gint nparams);
 
+gboolean
+virtDBusUtilGVariantToTypedParams(GVariantIter *iter,
+                                  virTypedParameterPtr *params,
+                                  gint *nparams,
+                                  GError **error);
+
 void
 virtDBusUtilSetLastVirtError(GError **error);
 

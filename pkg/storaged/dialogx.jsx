@@ -59,6 +59,10 @@
    Each field function describes its options and its children.
    However, there are some options that apply to all fields:
 
+   - visible: vals -> boolean
+
+   This function determines whether the field is shown or not.
+
    - validate: (val, vals) -> null-or-error-string (or promise)
 
    The validate function receives the current value of the field and
@@ -72,6 +76,9 @@
    null or an error message.  If that promise is rejected, that error
    is shown globally in the dialog as if the action function had
    failed.
+
+   The validate function will only be called for currently visible
+   fields.
 
    DEFINING NEW FIELD TYPES
 
@@ -119,6 +126,8 @@
    "data-field-type" type is used by the tests to know how to interact
    with the field.  If you find to need it, just pick a reasonable value
    and extend the test suite to handle it.
+
+   This function is not called at all for invisible fields.
  */
 
 import cockpit from "cockpit";
@@ -155,6 +164,10 @@ const Row = ({ tag, title, errors, children }) => {
     );
 }
 
+function is_visible(field, values) {
+    return !field.options || field.options.visible == undefined || field.options.visible(values);
+}
+
 const Body = ({body, fields, values, errors, onChange}) => {
     return (
         <div className="modal-body">
@@ -162,11 +175,12 @@ const Body = ({body, fields, values, errors, onChange}) => {
             { fields.length > 0
                 ? <table className="form-table-ct">
                     { fields.map(f => {
-                        return (
-                            <Row tag={f.tag} title={f.title} errors={errors}>
-                                { f.render(values[f.tag], val => { values[f.tag] = val; onChange(); }) }
-                            </Row>
-                        );
+                        if (is_visible(f, values))
+                            return (
+                                <Row tag={f.tag} title={f.title} errors={errors}>
+                                    { f.render(values[f.tag], val => { values[f.tag] = val; onChange(); }) }
+                                </Row>
+                            );
                     })
                     }
                 </table> : null
@@ -204,7 +218,7 @@ export const dialog_open = (def) => {
 
     const validate = () => {
         return Promise.all(fields.map(f => {
-            if (f.options && f.options.validate)
+            if (is_visible(f, values) && f.options && f.options.validate)
                 return f.options.validate(values[f.tag], values);
             else
                 return null;

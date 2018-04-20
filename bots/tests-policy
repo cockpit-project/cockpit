@@ -91,7 +91,7 @@ def main():
 
         # Otherwise we filter the output and write it back
         if number:
-            output = filterSkip(output, "Known issue #{0}".format(number))
+            output = filterSkip(output, "# SKIP Known issue #{0}".format(number))
         elif checkRetry(output):
             output = filterRetry(output, "# RETRY due to failure of test harness or framework")
         else:
@@ -113,16 +113,16 @@ def filterSkip(output, skip):
     lines = output.split("\n")
     for i, line in enumerate(lines):
         if line.startswith("not ok "):
-            lines[i] = line[4:] + " # SKIP " + skip
+            lines[i] = line[4:] + " " + skip
     return "\n".join(lines)
 
-# Update TAP output failure and put a skip message
+# Update TAP output failure and put a retry message
 # in the appropriate place
-def filterRetry(output, prefix):
+def filterRetry(output, retry):
     lines = output.split("\n")
     for i, line in enumerate(lines):
-        if line.startswith("not ok ") or line.startswith("ok "):
-            lines[i] = prefix
+        if line.startswith("not ok "):
+            lines[i] = line + " " + retry
     return "\n".join(lines)
 
 # Figure out the name from a failed test
@@ -170,6 +170,7 @@ def guessFlake(output, context):
                 output += "\n# Flake probability: {0:.1f}% (neural network)\n".format(pred_proba[1] * 100)
 
     # The new model
+    flake = False
     if model:
         result = model.predict([ item ])[0]
         if result:
@@ -181,12 +182,15 @@ def guessFlake(output, context):
                 output += "\n# Flake unknown {0:.1f}% (clustering)\n".format(merged[1] * 100)
             elif merged[0]:
                 output += "\n# Flake likely {0:.1f}% (clustering)\n".format(merged[1] * 100)
+                flake = True
             else:
                 output += "\n# Flake unlikely {0:.1f}% (clustering)\n".format(merged[1] * 100)
             if analysis["trackers"]:
                 tracker = analysis["trackers"][0]
                 output += "\n# Flake tracked {0} likelihood {1:.1f} (clustering)\n".format(tracker[0], tracker[1])
 
+    if flake:
+        output = filterRetry(output, "# RETRY due to flakiness")
     return output
 
 # -----------------------------------------------------------------------------

@@ -89,9 +89,9 @@ const InstallationDialogBody = ({ values, onChange }) => {
             </table>
         </div>
     );
-}
+};
 
-function installationDialog() {
+function installationDialog({ onCancel }) {
     // TODO: check for root user (permission to write to configuration file)
 
     const values = {
@@ -103,14 +103,16 @@ function installationDialog() {
         { title: _("Connect to oVirt Engine"),
           body: <InstallationDialogBody values={values} onChange={() => dlg.render()}/>
         },
-        { actions: [
-            { caption: _("Register oVirt"),
-                style: 'primary',
-                clicked: () => {
-                    return configureOvirtUrl(values.oVirtUrl, values.oVirtPort);
-                }
-            }
-        ]
+        {
+            actions: [
+                {
+                    caption: _("Register oVirt"),
+                    style: 'primary',
+                    clicked: () => {
+                        return configureOvirtUrl(values.oVirtUrl, values.oVirtPort);
+                    }
+                }],
+            "cancel_clicked": () => onCancel && onCancel()
         });
 }
 

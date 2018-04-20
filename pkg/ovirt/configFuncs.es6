@@ -46,13 +46,17 @@ export function readConfiguration ({ dispatch }) {
  * @param dispatch
  */
 function doReadConfiguration ({ dispatch }) {
+    const onCancel = () => {
+        dispatch(loginInProgress(false));
+    };
+
     // Configuration can be changed by admin after installation
     // and so is kept in separate file (out of manifest.json)
     return cockpit.file(OVIRT_CONF_FILE).read()
         .done((content) => {
             if (!content) {
                 console.info('Configuration file empty, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
-                installationDialog();
+                installationDialog({ onCancel });
                 return;
             }
 
@@ -73,7 +77,7 @@ function doReadConfiguration ({ dispatch }) {
             return doLogin({ dispatch });
         }).fail( () => {
             console.info('Failed to read configuration, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
-            installationDialog();
+            installationDialog({ onCancel });
         });
 }
 

@@ -29,15 +29,35 @@ import { goToSubpage } from '../actions.es6';
 import hostToMaintenance from './HostToMaintenance.jsx';
 import HostStatus from './HostStatus.jsx';
 import { getHost } from "../selectors.es6";
+import CONFIG from '../config.es6';
 
 const _ = cockpit.gettext;
 
+const onReload = () => {
+    console.info('oVirt connection: page reload requested by user');
+    window.location.reload();
+};
+
 const LoginInProgress = ({ ovirtConfig }) => {
-    if (ovirtConfig && ovirtConfig.loginInProgress) {
+    if (!ovirtConfig) {
+        return null;
+    }
+
+    if (ovirtConfig.loginInProgress) {
         return (
             <p className='ovirt-login-in-progress'>
                 {_("oVirt login in progress") + '\xa0'}
                 <span className="spinner spinner-xs spinner-inline"></span>
+            </p>
+        );
+    }
+
+    if (!CONFIG.token) {
+        // i.e. after Cancel in Installation Dialog
+        return (
+            <p className='ovirt-login-in-progress'>
+                {_("No oVirt connection") + '\xa0'}
+                <a href="#" onClick={onReload}>{_("Reload")}</a>
             </p>
         );
     }

@@ -180,7 +180,7 @@ function extract(text) {
 
         // delete retried segments
         for (s = 0; s < segments.length; s += 1) {
-            if (segments[s].indexOf("Retrying due to failure of test harness or framework") == -1)
+            if (segments[s].indexOf("# RETRY") == -1)
                 continue;
             segments.splice(s, 1);
             s -= 1;

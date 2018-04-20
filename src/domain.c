@@ -867,6 +867,45 @@ virtDBusDomainGetBlkioParameters(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetBlockIOTune(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    const gchar *disk;
+    guint flags;
+    gint ret;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(&su)", &disk, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainGetBlockIoTune(domain, disk, NULL, &params.nparams, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+    if (ret == 0 && params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virDomainGetBlockIoTune(domain, disk, params.params,
+                                    &params.nparams, flags) < 0) {
+            return virtDBusUtilSetLastVirtError(error);
+        }
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
 virtDBusDomainGetControlInfo(GVariant *inArgs,
                              GUnixFDList *inFDs G_GNUC_UNUSED,
                              const gchar *objectPath,
@@ -1986,6 +2025,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "FSThaw", virtDBusDomainFSThaw },
     { "FSTrim", virtDBusDomainFSTrim },
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
+    { "GetBlockIOTune", virtDBusDomainGetBlockIOTune },
     { "GetControlInfo", virtDBusDomainGetControlInfo },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },

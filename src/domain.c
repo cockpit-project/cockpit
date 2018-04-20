@@ -3,6 +3,15 @@
 
 #include <libvirt/libvirt.h>
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainBlockJob)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainBlockJob,
+                    VIR_DOMAIN_BLOCK_JOB_TYPE_LAST,
+                    "unknown",
+                    "pull",
+                    "copy",
+                    "commit",
+                    "active-commit")
+
 VIRT_DBUS_ENUM_DECL(virtDBusDomainControlErrorReason)
 VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlErrorReason,
                     VIR_DOMAIN_CONTROL_ERROR_REASON_LAST,
@@ -903,6 +912,43 @@ virtDBusDomainGetBlockIOTune(GVariant *inArgs,
     grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
+virtDBusDomainGetBlockJobInfo(GVariant *inArgs,
+                              GUnixFDList *inFDs G_GNUC_UNUSED,
+                              const gchar *objectPath,
+                              gpointer userData,
+                              GVariant **outArgs,
+                              GUnixFDList **outFDs G_GNUC_UNUSED,
+                              GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    virDomainBlockJobInfo info;
+    const gchar *disk;
+    guint flags;
+    const gchar *blockJobTypeStr;
+
+    g_variant_get(inArgs, "(&su)", &disk, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetBlockJobInfo(domain, disk, &info, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    blockJobTypeStr = virtDBusDomainBlockJobTypeToString(info.type);
+    if (!blockJobTypeStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virDomainBlockJobType '%d' to string.",
+                    info.type);
+        return;
+    }
+
+    *outArgs = g_variant_new("((sttt))", blockJobTypeStr, info.bandwidth,
+                             info.cur, info.end);
 }
 
 static void
@@ -2026,6 +2072,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "FSTrim", virtDBusDomainFSTrim },
     { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
     { "GetBlockIOTune", virtDBusDomainGetBlockIOTune },
+    { "GetBlockJobInfo", virtDBusDomainGetBlockJobInfo },
     { "GetControlInfo", virtDBusDomainGetControlInfo },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },

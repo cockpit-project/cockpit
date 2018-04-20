@@ -178,6 +178,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="blockIOTune" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetBlockJobInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetBlockJobInfo"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="blockJobInfo" type="(sttt)" direction="out"/>
+    </method>
     <method name="GetControlInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetControlInfo"/>

@@ -127,7 +127,7 @@ class PullTask(object):
             },
             "revision": self.github_revision,
             "link": "log.html",
-            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ],
+            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision) ],
 
             "onaborted": {
                 "github": {

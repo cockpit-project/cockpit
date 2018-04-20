@@ -39,7 +39,10 @@ class Sink(object):
         self.status = status
 
         # Start a gzip and cat processes
-        self.ssh = subprocess.Popen([ "ssh", host, "--", "python", "sink", identifier ], stdin=subprocess.PIPE)
+        self.ssh = subprocess.Popen([
+            "ssh", "-o", "ServerAliveInterval=30", host, "--",
+            "python", "sink", identifier
+        ], stdin=subprocess.PIPE)
 
         # Send the status line
         self.ssh.stdin.write(json.dumps(status).encode('utf-8') + b"\n")

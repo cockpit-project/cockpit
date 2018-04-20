@@ -136,6 +136,7 @@ const _ = cockpit.gettext;
 import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
 
 const Validated = ({ errors, error_key, children }) => {
     var error = errors && errors[error_key];
@@ -282,5 +283,44 @@ export const PassInput = (tag, title, options) => {
             <input data-field={tag}
                    className="form-control" type="password" value={val}
                    onChange={event => change(event.target.value)}/>
+    }
+}
+
+export const SelectOne = (tag, title, options, choices) => {
+    return {
+        tag: tag,
+        title: title,
+        options: options,
+        initial_value: choices[0].value,
+
+        render: (val, change) => {
+            return (
+                <div data-field={tag} data-field-type="select">
+                    <StatelessSelect extraClass="form-control" selected={val} onChange={change}>
+                        { choices.map(c => <SelectEntry data={c.value}>{c.title}</SelectEntry>) }
+                    </StatelessSelect>
+                </div>
+            );
+        }
+    }
+}
+
+export const CheckBox = (tag, title, options) => {
+    return {
+        tag: tag,
+        title: "", // sic
+        options: options,
+        initial_value: false,
+
+        render: (val, change) => {
+            return (
+                <div className="checkbox">
+                    <label>
+                        <input type="checkbox" data-field={tag} checked={val}
+                               onChange={event => change(event.target.checked)}/>{title}
+                    </label>
+                </div>
+            );
+        }
     }
 }

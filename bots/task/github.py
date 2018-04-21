@@ -161,7 +161,7 @@ class GitHub(object):
                 response = self.conn.getresponse()
                 break
             # This happens when GitHub disconnects in python3
-            except http.client.ConnectionResetError:
+            except ConnectionResetError:
                 if connected:
                     raise
                 self.conn = None

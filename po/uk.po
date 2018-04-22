@@ -7,11 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 20:14+0000\n"
+"POT-Creation-Date: 2018-04-22 21:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-04-02 11:43-0400\n"
+"PO-Revision-Date: 2018-04-13 07:15-0400\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -19,13 +19,17 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
 msgstr " (спільний із операційною системою)"
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
 msgstr " 1\"Хочете вилучити вказані нижче вузли?"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:220
+msgid " or drag & drop."
+msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
@@ -44,7 +48,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "Файлова система $0"
 
-#: pkg/realmd/operation.js:108
+#: pkg/realmd/operation.js:110
 msgid ""
 "$0 Only users with local credentials will be able to log into this machine. "
 "This may also effect other services as DNS resolution settings and the list "
@@ -685,7 +689,7 @@ msgstr "Додати"
 msgid "Add $0"
 msgstr "Додати $0"
 
-#: pkg/docker/storage.jsx:376
+#: pkg/docker/storage.jsx:352
 msgid "Add Additional Storage"
 msgstr "Додати додаткове сховище"
 
@@ -748,7 +752,7 @@ msgstr "Додати нового користувача"
 msgid "Add Role"
 msgstr "Додати роль"
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:206
 msgid "Add Storage"
 msgstr "Додати сховище даних"
 
@@ -779,7 +783,7 @@ msgstr "Додати запис участі"
 
 #: pkg/storaged/clevis-dialogs.jsx:31
 msgid "Add network key"
-msgstr ""
+msgstr "Додати ключ мережі"
 
 #: pkg/users/index.html:458
 msgid "Add public key"
@@ -872,7 +876,7 @@ msgstr "Скоригувати службу"
 msgid "Admin"
 msgstr "Адміністратор"
 
-#: pkg/realmd/operation.js:282
+#: pkg/realmd/operation.js:287
 msgid "Administrator Password"
 msgstr "Пароль адміністратора"
 
@@ -905,7 +909,7 @@ msgstr "Всі проекти"
 msgid "All Types"
 msgstr "Всі типи"
 
-#: pkg/docker/storage.jsx:379
+#: pkg/docker/storage.jsx:355
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -997,11 +1001,11 @@ msgstr "Архітектура"
 msgid "Are you sure you want to delete this image?"
 msgstr "Ви справді хочете вилучити цей образ?"
 
-#: pkg/realmd/operation.js:105
+#: pkg/realmd/operation.js:107
 msgid "Are you sure you want to leave the '$0' domain?"
 msgstr "Ви справді хочете полишити домен «$0»?"
 
-#: pkg/realmd/operation.js:103
+#: pkg/realmd/operation.js:105
 msgid "Are you sure you want to leave this domain?"
 msgstr "Ви справді хочете полишити цей домен?"
 
@@ -1065,7 +1069,7 @@ msgstr "Уповноважені відкриті ключі SSH"
 #: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1900
 #: pkg/networkmanager/interfaces.js:2649 pkg/networkmanager/interfaces.js:3193
 #: pkg/networkmanager/interfaces.js:3197 pkg/networkmanager/interfaces.js:3203
-#: pkg/realmd/operation.js:285
+#: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "Автоматично"
 
@@ -1369,7 +1373,7 @@ msgstr "Не вдалося розшифрувати зашифрований PE
 msgid "Cannot forward login credentials"
 msgstr "Не вдалося переспрямувати реєстраційні дані для входу"
 
-#: pkg/realmd/operation.js:433
+#: pkg/realmd/operation.js:503
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Не вдалося долучитися до домену, оскільки у цій системі недоступна служба "
@@ -1794,7 +1798,7 @@ msgstr "Налаштувати роботу у мережі Flannel"
 msgid "Configure Kubelet and Proxy"
 msgstr "Налаштувати Kubelet і проксі"
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:306
 msgid "Configure storage..."
 msgstr "Налаштувати сховище даних…"
 
@@ -1996,7 +2000,7 @@ msgstr "Ctrl"
 msgid "Convertible"
 msgstr "Змінюваний"
 
-#: pkg/docker/storage.jsx:417
+#: pkg/docker/storage.jsx:400
 msgid "Could not add all disks"
 msgstr "Не вдалося додати усі диски"
 
@@ -2016,7 +2020,7 @@ msgstr "Не вдалося обробити зашифрований PEM сер
 msgid "Could not parse PEM-encoded private key"
 msgstr "Не вдалося обробити зашифрований PEM закритий ключ"
 
-#: pkg/docker/storage.jsx:457
+#: pkg/docker/storage.jsx:440
 msgid "Could not reset the storage pool"
 msgstr "Не вдалося скинути резервне сховище даних"
 
@@ -2083,6 +2087,8 @@ msgstr "Аварійно завершити роботу системи"
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:669
@@ -2142,6 +2148,10 @@ msgstr "Створити пристрій VDO"
 #: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
 msgstr "Створення ВМ"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:42
+msgid "Create Virtual Machine"
+msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
 msgid "Create Volume Group"
@@ -2694,11 +2704,11 @@ msgstr "Станція заряджання"
 msgid "Domain"
 msgstr "Домен"
 
-#: pkg/realmd/operation.js:158
+#: pkg/realmd/operation.js:160
 msgid "Domain $0 could not be contacted"
 msgstr "Не вдалося встановити зв’язок із доменом $0"
 
-#: pkg/realmd/operation.js:229
+#: pkg/realmd/operation.js:234
 msgid "Domain $0 is not supported"
 msgstr "Підтримки домену $0 не передбачено"
 
@@ -2755,7 +2765,7 @@ msgstr "Отримано"
 msgid "Downloading"
 msgstr "Отримуємо"
 
-#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
+#: pkg/docker/storage.jsx:159 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "Диск"
 
@@ -2771,6 +2781,10 @@ msgstr "Драйвер"
 #: pkg/storaged/drives-panel.jsx:117
 msgid "Drives"
 msgstr "Диски"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:192
+msgid "Drop file here to upload."
+msgstr ""
 
 #: pkg/docker/run.js:348
 msgid "Duplicate alias"
@@ -2941,13 +2955,9 @@ msgstr "Середовище"
 msgid "Erase"
 msgstr "Витерти"
 
-#: pkg/docker/storage.jsx:436
+#: pkg/docker/storage.jsx:419
 msgid "Erase containers and reset storage pool"
 msgstr "Витерти контейнери і відновити початковий стан резервного сховища"
-
-#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
-msgid "Erase containers, reformat disks, and add them"
-msgstr "Витерти контейнери, переформатувати диски і додати їх"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Erasing $target"
@@ -3022,7 +3032,7 @@ msgstr "Чудовий пароль"
 
 #: pkg/storaged/clevis-dialogs.jsx:37
 msgid "Existing passphrase"
-msgstr ""
+msgstr "Наявний пароль"
 
 #: pkg/docker/util.js:96
 msgid "Exited $ExitCode"
@@ -3208,8 +3218,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr "Затримка переспрямування $forward_delay"
 
-#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:300
-#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:54
+#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:299
+#: pkg/docker/storage.jsx:321 pkg/storaged/pvol-tabs.jsx:54
 #: pkg/systemd/host.js:1506
 msgid "Free"
 msgstr "Вільно"
@@ -3353,7 +3363,7 @@ msgstr "Режим початкової зони (hairpin)"
 msgid "Hand Held"
 msgstr "Портативний"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Hard Disk"
 msgstr "Твердий диск"
 
@@ -3635,7 +3645,7 @@ msgstr "Пам'ять покажчика"
 msgid "Info and above"
 msgstr "Інформація і вище"
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:283
 msgid "Information about the Docker storage pool is not available."
 msgstr "Немає доступу до даних щодо резервного сховища даних Docker."
 
@@ -3797,19 +3807,19 @@ msgstr "sshd працює на іншому порті?"
 msgid "Jobs"
 msgstr "Завдання"
 
-#: pkg/realmd/operation.js:96
+#: pkg/realmd/operation.js:98
 msgid "Join"
 msgstr "З'єднати"
 
-#: pkg/realmd/operation.js:469
+#: pkg/realmd/operation.js:539
 msgid "Join Domain"
 msgstr "Долучитися до домену"
 
-#: pkg/realmd/operation.js:95
+#: pkg/realmd/operation.js:97
 msgid "Join a Domain"
 msgstr "Долучитися до домену"
 
-#: pkg/realmd/operation.js:357
+#: pkg/realmd/operation.js:427
 msgid "Joining this domain is not supported"
 msgstr "Підтримки долучення до цього домену не передбачено"
 
@@ -3862,19 +3872,19 @@ msgstr "Шлях до сховища ключів"
 
 #: pkg/storaged/clevis-dialogs.jsx:121
 msgid "Key does not work"
-msgstr ""
+msgstr "Ключ не працює"
 
 #: pkg/storaged/clevis-dialogs.jsx:145 pkg/storaged/clevis-dialogs.jsx:161
 msgid "Key is obsolete"
-msgstr ""
+msgstr "Ключ є застарілим"
 
 #: pkg/storaged/clevis-dialogs.jsx:114
 msgid "Key is okay"
-msgstr ""
+msgstr "Ключ працездатний"
 
 #: pkg/storaged/clevis-dialogs.jsx:34
 msgid "Key server address"
-msgstr ""
+msgstr "Адреса сервера ключів"
 
 #: pkg/kubernetes/views/node-body.html:23
 msgid "Kubelet Version"
@@ -3946,11 +3956,11 @@ msgstr "Найсвіжіша версія"
 msgid "Launch Remote Viewer"
 msgstr "Запустити віддалений переглядач"
 
-#: pkg/realmd/operation.js:102
+#: pkg/realmd/operation.js:104
 msgid "Leave"
 msgstr "Вийти"
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:103
 msgid "Leave Domain"
 msgstr "Полишити домен"
 
@@ -4045,7 +4055,7 @@ msgstr "Завантаження…"
 msgid "Local Accounts"
 msgstr "Локальні облікові записи"
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:189
 msgid "Local Disks"
 msgstr "Локальні диски"
 
@@ -4259,7 +4269,7 @@ msgstr "Вручну"
 
 #: pkg/storaged/clevis-dialogs.jsx:73
 msgid "Manually verify the key on the server: "
-msgstr ""
+msgstr "Вручну перевірити ключ на сервері: "
 
 #: pkg/storaged/jobs-panel.jsx:60
 msgid "Marking $target as faulty"
@@ -4427,7 +4437,7 @@ msgstr "Спостерігаємо за цілями"
 msgid "Monitors"
 msgstr "Монітори"
 
-#: pkg/realmd/operation.js:380
+#: pkg/realmd/operation.js:450
 msgid "More"
 msgstr "Більше"
 
@@ -4561,7 +4571,7 @@ msgstr "Сервер NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
 #: pkg/machines/hostvmslist.jsx:103
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
@@ -4619,7 +4629,7 @@ msgstr "Назва не може складатися лише із порожн
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Namespace"
 msgstr "Простір назв"
 
@@ -4642,7 +4652,7 @@ msgstr "Навантаження на мережу"
 
 #: pkg/storaged/crypto-tab.jsx:176
 msgid "Network keys"
-msgstr ""
+msgstr "Ключі мережі"
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:527
 msgid "Networking"
@@ -4775,7 +4785,7 @@ msgstr "У цій основній системі не запущено або �
 msgid "No Volume Bound"
 msgstr "Не пов’язано тому"
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:195
 msgid "No additional local storage found."
 msgstr "Додаткових локальний сховищ даних не знайдено."
 
@@ -4985,7 +4995,7 @@ msgstr "Не вказано імені користувача"
 msgid "No users are present."
 msgstr "Немає користувачів."
 
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:42
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:47
 msgid "No virtual machines"
 msgstr "Немає віртуальних машин"
 
@@ -5005,7 +5015,7 @@ msgstr "Немає використаних томів"
 #: pkg/kubernetes/views/node-page.html:14
 #: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
 #: pkg/kubernetes/views/topology-page.html:38
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 msgid "Node"
 msgstr "Вузол"
 
@@ -5197,7 +5207,7 @@ msgstr[0] "Якщо помилка, повторити $0 раз"
 msgstr[1] "Якщо помилка, повторити $0 рази"
 msgstr[2] "Якщо помилка, повторити $0 разів"
 
-#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:289
 msgid "One Time Password"
 msgstr "Одноразовий пароль"
 
@@ -5212,6 +5222,10 @@ msgstr "Лише критичне"
 #: pkg/systemd/init.js:1150
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "Можна використовувати лише літери, цифри, : , _ , . , @ , -."
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:118
+msgid "Only files of size $0 MiB and less are supported"
+msgstr ""
 
 #: pkg/shell/index.html:45 pkg/shell/simple.html:29 pkg/shell/stub.html:33
 msgid "Ooops!"
@@ -5387,6 +5401,10 @@ msgstr ""
 "Пароль непридатний для виконання для привілейованих завдань та з’єднання з "
 "іншими комп’ютерами"
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:211
+msgid "Paste JSON below, "
+msgstr ""
+
 #: pkg/users/index.html:461
 msgid "Paste the contents of your public SSH key file here"
 msgstr "Сюди слід вставити вміст файла вашого відкритого ключа SSH"
@@ -5503,7 +5521,7 @@ msgstr "Будь ласка, підтвердьте примусове вилу�
 
 #: pkg/storaged/clevis-dialogs.jsx:89
 msgid "Please confirm network key removal"
-msgstr ""
+msgstr "Будь ласка, підтвердьте вилучення ключа мережі"
 
 #: pkg/storaged/mdraid-details.jsx:244 pkg/storaged/vdo-details.jsx:143
 msgid "Please confirm stopping of $0"
@@ -5837,7 +5855,7 @@ msgstr "Назва продукту"
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Project"
 msgstr "Проект"
 
@@ -6161,7 +6179,7 @@ msgstr "Відновлюємо пристрій RAID $target"
 msgid "Recycle"
 msgstr "Повторний цикл"
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:361
 msgid "Reformat and add disks"
 msgstr "Повторно форматувати і додати диски"
 
@@ -6286,7 +6304,7 @@ msgstr "Вилучити мітку образу"
 
 #: pkg/storaged/clevis-dialogs.jsx:98 pkg/storaged/clevis-dialogs.jsx:130
 msgid "Remove key"
-msgstr ""
+msgstr "Вилучити ключ"
 
 #: pkg/kubernetes/views/user-remove-membership.html:3
 msgid "Remove membership"
@@ -6310,7 +6328,7 @@ msgstr ""
 
 #: pkg/storaged/clevis-dialogs.jsx:94 pkg/storaged/clevis-dialogs.jsx:126
 msgid "Removing network keys might prevent unattended booting."
-msgstr ""
+msgstr "Вилучення ключів мережі може запобігти небажаному завантаженню."
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
@@ -6438,11 +6456,11 @@ msgstr "Зарезервована пам’ять"
 msgid "Reset"
 msgstr "Скинути"
 
-#: pkg/docker/storage.jsx:430
+#: pkg/docker/storage.jsx:413
 msgid "Reset Storage Pool"
 msgstr "Скинути резервне сховище"
 
-#: pkg/docker/storage.jsx:433
+#: pkg/docker/storage.jsx:416
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -6454,6 +6472,10 @@ msgstr ""
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Resizing $target"
 msgstr "Зміна розміру $target"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:59
+msgid "Resolve above errors to continue"
+msgstr ""
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:142
 #: pkg/systemd/index.html:152 pkg/docker/containers-view.jsx:306
@@ -6769,7 +6791,7 @@ msgstr "Адреса сервера не може бути порожньою."
 
 #: pkg/storaged/clevis-dialogs.jsx:168
 msgid "Server can't be reached"
-msgstr ""
+msgstr "Не вдалося встановити зв'язок із сервером"
 
 #: pkg/storaged/nfs-details.jsx:136
 msgid "Server cannot be empty."
@@ -7045,7 +7067,7 @@ msgstr "Сокети"
 msgid "Software Updates"
 msgstr "Оновлення програм"
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:157
 msgid "Solid-State Disk"
 msgstr "Твердотільний диск"
 
@@ -7151,7 +7173,7 @@ msgstr "Починається"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/hostvmslist.jsx:103 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:177 pkg/systemd/init.js:275
 msgid "State"
@@ -7515,7 +7537,7 @@ msgstr "Перевіряємо з’єднання"
 msgid "The \"storaged\" API is not available on this system."
 msgstr "У цій системі програмний інтерфейс «storaged» є недоступним."
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:479
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr "У цій системі не можна керувати резервним сховищем даних Docker."
 
@@ -7671,7 +7693,7 @@ msgstr "Групи «{{ groupName }}» не існує."
 
 #: pkg/storaged/clevis-dialogs.jsx:93
 msgid "The key of $0 will be removed."
-msgstr ""
+msgstr "Ключ $0 буде вилучено."
 
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
@@ -7689,6 +7711,9 @@ msgid ""
 "the encrypted data right now, but it might be able to when the server "
 "becomes reachable again."
 msgstr ""
+"Не вдалося встановити зв'язок із сервером ключів $0. Цей ключ мережі не може "
+"бути використано для доступу до зашифрованих даних зараз, але, можливо, ним "
+"можна буде скористатися, коли доступ до сервера ключів буде відновлено."
 
 #: pkg/users/authorized-keys.js:119
 msgid "The key you provided was not valid."
@@ -7728,7 +7753,7 @@ msgstr "На вузлі недостатньо вільної пам’яті"
 
 #: pkg/storaged/clevis-dialogs.jsx:77
 msgid "The output should match this text: "
-msgstr ""
+msgstr "Виведення має бути таким: "
 
 #: pkg/users/local.js:412 pkg/users/local.js:1308
 msgid "The passwords do not match"
@@ -7794,14 +7819,6 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr "Служби «{{ target }}» не існує."
 
-#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
-msgid ""
-"The storage pool will be reset to optimize its layout.  All containers will "
-"be erased."
-msgstr ""
-"Для оптимізації компонування буде відновлено початковий стан резервного "
-"сховища даних. Усі контейнери буде витерто."
-
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
 msgstr "Запису користувача «{{ userName }}» не існує."
@@ -7830,7 +7847,7 @@ msgstr "Користувачу <b>$0</b> не дозволено змінюва�
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "Користувачу <b>$0</b> заборонено змінювати параметри роботи мережі"
 
-#: pkg/realmd/operation.js:452
+#: pkg/realmd/operation.js:522
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "Користувачу <b>$0</b> не дозволено вносити зміни до областей"
 
@@ -7981,24 +7998,31 @@ msgid ""
 "This network key is not recognized anymore by the server. You might want to "
 "remove it."
 msgstr ""
+"Цей ключ мережі більше не розпізнається на сервері. Вам варто його вилучити."
 
 #: pkg/storaged/clevis-dialogs.jsx:162
 msgid ""
 "This network key is obsolete. It is still functional but it should be "
 "replaced. A new key has been retrieved from the server."
 msgstr ""
+"Цей ключ мережі є застарілим. Він усе ще працездатний, але його має бути "
+"замінено. Від сервера отримано новий ключ."
 
 #: pkg/storaged/clevis-dialogs.jsx:149
 msgid ""
 "This network key is obsolete. It is still functional but it should be "
 "replaced. A new key has been securely retrieved from the server."
 msgstr ""
+"Цей ключ мережі є застарілим. Він усе ще працездатний, але його має бути "
+"замінено. Від сервера безпечно отримано новий ключ."
 
 #: pkg/storaged/clevis-dialogs.jsx:116
 msgid ""
 "This network key works fine right now and the encrypted data can be unlocked "
 "with it."
 msgstr ""
+"Зараз цей ключ мережі є працездатним, за його допомогою можна отримати "
+"доступу до зашифрованих даних."
 
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid ""
@@ -8163,7 +8187,7 @@ msgstr "Забагато даних"
 msgid "Topology"
 msgstr "Топологія"
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:315
 msgid "Total"
 msgstr "Загалом"
 
@@ -8187,11 +8211,11 @@ msgstr "Діагностика проблем"
 
 #: pkg/storaged/clevis-dialogs.jsx:55
 msgid "Trust Key"
-msgstr ""
+msgstr "Довіряти ключу"
 
 #: pkg/storaged/clevis-dialogs.jsx:163
 msgid "Trust new key"
-msgstr ""
+msgstr "Довіряти новому ключу"
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:21
 msgid "Trust this certificate for this connection"
@@ -8558,7 +8582,7 @@ msgstr "Емуляція 512 байтів"
 
 #: pkg/storaged/clevis-dialogs.jsx:152
 msgid "Use new key"
-msgstr ""
+msgstr "Скористатися новим ключем"
 
 #: pkg/subscriptions/subscriptions-register.jsx:132
 msgid "Use proxy server"
@@ -8576,7 +8600,7 @@ msgstr "Використовувати параметр у /etc/kdump.conf"
 msgid "Use trusted GPG key"
 msgstr "Використовувати надійний ключ GPG"
 
-#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:315
+#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:314
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:65
 #: pkg/machines/components/vm/vmUsageTab.jsx:76
@@ -8604,7 +8628,7 @@ msgstr "Користувач"
 msgid "User Name"
 msgstr "Ім'я користувача"
 
-#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:288
 msgid "User Password"
 msgstr "Пароль користувача"
 
@@ -8717,6 +8741,19 @@ msgstr "Не вдалося виконати дію SHUT DOWN для ВМ"
 msgid "VM START action failed"
 msgstr "Не вдалося виконати дію START для ВМ"
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:86
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:93
+msgid "VM definition is not a valid JSON."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:81
+msgid "VM definition is required."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:88
+msgid "VM definition must be an object."
+msgstr ""
+
 #: pkg/ovirt/components/VmOverviewColumn.jsx:39
 msgid "VM icon"
 msgstr "Піктограма ВМ"
@@ -8755,7 +8792,7 @@ msgstr "Перевірено"
 
 #: pkg/storaged/clevis-dialogs.jsx:53
 msgid "Verify Key"
-msgstr ""
+msgstr "Перевірити ключ"
 
 #: pkg/packagekit/updates.jsx:51
 msgid "Verifying"
@@ -8782,7 +8819,7 @@ msgid "View Registration Details"
 msgstr "Переглянути параметри реєстрації"
 
 #: pkg/kubernetes/index.html:61
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:41
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:46
 #: pkg/machines/hostvmslist.jsx:102
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
@@ -8955,7 +8992,7 @@ msgstr ""
 "У вас немає прав доступу для перегляду уповноважених відкритих ключів для "
 "цього облікового запису."
 
-#: pkg/docker/storage.jsx:493
+#: pkg/docker/storage.jsx:476
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "У вас немає прав доступу до керування резервним сховищем даних Docker."
@@ -9084,7 +9121,7 @@ msgstr "нижче"
 msgid "dying"
 msgstr "вмирає"
 
-#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
+#: pkg/realmd/operation.js:252 pkg/realmd/operation.js:258
 msgid "e.g. \"$0\""
 msgstr "наприклад «$0»"
 
@@ -9390,6 +9427,10 @@ msgstr "нерозподілене місце на $0"
 #: pkg/machines/helpers.es6:218 pkg/ovirt/rephraseUI.es6:27
 msgid "up"
 msgstr "вище"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:214
+msgid "upload a JSON file"
+msgstr ""
 
 #: pkg/machines/helpers.es6:205
 msgid "user"

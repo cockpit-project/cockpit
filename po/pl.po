@@ -11,11 +11,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 20:14+0000\n"
+"POT-Creation-Date: 2018-04-22 21:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-04-02 08:45-0400\n"
+"PO-Revision-Date: 2018-04-13 04:20-0400\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pl\n"
@@ -23,13 +23,17 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2;\n"
 "X-Generator: Zanata 3.9.6\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
 msgstr " (współdzielone z systemem operacyjnym)"
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
 msgstr " 1\"Usunąć poniższe węzły?"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:220
+msgid " or drag & drop."
+msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
@@ -48,7 +52,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "System plików $0"
 
-#: pkg/realmd/operation.js:108
+#: pkg/realmd/operation.js:110
 msgid ""
 "$0 Only users with local credentials will be able to log into this machine. "
 "This may also effect other services as DNS resolution settings and the list "
@@ -687,7 +691,7 @@ msgstr "Dodaj"
 msgid "Add $0"
 msgstr "Dodaj $0"
 
-#: pkg/docker/storage.jsx:376
+#: pkg/docker/storage.jsx:352
 msgid "Add Additional Storage"
 msgstr "Dodaj dodatkowe urządzenia do przechowywania danych"
 
@@ -750,7 +754,7 @@ msgstr "Dodaj nowego użytkownika"
 msgid "Add Role"
 msgstr "Dodaj rolę"
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:206
 msgid "Add Storage"
 msgstr "Dodaj urządzenia do przechowywania danych"
 
@@ -781,7 +785,7 @@ msgstr "Dodaj członkostwo"
 
 #: pkg/storaged/clevis-dialogs.jsx:31
 msgid "Add network key"
-msgstr ""
+msgstr "Dodaj klucz sieciowy"
 
 #: pkg/users/index.html:458
 msgid "Add public key"
@@ -874,7 +878,7 @@ msgstr "Dostosuj usługę"
 msgid "Admin"
 msgstr "Administrator"
 
-#: pkg/realmd/operation.js:282
+#: pkg/realmd/operation.js:287
 msgid "Administrator Password"
 msgstr "Hasło administratora"
 
@@ -907,7 +911,7 @@ msgstr "Wszystkie projekty"
 msgid "All Types"
 msgstr "Wszystkie typy"
 
-#: pkg/docker/storage.jsx:379
+#: pkg/docker/storage.jsx:355
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -1000,11 +1004,11 @@ msgstr "Architektura"
 msgid "Are you sure you want to delete this image?"
 msgstr "Na pewno usunąć ten obraz?"
 
-#: pkg/realmd/operation.js:105
+#: pkg/realmd/operation.js:107
 msgid "Are you sure you want to leave the '$0' domain?"
 msgstr "Na pewno opuścić domenę „$0”?"
 
-#: pkg/realmd/operation.js:103
+#: pkg/realmd/operation.js:105
 msgid "Are you sure you want to leave this domain?"
 msgstr "Na pewno opuścić tę domenę?"
 
@@ -1068,7 +1072,7 @@ msgstr "Upoważnione publiczne klucze SSH"
 #: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1900
 #: pkg/networkmanager/interfaces.js:2649 pkg/networkmanager/interfaces.js:3193
 #: pkg/networkmanager/interfaces.js:3197 pkg/networkmanager/interfaces.js:3203
-#: pkg/realmd/operation.js:285
+#: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "Automatyczne"
 
@@ -1372,7 +1376,7 @@ msgstr "Nie można odszyfrować klucza prywatnego zakodowanego jako PEM"
 msgid "Cannot forward login credentials"
 msgstr "Nie można przekazać danych uwierzytelniania logowania"
 
-#: pkg/realmd/operation.js:433
+#: pkg/realmd/operation.js:503
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Nie można dołączyć do domeny, ponieważ usługa realmd nie jest dostępna "
@@ -1791,7 +1795,7 @@ msgstr "Skonfiguruj sieć Flannel"
 msgid "Configure Kubelet and Proxy"
 msgstr "Skonfiguruj Kubernetes i pośrednika"
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:306
 msgid "Configure storage..."
 msgstr "Skonfiguruj urządzenia do przechowywania danych…"
 
@@ -1993,7 +1997,7 @@ msgstr "Sterowanie"
 msgid "Convertible"
 msgstr "2 w jednym"
 
-#: pkg/docker/storage.jsx:417
+#: pkg/docker/storage.jsx:400
 msgid "Could not add all disks"
 msgstr "Nie można dodać wszystkich dysków"
 
@@ -2013,7 +2017,7 @@ msgstr "Nie można przetworzyć certyfikatu zakodowanego jako PEM"
 msgid "Could not parse PEM-encoded private key"
 msgstr "Nie można przetworzyć klucza prywatnego zakodowanego jako PEM"
 
-#: pkg/docker/storage.jsx:457
+#: pkg/docker/storage.jsx:440
 msgid "Could not reset the storage pool"
 msgstr "Nie można przywrócić puli urządzeń do przechowywania danych"
 
@@ -2080,6 +2084,8 @@ msgstr "System awarii"
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:669
@@ -2139,6 +2145,10 @@ msgstr "Utwórz urządzenie VDO"
 #: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
 msgstr "Utwórz maszynę wirtualną"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:42
+msgid "Create Virtual Machine"
+msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
 msgid "Create Volume Group"
@@ -2683,11 +2693,11 @@ msgstr "Stacja dokująca"
 msgid "Domain"
 msgstr "Domena"
 
-#: pkg/realmd/operation.js:158
+#: pkg/realmd/operation.js:160
 msgid "Domain $0 could not be contacted"
 msgstr "Nie można skontaktować się z domeną $0"
 
-#: pkg/realmd/operation.js:229
+#: pkg/realmd/operation.js:234
 msgid "Domain $0 is not supported"
 msgstr "Domena $0 jest nieobsługiwana"
 
@@ -2744,7 +2754,7 @@ msgstr "Pobrano"
 msgid "Downloading"
 msgstr "Pobieranie"
 
-#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
+#: pkg/docker/storage.jsx:159 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "Napęd"
 
@@ -2760,6 +2770,10 @@ msgstr "Sterownik"
 #: pkg/storaged/drives-panel.jsx:117
 msgid "Drives"
 msgstr "Napędy"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:192
+msgid "Drop file here to upload."
+msgstr ""
 
 #: pkg/docker/run.js:348
 msgid "Duplicate alias"
@@ -2927,13 +2941,9 @@ msgstr "Środowisko"
 msgid "Erase"
 msgstr "Wymaż"
 
-#: pkg/docker/storage.jsx:436
+#: pkg/docker/storage.jsx:419
 msgid "Erase containers and reset storage pool"
 msgstr "Usuń kontenery i przywróć pulę urządzeń do przechowywania danych"
-
-#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
-msgid "Erase containers, reformat disks, and add them"
-msgstr "Usuń kontenery, ponownie sformatuj dyski i je dodaj"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Erasing $target"
@@ -3008,7 +3018,7 @@ msgstr "Doskonałe hasło"
 
 #: pkg/storaged/clevis-dialogs.jsx:37
 msgid "Existing passphrase"
-msgstr ""
+msgstr "Istniejące hasło"
 
 #: pkg/docker/util.js:96
 msgid "Exited $ExitCode"
@@ -3193,8 +3203,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr "Opóźnienie w przód $forward_delay"
 
-#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:300
-#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:54
+#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:299
+#: pkg/docker/storage.jsx:321 pkg/storaged/pvol-tabs.jsx:54
 #: pkg/systemd/host.js:1506
 msgid "Free"
 msgstr "Wolne"
@@ -3338,7 +3348,7 @@ msgstr "Tryb Hairpin"
 msgid "Hand Held"
 msgstr "Przenośny"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Hard Disk"
 msgstr "Dysk twardy"
 
@@ -3617,7 +3627,7 @@ msgstr "Pamięć indeksu"
 msgid "Info and above"
 msgstr "Informacje i powyżej"
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:283
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 "Informacje o puli urządzeń do przechowywania danych Docker są niedostępne."
@@ -3780,19 +3790,19 @@ msgstr "Czy sshd jest uruchomione na innym porcie?"
 msgid "Jobs"
 msgstr "Zadania"
 
-#: pkg/realmd/operation.js:96
+#: pkg/realmd/operation.js:98
 msgid "Join"
 msgstr "Dołącz"
 
-#: pkg/realmd/operation.js:469
+#: pkg/realmd/operation.js:539
 msgid "Join Domain"
 msgstr "Dołącz do domeny"
 
-#: pkg/realmd/operation.js:95
+#: pkg/realmd/operation.js:97
 msgid "Join a Domain"
 msgstr "Dołącz do domeny"
 
-#: pkg/realmd/operation.js:357
+#: pkg/realmd/operation.js:427
 msgid "Joining this domain is not supported"
 msgstr "Dołączenie do tej domeny jest nieobsługiwane"
 
@@ -3845,19 +3855,19 @@ msgstr "Ścieżka do bazy kluczy"
 
 #: pkg/storaged/clevis-dialogs.jsx:121
 msgid "Key does not work"
-msgstr ""
+msgstr "Klucz nie działa"
 
 #: pkg/storaged/clevis-dialogs.jsx:145 pkg/storaged/clevis-dialogs.jsx:161
 msgid "Key is obsolete"
-msgstr ""
+msgstr "Klucz jest przestarzały"
 
 #: pkg/storaged/clevis-dialogs.jsx:114
 msgid "Key is okay"
-msgstr ""
+msgstr "Klucz jest w porządku"
 
 #: pkg/storaged/clevis-dialogs.jsx:34
 msgid "Key server address"
-msgstr ""
+msgstr "Adres serwera kluczy"
 
 #: pkg/kubernetes/views/node-body.html:23
 msgid "Kubelet Version"
@@ -3929,11 +3939,11 @@ msgstr "Najnowsza wersja"
 msgid "Launch Remote Viewer"
 msgstr "Uruchom zdalną przeglądarkę"
 
-#: pkg/realmd/operation.js:102
+#: pkg/realmd/operation.js:104
 msgid "Leave"
 msgstr "Opuść"
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:103
 msgid "Leave Domain"
 msgstr "Opuść domenę"
 
@@ -4028,7 +4038,7 @@ msgstr "Wczytywanie…"
 msgid "Local Accounts"
 msgstr "Lokalne konta"
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:189
 msgid "Local Disks"
 msgstr "Lokalne dyski"
 
@@ -4241,7 +4251,7 @@ msgstr "Ręcznie"
 
 #: pkg/storaged/clevis-dialogs.jsx:73
 msgid "Manually verify the key on the server: "
-msgstr ""
+msgstr "Ręczne sprawdzanie poprawności klucza na serwerze:"
 
 #: pkg/storaged/jobs-panel.jsx:60
 msgid "Marking $target as faulty"
@@ -4409,7 +4419,7 @@ msgstr "Cele monitorowania"
 msgid "Monitors"
 msgstr "Monitory"
 
-#: pkg/realmd/operation.js:380
+#: pkg/realmd/operation.js:450
 msgid "More"
 msgstr "Więcej"
 
@@ -4543,7 +4553,7 @@ msgstr "Serwer NTP"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
 #: pkg/machines/hostvmslist.jsx:103
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
@@ -4601,7 +4611,7 @@ msgstr "Nazwa nie może składać się tylko z pustych znaków"
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Namespace"
 msgstr "Przestrzeń nazw"
 
@@ -4624,7 +4634,7 @@ msgstr "Ruch sieciowy"
 
 #: pkg/storaged/crypto-tab.jsx:176
 msgid "Network keys"
-msgstr ""
+msgstr "Klucze sieciowe"
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:527
 msgid "Networking"
@@ -4758,7 +4768,7 @@ msgstr ""
 msgid "No Volume Bound"
 msgstr "Żaden wolumin nie został przypisany"
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:195
 msgid "No additional local storage found."
 msgstr ""
 "Nie odnaleziono dodatkowych lokalnych urządzeń do przechowywania danych."
@@ -4970,7 +4980,7 @@ msgstr "Nie podano nazwy użytkownika"
 msgid "No users are present."
 msgstr "Brak użytkowników."
 
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:42
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:47
 msgid "No virtual machines"
 msgstr "Brak maszyn wirtualnych"
 
@@ -4990,7 +5000,7 @@ msgstr "Żadne woluminy nie są używane"
 #: pkg/kubernetes/views/node-page.html:14
 #: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
 #: pkg/kubernetes/views/topology-page.html:38
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 msgid "Node"
 msgstr "Węzeł"
 
@@ -5182,7 +5192,7 @@ msgstr[0] "Po niepowodzeniu próbowanie ponownie $0 raz"
 msgstr[1] "Po niepowodzeniu próbowanie ponownie $0 razy"
 msgstr[2] "Po niepowodzeniu próbowanie ponownie $0 razy"
 
-#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:289
 msgid "One Time Password"
 msgstr "Hasło jednorazowe"
 
@@ -5197,6 +5207,10 @@ msgstr "Tylko awaryjne"
 #: pkg/systemd/init.js:1150
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "Dozwolone są tylko litery, liczby i znaki „:”, „_”, „.”, „@”, „-”."
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:118
+msgid "Only files of size $0 MiB and less are supported"
+msgstr ""
 
 #: pkg/shell/index.html:45 pkg/shell/simple.html:29 pkg/shell/stub.html:33
 msgid "Ooops!"
@@ -5372,6 +5386,10 @@ msgstr ""
 "Hasło nieodpowiednie dla zadań wymagających uprawnień lub do łączenia "
 "z innymi komputerami"
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:211
+msgid "Paste JSON below, "
+msgstr ""
+
 #: pkg/users/index.html:461
 msgid "Paste the contents of your public SSH key file here"
 msgstr "Proszę tutaj wkleić zawartość pliku publicznego klucza SSH"
@@ -5488,7 +5506,7 @@ msgstr "Proszę potwierdzić wymuszenie usunięcia $0"
 
 #: pkg/storaged/clevis-dialogs.jsx:89
 msgid "Please confirm network key removal"
-msgstr ""
+msgstr "Proszę potwierdzić usunięcie klucza sieciowego"
 
 #: pkg/storaged/mdraid-details.jsx:244 pkg/storaged/vdo-details.jsx:143
 msgid "Please confirm stopping of $0"
@@ -5819,7 +5837,7 @@ msgstr "Nazwa produktu"
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Project"
 msgstr "Projekt"
 
@@ -6143,7 +6161,7 @@ msgstr "Przywracanie urządzenia RAID $target"
 msgid "Recycle"
 msgstr "Użyj ponownie"
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:361
 msgid "Reformat and add disks"
 msgstr "Sformatuj ponownie i dodaj dyski"
 
@@ -6268,7 +6286,7 @@ msgstr "Usuń etykietę obrazu"
 
 #: pkg/storaged/clevis-dialogs.jsx:98 pkg/storaged/clevis-dialogs.jsx:130
 msgid "Remove key"
-msgstr ""
+msgstr "Usuń klucz"
 
 #: pkg/kubernetes/views/user-remove-membership.html:3
 msgid "Remove membership"
@@ -6293,6 +6311,7 @@ msgstr ""
 #: pkg/storaged/clevis-dialogs.jsx:94 pkg/storaged/clevis-dialogs.jsx:126
 msgid "Removing network keys might prevent unattended booting."
 msgstr ""
+"Usunięcie kluczy sieciowych może uniemożliwić uruchamianie bez nadzoru."
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
@@ -6419,11 +6438,11 @@ msgstr "Zastrzeżona pamięć"
 msgid "Reset"
 msgstr "Przywróć"
 
-#: pkg/docker/storage.jsx:430
+#: pkg/docker/storage.jsx:413
 msgid "Reset Storage Pool"
 msgstr "Przywróć pulę urządzeń do przechowywania danych"
 
-#: pkg/docker/storage.jsx:433
+#: pkg/docker/storage.jsx:416
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -6435,6 +6454,10 @@ msgstr ""
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Resizing $target"
 msgstr "Zmienianie rozmiaru $target"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:59
+msgid "Resolve above errors to continue"
+msgstr ""
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:142
 #: pkg/systemd/index.html:152 pkg/docker/containers-view.jsx:306
@@ -6750,7 +6773,7 @@ msgstr "Adres serwera nie może być pusty."
 
 #: pkg/storaged/clevis-dialogs.jsx:168
 msgid "Server can't be reached"
-msgstr ""
+msgstr "Nie można połączyć z serwerem"
 
 #: pkg/storaged/nfs-details.jsx:136
 msgid "Server cannot be empty."
@@ -7028,7 +7051,7 @@ msgstr "Gniazda"
 msgid "Software Updates"
 msgstr "Aktualizacje oprogramowania"
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:157
 msgid "Solid-State Disk"
 msgstr "Dysk SSD"
 
@@ -7132,7 +7155,7 @@ msgstr "Zaczyna się"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/hostvmslist.jsx:103 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:177 pkg/systemd/init.js:275
 msgid "State"
@@ -7497,7 +7520,7 @@ msgstr "Testowanie połączenia"
 msgid "The \"storaged\" API is not available on this system."
 msgstr "API „storaged” nie jest dostępne w tym systemie."
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:479
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr ""
 "Pula urządzeń do przechowywania danych Docker nie może być zarządzana na tym "
@@ -7653,7 +7676,7 @@ msgstr "Grupa „{{ groupName }}” nie istnieje."
 
 #: pkg/storaged/clevis-dialogs.jsx:93
 msgid "The key of $0 will be removed."
-msgstr ""
+msgstr "Klucz $0 zostanie usunięty"
 
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
@@ -7671,6 +7694,9 @@ msgid ""
 "the encrypted data right now, but it might be able to when the server "
 "becomes reachable again."
 msgstr ""
+"Nie można połączyć z serwerem kluczy pod adresem $0. Ten klucz sieciowy nie "
+"może teraz odblokować zaszyfrowanych danych, ale może być w stanie to "
+"zrobić, kiedy serwer stanie się dostępny."
 
 #: pkg/users/authorized-keys.js:119
 msgid "The key you provided was not valid."
@@ -7710,7 +7736,7 @@ msgstr "Węzeł ma za mało wolnej pamięci"
 
 #: pkg/storaged/clevis-dialogs.jsx:77
 msgid "The output should match this text: "
-msgstr ""
+msgstr "Wyjście powinno pasować do tego tekstu:"
 
 #: pkg/users/local.js:412 pkg/users/local.js:1308
 msgid "The passwords do not match"
@@ -7773,14 +7799,6 @@ msgstr "Serwer używa certyfikatu podpisanego przez nieznany ośrodek."
 msgid "The service '{{ target }}' does not exist."
 msgstr "Usługa „{{ target }}” nie istnieje."
 
-#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
-msgid ""
-"The storage pool will be reset to optimize its layout.  All containers will "
-"be erased."
-msgstr ""
-"Pula urządzeń do przechowywania danych zostanie przywrócona w celu "
-"optymalizacji układu. Wszystkie kontenery zostaną usunięte."
-
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
 msgstr "Użytkownik „{{ userName }}” nie istnieje."
@@ -7813,7 +7831,7 @@ msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
 "Użytkownik <b>$0</b> nie ma zezwolenia na modyfikowanie ustawień sieci"
 
-#: pkg/realmd/operation.js:452
+#: pkg/realmd/operation.js:522
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "Użytkownik <b>$0</b> nie ma zezwolenia na modyfikowanie obszarów"
 
@@ -7961,24 +7979,32 @@ msgid ""
 "This network key is not recognized anymore by the server. You might want to "
 "remove it."
 msgstr ""
+"Ten klucz sieciowy nie jest już rozpoznawany przez serwer. Zaleca się go "
+"usunąć."
 
 #: pkg/storaged/clevis-dialogs.jsx:162
 msgid ""
 "This network key is obsolete. It is still functional but it should be "
 "replaced. A new key has been retrieved from the server."
 msgstr ""
+"Ten klucz sieciowy jest przestarzały. Nadal działa, ale powinien zostać "
+"zastąpiony. Nowy klucz został pobrany z serwera."
 
 #: pkg/storaged/clevis-dialogs.jsx:149
 msgid ""
 "This network key is obsolete. It is still functional but it should be "
 "replaced. A new key has been securely retrieved from the server."
 msgstr ""
+"Ten klucz sieciowy jest przestarzały. Nadal działa, ale powinien zostać "
+"zastąpiony. Nowy klucz został bezpiecznie pobrany z serwera."
 
 #: pkg/storaged/clevis-dialogs.jsx:116
 msgid ""
 "This network key works fine right now and the encrypted data can be unlocked "
 "with it."
 msgstr ""
+"Ten klucz sieciowy działa w tej chwili bez problemu i można za jego pomocą "
+"odblokować zaszyfrowane dane."
 
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid ""
@@ -8142,7 +8168,7 @@ msgstr "Za dużo danych"
 msgid "Topology"
 msgstr "Topologia"
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:315
 msgid "Total"
 msgstr "Razem"
 
@@ -8166,11 +8192,11 @@ msgstr "Rozwiązywanie problemów"
 
 #: pkg/storaged/clevis-dialogs.jsx:55
 msgid "Trust Key"
-msgstr ""
+msgstr "Zaufaj kluczowi"
 
 #: pkg/storaged/clevis-dialogs.jsx:163
 msgid "Trust new key"
-msgstr ""
+msgstr "Zaufaj nowemu kluczowi"
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:21
 msgid "Trust this certificate for this connection"
@@ -8537,7 +8563,7 @@ msgstr "Użycie emulacji 512 bajtów"
 
 #: pkg/storaged/clevis-dialogs.jsx:152
 msgid "Use new key"
-msgstr ""
+msgstr "Użyj nowego klucza"
 
 #: pkg/subscriptions/subscriptions-register.jsx:132
 msgid "Use proxy server"
@@ -8555,7 +8581,7 @@ msgstr "Użycie ustawień z /etc/kdump.conf"
 msgid "Use trusted GPG key"
 msgstr "Użycie zaufanego klucza GPG"
 
-#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:315
+#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:314
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:65
 #: pkg/machines/components/vm/vmUsageTab.jsx:76
@@ -8583,7 +8609,7 @@ msgstr "Użytkownik"
 msgid "User Name"
 msgstr "Nazwa użytkownika"
 
-#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:288
 msgid "User Password"
 msgstr "Hasło użytkownika"
 
@@ -8695,6 +8721,19 @@ msgstr "Działanie VM SHUT DOWN się nie powiodło"
 msgid "VM START action failed"
 msgstr "Działanie VM START się nie powiodło"
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:86
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:93
+msgid "VM definition is not a valid JSON."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:81
+msgid "VM definition is required."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:88
+msgid "VM definition must be an object."
+msgstr ""
+
 #: pkg/ovirt/components/VmOverviewColumn.jsx:39
 msgid "VM icon"
 msgstr "Ikona maszyny wirtualnej"
@@ -8733,7 +8772,7 @@ msgstr "Sprawdzono poprawność"
 
 #: pkg/storaged/clevis-dialogs.jsx:53
 msgid "Verify Key"
-msgstr ""
+msgstr "Sprawdź poprawność klucza"
 
 #: pkg/packagekit/updates.jsx:51
 msgid "Verifying"
@@ -8760,7 +8799,7 @@ msgid "View Registration Details"
 msgstr "Wyświetl informacje o rejestracji"
 
 #: pkg/kubernetes/index.html:61
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:41
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:46
 #: pkg/machines/hostvmslist.jsx:102
 msgid "Virtual Machines"
 msgstr "Maszyny wirtualne"
@@ -8928,7 +8967,7 @@ msgstr ""
 "Brak uprawnienia do wyświetlania upoważnionych publicznych kluczy dla tego "
 "konta."
 
-#: pkg/docker/storage.jsx:493
+#: pkg/docker/storage.jsx:476
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "Brak uprawnień do zrządzania pulą urządzeń do przechowywania danych Docker."
@@ -9054,7 +9093,7 @@ msgstr "w dół"
 msgid "dying"
 msgstr "w trakcie umierania"
 
-#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
+#: pkg/realmd/operation.js:252 pkg/realmd/operation.js:258
 msgid "e.g. \"$0\""
 msgstr "np. „$0”"
 
@@ -9359,6 +9398,10 @@ msgstr "nieprzydzielone miejsce na $0"
 #: pkg/machines/helpers.es6:218 pkg/ovirt/rephraseUI.es6:27
 msgid "up"
 msgstr "w górę"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:214
+msgid "upload a JSON file"
+msgstr ""
 
 #: pkg/machines/helpers.es6:205
 msgid "user"

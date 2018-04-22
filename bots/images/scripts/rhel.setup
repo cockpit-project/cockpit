@@ -145,6 +145,8 @@ qemu-kvm \
 
 if [ "$IMAGE" = "centos-7" ]; then
     UDISKS="storaged storaged-lvm2 storaged-iscsi"
+    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
+    COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 else
     UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
 fi

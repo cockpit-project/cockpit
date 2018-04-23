@@ -36,6 +36,11 @@ import sklearn.feature_extraction.text
 # Ignore lines that appear in at least this fraction of logs
 IGNORE_THRESHHOLD = 0.2
 
+# Choose only one out of every N tracked items. These have
+# already been manually "clustered" elsewhere, and we only need
+# some cluster seeds
+TRACKER_SPARSE = 100
+
 # TODO: We should be able to detect these automatically and ignore them
 # But for now this is a pragmatic hack to reduce noise and processing time
 NOISE = {
@@ -54,6 +59,21 @@ DIGITS = re.compile('\d+')
 # Return already tokenized data
 def noop(value):
     return value
+
+# Select which items we want to operate on.
+#
+# Because we have so many tracked failures, we need to only bring
+# some of those into our clustering algorithm. We can assume that
+# these are already clusters
+tracked = { }
+def select(item):
+    if item.get("status") != "failure":
+        return False
+    tracker = item.get("tracker")
+    if not tracker:
+        return True
+    count = tracked[tracker] = tracked.get(tracker, 0) + 1
+    return count % TRACKER_SPARSE == 0 # Only every Nth for tracked failures
 
 # The actual feature extractor. Currently only extracts a
 # normalized log from each item. By using fit() you can train

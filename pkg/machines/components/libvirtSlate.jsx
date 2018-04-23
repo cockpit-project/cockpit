@@ -60,7 +60,7 @@ class LibvirtSlate extends React.Component {
     }
 
     onLibvirtEnabledChanged(e) {
-        if (e && e.target && typeof(e.target.checked) === "boolean") {
+        if (e && e.target && typeof e.target.checked === "boolean") {
             this.setState({
                 libvirtEnabled: e.target.checked,
                 userActivityFlag: true,

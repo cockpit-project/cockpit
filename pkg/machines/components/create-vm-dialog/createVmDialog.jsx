@@ -109,13 +109,13 @@ class CreateVM extends React.Component {
     }
 
     onChangedEventValue(key, e) {
-        if (e && e.target && typeof(e.target.value) !== 'undefined') {
+        if (e && e.target && typeof e.target.value !== 'undefined') {
             this.onChangedValue(key, e.target.value);
         }
     }
 
     onChangedEventChecked(key, e) {
-        if (e && e.target && typeof(e.target.checked) === "boolean") {
+        if (e && e.target && typeof e.target.checked === "boolean") {
             this.onChangedValue(key, e.target.checked);
         }
     }

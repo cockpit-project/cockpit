@@ -131,7 +131,7 @@ function configureOvirtUrl(oVirtFqdn, oVirtPort) {
     const failHandler = (ex, data) => {
         if (ex && ex.status === 302) { // Found, redirects would follow
             doRegisterOvirt(oVirtFqdn, oVirtPort, dfd);
-            return ;
+            return;
         }
 
         console.info('Unable to access oVirt engine: ', JSON.stringify(ex), JSON.stringify(data));

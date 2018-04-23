@@ -102,7 +102,7 @@
             if (selectedEntries.length > 0)
                 selectedEntry = selectedEntries[0];
             else if (entries.length > 0)
-                selectedEntry = entries[0];  // default to first item if selected item not found
+                selectedEntry = entries[0]; // default to first item if selected item not found
 
             const currentValue = getItemValue(selectedEntry);
 

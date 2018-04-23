@@ -27,7 +27,7 @@ var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
 
 var StorageButton = StorageControls.StorageButton;
-var StorageLink =   StorageControls.StorageLink;
+var StorageLink = StorageControls.StorageLink;
 
 var _ = cockpit.gettext;
 

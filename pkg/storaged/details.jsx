@@ -111,19 +111,19 @@ class Details extends React.Component {
             var vgroup = client.vgnames_vgroup[this.props.name];
             if (vgroup) {
                 name = vgroup.Name;
-                body =  <VGroupDetails client={client} vgroup={vgroup}/>;
+                body = <VGroupDetails client={client} vgroup={vgroup}/>;
             }
         } else if (this.props.type == "mdraid") {
             var mdraid = client.uuids_mdraid[this.props.name];
             if (mdraid) {
                 name = utils.mdraid_name(mdraid);
-                body =  <MDRaidDetails client={client} mdraid={mdraid}/>;
+                body = <MDRaidDetails client={client} mdraid={mdraid}/>;
             }
         } else if (this.props.type == "vdo") {
             var vdo = client.vdo_overlay.by_name[this.props.name];
             if (vdo) {
                 name = vdo.name;
-                body =  <VDODetails client={client} vdo={vdo}/>;
+                body = <VDODetails client={client} vdo={vdo}/>;
             }
         } else if (this.props.type == "nfs") {
             var entry = client.nfs.find_entry(name, this.props.name2);

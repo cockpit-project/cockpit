@@ -39,10 +39,10 @@ function debug() {
 class ImplBase {
     constructor() {
         this.supported = true; // false if system was customed in a way that we cannot parse
-        this.enabled = null;   // boolean
-        this.type = null;      // "all" or "security"
-        this.day = null;       // systemd.time(7) day of week (e. g. "mon"), or empty for daily
-        this.time = null;      // systemd.time(7) time (e. g. "06:00") or empty for "any time"
+        this.enabled = null; // boolean
+        this.type = null; // "all" or "security"
+        this.day = null; // systemd.time(7) day of week (e. g. "mon"), or empty for daily
+        this.time = null; // systemd.time(7) time (e. g. "06:00") or empty for "any time"
     }
 
     // Init data members. Return a promise that resolves when done.

@@ -43,11 +43,11 @@ export class MDRaidsPanel extends React.Component {
                               { SelectOne: "level",
                                 Title: _("RAID Level"),
                                 Options: [
-                                    { value: "raid0",  Title: _("RAID 0 (Stripe)") },
-                                    { value: "raid1",  Title: _("RAID 1 (Mirror)") },
-                                    { value: "raid4",  Title: _("RAID 4 (Dedicated Parity)") },
-                                    { value: "raid5",  Title: _("RAID 5 (Distributed Parity)"), selected: true },
-                                    { value: "raid6",  Title: _("RAID 6 (Double Distributed Parity)") },
+                                    { value: "raid0", Title: _("RAID 0 (Stripe)") },
+                                    { value: "raid1", Title: _("RAID 1 (Mirror)") },
+                                    { value: "raid4", Title: _("RAID 4 (Dedicated Parity)") },
+                                    { value: "raid5", Title: _("RAID 5 (Distributed Parity)"), selected: true },
+                                    { value: "raid6", Title: _("RAID 6 (Double Distributed Parity)") },
                                     { value: "raid10", Title: _("RAID 10 (Stripe of Mirrors)") }
                                 ]
                               },

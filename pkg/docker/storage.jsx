@@ -156,7 +156,7 @@
                 switch (cl) {
                     case "sdd": return _("Solid-State Disk");
                     case "hdd": return _("Hard Disk");
-                    default:    return _("Drive");
+                    default: return _("Drive");
                 }
             }
 

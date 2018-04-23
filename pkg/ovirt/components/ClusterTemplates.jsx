@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
-import { VmLastMessage, VmDescription, VmMemory, VmCpu, VmOS, VmHA, VmStateless  } from './ClusterVms.jsx';
+import { VmLastMessage, VmDescription, VmMemory, VmCpu, VmOS, VmHA, VmStateless } from './ClusterVms.jsx';
 import { createVmFromTemplate } from '../actions.es6';
 import { getCurrentCluster } from '../selectors.es6';
 import { logDebug } from '../../machines/helpers.es6';

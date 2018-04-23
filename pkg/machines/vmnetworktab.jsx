@@ -89,7 +89,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
             const additionalMap = [
                 { name: _("MTU"), value: 'mtu' },
                 { name: _("Virtualport"), value: 'virtualportType' },
-                { name: _("Managed"), value: rephraseUI('networkManaged', network.managed)  },
+                { name: _("Managed"), value: rephraseUI('networkManaged', network.managed) },
                 { name: _("Portgroup"), value: (network) => {
                     if (network.source.portgroup) {
                         return network.source.portgroup;

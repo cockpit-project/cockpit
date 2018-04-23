@@ -155,7 +155,7 @@ function HeaderBar(props) {
         else {
             state = cockpit.ngettext("$0 update", "$0 updates", num_updates);
             if (num_security > 0)
-                state += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes",  num_security);
+                state += cockpit.ngettext(", including $1 security fix", ", including $1 security fixes", num_security);
         }
         state = cockpit.format(state, num_updates, num_security);
     } else {

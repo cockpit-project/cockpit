@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import PackageKit from "./packagekit.es6";
-import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from  "./utils.jsx";
+import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 const _ = cockpit.gettext;
 

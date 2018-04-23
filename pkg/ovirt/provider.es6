@@ -29,7 +29,7 @@ import { oVirtIconToInternal } from './ovirtConverters.es6';
 
 import { updateIcon, downloadIcon, } from './actions.es6';
 import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';
-import { ovirtReducer }  from './reducers.es6';
+import { ovirtReducer } from './reducers.es6';
 
 import VmActions from './components/VmActions.jsx';
 import vmOverviewExtra from './components/VmOverviewColumn.jsx';
@@ -203,7 +203,7 @@ OVIRT_PROVIDER.CREATE_VM_FROM_TEMPLATE = function (payload) {
 
     const name = `<name>${vm.name}</name>`;
     const template = `<template><name>${templateName}</name></template>`;
-    const cluster =  `<cluster><name>${clusterName}</name></cluster>`;
+    const cluster = `<cluster><name>${clusterName}</name></cluster>`;
     const action = `<vm>${name}${cluster}${template}</vm>`;
 
     return (dispatch) => {

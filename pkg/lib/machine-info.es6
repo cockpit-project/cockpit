@@ -73,7 +73,7 @@ const chassis_types = [
     _("All In One"),
     _("Sub Notebook"),
     _("Space-saving Computer"),
-    _("Lunch Box"),  /* 0x10 */
+    _("Lunch Box"), /* 0x10 */
     _("Main Server Chassis"),
     _("Expansion Chassis"),
     _("Sub Chassis"),

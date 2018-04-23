@@ -127,7 +127,7 @@ function vmsReducer (state, action) {
             // If the VM is unknown for this host, the user needs to be still informed about the result
             // So far, the VM is identified by "name" only
             // See the templatesReducer() as well.
-            const vmId =  Object.getOwnPropertyNames(state).filter(vmId => state[vmId].name === action.payload.name);
+            const vmId = Object.getOwnPropertyNames(state).filter(vmId => state[vmId].name === action.payload.name);
             if (!vmId || vmId.length === 0) {
                 return state;
             }

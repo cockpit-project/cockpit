@@ -127,7 +127,7 @@ export class ConfigFile {
         let linesToDelete = [];
         // first find the settings lines that have been disabled/deleted
         Object.keys(this._originalSettings).forEach((key) => {
-            if (!(key in settings))  {
+            if (!(key in settings)) {
                 let origEntry = this._originalSettings[key];
                 // if the line had a comment, keep it, otherwise delete
                 if (origEntry.comment !== undefined)

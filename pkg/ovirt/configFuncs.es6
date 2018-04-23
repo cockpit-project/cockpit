@@ -131,7 +131,7 @@ function doLogin ({ dispatch }) {
     return false;
 }
 
-function onLoginSuccessful ({ dispatch , token }) {
+function onLoginSuccessful ({ dispatch, token }) {
     CONFIG.token = token;
 
     // Turn-off user notification about progress

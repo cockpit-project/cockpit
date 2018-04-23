@@ -84,6 +84,6 @@ export function formatDateTime (milliseconds) {
     };
 
     let localeString = date.toLocaleString(cockpit.language || 'en', options);
-    localeString = localeString.replace(/,([^,]*)$/,'$1'); // remove ',' before time
+    localeString = localeString.replace(/,([^,]*)$/, '$1'); // remove ',' before time
     return localeString;
 }

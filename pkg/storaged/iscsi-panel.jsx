@@ -147,7 +147,7 @@ export class IscsiPanel extends React.Component {
                           Fields: [
                               { SelectRow: "target",
                                 Title: _("Targets"),
-                                Headers: [ _("Name"), _("Address"),_("Port") ],
+                                Headers: [ _("Name"), _("Address"), _("Port") ],
                                 Rows: target_rows
                               }
                           ],

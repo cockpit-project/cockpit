@@ -72,7 +72,7 @@ export class DriveDetails extends React.Component {
                               drive.Size ? utils.fmt_size_long(drive.Size)
                                   : _("No media inserted")) }
                         { assessment }
-                        { row(_("storage", "Device File"), drive_block? utils.block_name(drive_block) : "-") }
+                        { row(_("storage", "Device File"), drive_block ? utils.block_name(drive_block) : "-") }
                         { multipath_blocks.length > 0 && row(_("storage", "Multipathed Devices"),
                                                              multipath_blocks.map(utils.block_name).join(" ")) }
                     </table>

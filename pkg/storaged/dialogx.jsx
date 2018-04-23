@@ -135,9 +135,9 @@ const Validated = ({ errors, error_key, children }) => {
     // errors are cleared.  Otherwise the DOM changes enough
     // for the Browser to remove focus.
     return (
-        <div className={error? "has-error" : ""}>
+        <div className={error ? "has-error" : ""}>
             { children }
-            { error? <span className="help-block">{error}</span> : null }
+            { error ? <span className="help-block">{error}</span> : null }
         </div>
     );
 }
@@ -158,7 +158,7 @@ const Row = ({ tag, title, errors, children }) => {
 const Body = ({body, fields, values, errors, onChange}) => {
     return (
         <div className="modal-body">
-            { body? body : null }
+            { body ? body : null }
             { fields.length > 0
               ? <table className="form-table-ct">
                   { fields.map(f => {
@@ -211,7 +211,7 @@ export const dialog_open = (def) => {
         })).then(results => {
             let errors = { };
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
-            return (Object.keys(errors).length > 0)? errors: null;
+            return (Object.keys(errors).length > 0) ? errors : null;
         });
     }
 
@@ -219,7 +219,7 @@ export const dialog_open = (def) => {
     if (def.Action) {
         actions = [
             { caption: def.Action.Title,
-              style: def.Action.DangerButton? "danger" : "primary",
+              style: def.Action.DangerButton ? "danger" : "primary",
               clicked: function () {
                   return validate().then(errors => {
                       if (errors) {
@@ -236,7 +236,7 @@ export const dialog_open = (def) => {
 
     let dlg = show_modal_dialog(props(null),
                                 { actions: actions,
-                                  cancel_caption: def.Action? _("Cancel") : _("Close")
+                                  cancel_caption: def.Action ? _("Cancel") : _("Close")
                                 });
 }
 

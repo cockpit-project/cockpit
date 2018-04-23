@@ -32,7 +32,7 @@ const VmActions = ({ vm, providerState, dispatch }) => {
         return null;
     }
 
-    const idPrefix =`${vmId(vm.name)}-ovirt`;
+    const idPrefix = `${vmId(vm.name)}-ovirt`;
 
     // TODO: add user confirmation
     return (

@@ -109,7 +109,7 @@ class JobRow extends React.Component {
 
         var remaining = null;
         if (job.ExpectedEndTime > 0) {
-            var d = job.ExpectedEndTime/1000 - this.props.now;
+            var d = job.ExpectedEndTime / 1000 - this.props.now;
             if (d > 0)
                 remaining = format_delay(d);
         }
@@ -117,10 +117,10 @@ class JobRow extends React.Component {
         return (
             <tr>
                 <td className="job-description">{make_description(this.props.client, job)}</td>
-                <td>{job.ProgressValid && (job.Progress*100).toFixed() + "%"}</td>
+                <td>{job.ProgressValid && (job.Progress * 100).toFixed() + "%"}</td>
                 <td>{remaining}</td>
                 <td className="job-action">
-                    { job.Cancelable? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
+                    { job.Cancelable ? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
                 </td>
             </tr>
         );
@@ -139,11 +139,11 @@ export class JobsPanel extends React.Component {
         function job_is_stable(path) {
             var j = client.jobs[path];
 
-            var age_ms = server_now - j.StartTime/1000;
+            var age_ms = server_now - j.StartTime / 1000;
             if (age_ms >= 2000)
                 return true;
 
-            if (j.ExpectedEndTime > 0 && (j.ExpectedEndTime/1000 - server_now) >= 2000)
+            if (j.ExpectedEndTime > 0 && (j.ExpectedEndTime / 1000 - server_now) >= 2000)
                 return true;
 
             return false;

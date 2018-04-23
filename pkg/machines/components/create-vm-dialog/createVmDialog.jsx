@@ -206,7 +206,7 @@ class CreateVM extends React.Component {
         let installationSourceId;
         switch (this.state.sourceType) {
             case COCKPIT_FILESYSTEM_SOURCE:
-                installationSourceId="source-file";
+                installationSourceId = "source-file";
                 installationSource = (
                     <FileAutoComplete.FileAutoComplete id={installationSourceId}
                                                        placeholder={_("Path to ISO file on host's file system")}
@@ -215,7 +215,7 @@ class CreateVM extends React.Component {
                 break;
             case URL_SOURCE:
             default:
-                installationSourceId="source-url";
+                installationSourceId = "source-url";
                 installationSource = (
                     <input id={installationSourceId} className="form-control"
                            type="text"

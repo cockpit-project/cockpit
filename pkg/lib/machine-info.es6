@@ -36,7 +36,7 @@ export function cpu_ram_info(address) {
                 var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
                 var total_kb = match && parseInt(match[1], 10);
                 if (total_kb)
-                    info.memory = total_kb*1024;
+                    info.memory = total_kb * 1024;
 
                 match = text.match(/^model name\s*:\s*(.*)$/m);
                 if (match)

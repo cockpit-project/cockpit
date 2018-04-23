@@ -56,7 +56,7 @@ export class DrivesPanel extends React.Component {
                 return "removable";
             }
 
-            return (drive.RotationRate === 0)? "ssd" : "hdd";
+            return (drive.RotationRate === 0) ? "ssd" : "hdd";
         }
 
         function make_drive(path) {

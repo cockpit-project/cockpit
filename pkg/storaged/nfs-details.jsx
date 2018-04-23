@@ -46,7 +46,7 @@ function nfs_busy_dialog(client,
         } else {
             let sessions = [ ], services = [ ];
             users.forEach((u) => {
-                var since = moment.duration(-u.since*1000).humanize(true);
+                var since = moment.duration(-u.since * 1000).humanize(true);
                 if (u.unit.endsWith(".scope")) {
                     sessions.push({ Name: u.desc, Command: u.cmd.substr(0, 200), Since: since });
                 } else {
@@ -62,7 +62,7 @@ function nfs_busy_dialog(client,
                               Services: services
                           },
                           Fields: [ ],
-                          Action: users? {
+                          Action: users ? {
                               DangerButton: true,
                               Title: action_title,
                               action: function () {
@@ -107,7 +107,7 @@ export function nfs_fstab_dialog(client, entry) {
                 });
     }
 
-    var mount_options = entry? entry.fields[3] : "defaults";
+    var mount_options = entry ? entry.fields[3] : "defaults";
     var split_options = format.parse_options(mount_options == "defaults" ? "" : mount_options);
     var opt_auto = !format.extract_option(split_options, "noauto");
     var opt_ro = format.extract_option(split_options, "ro");
@@ -125,12 +125,12 @@ export function nfs_fstab_dialog(client, entry) {
     }
 
     function show(busy) {
-        dialog.open({ Title: entry? _("NFS Mount") : _("New NFS Mount"),
-                      Alerts: busy? [ { Message: _("This NFS mount is in use and only its options can be changed.") } ] : null,
+        dialog.open({ Title: entry ? _("NFS Mount") : _("New NFS Mount"),
+                      Alerts: busy ? [ { Message: _("This NFS mount is in use and only its options can be changed.") } ] : null,
                       Fields: [
                           { TextInput: "server",
                             Title: _("Server Address"),
-                            Value: entry? entry.fields[0].split(":")[0] : "",
+                            Value: entry ? entry.fields[0].split(":")[0] : "",
                             validate: function (val) {
                                 if (val === "")
                                     return _("Server cannot be empty.");
@@ -139,7 +139,7 @@ export function nfs_fstab_dialog(client, entry) {
                           },
                           { ComboBox: "remote",
                             Title: _("Path on Server"),
-                            Value: entry? entry.fields[0].split(":")[1] : "",
+                            Value: entry ? entry.fields[0].split(":")[1] : "",
                             Choices: remote_choices,
                             validate: function (val) {
                                 if (val === "")
@@ -151,7 +151,7 @@ export function nfs_fstab_dialog(client, entry) {
                           },
                           { TextInput: "dir",
                             Title: _("Local Mount Point"),
-                            Value: entry? entry.fields[1] : "",
+                            Value: entry ? entry.fields[1] : "",
                             validate: function (val) {
                                 if (val === "")
                                     return _("Mount point cannot be empty.");
@@ -175,12 +175,12 @@ export function nfs_fstab_dialog(client, entry) {
                           }
                       ],
                       Action: {
-                          Title: entry? _("Apply") : _("Add"),
+                          Title: entry ? _("Apply") : _("Add"),
                           action: function (vals) {
                               var location = cockpit.location;
                               var fields = [ vals.server + ":" + vals.remote,
                                              vals.dir,
-                                             entry? entry.fields[2]: "nfs",
+                                             entry ? entry.fields[2] : "nfs",
                                              mounting_options(vals) || "defaults" ];
                               if (entry) {
                                   return client.nfs.update_entry(entry, fields)

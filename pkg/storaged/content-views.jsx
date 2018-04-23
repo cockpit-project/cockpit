@@ -70,7 +70,7 @@ function create_tabs(client, target, is_partition) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
-    var block = endsWith(target.iface, ".Block")? target : null;
+    var block = endsWith(target.iface, ".Block") ? target : null;
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
 
@@ -356,7 +356,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                  style={{visibility: client.path_jobs[job_object]? "visible" : "hidden"}}>
+                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
             </span>);
     if (tabs.row_action) {
         if (last_column) {
@@ -394,7 +394,7 @@ function append_non_partitioned_block(client, rows, level, block, is_partition) 
     append_row(client, rows, level, block.path, utils.block_name(block), desc, tabs, block.path);
 
     if (cleartext_block)
-        append_device(client, rows, level+1, cleartext_block);
+        append_device(client, rows, level + 1, cleartext_block);
 }
 
 function append_partitions(client, rows, level, block) {
@@ -527,7 +527,7 @@ function block_content(client, block, allow_partitions) {
     if (allow_partitions)
         format_disk_btn = (
             <div className="pull-right">
-                <StorageButton onClick={format_disk} excuse={block.ReadOnly? _("Device is read-only") : null}>
+                <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
                     {_("Create partition table")}
                 </StorageButton>
             </div>);
@@ -555,7 +555,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
         };
         tabs = create_tabs(client, block, false);
         append_row(client, rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
-        append_partitions(client, rows, level+1, block);
+        append_partitions(client, rows, level + 1, block);
     } else {
         append_non_partitioned_block(client, rows, level, block, false);
     }
@@ -572,7 +572,7 @@ function append_logical_volume(client, rows, level, lvol) {
         tabs = create_tabs(client, lvol, false);
         append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         client.lvols_pool_members[lvol.path].forEach(function (member_lvol) {
-            append_logical_volume(client, rows, level+1, member_lvol);
+            append_logical_volume(client, rows, level + 1, member_lvol);
         });
     } else {
         block = client.lvols_block[lvol.path];
@@ -586,7 +586,7 @@ function append_logical_volume(client, rows, level, lvol) {
 
             desc = {
                 size: lvol.Size,
-                text: lvol.Active? _("Unsupported volume") : _("Inactive volume")
+                text: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
             }
             tabs = create_tabs(client, lvol, false);
             append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);

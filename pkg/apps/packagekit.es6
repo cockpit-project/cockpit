@@ -25,7 +25,7 @@ function progress_reporter(base, range, callback) {
     if (callback) {
         return function (data) {
             if (data.percentage >= 0)
-                data.percentage = base + data.percentage/100*range;
+                data.percentage = base + data.percentage / 100 * range;
             callback(data);
         };
     }

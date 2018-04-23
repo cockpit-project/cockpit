@@ -249,7 +249,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     add_fsys(true, { value: "empty", Title: _("No Filesystem") });
     add_fsys(true, { value: "custom", Title: _("Custom (Enter filesystem type)") });
 
-    var usage = utils.get_active_usage(client, create_partition? null : path);
+    var usage = utils.get_active_usage(client, create_partition ? null : path);
 
     if (usage.Blocking) {
         dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
@@ -314,7 +314,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                   ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
                    .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   Action: {
-                      Title: create_partition? _("Create partition") : _("Format"),
+                      Title: create_partition ? _("Create partition") : _("Format"),
                       Danger: (create_partition
                                ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {
@@ -398,7 +398,7 @@ var FormatButton = React.createClass({
     render: function () {
         return (
             <StorageControls.StorageButton onClick={this.onClick}
-                                           excuse={this.props.block.ReadOnly? _("Device is read-only") : null}>
+                                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
                 {_("Format")}
             </StorageControls.StorageButton>
         );

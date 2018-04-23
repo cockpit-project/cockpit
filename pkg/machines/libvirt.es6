@@ -74,7 +74,7 @@ import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
 
-const METADATA_NAMESPACE="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
+const METADATA_NAMESPACE = "https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
 
 /**
  * Parse non-XML stdout of virsh.
@@ -923,7 +923,7 @@ function parseDomstatsForDisks(domstatsLines) {
     // Libvirt reports disk capacity since version 1.2.18 (year 2015)
     // TODO: If disk stats is required for old systems, find a way how to get it when 'block.X.capacity' is not present, consider various options for 'sources'
     const disksStats = {};
-    for (let i=0; i<count; i++) {
+    for (let i = 0; i < count; i++) {
         const target = getValueFromLine(domstatsLines, `block\.${i}\.name=`);
         const physical = getValueFromLine(domstatsLines, `block\.${i}\.physical=`) || NaN;
         const capacity = getValueFromLine(domstatsLines, `block\.${i}\.capacity=`) || NaN;

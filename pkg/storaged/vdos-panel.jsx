@@ -65,14 +65,14 @@ export class VDOsPanel extends React.Component {
                               },
                               { SizeSlider: "lsize",
                                 Title: _("Logical Size"),
-                                Max: 3*1024*1024*1024*1024,
+                                Max: 3 * 1024 * 1024 * 1024 * 1024,
                                 Round: 512,
-                                Value: 1024*1024*1024*1024,
+                                Value: 1024 * 1024 * 1024 * 1024,
                                 AllowInfinite: true,
                                 update: function (vals, trigger) {
                                     if (trigger == "space") {
                                         return {
-                                            Max: 3*vals.space.size,
+                                            Max: 3 * vals.space.size,
                                             Value: vals.space.size
                                         };
                                     } else
@@ -81,12 +81,12 @@ export class VDOsPanel extends React.Component {
                               },
                               { SizeSlider: "index_mem",
                                 Title: _("Index Memory"),
-                                Max: 2*1024*1024*1024,
+                                Max: 2 * 1024 * 1024 * 1024,
                                 Round: function (val) {
-                                    var round = val < 1024*1024*1024 ? 256*1024*1024 : 1024*1024*1024;
+                                    var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
                                     return Math.round(val / round) * round;
                                 },
-                                Value: 256*1024*1024,
+                                Value: 256 * 1024 * 1024,
                                 AllowInfinite: true,
                               },
                               { CheckBox: "compression",

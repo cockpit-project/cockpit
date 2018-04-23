@@ -171,7 +171,7 @@ var ListingRow = React.createClass({
         var allowExpand = (this.props.tabRenderers.length > 0);
         var expandToggle;
         if (allowExpand) {
-            expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate?this.handleExpandClick:undefined }>
+            expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
                                <i className="fa fa-fw"></i>
                            </td>;
         } else {
@@ -244,7 +244,7 @@ var ListingRow = React.createClass({
                 <tbody className="open">
                     {listingItem}
                     <tr className="listing-ct-panel">
-                        <td colSpan={ headerEntries.length + (expandToggle?1:0) }>
+                        <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) }>
                             <div className="listing-ct-head">
                                 <div className="listing-ct-actions">
                                     {listingDetail}

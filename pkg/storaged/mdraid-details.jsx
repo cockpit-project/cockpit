@@ -129,7 +129,7 @@ class MDRaidSidebar extends React.Component {
                         <div><img src="images/storage-disk.png"></img></div>
                     </td>
                     <td>
-                        {slot? slot : "-"} <StorageBlockNavLink client={client} block={block}/>
+                        {slot ? slot : "-"} <StorageBlockNavLink client={client} block={block}/>
                         <br/>
                         <span className="state">{states}</span>
                     </td>
@@ -192,7 +192,7 @@ export class MDRaidDetails extends React.Component {
             level += ", " + cockpit.format(_("$0 Chunk Size"), utils.fmt_size(mdraid.ChunkSize));
 
         function toggle_bitmap(val) {
-            return mdraid.SetBitmapLocation(utils.encode_filename(val? 'internal' : 'none'), {});
+            return mdraid.SetBitmapLocation(utils.encode_filename(val ? 'internal' : 'none'), {});
         }
 
         var bitmap = null;
@@ -230,7 +230,7 @@ export class MDRaidDetails extends React.Component {
         }
 
         function stop() {
-            var usage = utils.get_active_usage(client, block? block.path : "");
+            var usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
                 dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
@@ -284,7 +284,7 @@ export class MDRaidDetails extends React.Component {
                     return wipe_members();
             }
 
-            var usage = utils.get_active_usage(client, block? block.path : "");
+            var usage = utils.get_active_usage(client, block ? block.path : "");
 
             if (usage.Blocking) {
                 dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
@@ -329,7 +329,7 @@ export class MDRaidDetails extends React.Component {
                     <table className="info-table-ct">
                         <tr>
                             <td>{_("storage", "Device")}</td>
-                            <td>{ block? utils.decode_filename(block.PreferredDevice) : "-" }</td>
+                            <td>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</td>
                         </tr>
                         <tr>
                             <td>{_("storage", "UUID")}</td>
@@ -346,7 +346,7 @@ export class MDRaidDetails extends React.Component {
                         { bitmap }
                         <tr>
                             <td>{_("storage", "State")}</td>
-                            <td>{ running? _("Running"): _("Not running") }</td>
+                            <td>{ running ? _("Running") : _("Not running") }</td>
                         </tr>
                     </table>
                 </div>

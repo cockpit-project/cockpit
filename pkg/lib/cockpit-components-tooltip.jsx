@@ -94,7 +94,7 @@ var Tooltip = React.createClass({
 
             // Position it
             if (tip.offsetLeft === -10000) {
-                var left = child.offsetLeft + 0.5*child.offsetWidth - 0.5*tip.offsetWidth;
+                var left = child.offsetLeft + 0.5 * child.offsetWidth - 0.5 * tip.offsetWidth;
                 var top = child.offsetTop - tip.offsetHeight;
 
                 var arrow = tip.getElementsByClassName("tooltip-arrow")[0];

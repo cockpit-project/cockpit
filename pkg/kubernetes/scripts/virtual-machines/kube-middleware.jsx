@@ -46,7 +46,7 @@ function vmCreate(resource) {
 async function vmDelete({ vm }) {
     const selfLink = vm.metadata.selfLink; // example: /apis/kubevirt.io/v1alpha1/namespaces/kube-system/virtualmachines/testvm
     logDebug('vmDelete(), selfLink: ', selfLink);
-    return await kubeMethods.delete(selfLink); // no value is returned (empty promise). An exception is thrown in case of failure
+    return kubeMethods.delete(selfLink); // no value is returned (empty promise). An exception is thrown in case of failure
 }
 
 export { vmDelete, vmCreate };

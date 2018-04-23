@@ -58,5 +58,7 @@ def load(filename_or_fp, only=failures, limit=None, verbose=False):
             if limit is not None and count == limit:
                 return
     finally:
+        if verbose and count > 0:
+            sys.stderr.write("{0}: Items loaded\n".format(count))
         if opened:
             fp.close()

@@ -665,8 +665,8 @@ class OsUpdates extends React.Component {
                     if (role !== PK.Enum.ROLE_UPDATE_PACKAGES)
                         return;
                     // data looks like:
-                    // downloading	bash-completion;1:2.6-1.fc26;noarch;updates-testing
-                    // updating	bash-completion;1:2.6-1.fc26;noarch;updates-testing
+                    // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
+                    // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     let pkgs = {"_time": Date.parse(timeSpec)};
                     let empty = true;
                     data.split("\n").forEach(line => {

@@ -49,7 +49,7 @@ class CreateVmDialog extends React.Component {
     }
 
     onResourceChanged(e) {
-        if (e && e.target && typeof(e.target.value) !== 'undefined') {
+        if (e && e.target && typeof e.target.value !== 'undefined') {
             this.setState({ resource: e.target.value });
         }
     }

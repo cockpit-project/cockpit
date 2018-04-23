@@ -197,6 +197,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="diskErrors" type="a(ss)" direction="out"/>
     </method>
+    <method name="GetFSInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetFSInfo"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="fsInfo" type="a(sssas)" direction="out"/>
+    </method>
     <method name="GetJobInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>

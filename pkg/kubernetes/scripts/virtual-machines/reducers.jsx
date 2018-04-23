@@ -34,15 +34,15 @@ const createReducer = (initialState, actionHandlerMap) => (state = initialState,
  * ]
  */
 const vmsReducer = createReducer([], {
-    [actionTypes.SET_VMS]: (state = [], { payload }) => payload ? payload : []
+    [actionTypes.SET_VMS]: (state = [], { payload }) => payload || []
 });
 
 const pvsReducer = createReducer([], {
-    [actionTypes.SET_PVS]: (state = [], { payload }) => payload ? payload : []
+    [actionTypes.SET_PVS]: (state = [], { payload }) => payload || []
 });
 
 const podsReducer = createReducer([], {
-    [actionTypes.SET_PODS]: (state = [], { payload }) => payload ? payload : []
+    [actionTypes.SET_PODS]: (state = [], { payload }) => payload || []
 })
 
 /**
@@ -51,7 +51,7 @@ const podsReducer = createReducer([], {
  * ]
  */
 const settingsReducer = createReducer([], {
-    [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload ? payload : {}
+    [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload || {}
 });
 
 /**

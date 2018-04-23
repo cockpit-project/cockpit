@@ -158,7 +158,7 @@ const Row = ({ tag, title, errors, children }) => {
 const Body = ({body, fields, values, errors, onChange}) => {
     return (
         <div className="modal-body">
-            { body ? body : null }
+            { body || null }
             { fields.length > 0
               ? <table className="form-table-ct">
                   { fields.map(f => {

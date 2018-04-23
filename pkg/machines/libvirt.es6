@@ -121,7 +121,7 @@ export function buildScriptTimeoutFailHandler(args, delay) {
     return ({ message, exception }) => {
         window.setTimeout(() => {
             handler({
-                exception: exception ? exception : message,
+                exception: exception || message,
             });
         }, delay);
     };
@@ -657,8 +657,8 @@ function parseDumpxmlForDisks(devicesElem) {
                 bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
                 serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0
-                readonly: readonlyElem ? true : false,
-                shareable: shareableElem ? true : false,
+                readonly: !!readonlyElem,
+                shareable: !!shareableElem,
                 removable: targetElem.getAttribute('removable'),
             };
 

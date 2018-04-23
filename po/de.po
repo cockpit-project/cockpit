@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 20:14+0000\n"
+"POT-Creation-Date: 2018-04-22 21:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,13 +22,17 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Zanata 3.9.6\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
 msgstr ""
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
 msgstr "1\"Sind Sie sicher, dass Sie die folgenden Nodes löschen möchten?"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:220
+msgid " or drag & drop."
+msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
@@ -47,7 +51,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 Dateisystem"
 
-#: pkg/realmd/operation.js:108
+#: pkg/realmd/operation.js:110
 msgid ""
 "$0 Only users with local credentials will be able to log into this machine. "
 "This may also effect other services as DNS resolution settings and the list "
@@ -667,7 +671,7 @@ msgstr "Hinzufügen"
 msgid "Add $0"
 msgstr "$0 hinzufügen"
 
-#: pkg/docker/storage.jsx:376
+#: pkg/docker/storage.jsx:352
 msgid "Add Additional Storage"
 msgstr "Zusätzlichen Speicher hinzufügen"
 
@@ -731,7 +735,7 @@ msgstr "Neuen Nutzer anlegen"
 msgid "Add Role"
 msgstr "Neue Rolle hinzufügen"
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:206
 msgid "Add Storage"
 msgstr "Speicher hinzufügen"
 
@@ -855,7 +859,7 @@ msgstr "Dienst anpassen"
 msgid "Admin"
 msgstr "Administrator"
 
-#: pkg/realmd/operation.js:282
+#: pkg/realmd/operation.js:287
 msgid "Administrator Password"
 msgstr "Passwort des Administrators"
 
@@ -888,7 +892,7 @@ msgstr "Alle Projekte"
 msgid "All Types"
 msgstr ""
 
-#: pkg/docker/storage.jsx:379
+#: pkg/docker/storage.jsx:355
 #, fuzzy
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
@@ -980,11 +984,11 @@ msgstr ""
 msgid "Are you sure you want to delete this image?"
 msgstr ""
 
-#: pkg/realmd/operation.js:105
+#: pkg/realmd/operation.js:107
 msgid "Are you sure you want to leave the '$0' domain?"
 msgstr ""
 
-#: pkg/realmd/operation.js:103
+#: pkg/realmd/operation.js:105
 msgid "Are you sure you want to leave this domain?"
 msgstr ""
 
@@ -1048,7 +1052,7 @@ msgstr "Autorisierte öffentliche SSH-Schlüssel"
 #: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1900
 #: pkg/networkmanager/interfaces.js:2649 pkg/networkmanager/interfaces.js:3193
 #: pkg/networkmanager/interfaces.js:3197 pkg/networkmanager/interfaces.js:3203
-#: pkg/realmd/operation.js:285
+#: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "Automatisch"
 
@@ -1354,7 +1358,7 @@ msgstr ""
 msgid "Cannot forward login credentials"
 msgstr ""
 
-#: pkg/realmd/operation.js:433
+#: pkg/realmd/operation.js:503
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Es konnte keiner Domain beigetreten werden, da realmd auf diesem System "
@@ -1769,7 +1773,7 @@ msgstr "Flannel Netzwerk konfigurieren"
 msgid "Configure Kubelet and Proxy"
 msgstr "Kubelet und Proxy konfigurieren"
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:306
 msgid "Configure storage..."
 msgstr ""
 
@@ -1972,7 +1976,7 @@ msgstr "Strg"
 msgid "Convertible"
 msgstr ""
 
-#: pkg/docker/storage.jsx:417
+#: pkg/docker/storage.jsx:400
 msgid "Could not add all disks"
 msgstr ""
 
@@ -1992,7 +1996,7 @@ msgstr ""
 msgid "Could not parse PEM-encoded private key"
 msgstr ""
 
-#: pkg/docker/storage.jsx:457
+#: pkg/docker/storage.jsx:440
 msgid "Could not reset the storage pool"
 msgstr "Konnte den Storage Pool nicht zurücksetzen"
 
@@ -2058,6 +2062,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:669
@@ -2117,6 +2123,10 @@ msgstr ""
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:42
+msgid "Create Virtual Machine"
 msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
@@ -2650,11 +2660,11 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
-#: pkg/realmd/operation.js:158
+#: pkg/realmd/operation.js:160
 msgid "Domain $0 could not be contacted"
 msgstr "Die Domain $0 konnte nicht kontaktiert werden"
 
-#: pkg/realmd/operation.js:229
+#: pkg/realmd/operation.js:234
 msgid "Domain $0 is not supported"
 msgstr ""
 
@@ -2711,7 +2721,7 @@ msgstr ""
 msgid "Downloading"
 msgstr ""
 
-#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
+#: pkg/docker/storage.jsx:159 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr ""
 
@@ -2726,6 +2736,10 @@ msgstr ""
 
 #: pkg/storaged/drives-panel.jsx:117
 msgid "Drives"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:192
+msgid "Drop file here to upload."
 msgstr ""
 
 #: pkg/docker/run.js:348
@@ -2892,12 +2906,8 @@ msgstr ""
 msgid "Erase"
 msgstr "Säubern"
 
-#: pkg/docker/storage.jsx:436
+#: pkg/docker/storage.jsx:419
 msgid "Erase containers and reset storage pool"
-msgstr ""
-
-#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
-msgid "Erase containers, reformat disks, and add them"
 msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:49
@@ -3159,8 +3169,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr "Weiterleitungsverzögerung $forward_delay"
 
-#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:300
-#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:54
+#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:299
+#: pkg/docker/storage.jsx:321 pkg/storaged/pvol-tabs.jsx:54
 #: pkg/systemd/host.js:1506
 msgid "Free"
 msgstr "Verfügbar"
@@ -3302,7 +3312,7 @@ msgstr "Hairpin-Modus"
 msgid "Hand Held"
 msgstr ""
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 #, fuzzy
 msgid "Hard Disk"
 msgstr "Festplatte"
@@ -3581,7 +3591,7 @@ msgstr ""
 msgid "Info and above"
 msgstr ""
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:283
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
@@ -3748,20 +3758,20 @@ msgstr ""
 msgid "Jobs"
 msgstr ""
 
-#: pkg/realmd/operation.js:96
+#: pkg/realmd/operation.js:98
 msgid "Join"
 msgstr "Beitreten"
 
-#: pkg/realmd/operation.js:469
+#: pkg/realmd/operation.js:539
 msgid "Join Domain"
 msgstr "Einer Domain beitreten"
 
-#: pkg/realmd/operation.js:95
+#: pkg/realmd/operation.js:97
 #, fuzzy
 msgid "Join a Domain"
 msgstr "Einer Domain beitreten"
 
-#: pkg/realmd/operation.js:357
+#: pkg/realmd/operation.js:427
 msgid "Joining this domain is not supported"
 msgstr ""
 
@@ -3896,11 +3906,11 @@ msgstr ""
 msgid "Launch Remote Viewer"
 msgstr ""
 
-#: pkg/realmd/operation.js:102
+#: pkg/realmd/operation.js:104
 msgid "Leave"
 msgstr "Verlassen"
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:103
 #, fuzzy
 msgid "Leave Domain"
 msgstr "Einer Domain beitreten"
@@ -3991,7 +4001,7 @@ msgstr "Lade..."
 msgid "Local Accounts"
 msgstr ""
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:189
 #, fuzzy
 msgid "Local Disks"
 msgstr "$0 Datenträger"
@@ -4375,7 +4385,7 @@ msgstr "Überwachungsziele"
 msgid "Monitors"
 msgstr ""
 
-#: pkg/realmd/operation.js:380
+#: pkg/realmd/operation.js:450
 msgid "More"
 msgstr "Mehr"
 
@@ -4509,7 +4519,7 @@ msgstr "NTP Server"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
 #: pkg/machines/hostvmslist.jsx:103
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
@@ -4571,7 +4581,7 @@ msgstr ""
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Namespace"
 msgstr "Namespace"
 
@@ -4727,7 +4737,7 @@ msgstr ""
 msgid "No Volume Bound"
 msgstr ""
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:195
 msgid "No additional local storage found."
 msgstr ""
 
@@ -4939,7 +4949,7 @@ msgstr "Es wurde kein Benutzername angegeben."
 msgid "No users are present."
 msgstr ""
 
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:42
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:47
 msgid "No virtual machines"
 msgstr ""
 
@@ -4959,7 +4969,7 @@ msgstr ""
 #: pkg/kubernetes/views/node-page.html:14
 #: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
 #: pkg/kubernetes/views/topology-page.html:38
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 msgid "Node"
 msgstr ""
 
@@ -5150,7 +5160,7 @@ msgid_plural "On failure, retry $0 times"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:289
 msgid "One Time Password"
 msgstr "Einmalpasswort"
 
@@ -5164,6 +5174,10 @@ msgstr ""
 
 #: pkg/systemd/init.js:1150
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:118
+msgid "Only files of size $0 MiB and less are supported"
 msgstr ""
 
 #: pkg/shell/index.html:45 pkg/shell/simple.html:29 pkg/shell/stub.html:33
@@ -5338,6 +5352,10 @@ msgstr "Passwort wurde nicht akzeptiert"
 #: pkg/shell/index.html:157
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:211
+msgid "Paste JSON below, "
 msgstr ""
 
 #: pkg/users/index.html:461
@@ -5781,7 +5799,7 @@ msgstr ""
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Project"
 msgstr "Projekt"
 
@@ -6099,7 +6117,7 @@ msgstr "Stoppe RAID-Gerät $target"
 msgid "Recycle"
 msgstr ""
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:361
 msgid "Reformat and add disks"
 msgstr ""
 
@@ -6374,11 +6392,11 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: pkg/docker/storage.jsx:430
+#: pkg/docker/storage.jsx:413
 msgid "Reset Storage Pool"
 msgstr ""
 
-#: pkg/docker/storage.jsx:433
+#: pkg/docker/storage.jsx:416
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -6390,6 +6408,10 @@ msgstr ""
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Resizing $target"
 msgstr "Größenänderung von $target"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:59
+msgid "Resolve above errors to continue"
+msgstr ""
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:142
 #: pkg/systemd/index.html:152 pkg/docker/containers-view.jsx:306
@@ -6984,7 +7006,7 @@ msgstr ""
 msgid "Software Updates"
 msgstr "Software Updates"
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:157
 #, fuzzy
 msgid "Solid-State Disk"
 msgstr "Solid-State Datenträger"
@@ -7090,7 +7112,7 @@ msgstr "Startet"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/hostvmslist.jsx:103 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:177 pkg/systemd/init.js:275
 msgid "State"
@@ -7455,7 +7477,7 @@ msgstr "Prüfe Verbindung"
 msgid "The \"storaged\" API is not available on this system."
 msgstr "Die \"storaged\" API ist auf diesem System nicht verfügbar."
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:479
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr ""
 "Der Docker Storage Pool kann auf diesem System nicht verwaltet werden."
@@ -7722,14 +7744,6 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr "Der Dienst '{{ target }}' existiert nicht."
 
-#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
-msgid ""
-"The storage pool will be reset to optimize its layout.  All containers will "
-"be erased."
-msgstr ""
-"Der Storage Pool wird zurückgesetzt, um das Layout zu optimieren. Alle "
-"Container werden gelöscht."
-
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
 msgstr "Der Benutzer '{{ userName }}' existiert nicht."
@@ -7759,7 +7773,7 @@ msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
 "Der User <b>$0</b> hat keine Rechte, die Netzwerkeinstellungen zu verändern."
 
-#: pkg/realmd/operation.js:452
+#: pkg/realmd/operation.js:522
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "Der Benutzer <b>$0</b> hat keine Rechte, Bereiche zu änden."
 
@@ -8058,7 +8072,7 @@ msgstr "Zu viele Daten"
 msgid "Topology"
 msgstr "Topologie"
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:315
 msgid "Total"
 msgstr "Insgesamt"
 
@@ -8470,7 +8484,7 @@ msgstr "Benutze die Einstellungen in /etc/kdump.conf"
 msgid "Use trusted GPG key"
 msgstr "Benutze vertrauenswürdigen GPG-Schlüssel"
 
-#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:315
+#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:314
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:65
 #: pkg/machines/components/vm/vmUsageTab.jsx:76
@@ -8498,7 +8512,7 @@ msgstr "Benutzer"
 msgid "User Name"
 msgstr "Benutzername"
 
-#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:288
 msgid "User Password"
 msgstr "Benutzerpasswort"
 
@@ -8610,6 +8624,19 @@ msgstr ""
 msgid "VM START action failed"
 msgstr ""
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:86
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:93
+msgid "VM definition is not a valid JSON."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:81
+msgid "VM definition is required."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:88
+msgid "VM definition must be an object."
+msgstr ""
+
 #: pkg/ovirt/components/VmOverviewColumn.jsx:39
 msgid "VM icon"
 msgstr ""
@@ -8675,7 +8702,7 @@ msgid "View Registration Details"
 msgstr ""
 
 #: pkg/kubernetes/index.html:61
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:41
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:46
 #: pkg/machines/hostvmslist.jsx:102
 msgid "Virtual Machines"
 msgstr "Virtuelle Maschinen"
@@ -8847,7 +8874,7 @@ msgstr ""
 "Sie haben keine Berechtigung, die autorisierten öffentlichen Schlüssel von "
 "diesem Konto anzuzeigen."
 
-#: pkg/docker/storage.jsx:493
+#: pkg/docker/storage.jsx:476
 #, fuzzy
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "Sie haben keine Berechtigung, den Docker Storage Pool zu verwalten."
@@ -8969,7 +8996,7 @@ msgstr ""
 msgid "dying"
 msgstr ""
 
-#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
+#: pkg/realmd/operation.js:252 pkg/realmd/operation.js:258
 msgid "e.g. \"$0\""
 msgstr "z.B. \"$0\""
 
@@ -9270,6 +9297,10 @@ msgstr ""
 
 #: pkg/machines/helpers.es6:218 pkg/ovirt/rephraseUI.es6:27
 msgid "up"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:214
+msgid "upload a JSON file"
 msgstr ""
 
 #: pkg/machines/helpers.es6:205

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 20:14+0000\n"
+"POT-Creation-Date: 2018-04-22 21:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,13 +16,17 @@ msgstr ""
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
 msgstr " (OS と共有)"
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
 msgstr " 1\" 次のノードを削除しますか?"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:220
+msgid " or drag & drop."
+msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
@@ -41,7 +45,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 ファイルシステム"
 
-#: pkg/realmd/operation.js:108
+#: pkg/realmd/operation.js:110
 msgid ""
 "$0 Only users with local credentials will be able to log into this machine. "
 "This may also effect other services as DNS resolution settings and the list "
@@ -641,7 +645,7 @@ msgstr "追加する"
 msgid "Add $0"
 msgstr "$0 の追加"
 
-#: pkg/docker/storage.jsx:376
+#: pkg/docker/storage.jsx:352
 msgid "Add Additional Storage"
 msgstr "ストレージの追加"
 
@@ -704,7 +708,7 @@ msgstr "新規ユーザーの追加"
 msgid "Add Role"
 msgstr "ロールの追加"
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:206
 msgid "Add Storage"
 msgstr "ストレージの追加"
 
@@ -826,7 +830,7 @@ msgstr "サービスの調整"
 msgid "Admin"
 msgstr "管理者"
 
-#: pkg/realmd/operation.js:282
+#: pkg/realmd/operation.js:287
 msgid "Administrator Password"
 msgstr "管理者パスワード"
 
@@ -859,7 +863,7 @@ msgstr "すべてのプロジェクト"
 msgid "All Types"
 msgstr "すべてのタイプ"
 
-#: pkg/docker/storage.jsx:379
+#: pkg/docker/storage.jsx:355
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -948,11 +952,11 @@ msgstr "アーキテクチャー"
 msgid "Are you sure you want to delete this image?"
 msgstr "このイメージを削除してもよろしいですか?"
 
-#: pkg/realmd/operation.js:105
+#: pkg/realmd/operation.js:107
 msgid "Are you sure you want to leave the '$0' domain?"
 msgstr "'$0' ドメインを解除してもよろしいですか?"
 
-#: pkg/realmd/operation.js:103
+#: pkg/realmd/operation.js:105
 msgid "Are you sure you want to leave this domain?"
 msgstr "このドメインを解除してもよろしいですか?"
 
@@ -1016,7 +1020,7 @@ msgstr "承認された公開 SSH 鍵"
 #: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1900
 #: pkg/networkmanager/interfaces.js:2649 pkg/networkmanager/interfaces.js:3193
 #: pkg/networkmanager/interfaces.js:3197 pkg/networkmanager/interfaces.js:3203
-#: pkg/realmd/operation.js:285
+#: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "自動"
 
@@ -1320,7 +1324,7 @@ msgstr "PEM で暗号化された秘密鍵を復号できません"
 msgid "Cannot forward login credentials"
 msgstr "ログイン資格情報を転送できません"
 
-#: pkg/realmd/operation.js:433
+#: pkg/realmd/operation.js:503
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "このシステムでは realmd が利用できないため、ドメインに参加できません"
 
@@ -1723,7 +1727,7 @@ msgstr "Flannel ネットワーキングの設定"
 msgid "Configure Kubelet and Proxy"
 msgstr "Kubelet およびプロキシーの設定"
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:306
 msgid "Configure storage..."
 msgstr "ストレージの設定 ..."
 
@@ -1921,7 +1925,7 @@ msgstr "コントロール"
 msgid "Convertible"
 msgstr "変換可能"
 
-#: pkg/docker/storage.jsx:417
+#: pkg/docker/storage.jsx:400
 msgid "Could not add all disks"
 msgstr "すべてのディスクを追加することはできませんでした"
 
@@ -1941,7 +1945,7 @@ msgstr "PEM でエンコードされた証明書を解析できませんでし�
 msgid "Could not parse PEM-encoded private key"
 msgstr "PEM で暗号化された秘密鍵を解析できませんでした"
 
-#: pkg/docker/storage.jsx:457
+#: pkg/docker/storage.jsx:440
 msgid "Could not reset the storage pool"
 msgstr "ストレージプールをリセットできませんでした"
 
@@ -2007,6 +2011,8 @@ msgstr "クラッシュシステム"
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:669
@@ -2066,6 +2072,10 @@ msgstr "VDO デバイスの作成"
 #: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
 msgstr "仮想マシンの作成"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:42
+msgid "Create Virtual Machine"
+msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
 msgid "Create Volume Group"
@@ -2591,11 +2601,11 @@ msgstr "ドッキングステーション"
 msgid "Domain"
 msgstr "Domain"
 
-#: pkg/realmd/operation.js:158
+#: pkg/realmd/operation.js:160
 msgid "Domain $0 could not be contacted"
 msgstr "ドメイン $0 に接続できませんでした"
 
-#: pkg/realmd/operation.js:229
+#: pkg/realmd/operation.js:234
 msgid "Domain $0 is not supported"
 msgstr "ドメイン $0 はサポートされていません"
 
@@ -2652,7 +2662,7 @@ msgstr "ダウンロードされました"
 msgid "Downloading"
 msgstr "ダウンロード中"
 
-#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
+#: pkg/docker/storage.jsx:159 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "ドライブ"
 
@@ -2668,6 +2678,10 @@ msgstr "ドライバー"
 #: pkg/storaged/drives-panel.jsx:117
 msgid "Drives"
 msgstr "ドライブ"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:192
+msgid "Drop file here to upload."
+msgstr ""
 
 #: pkg/docker/run.js:348
 msgid "Duplicate alias"
@@ -2833,13 +2847,9 @@ msgstr "環境"
 msgid "Erase"
 msgstr "削除"
 
-#: pkg/docker/storage.jsx:436
+#: pkg/docker/storage.jsx:419
 msgid "Erase containers and reset storage pool"
 msgstr "コンテナーの削除とストレージプールのリセット"
-
-#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
-msgid "Erase containers, reformat disks, and add them"
-msgstr "コンテナーの削除、ディスクの再フォーマット、およびそれらの追加"
 
 #: pkg/storaged/jobs-panel.jsx:49
 msgid "Erasing $target"
@@ -3097,8 +3107,8 @@ msgstr "ストレージデバイスをフォーマットすると、そのデバ
 msgid "Forward delay $forward_delay"
 msgstr "フォワード遅延 $forward_delay"
 
-#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:300
-#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:54
+#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:299
+#: pkg/docker/storage.jsx:321 pkg/storaged/pvol-tabs.jsx:54
 #: pkg/systemd/host.js:1506
 msgid "Free"
 msgstr "空き"
@@ -3240,7 +3250,7 @@ msgstr "ヘアピンモード"
 msgid "Hand Held"
 msgstr "ハンドヘルド"
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Hard Disk"
 msgstr "ハードディスク"
 
@@ -3514,7 +3524,7 @@ msgstr "インデックスメモリー"
 msgid "Info and above"
 msgstr ""
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:283
 msgid "Information about the Docker storage pool is not available."
 msgstr "Docker ストレージプールに関する情報は利用できません。"
 
@@ -3674,19 +3684,19 @@ msgstr "sshd が別のポートで実行されていますか?"
 msgid "Jobs"
 msgstr "ジョブ"
 
-#: pkg/realmd/operation.js:96
+#: pkg/realmd/operation.js:98
 msgid "Join"
 msgstr "参加"
 
-#: pkg/realmd/operation.js:469
+#: pkg/realmd/operation.js:539
 msgid "Join Domain"
 msgstr "ドメイン参加"
 
-#: pkg/realmd/operation.js:95
+#: pkg/realmd/operation.js:97
 msgid "Join a Domain"
 msgstr "ドメインの参加"
 
-#: pkg/realmd/operation.js:357
+#: pkg/realmd/operation.js:427
 msgid "Joining this domain is not supported"
 msgstr "このドメインの参加はサポートされていません"
 
@@ -3821,11 +3831,11 @@ msgstr "最新バージョン"
 msgid "Launch Remote Viewer"
 msgstr "リモートビューアーの起動"
 
-#: pkg/realmd/operation.js:102
+#: pkg/realmd/operation.js:104
 msgid "Leave"
 msgstr "脱退"
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:103
 msgid "Leave Domain"
 msgstr "ドメインの脱退"
 
@@ -3916,7 +3926,7 @@ msgstr "読み込み中..."
 msgid "Local Accounts"
 msgstr "ローカルアカウント"
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:189
 msgid "Local Disks"
 msgstr "ローカルディスク"
 
@@ -4297,7 +4307,7 @@ msgstr "ターゲットの監視"
 msgid "Monitors"
 msgstr "監視"
 
-#: pkg/realmd/operation.js:380
+#: pkg/realmd/operation.js:450
 msgid "More"
 msgstr "詳細表示"
 
@@ -4431,7 +4441,7 @@ msgstr "NTP サーバー"
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
 #: pkg/machines/hostvmslist.jsx:103
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
@@ -4489,7 +4499,7 @@ msgstr "名前は空欄にできません"
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Namespace"
 msgstr "名前空間"
 
@@ -4645,7 +4655,7 @@ msgstr "VM がこのホストで実行されていないか、定義されてい
 msgid "No Volume Bound"
 msgstr "ボリュームがバインドされていません"
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:195
 msgid "No additional local storage found."
 msgstr "追加ローカルストレージがありません。"
 
@@ -4853,7 +4863,7 @@ msgstr "ユーザー名が指定されていません"
 msgid "No users are present."
 msgstr "ユーザーが存在しません。"
 
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:42
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:47
 msgid "No virtual machines"
 msgstr "仮想マシンがありません"
 
@@ -4873,7 +4883,7 @@ msgstr "使用中のボリュームがありません"
 #: pkg/kubernetes/views/node-page.html:14
 #: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
 #: pkg/kubernetes/views/topology-page.html:38
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 msgid "Node"
 msgstr "ノード"
 
@@ -5063,7 +5073,7 @@ msgid "On failure, retry $0 time"
 msgid_plural "On failure, retry $0 times"
 msgstr[0] "障害発生時に、$0 回再試行します"
 
-#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:289
 msgid "One Time Password"
 msgstr "ワンタイムパスワード"
 
@@ -5078,6 +5088,10 @@ msgstr ""
 #: pkg/systemd/init.js:1150
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
 msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用できます。"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:118
+msgid "Only files of size $0 MiB and less are supported"
+msgstr ""
 
 #: pkg/shell/index.html:45 pkg/shell/simple.html:29 pkg/shell/stub.html:33
 msgid "Ooops!"
@@ -5250,6 +5264,10 @@ msgstr "パスワードは受け入れられません"
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
 msgstr "特権タスクの実行または他のマシンへの接続のためにパスワードを使用できません"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:211
+msgid "Paste JSON below, "
+msgstr ""
 
 #: pkg/users/index.html:461
 msgid "Paste the contents of your public SSH key file here"
@@ -5688,7 +5706,7 @@ msgstr "製品名"
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Project"
 msgstr "プロジェクト"
 
@@ -6004,7 +6022,7 @@ msgstr "RAID デバイス $target の復旧"
 msgid "Recycle"
 msgstr "リサイクル"
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:361
 msgid "Reformat and add disks"
 msgstr "ディスクの再フォーマットおよび追加"
 
@@ -6276,11 +6294,11 @@ msgstr "予約済みメモリー"
 msgid "Reset"
 msgstr "リセット"
 
-#: pkg/docker/storage.jsx:430
+#: pkg/docker/storage.jsx:413
 msgid "Reset Storage Pool"
 msgstr "ストレージプールのリセット"
 
-#: pkg/docker/storage.jsx:433
+#: pkg/docker/storage.jsx:416
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -6290,6 +6308,10 @@ msgstr "ストレージプールをリセットすると、すべてのコンテ
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Resizing $target"
 msgstr "$target のサイズ変更"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:59
+msgid "Resolve above errors to continue"
+msgstr ""
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:142
 #: pkg/systemd/index.html:152 pkg/docker/containers-view.jsx:306
@@ -6873,7 +6895,7 @@ msgstr "ソケット"
 msgid "Software Updates"
 msgstr "ソフトウェア更新"
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:157
 msgid "Solid-State Disk"
 msgstr "ソリッドステートディスク"
 
@@ -6977,7 +6999,7 @@ msgstr "開始"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/hostvmslist.jsx:103 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:177 pkg/systemd/init.js:275
 msgid "State"
@@ -7333,7 +7355,7 @@ msgstr "接続のテスト"
 msgid "The \"storaged\" API is not available on this system."
 msgstr "\"storaged\" API はこのシステムでは利用できません。"
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:479
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr "Docker ストレージプールはこのシステムで管理できません。"
 
@@ -7583,12 +7605,6 @@ msgstr "サーバーは不明な認証局によって署名された証明書を
 msgid "The service '{{ target }}' does not exist."
 msgstr "サービス '{{ target }}' は存在しません。"
 
-#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
-msgid ""
-"The storage pool will be reset to optimize its layout.  All containers will "
-"be erased."
-msgstr "ストレージプールはそのレイアウトを最適化するためにリセットされます。すべてのコンテナーは削除されます。"
-
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
 msgstr "ユーザー '{{ userName }}' は存在しません。"
@@ -7617,7 +7633,7 @@ msgstr "ユーザー <b>$0</b> はホスト名を変更することを許可さ�
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr "ユーザー <b>$0</b> はネットワーク設定を変更することを許可されていません"
 
-#: pkg/realmd/operation.js:452
+#: pkg/realmd/operation.js:522
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr "ユーザー <b>$0</b> はレルムを変更することを許可されていません"
 
@@ -7919,7 +7935,7 @@ msgstr "データが多すぎます"
 msgid "Topology"
 msgstr "トポロジー"
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:315
 msgid "Total"
 msgstr "合計"
 
@@ -8328,7 +8344,7 @@ msgstr "/etc/kdump.conf の設定を使用します"
 msgid "Use trusted GPG key"
 msgstr "信頼済み GPG 鍵の使用"
 
-#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:315
+#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:314
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:65
 #: pkg/machines/components/vm/vmUsageTab.jsx:76
@@ -8356,7 +8372,7 @@ msgstr "ユーザー"
 msgid "User Name"
 msgstr "ユーザー名"
 
-#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:288
 msgid "User Password"
 msgstr "ユーザーパスワード"
 
@@ -8468,6 +8484,19 @@ msgstr "VM SHUT DOWN アクションに失敗しました"
 msgid "VM START action failed"
 msgstr "VM START アクションに失敗しました"
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:86
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:93
+msgid "VM definition is not a valid JSON."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:81
+msgid "VM definition is required."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:88
+msgid "VM definition must be an object."
+msgstr ""
+
 #: pkg/ovirt/components/VmOverviewColumn.jsx:39
 msgid "VM icon"
 msgstr "VM アイコン"
@@ -8533,7 +8562,7 @@ msgid "View Registration Details"
 msgstr "登録の詳細を表示"
 
 #: pkg/kubernetes/index.html:61
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:41
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:46
 #: pkg/machines/hostvmslist.jsx:102
 msgid "Virtual Machines"
 msgstr "仮想マシン"
@@ -8696,7 +8725,7 @@ msgid ""
 "account."
 msgstr "このアカウントに承認された公開鍵を表示するパーミッションがありません"
 
-#: pkg/docker/storage.jsx:493
+#: pkg/docker/storage.jsx:476
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr "Docker ストレージプールを管理するパーミッションがありません。"
 
@@ -8815,7 +8844,7 @@ msgstr "下へ"
 msgid "dying"
 msgstr "終了中"
 
-#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
+#: pkg/realmd/operation.js:252 pkg/realmd/operation.js:258
 msgid "e.g. \"$0\""
 msgstr "例: \"$0\""
 
@@ -9116,6 +9145,10 @@ msgstr "$0 の未パーティション領域"
 #: pkg/machines/helpers.es6:218 pkg/ovirt/rephraseUI.es6:27
 msgid "up"
 msgstr "上へ"
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:214
+msgid "upload a JSON file"
+msgstr ""
 
 #: pkg/machines/helpers.es6:205
 msgid "user"

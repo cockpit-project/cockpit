@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 20:14+0000\n"
+"POT-Creation-Date: 2018-04-22 21:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,12 +17,16 @@ msgstr ""
 "X-Generator: Zanata 3.9.6\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
 
-#: pkg/docker/storage.jsx:244
+#: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
 msgstr ""
 
 #: pkg/kubernetes/views/node-delete.html:8
 msgid " 1\"Do you want to delete the following Nodes?"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:220
+msgid " or drag & drop."
 msgstr ""
 
 #: pkg/storaged/others-panel.jsx:57
@@ -42,7 +46,7 @@ msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr ""
 
-#: pkg/realmd/operation.js:108
+#: pkg/realmd/operation.js:110
 msgid ""
 "$0 Only users with local credentials will be able to log into this machine. "
 "This may also effect other services as DNS resolution settings and the list "
@@ -660,7 +664,7 @@ msgstr "Ekle"
 msgid "Add $0"
 msgstr ""
 
-#: pkg/docker/storage.jsx:376
+#: pkg/docker/storage.jsx:352
 msgid "Add Additional Storage"
 msgstr ""
 
@@ -726,7 +730,7 @@ msgstr ""
 msgid "Add Role"
 msgstr "Roller"
 
-#: pkg/docker/storage.jsx:207
+#: pkg/docker/storage.jsx:206
 msgid "Add Storage"
 msgstr ""
 
@@ -848,7 +852,7 @@ msgstr "Servisi Ayarla"
 msgid "Admin"
 msgstr ""
 
-#: pkg/realmd/operation.js:282
+#: pkg/realmd/operation.js:287
 msgid "Administrator Password"
 msgstr ""
 
@@ -882,7 +886,7 @@ msgstr ""
 msgid "All Types"
 msgstr "Tip"
 
-#: pkg/docker/storage.jsx:379
+#: pkg/docker/storage.jsx:355
 msgid ""
 "All data on selected disks will be erased and disks will be added to the "
 "storage pool."
@@ -972,11 +976,11 @@ msgstr ""
 msgid "Are you sure you want to delete this image?"
 msgstr ""
 
-#: pkg/realmd/operation.js:105
+#: pkg/realmd/operation.js:107
 msgid "Are you sure you want to leave the '$0' domain?"
 msgstr ""
 
-#: pkg/realmd/operation.js:103
+#: pkg/realmd/operation.js:105
 msgid "Are you sure you want to leave this domain?"
 msgstr ""
 
@@ -1040,7 +1044,7 @@ msgstr "Yetkilendirilmiş Açık SSH Anahtarları"
 #: pkg/networkmanager/index.html:166 pkg/networkmanager/interfaces.js:1900
 #: pkg/networkmanager/interfaces.js:2649 pkg/networkmanager/interfaces.js:3193
 #: pkg/networkmanager/interfaces.js:3197 pkg/networkmanager/interfaces.js:3203
-#: pkg/realmd/operation.js:285
+#: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "Otomatik"
 
@@ -1345,7 +1349,7 @@ msgstr "PEM-şifreli özel anahtar çözülemiyor"
 msgid "Cannot forward login credentials"
 msgstr ""
 
-#: pkg/realmd/operation.js:433
+#: pkg/realmd/operation.js:503
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 
@@ -1736,7 +1740,7 @@ msgstr ""
 msgid "Configure Kubelet and Proxy"
 msgstr ""
 
-#: pkg/docker/storage.jsx:307
+#: pkg/docker/storage.jsx:306
 msgid "Configure storage..."
 msgstr ""
 
@@ -1938,7 +1942,7 @@ msgstr ""
 msgid "Convertible"
 msgstr ""
 
-#: pkg/docker/storage.jsx:417
+#: pkg/docker/storage.jsx:400
 msgid "Could not add all disks"
 msgstr ""
 
@@ -1958,7 +1962,7 @@ msgstr "PEM-şifreli sertifika ayrıştırılamadı"
 msgid "Could not parse PEM-encoded private key"
 msgstr "PEM-şifreli özel anahtar ayrıştırılamıyor"
 
-#: pkg/docker/storage.jsx:457
+#: pkg/docker/storage.jsx:440
 msgid "Could not reset the storage pool"
 msgstr ""
 
@@ -2024,6 +2028,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:72
 #: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:445
 #: pkg/ovirt/components/ClusterTemplates.jsx:78
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:669
@@ -2083,6 +2089,10 @@ msgstr ""
 
 #: pkg/ovirt/components/ClusterTemplates.jsx:83
 msgid "Create VM"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:42
+msgid "Create Virtual Machine"
 msgstr ""
 
 #: pkg/storaged/vgroups-panel.jsx:53
@@ -2608,11 +2618,11 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
-#: pkg/realmd/operation.js:158
+#: pkg/realmd/operation.js:160
 msgid "Domain $0 could not be contacted"
 msgstr ""
 
-#: pkg/realmd/operation.js:229
+#: pkg/realmd/operation.js:234
 msgid "Domain $0 is not supported"
 msgstr ""
 
@@ -2669,7 +2679,7 @@ msgstr ""
 msgid "Downloading"
 msgstr ""
 
-#: pkg/docker/storage.jsx:160 pkg/storaged/drive-details.jsx:64
+#: pkg/docker/storage.jsx:159 pkg/storaged/drive-details.jsx:64
 msgid "Drive"
 msgstr "Sürücü"
 
@@ -2685,6 +2695,10 @@ msgstr "Sürücü"
 
 #: pkg/storaged/drives-panel.jsx:117
 msgid "Drives"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:192
+msgid "Drop file here to upload."
 msgstr ""
 
 #: pkg/docker/run.js:348
@@ -2851,12 +2865,8 @@ msgstr ""
 msgid "Erase"
 msgstr "Sil"
 
-#: pkg/docker/storage.jsx:436
+#: pkg/docker/storage.jsx:419
 msgid "Erase containers and reset storage pool"
-msgstr ""
-
-#: pkg/docker/storage.jsx:362 pkg/docker/storage.jsx:373
-msgid "Erase containers, reformat disks, and add them"
 msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:49
@@ -3118,8 +3128,8 @@ msgstr ""
 msgid "Forward delay $forward_delay"
 msgstr ""
 
-#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:300
-#: pkg/docker/storage.jsx:322 pkg/storaged/pvol-tabs.jsx:54
+#: pkg/systemd/index.html:275 pkg/docker/storage.jsx:299
+#: pkg/docker/storage.jsx:321 pkg/storaged/pvol-tabs.jsx:54
 #: pkg/systemd/host.js:1506
 msgid "Free"
 msgstr "Boş"
@@ -3263,7 +3273,7 @@ msgstr ""
 msgid "Hand Held"
 msgstr ""
 
-#: pkg/docker/storage.jsx:159
+#: pkg/docker/storage.jsx:158
 msgid "Hard Disk"
 msgstr ""
 
@@ -3543,7 +3553,7 @@ msgstr ""
 msgid "Info and above"
 msgstr ""
 
-#: pkg/docker/storage.jsx:284
+#: pkg/docker/storage.jsx:283
 msgid "Information about the Docker storage pool is not available."
 msgstr ""
 
@@ -3708,19 +3718,19 @@ msgstr ""
 msgid "Jobs"
 msgstr "İşler"
 
-#: pkg/realmd/operation.js:96
+#: pkg/realmd/operation.js:98
 msgid "Join"
 msgstr "Katıl"
 
-#: pkg/realmd/operation.js:469
+#: pkg/realmd/operation.js:539
 msgid "Join Domain"
 msgstr ""
 
-#: pkg/realmd/operation.js:95
+#: pkg/realmd/operation.js:97
 msgid "Join a Domain"
 msgstr ""
 
-#: pkg/realmd/operation.js:357
+#: pkg/realmd/operation.js:427
 msgid "Joining this domain is not supported"
 msgstr ""
 
@@ -3856,11 +3866,11 @@ msgstr ""
 msgid "Launch Remote Viewer"
 msgstr ""
 
-#: pkg/realmd/operation.js:102
+#: pkg/realmd/operation.js:104
 msgid "Leave"
 msgstr "Ayrıl"
 
-#: pkg/realmd/operation.js:101
+#: pkg/realmd/operation.js:103
 #, fuzzy
 msgid "Leave Domain"
 msgstr "DNS Search Domains"
@@ -3949,7 +3959,7 @@ msgstr ""
 msgid "Local Accounts"
 msgstr ""
 
-#: pkg/docker/storage.jsx:190
+#: pkg/docker/storage.jsx:189
 msgid "Local Disks"
 msgstr ""
 
@@ -4337,7 +4347,7 @@ msgstr "İzleme Hedefleri"
 msgid "Monitors"
 msgstr "ARP İzleme"
 
-#: pkg/realmd/operation.js:380
+#: pkg/realmd/operation.js:450
 msgid "More"
 msgstr "Daha fazla"
 
@@ -4474,7 +4484,7 @@ msgstr ""
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:348 pkg/docker/containers-view.jsx:664
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:239
 #: pkg/machines/hostvmslist.jsx:103
 #: pkg/ovirt/components/ClusterTemplates.jsx:137
@@ -4532,7 +4542,7 @@ msgstr ""
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Namespace"
 msgstr ""
 
@@ -4689,7 +4699,7 @@ msgstr ""
 msgid "No Volume Bound"
 msgstr ""
 
-#: pkg/docker/storage.jsx:196
+#: pkg/docker/storage.jsx:195
 msgid "No additional local storage found."
 msgstr ""
 
@@ -4899,7 +4909,7 @@ msgstr "Kullanıcı adı belirtilmedi"
 msgid "No users are present."
 msgstr "Kullanıcı adı belirtilmedi"
 
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:42
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:47
 msgid "No virtual machines"
 msgstr ""
 
@@ -4919,7 +4929,7 @@ msgstr ""
 #: pkg/kubernetes/views/node-page.html:14
 #: pkg/kubernetes/views/node-panel.html:7 pkg/kubernetes/views/pod-body.html:18
 #: pkg/kubernetes/views/topology-page.html:38
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 msgid "Node"
 msgstr "Düğüm"
 
@@ -5111,7 +5121,7 @@ msgid_plural "On failure, retry $0 times"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:284
+#: pkg/realmd/operation.html:72 pkg/realmd/operation.js:289
 msgid "One Time Password"
 msgstr "Tek Seferlik Parola"
 
@@ -5125,6 +5135,10 @@ msgstr ""
 
 #: pkg/systemd/init.js:1150
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:118
+msgid "Only files of size $0 MiB and less are supported"
 msgstr ""
 
 #: pkg/shell/index.html:45 pkg/shell/simple.html:29 pkg/shell/stub.html:33
@@ -5299,6 +5313,10 @@ msgstr "Parola kabul edilmedi"
 #: pkg/shell/index.html:157
 msgid ""
 "Password not usable for privileged tasks or to connect to other machines"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:211
+msgid "Paste JSON below, "
 msgstr ""
 
 #: pkg/users/index.html:461
@@ -5743,7 +5761,7 @@ msgstr ""
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:34
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:35
 msgid "Project"
 msgstr ""
 
@@ -6066,7 +6084,7 @@ msgstr ""
 msgid "Recycle"
 msgstr ""
 
-#: pkg/docker/storage.jsx:350
+#: pkg/docker/storage.jsx:361
 msgid "Reformat and add disks"
 msgstr ""
 
@@ -6347,11 +6365,11 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: pkg/docker/storage.jsx:430
+#: pkg/docker/storage.jsx:413
 msgid "Reset Storage Pool"
 msgstr ""
 
-#: pkg/docker/storage.jsx:433
+#: pkg/docker/storage.jsx:416
 msgid ""
 "Resetting the storage pool will erase all containers and release disks in "
 "the pool."
@@ -6360,6 +6378,10 @@ msgstr ""
 #: pkg/storaged/jobs-panel.jsx:40 pkg/storaged/jobs-panel.jsx:46
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Resizing $target"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:59
+msgid "Resolve above errors to continue"
 msgstr ""
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:142
@@ -6963,7 +6985,7 @@ msgstr ""
 msgid "Software Updates"
 msgstr ""
 
-#: pkg/docker/storage.jsx:158
+#: pkg/docker/storage.jsx:157
 msgid "Solid-State Disk"
 msgstr ""
 
@@ -7067,7 +7089,7 @@ msgstr ""
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:125 pkg/docker/containers-view.jsx:348
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:43
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:49
 #: pkg/machines/hostvmslist.jsx:103 pkg/machines/vmnetworktab.jsx:120
 #: pkg/ovirt/components/ClusterVms.jsx:177 pkg/systemd/init.js:275
 msgid "State"
@@ -7426,7 +7448,7 @@ msgstr ""
 msgid "The \"storaged\" API is not available on this system."
 msgstr ""
 
-#: pkg/docker/storage.jsx:496
+#: pkg/docker/storage.jsx:479
 msgid "The Docker storage pool cannot be managed on this system."
 msgstr ""
 
@@ -7674,12 +7696,6 @@ msgstr ""
 msgid "The service '{{ target }}' does not exist."
 msgstr ""
 
-#: pkg/docker/storage.jsx:357 pkg/docker/storage.jsx:368
-msgid ""
-"The storage pool will be reset to optimize its layout.  All containers will "
-"be erased."
-msgstr ""
-
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
 msgstr ""
@@ -7708,7 +7724,7 @@ msgstr ""
 msgid "The user <b>$0</b> is not permitted to modify network settings"
 msgstr ""
 
-#: pkg/realmd/operation.js:452
+#: pkg/realmd/operation.js:522
 msgid "The user <b>$0</b> is not permitted to modify realms"
 msgstr ""
 
@@ -7997,7 +8013,7 @@ msgstr ""
 msgid "Topology"
 msgstr ""
 
-#: pkg/docker/storage.jsx:316
+#: pkg/docker/storage.jsx:315
 msgid "Total"
 msgstr ""
 
@@ -8409,7 +8425,7 @@ msgstr ""
 msgid "Use trusted GPG key"
 msgstr ""
 
-#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:315
+#: pkg/systemd/index.html:271 pkg/docker/storage.jsx:314
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:65
 #: pkg/machines/components/vm/vmUsageTab.jsx:76
@@ -8438,7 +8454,7 @@ msgstr "Kullanıcı"
 msgid "User Name"
 msgstr "Kullanıcı Adı"
 
-#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:283
+#: pkg/realmd/operation.html:54 pkg/realmd/operation.js:288
 msgid "User Password"
 msgstr "Kullanıcı Parolası"
 
@@ -8551,6 +8567,19 @@ msgstr ""
 msgid "VM START action failed"
 msgstr ""
 
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:86
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:93
+msgid "VM definition is not a valid JSON."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:81
+msgid "VM definition is required."
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:88
+msgid "VM definition must be an object."
+msgstr ""
+
 #: pkg/ovirt/components/VmOverviewColumn.jsx:39
 msgid "VM icon"
 msgstr ""
@@ -8616,7 +8645,7 @@ msgid "View Registration Details"
 msgstr ""
 
 #: pkg/kubernetes/index.html:61
-#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:41
+#: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:46
 #: pkg/machines/hostvmslist.jsx:102
 msgid "Virtual Machines"
 msgstr ""
@@ -8780,7 +8809,7 @@ msgid ""
 msgstr ""
 "Bu hesabın yetkilendirilmiş açık anahtarlarını görmeniz için izniniz yok."
 
-#: pkg/docker/storage.jsx:493
+#: pkg/docker/storage.jsx:476
 msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 
@@ -8900,7 +8929,7 @@ msgstr ""
 msgid "dying"
 msgstr ""
 
-#: pkg/realmd/operation.js:247 pkg/realmd/operation.js:253
+#: pkg/realmd/operation.js:252 pkg/realmd/operation.js:258
 msgid "e.g. \"$0\""
 msgstr "örn. \"$0\""
 
@@ -9204,6 +9233,10 @@ msgstr ""
 
 #: pkg/machines/helpers.es6:218 pkg/ovirt/rephraseUI.es6:27
 msgid "up"
+msgstr ""
+
+#: pkg/kubernetes/scripts/virtual-machines/components/createVmDialog.jsx:214
+msgid "upload a JSON file"
 msgstr ""
 
 #: pkg/machines/helpers.es6:205

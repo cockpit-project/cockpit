@@ -28,6 +28,13 @@ VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlState,
                     "occupied",
                     "error")
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainDiskError)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainDiskError,
+                    VIR_DOMAIN_DISK_ERROR_LAST,
+                    "none",
+                    "unspec",
+                    "no-space")
+
 VIRT_DBUS_ENUM_DECL(virtDBusDomainJob)
 VIRT_DBUS_ENUM_IMPL(virtDBusDomainJob,
                     VIR_DOMAIN_JOB_LAST,
@@ -994,6 +1001,59 @@ virtDBusDomainGetControlInfo(GVariant *inArgs,
 
     *outArgs = g_variant_new("((sst))", stateStr,
                              errorReasonStr, controlInfo->stateTime);
+}
+
+static void
+virtDBusDomainGetDiskErrors(GVariant *inArgs,
+                            GUnixFDList *inFDs G_GNUC_UNUSED,
+                            const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **outArgs,
+                            GUnixFDList **outFDs G_GNUC_UNUSED,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virDomainDiskErrorPtr disks = NULL;
+    guint ndisks;
+    gint count;
+    guint flags;
+    GVariant *res;
+    GVariantBuilder builder;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    count = virDomainGetDiskErrors(domain, NULL, 0, 0);
+    if (count < 0)
+        return virtDBusUtilSetLastVirtError(error);
+    ndisks = count;
+
+    if (ndisks) {
+        disks = g_new0(virDomainDiskError, ndisks);
+
+        count = virDomainGetDiskErrors(domain, disks, ndisks, 0);
+        if (count < 0)
+            return virtDBusUtilSetLastVirtError(error);
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(ss)"));
+    for (gint i = 0; i < count; i++) {
+        const gchar *err = virtDBusDomainDiskErrorTypeToString(disks[i].error);
+
+        if (!err)
+            continue;
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(ss)"));
+        g_variant_builder_add(&builder, "s", disks[i].disk);
+        g_variant_builder_add(&builder, "s", err);
+        g_variant_builder_close(&builder);
+    }
+    res = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&res, 1);
 }
 
 static void
@@ -2074,6 +2134,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetBlockIOTune", virtDBusDomainGetBlockIOTune },
     { "GetBlockJobInfo", virtDBusDomainGetBlockJobInfo },
     { "GetControlInfo", virtDBusDomainGetControlInfo },
+    { "GetDiskErrors", virtDBusDomainGetDiskErrors },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },

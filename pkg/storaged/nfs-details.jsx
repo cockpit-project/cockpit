@@ -284,8 +284,8 @@ export class NFSDetails extends React.Component {
                           : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
                         }
                         { "\n" }
-                        { entry.fstab ?
-                          [
+                        { entry.fstab
+                          ? [
                               <StorageButton onClick={edit}>{_("Edit")}</StorageButton>,
                               "\n",
                               <StorageButton onClick={remove} kind="danger">{_("Remove")}</StorageButton>
@@ -306,14 +306,14 @@ export class NFSDetails extends React.Component {
                         <tr>
                             <td>{_("Size")}</td>
                             <td>
-                                { entry.mounted ?
-                                  <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                                { entry.mounted
+                                  ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
                                   : _("--")
                                 }
                             </td>
                             <td>
-                                { entry.mounted && fsys_size ?
-                                  format_fsys_usage(fsys_size[0], fsys_size[1])
+                                { entry.mounted && fsys_size
+                                  ? format_fsys_usage(fsys_size[0], fsys_size[1])
                                       : null
                                 }
                             </td>

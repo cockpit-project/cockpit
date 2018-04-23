@@ -315,8 +315,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                    .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   Action: {
                       Title: create_partition? _("Create partition") : _("Format"),
-                      Danger: (create_partition?
-                               null : _("Formatting a storage device will erase all data on it.")),
+                      Danger: (create_partition
+                               ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {
                           if (vals.type == "custom")
                               vals.type = vals.custom;

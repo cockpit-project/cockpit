@@ -133,8 +133,8 @@ class MDRaidSidebar extends React.Component {
                         <br/>
                         <span className="state">{states}</span>
                     </td>
-                    { dynamic_members ?
-                      <td className="storage-action">
+                    { dynamic_members
+                      ? <td className="storage-action">
                           <StorageButton onClick={remove} excuse={remove_excuse}>
                               <span className="fa fa-minus"></span>
                           </StorageButton>
@@ -151,8 +151,8 @@ class MDRaidSidebar extends React.Component {
             <div className="panel panel-default">
                 <div className="panel-heading">
                     <span>{_("Disks")}</span>
-                    {dynamic_members ?
-                     <span className="pull-right">
+                    {dynamic_members
+                     ? <span className="pull-right">
                          <StorageButton onClick={add_disk} excuse={add_excuse}>
                              <span className="fa fa-plus"></span>
                          </StorageButton>

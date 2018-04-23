@@ -74,9 +74,9 @@ function create_tabs(client, target, is_partition) {
     var block_lvm2 = block && client.blocks_lvm2[block.path];
     var block_pvol = block && client.blocks_pvol[block.path];
 
-    var lvol = (endsWith(target.iface, ".LogicalVolume")?
-                target :
-                block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
+    var lvol = (endsWith(target.iface, ".LogicalVolume")
+                ? target
+                : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
     var is_filesystem         = (block && block.IdUsage == 'filesystem');
     var is_crypto             = (block && block.IdUsage == 'crypto');

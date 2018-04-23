@@ -49,14 +49,14 @@ export class NFSPanel extends React.Component {
                     <td>{ server + " " + remote_dir }</td>
                     <td>{ entry.fields[1] }</td>
                     <td>
-                        { entry.mounted ?
-                          <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                        { entry.mounted
+                          ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
                           : _("Not mounted")
                         }
                     </td>
                     <td className="usage-text">
-                        { entry.mounted && fsys_size ?
-                          format_fsys_usage(fsys_size[0], fsys_size[1])
+                        { entry.mounted && fsys_size
+                          ? format_fsys_usage(fsys_size[0], fsys_size[1])
                               : ""
                         }
                     </td>
@@ -80,8 +80,8 @@ export class NFSPanel extends React.Component {
                     </span>
                     <span>{_("NFS Mounts")}</span>
                 </div>
-                { mounts.length > 0 ?
-                  <table className="table table-hover">
+                { mounts.length > 0
+                  ? <table className="table table-hover">
                       <thead>
                           <tr>
                               <th className="mount-name">{_("Server")}</th>

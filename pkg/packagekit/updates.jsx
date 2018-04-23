@@ -817,8 +817,8 @@ class OsUpdates extends React.Component {
 
                     applyAll = (
                         <button className="btn btn-primary" onClick={ () => this.applyUpdates(false) }>
-                            { num_updates == num_security_updates?
-                              _("Install Security Updates") : _("Install All Updates") }
+                            { num_updates == num_security_updates
+                              ? _("Install Security Updates") : _("Install All Updates") }
                         </button>);
 
                     if (num_security_updates > 0 && num_updates > num_security_updates) {

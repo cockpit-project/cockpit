@@ -257,8 +257,8 @@ class StorageUsageBar  extends React.Component {
 
         return (
             <div className="progress">
-                { stats ?
-                <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
+                { stats
+                ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
                      style={{ width: fraction*100 + "%" }}>
                 </div>
                   : null

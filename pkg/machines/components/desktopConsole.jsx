@@ -144,8 +144,8 @@ const ManualConnectionDetails = ({ displays, idPrefix }) => {
     const vncAddress = displays.vnc && displays.vnc.address;
 
     // deduplicate the address if possible
-    const singleAddress = vncAddress && spiceAddress ?
-        (vncAddress === spiceAddress && vncAddress)
+    const singleAddress = vncAddress && spiceAddress
+        ? (vncAddress === spiceAddress && vncAddress)
         : (spiceAddress || vncAddress);
 
     return (

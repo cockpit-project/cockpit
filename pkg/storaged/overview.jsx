@@ -45,8 +45,8 @@ export class OverviewSidePanel extends React.Component {
                     </span>
                     <span>{this.props.title}</span>
                 </div>
-                { this.props.children.length > 0 ?
-                  <table className={"table" + (this.props.hover !== false ? " table-hover" : "")}>
+                { this.props.children.length > 0
+                  ? <table className={"table" + (this.props.hover !== false ? " table-hover" : "")}>
                       <tbody>
                           { this.props.children }
                       </tbody>
@@ -70,8 +70,8 @@ export class OverviewSidePanelRow extends React.Component {
             <tr data-testkey={this.props.testkey}
                 onClick={this.props.go? go : null} className={this.props.highlight? "highlight-ct" : ""}>
                 <td className="storage-icon">
-                    { this.props.kind !== false ?
-                      <div><img  src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>
+                    { this.props.kind !== false
+                      ? <div><img  src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>
                       : null
                     }
                 </td>
@@ -79,8 +79,8 @@ export class OverviewSidePanelRow extends React.Component {
                     <span className="col-md-12 storage-disk-name">{this.props.name}</span>
                     <br/>
                     <span className="col-md-12 col-lg-5 storage-disk-size">{this.props.detail}</span>
-                    { this.props.stats ?
-                      <span className="col-md-12 col-lg-7">
+                    { this.props.stats
+                      ? <span className="col-md-12 col-lg-7">
                           <span>R: {fmt_rate(this.props.stats[0])}</span>
                           { "\n" }
                           <span className="rate-gap"/>

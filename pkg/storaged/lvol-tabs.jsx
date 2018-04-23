@@ -269,7 +269,7 @@ var BlockVolTab = React.createClass({
                 } else if (block.IdUsage == 'raid') {
                     info = { };
                     shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
-                } else if (client.vdo_overlay.find_by_backing_block (block)) {
+                } else if (client.vdo_overlay.find_by_backing_block(block)) {
                     info = {
                         can_shrink: false,
                         can_grow: true,

@@ -253,7 +253,7 @@ var KdumpPage = React.createClass({
                     settings["core_collector"].value =
                         settings["core_collector"].value
                         .split(" ")
-                        .filter((e) => {return (e != "-c");})
+                        .filter((e) => { return (e != "-c"); })
                         .join(" ");
                 } else {
                     // if we don't have anything on this in the original settings,

@@ -74,7 +74,7 @@ function parseCVEs(text) {
 
 function deduplicate(list) {
     var d = { };
-    list.forEach(i => {if (i) d[i] = true});
+    list.forEach(i => { if (i) d[i] = true });
     var result = Object.keys(d);
     result.sort();
     return result;

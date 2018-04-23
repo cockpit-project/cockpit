@@ -61,7 +61,7 @@ const VmHost = ({ id, hosts, dispatch }) => {
 
     const cockpitUrl = `https://${host.address}:${CONFIG.cockpitPort}/machines`;
     // just the <a href> without the tabIndex="0" onClick handler is not working
-    return (<a href={cockpitUrl} tabIndex="0" onClick={() => {window.top.location=cockpitUrl;}}>
+    return (<a href={cockpitUrl} tabIndex="0" onClick={() => { window.top.location = cockpitUrl; }}>
         {host.name}
     </a>);
 };

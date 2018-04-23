@@ -129,7 +129,7 @@ export function vmConverter(vm) {
 }
 
 function mapOvirtStatusToLibvirtState(ovirtStatus) {
-    switch (ovirtStatus) {// TODO: finish - add additional states
+    switch (ovirtStatus) { // TODO: finish - add additional states
         case 'up': return 'running';
         case 'down': return 'shut off';
         default:

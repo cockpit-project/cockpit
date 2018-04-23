@@ -54,7 +54,7 @@ export function toGigaBytes(amount, currentUnit) {
 }
 
 export function valueOrDefault(value, def) {
-    return (value === undefined || value === null) ?  def : value;
+    return (value === undefined || value === null) ? def : value;
 }
 
 export function isNumeric(value) {

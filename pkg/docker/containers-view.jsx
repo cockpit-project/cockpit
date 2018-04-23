@@ -345,7 +345,7 @@ var ContainerList = React.createClass({
                                        listingActions={actions}/>;
         }, this);
 
-        var columnTitles =  [ _("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
+        var columnTitles = [ _("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
 
         var emptyCaption;
         if (this.props.onlyShowRunning) {
@@ -391,7 +391,7 @@ var ImageDetails = React.createClass({
                     <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
                     <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.fromNow() }</dd>
                     <dt>{_("Author")}</dt>     <dd>{ image.Author}</dd>
-                    <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ')  }</dd>
+                    <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ') }</dd>
                 </dl>
             </div>
         );

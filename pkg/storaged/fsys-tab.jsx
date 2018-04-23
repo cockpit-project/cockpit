@@ -29,8 +29,8 @@ var StorageControls = require("./storage-controls.jsx");
 var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
-var StorageLink =   StorageControls.StorageLink;
-var FormatButton =  FormatDialog.FormatButton;
+var StorageLink = StorageControls.StorageLink;
+var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 

@@ -28,11 +28,11 @@ var StorageControls = require("./storage-controls.jsx");
 var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
-var FormatButton =  FormatDialog.FormatButton;
+var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var SwapTab =  React.createClass({
+var SwapTab = React.createClass({
     onSamplesChanged: function () {
         this.setState({});
     },

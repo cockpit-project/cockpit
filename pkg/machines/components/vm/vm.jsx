@@ -75,7 +75,7 @@ const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceof
 
     let initiallyActiveTab = null;
     if (vm.ui.initiallyOpenedConsoleTab) {
-        initiallyActiveTab = tabRenderers.map((o) =>  o.name).indexOf(consolesTabName);
+        initiallyActiveTab = tabRenderers.map((o) => o.name).indexOf(consolesTabName);
     }
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);

@@ -157,7 +157,7 @@ export class VGroupDetails extends React.Component {
             this.poll_timer = window.setInterval(() => { this.props.vgroup.Poll(); }, 2000);
         } else if (!needs_polling && this.poll_timer !== null) {
             window.clearInterval(this.poll_timer);
-            this.poll_timer =  null;
+            this.poll_timer = null;
         }
     }
 

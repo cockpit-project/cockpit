@@ -29,17 +29,17 @@ var StorageControls = require("./storage-controls.jsx");
 var FormatDialog = require("./format-dialog.jsx");
 
 var StorageButton = StorageControls.StorageButton;
-var StorageLink =   StorageControls.StorageLink;
+var StorageLink = StorageControls.StorageLink;
 
-var FilesystemTab   = require("./fsys-tab.jsx").FilesystemTab;
-var CryptoTab       = require("./crypto-tab.jsx").CryptoTab;
-var BlockVolTab     = require("./lvol-tabs.jsx").BlockVolTab;
-var PoolVolTab      = require("./lvol-tabs.jsx").PoolVolTab;
-var PVolTab         = require("./pvol-tabs.jsx").PVolTab;
+var FilesystemTab = require("./fsys-tab.jsx").FilesystemTab;
+var CryptoTab = require("./crypto-tab.jsx").CryptoTab;
+var BlockVolTab = require("./lvol-tabs.jsx").BlockVolTab;
+var PoolVolTab = require("./lvol-tabs.jsx").PoolVolTab;
+var PVolTab = require("./pvol-tabs.jsx").PVolTab;
 var MDRaidMemberTab = require("./pvol-tabs.jsx").MDRaidMemberTab;
-var VDOBackingTab   = require("./pvol-tabs.jsx").VDOBackingTab;
-var PartitionTab    = require("./part-tab.jsx").PartitionTab;
-var SwapTab         = require("./swap-tab.jsx").SwapTab;
+var VDOBackingTab = require("./pvol-tabs.jsx").VDOBackingTab;
+var PartitionTab = require("./part-tab.jsx").PartitionTab;
+var SwapTab = require("./swap-tab.jsx").SwapTab;
 var UnrecognizedTab = require("./unrecognized-tab.jsx").UnrecognizedTab;
 
 var _ = cockpit.gettext;
@@ -78,8 +78,8 @@ function create_tabs(client, target, is_partition) {
                 ? target
                 : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
-    var is_filesystem         = (block && block.IdUsage == 'filesystem');
-    var is_crypto             = (block && block.IdUsage == 'crypto');
+    var is_filesystem = (block && block.IdUsage == 'filesystem');
+    var is_crypto = (block && block.IdUsage == 'crypto');
 
     var tabs = [ ];
     var row_action = null;

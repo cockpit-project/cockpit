@@ -51,7 +51,7 @@ VmMessage.propTypes = {
 };
 
 export default connect(
-  () => ({  }),
+  () => ({ }),
   (dispatch, { vm }) => ({
     onDismiss: () => dispatch(removeVmMessage({ vm })),
   }),

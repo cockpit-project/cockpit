@@ -46,7 +46,7 @@ var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 var KdumpTargetBody = React.createClass({
     getInitialState: function() {
         return {
-            storeDest: this.props.initialTarget.target,  // dialog mode, depends on location
+            storeDest: this.props.initialTarget.target, // dialog mode, depends on location
         };
     },
     changeLocation: function(target) {
@@ -220,7 +220,7 @@ var KdumpPage = React.createClass({
     getInitialState: function() {
         return {
             dialogSettings: undefined,
-            dialogObj: undefined,  // this is used if there's an open dialog
+            dialogObj: undefined, // this is used if there's an open dialog
         };
     },
     compressionStatus: function(settings) {

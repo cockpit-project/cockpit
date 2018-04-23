@@ -51,7 +51,7 @@ export class OverviewSidePanel extends React.Component {
                           { this.props.children }
                       </tbody>
                   </table>
-                  :  <div className="empty-panel-text">{this.props.empty_text}</div>
+                  : <div className="empty-panel-text">{this.props.empty_text}</div>
                 }
             </div>
         );
@@ -71,7 +71,7 @@ export class OverviewSidePanelRow extends React.Component {
                 onClick={this.props.go? go : null} className={this.props.highlight? "highlight-ct" : ""}>
                 <td className="storage-icon">
                     { this.props.kind !== false
-                      ? <div><img  src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>
+                      ? <div><img src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>
                       : null
                     }
                 </td>

@@ -122,7 +122,7 @@ var SELinuxEventDetails = React.createClass({
             if (self.state.solutionExpanded[itmIdx]) {
                 caret = <i className="fa fa-angle-down" />;
                 doState = <div>{caret} {detailsLink}</div>;
-                doElem =  <div>{itm.doText}</div>;
+                doElem = <div>{itm.doText}</div>;
             } else {
                 caret = <i className="fa fa-angle-right" />;
                 doState = <div>{caret} {detailsLink}</div>;

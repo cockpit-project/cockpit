@@ -25,7 +25,7 @@ var utils = require("./utils.js");
 var React = require("react");
 var FormatDialog = require("./format-dialog.jsx");
 
-var FormatButton =  FormatDialog.FormatButton;
+var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 

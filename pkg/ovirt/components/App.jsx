@@ -135,7 +135,7 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
 const App = ({ store }) => {
     const state = store.getState();
     const dispatch = store.dispatch;
-    const { vms, config, systemInfo, ui }  = state;
+    const { vms, config, systemInfo, ui } = state;
 
     let ovirtConfig, hosts, router;
     if (config.providerState) {

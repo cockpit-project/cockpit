@@ -94,7 +94,7 @@ class LibvirtSlate extends React.Component {
         if (activeState === 'running') {
             message = _("Virtualization Service is Available");
             icon = (<span className="pficon-ok"/>);
-        } else if (name &&  activeState === 'unknown') { // name === 'unknown' first
+        } else if (name && activeState === 'unknown') { // name === 'unknown' first
             message = _("Connecting to Virtualization Service");
             icon = (<div className="spinner spinner-lg"/>);
         } else {

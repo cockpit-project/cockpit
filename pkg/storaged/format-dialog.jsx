@@ -238,9 +238,9 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 
     var filesystem_options = [ ];
-    add_fsys("xfs",  { value: "xfs", Title: _("XFS - Red Hat Enterprise Linux 7 default") });
+    add_fsys("xfs", { value: "xfs", Title: _("XFS - Red Hat Enterprise Linux 7 default") });
     add_fsys("ext4", { value: "ext4", Title: _("ext4 - Red Hat Enterprise Linux 6 default") });
-    add_fsys("xfs",  { value: "luks+xfs", Title: _("Encrypted XFS (LUKS)") });
+    add_fsys("xfs", { value: "luks+xfs", Title: _("Encrypted XFS (LUKS)") });
     add_fsys("ext4", { value: "luks+ext4", Title: _("Encrypted EXT4 (LUKS)") });
     add_fsys("vfat", { value: "vfat", Title: _("VFAT - Compatible with all systems and devices") });
     add_fsys("ntfs", { value: "ntfs", Title: _("NTFS - Compatible with most systems") });

@@ -250,7 +250,7 @@ class StorageMultiAction extends React.Component {
  * in a dangerous color.
  */
 
-class StorageUsageBar  extends React.Component {
+class StorageUsageBar extends React.Component {
     render() {
         var stats = this.props.stats;
         var fraction = stats? stats[0] / stats[1] : null;

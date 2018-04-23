@@ -30,7 +30,7 @@ function getFirstIndexOfVm(state, field, value, connectionName) {
 
 // --- reducers ------------------
 function config(state, action) {
-    state = state ? state : {
+    state = state || {
         provider: null,
         providerState: null,
         refreshInterval: VMS_CONFIG.DefaultRefreshInterval,
@@ -67,7 +67,7 @@ function lazyComposedReducer({ parentReducer, getSubreducer, getSubstate, setSub
 }
 
 function vms(state, action) {
-    state = state ? state : [];
+    state = state || [];
 
     logDebug('reducer vms: action=' + JSON.stringify(action));
 
@@ -148,7 +148,7 @@ function vms(state, action) {
 }
 
 function systemInfo(state, action) {
-    state = state ? state : {
+    state = state || {
         libvirtService: {
             name: 'unknown',
             activeState: 'unknown',
@@ -175,7 +175,7 @@ function systemInfo(state, action) {
 
 function ui(state, action) {
     // transient properties
-    state = state ? state : {
+    state = state || {
         notifications: [],
         vms: {}, // transient property
     };

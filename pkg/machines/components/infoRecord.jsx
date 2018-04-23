@@ -24,7 +24,7 @@ React;
 
 const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
     return (<tr>
-        <td className={descrClass ? descrClass : 'top'}>
+        <td className={descrClass || 'top'}>
             <label className='control-label'>
                 {descr}
             </label>

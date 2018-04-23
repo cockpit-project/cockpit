@@ -129,7 +129,7 @@ class MDRaidSidebar extends React.Component {
                         <div><img src="images/storage-disk.png"></img></div>
                     </td>
                     <td>
-                        {slot ? slot : "-"} <StorageBlockNavLink client={client} block={block}/>
+                        {slot || "-"} <StorageBlockNavLink client={client} block={block}/>
                         <br/>
                         <span className="state">{states}</span>
                     </td>

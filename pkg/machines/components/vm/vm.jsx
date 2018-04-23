@@ -37,7 +37,6 @@ const _ = cockpit.gettext;
 
 React;
 
-
 /** One VM in the list (a row)
  */
 const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceoff, onReboot, onForceReboot,

@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 var cockpit = require("cockpit");
 var React = require("react");
 

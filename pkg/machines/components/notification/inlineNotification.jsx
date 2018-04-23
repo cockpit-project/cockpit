@@ -22,7 +22,6 @@ import React, { PropTypes } from "react";
 import { mouseClick } from '../../helpers.es6';
 import { Notification } from "./notification.jsx";
 
-
 const _ = cockpit.gettext;
 
 import './inlineNotification.css';

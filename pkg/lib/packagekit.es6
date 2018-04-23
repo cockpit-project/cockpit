@@ -272,7 +272,6 @@ export function getSeverityIcon(info, secSeverity) {
         return "pficon pficon-enhancement";
 }
 
-
 // possible Red Hat subscription manager status values:
 // https://github.com/candlepin/subscription-manager/blob/30c3b52320c3e73ebd7435b4fc8b0b6319985d19/src/rhsm_icon/rhsm_icon.c#L98
 // we accept RHSM_VALID(0), RHN_CLASSIC(3), and RHSM_PARTIALLY_VALID(4)

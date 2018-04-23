@@ -103,4 +103,3 @@ export function injectMockUpdates(updates) {
         description: "This is FUBAR",
     };
 }
-

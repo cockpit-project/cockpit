@@ -45,7 +45,6 @@ const transform = {
     },
 };
 
-
 function rephraseUI(key, original) {
     if (!(key in transform)) {
         logDebug(`ovirt rephraseUI(key='${key}', original='${original}'): unknown key`);

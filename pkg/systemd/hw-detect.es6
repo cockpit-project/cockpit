@@ -95,4 +95,3 @@ export default function detect() {
         Promise.all(tasks).then(() => resolve(info));
     });
 }
-

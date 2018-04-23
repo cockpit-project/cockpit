@@ -248,7 +248,6 @@ export function toFixedPrecision(value, precision) {
     return result;
 }
 
-
 function isFirefox() {
     return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 }

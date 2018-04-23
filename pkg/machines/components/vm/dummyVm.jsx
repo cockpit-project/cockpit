@@ -28,7 +28,6 @@ import { ListingRow } from "cockpit-components-listing.jsx";
 
 React;
 
-
 /** One Ui Dummy VM in the list (a row)
  */
 const DummyVm = ({ vm }) => {
@@ -43,7 +42,6 @@ const DummyVm = ({ vm }) => {
     }
 
     const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`}/>);
-
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
 

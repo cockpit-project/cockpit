@@ -23,7 +23,6 @@ import {Terminal} from 'cockpit-components-terminal.jsx';
 
 const _ = cockpit.gettext;
 
-
 class SerialConsole extends React.Component {
     constructor (props) {
         super(props);

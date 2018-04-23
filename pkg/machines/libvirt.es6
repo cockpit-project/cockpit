@@ -70,7 +70,6 @@ import {
     clearVmUiState,
 } from './components/create-vm-dialog/uiState.es6';
 
-
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
@@ -240,7 +239,6 @@ LIBVIRT_PROVIDER = {
             });
     },
 
-
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
@@ -404,7 +402,6 @@ LIBVIRT_PROVIDER = {
         return dispatch => dispatch(updateVm({ connectionName, name, usagePolling: false}));
     },
 
-
     /**
      * Basic, but working.
      * TODO: provide support for more complex scenarios, like with TLS or proxy
@@ -550,7 +547,6 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     const vcpus = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
 
-
     const disks = parseDumpxmlForDisks(devicesElem);
     const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
     const cpuModel = parseDumpxmlForCpuModel(cpuElem);
@@ -607,7 +603,6 @@ function resolveUiState(dispatch, name) {
 
     return result;
 }
-
 
 function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);

@@ -509,7 +509,7 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
         const msg = `${method}() exception: '${ex}', data: '${data}', output: '${output}'`;
         if (failHandler) {
             logDebug(msg);
-            return ;
+            return;
         }
         console.warn(msg);
     });
@@ -524,7 +524,7 @@ function parseDumpxml(dispatch, connectionName, domXml) {
 
     if (!xmlDoc) {
         console.warn(`Can't parse dumpxml, input: "${domXml}"`);
-        return ;
+        return;
     }
 
     const domainElem = xmlDoc.getElementsByTagName("domain")[0];
@@ -917,7 +917,7 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 function parseDomstatsForDisks(domstatsLines) {
     const count = getValueFromLine(domstatsLines, 'block\.count=');
     if (!count) {
-        return ;
+        return;
     }
 
     // Libvirt reports disk capacity since version 1.2.18 (year 2015)

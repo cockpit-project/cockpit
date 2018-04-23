@@ -185,7 +185,7 @@ function checkApiVersion ({ dispatch }) {
             console.error('Incompatible oVirt API version: ', apiMetaData);
 
             setOvirtApiCheckResult(false);
-            return ;
+            return;
         }
 
         const actual = apiMetaData['product_info']['version'];

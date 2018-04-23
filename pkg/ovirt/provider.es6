@@ -332,7 +332,7 @@ OVIRT_PROVIDER.CONSOLE_VM = function (payload) { // download a .vv file generate
     const consoleId = CONSOLE_TYPE_ID_MAP[type];
     if (!consoleId) {
         logError(`CONSOLE_VM: unable to map console type to id. Payload: ${JSON.stringify(payload)}`);
-        return ;
+        return;
     }
 
     return (dispatch, getState) => {

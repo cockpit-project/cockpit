@@ -94,14 +94,14 @@ export function ovirtApiPost (resource, body, failHandler) {
 export function handleOvirtError ({ error, exception, failHandler }) {
     if (!error) {
         logError(`oVirt operation failed but no error received`);
-        return ;
+        return;
     }
 
     console.info('handleOvirtError, error = ', error, 'exception = ', exception);
 
     if (!exception) {
         logError(`oVirt operation failed but no exception received`);
-        return ;
+        return;
     }
 
     switch (exception.status) {
@@ -109,7 +109,7 @@ export function handleOvirtError ({ error, exception, failHandler }) {
             // clear token from sessionStorage and refresh --> SSO will pass again
             window.sessionStorage.setItem('OVIRT_PROVIDER_TOKEN', undefined); // see login.js
             redirectToOvirtSSO();
-            return ; // never comes here
+            return; // never comes here
         }
         case 404: /* falls through */
         default:

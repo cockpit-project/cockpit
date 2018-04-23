@@ -557,7 +557,7 @@ function append_logical_volume_block(client, rows, level, block, lvol) {
         append_row(client, rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
         append_partitions(client, rows, level+1, block);
     } else {
-        append_non_partitioned_block (client, rows, level, block, false);
+        append_non_partitioned_block(client, rows, level, block, false);
     }
 }
 
@@ -569,15 +569,15 @@ function append_logical_volume(client, rows, level, lvol) {
             size: lvol.Size,
             text: _("Pool for Thin Volumes")
         };
-        tabs = create_tabs (client, lvol, false);
+        tabs = create_tabs(client, lvol, false);
         append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         client.lvols_pool_members[lvol.path].forEach(function (member_lvol) {
-            append_logical_volume (client, rows, level+1, member_lvol);
+            append_logical_volume(client, rows, level+1, member_lvol);
         });
     } else {
         block = client.lvols_block[lvol.path];
         if (block)
-            append_logical_volume_block (client, rows, level, block, lvol);
+            append_logical_volume_block(client, rows, level, block, lvol);
         else {
             // If we can't find the block for a active
             // volume, Storaged or something below is
@@ -588,7 +588,7 @@ function append_logical_volume(client, rows, level, lvol) {
                 size: lvol.Size,
                 text: lvol.Active? _("Unsupported volume") : _("Inactive volume")
             }
-            tabs = create_tabs (client, lvol, false);
+            tabs = create_tabs(client, lvol, false);
             append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         }
     }

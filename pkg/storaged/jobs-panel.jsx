@@ -111,7 +111,7 @@ class JobRow extends React.Component {
         if (job.ExpectedEndTime > 0) {
             var d = job.ExpectedEndTime/1000 - this.props.now;
             if (d > 0)
-                remaining = format_delay (d);
+                remaining = format_delay(d);
         }
 
         return (

@@ -65,7 +65,7 @@ var CryptoTab = React.createClass({
                     if (!new_config[1]['passphrase-contents'])
                         new_config[1]['passphrase-contents'] = { t: 'ay', v: utils.encode_filename("") };
 
-                    modify (new_config[1], commit);
+                    modify(new_config[1], commit);
                 });
         }
 

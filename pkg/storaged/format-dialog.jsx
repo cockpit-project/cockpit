@@ -377,7 +377,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                   else if (vals.type == "empty")
                                       return block_ptable.CreatePartition(start, vals.size, "", "", { });
                                   else
-                                      return create_partition_and_format (block_ptable,
+                                      return create_partition_and_format(block_ptable,
                                                                           start, vals.size, "", "", { },
                                                                           vals.type, options);
                               } else {

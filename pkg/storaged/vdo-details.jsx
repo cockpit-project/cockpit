@@ -265,8 +265,8 @@ export class VDODetails extends React.Component {
                         <tr>
                             <td>{_("Backing Device")}</td>
                             <td>
-                                { backing_block ?
-                                  <StorageBlockNavLink client={client} block={backing_block}/>
+                                { backing_block
+                                  ? <StorageBlockNavLink client={client} block={backing_block}/>
                                   : vdo.backing_dev
                                 }
                             </td>
@@ -274,8 +274,8 @@ export class VDODetails extends React.Component {
                         <tr>
                             <td>{_("Physical")}</td>
                             <td>
-                                { stats ?
-                                  cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
+                                { stats
+                                  ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
                                                  fmt_size(stats.dataBlocksUsed * stats.blockSize),
                                                  fmt_size(stats.overheadBlocksUsed * stats.blockSize),
                                                  fmt_size(vdo.physical_size),
@@ -287,8 +287,8 @@ export class VDODetails extends React.Component {
                         <tr>
                             <td>{_("Logical")}</td>
                             <td>
-                                { stats ?
-                                  cockpit.format(_("$0 used of $1 ($2 saved)"),
+                                { stats
+                                  ? cockpit.format(_("$0 used of $1 ($2 saved)"),
                                                  fmt_size(stats.logicalBlocksUsed * stats.blockSize),
                                                  fmt_size(vdo.logical_size),
                                                  fmt_perc(stats.savingPercent))

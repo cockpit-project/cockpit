@@ -63,12 +63,12 @@ class MigrateTo extends React.Component {
         return (
             <tr>
                 <td>
-                    {this.state.confirmAction ?
-                        (<ConfirmButtons confirmText={_("Confirm migration")}
+                    {this.state.confirmAction
+                        ? (<ConfirmButtons confirmText={_("Confirm migration")}
                                          dismissText={_("Cancel")}
                                          onYes={onActionConfirmed}
-                                         onNo={onActionCanceled}/>) :
-                        (<button className="btn btn-default btn-danger" onClick={onAction} id={`${idPrefix}-migratetobutton`}>
+                                         onNo={onActionCanceled}/>)
+                        : (<button className="btn btn-default btn-danger" onClick={onAction} id={`${idPrefix}-migratetobutton`}>
                             {_("Migrate To:")}
                         </button>)
                     }
@@ -110,8 +110,8 @@ const VmTemplate = ({ clusterVm, templates, id }) => {
     const version = template.version;
     return (
         <VmProperty descr={_("Base template:")}
-                    value={version.name ?
-                          (`${version.name} (${template.name})`)
+                    value={version.name
+                          ? (`${version.name} (${template.name})`)
                         : template.name}
                     id={id}
         />

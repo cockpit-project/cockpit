@@ -170,8 +170,8 @@ OVIRT_PROVIDER.START_VM = function (payload) {
     const vmName = payload.name;
     const hostName = payload.hostName; // optional
 
-    const actionXml = hostName ?
-        `<action><async>false</async><vm><placement_policy><hosts><host><name>${hostName}</name></host></hosts></placement_policy></vm></action>`
+    const actionXml = hostName
+        ? `<action><async>false</async><vm><placement_policy><hosts><host><name>${hostName}</name></host></hosts></placement_policy></vm></action>`
         : '<action><async>false</async></action>';
 
     return (dispatch) => {
@@ -229,9 +229,9 @@ OVIRT_PROVIDER.MIGRATE_VM = function ({ vmId, vmName, hostId }) {
         return () => {};
     }
 
-    const action = hostId ?
-        `<action><async>false</async><host id="${hostId}"/></action>` :
-        '<action/>';
+    const action = hostId
+        ? `<action><async>false</async><host id="${hostId}"/></action>`
+        : '<action/>';
 
     return (dispatch) => {
         forceNextOvirtPoll();

@@ -140,9 +140,9 @@ function lvol_grow(client, lvol, info) {
                         Title: _("Size"),
                         Value: lvol.Size,
                         Min: lvol.Size,
-                        Max: (pool ?
-                              pool.Size * 3 :
-                              lvol.Size + vgroup.FreeSize),
+                        Max: (pool
+                              ? pool.Size * 3
+                              : lvol.Size + vgroup.FreeSize),
                         AllowInfinite: !!pool,
                         Round: vgroup.ExtentSize
                       }

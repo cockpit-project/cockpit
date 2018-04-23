@@ -42,8 +42,8 @@ var PVolTab = React.createClass({
                 <table className="info-table-ct">
                     <tr>
                         <td>{_("Volume Group")}</td>
-                        <td>{vgroup?
-                             <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
+                        <td>{vgroup
+                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
                                  {vgroup.Name}
                              </a>
                             : "-"
@@ -72,8 +72,8 @@ var MDRaidMemberTab = React.createClass({
                 <table className="info-table-ct">
                     <tr>
                         <td>{_("RAID Device")}</td>
-                        <td>{mdraid?
-                             <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
+                        <td>{mdraid
+                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
                                  {utils.mdraid_name(mdraid)}
                              </a>
                             : "-"
@@ -98,8 +98,8 @@ var VDOBackingTab = React.createClass({
                 <table className="info-table-ct">
                     <tr>
                         <td>{_("VDO Device")}</td>
-                        <td>{vdo?
-                             <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
+                        <td>{vdo
+                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
                                  {vdo.name}
                              </a>
                             : "-"

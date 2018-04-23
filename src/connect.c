@@ -602,6 +602,14 @@ virtDBusConnectGetDomainCapabilities(GVariant *inArgs,
 
     g_variant_get(inArgs, "(&s&s&s&su)", &emulatorbin, &arch, &machine,
                   &virttype, &flags);
+    if (g_str_equal(emulatorbin, ""))
+        emulatorbin = NULL;
+    if (g_str_equal(arch, ""))
+        arch = NULL;
+    if (g_str_equal(machine, ""))
+        machine = NULL;
+    if (g_str_equal(virttype, ""))
+        virttype = NULL;
 
     if (!virtDBusConnectOpen(connect, error))
         return;

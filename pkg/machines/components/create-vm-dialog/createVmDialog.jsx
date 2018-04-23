@@ -30,6 +30,7 @@ import {
     convertToUnit,
     timeoutedPromise,
     units,
+    mouseClick,
 } from "../../helpers.es6";
 
 import {
@@ -446,3 +447,12 @@ export const createVmDialog = (dispatch, osInfoList) => {
 
     DialogPattern.show_modal_dialog(dialogProps, footerProps);
 };
+
+export function createVmAction({ dispatch, systemInfo }) {
+    return (
+        <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
+            onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
+            <span className="pficon pficon-add-circle-o"/>{_("Create New VM")}
+        </a>
+    );
+}

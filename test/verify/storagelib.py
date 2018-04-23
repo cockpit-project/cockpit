@@ -253,10 +253,10 @@ class StorageCase(MachineCase):
         self.browser.wait_not_visible(self.dialog_field(field))
 
     def dialog_apply(self):
-        self.browser.click('#dialog [data-action="apply"]')
+        self.browser.click('#dialog button.apply')
 
     def dialog_cancel(self):
-        self.browser.click('#dialog [data-action="cancel"]')
+        self.browser.click('#dialog button.cancel')
 
     def dialog_wait_close(self):
         self.browser.wait_not_present('#dialog')

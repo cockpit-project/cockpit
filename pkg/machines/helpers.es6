@@ -126,7 +126,7 @@ export function convertToUnitVerbose(input, inputUnit, outputUnit) {
 }
 
 export function isEmpty(str) {
-    return (!str || 0 === str.length);
+    return (!str || str.length === 0);
 }
 
 export function arrayEquals(arr1, arr2) {

@@ -58,7 +58,7 @@ export class ConfigFile {
      * outputObject["someKey"] = { index: 0, value: "foo", origLine: "someKey foo # comment", hasComment: true }
      * skipNotify: Don't notify about changes, e.g.to avoid multiple updates when writing a file
      */
-    _parseText(rawContent, skipNotify=false) {
+    _parseText(rawContent, skipNotify = false) {
         if (this._dataAvailable)
             this._dataAvailable.resolve();
 
@@ -94,7 +94,7 @@ export class ConfigFile {
             if (separatorIndex === -1)
                 return;
             let key = trimmed.substring(0, separatorIndex);
-            let value = trimmed.substring(separatorIndex+1).trim();
+            let value = trimmed.substring(separatorIndex + 1).trim();
 
             // value might have a comment at the end
             let commentIndex = value.indexOf("#");

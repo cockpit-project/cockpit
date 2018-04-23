@@ -73,7 +73,7 @@ export class MDRaidsPanel extends React.Component {
                                 Options: get_available_spaces(client).map(available_space_to_option),
                                 EmptyWarning: _("No disks are available."),
                                 validate: function (disks, vals) {
-                                    var disks_needed = vals.level == "raid6"? 4 : 2;
+                                    var disks_needed = vals.level == "raid6" ? 4 : 2;
                                     if (disks.length < disks_needed)
                                         return cockpit.format(_("At least $0 disks are needed."),
                                                               disks_needed);

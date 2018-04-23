@@ -240,7 +240,7 @@
                         <tr>
                             <td>{cockpit.format_bytes(drive.size)}</td>
                             <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
-                            <td>{drive.name}{drive.shared? _(" (shared with the OS)"):""}</td>
+                            <td>{drive.name}{drive.shared ? _(" (shared with the OS)") : ""}</td>
                         </tr>);
                 });
             }
@@ -303,7 +303,7 @@
                             <div className="progress-bar" style={{width: used_perc}}>
                             </div>
                         </div>
-                        {self.state.error? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
+                        {self.state.error ? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
                     </div>);
             } else {
                 return (

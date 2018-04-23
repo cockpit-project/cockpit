@@ -106,7 +106,7 @@ var StorageButton = React.createClass({
                             content={(excuse) => (
                                     <button id={this.props.id}
                                             onClick={checked(this.props.onClick)}
-                                            className={classes + (excuse? " disabled" : "")}>
+                                            className={classes + (excuse ? " disabled" : "")}>
                                                       {this.props.children}
                                     </button>
                                 )}/>
@@ -122,7 +122,7 @@ var StorageLink = React.createClass({
                                     <a onClick={checked(this.props.onClick)}
                                        role="link"
                                        tabIndex="0"
-                                       className={excuse? " disabled" : ""}>
+                                       className={excuse ? " disabled" : ""}>
                                                  {this.props.children}
                                     </a>
                             )}/>
@@ -152,7 +152,7 @@ var StorageBlockNavLink = React.createClass({
         function fmt_to_array(fmt, arg) {
             var index = fmt.indexOf("$0");
             if (index >= 0)
-                return [ fmt.slice(0, index), arg, fmt.slice(index+2) ];
+                return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
             else
                 return [ fmt ];
         }
@@ -253,13 +253,13 @@ class StorageMultiAction extends React.Component {
 class StorageUsageBar extends React.Component {
     render() {
         var stats = this.props.stats;
-        var fraction = stats? stats[0] / stats[1] : null;
+        var fraction = stats ? stats[0] / stats[1] : null;
 
         return (
             <div className="progress">
                 { stats
                 ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
-                     style={{ width: fraction*100 + "%" }}>
+                     style={{ width: fraction * 100 + "%" }}>
                 </div>
                   : null
                 }

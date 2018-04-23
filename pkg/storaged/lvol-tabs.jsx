@@ -123,7 +123,7 @@ function lvol_grow(client, lvol, info) {
     var vgroup = client.vgroups[lvol.VolumeGroup];
     var pool = client.lvols[lvol.ThinPool];
 
-    var usage = utils.get_active_usage(client, block && info.grow_needs_unmount? block.path : null);
+    var usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
         dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
@@ -164,7 +164,7 @@ function lvol_shrink(client, lvol, info) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
 
-    var usage = utils.get_active_usage(client, block && info.shrink_needs_unmount? block.path : null);
+    var usage = utils.get_active_usage(client, block && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
         dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
@@ -339,7 +339,7 @@ var PoolVolTab = React.createClass({
         var self = this;
 
         function perc(ratio) {
-            return (ratio*100).toFixed(0) + "%";
+            return (ratio * 100).toFixed(0) + "%";
         }
 
         function rename() {

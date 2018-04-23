@@ -58,7 +58,7 @@ class MigrateTo extends React.Component {
             dispatch(migrateVm(vm.id, vm.name, this.state.selectedHostId));
         };
 
-        const idPrefix =`${vmId(vm.name)}-ovirt`;
+        const idPrefix = `${vmId(vm.name)}-ovirt`;
 
         return (
             <tr>
@@ -133,7 +133,7 @@ const OVirtTab = ({ vm, providerState, dispatch }) => {
         return (<div>{_("This virtual machine is not managed by oVirt")}</div>);
     }
 
-    const idPrefix =`${vmId(vm.name)}-ovirt`;
+    const idPrefix = `${vmId(vm.name)}-ovirt`;
 
     return (
         <table className='machines-width-max'>

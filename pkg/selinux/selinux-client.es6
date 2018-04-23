@@ -120,6 +120,6 @@ export function init(statusChangedCallback) {
 
 // returns a promise of the command used to set enforcing mode
 export function setEnforcing(enforcingMode) {
-    var command = ["setenforce", (enforcingMode?"1":"0")];
+    var command = ["setenforce", (enforcingMode ? "1" : "0")];
     return cockpit.spawn(command, { superuser: true, err: "message" });
 }

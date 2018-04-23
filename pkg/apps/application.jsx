@@ -141,7 +141,7 @@ class Application extends React.Component {
             <div>
                 <ol className="breadcrumb">
                     <li><a role="link" tabIndex="0" onClick={left_click(navigate_up)}>{_("Applications")}</a></li>
-                    <li className="active">{comp? comp.name : this.props.id}</li>
+                    <li className="active">{comp ? comp.name : this.props.id}</li>
                 </ol>
                 {render_comp()}
             </div>

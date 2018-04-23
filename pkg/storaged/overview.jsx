@@ -68,7 +68,7 @@ export class OverviewSidePanelRow extends React.Component {
 
         return (
             <tr data-testkey={this.props.testkey}
-                onClick={this.props.go? go : null} className={this.props.highlight? "highlight-ct" : ""}>
+                onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
                 <td className="storage-icon">
                     { this.props.kind !== false
                       ? <div><img src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>

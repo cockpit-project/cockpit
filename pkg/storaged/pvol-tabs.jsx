@@ -52,7 +52,7 @@ var PVolTab = React.createClass({
                     </tr>
                     <tr>
                         <td>{_("Free")}</td>
-                        <td>{block_pvol? utils.fmt_size(block_pvol.FreeSize) : "-"}</td>
+                        <td>{block_pvol ? utils.fmt_size(block_pvol.FreeSize) : "-"}</td>
                     </tr>
                 </table>
             </div>

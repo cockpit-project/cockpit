@@ -71,9 +71,9 @@ export class VDODetails extends React.Component {
                                        .stream((data) => {
                                            buf += data;
                                            var lines = buf.split("\n");
-                                           buf = lines[lines.length-1];
+                                           buf = lines[lines.length - 1];
                                            if (lines.length >= 2) {
-                                               this.setState({ stats: JSON.parse(lines[lines.length-2]) });
+                                               this.setState({ stats: JSON.parse(lines[lines.length - 2]) });
                                            }
                                        });
         this.poll_path = path;
@@ -129,7 +129,7 @@ export class VDODetails extends React.Component {
             );
 
         function stop() {
-            var usage = get_active_usage(client, block? block.path : "/");
+            var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
                 dialog.open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
@@ -160,7 +160,7 @@ export class VDODetails extends React.Component {
         }
 
         function delete_() {
-            var usage = get_active_usage(client, block? block.path : "/");
+            var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
                 dialog.open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
@@ -212,7 +212,7 @@ export class VDODetails extends React.Component {
                           Fields: [
                               { SizeSlider: "lsize",
                                 Title: _("Logical Size"),
-                                Max: 5*vdo.logical_size,
+                                Max: 5 * vdo.logical_size,
                                 Min: vdo.logical_size,
                                 Round: 512,
                                 Value: vdo.logical_size,
@@ -299,7 +299,7 @@ export class VDODetails extends React.Component {
                         </tr>
                         <tr>
                             <td>{_("Index Memory")}</td>
-                            <td>{fmt_size(vdo.index_mem * 1024*1024*1024)}</td>
+                            <td>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</td>
                         </tr>
                         <tr>
                             <td>{_("Compression")}</td>

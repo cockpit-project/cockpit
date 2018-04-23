@@ -40,7 +40,7 @@ export class Jobs extends React.Component {
                     <td>{job.Progress}</td>
                     <td>{job.RemainingTime}</td>
                     <td className="job-action">
-                        { job.Cancelable? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
+                        { job.Cancelable ? <StorageButton onClick={cancel}>{_("Cancel")}</StorageButton> : null }
                     </td>
                 </tr>
             );

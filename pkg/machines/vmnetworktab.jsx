@@ -36,7 +36,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
         for (let i in hostDevices) {
             if (hostDevices[i].valid && hostDevices[i].Interface == network) {
                 return true;
-            } 
+            }
         }
         return false;
     }

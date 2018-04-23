@@ -32,7 +32,6 @@ export const CONSOLE_TYPE_ID_MAP = {
     'rdp': 'rdp_not_yet_supported',
 };
 
-
 export const REQUIRED_OVIRT_API_VERSION = {
     major: 4,
     minor: 0, // TODO: do not commit change, keep to 0!
@@ -84,4 +83,3 @@ export function getOvirtBaseUrl () {
 }
 
 export default CONFIG;
-

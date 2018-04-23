@@ -31,7 +31,6 @@ const _ = cockpit.gettext;
 
 const ENABLED = 'enabled';
 
-
 class LibvirtSlate extends React.Component {
     constructor(props) {
         super(props);

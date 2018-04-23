@@ -36,7 +36,6 @@ const IGNORE_VENDORS = ['ALTLinux', 'Mandriva', 'GNOME Project'];
 const ACCEPT_RELEASE_DATES_AFTER = getTodayYearShifted(-3);
 const ACCEPT_EOL_DATES_AFTER = getTodayYearShifted(-1);
 
-
 export function getOSStringRepresentation(os) {
     let appendix = '';
 
@@ -111,7 +110,6 @@ export function prepareVendors(osInfoList) {
                 });
             });
         });
-
 
     const familyList = Object.keys(familyMap)
         .sort((a, b) => {

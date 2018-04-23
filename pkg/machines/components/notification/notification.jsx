@@ -22,7 +22,6 @@ import { mouseClick } from "../../helpers.es6";
 
 import './notification.css'
 
-
 export const NotificationMessage = ({ description, message }) => {
     const messageNode = message ? (
         <strong>

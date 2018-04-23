@@ -45,7 +45,6 @@ import DummyVm from './components/vm/dummyVm.jsx';
 
 const _ = cockpit.gettext;
 
-
 /**
  * List of all VMs defined on this host
  */

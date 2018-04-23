@@ -32,7 +32,6 @@ import DonutChart from "../../c3charts.jsx";
 
 const _ = cockpit.gettext;
 
-
 class VmUsageTab extends React.Component {
     componentDidMount() {
         this.props.onUsageStartPolling();

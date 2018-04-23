@@ -49,7 +49,6 @@ const _ = cockpit.gettext;
 const URL_SOURCE = 'url';
 const COCKPIT_FILESYSTEM_SOURCE = 'file';
 
-
 const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitChange }) => {
     return (
         <tr>
@@ -90,7 +89,6 @@ const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitC
         </tr>
     );
 };
-
 
 /* Create a virtual machine
  * props:
@@ -228,7 +226,6 @@ class CreateVM extends React.Component {
                 );
                 break;
         }
-
 
         return (
             <div className="modal-body modal-dialog-body-table">

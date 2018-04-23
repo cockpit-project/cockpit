@@ -237,7 +237,6 @@ function getBackend() {
     return getBackend.promise;
 }
 
-
 /**
  * Main React component
  *
@@ -338,4 +337,3 @@ export default class AutoUpdates extends React.Component {
             </div>);
     }
 }
-

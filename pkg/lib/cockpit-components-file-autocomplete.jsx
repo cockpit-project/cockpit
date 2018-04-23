@@ -146,7 +146,6 @@ var FileAutoComplete = React.createClass({
                 results.push(item);
             }
 
-
             if (results.length > 5000) {
                 error = _("Too many files found");
                 channel.close();

@@ -841,8 +841,7 @@ virtDBusDomainGetBlkioParameters(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
-    g_autofree virTypedParameterPtr params = NULL;
-    gint nparams = 0;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
     guint flags;
     gint ret;
     GVariant *grecords;
@@ -853,14 +852,16 @@ virtDBusDomainGetBlkioParameters(GVariant *inArgs,
     if (!domain)
         return;
 
-    ret = virDomainGetBlkioParameters(domain, NULL, &nparams, flags);
-    if (ret == 0 && nparams != 0) {
-        params = g_new0(virTypedParameter, nparams);
-        if (virDomainGetBlkioParameters(domain, params, &nparams, flags) < 0)
+    ret = virDomainGetBlkioParameters(domain, NULL, &params.nparams, flags);
+    if (ret == 0 && params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virDomainGetBlkioParameters(domain, params.params,
+                                        &params.nparams, flags) < 0) {
             return virtDBusUtilSetLastVirtError(error);
+        }
     }
 
-    grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }
@@ -958,8 +959,7 @@ virtDBusDomainGetMemoryParameters(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
-    g_autofree virTypedParameterPtr params = NULL;
-    gint nparams = 0;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
     guint flags;
     gint ret;
     GVariant *grecords;
@@ -970,14 +970,16 @@ virtDBusDomainGetMemoryParameters(GVariant *inArgs,
     if (!domain)
         return;
 
-    ret = virDomainGetMemoryParameters(domain, NULL, &nparams, flags);
-    if (ret == 0 && nparams != 0) {
-        params = g_new0(virTypedParameter, nparams);
-        if (virDomainGetMemoryParameters(domain, params, &nparams, flags) < 0)
+    ret = virDomainGetMemoryParameters(domain, NULL, &params.nparams, flags);
+    if (ret == 0 && params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virDomainGetMemoryParameters(domain, params.params,
+                                         &params.nparams, flags) < 0) {
             return virtDBusUtilSetLastVirtError(error);
+        }
     }
 
-    grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }
@@ -993,8 +995,7 @@ virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
-    g_autofree virTypedParameterPtr params = NULL;
-    gint nparams;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
     guint flags;
     GVariant *grecords;
     g_autofree gchar *ret = NULL;
@@ -1005,14 +1006,15 @@ virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
     if (!domain)
         return;
 
-    ret = virDomainGetSchedulerType(domain, &nparams);
-    if (ret && nparams != 0) {
-        params = g_new0(virTypedParameter, nparams);
-        if (virDomainGetSchedulerParametersFlags(domain, params, &nparams, 0))
+    ret = virDomainGetSchedulerType(domain, &params.nparams);
+    if (ret && params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virDomainGetSchedulerParametersFlags(domain, params.params,
+                                                 &params.nparams, 0))
             return virtDBusUtilSetLastVirtError(error);
     }
 
-    grecords = virtDBusUtilTypedParamsToGVariant(params, nparams);
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }

@@ -35,6 +35,7 @@ sys.dont_write_bytecode = True
 
 import task
 import learn.data
+import learn.extractor
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
@@ -96,15 +97,8 @@ def loader(training_data, verbose, dry):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         inp = proc.stdout
 
-    def failures_without_tracker(item):
-        return item.get("status") == "failure" and item.get("tracker") is None
-
-    # TODO: For now we avoid everything that already has a tracker
-    # otherwise this results in too much data for our simple use
-    # of the DBSCAN algorithm ... later we can preselect certain
-    # values that have a tracker ... or use BIRCH
     try:
-        items = list(learn.data.load(inp, only=failures_without_tracker, verbose=verbose))
+        items = list(learn.data.load(inp, only=learn.extractor.select, verbose=verbose))
     finally:
         if proc:
             proc.wait()

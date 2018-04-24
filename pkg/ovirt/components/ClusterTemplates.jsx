@@ -82,7 +82,7 @@ class CreateVmFromTemplate extends React.Component {
     }
 }
 
-const TemplateActions = ({ template, cluster, dispatch}) => {
+const TemplateActions = ({ template, cluster, dispatch }) => {
     if (!cluster) {
         logDebug('TemplateActions: unknown cluster');
         return null;

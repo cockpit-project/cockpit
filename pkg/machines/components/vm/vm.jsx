@@ -48,8 +48,8 @@ const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceof
 
     let tabRenderers = [
         {name: _("Overview"), renderer: VmOverviewTab, data: { vm, config, dispatch }},
-        {name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
-        {name: disksTabName, renderer: VmDisksTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
+        {name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive'},
+        {name: disksTabName, renderer: VmDisksTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive'},
         {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
         {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
     ];

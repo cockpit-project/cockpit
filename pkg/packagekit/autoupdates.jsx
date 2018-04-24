@@ -214,7 +214,7 @@ function getBackend() {
         cockpit.script(["if rpm -q dnf-automatic >/dev/null; then echo dnf; " +
                         "elif rpm -q yum-cron >/dev/null; then echo yum; " +
                         "elif dpkg -s unattended-upgrades >/dev/null 2>&1; then echo apt; fi"],
-                       [], { err: "message"})
+                       [], { err: "message" })
                 .done(output => {
                     output = output.trim();
                     debug("getBackend(): detection finished, output", output);

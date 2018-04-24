@@ -26,7 +26,7 @@ import { ovirtApiGet, ovirtApiPost } from './ovirtApiAccess.es6';
 import { pollOvirt, forceNextOvirtPoll } from './ovirt.es6';
 import { oVirtIconToInternal } from './ovirtConverters.es6';
 
-import { updateIcon, downloadIcon, } from './actions.es6';
+import { updateIcon, downloadIcon } from './actions.es6';
 import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';
 import { ovirtReducer } from './reducers.es6';
 

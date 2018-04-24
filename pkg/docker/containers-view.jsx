@@ -333,7 +333,7 @@ var ContainerList = React.createClass({
                     {
                         name: _("Problems"),
                         renderer: ContainerProblems,
-                        data: { problem: c_problems}
+                        data: { problem: c_problems }
                     }
                 );
             }

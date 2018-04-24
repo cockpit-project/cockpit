@@ -123,7 +123,7 @@ function doLogin ({ dispatch }) {
         window.sessionStorage.setItem('OVIRT_PROVIDER_TOKEN', token);
         logDebug(`doLogin(): token from params stored to sessionStorage, now removing the token hash from the url. `, token);
         window.top.location.hash = '';
-        return onLoginSuccessful({ dispatch, token});
+        return onLoginSuccessful({ dispatch, token });
     } else if (token) { // found in the sessionStorrage
         logDebug(`doLogin(): token found in sessionStorrage: ${token}`);
         return onLoginSuccessful({ dispatch, token });

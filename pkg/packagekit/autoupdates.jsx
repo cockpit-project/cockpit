@@ -252,7 +252,7 @@ export default class AutoUpdates extends React.Component {
         getBackend().then(b => {
             this.setState({ backend: b }, () => this.debugBackendState("AutoUpdates: backend initialized"));
             if (this.props.onInitialized)
-                this.props.onInitialized(b && b.enabled || null);
+                this.props.onInitialized(b ? b.enabled : null);
         });
     }
 

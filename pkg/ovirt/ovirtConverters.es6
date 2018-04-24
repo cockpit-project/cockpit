@@ -101,8 +101,8 @@ export function vmConverter(vm) {
         description: vm.description,
         highAvailability: vm.high_availability,
         icons: {
-            largeId: vm.large_icon && vm.large_icon.id || undefined,
-            smallId: vm.small_icon && vm.small_icon.id || undefined,
+            largeId: vm.large_icon ? vm.large_icon.id : undefined,
+            smallId: vm.small_icon ? vm.small_icon.id : undefined,
         },
         memory: vm.memory,
         cpu: {

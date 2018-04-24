@@ -906,7 +906,7 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const lines = parseLines(domstats);
 
-    const cpuTime = getValueFromLine(lines, 'cpu\.time=');
+    const cpuTime = getValueFromLine(lines, 'cpu.time=');
     // TODO: Add network usage statistics
 
     if (cpuTime) {
@@ -917,7 +917,7 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 }
 
 function parseDomstatsForDisks(domstatsLines) {
-    const count = getValueFromLine(domstatsLines, 'block\.count=');
+    const count = getValueFromLine(domstatsLines, 'block.count=');
     if (!count) {
         return;
     }
@@ -926,10 +926,10 @@ function parseDomstatsForDisks(domstatsLines) {
     // TODO: If disk stats is required for old systems, find a way how to get it when 'block.X.capacity' is not present, consider various options for 'sources'
     const disksStats = {};
     for (let i = 0; i < count; i++) {
-        const target = getValueFromLine(domstatsLines, `block\.${i}\.name=`);
-        const physical = getValueFromLine(domstatsLines, `block\.${i}\.physical=`) || NaN;
-        const capacity = getValueFromLine(domstatsLines, `block\.${i}\.capacity=`) || NaN;
-        const allocation = getValueFromLine(domstatsLines, `block\.${i}\.allocation=`) || NaN;
+        const target = getValueFromLine(domstatsLines, `block.${i}.name=`);
+        const physical = getValueFromLine(domstatsLines, `block.${i}.physical=`) || NaN;
+        const capacity = getValueFromLine(domstatsLines, `block.${i}.capacity=`) || NaN;
+        const allocation = getValueFromLine(domstatsLines, `block.${i}.allocation=`) || NaN;
 
         if (target) {
             disksStats[target] = {
@@ -938,7 +938,7 @@ function parseDomstatsForDisks(domstatsLines) {
                 allocation,
             };
         } else {
-            console.warn(`parseDomstatsForDisks(): mandatory property is missing in domstats (block\.${i}\.name)`);
+            console.warn(`parseDomstatsForDisks(): mandatory property is missing in domstats (block.${i}.name)`);
         }
     }
     return disksStats;

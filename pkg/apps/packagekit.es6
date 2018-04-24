@@ -36,13 +36,13 @@ function resolve_many(method, filter, names, progress_cb) {
     return PK.cancellableTransaction(method, [ filter, names ], progress_cb,
                                      {
                                          Package: (info, package_id) => ids.push(package_id),
-                                     }).
-            then(() => ids);
+                                     })
+            .then(() => ids);
 }
 
 function resolve(method, filter, name, progress_cb) {
-    return resolve_many(method, filter, [ name ], progress_cb).
-            then(function (ids) {
+    return resolve_many(method, filter, [ name ], progress_cb)
+            .then(function (ids) {
                 if (ids.length === 0)
                     return Promise.reject({ detail: "Can't resolve package", code: "not-found" });
                 else
@@ -56,18 +56,18 @@ function reload_bridge_packages() {
 
 function install(name, progress_cb) {
     return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
-                   progress_reporter(0, 1, progress_cb)).
-            then(function (pkgid) {
-                return PK.cancellableTransaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
-                        then(reload_bridge_packages);
+                   progress_reporter(0, 1, progress_cb))
+            .then(function (pkgid) {
+                return PK.cancellableTransaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb))
+                        .then(reload_bridge_packages);
             });
 }
 
 function remove(name, progress_cb) {
-    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb)).
-            then(function (pkgid) {
-                return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
-                        then(reload_bridge_packages);
+    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb))
+            .then(function (pkgid) {
+                return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb))
+                        .then(reload_bridge_packages);
             });
 }
 
@@ -115,8 +115,8 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
                                                  if (pkg in origin_pkgs)
                                                      update_ids.push(package_id);
                                              },
-                                         }).
-                then(function () {
+                                         })
+                .then(function () {
                     if (update_ids.length > 0)
                         return PK.cancellableTransaction("UpdatePackages", [ 0, update_ids ],
                                                          progress_reporter(80, 15, progress_cb));
@@ -127,12 +127,12 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
         if (pkgs.length > 0) {
             return resolve_many("Resolve",
                                 PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED,
-                                pkgs, progress_reporter(start_progress, 1, progress_cb)).
-                    then(function (ids) {
+                                pkgs, progress_reporter(start_progress, 1, progress_cb))
+                    .then(function (ids) {
                         if (ids.length > 0) {
                             return PK.cancellableTransaction("InstallPackages", [ 0, ids ],
-                                                             progress_reporter(start_progress + 1, 4, progress_cb)).
-                                    catch(ex => {
+                                                             progress_reporter(start_progress + 1, 4, progress_cb))
+                                    .catch(ex => {
                                         if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
                                             return Promise.reject(ex);
                                     });
@@ -143,11 +143,11 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
         }
     }
 
-    return ensure_packages(config_packages, 0).
-            then(search_origin_file_packages).
-            then(refresh_cache).
-            then(maybe_update_origin_file_packages).
-            then(() => ensure_packages(data_packages, 95));
+    return ensure_packages(config_packages, 0)
+            .then(search_origin_file_packages)
+            .then(refresh_cache)
+            .then(maybe_update_origin_file_packages)
+            .then(() => ensure_packages(data_packages, 95));
 }
 
 module.exports = {

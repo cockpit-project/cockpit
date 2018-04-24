@@ -38,9 +38,9 @@ class ApplicationRow extends React.Component {
 
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
-            func(arg, (data) => self.setState({ progress: data })).
-                    finally(() => self.setState({ progress: null })).
-                    catch(show_error);
+            func(arg, (data) => self.setState({ progress: data }))
+                    .finally(() => self.setState({ progress: null }))
+                    .catch(show_error);
         }
 
         function install() {
@@ -117,9 +117,9 @@ class ApplicationList extends React.Component {
             PackageKit.refresh(self.props.metainfo_db.origin_files,
                                config.appstream_config_packages || [ ],
                                config.appstream_data_packages || [ ],
-                               data => self.setState({ progress: data })).
-                    finally(() => self.setState({ progress: false })).
-                    catch(show_error);
+                               data => self.setState({ progress: data }))
+                    .finally(() => self.setState({ progress: false }))
+                    .catch(show_error);
         }
 
         var refresh_progress, refresh_button, empty_caption, tbody, table_classes;

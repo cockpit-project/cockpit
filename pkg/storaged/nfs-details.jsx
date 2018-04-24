@@ -101,8 +101,8 @@ export function nfs_fstab_dialog(client, entry) {
                             dirs.push(d);
                     });
                     setter(dirs);
-                }).
-                fail(function (error) {
+                })
+                .fail(function (error) {
                     console.warn(error);
                 });
     }

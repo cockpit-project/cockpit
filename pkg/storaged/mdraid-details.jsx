@@ -248,8 +248,8 @@ export class MDRaidDetails extends React.Component {
                               Action: {
                                   Title: _("Stop Device"),
                                   action: function () {
-                                      return utils.teardown_active_usage(client, usage).
-                                              then(function () {
+                                      return utils.teardown_active_usage(client, usage)
+                                              .then(function () {
                                                   return mdraid.Stop({});
                                               });
                                   }
@@ -302,9 +302,9 @@ export class MDRaidDetails extends React.Component {
                               Title: _("Delete"),
                               Danger: _("Deleting a RAID device will erase all data on it."),
                               action: function () {
-                                  return utils.teardown_active_usage(client, usage).
-                                          then(delete_).
-                                          then(function () {
+                                  return utils.teardown_active_usage(client, usage)
+                                          .then(delete_)
+                                          .then(function () {
                                               location.go('/');
                                           });
                               }

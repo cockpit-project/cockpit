@@ -86,10 +86,10 @@ var FilesystemTab = React.createClass({
         old_config = utils.array_find(block.Configuration, function (c) { return c[0] == "fstab"; });
         if (old_config) {
             old_dir = utils.decode_filename(old_config[1].dir.v);
-            old_opts = (utils.decode_filename(old_config[1].opts.v).
-                    split(",").
-                    filter(function (s) { return s.indexOf("x-parent") !== 0; }).
-                    join(","));
+            old_opts = (utils.decode_filename(old_config[1].opts.v)
+                    .split(",")
+                    .filter(function (s) { return s.indexOf("x-parent") !== 0; })
+                    .join(","));
         }
 
         var mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [ ];

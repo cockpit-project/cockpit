@@ -29,8 +29,8 @@ export function cpu_ram_info(address) {
         dfd = cockpit.defer();
         cpu_ram_info_promises[address] = pr = dfd.promise();
 
-        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address }).
-                done(function(text) {
+        cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
+                .done(function(text) {
                     var info = { };
                     var match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);
                     var total_kb = match && parseInt(match[1], 10);
@@ -46,8 +46,8 @@ export function cpu_ram_info(address) {
                     while (re.test(text))
                         info.cpus += 1;
                     dfd.resolve(info);
-                }).
-                fail(function() {
+                })
+                .fail(function() {
                     dfd.reject();
                 });
     }

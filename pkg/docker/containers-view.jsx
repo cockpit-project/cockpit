@@ -234,8 +234,8 @@ var ContainerList = React.createClass({
         this.problems = this.problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
         this.problems.wait(function() {
             if (typeof self.service.GetSession !== "undefined"){
-                self.service.GetSession().
-                        done(function(session_path) {
+                self.service.GetSession()
+                        .done(function(session_path) {
                             self.problems_client.call(session_path, "org.freedesktop.Problems2.Session", "Authorize", [{}]);
                         });
             }
@@ -531,10 +531,10 @@ var ImageList = React.createClass({
             return;
 
         util.confirm(cockpit.format(_("Delete $0"), image.RepoTags[0]),
-                     _("Are you sure you want to delete this image?"), _("Delete")).
-                done(function () {
-                    this.props.client.rmi(image.Id).
-                            fail(function(ex) {
+                     _("Are you sure you want to delete this image?"), _("Delete"))
+                .done(function () {
+                    this.props.client.rmi(image.Id)
+                            .fail(function(ex) {
                                 util.show_unexpected_error(ex);
                             });
                 }.bind(this));

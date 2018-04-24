@@ -71,14 +71,14 @@ export class IscsiPanel extends React.Component {
                                                             [ vals.address,
                                                                 0,
                                                                 options
-                                                            ]).
-                                          done(function (results) {
+                                                            ])
+                                          .done(function (results) {
                                               if (!cancelled) {
                                                   dfd.resolve();
                                                   iscsi_add(vals, results[0]);
                                               }
-                                          }).
-                                          fail(function (error) {
+                                          })
+                                          .fail(function (error) {
                                               if (!cancelled)
                                                   dfd.reject(error);
                                           });
@@ -202,8 +202,8 @@ export class IscsiPanel extends React.Component {
         }
 
         function iscsi_change_name() {
-            client.manager_iscsi.call('GetInitiatorName').
-                    done(function (results) {
+            client.manager_iscsi.call('GetInitiatorName')
+                    .done(function (results) {
                         var name = results[0];
                         dialog.open({ Title: _("Change iSCSI Initiator Name"),
                                       Fields: [

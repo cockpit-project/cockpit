@@ -152,8 +152,8 @@ function lvol_grow(client, lvol, info) {
                   Action: {
                       Title: _("Grow"),
                       action: function (vals) {
-                          return utils.teardown_active_usage(client, usage).
-                                  then(function () {
+                          return utils.teardown_active_usage(client, usage)
+                                  .then(function () {
                                       return lvol_and_fsys_resize(client, lvol, vals.size,
                                                                   info.grow_needs_unmount);
                                   });
@@ -189,8 +189,8 @@ function lvol_shrink(client, lvol, info) {
                   Action: {
                       Title: _("Shrink"),
                       action: function (vals) {
-                          return utils.teardown_active_usage(client, usage).
-                                  then(function () {
+                          return utils.teardown_active_usage(client, usage)
+                                  .then(function () {
                                       return lvol_and_fsys_resize(client, lvol, vals.size,
                                                                   info.shrink_needs_unmount);
                                   });

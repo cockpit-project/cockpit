@@ -244,8 +244,8 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                             resolve(exit);
                         },
                     }, signalHandlers || {}),
-                    changed).
-                catch(ex => {
+                    changed)
+                .catch(ex => {
                     progress_cb = null;
                     reject(ex);
                 });

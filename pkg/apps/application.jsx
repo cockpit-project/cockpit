@@ -46,9 +46,9 @@ class Application extends React.Component {
 
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
-            func(arg, data => self.setState({ progress: data })).
-                    finally(() => self.setState({ progress: null })).
-                    catch(show_error);
+            func(arg, data => self.setState({ progress: data }))
+                    .finally(() => self.setState({ progress: null }))
+                    .catch(show_error);
         }
 
         function install() {

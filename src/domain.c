@@ -1256,6 +1256,53 @@ virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
 }
 
 static void
+virtDBusDomainGetJobStats(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+    const gchar *typeStr;
+    gint type;
+    GVariant *grecords;
+    GVariantBuilder builder;
+    GVariant *gret;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetJobStats(domain, &type, &params.params,
+                             &params.nparams, flags) < 0) {
+        return virtDBusUtilSetLastVirtError(error);
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
+
+    typeStr = virtDBusDomainJobTypeToString(type);
+    if (!typeStr) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't format virDomainJobType '%d' to string.", type);
+        return;
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("(sa{sv})"));
+    g_variant_builder_add(&builder, "s", typeStr);
+    g_variant_builder_add_value(&builder, grecords);
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusDomainGetMemoryParameters(GVariant *inArgs,
                                   GUnixFDList *inFDs G_GNUC_UNUSED,
                                   const gchar *objectPath,
@@ -2302,6 +2349,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetHostname", virtDBusDomainGetHostname },
     { "GetInterfaceParameters", virtDBusDomainGetInterfaceParameters },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
+    { "GetJobStats", virtDBusDomainGetJobStats },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },

@@ -227,6 +227,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>
       <arg name="jobInfo" type="(sttttttttttt)" direction="out"/>
     </method>
+    <method name="GetJobStats">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobStats"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="stats" type="(sa{sv})" direction="out"/>
+    </method>
     <method name="GetMemoryParameters">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetMemoryParameters"/>

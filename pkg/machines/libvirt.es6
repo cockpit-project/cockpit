@@ -393,10 +393,10 @@ LIBVIRT_PROVIDER = {
 
     USAGE_START_POLLING ({ name, connectionName }) {
         logDebug(`${this.name}.USAGE_START_POLLING(${name}):`);
-        return (dispatch => {
+        return dispatch => {
             dispatch(updateVm({ connectionName, name, usagePolling: true }));
             dispatch(doUsagePolling(name, connectionName));
-        });
+        };
     },
 
     USAGE_STOP_POLLING ({ name, connectionName }) {

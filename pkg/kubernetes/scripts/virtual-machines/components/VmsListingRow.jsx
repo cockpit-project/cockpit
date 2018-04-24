@@ -29,9 +29,8 @@ import VmActions from './VmActions.jsx';
 import VmDisksTab from './VmDisksTabKubevirt.jsx';
 
 import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
-import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
+import { NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
 import { vmExpanded } from "../action-creators.jsx";
-import { getValueOrDefault } from "../utils.jsx";
 
 const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
                            { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod, onExpandChanged: Function }) => {

@@ -47,8 +47,8 @@ class MDRaidSidebar extends React.Component {
                                 Title: _("Disks"),
                                 Options: (
                                     utils.get_available_spaces(client)
-                                         .filter(filter_inside_mdraid)
-                                         .map(utils.available_space_to_option)
+                                            .filter(filter_inside_mdraid)
+                                            .map(utils.available_space_to_option)
                                 ),
                                 EmptyWarning: _("No disks are available."),
                                 validate: function (disks) {
@@ -134,12 +134,12 @@ class MDRaidSidebar extends React.Component {
                         <span className="state">{states}</span>
                     </td>
                     { dynamic_members
-                      ? <td className="storage-action">
-                          <StorageButton onClick={remove} excuse={remove_excuse}>
-                              <span className="fa fa-minus"></span>
-                          </StorageButton>
-                      </td>
-                      : null }
+                        ? <td className="storage-action">
+                            <StorageButton onClick={remove} excuse={remove_excuse}>
+                                <span className="fa fa-minus"></span>
+                            </StorageButton>
+                        </td>
+                        : null }
                 </tr>);
         }
 
@@ -152,12 +152,12 @@ class MDRaidSidebar extends React.Component {
                 <div className="panel-heading">
                     <span>{_("Disks")}</span>
                     {dynamic_members
-                     ? <span className="pull-right">
-                         <StorageButton onClick={add_disk} excuse={add_excuse}>
-                             <span className="fa fa-plus"></span>
-                         </StorageButton>
-                     </span>
-                     : null}
+                        ? <span className="pull-right">
+                            <StorageButton onClick={add_disk} excuse={add_excuse}>
+                                <span className="fa fa-plus"></span>
+                            </StorageButton>
+                        </span>
+                        : null}
                 </div>
                 <table className="table">
                     <tbody>
@@ -249,9 +249,9 @@ export class MDRaidDetails extends React.Component {
                                   Title: _("Stop Device"),
                                   action: function () {
                                       return utils.teardown_active_usage(client, usage).
-                                                   then(function () {
-                                                       return mdraid.Stop({});
-                                                   });
+                                              then(function () {
+                                                  return mdraid.Stop({});
+                                              });
                                   }
                               }
                 });
@@ -303,10 +303,10 @@ export class MDRaidDetails extends React.Component {
                               Danger: _("Deleting a RAID device will erase all data on it."),
                               action: function () {
                                   return utils.teardown_active_usage(client, usage).
-                                               then(delete_).
-                                               then(function () {
-                                                   location.go('/');
-                                               });
+                                          then(delete_).
+                                          then(function () {
+                                              location.go('/');
+                                          });
                               }
                           }
             });
@@ -318,8 +318,8 @@ export class MDRaidDetails extends React.Component {
                     { cockpit.format(_("RAID Device $0"), utils.mdraid_name(mdraid)) }
                     <span className="pull-right">
                         { running
-                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                          : <StorageButton onClick={start}>{_("Start")}</StorageButton>
+                            ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                            : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_dialog}>{_("Delete")}</StorageButton>
@@ -358,8 +358,8 @@ export class MDRaidDetails extends React.Component {
         var content = <Content.Block client={this.props.client} block={block}/>;
 
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
-                                 header={ header }
-                                 sidebar={ sidebar }
-                                 content={ content }/>;
+            header={ header }
+            sidebar={ sidebar }
+            content={ content }/>;
     }
 }

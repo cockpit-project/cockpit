@@ -72,8 +72,8 @@ var SwapTab = React.createClass({
             <div>
                 <div className="tab-actions">
                     { (is_active)
-                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                          : <StorageButton onClick={start}>{_("Start")}</StorageButton>
+                        ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                        : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                     }
                     <FormatButton client={this.props.client} block={this.props.block}/>
                 </div>

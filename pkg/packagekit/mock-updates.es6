@@ -19,7 +19,7 @@ export function injectMockUpdates(updates) {
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-123456", "https://cve.example.com?name=CVE-2017-9999"],
         vendor_urls: ["https://access.redhat.com/security/updates/classification/#critical", "critical",
-                      "https://access.redhat.com/errata/RHSA-2000:0001", "https://access.redhat.com/errata/RHSA-2000:0002"],
+            "https://access.redhat.com/errata/RHSA-2000:0001", "https://access.redhat.com/errata/RHSA-2000:0002"],
         severity: 8,
         description: "This will wreck your data center!",
     };
@@ -29,7 +29,7 @@ export function injectMockUpdates(updates) {
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-54321"],
         vendor_urls: ["https://access.redhat.com/security/updates/classification/#bogus", "bogus",
-                      "https://access.redhat.com/security/updates/classification/#low", "low"],
+            "https://access.redhat.com/security/updates/classification/#low", "low"],
         severity: 8,
         description: "Mostly Harmless",
     };
@@ -38,7 +38,7 @@ export function injectMockUpdates(updates) {
         version: "5-2",
         bug_urls: [],
         vendor_urls: ["https://access.redhat.com/security/updates/classification/#low", "low",
-                      "https://access.redhat.com/security/updates/classification/#important", "important"],
+            "https://access.redhat.com/security/updates/classification/#important", "important"],
         severity: 8,
         description: "This update will make you sleep more peacefully.",
     };

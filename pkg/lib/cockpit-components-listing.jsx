@@ -72,7 +72,7 @@ var ListingRow = React.createClass({
             expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
             activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
             loadedTabs: {}, // which tabs were already loaded - this is important for 'loadOnDemand' setting
-                             // contains tab indices
+            // contains tab indices
             selected: this.props.selected, // whether the current row is selected
         };
     },
@@ -172,8 +172,8 @@ var ListingRow = React.createClass({
         var expandToggle;
         if (allowExpand) {
             expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
-                               <i className="fa fa-fw"></i>
-                           </td>;
+                <i className="fa fa-fw"></i>
+            </td>;
         } else {
             expandToggle = <td className="listing-ct-toggle"></td>;
         }
@@ -336,7 +336,7 @@ var Listing = React.createClass({
                 </tr>
             );
         } else {
-           headerRow = <tr/>
+            headerRow = <tr/>
         }
         var caption;
         if (this.props.title || (this.props.actions && this.props.actions.length > 0))

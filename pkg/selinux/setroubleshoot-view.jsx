@@ -87,7 +87,7 @@ var SELinuxEventDetails = React.createClass({
                             msg = (
                                 <div className="alert alert-success">
                                     <span className="pficon pficon-ok"></span>
-                              <span> { _("Solution applied successfully") }: {self.props.fix.result}</span>
+                                    <span> { _("Solution applied successfully") }: {self.props.fix.result}</span>
                                 </div>
                             );
                         } else {
@@ -103,8 +103,8 @@ var SELinuxEventDetails = React.createClass({
                 fixit = (
                     <div className="setroubleshoot-listing-action">
                         <button className="btn btn-default"
-                                onClick={ self.runFix.bind(self, itmIdx) }
-                                >{ _("Apply this solution") }
+                            onClick={ self.runFix.bind(self, itmIdx) }
+                        >{ _("Apply this solution") }
                         </button>
                     </div>
                 );
@@ -113,7 +113,7 @@ var SELinuxEventDetails = React.createClass({
                     <div className="setroubleshoot-listing-action">
                         <span>{ _("Unable to apply this solution automatically") }</span>
                     </div>
-                  );
+                );
             }
             var detailsLink = <a href="#" tabIndex="0" onClick={ self.handleSolutionDetailsClick.bind(self, itmIdx) }>{ _("solution details") }</a>;
             var doState;
@@ -286,7 +286,7 @@ var SELinuxStatus = React.createClass({
                 <h2>{_("SELinux Policy")}</h2>
                 {errorMessage}
                 <label>{_("Enforce policy:")}
-                <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
+                    <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
                 </label>
                 {note}
             </div>
@@ -370,7 +370,7 @@ var SETroubleshootPage = React.createClass({
                         listingDetail = cockpit.format(_("Occurred between $0 and $1"),
                                                        itm.details.firstSeen.calendar(),
                                                        itm.details.lastSeen.calendar()
-                                                      );
+                        );
                     } else {
                         listingDetail = cockpit.format(_("Occurred $0"), itm.details.firstSeen.calendar());
                     }
@@ -408,7 +408,7 @@ var SETroubleshootPage = React.createClass({
                 var title;
                 if (itm.count > 1) {
                     title = cockpit.format(cockpit.ngettext("$0 occurrence", "$1 occurrences", itm.count),
-                            itm.count);
+                                           itm.count);
                     columns.push(<span className="badge" title={title}>{itm.count}</span>);
                 } else {
                     columns.push(<span></span>);
@@ -425,9 +425,9 @@ var SETroubleshootPage = React.createClass({
 
         troubleshooting = (
             <cockpitListing.Listing
-                    title={ title }
-                    emptyCaption={ emptyCaption }
-                    >
+                title={ title }
+                emptyCaption={ emptyCaption }
+            >
                 {entries}
             </cockpitListing.Listing>
         );

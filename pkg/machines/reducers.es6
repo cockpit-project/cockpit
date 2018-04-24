@@ -36,15 +36,15 @@ function config(state, action) {
     };
 
     switch (action.type) {
-        case 'SET_PROVIDER':
-            return Object.assign({}, state, { provider: action.provider });
-        case 'SET_REFRESH_INTERVAL': {
-            const newState = Object.assign({}, state);
-            newState.refreshInterval = action.refreshInterval;
-            return newState;
-        }
-        default:
-            return state;
+    case 'SET_PROVIDER':
+        return Object.assign({}, state, { provider: action.provider });
+    case 'SET_REFRESH_INTERVAL': {
+        const newState = Object.assign({}, state);
+        newState.refreshInterval = action.refreshInterval;
+        return newState;
+    }
+    default:
+        return state;
     }
 }
 
@@ -85,64 +85,64 @@ function vms(state, action) {
 
     function replaceVm({ state, updatedVm, index }) {
         return state.slice(0, index)
-            .concat(updatedVm)
-            .concat(state.slice(index + 1));
+                .concat(updatedVm)
+                .concat(state.slice(index + 1));
     }
 
     switch (action.type) {
-        case 'UPDATE_ADD_VM': {
-            const connectionName = action.vm.connectionName;
-            const index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id, connectionName)
-                                       : getFirstIndexOfVm(state, 'name', action.vm.name, connectionName);
-            if (index < 0) { // add
-                return [...state, action.vm];
-            }
-
-            const updatedVm = Object.assign({}, state[index], action.vm);
-            return replaceVm({ state, updatedVm, index });
+    case 'UPDATE_ADD_VM': {
+        const connectionName = action.vm.connectionName;
+        const index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id, connectionName)
+            : getFirstIndexOfVm(state, 'name', action.vm.name, connectionName);
+        if (index < 0) { // add
+            return [...state, action.vm];
         }
-        case 'UPDATE_VM': {
-            const indexedVm = findVmToUpdate(state, action.vm);
-            if (!indexedVm) {
-                return state;
-            }
 
-            let updatedVm;
-            if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
-                logDebug(`Clearing usage data for vm '${action.vm.name}'`);
-                updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
-                clearUsageData(updatedVm);
-            } else {
-                timeSampleUsageData(action.vm, indexedVm.vmCopy);
-                updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
-            }
-
-            // replace whole object
-            return replaceVm({ state, updatedVm, index: indexedVm.index });
+        const updatedVm = Object.assign({}, state[index], action.vm);
+        return replaceVm({ state, updatedVm, index });
+    }
+    case 'UPDATE_VM': {
+        const indexedVm = findVmToUpdate(state, action.vm);
+        if (!indexedVm) {
+            return state;
         }
-        case 'VM_ACTION_FAILED': {
-            const indexedVm = findVmToUpdate(state, action.payload);
-            if (!indexedVm) { // already logged
-                return state;
-            }
-            const updatedVm = Object.assign(indexedVm.vmCopy, {
-                lastMessage: action.payload.message,
-                lastMessageDetail: action.payload.detail,
-            });
 
-            return replaceVm({ state, updatedVm, index: indexedVm.index });
+        let updatedVm;
+        if (action.vm['actualTimeInMs'] < 0) { // clear the usage data (i.e. VM went down)
+            logDebug(`Clearing usage data for vm '${action.vm.name}'`);
+            updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
+            clearUsageData(updatedVm);
+        } else {
+            timeSampleUsageData(action.vm, indexedVm.vmCopy);
+            updatedVm = Object.assign(indexedVm.vmCopy, action.vm);
         }
-        case 'UNDEFINE_VM': {
-            return state
+
+        // replace whole object
+        return replaceVm({ state, updatedVm, index: indexedVm.index });
+    }
+    case 'VM_ACTION_FAILED': {
+        const indexedVm = findVmToUpdate(state, action.payload);
+        if (!indexedVm) { // already logged
+            return state;
+        }
+        const updatedVm = Object.assign(indexedVm.vmCopy, {
+            lastMessage: action.payload.message,
+            lastMessageDetail: action.payload.detail,
+        });
+
+        return replaceVm({ state, updatedVm, index: indexedVm.index });
+    }
+    case 'UNDEFINE_VM': {
+        return state
                 .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
                     (action.transientOnly && vm.persistent)));
-        }
-        case 'DELETE_UNLISTED_VMS': {
-            return state
+    }
+    case 'DELETE_UNLISTED_VMS': {
+        return state
                 .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0));
-        }
-        default: // by default all reducers should return initial state on unknown actions
-            return state;
+    }
+    default: // by default all reducers should return initial state on unknown actions
+        return state;
     }
 }
 
@@ -157,18 +157,18 @@ function systemInfo(state, action) {
     };
 
     switch (action.type) {
-        case 'UPDATE_OS_INFO_LIST': {
-            if (action.osInfoList instanceof Array) {
-                state.osInfoList = [...action.osInfoList];
-            }
-            return state;
+    case 'UPDATE_OS_INFO_LIST': {
+        if (action.osInfoList instanceof Array) {
+            state.osInfoList = [...action.osInfoList];
         }
-        case 'UPDATE_LIBVIRT_STATE': {
-            state.libvirtService = Object.assign({}, state.libvirtService, action.state);
-            return state;
-        }
-        default: // by default all reducers should return initial state on unknown actions
-            return state;
+        return state;
+    }
+    case 'UPDATE_LIBVIRT_STATE': {
+        state.libvirtService = Object.assign({}, state.libvirtService, action.state);
+        return state;
+    }
+    default: // by default all reducers should return initial state on unknown actions
+        return state;
     }
 }
 
@@ -188,41 +188,41 @@ function ui(state, action) {
     };
 
     switch (action.type) {
-        case 'ADD_UI_VM': {
+    case 'ADD_UI_VM': {
+        addVm();
+        return state;
+    }
+    case 'UPDATE_UI_VM': {
+        if (state.vms[action.vm.name]) {
             addVm();
-            return state;
         }
-        case 'UPDATE_UI_VM': {
-            if (state.vms[action.vm.name]) {
-                addVm();
-            }
-            return state;
-        }
-        case 'DELETE_UI_VM':
-            delete state.vms[action.vm.name];
-            return state;
-        case 'ADD_NOTIFICATION': {
-            const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
-            const notifs = state.notifications;
-            notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
+        return state;
+    }
+    case 'DELETE_UI_VM':
+        delete state.vms[action.vm.name];
+        return state;
+    case 'ADD_NOTIFICATION': {
+        const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
+        const notifs = state.notifications;
+        notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
 
-            if (!notification.type) {
-                notification.type = 'info';
-            }
+        if (!notification.type) {
+            notification.type = 'info';
+        }
 
-            state.notifications = [...notifs, notification];
-            return state;
-        }
-        case 'CLEAR_NOTIFICATION': {
-            state.notifications = state.notifications.filter(error => error.id !== action.id);
-            return state;
-        }
-        case 'CLEAR_NOTIFICATIONS': {
-            state.notifications = [];
-            return state;
-        }
-        default:
-            return state;
+        state.notifications = [...notifs, notification];
+        return state;
+    }
+    case 'CLEAR_NOTIFICATION': {
+        state.notifications = state.notifications.filter(error => error.id !== action.id);
+        return state;
+    }
+    case 'CLEAR_NOTIFICATIONS': {
+        state.notifications = [];
+        return state;
+    }
+    default:
+        return state;
     }
 }
 

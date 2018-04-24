@@ -34,9 +34,9 @@ import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
 const _ = cockpit.gettext;
 
 function nfs_busy_dialog(client,
-                         dialog_title,
-                         entry, error,
-                         action_title, action) {
+    dialog_title,
+    entry, error,
+    action_title, action) {
 
     function show(users) {
         if (users.length === 0) {
@@ -74,12 +74,12 @@ function nfs_busy_dialog(client,
     }
 
     client.nfs.entry_users(entry)
-                 .done(function (users) {
-                     show(users);
-                 })
-                 .fail(function () {
-                     show([ ]);
-                 });
+            .done(function (users) {
+                show(users);
+            })
+            .fail(function () {
+                show([ ]);
+            });
 }
 
 export function nfs_fstab_dialog(client, entry) {
@@ -93,15 +93,15 @@ export function nfs_fstab_dialog(client, entry) {
         server_to_check = vals.server;
         setter([ ]);
         cockpit.spawn([ "showmount", "-e", "--no-headers", server_to_check ], { err: "message" })
-               .done(function (output) {
-                   var dirs = [ ];
-                   output.split("\n").forEach(function (line) {
-                       var d = line.split(" ")[0];
-                       if (d)
-                           dirs.push(d);
-                   });
-                   setter(dirs);
-               }).
+                .done(function (output) {
+                    var dirs = [ ];
+                    output.split("\n").forEach(function (line) {
+                        var d = line.split(" ")[0];
+                        if (d)
+                            dirs.push(d);
+                    });
+                    setter(dirs);
+                }).
                 fail(function (error) {
                     console.warn(error);
                 });
@@ -179,15 +179,15 @@ export function nfs_fstab_dialog(client, entry) {
                           action: function (vals) {
                               var location = cockpit.location;
                               var fields = [ vals.server + ":" + vals.remote,
-                                             vals.dir,
-                                             entry ? entry.fields[2] : "nfs",
-                                             mounting_options(vals) || "defaults" ];
+                                  vals.dir,
+                                  entry ? entry.fields[2] : "nfs",
+                                  mounting_options(vals) || "defaults" ];
                               if (entry) {
                                   return client.nfs.update_entry(entry, fields)
-                                               .done(function () {
-                                                   if (entry.fields[0] != fields[0] || entry.fields[1] != fields[1])
-                                                       location.go([ "nfs", fields[0], fields[1] ]);
-                                               });
+                                          .done(function () {
+                                              if (entry.fields[0] != fields[0] || entry.fields[1] != fields[1])
+                                                  location.go([ "nfs", fields[0], fields[1] ]);
+                                          });
                               } else
                                   return client.nfs.add_entry(fields);
                           }
@@ -197,14 +197,14 @@ export function nfs_fstab_dialog(client, entry) {
 
     if (entry) {
         client.nfs.entry_users(entry)
-              .done(function (users) {
-                  show(users.length > 0);
-              })
-              .fail(function () {
-                  show(false);
-              });
+                .done(function (users) {
+                    show(users.length > 0);
+                })
+                .fail(function () {
+                    show(false);
+                });
     } else
-    show(false);
+        show(false);
 }
 
 export class NFSDetails extends React.Component {
@@ -231,23 +231,23 @@ export class NFSDetails extends React.Component {
         function unmount() {
             var location = cockpit.location;
             client.nfs.unmount_entry(entry)
-                  .done(function () {
-                      if (!entry.fstab)
-                          location.go("/");
-                  })
-                  .fail(function (error) {
-                      nfs_busy_dialog(client,
-                                      _("Unable to unmount filesystem"),
-                                      entry, error,
-                                      _("Stop and Unmount"),
-                                      function (users) {
-                                          return client.nfs.stop_and_unmount_entry(users, entry)
-                                                       .done(function () {
-                                                           if (!entry.fstab)
-                                                               location.go("/");
-                                                       });
-                                      });
-                  });
+                    .done(function () {
+                        if (!entry.fstab)
+                            location.go("/");
+                    })
+                    .fail(function (error) {
+                        nfs_busy_dialog(client,
+                                        _("Unable to unmount filesystem"),
+                                        entry, error,
+                                        _("Stop and Unmount"),
+                                        function (users) {
+                                            return client.nfs.stop_and_unmount_entry(users, entry)
+                                                    .done(function () {
+                                                        if (!entry.fstab)
+                                                            location.go("/");
+                                                    });
+                                        });
+                    });
         }
 
         function edit() {
@@ -257,21 +257,21 @@ export class NFSDetails extends React.Component {
         function remove() {
             var location = cockpit.location;
             client.nfs.remove_entry(entry)
-                  .done(function () {
-                      location.go("/");
-                  })
-                  .fail(function (error) {
-                      nfs_busy_dialog(client,
-                                      _("Unable to remove mount"),
-                                      entry, error,
-                                      _("Stop and remove"),
-                                      function (users) {
-                                          return client.nfs.stop_and_remove_entry(users, entry)
-                                                       .done(function () {
-                                                           location.go("/");
-                                                       });
-                                      });
-                  });
+                    .done(function () {
+                        location.go("/");
+                    })
+                    .fail(function (error) {
+                        nfs_busy_dialog(client,
+                                        _("Unable to remove mount"),
+                                        entry, error,
+                                        _("Stop and remove"),
+                                        function (users) {
+                                            return client.nfs.stop_and_remove_entry(users, entry)
+                                                    .done(function () {
+                                                        location.go("/");
+                                                    });
+                                        });
+                    });
         }
 
         var header = (
@@ -280,16 +280,16 @@ export class NFSDetails extends React.Component {
                     {entry.fields[0]}
                     <span className="pull-right">
                         { entry.mounted
-                          ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                          : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
                         }
                         { "\n" }
                         { entry.fstab
-                          ? [
-                              <StorageButton onClick={edit}>{_("Edit")}</StorageButton>,
-                              "\n",
-                              <StorageButton onClick={remove} kind="danger">{_("Remove")}</StorageButton>
-                          ] : null
+                            ? [
+                                <StorageButton onClick={edit}>{_("Edit")}</StorageButton>,
+                                "\n",
+                                <StorageButton onClick={remove} kind="danger">{_("Remove")}</StorageButton>
+                            ] : null
                         }
                     </span>
                 </div>
@@ -307,14 +307,14 @@ export class NFSDetails extends React.Component {
                             <td>{_("Size")}</td>
                             <td>
                                 { entry.mounted
-                                  ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
-                                  : _("--")
+                                    ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                                    : _("--")
                                 }
                             </td>
                             <td>
                                 { entry.mounted && fsys_size
-                                  ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                                      : null
+                                    ? format_fsys_usage(fsys_size[0], fsys_size[1])
+                                    : null
                                 }
                             </td>
                         </tr>

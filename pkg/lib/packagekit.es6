@@ -156,27 +156,27 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
 export function transaction(method, arglist, signalHandlers, notifyHandler) {
     return new Promise((resolve, reject) => {
         call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
-            .done(result => {
-                let transactionPath = result[0];
-                let watchPromise;
-                if (signalHandlers || notifyHandler)
-                    watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
-                if (!watchPromise)
-                    watchPromise = cockpit.resolve();
+                .done(result => {
+                    let transactionPath = result[0];
+                    let watchPromise;
+                    if (signalHandlers || notifyHandler)
+                        watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
+                    if (!watchPromise)
+                        watchPromise = cockpit.resolve();
 
-                watchPromise
-                .done(() => {
-                    if (method) {
-                        call(transactionPath, transactionInterface, method, arglist)
-                            .done(() => resolve(transactionPath))
+                    watchPromise
+                            .done(() => {
+                                if (method) {
+                                    call(transactionPath, transactionInterface, method, arglist)
+                                            .done(() => resolve(transactionPath))
+                                            .fail(reject);
+                                } else {
+                                    resolve(transactionPath);
+                                }
+                            })
                             .fail(reject);
-                    } else {
-                        resolve(transactionPath);
-                    }
                 })
                 .fail(reject);
-            })
-            .fail(reject);
     });
 }
 
@@ -233,22 +233,22 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
         }, 1000);
 
         transaction(method, arglist,
-            Object.assign({
-                // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
-                ErrorCode: (code, detail) => {
+                    Object.assign({
+                        // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
+                        ErrorCode: (code, detail) => {
+                            progress_cb = null;
+                            reject({ detail, code: cancelled ? "cancelled" : code });
+                        },
+                        Finished: (exit, runtime) => {
+                            progress_cb = null;
+                            resolve(exit);
+                        },
+                    }, signalHandlers || {}),
+                    changed).
+                catch(ex => {
                     progress_cb = null;
-                    reject({ detail, code: cancelled ? "cancelled" : code });
-                },
-                Finished: (exit, runtime) => {
-                    progress_cb = null;
-                    resolve(exit);
-                },
-            }, signalHandlers || {}),
-            changed).
-            catch(ex => {
-                progress_cb = null;
-                reject(ex);
-            });
+                    reject(ex);
+                });
     });
 }
 
@@ -284,21 +284,21 @@ const validSubscriptionStates = [0, 3, 4];
  *           changes.
  */
 export function watchRedHatSubscription(callback) {
-        // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
-        var sm = cockpit.dbus("com.redhat.SubscriptionManager");
-        sm.subscribe(
-            { path: "/EntitlementStatus",
-              interface: "com.redhat.SubscriptionManager.EntitlementStatus",
-              member: "entitlement_status_changed"
-            },
-            (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
-        );
-        sm.call(
-            "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
+    // check if this is an unregistered RHEL system; if subscription-manager is not installed, ignore
+    var sm = cockpit.dbus("com.redhat.SubscriptionManager");
+    sm.subscribe(
+        { path: "/EntitlementStatus",
+          interface: "com.redhat.SubscriptionManager.EntitlementStatus",
+          member: "entitlement_status_changed"
+        },
+        (path, iface, signal, args) => callback(validSubscriptionStates.indexOf(args[0]) >= 0)
+    );
+    sm.call(
+        "/EntitlementStatus", "com.redhat.SubscriptionManager.EntitlementStatus", "check_status")
             .done(result => callback(validSubscriptionStates.indexOf(result[0]) >= 0) )
             .fail(ex => {
                 if (ex.problem != "not-found")
                     console.warn("Failed to query RHEL subscription status:", ex);
             }
-        );
-    }
+            );
+}

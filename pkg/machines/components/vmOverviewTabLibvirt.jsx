@@ -49,9 +49,9 @@ const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
     ];
 
     return (<VmOverviewTab message={message}
-                           idPrefix={idPrefix}
-                           items={items}
-                           extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)}/>);
+        idPrefix={idPrefix}
+        items={items}
+        extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)}/>);
 };
 
 VmOverviewTabLibvirt.propTypes = {

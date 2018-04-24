@@ -40,7 +40,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
     const idPrefix = vmIdPrefx(vm);
 
     const overviewTabRenderer = {
-       name: _("Overview"),
+        name: _("Overview"),
         renderer: VmOverviewTab,
         data: { vm, vmMessages, pod },
         presence: 'always',

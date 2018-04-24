@@ -158,10 +158,10 @@
         render() {
             return (
                 <StatelessSelect onChange={this.onChange}
-                                 selected={this.state.currentData}
-                                 id={this.props.id}
-                                 enabled={this.props.enabled}
-                                 extraClass={this.props.extraClass}>
+                    selected={this.state.currentData}
+                    id={this.props.id}
+                    enabled={this.props.enabled}
+                    extraClass={this.props.extraClass}>
                     {this.props.children}
                 </StatelessSelect>
             );

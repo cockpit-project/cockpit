@@ -141,8 +141,8 @@ function lvol_grow(client, lvol, info) {
                         Value: lvol.Size,
                         Min: lvol.Size,
                         Max: (pool
-                              ? pool.Size * 3
-                              : lvol.Size + vgroup.FreeSize),
+                            ? pool.Size * 3
+                            : lvol.Size + vgroup.FreeSize),
                         AllowInfinite: !!pool,
                         Round: vgroup.ExtentSize
                       }
@@ -151,10 +151,10 @@ function lvol_grow(client, lvol, info) {
                       Title: _("Grow"),
                       action: function (vals) {
                           return utils.teardown_active_usage(client, usage).
-                                       then(function () {
-                                           return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                       info.grow_needs_unmount);
-                                       });
+                                  then(function () {
+                                      return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                  info.grow_needs_unmount);
+                                  });
                       }
                   }
     });
@@ -188,10 +188,10 @@ function lvol_shrink(client, lvol, info) {
                       Title: _("Shrink"),
                       action: function (vals) {
                           return utils.teardown_active_usage(client, usage).
-                                       then(function () {
-                                           return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                       info.shrink_needs_unmount);
-                                       });
+                                  then(function () {
+                                      return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                  info.shrink_needs_unmount);
+                                  });
                       }
                   }
     });

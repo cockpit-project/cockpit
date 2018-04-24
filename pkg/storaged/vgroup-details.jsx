@@ -51,8 +51,8 @@ class VGroupSidebar extends React.Component {
                                 Title: _("Disks"),
                                 Options: (
                                     utils.get_available_spaces(client)
-                                         .filter(filter_inside_vgroup)
-                                         .map(utils.available_space_to_option)
+                                            .filter(filter_inside_vgroup)
+                                            .map(utils.available_space_to_option)
                                 ),
                                 EmptyWarning: _("No disks are available."),
                                 validate: function(disks) {
@@ -85,9 +85,9 @@ class VGroupSidebar extends React.Component {
 
             function pvol_empty_and_remove() {
                 return (vgroup.EmptyDevice(pvol.path, {})
-                              .then(function() {
-                                  vgroup.RemoveDevice(pvol.path, true, {});
-                              }));
+                        .then(function() {
+                            vgroup.RemoveDevice(pvol.path, true, {});
+                        }));
             }
 
             if (pvols.length === 1) {
@@ -186,9 +186,9 @@ export class VGroupDetails extends React.Component {
                               Title: _("Rename"),
                               action: function (vals) {
                                   return vgroup.Rename(vals.name, { }).
-                                                done(function () {
-                                                    location.go([ 'vg', vals.name ]);
-                                                });
+                                          done(function () {
+                                              location.go([ 'vg', vals.name ]);
+                                          });
                               }
                           }
             });
@@ -215,14 +215,14 @@ export class VGroupDetails extends React.Component {
                               Title: _("Delete"),
                               action: function () {
                                   return utils.teardown_active_usage(client, usage).
-                                               then(function () {
-                                                   return vgroup.Delete(true,
-                                                                        { 'tear-down': { t: 'b', v: true }
-                                                                        }).
-                                                                 done(function () {
-                                                                     location.go('/');
-                                                                 });
-                                               });
+                                          then(function () {
+                                              return vgroup.Delete(true,
+                                                                   { 'tear-down': { t: 'b', v: true }
+                                                                   }).
+                                                      done(function () {
+                                                          location.go('/');
+                                                      });
+                                          });
                               }
                           }
             });
@@ -258,8 +258,8 @@ export class VGroupDetails extends React.Component {
         var content = <Content.VGroup client={this.props.client} vgroup={vgroup}/>;
 
         return <StdDetailsLayout client={this.props.client}
-                                 header={ header }
-                                 sidebar={ sidebar }
-                                 content={ content }/>;
+            header={ header }
+            sidebar={ sidebar }
+            content={ content }/>;
     }
 }

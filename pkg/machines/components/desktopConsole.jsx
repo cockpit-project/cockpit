@@ -37,13 +37,13 @@ const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
 
 const MoreInformationContent = () => {
     const msg1 = cockpit.format(_("Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."),
-        '<i>Remote Viewer</i>');
+                                '<i>Remote Viewer</i>');
 
     const msg2 = cockpit.format(_("$0 is available for most operating systems. To install it, search for it in GNOME Software or run the following:"),
-        '<i>Remote Viewer</i>');
+                                '<i>Remote Viewer</i>');
 
     const downloadMsg = cockpit.format(_("Download the MSI from $0"),
-        '<a href="https://virt-manager.org/download/" target="_blank">virt-manager.org</a>');
+                                       '<a href="https://virt-manager.org/download/" target="_blank">virt-manager.org</a>');
 
     return (
         <div>

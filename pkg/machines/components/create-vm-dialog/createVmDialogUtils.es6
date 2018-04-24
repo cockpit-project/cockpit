@@ -93,33 +93,33 @@ export function prepareVendors(osInfoList) {
     });
 
     Object.keys(vendorMap)
-        .forEach(vendor => {
+            .forEach(vendor => {
             // distro sort
-            vendorMap[vendor] = vendorMap[vendor].sort((a, b) => {
-                if (!a.sortByVersionOnly) {
-                    const result = compareDates(a.releaseDate, b.releaseDate, true); // sort by release date
-                    if (result) {
-                        return result;
+                vendorMap[vendor] = vendorMap[vendor].sort((a, b) => {
+                    if (!a.sortByVersionOnly) {
+                        const result = compareDates(a.releaseDate, b.releaseDate, true); // sort by release date
+                        if (result) {
+                            return result;
+                        }
                     }
-                }
 
-                return (b.version + "").localeCompare(a.version, undefined, { // then sort by version
-                    numeric: true,
-                    sensitivity: 'base',
+                    return (b.version + "").localeCompare(a.version, undefined, { // then sort by version
+                        numeric: true,
+                        sensitivity: 'base',
+                    });
                 });
             });
-        });
 
     const familyList = Object.keys(familyMap)
-        .sort((a, b) => {
+            .sort((a, b) => {
             // families sort
-            return customVendorSort(a, b) || a.localeCompare(b);
-        }).map(family => {
+                return customVendorSort(a, b) || a.localeCompare(b);
+            }).map(family => {
             // vendor sort
-            const vendorMap = familyMap[family];
-            const vendors = Object.keys(vendorMap).sort(window.localeCompare);
-            return {family, vendors};
-        });
+                const vendorMap = familyMap[family];
+                const vendors = Object.keys(vendorMap).sort(window.localeCompare);
+                return {family, vendors};
+            });
 
     return {familyList, familyMap, vendorMap};
 }

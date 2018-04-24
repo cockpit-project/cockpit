@@ -22,10 +22,10 @@ import React from "react";
 const ConfirmButtons = ({ confirmText, dismissText, onYes, onNo }) => {
     return (
         <span>
-        <button className='btn btn-danger btn-xs' type='button' onClick={onYes}>{confirmText}</button>
+            <button className='btn btn-danger btn-xs' type='button' onClick={onYes}>{confirmText}</button>
             &nbsp;
             <button className='btn btn-primary btn-xs' type='button' onClick={onNo}>{dismissText}</button>
-      </span>
+        </span>
     );
 };
 

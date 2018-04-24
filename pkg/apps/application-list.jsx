@@ -39,8 +39,8 @@ class ApplicationRow extends React.Component {
         function action(func, arg, progress_title) {
             self.setState({ progress_title: progress_title });
             func(arg, (data) => self.setState({ progress: data })).
-                finally(() => self.setState({ progress: null })).
-                catch(show_error);
+                    finally(() => self.setState({ progress: null })).
+                    catch(show_error);
         }
 
         function install() {
@@ -69,7 +69,7 @@ class ApplicationRow extends React.Component {
                         {comp.summary}
                         <div className="alert alert-danger alert-dismissable">
                             <button className="close"
-                                    onClick={left_click(() => { this.setState({ error: null }) })}>
+                                onClick={left_click(() => { this.setState({ error: null }) })}>
                                 <span className="pficon pficon-close"/>
                             </button>
                             <span className="pficon pficon-error-circle-o"/>
@@ -118,8 +118,8 @@ class ApplicationList extends React.Component {
                                config.appstream_config_packages || [ ],
                                config.appstream_data_packages || [ ],
                                data => self.setState({ progress: data })).
-                finally(() => self.setState({ progress: false })).
-                catch(show_error);
+                    finally(() => self.setState({ progress: false })).
+                    catch(show_error);
         }
 
         var refresh_progress, refresh_button, empty_caption, tbody, table_classes;

@@ -76,9 +76,9 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
                 </td>
                 <td>
                     <Select.StatelessSelect id="console-type-select"
-                                            selected={selected}
-                                            onChange={onChange}
-                                            extraClass='console-type-select'>
+                        selected={selected}
+                        onChange={onChange}
+                        extraClass='console-type-select'>
                         {entries}
                     </Select.StatelessSelect>
                 </td>
@@ -194,28 +194,28 @@ class Consoles extends React.Component {
         let console = null;
         let actions = null;
         switch (this.state.consoleType) {
-            case 'serial-browser':
-                console = <SerialConsole vmName={vm.name} spawnArgs={serialConsoleCommand} />;
-                break;
-            case 'vnc-browser':
-                console = <Vnc vm={vm} consoleDetail={this.state.consoleDetail} />;
-                actions = <VncActions vm={vm} />;
-                break;
-            case 'desktop':
-                console = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />
-                break;
-            default:
-                console = <NoConsoleDefined />;
-                break;
+        case 'serial-browser':
+            console = <SerialConsole vmName={vm.name} spawnArgs={serialConsoleCommand} />;
+            break;
+        case 'vnc-browser':
+            console = <Vnc vm={vm} consoleDetail={this.state.consoleDetail} />;
+            actions = <VncActions vm={vm} />;
+            break;
+        case 'desktop':
+            console = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />
+            break;
+        default:
+            console = <NoConsoleDefined />;
+            break;
         }
 
         return (
             <div>
                 <span className='console-menu'>
                     <ConsoleSelector onChange={this.onConsoleTypeSelected}
-                                     isSerialConsole={!!serialConsoleCommand}
-                                     selected={this.state.consoleType}
-                                     vm={vm} />
+                        isSerialConsole={!!serialConsoleCommand}
+                        selected={this.state.consoleType}
+                        vm={vm} />
                     {actions}
                 </span>
                 {console}

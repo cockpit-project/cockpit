@@ -62,17 +62,17 @@ const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitC
                         <div className="evenly-spaced-table">
                             <span className="evenly-spaced-cell">
                                 <input id={id} className="form-control"
-                                       type="number"
-                                       value={toFixedPrecision(value)}
-                                       onKeyPress={digitFilter}
-                                       step={1}
-                                       min={0}
-                                       onChange={onValueChange}/>
+                                    type="number"
+                                    value={toFixedPrecision(value)}
+                                    onKeyPress={digitFilter}
+                                    step={1}
+                                    min={0}
+                                    onChange={onValueChange}/>
                             </span>
                             <span className="thirty-five-spaced-cell padding-left">
                                 <Select.Select id={id + "-unit-select"}
-                                               initial={initialUnit}
-                                               onChange={onUnitChange}>
+                                    initial={initialUnit}
+                                    onChange={onUnitChange}>
                                     <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
                                         {_("MiB")}
                                     </Select.SelectEntry>
@@ -82,7 +82,7 @@ const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitC
                                 </Select.Select>
                             </span>
                         </div>
-                     </span>
+                    </span>
                 </div>
             </td>
         </tr>
@@ -127,48 +127,48 @@ class CreateVM extends React.Component {
         };
 
         switch (key) {
-            case 'vendor': {
-                const os = this.props.vendorMap[value][0].shortId;
-                this.setState({
-                    [key]: value,
-                    os,
-                });
-                notifyValuesChanged('os', os);
-                break;
+        case 'vendor': {
+            const os = this.props.vendorMap[value][0].shortId;
+            this.setState({
+                [key]: value,
+                os,
+            });
+            notifyValuesChanged('os', os);
+            break;
+        }
+        case 'os':
+            this.setState({ [key]: value });
+            break;
+        case 'source':
+            if (valueParams) {
+                notifyValuesChanged('error', valueParams.error);
             }
-            case 'os':
-                this.setState({ [key]: value });
-                break;
-            case 'source':
-                if (valueParams) {
-                    notifyValuesChanged('error', valueParams.error);
-                }
-                break;
-            case 'sourceType':
-                this.setState({ [key]: value });
-                notifyValuesChanged('source', null);
-                notifyValuesChanged('error', null);
-                break;
-            case 'memorySize':
-                this.setState({ [key]: value });
-                value = convertToUnit(value, this.state.memorySizeUnit, units.MiB);
-                break;
-            case 'storageSize':
-                this.setState({ [key]: value });
-                value = convertToUnit(value, this.state.storageSizeUnit, units.GiB);
-                break;
-            case 'memorySizeUnit':
-                this.setState({ [key]: value });
-                value = convertToUnit(this.state.memorySize, value, units.MiB);
-                key = 'memorySize';
-                break;
-            case 'storageSizeUnit':
-                this.setState({ [key]: value });
-                value = convertToUnit(this.state.storageSize, value, units.GiB);
-                key = 'storageSize';
-                break;
-            default:
-                break;
+            break;
+        case 'sourceType':
+            this.setState({ [key]: value });
+            notifyValuesChanged('source', null);
+            notifyValuesChanged('error', null);
+            break;
+        case 'memorySize':
+            this.setState({ [key]: value });
+            value = convertToUnit(value, this.state.memorySizeUnit, units.MiB);
+            break;
+        case 'storageSize':
+            this.setState({ [key]: value });
+            value = convertToUnit(value, this.state.storageSizeUnit, units.GiB);
+            break;
+        case 'memorySizeUnit':
+            this.setState({ [key]: value });
+            value = convertToUnit(this.state.memorySize, value, units.MiB);
+            key = 'memorySize';
+            break;
+        case 'storageSizeUnit':
+            this.setState({ [key]: value });
+            value = convertToUnit(this.state.storageSize, value, units.GiB);
+            key = 'storageSize';
+            break;
+        default:
+            break;
         }
 
         notifyValuesChanged(key, value);
@@ -197,33 +197,33 @@ class CreateVM extends React.Component {
 
         const osEntries = (
             this.props.vendorMap[this.state.vendor]
-                .map(os => (<Select.SelectEntry data={os.shortId}
-                                                key={os.shortId}>{getOSStringRepresentation(os)}</Select.SelectEntry>))
+                    .map(os => (<Select.SelectEntry data={os.shortId}
+                        key={os.shortId}>{getOSStringRepresentation(os)}</Select.SelectEntry>))
         );
 
         let installationSource;
         let installationSourceId;
         switch (this.state.sourceType) {
-            case COCKPIT_FILESYSTEM_SOURCE:
-                installationSourceId = "source-file";
-                installationSource = (
-                    <FileAutoComplete.FileAutoComplete id={installationSourceId}
-                                                       placeholder={_("Path to ISO file on host's file system")}
-                                                       onChange={this.onChangedValue.bind(this, 'source')}/>
-                );
-                break;
-            case URL_SOURCE:
-            default:
-                installationSourceId = "source-url";
-                installationSource = (
-                    <input id={installationSourceId} className="form-control"
-                           type="text"
-                           minLength={1}
-                           placeholder={_("Remote URL")}
-                           value={this.props.vmParams.source}
-                           onChange={this.onChangedEventValue.bind(this, 'source')}/>
-                );
-                break;
+        case COCKPIT_FILESYSTEM_SOURCE:
+            installationSourceId = "source-file";
+            installationSource = (
+                <FileAutoComplete.FileAutoComplete id={installationSourceId}
+                    placeholder={_("Path to ISO file on host's file system")}
+                    onChange={this.onChangedValue.bind(this, 'source')}/>
+            );
+            break;
+        case URL_SOURCE:
+        default:
+            installationSourceId = "source-url";
+            installationSource = (
+                <input id={installationSourceId} className="form-control"
+                    type="text"
+                    minLength={1}
+                    placeholder={_("Remote URL")}
+                    value={this.props.vmParams.source}
+                    onChange={this.onChangedEventValue.bind(this, 'source')}/>
+            );
+            break;
         }
 
         return (
@@ -237,8 +237,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <input id="vm-name" className="form-control" type="text" minLength={1}
-                                   value={this.props.vmParams.vmName}
-                                   onChange={this.onChangedEventValue.bind(this, 'vmName')}/>
+                                value={this.props.vmParams.vmName}
+                                onChange={this.onChangedEventValue.bind(this, 'vmName')}/>
                         </td>
                     </tr>
                     <tr>
@@ -249,10 +249,10 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.Select id="source-type"
-                                           initial={this.state.sourceType}
-                                           onChange={this.onChangedValue.bind(this, 'sourceType')}>
+                                initial={this.state.sourceType}
+                                onChange={this.onChangedValue.bind(this, 'sourceType')}>
                                 <Select.SelectEntry data={COCKPIT_FILESYSTEM_SOURCE}
-                                                    key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
+                                    key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
                                 <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
                             </Select.Select>
                         </td>
@@ -275,8 +275,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.Select id="vendor-select"
-                                           initial={this.state.vendor}
-                                           onChange={this.onChangedValue.bind(this, 'vendor')}>
+                                initial={this.state.vendor}
+                                onChange={this.onChangedValue.bind(this, 'vendor')}>
                                 {vendorSelectEntries}
                             </Select.Select>
                         </td>
@@ -289,24 +289,24 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.StatelessSelect id="system-select"
-                                                    selected={this.state.os}
-                                                    onChange={this.onChangedValue.bind(this, 'os')}>
+                                selected={this.state.os}
+                                onChange={this.onChangedValue.bind(this, 'os')}>
                                 {osEntries}
                             </Select.StatelessSelect>
                         </td>
                     </tr>
                     <MemorySelectRow label={_("Memory")}
-                                     id={"memory-size"}
-                                     value={this.state.memorySize}
-                                     initialUnit={this.state.memorySizeUnit}
-                                     onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')}/>
+                        id={"memory-size"}
+                        value={this.state.memorySize}
+                        initialUnit={this.state.memorySizeUnit}
+                        onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
+                        onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')}/>
                     <MemorySelectRow label={_("Storage Size")}
-                                     id={"storage-size"}
-                                     value={this.state.storageSize}
-                                     initialUnit={this.state.storageSizeUnit}
-                                     onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')}/>
+                        id={"storage-size"}
+                        value={this.state.storageSize}
+                        initialUnit={this.state.storageSizeUnit}
+                        onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
+                        onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')}/>
                     <tr>
                         <td className="top">
                             <label className="control-label" htmlFor="start-vm">
@@ -315,8 +315,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <input id="start-vm" className="form-control dialog-checkbox" type="checkbox"
-                                   checked={this.props.vmParams.startVm}
-                                   onChange={this.onChangedEventChecked.bind(this, 'startVm')}/>
+                                checked={this.props.vmParams.startVm}
+                                onChange={this.onChangedEventChecked.bind(this, 'startVm')}/>
                         </td>
                     </tr>
                 </table>
@@ -350,19 +350,19 @@ function validateParams(vmParams) {
     vmParams.source = vmParams.source ? vmParams.source.trim() : null;
     if (!isEmpty(vmParams.source)) {
         switch (vmParams.sourceType) {
-            case COCKPIT_FILESYSTEM_SOURCE:
-                if (!vmParams.source.startsWith("/")) {
-                    return _("Invalid filename");
-                }
-                break;
-            case URL_SOURCE:
-            default:
-                if (!vmParams.source.startsWith("http") &&
+        case COCKPIT_FILESYSTEM_SOURCE:
+            if (!vmParams.source.startsWith("/")) {
+                return _("Invalid filename");
+            }
+            break;
+        case URL_SOURCE:
+        default:
+            if (!vmParams.source.startsWith("http") &&
                     !vmParams.source.startsWith("ftp") &&
                     !vmParams.source.startsWith("nfs")) {
-                    return _("Source should start with http, ftp or nfs protocol");
-                }
-                break;
+                return _("Source should start with http, ftp or nfs protocol");
+            }
+            break;
         }
         if (vmParams.source === "/") {
             vmParams.source = null;
@@ -370,7 +370,7 @@ function validateParams(vmParams) {
     }
 
     if (isEmpty(vmParams.source)){
-      return _("Installation Source should not be empty");
+        return _("Installation Source should not be empty");
     }
 
     if (vmParams.memorySize <= 0) {
@@ -403,10 +403,10 @@ export const createVmDialog = (dispatch, osInfoList) => {
 
     const dialogBody = (
         <CreateVM vmParams={vmParams}
-                  familyList={vendors.familyList}
-                  familyMap={vendors.familyMap}
-                  vendorMap={vendors.vendorMap}
-                  valuesChanged={changeParams}/>
+            familyList={vendors.familyList}
+            familyMap={vendors.familyMap}
+            vendorMap={vendors.vendorMap}
+            valuesChanged={changeParams}/>
     );
 
     const dialogProps = {

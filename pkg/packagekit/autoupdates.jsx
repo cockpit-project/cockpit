@@ -73,29 +73,29 @@ class DnfImpl extends ImplBase {
                        "systemctl cat dnf-automatic-install.timer dnf-automatic.timer 2>/dev/null| grep '^OnUnitInactiveSec= *[^ ]' | tail -n1; " +
                        "systemctl cat dnf-automatic-install.timer dnf-automatic.timer 2>/dev/null| grep '^OnCalendar= *[^ ]' | tail -n1; ",
                        [], { err: "message" })
-            .done(output => {
-                this.enabled = (output.indexOf("enabled\n") >= 0);
-                this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
+                .done(output => {
+                    this.enabled = (output.indexOf("enabled\n") >= 0);
+                    this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
 
-                // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
-                let calIdx = output.indexOf("OnCalendar=");
-                if (calIdx >= 0) {
-                    this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
-                } else {
-                    if (output.indexOf("InactiveSec=1d\n") >= 0)
-                        this.day = this.time = "";
-                    else
-                        this.supported = false;
-                }
+                    // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
+                    let calIdx = output.indexOf("OnCalendar=");
+                    if (calIdx >= 0) {
+                        this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+                    } else {
+                        if (output.indexOf("InactiveSec=1d\n") >= 0)
+                            this.day = this.time = "";
+                        else
+                            this.supported = false;
+                    }
 
-                debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}; raw response '${output}'`);
-                dfd.resolve();
-            })
-            .fail(error => {
-                console.error("dnf getConfig failed:", error);
-                this.supported = false;
-                dfd.resolve();
-            });
+                    debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}; raw response '${output}'`);
+                    dfd.resolve();
+                })
+                .fail(error => {
+                    console.error("dnf getConfig failed:", error);
+                    this.supported = false;
+                    dfd.resolve();
+                });
 
         return dfd.promise();
     }
@@ -180,22 +180,22 @@ class DnfImpl extends ImplBase {
 
         let dfd = new cockpit.defer();
         cockpit.script(script, [], { superuser: "require" })
-            .done(() => {
-                debug("dnf setConfig: configuration updated successfully");
-                if (enabled !== null)
-                    this.enabled = enabled;
-                if (type !== null)
-                    this.type = type;
-                if (day !== null)
-                    this.day = day;
-                if (time !== null)
-                    this.time = time;
-                dfd.resolve();
-            })
-            .fail(error => {
-                console.error("dnf setConfig failed:", error);
-                dfd.reject(error);
-            });
+                .done(() => {
+                    debug("dnf setConfig: configuration updated successfully");
+                    if (enabled !== null)
+                        this.enabled = enabled;
+                    if (type !== null)
+                        this.type = type;
+                    if (day !== null)
+                        this.day = day;
+                    if (time !== null)
+                        this.time = time;
+                    dfd.resolve();
+                })
+                .fail(error => {
+                    console.error("dnf setConfig failed:", error);
+                    dfd.reject(error);
+                });
 
         return dfd.promise();
     }
@@ -213,25 +213,25 @@ function getBackend() {
         cockpit.script(["if rpm -q dnf-automatic >/dev/null; then echo dnf; " +
                         "elif rpm -q yum-cron >/dev/null; then echo yum; " +
                         "elif dpkg -s unattended-upgrades >/dev/null 2>&1; then echo apt; fi"],
-                      [], { err: "message"})
-            .done(output => {
-                output = output.trim();
-                debug("getBackend(): detection finished, output", output);
-                let backend;
-                if (output === "dnf")
-                    backend = new DnfImpl();
-                // yum-cron is too limited: neither auto-reboot nor customized time, and nowhere to hook them in
-                // TODO: apt backend
-                if (backend)
-                    backend.getConfig().then(() => dfd.resolve(backend.supported ? backend : null));
-                else
-                    dfd.resolve(null);
-            })
-            .fail(error => {
+                       [], { err: "message"})
+                .done(output => {
+                    output = output.trim();
+                    debug("getBackend(): detection finished, output", output);
+                    let backend;
+                    if (output === "dnf")
+                        backend = new DnfImpl();
+                    // yum-cron is too limited: neither auto-reboot nor customized time, and nowhere to hook them in
+                    // TODO: apt backend
+                    if (backend)
+                        backend.getConfig().then(() => dfd.resolve(backend.supported ? backend : null));
+                    else
+                        dfd.resolve(null);
+                })
+                .fail(error => {
                 // the detection shell script is supposed to always succeed
-                console.error("automatic updates getBackend() detection failed:", error);
-                dfd.resolve(null);
-            })
+                    console.error("automatic updates getBackend() detection failed:", error);
+                    dfd.resolve(null);
+                })
     }
 
     return getBackend.promise;
@@ -264,10 +264,10 @@ export default class AutoUpdates extends React.Component {
         this.debugBackendState(`handleChange(${enabled}, ${type}, ${day}, ${time})`);
         this.setState({ pending: true, pendingEnable: enabled });
         this.state.backend.setConfig(enabled, type, day, time)
-            .always(() => {
-                this.debugBackendState("handleChange: setConfig finished");
-                this.setState({ pending: false, pendingEnable: null });
-            });
+                .always(() => {
+                    this.debugBackendState("handleChange: setConfig finished");
+                    this.setState({ pending: false, pendingEnable: null });
+                });
     }
 
     render() {
@@ -285,7 +285,7 @@ export default class AutoUpdates extends React.Component {
                     <tr>
                         <td>
                             <Select.Select id="auto-update-type" enabled={!this.state.pending} initial={backend.type}
-                                           onChange={ t => this.handleChange(null, t, null, null) }>
+                                onChange={ t => this.handleChange(null, t, null, null) }>
                                 <Select.SelectEntry data="all">{_("Apply all updates")}</Select.SelectEntry>
                                 <Select.SelectEntry data="security">{_("Apply security updates")}</Select.SelectEntry>
                             </Select.Select>
@@ -293,7 +293,7 @@ export default class AutoUpdates extends React.Component {
 
                         <td>
                             <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
-                                           onChange={ d => this.handleChange(null, null, d, null) }>
+                                onChange={ d => this.handleChange(null, null, d, null) }>
                                 <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
                                 <Select.SelectEntry data="mon">{_("on Mondays")}</Select.SelectEntry>
                                 <Select.SelectEntry data="tue">{_("on Tuesdays")}</Select.SelectEntry>
@@ -309,7 +309,7 @@ export default class AutoUpdates extends React.Component {
 
                         <td>
                             <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
-                                           onChange={ t => this.handleChange(null, null, null, t) }>
+                                onChange={ t => this.handleChange(null, null, null, t) }>
                                 { hours.map(h => <Select.SelectEntry data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
                             </Select.Select>
                         </td>
@@ -329,7 +329,7 @@ export default class AutoUpdates extends React.Component {
                     <tr>
                         <td><h2>{_("Automatic Updates")}</h2></td>
                         <td><OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
-                                                     onChange={e => this.handleChange(e, null, null, null) } /></td>
+                            onChange={e => this.handleChange(e, null, null, null) } /></td>
                     </tr>
                 </table>
 

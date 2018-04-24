@@ -28,18 +28,18 @@ import { Alert } from '../../../../machines/components/notification/inlineNotifi
 import { removeVmMessage } from '../action-creators.jsx';
 
 const VmMessage = (({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessages, onDismiss: Function }) => {
-  if (!vmMessages) {
-    return null;
-  }
+    if (!vmMessages) {
+        return null;
+    }
 
-  // so far just the last message is kept, see the vmsMessagesReducer
-  let detail;
-  if (vmMessages.detail && vmMessages.detail.message) {
-    detail = (<p>{vmMessages.detail.message}</p>);
-  }
+    // so far just the last message is kept, see the vmsMessagesReducer
+    let detail;
+    if (vmMessages.detail && vmMessages.detail.message) {
+        detail = (<p>{vmMessages.detail.message}</p>);
+    }
 
-  const textId = `${vmIdPrefx(vm)}-message`;
-  return (<Alert text={vmMessages.message} textId={textId} detail={detail} onDismiss={onDismiss} />);
+    const textId = `${vmIdPrefx(vm)}-message`;
+    return (<Alert text={vmMessages.message} textId={textId} detail={detail} onDismiss={onDismiss} />);
 });
 
 VmMessage.propTypes = {
@@ -49,8 +49,8 @@ VmMessage.propTypes = {
 };
 
 export default connect(
-  () => ({ }),
-  (dispatch, { vm }) => ({
-    onDismiss: () => dispatch(removeVmMessage({ vm })),
-  }),
+    () => ({ }),
+    (dispatch, { vm }) => ({
+        onDismiss: () => dispatch(removeVmMessage({ vm })),
+    }),
 )(VmMessage);

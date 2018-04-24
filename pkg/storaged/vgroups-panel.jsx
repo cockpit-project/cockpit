@@ -88,11 +88,11 @@ export class VGroupsPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={vgroup.Name}
-                                      detail={fmt_size(vgroup.Size)}
-                                      go={() => cockpit.location.go([ "vg", vgroup.Name ])}
-                                      job_path={path}/>
+                    kind="array"
+                    name={vgroup.Name}
+                    detail={fmt_size(vgroup.Size)}
+                    go={() => cockpit.location.go([ "vg", vgroup.Name ])}
+                    job_path={path}/>
             );
         }
 
@@ -106,9 +106,9 @@ export class VGroupsPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="vgroups"
-                               title={_("Volume Groups")}
-                               empty_text={_("No volume groups created")}
-                               actions={actions}>
+                title={_("Volume Groups")}
+                empty_text={_("No volume groups created")}
+                actions={actions}>
                 { vgroups }
             </OverviewSidePanel>
         );

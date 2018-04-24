@@ -263,9 +263,9 @@ OVIRT_PROVIDER.SUSPEND_VM = function ({ id, name }) {
             connectionName: undefined, // TODO: oVirt-only, not implemented for Libvirt
             message: _("SUSPEND action failed")
         })).then( data => {
-            logDebug('SUSPEND_VM finished', data);
-            window.setTimeout(forceNextOvirtPoll, 5000); // hack for better user experience
-        }
+        logDebug('SUSPEND_VM finished', data);
+        window.setTimeout(forceNextOvirtPoll, 5000); // hack for better user experience
+    }
     );
 };
 

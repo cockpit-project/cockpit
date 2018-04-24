@@ -67,15 +67,15 @@ export class VDODetails extends React.Component {
 
         if (path)
             this.poll_process = cockpit.spawn([ "python", "--", "-", path ], { superuser: true })
-                                       .input(inotify_py + vdo_monitor_py)
-                                       .stream((data) => {
-                                           buf += data;
-                                           var lines = buf.split("\n");
-                                           buf = lines[lines.length - 1];
-                                           if (lines.length >= 2) {
-                                               this.setState({ stats: JSON.parse(lines[lines.length - 2]) });
-                                           }
-                                       });
+                    .input(inotify_py + vdo_monitor_py)
+                    .stream((data) => {
+                        buf += data;
+                        var lines = buf.split("\n");
+                        buf = lines[lines.length - 1];
+                        if (lines.length >= 2) {
+                            this.setState({ stats: JSON.parse(lines[lines.length - 2]) });
+                        }
+                    });
         this.poll_path = path;
     }
 
@@ -148,9 +148,9 @@ export class VDODetails extends React.Component {
                                   Title: _("Stop"),
                                   action: function () {
                                       return teardown_active_usage(client, usage)
-                                          .then(function () {
-                                              return vdo.stop();
-                                          });
+                                              .then(function () {
+                                                  return vdo.stop();
+                                              });
                                   }
                               }
                 });
@@ -175,12 +175,12 @@ export class VDODetails extends React.Component {
                     return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
                 } else {
                     return vdo.start()
-                              .then(function () {
-                                  wait_for(client, () => client.slashdevs_block[vdo.dev])
-                                    .then(function (block) {
-                                        return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
-                                    });
-                              })
+                            .then(function () {
+                                wait_for(client, () => client.slashdevs_block[vdo.dev])
+                                        .then(function (block) {
+                                            return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
+                                        });
+                            })
                 }
             }
 
@@ -193,15 +193,15 @@ export class VDODetails extends React.Component {
                               Danger: _("Deleting a VDO device will erase all data on it."),
                               action: function () {
                                   return teardown_active_usage(client, usage)
-                                      .then(function () {
-                                          return teardown_configs()
-                                              .then(function () {
-                                                  var location = cockpit.location;
-                                                  return vdo.remove().then(function () {
-                                                      location.go("/");
-                                                  });
-                                              });
-                                      });
+                                          .then(function () {
+                                              return teardown_configs()
+                                                      .then(function () {
+                                                          var location = cockpit.location;
+                                                          return vdo.remove().then(function () {
+                                                              location.go("/");
+                                                          });
+                                                      });
+                                          });
                               }
                           }
             });
@@ -226,7 +226,7 @@ export class VDODetails extends React.Component {
                                       return vdo.grow_logical(vals.lsize).then(() => {
                                           if (block && block.IdUsage == "filesystem")
                                               return cockpit.spawn([ "fsadm", "resize",
-                                                                     decode_filename(block.Device) ],
+                                                  decode_filename(block.Device) ],
                                                                    { superuser: true });
                                       });
                               }
@@ -249,8 +249,8 @@ export class VDODetails extends React.Component {
                     {cockpit.format(_("VDO Device $0"), vdo.name)}
                     <span className="pull-right">
                         { block
-                          ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
-                          : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
+                            ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
+                            : <StorageButton onClick={vdo.start}>{_("Start")}</StorageButton>
                         }
                         { "\n" }
                         <StorageButton kind="danger" onClick={delete_}>{_("Delete")}</StorageButton>
@@ -266,8 +266,8 @@ export class VDODetails extends React.Component {
                             <td>{_("Backing Device")}</td>
                             <td>
                                 { backing_block
-                                  ? <StorageBlockNavLink client={client} block={backing_block}/>
-                                  : vdo.backing_dev
+                                    ? <StorageBlockNavLink client={client} block={backing_block}/>
+                                    : vdo.backing_dev
                                 }
                             </td>
                         </tr>
@@ -275,12 +275,12 @@ export class VDODetails extends React.Component {
                             <td>{_("Physical")}</td>
                             <td>
                                 { stats
-                                  ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
-                                                 fmt_size(stats.dataBlocksUsed * stats.blockSize),
-                                                 fmt_size(stats.overheadBlocksUsed * stats.blockSize),
-                                                 fmt_size(vdo.physical_size),
-                                                 fmt_perc(stats.usedPercent))
-                                      : fmt_size(vdo.physical_size)
+                                    ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
+                                                     fmt_size(stats.dataBlocksUsed * stats.blockSize),
+                                                     fmt_size(stats.overheadBlocksUsed * stats.blockSize),
+                                                     fmt_size(vdo.physical_size),
+                                                     fmt_perc(stats.usedPercent))
+                                    : fmt_size(vdo.physical_size)
                                 }
                             </td>
                         </tr>
@@ -288,11 +288,11 @@ export class VDODetails extends React.Component {
                             <td>{_("Logical")}</td>
                             <td>
                                 { stats
-                                  ? cockpit.format(_("$0 used of $1 ($2 saved)"),
-                                                 fmt_size(stats.logicalBlocksUsed * stats.blockSize),
-                                                 fmt_size(vdo.logical_size),
-                                                 fmt_perc(stats.savingPercent))
-                                      : fmt_size(vdo.logical_size)
+                                    ? cockpit.format(_("$0 used of $1 ($2 saved)"),
+                                                     fmt_size(stats.logicalBlocksUsed * stats.blockSize),
+                                                     fmt_size(vdo.logical_size),
+                                                     fmt_perc(stats.savingPercent))
+                                    : fmt_size(vdo.logical_size)
                                 }
                                 &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
                             </td>
@@ -304,13 +304,13 @@ export class VDODetails extends React.Component {
                         <tr>
                             <td>{_("Compression")}</td>
                             <td><StorageOnOff state={vdo.compression}
-                                              onChange={() => vdo.set_compression(!vdo.compression)}/>
+                                onChange={() => vdo.set_compression(!vdo.compression)}/>
                             </td>
                         </tr>
                         <tr>
                             <td>{_("Deduplication")}</td>
                             <td><StorageOnOff state={vdo.deduplication}
-                                              onChange={() => vdo.set_deduplication(!vdo.deduplication)}/>
+                                onChange={() => vdo.set_deduplication(!vdo.deduplication)}/>
                             </td>
                         </tr>
                     </table>
@@ -321,8 +321,8 @@ export class VDODetails extends React.Component {
         var content = <Content.Block client={client} block={block} allow_partitions={false}/>;
 
         return <StdDetailsLayout client={this.props.client}
-                                 alert={alert}
-                                 header={header}
-                                 content={content}/>;
+            alert={alert}
+            header={header}
+            content={content}/>;
     }
 }

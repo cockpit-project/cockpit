@@ -36,7 +36,7 @@ const VmActions = ({ vm, providerState, dispatch }) => {
     return (
         <div className='btn-group'>
             <button className='btn btn-default' id={`${idPrefix}-suspendbutton`}
-                    onClick={() => dispatch(suspendVm({ id: clusterVm.id, name: clusterVm.name, connectionName: vm.connectionName }))}>
+                onClick={() => dispatch(suspendVm({ id: clusterVm.id, name: clusterVm.name, connectionName: vm.connectionName }))}>
                 {_("Suspend")}
             </button>
         </div>

@@ -83,14 +83,15 @@ function getVirtProvider (store) {
 export function virt(method, action) {
     return (dispatch, getState) => getVirtProvider({dispatch, getState}).fail(err => {
         console.error('could not detect any virt provider');
-    }).then(provider => {
-        if (method in provider) {
-            logDebug(`Calling ${provider.name}.${method}`, action);
-            return dispatch(provider[method](action));
-        } else {
-            var msg = `method: '${method}' is not supported by provider: '${provider.name}'`;
-            console.warn(msg);
-            return cockpit.reject(msg);
-        }
-    });
+    })
+            .then(provider => {
+                if (method in provider) {
+                    logDebug(`Calling ${provider.name}.${method}`, action);
+                    return dispatch(provider[method](action));
+                } else {
+                    var msg = `method: '${method}' is not supported by provider: '${provider.name}'`;
+                    console.warn(msg);
+                    return cockpit.reject(msg);
+                }
+            });
 }

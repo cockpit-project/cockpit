@@ -96,7 +96,8 @@ export class VGroupsPanel extends React.Component {
             );
         }
 
-        var vgroups = Object.keys(client.vgroups).sort(cmp_vgroup).map(make_vgroup);
+        var vgroups = Object.keys(client.vgroups).sort(cmp_vgroup)
+                .map(make_vgroup);
 
         var actions = (
             <StorageButton kind="primary" onClick={create_vgroup} id="create-volume-group">

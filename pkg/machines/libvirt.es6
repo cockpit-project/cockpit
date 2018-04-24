@@ -95,7 +95,9 @@ function getValueFromLine(parsedLines, pattern) {
     const selectedLine = parsedLines.filter(line => {
         return line.trim().startsWith(pattern);
     });
-    return isEmpty(selectedLine) ? undefined : selectedLine.toString().trim().substring(pattern.length).trim();
+    return isEmpty(selectedLine) ? undefined : selectedLine.toString().trim()
+            .substring(pattern.length)
+            .trim();
 }
 
 /**
@@ -168,9 +170,10 @@ LIBVIRT_PROVIDER = {
                 return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
                     parseDumpxml(dispatch, connectionName, domXml);
                     return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
-                }).then(domInfo => {
-                    parseDominfo(dispatch, connectionName, name, domInfo);
-                }); // end of GET_VM return
+                })
+                        .then(domInfo => {
+                            parseDominfo(dispatch, connectionName, name, domInfo);
+                        }); // end of GET_VM return
             }
         };
     },
@@ -973,7 +976,8 @@ function doUsagePolling (name, connectionName) {
                         parseDommemstat(dispatch, connectionName, name, dommemstat);
                         return spawnVirshReadOnly({ connectionName, method: 'domstats', name, failHandler: canFailHandler });
                     }
-                }).then(domstats => {
+                })
+                .then(domstats => {
                     if (domstats)
                         parseDomstats(dispatch, connectionName, name, domstats);
                 });

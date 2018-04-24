@@ -141,7 +141,8 @@ function configureOvirtUrl(oVirtFqdn, oVirtPort) {
         '/ovirt-engine' // contextRoot - just the main page, the API would require authorization
     ).then(() => {
         doRegisterOvirt(oVirtFqdn, oVirtPort, dfd);
-    }).fail(failHandler);
+    })
+            .fail(failHandler);
 
     return dfd.promise;
 }

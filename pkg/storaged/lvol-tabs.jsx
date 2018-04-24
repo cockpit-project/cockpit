@@ -111,9 +111,11 @@ function lvol_and_fsys_resize(client, lvol, size, offline) {
         }
     } else {
         if (size < orig_size) {
-            return fsys_resize().then(crypto_resize).then(lvm_resize);
+            return fsys_resize().then(crypto_resize)
+                    .then(lvm_resize);
         } else if (size > orig_size) {
-            return lvm_resize().then(crypto_resize).then(fsys_resize);
+            return lvm_resize().then(crypto_resize)
+                    .then(fsys_resize);
         }
     }
 }

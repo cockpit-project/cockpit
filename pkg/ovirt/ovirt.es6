@@ -167,7 +167,8 @@ function doRefreshEvents(dispatch, getState) {
                         deferred.reject('Array of events expected');
                     }
                 }
-            }).fail(() => {
+            })
+            .fail(() => {
                 logError('Failed to retrieve oVirt events');
                 deferred.reject('Failed to retrieve oVirt events');
             });
@@ -332,7 +333,8 @@ function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceI
                             }
                             deferred.reject(data);
                         });
-            }).fail((reason) => deferred.reject(reason));
+            })
+            .fail((reason) => deferred.reject(reason));
 
     return deferred.promise;
 

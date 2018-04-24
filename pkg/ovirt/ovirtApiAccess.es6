@@ -84,10 +84,11 @@ export function ovirtApiPost (resource, body, failHandler) {
         path: url,
         headers,
         body,
-    }).fail(function (exception, error) {
-        console.info(`HTTP POST failed: ${JSON.stringify(error)}`, url);
-        handleOvirtError({ error, exception, failHandler });
-    });
+    })
+            .fail(function (exception, error) {
+                console.info(`HTTP POST failed: ${JSON.stringify(error)}`, url);
+                handleOvirtError({ error, exception, failHandler });
+            });
 }
 
 export function handleOvirtError ({ error, exception, failHandler }) {

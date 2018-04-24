@@ -150,9 +150,10 @@ export class ConfigFile {
             lines[origEntry.index] = line;
         });
         // now delete the rows we want to delete
-        linesToDelete.sort().reverse().forEach((lineIndex) => {
-            lines.splice(lineIndex, 1);
-        });
+        linesToDelete.sort().reverse()
+                .forEach((lineIndex) => {
+                    lines.splice(lineIndex, 1);
+                });
 
         return lines.join("\n");
     }

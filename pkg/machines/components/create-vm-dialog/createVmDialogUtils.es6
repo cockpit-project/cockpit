@@ -114,7 +114,8 @@ export function prepareVendors(osInfoList) {
             .sort((a, b) => {
             // families sort
                 return customVendorSort(a, b) || a.localeCompare(b);
-            }).map(family => {
+            })
+            .map(family => {
             // vendor sort
                 const vendorMap = familyMap[family];
                 const vendors = Object.keys(vendorMap).sort(window.localeCompare);

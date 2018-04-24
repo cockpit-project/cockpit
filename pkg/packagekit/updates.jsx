@@ -630,7 +630,7 @@ class OsUpdates extends React.Component {
         var cockpitUpdate = false;
 
         PK.cancellableTransaction("GetUpdates", [0],
-                                  data => this.setState({ state: data.waiting && "locked" || "loading" }),
+                                  data => this.setState({ state: data.waiting ? "locked" : "loading" }),
                                   {
                                       Package: (info, packageId, _summary) => {
                                           let id_fields = packageId.split(";");

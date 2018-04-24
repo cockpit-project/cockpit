@@ -98,7 +98,7 @@ class SerialConsole extends React.Component {
             terminal = <span>{_("Loading ...")}</span>;
         }
 
-        const disconnectDisabled = (!this.state.channel) && 'disabled' || '';
+        const disconnectDisabled = (!this.state.channel) ? 'disabled' : '';
 
         return (
             <div className="console-ct-container">

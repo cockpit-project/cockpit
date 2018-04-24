@@ -71,8 +71,8 @@ const VmsPlugin = () => (
 
 function addScopeVarsToStore ($scope) {
     $scope.$watch(
-        (scope => scope.settings),
-        (newSettings => reduxStore.dispatch(actionCreators.setSettings(newSettings))));
+        scope => scope.settings,
+        newSettings => reduxStore.dispatch(actionCreators.setSettings(newSettings)));
 }
 
 /**

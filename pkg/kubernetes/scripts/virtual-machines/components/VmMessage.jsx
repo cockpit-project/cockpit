@@ -27,7 +27,7 @@ import { Alert } from '../../../../machines/components/notification/inlineNotifi
 
 import { removeVmMessage } from '../action-creators.jsx';
 
-const VmMessage = (({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessages, onDismiss: Function }) => {
+const VmMessage = ({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessages, onDismiss: Function }) => {
     if (!vmMessages) {
         return null;
     }
@@ -40,7 +40,7 @@ const VmMessage = (({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessa
 
     const textId = `${vmIdPrefx(vm)}-message`;
     return (<Alert text={vmMessages.message} textId={textId} detail={detail} onDismiss={onDismiss} />);
-});
+};
 
 VmMessage.propTypes = {
     vm: PropTypes.object.isRequired,

@@ -26,6 +26,7 @@ import re
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.parse
 import urllib.request, urllib.error, urllib.parse
@@ -61,12 +62,14 @@ def main():
 
     # Seed with our input data
     if opts.seed:
-        output = gzip.open(opts.seed + ".tmp", 'wb')
+        (outfd, outname) = tempfile.mkstemp(prefix=os.path.basename(opts.seed), dir=os.path.dirname(opts.seed))
+        os.close(outfd)
+        output = gzip.open(outname, 'wb')
         if os.path.exists(opts.seed):
             with gzip.open(opts.seed, 'rb') as fp:
                 seed(since, fp, pulls, output)
     else:
-        output = None
+        output = outname = None
 
     def write(**kwargs):
         line = json.dumps(kwargs).encode('utf-8') + b"\n"
@@ -102,7 +105,7 @@ def main():
     sys.stdout.flush()
     if output:
         output.close()
-        os.rename(opts.seed + ".tmp", opts.seed)
+        os.rename(outname, opts.seed)
 
 # An HTML parser that just pulls out all the <a href="...">
 # link hrefs in a given page of content. We also qualify these

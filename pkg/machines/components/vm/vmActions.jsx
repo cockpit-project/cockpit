@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -29,8 +28,6 @@ import { deleteDialog } from "../deleteDialog.jsx";
 import DropdownButtons from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
-
-React;
 
 const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI }) => {
     const id = vmId(vm.name);

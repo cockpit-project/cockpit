@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -19,8 +18,6 @@
  */
 
 import React, { PropTypes } from "react";
-
-React;
 
 const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
     return (<tr>

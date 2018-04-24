@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -30,7 +29,6 @@ import { logDebug } from '../../machines/helpers.es6';
 const NoTemplate = () => (<div>{_("No VM found in oVirt.")}</div>);
 const NoTemplateUnitialized = () => (<div>{_("Please wait till list of templates is loaded from the server.")}</div>);
 
-React;
 const _ = cockpit.gettext;
 
 class CreateVmFromTemplate extends React.Component {

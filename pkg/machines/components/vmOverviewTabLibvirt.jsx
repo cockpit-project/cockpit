@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -26,8 +25,6 @@ import VmLastMessage from './vmLastMessage.jsx';
 import { rephraseUI, vmId } from "../helpers.es6";
 
 const _ = cockpit.gettext;
-
-React;
 
 function getBootOrder(vm) {
     let bootOrder = _("No boot device found");

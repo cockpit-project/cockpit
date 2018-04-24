@@ -33,8 +33,6 @@ import { NODE_LABEL, vmIdPrefx } from '../utils.jsx';
 import { vmExpanded } from "../action-creators.jsx";
 import { getValueOrDefault } from "../utils.jsx";
 
-React;
-
 const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
                            { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod, onExpandChanged: Function }) => {
     const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';

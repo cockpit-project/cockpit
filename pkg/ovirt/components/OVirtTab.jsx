@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -28,7 +27,6 @@ import ConfirmButtons from './ConfirmButtons.jsx';
 import VmProperty from '../../machines/components/infoRecord.jsx';
 import rephraseUI from '../rephraseUI.es6';
 
-React;
 const _ = cockpit.gettext;
 
 import './OVirtTab.css';

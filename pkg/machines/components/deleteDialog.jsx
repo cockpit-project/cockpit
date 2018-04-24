@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -26,10 +25,6 @@ import { deleteVm } from '../actions.es6';
 import './deleteDialog.css';
 
 const _ = cockpit.gettext;
-
-// Explicitly use React so that jshint doesn't complain.  The conversion to js inserts
-// references to React that jshint doesn't seem to see.
-React;
 
 const DeleteDialogBody = ({ values, onChange }) => {
     function disk_row(disk) {

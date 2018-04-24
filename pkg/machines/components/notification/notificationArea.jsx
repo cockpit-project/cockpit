@@ -20,8 +20,6 @@
 import React, { PropTypes } from "react";
 import { Notification, NotificationMessage } from "./notification.jsx";
 
-React;
-
 const NotificationArea = ({ notifications, onDismiss, id }) => {
     if (!notifications || notifications.length === 0) {
         return null;

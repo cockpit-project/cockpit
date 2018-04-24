@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -21,8 +20,6 @@ import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 
 const _ = cockpit.gettext;
-
-React;
 
 const Items = ({ items, idPrefix, divider, colClass }) => {
     if (!items) {

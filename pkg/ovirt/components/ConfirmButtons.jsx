@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -18,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from "react";
-
-React;
 
 // TODO: replace this by Cockpit's modal dialog
 const ConfirmButtons = ({ confirmText, dismissText, onYes, onNo }) => {

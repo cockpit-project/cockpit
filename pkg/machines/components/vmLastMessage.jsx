@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -21,8 +20,6 @@ import React from "react";
 import { vmId } from '../helpers.es6';
 import { deleteVmMessage } from '../actions.es6';
 import { Alert } from './notification/inlineNotification.jsx';
-
-React;
 
 const VmLastMessage = ({ vm, dispatch }) => {
     if (!vm.lastMessage) {

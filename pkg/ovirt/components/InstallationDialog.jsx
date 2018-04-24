@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -31,8 +30,6 @@ import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 import './InstallationDialog.css';
 
 const _ = cockpit.gettext;
-
-React;
 
 const INSTALL_SH_ERRORS = {
     '1': _("oVirt Provider installation script failed due to missing arguments."),

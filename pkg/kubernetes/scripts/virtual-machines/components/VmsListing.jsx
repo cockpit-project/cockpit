@@ -28,8 +28,6 @@ import VmsListingRow from './VmsListingRow.jsx';
 import { getPod } from '../selectors.jsx';
 import CreateVmButton from './createVmButton.jsx';
 
-React;
-
 const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
     const isOpenshift = settings.flavor === 'openshift';
     const namespaceLabel = isOpenshift ? _("Project") : _("Namespace");

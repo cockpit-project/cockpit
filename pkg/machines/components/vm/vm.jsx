@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -34,8 +33,6 @@ import VmUsageTab from './vmUsageTab.jsx';
 import { ListingRow } from "cockpit-components-listing.jsx";
 
 const _ = cockpit.gettext;
-
-React;
 
 /** One VM in the list (a row)
  */

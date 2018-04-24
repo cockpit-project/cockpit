@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -22,7 +21,6 @@ import React from "react";
 
 import { formatDateTime } from '../helpers.es6';
 
-React;
 const _ = cockpit.gettext;
 
 import './VmOverviewColumn.css';

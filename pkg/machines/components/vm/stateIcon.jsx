@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -24,8 +23,6 @@ import {
 } from "../../helpers.es6";
 
 const _ = cockpit.gettext;
-
-React;
 
 const StateIcon = ({ state, config, valueId, extra }) => {
     if (state === undefined) {

@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react"; React;
+import React from "react";
 
 import { dialog_open, TextInput, PassInput } from "./dialogx.jsx";
 

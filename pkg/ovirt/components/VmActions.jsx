@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -23,7 +22,6 @@ import React from "react";
 import { suspendVm } from '../actions.es6';
 import { vmId } from '../../machines/helpers.es6';
 
-React;
 const _ = cockpit.gettext;
 
 const VmActions = ({ vm, providerState, dispatch }) => {

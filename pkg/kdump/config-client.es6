@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-  /* jshint esversion:6 */
-
 import cockpit from 'cockpit';
 
 /* Parse an ini-style config file

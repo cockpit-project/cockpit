@@ -31,8 +31,6 @@ import { vmActionFailed } from '../action-creators.jsx';
 // import DropdownButtons from '../../../../machines/components/dropdownButtons.jsx';
 import { mouseClick } from '../utils.jsx';
 
-React;
-
 const VmActions = ({ vm, onFailure }: { vm: Vm, onFailure: Function }) => {
     const id = vmIdPrefx(vm);
 

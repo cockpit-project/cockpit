@@ -23,10 +23,6 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-// Explicitly use React so that jshint doesn't complain.  The conversion to js inserts
-// references to React that jshint doesn't seem to see.
-React;
-
 export function left_click(fun) {
     return function (event) {
         if (!event || event.button !== 0)

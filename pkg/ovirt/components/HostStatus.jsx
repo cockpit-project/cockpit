@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -24,7 +23,6 @@ import rephraseUI from '../rephraseUI.es6';
 
 import './HostStatus.css';
 
-React;
 const _ = cockpit.gettext;
 
 const HostStatus = ({ host }) => {

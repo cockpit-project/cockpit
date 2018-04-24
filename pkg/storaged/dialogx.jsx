@@ -124,7 +124,7 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-import React from "react"; React;
+import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 

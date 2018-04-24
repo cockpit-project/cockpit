@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -25,7 +24,6 @@ import './VdsmView.css';
 import { VDSM_CONF_FILE } from '../config.es6';
 import { logDebug, logError } from '../../machines/helpers.es6';
 
-React;
 const _ = cockpit.gettext;
 
 class VdsmConf extends React.Component { // TODO: needs design

@@ -27,8 +27,6 @@ import { Alert } from '../../../../machines/components/notification/inlineNotifi
 
 import { removeVmMessage } from '../action-creators.jsx';
 
-React;
-
 const VmMessage = (({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessages, onDismiss: Function }) => {
   if (!vmMessages) {
     return null;

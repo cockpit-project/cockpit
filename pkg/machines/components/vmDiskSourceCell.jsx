@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -22,7 +21,6 @@ import cockpit from 'cockpit';
 
 import InfoRecord from './infoRecord.jsx';
 
-React;
 const _ = cockpit.gettext;
 
 const DiskSourceCell = ({ diskSource, idPrefix }) => {

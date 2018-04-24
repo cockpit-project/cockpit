@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -25,8 +24,6 @@ import {
 
 import StateIcon from './stateIcon.jsx';
 import { ListingRow } from "cockpit-components-listing.jsx";
-
-React;
 
 /** One Ui Dummy VM in the list (a row)
  */

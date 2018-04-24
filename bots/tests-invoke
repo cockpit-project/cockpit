@@ -195,7 +195,7 @@ class PullTask(object):
         try:
             # Download some additional necessary state
             subprocess.check_call([ os.path.join(BOTS, "image-download"),
-                "--state", "tests-learn-2.nn", "tests-learn-4-1.model"
+                "--state", "tests-learn-2.nn", "tests-learn-5-1.model"
             ])
 
         except subprocess.CalledProcessError:

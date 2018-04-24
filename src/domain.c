@@ -1379,6 +1379,44 @@ virtDBusDomainGetMetadata(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetNumaParameters(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath,
+                                gpointer userData,
+                                GVariant **outArgs,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+    gint ret;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    ret = virDomainGetNumaParameters(domain, NULL, &params.nparams, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+    if (params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virDomainGetNumaParameters(domain, params.params,
+                                       &params.nparams, flags) < 0) {
+            return virtDBusUtilSetLastVirtError(error);
+        }
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
 virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
                                      GUnixFDList *inFDs G_GNUC_UNUSED,
                                      const gchar *objectPath,
@@ -2392,6 +2430,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetJobStats", virtDBusDomainGetJobStats },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetMetadata", virtDBusDomainGetMetadata },
+    { "GetNumaParameters", virtDBusDomainGetNumaParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },

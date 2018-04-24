@@ -248,6 +248,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="metadata" type="s" direction="out"/>
     </method>
+    <method name="GetNumaParameters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetNumaParameters"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="numaParameters" type="a{sv}" direction="out"/>
+    </method>
     <method name="GetSchedulerParameters">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSchedulerParametersFlags"/>

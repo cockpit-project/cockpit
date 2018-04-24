@@ -110,7 +110,8 @@ export class DrivesPanel extends React.Component {
             );
         }
 
-        var drives = Object.keys(client.drives).sort(cmp_drive).map(make_drive);
+        var drives = Object.keys(client.drives).sort(cmp_drive)
+                .map(make_drive);
 
         return (
             <OverviewSidePanel id="drives"

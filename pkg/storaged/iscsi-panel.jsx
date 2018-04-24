@@ -266,7 +266,8 @@ export class IscsiPanel extends React.Component {
             this.setState({ armed: !this.state.armed });
         }
 
-        var sessions = Object.keys(client.iscsi_sessions).sort(cmp_session).map(make_session);
+        var sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)
+                .map(make_session);
 
         var actions = [
             sessions.length > 0

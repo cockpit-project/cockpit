@@ -74,7 +74,8 @@ function doReadConfiguration ({ dispatch }) {
 
                 logDebug(`Configuration parsed, using merged result: ${JSON.stringify(CONFIG)}`);
                 return doLogin({ dispatch });
-            }).fail( () => {
+            })
+            .fail( () => {
                 console.info('Failed to read configuration, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
                 installationDialog({ onCancel });
             });
@@ -94,11 +95,13 @@ function doReadHostname ({ dispatch }) {
     return cockpit.spawn(['hostname', '-f'], {'err': 'message'})
             .stream(data => {
                 hostname += data;
-            }).done(() => {
+            })
+            .done(() => {
                 hostname = hostname.trim();
                 logDebug('hostname read: ', hostname);
                 waitForReducerSubtreeInit(() => dispatch(setHostname(hostname)));
-            }).fail(ex => {
+            })
+            .fail(ex => {
                 console.error("Getting 'hostname' failed:", ex);
             });
 }

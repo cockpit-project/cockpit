@@ -106,7 +106,8 @@ class DnfImpl extends ImplBase {
         // TODO: allow arbitrary minutes once we support that in the UI widget
         const validTime = /^((|0|1)[0-9]|2[0-3]):00$/;
 
-        var words = spec.trim().toLowerCase().split(/\s+/);
+        var words = spec.trim().toLowerCase()
+                .split(/\s+/);
 
         // check if we have a day of week
         if (daysOfWeek.indexOf(words[0]) >= 0)

@@ -60,7 +60,9 @@ export class OthersPanel extends React.Component {
             );
         }
 
-        var others = Object.keys(client.blocks).filter(is_other).sort(make_block_path_cmp(client)).map(make_other);
+        var others = Object.keys(client.blocks).filter(is_other)
+                .sort(make_block_path_cmp(client))
+                .map(make_other);
 
         if (others.length > 0)
             return (

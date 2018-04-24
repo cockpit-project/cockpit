@@ -93,7 +93,9 @@ export class FilesystemsPanel extends React.Component {
             );
         }
 
-        var mounts = Object.keys(client.blocks).filter(is_mount).sort(cmp_mount).map(make_mount);
+        var mounts = Object.keys(client.blocks).filter(is_mount)
+                .sort(cmp_mount)
+                .map(make_mount);
 
         return (
             <div id="mounts" className="panel panel-default storage-mounts">

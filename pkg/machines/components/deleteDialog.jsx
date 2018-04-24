@@ -74,11 +74,12 @@ export function deleteDialog(vm, dispatch) {
         disks: [ ]
     };
 
-    Object.keys(vm.disks).sort().forEach(t => {
-        let d = vm.disks[t];
-        if (d.type == 'file' && d.source.file)
-            values.disks.push({ target: d.target, file: d.source.file, checked: !d.readonly });
-    });
+    Object.keys(vm.disks).sort()
+            .forEach(t => {
+                let d = vm.disks[t];
+                if (d.type == 'file' && d.source.file)
+                    values.disks.push({ target: d.target, file: d.source.file, checked: !d.readonly });
+            });
 
     if (vm.state == 'running')
         values.destroy = true;

@@ -112,7 +112,8 @@ export class MDRaidsPanel extends React.Component {
             );
         }
 
-        var mdraids = Object.keys(client.mdraids).sort(cmp_mdraid).map(make_mdraid);
+        var mdraids = Object.keys(client.mdraids).sort(cmp_mdraid)
+                .map(make_mdraid);
 
         var actions = (
             <StorageButton kind="primary" onClick={create_mdraid} id="create-mdraid">

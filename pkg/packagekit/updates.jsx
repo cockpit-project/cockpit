@@ -585,7 +585,8 @@ class OsUpdates extends React.Component {
         // on Debian the update_text starts with "== version ==" which is
         // redundant; we don't want Markdown headings in the table
         if (text)
-            return text.trim().replace(/^== .* ==\n/, "").trim();
+            return text.trim().replace(/^== .* ==\n/, "")
+                    .trim();
         return text;
     }
 

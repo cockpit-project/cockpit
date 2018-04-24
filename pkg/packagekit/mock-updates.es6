@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 /*
  * Mock "available updates" entries for interactively testing layout changes with large updates
  * To use it, import it in updates.jsx:

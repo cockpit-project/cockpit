@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
- /* jshint esversion:6 */
-
 import cockpit from 'cockpit';
 var _ = cockpit.gettext;
 import {proxy as serviceProxy} from 'service';

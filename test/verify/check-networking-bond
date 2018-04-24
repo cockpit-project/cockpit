@@ -149,7 +149,7 @@ class TestNetworking(NetworkCase):
 
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
-        b.click(".panel-heading .btn:contains('On')")
+        b.click("#network-interface .panel-heading .btn:contains('On')")
         b.wait_in_text("tr:contains('Status')", "Configuring")
 
         b.click("tr:contains('Bond') a")

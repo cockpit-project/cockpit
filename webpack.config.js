@@ -51,6 +51,10 @@ var info = {
             "networkmanager/utils.js"
         ],
 
+        "networkmanager/firewall": [
+            "networkmanager/firewall.jsx"
+        ],
+
         "ostree/ostree": [
             "ostree/app.js",
             "ostree/ostree.less",
@@ -206,6 +210,8 @@ var info = {
         "machines/vnc.css",
 
         "networkmanager/index.html",
+        "networkmanager/firewall.html",
+        "networkmanager/manifest.json",
 
         "ostree/index.html",
 

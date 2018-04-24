@@ -20,6 +20,7 @@
 var $ = require('jquery');
 var cockpit = require('cockpit');
 
+var firewall = require('./firewall-client.es6').default;
 var utils = require('./utils');
 
 var Mustache = require('mustache');
@@ -2144,6 +2145,11 @@ PageNetworkInterface.prototype = {
             cockpit.location.go('/');
         });
 
+        $("#networking-firewall-link, #networking-firewall-summary").on("click", function() {
+            cockpit.jump("/network/firewall", cockpit.transport.host);
+            return false;
+        });
+
         $('#network-interface-delete').syn_click(self.model, $.proxy(this, "delete_connections"));
 
         this.device_onoff = $("#network-interface-delete-switch").onoff()
@@ -2230,6 +2236,36 @@ PageNetworkInterface.prototype = {
                 }
             }
         }
+
+        firewall.addEventListener('changed', function () {
+            if (!firewall.installed) {
+                $('#networking-firewall').hide();
+                return;
+            }
+
+            $('#networking-firewall').show();
+            $('#networking-firewall-switch').onoff('value', firewall.enabled);
+
+            var n = firewall.enabledServices.size;
+
+            /* HACK: use n.toString() here until cockpit.format() handles integer 0 args correctly */
+            var summary = cockpit.format(cockpit.ngettext('$0 Active Rule', '$0 Active Rules', n), n.toString());
+
+            $('#networking-firewall-summary').text(summary);
+        });
+
+        $('#networking-firewall-switch').on('change', function () {
+            $(this).onoff('disabled');
+
+            function enableSwitch() {
+                $(this).onoff('disabled', false);
+            }
+
+            if ($(this).onoff('value'))
+                firewall.enable().then(enableSwitch);
+            else
+                firewall.disable().then(enableSwitch);
+        });
 
         $(window).on('resize', function () {
             self.rx_plot.resize();

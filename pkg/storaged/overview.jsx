@@ -108,7 +108,7 @@ export class OverviewSidePanelRow extends React.Component {
 class Overview extends React.Component {
     constructor() {
         super();
-        this.state = { highlight: false },
+        this.state = { highlight: false };
         this.on_client_changed = () => { this.setState({}); };
     }
 

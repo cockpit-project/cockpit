@@ -1055,6 +1055,33 @@ virtDBusDomainGetStats(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetTime(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint64 seconds;
+    guint nseconds;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetTime(domain, (long long *)&seconds, &nseconds, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("((tu))", seconds, nseconds);
+}
+
+static void
 virtDBusDomainGetVcpus(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -1935,6 +1962,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },
+    { "GetTime", virtDBusDomainGetTime },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },

@@ -24,12 +24,11 @@ import { gettext as _ } from 'cockpit';
 import { connect } from 'react-redux'
 
 import type { Vm } from '../types.jsx';
-import { vmIdPrefx } from '../utils.jsx';
+import { vmIdPrefx, mouseClick } from '../utils.jsx';
 import { vmDelete } from '../kube-middleware.jsx';
 import { vmActionFailed } from '../action-creators.jsx';
 
 // import DropdownButtons from '../../../../machines/components/dropdownButtons.jsx';
-import { mouseClick } from '../utils.jsx';
 
 const VmActions = ({ vm, onFailure }: { vm: Vm, onFailure: Function }) => {
     const id = vmIdPrefx(vm);

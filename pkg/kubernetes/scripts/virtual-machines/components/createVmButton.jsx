@@ -41,7 +41,7 @@ class CreateVmButton extends React.Component {
         const dialogProps = {
             title: _("Create Virtual Machine"),
             body: (
-                <CreateVmDialog ref={(d) => dialog = d}/>
+                <CreateVmDialog ref={ d => { dialog = d; return d; } }/>
             ),
         };
 

@@ -28,6 +28,7 @@ import pickle
 import operator
 import os
 import re
+import tempfile
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
@@ -45,9 +46,11 @@ def load(directory):
 
 def save(directory, model):
     path = os.path.join(directory, FILENAME)
-    with gzip.open(path + ".tmp", 'wb') as fp:
+    (outfd, outname) = tempfile.mkstemp(prefix=FILENAME, dir=directory)
+    os.close(outfd)
+    with gzip.open(outname, 'wb') as fp:
         pickle.dump(model, fp)
-    os.rename(path + ".tmp", path)
+    os.rename(outname, path)
     return path
 
 # -----------------------------------------------------------------------------

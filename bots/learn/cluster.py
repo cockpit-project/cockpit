@@ -42,6 +42,7 @@ import pickle
 import random
 import sys
 import time
+import tempfile
 
 import sklearn.cluster
 import sklearn.neighbors
@@ -68,9 +69,11 @@ def load(directory):
 # Write a model to the given directory
 def save(directory, model):
     path = os.path.join(directory, FILENAME)
-    with gzip.open(path + ".tmp", 'wb') as fp:
+    (outfd, outname) = tempfile.mkstemp(prefix=FILENAME, dir=directory)
+    os.close(outfd)
+    with gzip.open(outname, 'wb') as fp:
         pickle.dump(model, fp)
-    os.rename(path + ".tmp", path)
+    os.rename(outname, path)
     return path
 
 # A cluster of items with optional analysis of those items

@@ -88,7 +88,7 @@ var ListingRow = React.createClass({
             return;
 
         var willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
-        this.setState( { expanded: willBeExpanded });
+        this.setState({ expanded: willBeExpanded });
 
         var loadedTabs = {};
         // unload all tabs if not expanded
@@ -109,7 +109,7 @@ var ListingRow = React.createClass({
             loadedTabs[this.state.activeTab] = true;
         }
 
-        this.setState( { loadedTabs: loadedTabs });
+        this.setState({ loadedTabs: loadedTabs });
 
         this.props.expandChanged && this.props.expandChanged(willBeExpanded);
 
@@ -122,7 +122,7 @@ var ListingRow = React.createClass({
             return;
 
         var selected = !this.state.selected;
-        this.setState( { selected: selected });
+        this.setState({ selected: selected });
 
         if (this.props.selectChanged)
             this.props.selectChanged(selected);

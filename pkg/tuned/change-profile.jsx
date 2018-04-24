@@ -83,7 +83,7 @@ var TunedDialogBody = React.createClass({
     },
     handleProfileClick: function(profile) {
         if (profile != this.state.selected_profile) {
-            this.setState( { selected_profile: profile } );
+            this.setState({ selected_profile: profile });
             this.props.change_selected(profile);
         }
     },

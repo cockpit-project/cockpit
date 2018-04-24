@@ -217,7 +217,7 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => { // for all connections
             dispatch(checkLibvirtStatus(libvirtServiceName));
-            return cockpit.user().done( loggedUser => {
+            return cockpit.user().done(loggedUser => {
                 const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
                         .filter(
                         // The 'root' user does not have its own qemu:///session just qemu:///system
@@ -784,7 +784,7 @@ function parseDumpxmlForBootOrder(osElem, devicesElem) {
             }
         }
     }
-    bootOrder.devices = bootableDevices.sort( (devA, devB) => devA.order - devB.order );
+    bootOrder.devices = bootableDevices.sort((devA, devB) => devA.order - devB.order);
     return bootOrder;
 }
 
@@ -820,7 +820,7 @@ function parseDumpxmlForConsoles(devicesElem) {
             };
             if (display.type &&
                 (display.autoport ||
-                (display.address && (display.port || display.tlsPort)) )) {
+                (display.address && (display.port || display.tlsPort)))) {
                 displays[display.type] = display;
                 logDebug(`parseDumpxmlForConsoles(): graphics device found: ${JSON.stringify(display)}`);
             } else {

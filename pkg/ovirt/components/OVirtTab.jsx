@@ -77,7 +77,7 @@ class MigrateTo extends React.Component {
                             <i>{_("Automatically selected host")}</i>
                         </option>
                         {Object.getOwnPropertyNames(hosts)
-                                .filter( hostId => canVmMigrateToHost({host: hosts[hostId]}))
+                                .filter(hostId => canVmMigrateToHost({host: hosts[hostId]}))
                                 .map(hostId => (
                                     <option value={hostId}
                                         selected={hostId === this.state.selectedHostId}

@@ -47,6 +47,7 @@ class TestStorage(StorageCase):
 
         # Create a volume group out of two disks
         m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
+        b.wait_present("#vgroups")
         b.wait_in_text("#vgroups", "TEST1")
         b.click('tr:contains("TEST1")')
         b.wait_visible("#storage-detail")

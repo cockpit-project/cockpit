@@ -256,7 +256,7 @@ function parseResourceGeneric(data, dispatch, name, converterFunction, updateAct
     if (result && result[name] && (result[name] instanceof Array)) {
         result[name]
                 .filter(filterPredicate)
-                .forEach( resource => {
+                .forEach(resource => {
                     if (resourceCallback) {
                         resourceCallback(resource);
                     }
@@ -308,7 +308,7 @@ function doRefreshResource(dispatch, name, resourceId, parserFunction, removeAct
 /**
  * Like doRefreshResource() but waits for 'cluster' to be loaded
  */
-function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceId, parserFunction, removeAction, isApiSearchOnCluster ) {
+function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceId, parserFunction, removeAction, isApiSearchOnCluster) {
     logDebug(`doRefreshResourceWithCurrentCluster() called, name=${name}, resourceId=${resourceId} `);
 
     const deferred = cockpit.defer();

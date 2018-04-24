@@ -58,21 +58,21 @@ class VdsmConf extends React.Component { // TODO: needs design
 
     doReload () {
         cockpit.file(VDSM_CONF_FILE).read()
-                .done( (content) => {
+                .done((content) => {
                     this.setState({ fileContent: content, changed: false, loaded: true });
                 })
-                .fail( (error) => { // TODO: more visible for the user
+                .fail(error => { // TODO: more visible for the user
                     logError(`Error reading ${VDSM_CONF_FILE}: ${JSON.stringify(error)}`);
                 })
     }
 
     doSave () {
         cockpit.file(VDSM_CONF_FILE, { superuser: 'try' }).replace(this.state.fileContent)
-                .done( () => {
+                .done(() => {
                     logDebug('Content of vdsm.conf replaced.')
                     this.setState({ changed: false });
                 })
-                .fail( (error) => {
+                .fail(error => {
                     logError(`Error writing ${VDSM_CONF_FILE}: ${JSON.stringify(error)}`);
                 })
     }

@@ -53,7 +53,7 @@ function add_adv(client, block, url, info, passphrase) {
                });
 }
 
-function verify_adv( url, info, title, extra, action_title, action) {
+function verify_adv(url, info, title, extra, action_title, action) {
     var port_pos = url.lastIndexOf(":");
     var host = (port_pos >= 0) ? url.substr(0, port_pos) : url;
     var port = (port_pos >= 0) ? url.substr(port_pos + 1) : "";

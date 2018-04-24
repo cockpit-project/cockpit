@@ -33,7 +33,7 @@ export class ConfigFile {
 
         cockpit.event_target(this);
 
-        this._fileHandle = cockpit.file(filename, { superuser: superuser } );
+        this._fileHandle = cockpit.file(filename, { superuser: superuser });
         this._fileHandle.watch((rawContent) => {
             this._parseText(rawContent);
         });

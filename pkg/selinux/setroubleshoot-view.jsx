@@ -33,7 +33,7 @@ var SELinuxEventDetails = React.createClass({
         var expanded;
         // all details are collapsed by default
         if (this.props.details)
-            expanded = this.props.details.pluginAnalysis.map(function() { return false; } );
+            expanded = this.props.details.pluginAnalysis.map(function() { return false; });
 
         return {
             solutionExpanded: expanded, // show details for solution
@@ -42,7 +42,7 @@ var SELinuxEventDetails = React.createClass({
     handleSolutionDetailsClick: function(itmIdx, e) {
         var solutionExpanded = this.state.solutionExpanded;
         solutionExpanded[itmIdx] = !solutionExpanded[itmIdx];
-        this.setState( { solutionExpanded: solutionExpanded } );
+        this.setState({ solutionExpanded: solutionExpanded });
         e.stopPropagation();
         e.preventDefault();
     },
@@ -51,7 +51,7 @@ var SELinuxEventDetails = React.createClass({
         var solutionExpanded = this.state.solutionExpanded;
         if (solutionExpanded[itmIdx]) {
             solutionExpanded[itmIdx] = false;
-            this.setState( { solutionExpanded: solutionExpanded } );
+            this.setState({ solutionExpanded: solutionExpanded });
         }
         var localId = this.props.details.localId;
         var analysisId = this.props.details.pluginAnalysis[itmIdx].analysisId;

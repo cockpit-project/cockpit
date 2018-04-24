@@ -55,7 +55,7 @@ var KdumpTargetBody = React.createClass({
         if (this.state.storeDest != "other")
             this.props.onChange(this.state.storeDest.target, undefined);
         // depending on our chosen target, we should send the default values we show in the ui
-        this.setState( { storeDest: target } );
+        this.setState({ storeDest: target });
     },
     changeValue: function(key, e) {
         if (this.props.onChange) {
@@ -275,7 +275,7 @@ var KdumpPage = React.createClass({
                     settings[key] = { value: value };
             }
         }
-        this.setState( { dialogSettings: settings } );
+        this.setState({ dialogSettings: settings });
         this.state.dialogObj.updateDialogBody();
         this.state.dialogObj.render();
     },
@@ -315,7 +315,7 @@ var KdumpPage = React.createClass({
             'dialog_done': self.dialogClosed,
         };
         var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
-        this.setState( { dialogObj: dialogObj } );
+        this.setState({ dialogObj: dialogObj });
     },
     handleServiceDetailsClick: function(e) {
         // only consider primary mouse button
@@ -324,7 +324,7 @@ var KdumpPage = React.createClass({
         cockpit.jump("/system/services#/kdump.service", cockpit.transport.host);
     },
     dialogClosed: function() {
-        this.setState( { dialogSettings: undefined, dialogObj: undefined } );
+        this.setState({ dialogSettings: undefined, dialogObj: undefined });
     },
     handleSettingsClick: function(e) {
         // only consider primary mouse button
@@ -332,7 +332,7 @@ var KdumpPage = React.createClass({
             return;
         var self = this;
         var settings = { };
-        Object.keys(self.props.kdumpStatus.config).forEach( (key) => {
+        Object.keys(self.props.kdumpStatus.config).forEach((key) => {
             settings[key] = cockpit.extend({}, self.props.kdumpStatus.config[key]);
         });
         // open the settings dialog
@@ -361,7 +361,7 @@ var KdumpPage = React.createClass({
         };
         var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
-        this.setState( { dialogSettings: settings, dialogObj: dialogObj } );
+        this.setState({ dialogSettings: settings, dialogObj: dialogObj });
     },
     render: function() {
         var kdumpLocation = (

@@ -224,7 +224,7 @@ OVIRT_PROVIDER.CREATE_VM_FROM_TEMPLATE = function (payload) {
 OVIRT_PROVIDER.MIGRATE_VM = function ({ vmId, vmName, hostId }) {
     logDebug(`MIGRATE_VM(payload: {vmId: "${vmId}", hostId: "${hostId}"}`);
     if (!isOvirtApiCheckPassed()) {
-        logDebug('oVirt API version does not match but the MIGRATE action is not supported by Libvirt provider, skipping' );
+        logDebug('oVirt API version does not match but the MIGRATE action is not supported by Libvirt provider, skipping');
         return () => {};
     }
 
@@ -262,7 +262,7 @@ OVIRT_PROVIDER.SUSPEND_VM = function ({ id, name }) {
             name,
             connectionName: undefined, // TODO: oVirt-only, not implemented for Libvirt
             message: _("SUSPEND action failed")
-        })).then( data => {
+        })).then(data => {
         logDebug('SUSPEND_VM finished', data);
         window.setTimeout(forceNextOvirtPoll, 5000); // hack for better user experience
     }
@@ -286,8 +286,8 @@ OVIRT_PROVIDER.DOWNLOAD_ICONS = function ({ iconIds, forceReload }) {
 
     return (dispatch, getState) => {
         const existingIcons = forceReload ? {} : getAllIcons(getState());
-        const iconIdsToDownload = Object.getOwnPropertyNames(iconIds).filter( iconId => !existingIcons[iconId] );
-        iconIdsToDownload.forEach( iconId => dispatch(downloadIcon({ iconId })) );
+        const iconIdsToDownload = Object.getOwnPropertyNames(iconIds).filter(iconId => !existingIcons[iconId]);
+        iconIdsToDownload.forEach(iconId => dispatch(downloadIcon({ iconId })));
     };
 };
 
@@ -358,7 +358,7 @@ OVIRT_PROVIDER.CONSOLE_VM = function (payload) { // download a .vv file generate
 OVIRT_PROVIDER.HOST_TO_MAINTENANCE = function ({ hostId }) {
     logDebug(`HOST_TO_MAINTENANCE(hostId=${hostId})`);
     if (!isOvirtApiCheckPassed()) {
-        logDebug('oVirt API version does not match but the HOST_TO_MAINTENANCE action is not supported by Libvirt provider, skipping' );
+        logDebug('oVirt API version does not match but the HOST_TO_MAINTENANCE action is not supported by Libvirt provider, skipping');
         return () => {};
     }
 

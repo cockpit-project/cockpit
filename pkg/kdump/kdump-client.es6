@@ -106,7 +106,7 @@ export class KdumpClient {
             dfd.resolve();
         } else {
             // local path, try to see if we can write
-            cockpit.script(testWritableScript, [path], { superuser: "try" } )
+            cockpit.script(testWritableScript, [path], { superuser: "try" })
                     .done(dfd.resolve)
                     .fail((error) => {
                         dfd.reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path));

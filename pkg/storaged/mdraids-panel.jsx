@@ -104,15 +104,16 @@ export class MDRaidsPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={mdraid_name(mdraid)}
-                                      detail={fmt_size(mdraid.Size)}
-                                      go={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}
-                                      job_path={path}/>
+                    kind="array"
+                    name={mdraid_name(mdraid)}
+                    detail={fmt_size(mdraid.Size)}
+                    go={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}
+                    job_path={path}/>
             );
         }
 
-        var mdraids = Object.keys(client.mdraids).sort(cmp_mdraid).map(make_mdraid);
+        var mdraids = Object.keys(client.mdraids).sort(cmp_mdraid)
+                .map(make_mdraid);
 
         var actions = (
             <StorageButton kind="primary" onClick={create_mdraid} id="create-mdraid">
@@ -122,9 +123,9 @@ export class MDRaidsPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="mdraids"
-                               title={_("RAID Devices")}
-                               empty_text={_("No storage set up as RAID")}
-                               actions={actions}>
+                title={_("RAID Devices")}
+                empty_text={_("No storage set up as RAID")}
+                actions={actions}>
                 { mdraids }
             </OverviewSidePanel>
         );

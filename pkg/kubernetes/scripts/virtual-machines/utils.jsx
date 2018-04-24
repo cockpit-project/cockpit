@@ -31,12 +31,12 @@ export function getPairs(object) {
 }
 
 export function vmIdPrefx(vm) {
-  return `vm-${vm.metadata.name}`
+    return `vm-${vm.metadata.name}`
 }
 
 // TODO: set log level, i.e. reuse window.debug
 export function logDebug(...args) {
-  console.debug('Kubevirt: ', ...args);
+    console.debug('Kubevirt: ', ...args);
 }
 
 export function mouseClick(fun) {

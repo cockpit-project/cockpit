@@ -83,30 +83,30 @@ var DialogFooter = React.createClass({
             return;
         var self = this;
         this.setState({
-                          error_message: null,
-                          action_progress_message: '',
-                          action_in_progress: true,
-                          action_canceled: false,
-                      });
+            error_message: null,
+            action_progress_message: '',
+            action_in_progress: true,
+            action_canceled: false,
+        });
 
         var p = handler(this.update_progress.bind(this))
-            .then(function() {
-                self.setState({ action_in_progress: false, error_message: null });
-                if (self.props.dialog_done)
-                    self.props.dialog_done(true);
-            })
-            .catch(function(error) {
-                if (self.state.action_canceled) {
+                .then(function() {
+                    self.setState({ action_in_progress: false, error_message: null });
                     if (self.props.dialog_done)
-                        self.props.dialog_done(false);
-                }
+                        self.props.dialog_done(true);
+                })
+                .catch(function(error) {
+                    if (self.state.action_canceled) {
+                        if (self.props.dialog_done)
+                            self.props.dialog_done(false);
+                    }
 
-                /* Always log global dialog errors for easier debugging */
-                if (error)
-                    console.warn(error);
+                    /* Always log global dialog errors for easier debugging */
+                    if (error)
+                        console.warn(error);
 
-                self.setState({ action_in_progress: false, error_message: error });
-            });
+                    self.setState({ action_in_progress: false, error_message: error });
+                });
 
         if (p.progress)
             p.progress(this.update_progress.bind(this));
@@ -156,9 +156,9 @@ var DialogFooter = React.createClass({
         if (this.state.action_in_progress) {
             actions_disabled = 'disabled';
             wait_element = <div className="dialog-wait-ct pull-left">
-                               <div className="spinner spinner-sm"></div>
-                               <span>{ this.state.action_progress_message }</span>
-                           </div>;
+                <div className="spinner spinner-sm"></div>
+                <span>{ this.state.action_progress_message }</span>
+            </div>;
         }
 
         var self = this;
@@ -176,11 +176,11 @@ var DialogFooter = React.createClass({
             button_style = "btn " + button_style + " apply";
             var action_disabled = actions_disabled || ('disabled' in action && action.disabled);
             return (<button
-                    key={ caption }
-                    className={ button_style }
-                    onClick={ self.action_click.bind(self, action.clicked) }
-                    disabled={ action_disabled }
-                    >{ caption }</button>
+                key={ caption }
+                className={ button_style }
+                onClick={ self.action_click.bind(self, action.clicked) }
+                disabled={ action_disabled }
+            >{ caption }</button>
             );
         });
 
@@ -193,9 +193,9 @@ var DialogFooter = React.createClass({
             error_message = this.state.error_message;
         if (error_message) {
             error_element = <div className="alert alert-danger dialog-error">
-                                <span className="fa fa-exclamation-triangle"></span>
-                                <span>{ error_message }</span>
-                            </div>;
+                <span className="fa fa-exclamation-triangle"></span>
+                <span>{ error_message }</span>
+            </div>;
         }
         return (
             <div className="modal-footer">
@@ -204,7 +204,7 @@ var DialogFooter = React.createClass({
                 <button
                     className={ cancel_style }
                     onClick={ this.cancel_click.bind(this) }
-                    >{ cancel_caption }</button>
+                >{ cancel_caption }</button>
                 { action_buttons }
             </div>
         );

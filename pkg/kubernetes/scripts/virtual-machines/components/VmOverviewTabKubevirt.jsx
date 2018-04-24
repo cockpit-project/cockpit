@@ -84,8 +84,8 @@ const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: Vm
         {title: _("Pod:"), value: podLink, idPostfix: 'pod'},
     ];
     return (<VmOverviewTab message={message}
-                           idPrefix={idPrefix}
-                           items={items} />);
+        idPrefix={idPrefix}
+        items={items} />);
 };
 
 export default VmOverviewTabKubevirt;

@@ -94,7 +94,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state, vm.id, config.providerState)) {
         deleteAction = (
             <button className="btn btn-danger" id={`${id}-delete`}
-                    onClick={mouseClick(() => deleteDialog(vm, dispatch))}>
+                onClick={mouseClick(() => deleteDialog(vm, dispatch))}>
                 {_("Delete")}
             </button>
         );

@@ -51,7 +51,7 @@ export class VDOsPanel extends React.Component {
                                 Value: name,
                                 validate: function (name) {
                                     if (name == "")
-                                               return _("Name can not be empty.");
+                                        return _("Name can not be empty.");
                                 }
                               },
                               { SelectOneOfMany: "space",
@@ -76,7 +76,7 @@ export class VDOsPanel extends React.Component {
                                             Value: vals.space.size
                                         };
                                     } else
-                                    return vals.lsize;
+                                        return vals.lsize;
                                 }
                               },
                               { SizeSlider: "index_mem",
@@ -112,17 +112,17 @@ export class VDOsPanel extends React.Component {
                                                            { superuser: true,
                                                              err: "message"
                                                            })
-                                                    .then(function () {
-                                                        return client.vdo_overlay.create({
-                                                            name: vals.name,
-                                                            block: block,
-                                                            logical_size: vals.lsize,
-                                                            index_mem: vals.index_mem,
-                                                            compression: vals.compression,
-                                                            deduplication: vals.deduplication,
-                                                            emulate_512: vals.emulate_512
-                                                        });
-                                                    });
+                                              .then(function () {
+                                                  return client.vdo_overlay.create({
+                                                      name: vals.name,
+                                                      block: block,
+                                                      logical_size: vals.lsize,
+                                                      index_mem: vals.index_mem,
+                                                      compression: vals.compression,
+                                                      deduplication: vals.deduplication,
+                                                      emulate_512: vals.emulate_512
+                                                  });
+                                              });
                                   });
                               }
                           }
@@ -137,11 +137,11 @@ export class VDOsPanel extends React.Component {
             var block = client.slashdevs_block[vdo.dev];
             return (
                 <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={vdo.name}
-                                      detail={fmt_size(vdo.logical_size)}
-                                      go={() => cockpit.location.go([ "vdo", vdo.name ])}
-                                      job_path={block && block.path}/>
+                    kind="array"
+                    name={vdo.name}
+                    detail={fmt_size(vdo.logical_size)}
+                    go={() => cockpit.location.go([ "vdo", vdo.name ])}
+                    job_path={block && block.path}/>
             );
         }
 
@@ -155,9 +155,9 @@ export class VDOsPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="vdos"
-                               title={_("VDO Devices")}
-                               empty_text={_("No storage set up as VDO")}
-                               actions={actions}>
+                title={_("VDO Devices")}
+                empty_text={_("No storage set up as VDO")}
+                actions={actions}>
                 { vdos }
             </OverviewSidePanel>
         );

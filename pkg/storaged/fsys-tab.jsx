@@ -87,9 +87,9 @@ var FilesystemTab = React.createClass({
         if (old_config) {
             old_dir = utils.decode_filename(old_config[1].dir.v);
             old_opts = (utils.decode_filename(old_config[1].opts.v).
-                              split(",").
-                              filter(function (s) { return s.indexOf("x-parent") !== 0; }).
-                              join(","));
+                    split(",").
+                    filter(function (s) { return s.indexOf("x-parent") !== 0; }).
+                    join(","));
         }
 
         var mounted_at = block_fsys ? block_fsys.MountPoints.map(utils.decode_filename) : [ ];
@@ -156,53 +156,53 @@ var FilesystemTab = React.createClass({
                         </td>
                     </tr>
                     { (!self.props.client.is_old_udisks2)
-                          ? (
-                              <tr>
-                                  <td>{_("Mount Point")}</td>
-                                  <td>
-                                      <StorageLink onClick={mounting_dialog}>
-                                          {old_dir || _("(default)")}
-                                      </StorageLink>
-                                      <div className="tab-row-actions">
-                                          { (!is_filesystem_mounted)
-                                                ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                        ? (
+                            <tr>
+                                <td>{_("Mount Point")}</td>
+                                <td>
+                                    <StorageLink onClick={mounting_dialog}>
+                                        {old_dir || _("(default)")}
+                                    </StorageLink>
+                                    <div className="tab-row-actions">
+                                        { (!is_filesystem_mounted)
+                                            ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
                                             : null
-                                          }
-                                      </div>
-                                  </td>
-                              </tr>
-                          )
-                          : null
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        )
+                        : null
                     }
                     { (old_opts)
-                          ? (
-                              <tr>
-                                  <td>{_("Mount Options")}</td>
-                                  <td>
-                                      <StorageLink onClick={mounting_dialog}>
-                                          {old_opts}
-                                      </StorageLink>
-                                  </td>
-                              </tr>
-                          )
-                          : null
+                        ? (
+                            <tr>
+                                <td>{_("Mount Options")}</td>
+                                <td>
+                                    <StorageLink onClick={mounting_dialog}>
+                                        {old_opts}
+                                    </StorageLink>
+                                </td>
+                            </tr>
+                        )
+                        : null
                     }
                     { (mounted_at.length > 0 || self.props.client.is_old_udisks2)
-                          ? (
-                              <tr>
-                                  <td>{_("Mounted At")}</td>
-                                  <td>
-                                      {mounted_at.join(", ")}
-                                      <div className="tab-row-actions">
-                                          { (mounted_at.length > 0)
-                                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                          }
-                                      </div>
-                                  </td>
-                              </tr>
-                          )
-                          : null
+                        ? (
+                            <tr>
+                                <td>{_("Mounted At")}</td>
+                                <td>
+                                    {mounted_at.join(", ")}
+                                    <div className="tab-row-actions">
+                                        { (mounted_at.length > 0)
+                                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        )
+                        : null
                     }
                     <tr>
                         <td>{_("Used")}</td>

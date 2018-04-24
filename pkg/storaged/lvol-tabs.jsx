@@ -111,9 +111,11 @@ function lvol_and_fsys_resize(client, lvol, size, offline) {
         }
     } else {
         if (size < orig_size) {
-            return fsys_resize().then(crypto_resize).then(lvm_resize);
+            return fsys_resize().then(crypto_resize)
+                    .then(lvm_resize);
         } else if (size > orig_size) {
-            return lvm_resize().then(crypto_resize).then(fsys_resize);
+            return lvm_resize().then(crypto_resize)
+                    .then(fsys_resize);
         }
     }
 }
@@ -141,8 +143,8 @@ function lvol_grow(client, lvol, info) {
                         Value: lvol.Size,
                         Min: lvol.Size,
                         Max: (pool
-                              ? pool.Size * 3
-                              : lvol.Size + vgroup.FreeSize),
+                            ? pool.Size * 3
+                            : lvol.Size + vgroup.FreeSize),
                         AllowInfinite: !!pool,
                         Round: vgroup.ExtentSize
                       }
@@ -151,10 +153,10 @@ function lvol_grow(client, lvol, info) {
                       Title: _("Grow"),
                       action: function (vals) {
                           return utils.teardown_active_usage(client, usage).
-                                       then(function () {
-                                           return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                       info.grow_needs_unmount);
-                                       });
+                                  then(function () {
+                                      return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                  info.grow_needs_unmount);
+                                  });
                       }
                   }
     });
@@ -188,10 +190,10 @@ function lvol_shrink(client, lvol, info) {
                       Title: _("Shrink"),
                       action: function (vals) {
                           return utils.teardown_active_usage(client, usage).
-                                       then(function () {
-                                           return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                       info.shrink_needs_unmount);
-                                       });
+                                  then(function () {
+                                      return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                  info.shrink_needs_unmount);
+                                  });
                       }
                   }
     });

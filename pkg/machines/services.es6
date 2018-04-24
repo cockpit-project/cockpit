@@ -24,13 +24,13 @@ export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
     logDebug(`spawn process args: ${spawnArgs}`);
 
     return spawn(cockpit.spawn(spawnArgs, { err: "message", environ: ['LC_ALL=C'] })
-        .input(stdin))
-        .fail((exception, data) => {
-            if (failHandler) {
-                return failHandler({exception, data, spawnArgs});
-            }
-            console.warn(`spawn '${cmd}' process returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-        });
+            .input(stdin))
+            .fail((exception, data) => {
+                if (failHandler) {
+                    return failHandler({exception, data, spawnArgs});
+                }
+                console.warn(`spawn '${cmd}' process returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
+            });
 }
 
 export function spawnScript({ script }) {
@@ -38,23 +38,23 @@ export function spawnScript({ script }) {
     logDebug(`spawn script args: ${spawnArgs}`);
 
     return spawn(cockpit.script(spawnArgs, [], { err: "message", environ: ['LC_ALL=C'] }))
-        .fail((ex, data) =>
-            console.warn(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
+            .fail((ex, data) =>
+                console.warn(`spawn '${script}' script error: "${JSON.stringify(ex)}", data: "${JSON.stringify(data)}"`));
 }
 
 function spawn(command) {
     const deferred = cockpit.defer();
     let stdout = '';
     command
-        .stream(chunk => {
-            stdout += chunk;
-        })
-        .done(() => {
-            deferred.resolve(stdout);
-        })
-        .fail((ex, data) => {
-            deferred.reject(ex, data, stdout);
-        });
+            .stream(chunk => {
+                stdout += chunk;
+            })
+            .done(() => {
+                deferred.resolve(stdout);
+            })
+            .fail((ex, data) => {
+                deferred.reject(ex, data, stdout);
+            });
 
     return deferred.promise;
 }

@@ -83,7 +83,7 @@ class HostVmsList extends React.Component {
         let allActions = [
             (
                 <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-                   onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
+                    onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
                     <span className="pficon pficon-add-circle-o"/>{_("Create New VM")}
                 </a>
             )
@@ -95,36 +95,36 @@ class HostVmsList extends React.Component {
 
         return (<div className='container-fluid'>
             <NotificationArea id={"notification-area"}
-                              notifications={ui.notifications}
-                              onDismiss={(id) => dispatch(clearNotification(id))}/>
+                notifications={ui.notifications}
+                onDismiss={(id) => dispatch(clearNotification(id))}/>
             <Listing title={_("Virtual Machines")}
-                     columnTitles={[_("Name"), _("Connection"), _("State")]}
-                     actions={allActions}
-                     emptyCaption={_("No VM is running or defined on this host")}>
+                columnTitles={[_("Name"), _("Connection"), _("State")]}
+                actions={allActions}
+                emptyCaption={_("No VM is running or defined on this host")}>
                 {combinedVms
-                    .sort(sortFunction)
-                    .map(vm => {
-                        if (vm.isUi) {
+                        .sort(sortFunction)
+                        .map(vm => {
+                            if (vm.isUi) {
+                                return (
+                                    <DummyVm vm={vm}/>
+                                );
+                            }
                             return (
-                                <DummyVm vm={vm}/>
-                            );
-                        }
-                        return (
-                            <Vm vm={vm} config={config}
-                                hostDevices={this.deviceProxies}
-                                onStart={() => dispatch(startVm(vm))}
-                                onInstall={() => dispatch(installVm(vm))}
-                                onReboot={() => dispatch(rebootVm(vm))}
-                                onForceReboot={() => dispatch(forceRebootVm(vm))}
-                                onShutdown={() => dispatch(shutdownVm(vm))}
-                                onForceoff={() => dispatch(forceVmOff(vm))}
-                                onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
-                                onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
-                                onSendNMI={() => dispatch(sendNMI(vm))}
-                                dispatch={dispatch}
-                                key={`${vmId(vm.name)}`}
-                            />);
-                    })}
+                                <Vm vm={vm} config={config}
+                                    hostDevices={this.deviceProxies}
+                                    onStart={() => dispatch(startVm(vm))}
+                                    onInstall={() => dispatch(installVm(vm))}
+                                    onReboot={() => dispatch(rebootVm(vm))}
+                                    onForceReboot={() => dispatch(forceRebootVm(vm))}
+                                    onShutdown={() => dispatch(shutdownVm(vm))}
+                                    onForceoff={() => dispatch(forceVmOff(vm))}
+                                    onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
+                                    onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
+                                    onSendNMI={() => dispatch(sendNMI(vm))}
+                                    dispatch={dispatch}
+                                    key={`${vmId(vm.name)}`}
+                                />);
+                        })}
             </Listing>
         </div>);
     }

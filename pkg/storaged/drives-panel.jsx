@@ -52,7 +52,7 @@ export class DrivesPanel extends React.Component {
             if (drive.MediaRemovable || drive.Media) {
                 for (var i = 0; i < drive.MediaCompatibility.length; i++)
                     if (drive.MediaCompatibility[i].indexOf("optical") === 0)
-                    return "optical";
+                        return "optical";
                 return "removable";
             }
 
@@ -101,21 +101,22 @@ export class DrivesPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                                      name={name}
-                                      detail={desc}
-                                      stats={io}
-                                      highlight={dev == props.highlight}
-                                      go={() => cockpit.location.go([ dev ])}
-                                      job_path={path}/>
+                    name={name}
+                    detail={desc}
+                    stats={io}
+                    highlight={dev == props.highlight}
+                    go={() => cockpit.location.go([ dev ])}
+                    job_path={path}/>
             );
         }
 
-        var drives = Object.keys(client.drives).sort(cmp_drive).map(make_drive);
+        var drives = Object.keys(client.drives).sort(cmp_drive)
+                .map(make_drive);
 
         return (
             <OverviewSidePanel id="drives"
-                               title={_("Drives")}
-                               empty_text={_("No drives attached")}>
+                title={_("Drives")}
+                empty_text={_("No drives attached")}>
                 { drives }
             </OverviewSidePanel>
         );

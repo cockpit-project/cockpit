@@ -76,8 +76,8 @@ var CryptoTab = React.createClass({
                                   { PassInput: "passphrase",
                                     Title: _("Stored Passphrase"),
                                     Value: (config && config['passphrase-contents']
-                                            ? utils.decode_filename(config['passphrase-contents'].v)
-                                            : "")
+                                        ? utils.decode_filename(config['passphrase-contents'].v)
+                                        : "")
                                   }
                               ],
                               Action: {
@@ -100,9 +100,9 @@ var CryptoTab = React.createClass({
         old_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab"; });
         if (old_config) {
             old_options = (utils.decode_filename(old_config[1].options.v).
-                                 split(",").
-                                 filter(function (s) { return s.indexOf("x-parent") !== 0; }).
-                                 join(","));
+                    split(",").
+                    filter(function (s) { return s.indexOf("x-parent") !== 0; }).
+                    join(","));
         }
 
         function edit_options() {
@@ -160,22 +160,22 @@ var CryptoTab = React.createClass({
                 </div>
                 <table className="info-table-ct">
                     { !self.props.client.is_old_udisks2
-                      ? <tr>
-                          <td>{_("Stored passphrase")}</td>
-                          <td><StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton></td>
-                      </tr> : null
+                        ? <tr>
+                            <td>{_("Stored passphrase")}</td>
+                            <td><StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton></td>
+                        </tr> : null
                     }
                     { !self.props.client.is_old_udisks2
-                      ? <tr>
-                          <td>{_("Options")}</td>
-                          <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
-                      </tr> : null
+                        ? <tr>
+                            <td>{_("Options")}</td>
+                            <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
+                        </tr> : null
                     }
                     { self.props.client.features.clevis
-                      ? <tr>
-                        <td>{_("Network keys")}</td>
-                        <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
-                      </tr> : null
+                        ? <tr>
+                            <td>{_("Network keys")}</td>
+                            <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
+                        </tr> : null
                     }
                 </table>
             </div>

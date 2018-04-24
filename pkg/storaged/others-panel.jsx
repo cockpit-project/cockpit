@@ -51,21 +51,23 @@ export class OthersPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                                      kind={false}
-                                      testkey={dev}
-                                      name={name}
-                                      detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
-                                      go={() => cockpit.location.go([ dev ])}
-                                      job_path={path}/>
+                    kind={false}
+                    testkey={dev}
+                    name={name}
+                    detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
+                    go={() => cockpit.location.go([ dev ])}
+                    job_path={path}/>
             );
         }
 
-        var others = Object.keys(client.blocks).filter(is_other).sort(make_block_path_cmp(client)).map(make_other);
+        var others = Object.keys(client.blocks).filter(is_other)
+                .sort(make_block_path_cmp(client))
+                .map(make_other);
 
         if (others.length > 0)
             return (
                 <OverviewSidePanel id="others"
-                                   title={_("Other Devices")}>
+                    title={_("Other Devices")}>
                     { others }
                 </OverviewSidePanel>
             );

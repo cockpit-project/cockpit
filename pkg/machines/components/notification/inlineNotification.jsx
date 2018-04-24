@@ -52,7 +52,7 @@ class InlineNotification extends React.Component {
             }
 
             detailButton = (<a href='#' className='alert-link machines-more-button'
-                                     onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
+                onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
         }
 
         return (
@@ -76,8 +76,8 @@ InlineNotification.propTypes = {
 export const Alert = ({ onDismiss, text, textId, detail }) => {
     return (
         <Notification onDismiss={onDismiss}
-                      notificationClass='alert alert-warning'
-                      iconClass='pficon pficon-warning-triangle-o'>
+            notificationClass='alert alert-warning'
+            iconClass='pficon pficon-warning-triangle-o'>
             <InlineNotification text={text} textId={textId} detail={detail} />
         </Notification>
 
@@ -87,8 +87,8 @@ export const Alert = ({ onDismiss, text, textId, detail }) => {
 export const Info = ({ onDismiss, text, textId, detail }) => {
     return (
         <Notification onDismiss={onDismiss}
-                      notificationClass='alert alert-info'
-                      iconClass='pficon pficon-info'>
+            notificationClass='alert alert-info'
+            iconClass='pficon pficon-info'>
             <InlineNotification text={text} textId={textId} detail={detail} />
         </Notification>
     );

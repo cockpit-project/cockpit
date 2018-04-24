@@ -213,23 +213,23 @@ class CreateVmDialog extends React.Component {
                         <a>
                             {_("upload a JSON file")}
                             <input id="file-input" type="file" className="hide"
-                                   accept=".json,.txt"
-                                   onChange={this.onNewFileEvent}/>
+                                accept=".json,.txt"
+                                onChange={this.onNewFileEvent}/>
                         </a>
                     </label>
                     {_(" or drag & drop.")}
                 </div>
                 <div id={DROP_ZONE_ID}
-                     onDrop={this.onDrop}>
+                    onDrop={this.onDrop}>
                     <div className={"form-group " + formGroupClassNames}>
                         <div className="drop-container">
                             {dropZoneOverlay}
                             {overDropZoneOverlay}
                             <textarea id="resource-text"
-                                      key="resource-text"
-                                      className={"form-control " + textAreaClassName}
-                                      value={this.state.resource}
-                                      onChange={this.onResourceChanged}/>
+                                key="resource-text"
+                                className={"form-control " + textAreaClassName}
+                                value={this.state.resource}
+                                onChange={this.onResourceChanged}/>
                         </div>
                         {resourceErrorLabel}
                     </div>

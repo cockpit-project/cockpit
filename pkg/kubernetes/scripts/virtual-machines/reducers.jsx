@@ -64,22 +64,22 @@ const settingsReducer = createReducer([], {
  */
 const vmsMessagesReducer = createReducer({}, {
     [actionTypes.VM_ACTION_FAILED]: (state = {}, { payload: { vm, message, detail } }) => {
-      const newState = Object.assign({}, state);
-      newState[vm.metadata.uid] = { // So far the last message is kept only
-        message, // textual information
-        detail, // i.e. exception
-      };
-      return newState;
+        const newState = Object.assign({}, state);
+        newState[vm.metadata.uid] = { // So far the last message is kept only
+            message, // textual information
+            detail, // i.e. exception
+        };
+        return newState;
     },
 
     [actionTypes.REMOVE_VM_MESSAGE]: (state = {}, { payload: { vm } }) => {
-      if (!state[vm.metadata.uid]) {
-        return state;
-      }
+        if (!state[vm.metadata.uid]) {
+            return state;
+        }
 
-      const newState = Object.assign({}, state);
-      delete newState[vm.metadata.uid];
-      return newState;
+        const newState = Object.assign({}, state);
+        delete newState[vm.metadata.uid];
+        return newState;
     },
 });
 

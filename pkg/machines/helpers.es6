@@ -81,7 +81,7 @@ function getLogarithmOfBase1024(value) {
 
 export function convertToBestUnit(input, inputUnit) {
     return convertToUnitVerbose(input, inputUnit,
-        logUnitMap[getLogarithmOfBase1024(convertToUnitVerbose(input, inputUnit, units.B).value)]);
+                                logUnitMap[getLogarithmOfBase1024(convertToUnitVerbose(input, inputUnit, units.B).value)]);
 }
 
 export function convertToUnit(input, inputUnit, outputUnit) {

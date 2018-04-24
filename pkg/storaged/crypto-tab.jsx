@@ -99,10 +99,10 @@ var CryptoTab = React.createClass({
 
         old_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab"; });
         if (old_config) {
-            old_options = (utils.decode_filename(old_config[1].options.v).
-                    split(",").
-                    filter(function (s) { return s.indexOf("x-parent") !== 0; }).
-                    join(","));
+            old_options = (utils.decode_filename(old_config[1].options.v)
+                    .split(",")
+                    .filter(function (s) { return s.indexOf("x-parent") !== 0; })
+                    .join(","));
         }
 
         function edit_options() {

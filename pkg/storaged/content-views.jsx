@@ -280,8 +280,8 @@ function create_tabs(client, target, is_partition) {
                               Danger: danger,
                               Title: _("Delete"),
                               action: function () {
-                                  return utils.teardown_active_usage(client, usage).
-                                          then(function () {
+                                  return utils.teardown_active_usage(client, usage)
+                                          .then(function () {
                                               if (lvol)
                                                   return lvol.Delete({ 'tear-down': { t: 'b', v: true }
                                                   });
@@ -514,8 +514,8 @@ function block_content(client, block, allow_partitions) {
                               };
                               if (vals.erase != "no")
                                   options.erase = { t: 's', v: vals.erase };
-                              return utils.teardown_active_usage(client, usage).
-                                      then(function () {
+                              return utils.teardown_active_usage(client, usage)
+                                      .then(function () {
                                           return block.Format(vals.type, options);
                                       });
                           }

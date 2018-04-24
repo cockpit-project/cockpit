@@ -185,8 +185,8 @@ export class VGroupDetails extends React.Component {
                           Action: {
                               Title: _("Rename"),
                               action: function (vals) {
-                                  return vgroup.Rename(vals.name, { }).
-                                          done(function () {
+                                  return vgroup.Rename(vals.name, { })
+                                          .done(function () {
                                               location.go([ 'vg', vals.name ]);
                                           });
                               }
@@ -214,12 +214,12 @@ export class VGroupDetails extends React.Component {
                               Danger: _("Deleting a volume group will erase all data on it."),
                               Title: _("Delete"),
                               action: function () {
-                                  return utils.teardown_active_usage(client, usage).
-                                          then(function () {
+                                  return utils.teardown_active_usage(client, usage)
+                                          .then(function () {
                                               return vgroup.Delete(true,
                                                                    { 'tear-down': { t: 'b', v: true }
-                                                                   }).
-                                                      done(function () {
+                                                                   })
+                                                      .done(function () {
                                                           location.go('/');
                                                       });
                                           });

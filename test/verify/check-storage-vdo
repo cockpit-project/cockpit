@@ -40,6 +40,7 @@ class TestStorage(StorageCase):
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
+        b.wait_present("#vgroups")
         b.wait_in_text("#vgroups", "vdo_vgroup")
 
         # Create VDO

@@ -1339,6 +1339,46 @@ virtDBusDomainGetMemoryParameters(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetMetadata(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *typeStr;
+    gint type;
+    const gchar *uri;
+    guint flags;
+    g_autofree gchar *ret = NULL;
+
+    g_variant_get(inArgs, "(&s&su)", &typeStr, &uri, &flags);
+    if (g_str_equal(uri, ""))
+        uri = NULL;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    type = virtDBusDomainMetadataTypeFromString(typeStr);
+    if (type < 0) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't get valid virDomainMetadataType from string '%s'.",
+                    typeStr);
+        return;
+    }
+
+    ret = virDomainGetMetadata(domain, type, uri, flags);
+    if (!ret)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", ret);
+}
+
+static void
 virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
                                      GUnixFDList *inFDs G_GNUC_UNUSED,
                                      const gchar *objectPath,
@@ -2351,6 +2391,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetJobStats", virtDBusDomainGetJobStats },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
+    { "GetMetadata", virtDBusDomainGetMetadata },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },

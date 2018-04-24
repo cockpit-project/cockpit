@@ -63,6 +63,12 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_domain_metadata(self):
+        obj, domain = self.domain()
+        description_expected = "This is the Test domain"
+        domain.SetMetadata('description', description_expected, "", "", 0)
+        assert description_expected == domain.GetMetadata('description', "", 0)
+
     def test_resume(self):
         def domain_resumed(path, _event):
             assert isinstance(path, dbus.ObjectPath)

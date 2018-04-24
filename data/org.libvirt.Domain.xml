@@ -239,6 +239,15 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="memoryParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetMetadata">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetMetadata
+               Empty string can be used to pass a NULL as @uri argument."/>
+      <arg name="type" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="metadata" type="s" direction="out"/>
+    </method>
     <method name="GetSchedulerParameters">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSchedulerParametersFlags"/>

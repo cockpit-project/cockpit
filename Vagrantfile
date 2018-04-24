@@ -46,6 +46,7 @@ Vagrant.configure(2) do |config|
             atomic \
             docker \
             etcd \
+            firewalld \
             git \
             kubernetes \
             NetworkManager \

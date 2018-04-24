@@ -1,0 +1,118 @@
+#!/usr/bin/python2
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+import time
+
+
+def wait_unit_state(machine, unit, state):
+
+    def active_state(unit):
+        # HACK: don't use `systemctl is-active` here because of
+        #   https://bugzilla.redhat.com/show_bug.cgi?id=1073481
+        # Also, use `systemctl --value` once that exists everywhere
+        line = machine.execute("systemctl show -p ActiveState {}".format(unit))
+        return line.strip().split("=")[1]
+
+    wait(lambda: active_state(unit) == state, delay=0.2)
+
+
+@skipImage("firewalld not installed", "rhel-7-5", "centos-7", "fedora-atomic", "rhel-atomic", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604")
+class TestFirewall(MachineCase):
+
+    def testNetworkingPage(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking-firewall")
+
+        m.execute("systemctl stop firewalld")
+        b.wait_in_text("#networking-firewall-switch label.active", "Off")
+        m.execute("systemctl start firewalld")
+        b.wait_in_text("#networking-firewall-switch label.active", "On")
+
+        # to toggle the switch, click on the non-active label, where the slider is
+        b.click("#networking-firewall-switch label:not(.active)")
+        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
+        b.wait_in_text("#networking-firewall-switch label.active", "Off")
+        wait_unit_state(m, "firewalld", "inactive")
+        b.wait_in_text("#networking-firewall-summary", "0 Active Rules")
+
+        b.click("#networking-firewall-switch label:not(.active)")
+        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
+        b.wait_in_text("#networking-firewall-switch label.active", "On")
+        wait_unit_state(m, "firewalld", "active")
+
+        active_rules = m.execute("firewall-cmd --list-services").split()
+        b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
+
+        b.click("#networking-firewall-link")
+        b.enter_page("/network/firewall")
+
+        b.click(".breadcrumb li:first a")
+        b.enter_page("/network")
+
+
+    def testFirewallPage(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network/firewall")
+        m.execute("systemctl start firewalld")
+
+        # ensure that pop3 is not enabled (shouldn't be on any of our images),
+        # so that we can use it for testing
+        b.wait_not_present("tr[data-row-id='pop3']")
+
+        m.execute("firewall-cmd --add-service=pop3")
+        b.wait_present("tr[data-row-id='pop3']")
+
+        # all services should be shown after the one we added above is
+        # visible, so do a basic sanity check now
+        active_rules = m.execute("firewall-cmd --list-services").split()
+        b.call_js_func("ph_count_check", "tr.listing-ct-item", len(active_rules))
+
+        b.click("tr[data-row-id='pop3'] .listing-ct-toggle")
+        b.wait_in_text("tbody.open tr.listing-ct-panel", "Post Office Protocol")
+
+        b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.wait_not_present("tr[data-row-id='pop3']")
+        self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
+
+
+    def testAddServices(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network/firewall")
+
+        # click on the "Add Services…" button
+        b.wait_present("caption button.btn-primary:enabled")
+        b.click("caption button.btn-primary")
+        b.wait_present("#cockpit_modal_dialog li input#pop3")
+        b.click("#cockpit_modal_dialog li input#pop3")
+        b.click("#cockpit_modal_dialog .btn-primary")
+        b.wait_present("tr[data-row-id='pop3']")
+
+
+if __name__ == '__main__':
+    test_main()

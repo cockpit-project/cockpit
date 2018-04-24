@@ -140,7 +140,7 @@ class Consoles extends React.Component {
         const { vm, config } = this.props;
         const { provider, providerState } = config;
 
-        let consoleDetail = undefined;
+        let consoleDetail;
 
         if (key === 'vnc-browser') {
             if (provider.onConsoleAboutToShow) {

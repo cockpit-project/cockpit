@@ -250,7 +250,7 @@ def seed(since, fp, pulls, output):
             SEEDED.add(seeded)
             seeded = None
 
-        if pull and item["merged"] not in [ True, False ]:
+        if pull and item.get("merged") not in [ True, False ]:
             item["merged"] = pulls.merged(pull)
 
         # Note that we've already retrieved this URL

@@ -20,7 +20,7 @@
 
 # WARNING: As you change this code increment this version number so
 # the machine learning model uses a new place to store the model
-VERSION = 4
+VERSION = 5
 
 # This attempts to cluster log items related to similarity and then
 # classify whether new test logs fit into those clusters. The clustering
@@ -56,6 +56,8 @@ from learn import extractor
 # The name and version of the learning data
 FILENAME = "tests-learn-{0}-{1}.model".format(VERSION, extractor.VERSION)
 
+# Note that we use pickle protocol=4 to get over size limits
+
 # Load a model from the given directory
 # Return None of the model doesn't exist
 def load(directory):
@@ -72,7 +74,7 @@ def save(directory, model):
     (outfd, outname) = tempfile.mkstemp(prefix=FILENAME, dir=directory)
     os.close(outfd)
     with gzip.open(outname, 'wb') as fp:
-        pickle.dump(model, fp)
+        pickle.dump(model, fp, protocol=4)
     os.rename(outname, path)
     return path
 

@@ -48,23 +48,23 @@ class JournalOutput {
             <div className="cockpit-logline">
                 <div className="cockpit-log-warning">
                     { warning
-                      ? <i className="fa fa-exclamation-triangle"/>
-                      : null
+                        ? <i className="fa fa-exclamation-triangle"/>
+                        : null
                     }
-                      { problem
+                    { problem
                         ? <i className="fa fa-times-circle-o"/>
                         : null
-                      }
+                    }
                 </div>
                 <div className="cockpit-log-time">{time}</div>
                 <span className="cockpit-log-message">{message}</span>
                 {
                     count > 1
-                    ? <div className="cockpit-log-service-container">
-                        <div className="cockpit-log-service-reduced">{ident}</div>
-                        <span className="badge">{count}&#160;<i className="fa fa-caret-right"></i></span>
-                    </div>
-                    : <div className="cockpit-log-service">{ident}</div>
+                        ? <div className="cockpit-log-service-container">
+                            <div className="cockpit-log-service-reduced">{ident}</div>
+                            <span className="badge">{count}&#160;<i className="fa fa-caret-right"></i></span>
+                        </div>
+                        : <div className="cockpit-log-service">{ident}</div>
                 }
             </div>
         );

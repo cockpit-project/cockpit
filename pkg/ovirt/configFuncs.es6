@@ -52,32 +52,32 @@ function doReadConfiguration ({ dispatch }) {
     // Configuration can be changed by admin after installation
     // and so is kept in separate file (out of manifest.json)
     return cockpit.file(OVIRT_CONF_FILE).read()
-        .done((content) => {
-            if (!content) {
-                console.info('Configuration file empty, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
+            .done((content) => {
+                if (!content) {
+                    console.info('Configuration file empty, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
+                    installationDialog({ onCancel });
+                    return;
+                }
+
+                console.log(`Configuration file ${OVIRT_CONF_FILE} content is read ...`);
+                const config = JSON.parse(content);
+                console.log('... and parsed');
+                Object.assign(CONFIG, config);
+
+                MACHINES_CONFIG.isDev = CONFIG.debug;
+
+                if (CONFIG.Virsh && CONFIG.Virsh.connections) {
+                    MACHINES_CONFIG.Virsh = CONFIG.Virsh; // adjust pkg/machines
+                    CONFIG.Virsh = null; // not used anywhere else within pkg/ovirt
+                    logDebug('Connection params for virsh: ', JSON.stringify(MACHINES_CONFIG.Virsh));
+                }
+
+                logDebug(`Configuration parsed, using merged result: ${JSON.stringify(CONFIG)}`);
+                return doLogin({ dispatch });
+            }).fail( () => {
+                console.info('Failed to read configuration, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
                 installationDialog({ onCancel });
-                return;
-            }
-
-            console.log(`Configuration file ${OVIRT_CONF_FILE} content is read ...`);
-            const config = JSON.parse(content);
-            console.log('... and parsed');
-            Object.assign(CONFIG, config);
-
-            MACHINES_CONFIG.isDev = CONFIG.debug;
-
-            if (CONFIG.Virsh && CONFIG.Virsh.connections) {
-                MACHINES_CONFIG.Virsh = CONFIG.Virsh; // adjust pkg/machines
-                CONFIG.Virsh = null; // not used anywhere else within pkg/ovirt
-                logDebug('Connection params for virsh: ', JSON.stringify(MACHINES_CONFIG.Virsh));
-            }
-
-            logDebug(`Configuration parsed, using merged result: ${JSON.stringify(CONFIG)}`);
-            return doLogin({ dispatch });
-        }).fail( () => {
-            console.info('Failed to read configuration, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
-            installationDialog({ onCancel });
-        });
+            });
 }
 
 function storeSsoUri (location) {
@@ -92,15 +92,15 @@ function storeSsoUri (location) {
 function doReadHostname ({ dispatch }) {
     let hostname = '';
     return cockpit.spawn(['hostname', '-f'], {'err': 'message'})
-        .stream(data => {
-            hostname += data;
-        }).done(() => {
-            hostname = hostname.trim();
-            logDebug('hostname read: ', hostname);
-            waitForReducerSubtreeInit(() => dispatch(setHostname(hostname)));
-        }).fail(ex => {
-            console.error("Getting 'hostname' failed:", ex);
-        });
+            .stream(data => {
+                hostname += data;
+            }).done(() => {
+                hostname = hostname.trim();
+                logDebug('hostname read: ', hostname);
+                waitForReducerSubtreeInit(() => dispatch(setHostname(hostname)));
+            }).fail(ex => {
+                console.error("Getting 'hostname' failed:", ex);
+            });
 }
 
 function doLogin ({ dispatch }) {

@@ -51,27 +51,27 @@
                 process = python.spawn([ cockpit_atomic_storage ], ["monitor"],
                                        { err: "ignore",
                                          superuser: true })
-                                .stream(function (data) {
-                                    // XXX - find the newlines here
-                                    var info = JSON.parse(data);
-                                    self.driver = info.driver;
-                                    self.vgroup = info.vgroup;
-                                    self.pool_devices = info.pool_devices.sort(cmp_drive);
-                                    self.extra_devices = info.extra_devices.sort(cmp_drive);
-                                    self.total = info.total;
-                                    self.used = info.used;
-                                    self.error = null;
-                                    if (!info.can_manage || !info.vgroup)
-                                        self.error = "unsupported";
-                                    $(self).triggerHandler("changed");
-                                })
-                                .fail(function (error) {
-                                    if (error != "closed") {
-                                        console.warn(error);
-                                        self.error = error.problem || "broken";
-                                        $(self).triggerHandler("changed");
-                                    }
-                                });
+                        .stream(function (data) {
+                            // XXX - find the newlines here
+                            var info = JSON.parse(data);
+                            self.driver = info.driver;
+                            self.vgroup = info.vgroup;
+                            self.pool_devices = info.pool_devices.sort(cmp_drive);
+                            self.extra_devices = info.extra_devices.sort(cmp_drive);
+                            self.total = info.total;
+                            self.used = info.used;
+                            self.error = null;
+                            if (!info.can_manage || !info.vgroup)
+                                self.error = "unsupported";
+                            $(self).triggerHandler("changed");
+                        })
+                        .fail(function (error) {
+                            if (error != "closed") {
+                                console.warn(error);
+                                self.error = error.problem || "broken";
+                                $(self).triggerHandler("changed");
+                            }
+                        });
             } else if (cockpit.hidden && process) {
                 process.close("closed");
                 process = null;
@@ -154,9 +154,9 @@
 
             function drive_class_desc(cl) {
                 switch (cl) {
-                    case "sdd": return _("Solid-State Disk");
-                    case "hdd": return _("Hard Disk");
-                    default: return _("Drive");
+                case "sdd": return _("Solid-State Disk");
+                case "hdd": return _("Hard Disk");
+                default: return _("Drive");
                 }
             }
 
@@ -171,7 +171,7 @@
                 drive_rows.push(
                     <tr onClick={self.toggleDrive.bind(self, drive)}>
                         <td><input type="checkbox"
-                                   checked={self.driveChecked(drive)}/>
+                            checked={self.driveChecked(drive)}/>
                         </td>
                         <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
                         <td>
@@ -202,8 +202,8 @@
                     </div>
                     <div className="drives-panel-footer">
                         <button className="btn btn-primary"
-                                disabled={ !button_enabled }
-                                onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
+                            disabled={ !button_enabled }
+                            onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
                     </div>
                 </div>
             );
@@ -357,7 +357,7 @@
                                                     { render_drive_rows() }
                                                 </table>
                                             </div>),
-                                      },
+        },
                                       { 'actions': [ { 'caption': _("Reformat and add disks"),
                                                        'clicked': add_drives,
                                                        'style': "danger" } ]
@@ -379,28 +379,28 @@
             var process = python.spawn(cockpit_atomic_storage, [ "add", JSON.stringify(args) ],
                                        { 'err': 'out',
                                          'superuser': true })
-                                .done(function () {
-                                    if (docker_will_be_stopped) {
-                                        client.connect().done(function () {
-                                            dfd.resolve();
-                                        });
-                                    } else {
-                                        dfd.resolve();
-                                    }
-                                })
-                                .fail(function (error, data) {
-                                    if (docker_will_be_stopped)
-                                        client.connect();
-                                    if (error.problem == "cancelled") {
-                                        dfd.resolve();
-                                        return;
-                                    }
-                                    dfd.reject(
-                                        <div>
-                                            <span>{_("Could not add all disks")}</span>
-                                            <pre>{data}</pre>
-                                        </div>);
-                                });
+                    .done(function () {
+                        if (docker_will_be_stopped) {
+                            client.connect().done(function () {
+                                dfd.resolve();
+                            });
+                        } else {
+                            dfd.resolve();
+                        }
+                    })
+                    .fail(function (error, data) {
+                        if (docker_will_be_stopped)
+                            client.connect();
+                        if (error.problem == "cancelled") {
+                            dfd.resolve();
+                            return;
+                        }
+                        dfd.reject(
+                            <div>
+                                <span>{_("Could not add all disks")}</span>
+                                <pre>{data}</pre>
+                            </div>);
+                    });
             var promise = dfd.promise();
             promise.cancel = function () {
                 process.close("cancelled");
@@ -415,7 +415,7 @@
                                             <div className="modal-body">
                                                 <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
                                             </div>),
-                                      },
+        },
                                       { 'actions': [ { 'caption': _("Erase containers and reset storage pool"),
                                                        'clicked': reset,
                                                        'style': "danger" } ]
@@ -426,21 +426,21 @@
             var process = python.spawn(cockpit_atomic_storage, ["reset-and-reduce"],
                                        { 'err': 'out',
                                          'superuser': true })
-                                .done(function () {
-                                    client.connect().done(dfd.resolve);
-                                })
-                                .fail(function (error, data) {
-                                    client.connect();
-                                    if (error.problem == "cancelled") {
-                                        dfd.resolve();
-                                        return;
-                                    }
-                                    dfd.reject(
-                                        <div>
-                                            <span>{_("Could not reset the storage pool")}</span>
-                                            <pre>{data}</pre>
-                                        </div>);
-                                });
+                    .done(function () {
+                        client.connect().done(dfd.resolve);
+                    })
+                    .fail(function (error, data) {
+                        client.connect();
+                        if (error.problem == "cancelled") {
+                            dfd.resolve();
+                            return;
+                        }
+                        dfd.reject(
+                            <div>
+                                <span>{_("Could not reset the storage pool")}</span>
+                                <pre>{data}</pre>
+                            </div>);
+                    });
             var promise = dfd.promise();
             promise.cancel = function () {
                 process.close("cancelled");

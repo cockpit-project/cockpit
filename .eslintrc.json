@@ -18,9 +18,15 @@
         "no-console": "off",
         "no-undef": "error",
         "no-extra-boolean-cast": "off",
+        "indent": ["error", 4,
+            {
+                "ObjectExpression": "first",
+                "CallExpression": {"arguments": "first"},
+                "MemberExpression": 2
+            }],
+        "react/jsx-indent-props": "off",
+        "react/jsx-indent": "off",
 
-        "indent": ["off", 4],
-        "react/jsx-indent-props": ["off", 4],
         "import/no-duplicates": "off",
         "semi": "off",
         "camelcase": "off",
@@ -28,7 +34,6 @@
         "comma-dangle": "off",
         "curly": "off",
         "jsx-quotes": "off",
-        "react/jsx-indent": "off",
         "react/jsx-curly-spacing": "off",
         "space-in-parens": "off",
         "react/jsx-tag-spacing": "off",

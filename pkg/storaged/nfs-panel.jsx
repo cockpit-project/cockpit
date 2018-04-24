@@ -50,14 +50,14 @@ export class NFSPanel extends React.Component {
                     <td>{ entry.fields[1] }</td>
                     <td>
                         { entry.mounted
-                          ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
-                          : _("Not mounted")
+                            ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                            : _("Not mounted")
                         }
                     </td>
                     <td className="usage-text">
                         { entry.mounted && fsys_size
-                          ? format_fsys_usage(fsys_size[0], fsys_size[1])
-                              : ""
+                            ? format_fsys_usage(fsys_size[0], fsys_size[1])
+                            : ""
                         }
                     </td>
                 </tr>
@@ -75,26 +75,26 @@ export class NFSPanel extends React.Component {
                 <div className="panel-heading">
                     <span className="pull-right">
                         <StorageButton kind="primary" onClick={add}>
-                          <span className="fa fa-plus"/>
+                            <span className="fa fa-plus"/>
                         </StorageButton>
                     </span>
                     <span>{_("NFS Mounts")}</span>
                 </div>
                 { mounts.length > 0
-                  ? <table className="table table-hover">
-                      <thead>
-                          <tr>
-                              <th className="mount-name">{_("Server")}</th>
-                              <th className="mount-point">{_("Mount Point")}</th>
-                              <th className="mount-size-graph">{_("Size")}</th>
-                              <th className="mount-size-number">&nbsp;</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          { mounts }
-                      </tbody>
-                  </table>
-                  : <div className="empty-panel-text">{_("No NFS mounts set up")}</div>
+                    ? <table className="table table-hover">
+                        <thead>
+                            <tr>
+                                <th className="mount-name">{_("Server")}</th>
+                                <th className="mount-point">{_("Mount Point")}</th>
+                                <th className="mount-size-graph">{_("Size")}</th>
+                                <th className="mount-size-number">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            { mounts }
+                        </tbody>
+                    </table>
+                    : <div className="empty-panel-text">{_("No NFS mounts set up")}</div>
                 }
             </div>
         );

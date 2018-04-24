@@ -69,19 +69,19 @@ export class IscsiPanel extends React.Component {
                                   var cancelled = false;
                                   client.manager_iscsi.call('DiscoverSendTargets',
                                                             [ vals.address,
-                                                              0,
-                                                              options
+                                                                0,
+                                                                options
                                                             ]).
-                                         done(function (results) {
-                                             if (!cancelled) {
-                                                 dfd.resolve();
-                                                 iscsi_add(vals, results[0]);
-                                             }
-                                         }).
-                                         fail(function (error) {
-                                             if (!cancelled)
-                                                 dfd.reject(error);
-                                         });
+                                          done(function (results) {
+                                              if (!cancelled) {
+                                                  dfd.resolve();
+                                                  iscsi_add(vals, results[0]);
+                                              }
+                                          }).
+                                          fail(function (error) {
+                                              if (!cancelled)
+                                                  dfd.reject(error);
+                                          });
 
                                   var promise = dfd.promise();
                                   promise.cancel = function () {
@@ -99,9 +99,9 @@ export class IscsiPanel extends React.Component {
                                       return [ { field: "username",
                                                  message: null,
                                       },
-                                               { field: "password",
-                                                 message: _("Invalid username or password"),
-                                               }
+                                      { field: "password",
+                                        message: _("Invalid username or password"),
+                                      }
                                       ];
                                   else if (err.message.indexOf("cannot resolve host name") != -1)
                                       return { field: "address",
@@ -128,11 +128,11 @@ export class IscsiPanel extends React.Component {
             }
             return client.manager_iscsi.call('Login',
                                              [ target[0],
-                                               target[1],
-                                               target[2],
-                                               target[3],
-                                               target[4],
-                                               options
+                                                 target[1],
+                                                 target[2],
+                                                 target[3],
+                                                 target[4],
+                                                 options
                                              ]);
         }
 
@@ -190,9 +190,9 @@ export class IscsiPanel extends React.Component {
                                       return [ { field: "username",
                                                  message: null,
                                       },
-                                               { field: "password",
-                                                 message: _("Invalid username or password"),
-                                               }
+                                      { field: "password",
+                                        message: _("Invalid username or password"),
+                                      }
                                       ];
                                   else
                                       return err;
@@ -203,26 +203,26 @@ export class IscsiPanel extends React.Component {
 
         function iscsi_change_name() {
             client.manager_iscsi.call('GetInitiatorName').
-                   done(function (results) {
-                       var name = results[0];
-                       dialog.open({ Title: _("Change iSCSI Initiator Name"),
-                                     Fields: [
-                                         { TextInput: "name",
-                                           Title: _("Name"),
-                                           Value: name
-                                         }
-                                     ],
-                                     Action: {
-                                         Title: _("Change"),
-                                         action: function (vals) {
-                                             return client.manager_iscsi.call('SetInitiatorName',
-                                                                              [ vals.name,
-                                                                                { }
-                                                                              ]);
-                                         }
-                                     }
-                       });
-                   });
+                    done(function (results) {
+                        var name = results[0];
+                        dialog.open({ Title: _("Change iSCSI Initiator Name"),
+                                      Fields: [
+                                          { TextInput: "name",
+                                            Title: _("Name"),
+                                            Value: name
+                                          }
+                                      ],
+                                      Action: {
+                                          Title: _("Change"),
+                                          action: function (vals) {
+                                              return client.manager_iscsi.call('SetInitiatorName',
+                                                                               [ vals.name,
+                                                                                   { }
+                                                                               ]);
+                                          }
+                                      }
+                        });
+                    });
         }
 
         function cmp_session(path_a, path_b) {
@@ -252,11 +252,11 @@ export class IscsiPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={session.data["target_name"] || ""}
-                                      detail={session.data["persistent_address"] + ":" +
+                    kind="array"
+                    name={session.data["target_name"] || ""}
+                    detail={session.data["persistent_address"] + ":" +
                                               session.data["persistent_port"]}
-                                      actions={actions}/>
+                    actions={actions}/>
             );
         }
 
@@ -270,7 +270,7 @@ export class IscsiPanel extends React.Component {
 
         var actions = [
             sessions.length > 0
-            ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
+                ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
                     onClick={toggle_armed}/> : null,
             "\n",
             <StorageButton onClick={iscsi_change_name} id="edit-iscsi">
@@ -284,10 +284,10 @@ export class IscsiPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="iscsi-sessions"
-                               title={_("iSCSI Targets")}
-                               empty_text={_("No iSCSI targets set up")}
-                               hover={false}
-                               actions={actions}>
+                title={_("iSCSI Targets")}
+                empty_text={_("No iSCSI targets set up")}
+                hover={false}
+                actions={actions}>
                 { sessions }
             </OverviewSidePanel>
         );

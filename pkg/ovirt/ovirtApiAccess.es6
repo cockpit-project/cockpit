@@ -53,20 +53,20 @@ function getHttpClient () {
 // TODO: use "Filter: true" header for non-admins
 export function ovirtApiGet (resource, custHeaders, failHandler) {
     const headers = Object.assign({}, {
-            'Accept': 'application/json',
-            'Content-Type': 'application/xml', // TODO: change to JSON once verified
-            'Authorization': 'Bearer ' + CONFIG.token
-        },
-        custHeaders);
+        'Accept': 'application/json',
+        'Content-Type': 'application/xml', // TODO: change to JSON once verified
+        'Authorization': 'Bearer ' + CONFIG.token
+    },
+                                  custHeaders);
 
     const url = `/ovirt-engine/api/${resource}`;
     logDebug(`ovirtApiGet(): resource: ${resource}, headers: ${JSON.stringify(headers)}, url: ${url}`);
 
     return getHttpClient().get(url, null, headers)
-        .fail(function (exception, error) {
-            console.info(`HTTP GET failed: ${JSON.stringify(error)}, ${JSON.stringify(exception)}, url: `, url);
-            handleOvirtError({ error, exception, failHandler });
-        });
+            .fail(function (exception, error) {
+                console.info(`HTTP GET failed: ${JSON.stringify(error)}, ${JSON.stringify(exception)}, url: `, url);
+                handleOvirtError({ error, exception, failHandler });
+            });
 }
 
 export function ovirtApiPost (resource, body, failHandler) {
@@ -104,32 +104,32 @@ export function handleOvirtError ({ error, exception, failHandler }) {
     }
 
     switch (exception.status) {
-        case 401: { // Unauthorized
-            // clear token from sessionStorage and refresh --> SSO will pass again
-            window.sessionStorage.setItem('OVIRT_PROVIDER_TOKEN', undefined); // see login.js
-            redirectToOvirtSSO();
-            return; // never comes here
-        }
-        case 404: /* falls through */
-        default:
-            if (failHandler) {
-                try { // returned error might be JSON-formatted
-                    error = JSON.parse(error);
-                } catch (ex) {
-                    logDebug('handleOvirtError(): error is not a JSON string');
-                }
-
-                let data = error;
-                if (error.detail) {
-                    data = error.detail;
-                } else if (error.fault) {
-                    data = error.fault.detail || error.fault;
-                }
-
-                failHandler({ data, exception });
-            } else {
-                logError(`oVirt operation failed but no failHandler defined. Error: ${JSON.stringify(error)}`);
+    case 401: { // Unauthorized
+        // clear token from sessionStorage and refresh --> SSO will pass again
+        window.sessionStorage.setItem('OVIRT_PROVIDER_TOKEN', undefined); // see login.js
+        redirectToOvirtSSO();
+        return; // never comes here
+    }
+    case 404: /* falls through */
+    default:
+        if (failHandler) {
+            try { // returned error might be JSON-formatted
+                error = JSON.parse(error);
+            } catch (ex) {
+                logDebug('handleOvirtError(): error is not a JSON string');
             }
+
+            let data = error;
+            if (error.detail) {
+                data = error.detail;
+            } else if (error.fault) {
+                data = error.fault.detail || error.fault;
+            }
+
+            failHandler({ data, exception });
+        } else {
+            logError(`oVirt operation failed but no failHandler defined. Error: ${JSON.stringify(error)}`);
+        }
     }
 }
 

@@ -167,8 +167,8 @@ export function check(client, block, key) {
     }
 
     client.clevis_overlay.get_adv(key.url)
-              .then(function (info) {
-                  client.clevis_overlay.check_key(block, key.slot)
+            .then(function (info) {
+                client.clevis_overlay.check_key(block, key.slot)
                         .then(function () {
                             if (info.keys.indexOf(key.key) >= 0) {
                                 key_is_okay();
@@ -180,10 +180,10 @@ export function check(client, block, key) {
                             console.log(error);
                             key_is_broken(key);
                         });
-              })
-              .fail(function (error) {
-                  console.log(error);
-                  server_cant_be_reached();
-              });
+            })
+            .fail(function (error) {
+                console.log(error);
+                server_cant_be_reached();
+            });
 
 }

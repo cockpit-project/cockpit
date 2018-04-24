@@ -103,13 +103,13 @@ var StorageButton = React.createClass({
 
         return (
             <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                    <button id={this.props.id}
-                                            onClick={checked(this.props.onClick)}
-                                            className={classes + (excuse ? " disabled" : "")}>
-                                                      {this.props.children}
-                                    </button>
-                                )}/>
+                content={(excuse) => (
+                    <button id={this.props.id}
+                        onClick={checked(this.props.onClick)}
+                        className={classes + (excuse ? " disabled" : "")}>
+                        {this.props.children}
+                    </button>
+                )}/>
         );
     }
 });
@@ -118,14 +118,14 @@ var StorageLink = React.createClass({
     render: function () {
         return (
             <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                    <a onClick={checked(this.props.onClick)}
-                                       role="link"
-                                       tabIndex="0"
-                                       className={excuse ? " disabled" : ""}>
-                                                 {this.props.children}
-                                    </a>
-                            )}/>
+                content={(excuse) => (
+                    <a onClick={checked(this.props.onClick)}
+                        role="link"
+                        tabIndex="0"
+                        className={excuse ? " disabled" : ""}>
+                        {this.props.children}
+                    </a>
+                )}/>
         );
     }
 });
@@ -199,13 +199,13 @@ class StorageOnOff extends React.Component {
 
         return (
             <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => (
-                                    <OnOffSwitch state={this.state.promise
-                                                        ? this.state.promise_goal_state
-                                                        : this.props.state}
-                                                 enabled={!excuse && !this.state.promise}
-                                                 onChange={onChange}/>
-                                )}/>
+                content={(excuse) => (
+                    <OnOffSwitch state={this.state.promise
+                        ? this.state.promise_goal_state
+                        : this.props.state}
+                    enabled={!excuse && !this.state.promise}
+                    onChange={onChange}/>
+                )}/>
         );
     }
 }
@@ -216,31 +216,31 @@ class StorageMultiAction extends React.Component {
 
         return (
             <StorageControl excuse={this.props.excuse}
-                            content={(excuse) => {
-                                    var btn_classes = "btn btn-default";
-                                    if (excuse)
-                                        btn_classes += " disabled";
-                                    return (
-                                        <div className="btn-group">
-                                            <button className={btn_classes} onClick={checked(dflt.action)}>
-                                                                                                 {dflt.title}
-                                            </button>
-                                            <button className={btn_classes + " dropdown-toggle"}
-                                                    data-toggle="dropdown">
-                                                <span className="caret"></span>
-                                            </button>
-                                            <ul className="dropdown-menu action-dropdown-menu" role="menu">
-                                                { this.props.actions.map((act) => (
-                                                      <li className="presentation">
-                                                          <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
-                                                                                     {act.title}
-                                                          </a>
-                                                      </li>))
-                                                }
-                                            </ul>
-                                        </div>
-                                    );
-                            }}/>
+                content={(excuse) => {
+                    var btn_classes = "btn btn-default";
+                    if (excuse)
+                        btn_classes += " disabled";
+                    return (
+                        <div className="btn-group">
+                            <button className={btn_classes} onClick={checked(dflt.action)}>
+                                {dflt.title}
+                            </button>
+                            <button className={btn_classes + " dropdown-toggle"}
+                                data-toggle="dropdown">
+                                <span className="caret"></span>
+                            </button>
+                            <ul className="dropdown-menu action-dropdown-menu" role="menu">
+                                { this.props.actions.map((act) => (
+                                    <li className="presentation">
+                                        <a role="menuitem" tabIndex="0" onClick={checked(act.action)}>
+                                            {act.title}
+                                        </a>
+                                    </li>))
+                                }
+                            </ul>
+                        </div>
+                    );
+                }}/>
         );
     }
 }
@@ -258,10 +258,10 @@ class StorageUsageBar extends React.Component {
         return (
             <div className="progress">
                 { stats
-                ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
-                     style={{ width: fraction * 100 + "%" }}>
-                </div>
-                  : null
+                    ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
+                        style={{ width: fraction * 100 + "%" }}>
+                    </div>
+                    : null
                 }
             </div>
         );

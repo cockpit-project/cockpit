@@ -102,11 +102,11 @@ var ContainerHeader = React.createClass({
                     <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
                 </Select.Select>
                 <input type="text"
-                       id="containers-filter"
-                       ref="filterTextInput"
-                       className="form-control"
-                       placeholder={_("Type to filter…")}
-                       onChange={this.handleFilterTextChange} />
+                    id="containers-filter"
+                    ref="filterTextInput"
+                    className="form-control"
+                    placeholder={_("Type to filter…")}
+                    onChange={this.handleFilterTextChange} />
             </div>
         );
     }
@@ -139,14 +139,14 @@ var ContainerProblems = React.createClass({
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
             problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
-                                   <span className="pficon pficon-warning-triangle-o fa-lg"></span>
-                                   {problem[i][1]}
-                                 </a>)
+                <span className="pficon pficon-warning-triangle-o fa-lg"></span>
+                {problem[i][1]}
+            </a>)
         }
 
         return (
             <div className='list-group dialog-list-ct'>
-              {problem_cursors}
+                {problem_cursors}
             </div>
         );
     }
@@ -191,10 +191,10 @@ var ContainerList = React.createClass({
         util.confirm(cockpit.format(_("Please confirm deletion of $0"), docker.truncate_id(container.Id)),
                      _("Deleting a container will erase all data in it."),
                      _("Delete"))
-                         .done(function () {
-                             util.docker_container_delete(this.props.client, container.Id,
-                                 function() { }, function () { });
-                         }.bind(this));
+                .done(function () {
+                    util.docker_container_delete(this.props.client, container.Id,
+                                                 function() { }, function () { });
+                }.bind(this));
     },
 
     containersChanged: function () {
@@ -235,9 +235,9 @@ var ContainerList = React.createClass({
         this.problems.wait(function() {
             if (typeof self.service.GetSession !== "undefined"){
                 self.service.GetSession().
-                    done(function(session_path) {
-                        self.problems_client.call(session_path, "org.freedesktop.Problems2.Session", "Authorize", [{}]);
-                    });
+                        done(function(session_path) {
+                            self.problems_client.call(session_path, "org.freedesktop.Problems2.Session", "Authorize", [{}]);
+                        });
             }
         });
 
@@ -310,11 +310,11 @@ var ContainerList = React.createClass({
 
             var actions = [
                 <button className="btn btn-danger btn-delete pficon pficon-delete"
-                        onClick={ this.deleteContainer.bind(this, container) } />,
+                    onClick={ this.deleteContainer.bind(this, container) } />,
                 <button className="btn btn-default"
-                        disabled={isRunning}
-                        data-container-id={container.Id}
-                        data-toggle="modal" data-target="#container-commit-dialog">
+                    disabled={isRunning}
+                    data-container-id={container.Id}
+                    data-toggle="modal" data-target="#container-commit-dialog">
                     {_("Commit")}
                 </button>,
                 <Dropdown actions={startStopActions} />
@@ -339,10 +339,10 @@ var ContainerList = React.createClass({
             }
 
             return <Listing.ListingRow key={container.Id}
-                                       columns={columns}
-                                       tabRenderers={tabs}
-                                       navigateToItem={ this.navigateToContainer.bind(this, container) }
-                                       listingActions={actions}/>;
+                columns={columns}
+                tabRenderers={tabs}
+                navigateToItem={ this.navigateToContainer.bind(this, container) }
+                listingActions={actions}/>;
         }, this);
 
         var columnTitles = [ _("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
@@ -532,12 +532,12 @@ var ImageList = React.createClass({
 
         util.confirm(cockpit.format(_("Delete $0"), image.RepoTags[0]),
                      _("Are you sure you want to delete this image?"), _("Delete")).
-            done(function () {
-                this.props.client.rmi(image.Id).
-                    fail(function(ex) {
-                        util.show_unexpected_error(ex);
-                    });
-            }.bind(this));
+                done(function () {
+                    this.props.client.rmi(image.Id).
+                            fail(function(ex) {
+                                util.show_unexpected_error(ex);
+                            });
+                }.bind(this));
     },
 
     showRunImageDialog: function (event) {
@@ -602,8 +602,8 @@ var ImageList = React.createClass({
             element = <div className="spinner"></div>
         } else {
             element = <button className="btn btn-default btn-control-ct fa fa-play"
-                    onClick={ this.showRunImageDialog.bind(this) }
-                    data-image={image.Id} />
+                onClick={ this.showRunImageDialog.bind(this) }
+                data-image={image.Id} />
         }
 
         var columns = [
@@ -638,15 +638,15 @@ var ImageList = React.createClass({
 
         var actions = [
             <button className="btn btn-danger btn-delete pficon pficon-delete"
-                    onClick={ this.deleteImage.bind(this, image) } />
+                onClick={ this.deleteImage.bind(this, image) } />
         ];
 
         return <Listing.ListingRow key={image.Id}
-                                   rowId={image.Id}
-                                   columns={columns}
-                                   tabRenderers={tabs}
-                                   navigateToItem={ this.navigateToImage.bind(this, image) }
-                                   listingActions={actions}/>;
+            rowId={image.Id}
+            columns={columns}
+            tabRenderers={tabs}
+            navigateToItem={ this.navigateToImage.bind(this, image) }
+            listingActions={actions}/>;
     },
 
     render: function () {
@@ -658,8 +658,8 @@ var ImageList = React.createClass({
         var imageRows = filtered.map(this.renderRow, this);
 
         var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
-                                    <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
-                                </a>;
+            <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
+        </a>;
 
         var columnTitles = [ _("Name"), '', _("Created"), _("Size"), '' ];
 
@@ -690,9 +690,9 @@ var ImageList = React.createClass({
         return (
             <div>
                 <Listing.Listing title={_("Images")}
-                                 columnTitles={columnTitles}
-                                 emptyCaption={emptyCaption}
-                                 actions={getNewImageAction}>
+                    columnTitles={columnTitles}
+                    emptyCaption={emptyCaption}
+                    actions={getNewImageAction}>
                     {imageRows}
                 </Listing.Listing>
                 {pendingRows}

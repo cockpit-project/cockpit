@@ -31,8 +31,8 @@ var _ = cockpit.gettext;
 function parse_options(options) {
     if (options)
         return (options.split(",")
-                       .map(function (s) { return s.trim() })
-                       .filter(function (s) { return s != "" }));
+                .map(function (s) { return s.trim() })
+                .filter(function (s) { return s != "" }));
     else
         return [ ];
 }
@@ -207,16 +207,16 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
      */
 
     function create_partition_and_format(ptable,
-                                         start, size,
-                                         part_type, part_name, part_options,
-                                         type, options) {
+        start, size,
+        part_type, part_name, part_options,
+        type, options) {
         if (!client.is_old_udisks2)
             return ptable.CreatePartitionAndFormat(start, size,
                                                    part_type, part_name, part_options,
                                                    type, options);
 
         return ptable.CreatePartition(start, size, part_type, part_name, part_options)
-            .then(function (partition) {
+                .then(function (partition) {
                 // We don't use client.blocks[partition] here
                 // because it might temporarily not exist.  In
                 // that case, we prefer storaged to tell us in a
@@ -224,16 +224,16 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                 // exception.
                 //
                 // See https://github.com/cockpit-project/cockpit/issues/4181
-                return client.call(partition, "Block", "Format", [ type, options ]).then(function () {
-                    return partition;
+                    return client.call(partition, "Block", "Format", [ type, options ]).then(function () {
+                        return partition;
+                    });
                 });
-            });
     }
 
     function add_fsys(storaged_name, entry) {
         if (storaged_name === true ||
             (client.fsys_info[storaged_name] && client.fsys_info[storaged_name].can_format)) {
-                filesystem_options.push(entry);
+            filesystem_options.push(entry);
         }
     }
 
@@ -312,11 +312,11 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                         visible: is_encrypted_and_not_old_udisks2
                       }
                   ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
-                   .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                          .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   Action: {
                       Title: create_partition ? _("Create partition") : _("Format"),
                       Danger: (create_partition
-                               ? null : _("Formatting a storage device will erase all data on it.")),
+                          ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {
                           if (vals.type == "custom")
                               vals.type = vals.custom;
@@ -378,8 +378,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                       return block_ptable.CreatePartition(start, vals.size, "", "", { });
                                   else
                                       return create_partition_and_format(block_ptable,
-                                                                          start, vals.size, "", "", { },
-                                                                          vals.type, options);
+                                                                         start, vals.size, "", "", { },
+                                                                         vals.type, options);
                               } else {
                                   return block.Format(vals.type, options);
                               }
@@ -398,7 +398,7 @@ var FormatButton = React.createClass({
     render: function () {
         return (
             <StorageControls.StorageButton onClick={this.onClick}
-                                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
+                excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
                 {_("Format")}
             </StorageControls.StorageButton>
         );

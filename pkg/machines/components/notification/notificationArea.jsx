@@ -31,9 +31,9 @@ const NotificationArea = ({ notifications, onDismiss, id }) => {
         const icon = isError ? 'pficon-error-circle-o' : 'pficon pficon-info';
 
         return (<Notification onDismiss={onDismiss ? onDismiss.bind(onDismiss, notification.id) : null}
-                              id={`${id}-notification-${notification.id}`}
-                              notificationClass={'alert ' + clazz}
-                              iconClass={'pficon ' + icon}>
+            id={`${id}-notification-${notification.id}`}
+            notificationClass={'alert ' + clazz}
+            iconClass={'pficon ' + icon}>
             <NotificationMessage description={notification.description} message={notification.message}/>
         </Notification>);
     });

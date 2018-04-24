@@ -34,20 +34,20 @@ function resolve_many(method, filter, names, progress_cb) {
     var ids = [ ];
 
     return PK.cancellableTransaction(method, [ filter, names ], progress_cb,
-        {
-            Package: (info, package_id) => ids.push(package_id),
-        }).
-        then(() => ids);
+                                     {
+                                         Package: (info, package_id) => ids.push(package_id),
+                                     }).
+            then(() => ids);
 }
 
 function resolve(method, filter, name, progress_cb) {
     return resolve_many(method, filter, [ name ], progress_cb).
-        then(function (ids) {
-            if (ids.length === 0)
-                return Promise.reject({ detail: "Can't resolve package", code: "not-found" });
-            else
-                return ids[0];
-        });
+            then(function (ids) {
+                if (ids.length === 0)
+                    return Promise.reject({ detail: "Can't resolve package", code: "not-found" });
+                else
+                    return ids[0];
+            });
 }
 
 function reload_bridge_packages() {
@@ -57,18 +57,18 @@ function reload_bridge_packages() {
 function install(name, progress_cb) {
     return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
                    progress_reporter(0, 1, progress_cb)).
-        then(function (pkgid) {
-            return PK.cancellableTransaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
-                then(reload_bridge_packages);
-        });
+            then(function (pkgid) {
+                return PK.cancellableTransaction("InstallPackages", [ 0, [ pkgid ] ], progress_reporter(1, 99, progress_cb)).
+                        then(reload_bridge_packages);
+            });
 }
 
 function remove(name, progress_cb) {
     return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb)).
-        then(function (pkgid) {
-            return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
-                then(reload_bridge_packages);
-        });
+            then(function (pkgid) {
+                return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb)).
+                        then(reload_bridge_packages);
+            });
 }
 
 function refresh(origin_files, config_packages, data_packages, progress_cb) {
@@ -94,13 +94,13 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
 
     function search_origin_file_packages() {
         return PK.cancellableTransaction("SearchFiles", [ PK.Enum.FILTER_INSTALLED, origin_files ],
-            progress_reporter(5, 1, progress_cb),
-            {
-                Package: (info, package_id) => {
-                    var pkg = package_id.split(";")[0];
-                    origin_pkgs[pkg] = true;
-                },
-            });
+                                         progress_reporter(5, 1, progress_cb),
+                                         {
+                                             Package: (info, package_id) => {
+                                                 var pkg = package_id.split(";")[0];
+                                                 origin_pkgs[pkg] = true;
+                                             },
+                                         });
     }
 
     function refresh_cache() {
@@ -109,18 +109,18 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
 
     function maybe_update_origin_file_packages() {
         return PK.cancellableTransaction("GetUpdates", [ 0 ], progress_reporter(75, 5, progress_cb),
-            {
-                Package: (info, package_id) => {
-                    let pkg = package_id.split(";")[0];
-                    if (pkg in origin_pkgs)
-                        update_ids.push(package_id);
-                },
-            }).
-            then(function () {
-                if (update_ids.length > 0)
-                    return PK.cancellableTransaction("UpdatePackages", [ 0, update_ids ],
-                                                     progress_reporter(80, 15, progress_cb));
-            });
+                                         {
+                                             Package: (info, package_id) => {
+                                                 let pkg = package_id.split(";")[0];
+                                                 if (pkg in origin_pkgs)
+                                                     update_ids.push(package_id);
+                                             },
+                                         }).
+                then(function () {
+                    if (update_ids.length > 0)
+                        return PK.cancellableTransaction("UpdatePackages", [ 0, update_ids ],
+                                                         progress_reporter(80, 15, progress_cb));
+                });
     }
 
     function ensure_packages(pkgs, start_progress) {
@@ -128,26 +128,26 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
             return resolve_many("Resolve",
                                 PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED,
                                 pkgs, progress_reporter(start_progress, 1, progress_cb)).
-                then(function (ids) {
-                    if (ids.length > 0) {
-                        return PK.cancellableTransaction("InstallPackages", [ 0, ids ],
-                                                         progress_reporter(start_progress + 1, 4, progress_cb)).
-                            catch(ex => {
-                                if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
-                                    return Promise.reject(ex);
-                            });
-                    }
-                });
+                    then(function (ids) {
+                        if (ids.length > 0) {
+                            return PK.cancellableTransaction("InstallPackages", [ 0, ids ],
+                                                             progress_reporter(start_progress + 1, 4, progress_cb)).
+                                    catch(ex => {
+                                        if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
+                                            return Promise.reject(ex);
+                                    });
+                        }
+                    });
         } else {
             return Promise.resolve();
         }
     }
 
     return ensure_packages(config_packages, 0).
-        then(search_origin_file_packages).
-        then(refresh_cache).
-        then(maybe_update_origin_file_packages).
-        then(() => ensure_packages(data_packages, 95));
+            then(search_origin_file_packages).
+            then(refresh_cache).
+            then(maybe_update_origin_file_packages).
+            then(() => ensure_packages(data_packages, 95));
 }
 
 module.exports = {

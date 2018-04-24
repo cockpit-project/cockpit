@@ -32,13 +32,13 @@ const InfoDMIKey = {
 function getDMI(info) {
     return new Promise((resolve, reject) => {
         machine_info.dmi_info()
-            .done(fields => {
-                Object.keys(InfoDMIKey).forEach(key => {
-                    info.system[key] = fields[InfoDMIKey[key]];
-                });
-                resolve();
-            })
-            .fail(reject);
+                .done(fields => {
+                    Object.keys(InfoDMIKey).forEach(key => {
+                        info.system[key] = fields[InfoDMIKey[key]];
+                    });
+                    resolve();
+                })
+                .fail(reject);
     });
 }
 
@@ -60,33 +60,33 @@ export default function detect() {
 
     tasks.push(new Promise((resolve, reject) => {
         machine_info.cpu_ram_info()
-            .done(result => {
-                info.system.cpu_model = result.cpu_model;
-                info.system.nproc = result.cpus;
-                resolve();
-            });
+                .done(result => {
+                    info.system.cpu_model = result.cpu_model;
+                    info.system.nproc = result.cpus;
+                    resolve();
+                });
     }));
 
     tasks.push(new Promise((resolve, reject) => {
         getDMI(info)
-            .then(() => resolve())
-            .catch(error => {
+                .then(() => resolve())
+                .catch(error => {
                 // DMI only works on x86 machines; check devicetree (or what lshw does) on other arches
-                console.warn("Failed to get DMI information:", error.toString());
-                resolve();
-            });
+                    console.warn("Failed to get DMI information:", error.toString());
+                    resolve();
+                });
     }));
 
     tasks.push(new Promise((resolve, reject) => {
         machine_info.udev_info()
-            .done(result => {
-                findPCI(result, info);
-                resolve();
-            })
-            .catch(error => {
-                console.warn("Failed to get udev information:", error.toString());
-                resolve();
-            });
+                .done(result => {
+                    findPCI(result, info);
+                    resolve();
+                })
+                .catch(error => {
+                    console.warn("Failed to get udev information:", error.toString());
+                    resolve();
+                });
     }));
 
     // return info after all task promises got done

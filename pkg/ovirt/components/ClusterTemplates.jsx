@@ -109,7 +109,7 @@ const Template = ({ template, templates, cluster, dispatch }) => {
             <VmHA highAvailability={template.highAvailability} />,
             <VmStateless stateless={template.stateless} />,
             <TemplateActions template={template} cluster={cluster} dispatch={dispatch} />
-            ]}
+        ]}
     />);
 };
 
@@ -132,14 +132,14 @@ const ClusterTemplates = ({ config, dispatch }) => {
 
     return (<div className='container-fluid'>
         <Listing title={title} columnTitles={[
-        _("Name"), _("Version"), _("Base Template"), _("Description"), _("Memory"), _("vCPUs"), _("OS"),
-        _("HA"), _("Stateless"), _("Action")]}>
+            _("Name"), _("Version"), _("Base Template"), _("Description"), _("Memory"), _("vCPUs"), _("OS"),
+            _("HA"), _("Stateless"), _("Action")]}>
             {Object.getOwnPropertyNames(templates).map(templateId => {
                 return (
                     <Template template={templates[templateId]}
-                              templates={templates}
-                              cluster={currentCluster}
-                              dispatch={dispatch}
+                        templates={templates}
+                        cluster={currentCluster}
+                        dispatch={dispatch}
                     />);
             })}
         </Listing>

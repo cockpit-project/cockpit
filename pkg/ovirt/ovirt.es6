@@ -95,10 +95,10 @@ export function pollOvirt() {
                 logDebug('Executing oVirt polling');
                 lastOvirtPoll = Infinity; // avoid parallel execution
                 return doRefreshEvents(dispatch, getState)
-                    .always(() => { // update the timestamp
-                        logDebug('oVirt polling finished');
-                        lastOvirtPoll = Date.now(); // single polling finished, re-enable it
-                    });
+                        .always(() => { // update the timestamp
+                            logDebug('oVirt polling finished');
+                            lastOvirtPoll = Date.now(); // single polling finished, re-enable it
+                        });
             }
         });
     };
@@ -118,59 +118,59 @@ function doRefreshEvents(dispatch, getState) {
     const deferred = cockpit.defer();
 
     ovirtApiGet(`events${params}`)
-        .done(data => {
-            const result = JSON.parse(data);
-            if (result && result.event && (result.event instanceof Array)) {
-                const vmsToRefresh = {};
-                const templatesToRefresh = {};
-                const hostsToRefresh = {};
-                const clustersToRefresh = {};
+            .done(data => {
+                const result = JSON.parse(data);
+                if (result && result.event && (result.event instanceof Array)) {
+                    const vmsToRefresh = {};
+                    const templatesToRefresh = {};
+                    const hostsToRefresh = {};
+                    const clustersToRefresh = {};
 
-                result.event.forEach(event => parseEvent(event, {
-                    vmsToRefresh,
-                    templatesToRefresh,
-                    hostsToRefresh,
-                    clustersToRefresh,
-                }));
+                    result.event.forEach(event => parseEvent(event, {
+                        vmsToRefresh,
+                        templatesToRefresh,
+                        hostsToRefresh,
+                        clustersToRefresh,
+                    }));
 
-                const promises = [];
+                    const promises = [];
 
-                if (fullReload) { // first run
-                    promises.push(doRefreshClusters(dispatch));
-                    promises.push(doRefreshHosts(dispatch));
+                    if (fullReload) { // first run
+                        promises.push(doRefreshClusters(dispatch));
+                        promises.push(doRefreshHosts(dispatch));
 
-                    promises.push(doRefreshVms(dispatch, getState));
-                    promises.push(doRefreshTemplates(dispatch, getState));
-                } else { // partial reload based on events only
-                    Object.getOwnPropertyNames(clustersToRefresh)
-                        .forEach(id => promises.push(doRefreshClusters(dispatch, id)));
+                        promises.push(doRefreshVms(dispatch, getState));
+                        promises.push(doRefreshTemplates(dispatch, getState));
+                    } else { // partial reload based on events only
+                        Object.getOwnPropertyNames(clustersToRefresh)
+                                .forEach(id => promises.push(doRefreshClusters(dispatch, id)));
 
-                    Object.getOwnPropertyNames(hostsToRefresh)
-                        .forEach(id => promises.push(doRefreshHosts(dispatch, id)));
+                        Object.getOwnPropertyNames(hostsToRefresh)
+                                .forEach(id => promises.push(doRefreshHosts(dispatch, id)));
 
-                    Object.getOwnPropertyNames(vmsToRefresh)
-                        .forEach(id => promises.push(doRefreshVms(dispatch, getState, id)));
+                        Object.getOwnPropertyNames(vmsToRefresh)
+                                .forEach(id => promises.push(doRefreshVms(dispatch, getState, id)));
 
-                    Object.getOwnPropertyNames(templatesToRefresh)
-                        .forEach(id => promises.push(doRefreshTemplates(dispatch, getState, id)));
-                }
+                        Object.getOwnPropertyNames(templatesToRefresh)
+                                .forEach(id => promises.push(doRefreshTemplates(dispatch, getState, id)));
+                    }
 
-                cockpit.all(promises)
-                    .then(() => deferred.resolve())
-                    .fail((r) => deferred.reject(r));
-            } else {
-                if (result && Object.getOwnPropertyNames(result).length === 0) { // no new events
-                    logDebug('No new oVirt events received');
-                    deferred.resolve();
+                    cockpit.all(promises)
+                            .then(() => deferred.resolve())
+                            .fail((r) => deferred.reject(r));
                 } else {
-                    logError('doRefreshEvents() failed, data: ', data, ', result: ', result);
-                    deferred.reject('Array of events expected');
+                    if (result && Object.getOwnPropertyNames(result).length === 0) { // no new events
+                        logDebug('No new oVirt events received');
+                        deferred.resolve();
+                    } else {
+                        logError('doRefreshEvents() failed, data: ', data, ', result: ', result);
+                        deferred.reject('Array of events expected');
+                    }
                 }
-            }
-        }).fail(() => {
-            logError('Failed to retrieve oVirt events');
-            deferred.reject('Failed to retrieve oVirt events');
-        });
+            }).fail(() => {
+                logError('Failed to retrieve oVirt events');
+                deferred.reject('Failed to retrieve oVirt events');
+            });
 
     return deferred.promise;
 }
@@ -254,13 +254,13 @@ function parseResourceGeneric(data, dispatch, name, converterFunction, updateAct
     const result = JSON.parse(data);
     if (result && result[name] && (result[name] instanceof Array)) {
         result[name]
-            .filter(filterPredicate)
-            .forEach( resource => {
-                if (resourceCallback) {
-                    resourceCallback(resource);
-                }
-                dispatch(updateAction(converterFunction(resource)));
-            });
+                .filter(filterPredicate)
+                .forEach( resource => {
+                    if (resourceCallback) {
+                        resourceCallback(resource);
+                    }
+                    dispatch(updateAction(converterFunction(resource)));
+                });
 
         if (deferred) {
             deferred.resolve();
@@ -294,14 +294,14 @@ function doRefreshResource(dispatch, name, resourceId, parserFunction, removeAct
     logDebug(`doRefreshResource() called for ${url}`);
 
     return ovirtApiGet(url)
-        .done(data => parserFunction(data, dispatch))
-        .fail(data => {
-            console.info(`Failed to get ${url}, `, data);
-            if (resourceId) {
-                console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
-                dispatch(removeAction(resourceId));
-            }
-        });
+            .done(data => parserFunction(data, dispatch))
+            .fail(data => {
+                console.info(`Failed to get ${url}, `, data);
+                if (resourceId) {
+                    console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
+                    dispatch(removeAction(resourceId));
+                }
+            });
 }
 
 /**
@@ -313,26 +313,26 @@ function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceI
     const deferred = cockpit.defer();
 
     waitForCurrentCluster(getState)
-        .done(currentCluster => {
-            logDebug(`Reading ${name} for currentCluster: `, currentCluster);
+            .done(currentCluster => {
+                logDebug(`Reading ${name} for currentCluster: `, currentCluster);
 
-            let url = isApiSearchOnCluster ? `${name}?search=cluster%3D${currentCluster.name}` : `${name}`; // special case for templates - no way to get cluster templates + Blank from API
-            if (resourceId) {
-                url = `${name}/${resourceId}`; // currently no way to filter on cluster for single resource
-            }
+                let url = isApiSearchOnCluster ? `${name}?search=cluster%3D${currentCluster.name}` : `${name}`; // special case for templates - no way to get cluster templates + Blank from API
+                if (resourceId) {
+                    url = `${name}/${resourceId}`; // currently no way to filter on cluster for single resource
+                }
 
-            logDebug('doRefreshResourceWithCurrentCluster(), url: ', url);
-            ovirtApiGet(url) // TODO: consider paging; there might be thousands of resources within initial load
-                .done(data => parserFunction(deferred, data, dispatch, currentCluster))
-                .fail(data => {
-                    console.info(`Failed to get ${url}, `, data);
-                    if (resourceId) {
-                        console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
-                        dispatch(removeAction(resourceId));
-                    }
-                    deferred.reject(data);
-                });
-        }).fail((reason) => deferred.reject(reason));
+                logDebug('doRefreshResourceWithCurrentCluster(), url: ', url);
+                ovirtApiGet(url) // TODO: consider paging; there might be thousands of resources within initial load
+                        .done(data => parserFunction(deferred, data, dispatch, currentCluster))
+                        .fail(data => {
+                            console.info(`Failed to get ${url}, `, data);
+                            if (resourceId) {
+                                console.info(`The ${name} ${resourceId} is about to be removed from the list.`);
+                                dispatch(removeAction(resourceId));
+                            }
+                            deferred.reject(data);
+                        });
+            }).fail((reason) => deferred.reject(reason));
 
     return deferred.promise;
 

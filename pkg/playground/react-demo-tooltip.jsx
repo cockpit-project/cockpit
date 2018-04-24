@@ -42,7 +42,7 @@
                     </td>
                     <td className="text-right">
                         Too close to right <Tooltip tip={tip} pos="top">
-                        <button className="btn btn-default">edge</button>
+                            <button className="btn btn-default">edge</button>
                         </Tooltip>
                     </td>
                 </tr>

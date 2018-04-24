@@ -75,8 +75,8 @@ function create_tabs(client, target, is_partition) {
     var block_pvol = block && client.blocks_pvol[block.path];
 
     var lvol = (endsWith(target.iface, ".LogicalVolume")
-                ? target
-                : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
+        ? target
+        : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
     var is_filesystem = (block && block.IdUsage == 'filesystem');
     var is_crypto = (block && block.IdUsage == 'crypto');
@@ -175,10 +175,10 @@ function create_tabs(client, target, is_partition) {
             return unlock_with_passphrase();
         else {
             return client.clevis_overlay.unlock(block)
-                         .then(null,
-                               function () {
-                                   return unlock_with_passphrase();
-                               });
+                    .then(null,
+                          function () {
+                              return unlock_with_passphrase();
+                          });
         }
     }
 
@@ -214,7 +214,7 @@ function create_tabs(client, target, is_partition) {
                                   return crypto.Unlock(vals.passphrase, {});
                               }
                           }
-                        });
+            });
         });
     }
 
@@ -281,14 +281,14 @@ function create_tabs(client, target, is_partition) {
                               Title: _("Delete"),
                               action: function () {
                                   return utils.teardown_active_usage(client, usage).
-                                               then(function () {
-                                                   if (lvol)
-                                                       return lvol.Delete({ 'tear-down': { t: 'b', v: true }
-                                                       });
-                                                   else if (block_part)
-                                                       return block_part.Delete({ 'tear-down': { t: 'b', v: true }
-                                                       });
-                                               });
+                                          then(function () {
+                                              if (lvol)
+                                                  return lvol.Delete({ 'tear-down': { t: 'b', v: true }
+                                                  });
+                                              else if (block_part)
+                                                  return block_part.Delete({ 'tear-down': { t: 'b', v: true }
+                                                  });
+                                          });
                               }
                           }
             });
@@ -356,7 +356,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
+                style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
             </span>);
     if (tabs.row_action) {
         if (last_column) {
@@ -375,9 +375,9 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     ];
     rows.push(
         <CockpitListing.ListingRow key={key}
-                                   columns={cols}
-                                   tabRenderers={tabs.renderers}
-                                   listingActions={tabs.actions}/>
+            columns={cols}
+            tabRenderers={tabs.renderers}
+            listingActions={tabs.actions}/>
     );
 }
 
@@ -515,9 +515,9 @@ function block_content(client, block, allow_partitions) {
                               if (vals.erase != "no")
                                   options.erase = { t: 's', v: vals.erase };
                               return utils.teardown_active_usage(client, usage).
-                                           then(function () {
-                                               return block.Format(vals.type, options);
-                                           });
+                                      then(function () {
+                                          return block.Format(vals.type, options);
+                                      });
                           }
                       }
         });
@@ -534,7 +534,7 @@ function block_content(client, block, allow_partitions) {
 
     return (
         <CockpitListing.Listing title={_("Content")}
-                                actions={format_disk_btn}>
+            actions={format_disk_btn}>
             { block_rows(client, block) }
         </CockpitListing.Listing>
     );
@@ -682,7 +682,7 @@ var VGroup = React.createClass({
         var new_volume_link = (
             <div className="pull-right">
                 <StorageLink onClick={create_logical_volume}
-                             excuse={excuse}>
+                    excuse={excuse}>
                     <span className="pficon pficon-add-circle-o"></span>
                     {" "}
                     {_("Create new Logical Volume")}
@@ -691,8 +691,8 @@ var VGroup = React.createClass({
 
         return (
             <CockpitListing.Listing title="Logical Volumes"
-                                    actions={new_volume_link}
-                                    emptyCaption={_("No Logical Volumes")}>
+                actions={new_volume_link}
+                emptyCaption={_("No Logical Volumes")}>
                 { vgroup_rows(self.props.client, vgroup) }
             </CockpitListing.Listing>
         );

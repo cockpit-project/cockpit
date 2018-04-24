@@ -31,15 +31,15 @@ export function isSameHostAddress(hostAddress) {
 export function toGigaBytes(amount, currentUnit) {
     let result;
     switch (currentUnit) {
-        case 'B':
-            result = amount / 1024 / 1024 / 1024;
-            break;
-        case 'KiB':
-            result = amount / 1024 / 1024;
-            break;
-        default:
-            console.error(`toGigaBytes(): unknown unit: ${currentUnit}`);
-            result = amount / 1;
+    case 'B':
+        result = amount / 1024 / 1024 / 1024;
+        break;
+    case 'KiB':
+        result = amount / 1024 / 1024;
+        break;
+    default:
+        console.error(`toGigaBytes(): unknown unit: ${currentUnit}`);
+        result = amount / 1;
     }
 
     if (result < 1) {

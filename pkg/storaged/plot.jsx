@@ -174,7 +174,7 @@ class StoragePlot extends React.Component {
                                            tickFormatter: plot.format_bytes_per_sec_tick_no_unit
             });
             $.extend(plot_options.grid, { hoverable: true,
-                                           autoHighlight: false
+                                          autoHighlight: false
             });
             plot_options.setup_hook = setup_hook;
             plot_options.post_hook = post_hook;
@@ -258,14 +258,14 @@ export class StoragePlots extends React.Component {
         return (
             <div className={Object.keys(this.state.classes).join(" ")}>
                 <ZoomControls ref={setup_controls}
-                              onClassesChanged={(cls) => this.setState({ classes: cls })}/>
+                    onClassesChanged={(cls) => this.setState({ classes: cls })}/>
                 <div className="row">
                     <StoragePlot devs={devs} onHover={this.props.onHover}
-                                 onPlotCreated={new_plot}
-                                 title={_("Reading")} data={read_plot_data}/>
+                        onPlotCreated={new_plot}
+                        title={_("Reading")} data={read_plot_data}/>
                     <StoragePlot devs={devs} onHover={this.props.onHover}
-                                 onPlotCreated={new_plot}
-                                 title={_("Writing")} data={write_plot_data}/>
+                        onPlotCreated={new_plot}
+                        title={_("Writing")} data={write_plot_data}/>
                 </div>
             </div>
         );

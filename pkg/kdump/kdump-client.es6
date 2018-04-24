@@ -107,23 +107,23 @@ export class KdumpClient {
         } else {
             // local path, try to see if we can write
             cockpit.script(testWritableScript, [path], { superuser: "try" } )
-                .done(dfd.resolve)
-                .fail((error) => {
-                    dfd.reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path));
-                });
+                    .done(dfd.resolve)
+                    .fail((error) => {
+                        dfd.reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path));
+                    });
         }
         return dfd.promise();
     }
     writeSettings(settings) {
         var dfd = cockpit.defer();
         this.configClient.write(settings)
-            .done(() => {
+                .done(() => {
                 // after we've written the new config, we may have to restart the service
-                this.kdumpService.tryRestart()
-                    .done(dfd.resolve)
-                    .fail(dfd.reject);
-            })
-            .fail(dfd.reject);
+                    this.kdumpService.tryRestart()
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
+                })
+                .fail(dfd.reject);
         return dfd.promise();
     }
     targetFromSettings(settings) {

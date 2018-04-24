@@ -48,13 +48,13 @@ const InstallationDialogBody = ({ values, onChange }) => {
                     </td>
                     <td>
                         <input id='ovirt-provider-install-dialog-engine-fqdn'
-                               className='form-control'
-                               type='text'
-                               placeholder='engine.mydomain.com'
-                               onChange={(event) => {
-                                       values.oVirtUrl = event.target.value;
-                                       onChange();
-                                   }}
+                            className='form-control'
+                            type='text'
+                            placeholder='engine.mydomain.com'
+                            onChange={(event) => {
+                                values.oVirtUrl = event.target.value;
+                                onChange();
+                            }}
                         />
                     </td>
                 </tr>
@@ -66,13 +66,13 @@ const InstallationDialogBody = ({ values, onChange }) => {
                     </td>
                     <td>
                         <input id='ovirt-provider-install-dialog-engine-fqdn'
-                               className='form-control'
-                               type='text'
-                               placeholder={OVIRT_DEFAULT_PORT}
-                               onChange={(event) => {
-                                   values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
-                                   onChange();
-                               }}
+                            className='form-control'
+                            type='text'
+                            placeholder={OVIRT_DEFAULT_PORT}
+                            onChange={(event) => {
+                                values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
+                                onChange();
+                            }}
                         />
                     </td>
                 </tr>
@@ -149,20 +149,20 @@ function configureOvirtUrl(oVirtFqdn, oVirtPort) {
 function doRegisterOvirt(oVirtFqdn, oVirtPort, dfd) {
     console.info('configureOvirtUrl() - oVirt engine connection can be established', oVirtFqdn, oVirtPort);
     cockpit.spawn(['bash', INSTALL_SH, oVirtFqdn, oVirtPort], {"superuser": "try"})
-        .done(function () {
-            console.info('oVirt installation script was successful');
-            window.location.reload(); // to force configuration reload
-            dfd.resolve();
-        })
-        .fail(function (ex, data) {
-            logError('oVirt installation script failed. Exception: ', JSON.stringify(ex), ', output: ', JSON.stringify(data));
+            .done(function () {
+                console.info('oVirt installation script was successful');
+                window.location.reload(); // to force configuration reload
+                dfd.resolve();
+            })
+            .fail(function (ex, data) {
+                logError('oVirt installation script failed. Exception: ', JSON.stringify(ex), ', output: ', JSON.stringify(data));
 
-            let errMsg = _("oVirt installation script failed with following output: ") + (ex.message || data);
-            if (ex.exit_status && ex.exit_status >= 1) {
-                errMsg = INSTALL_SH_ERRORS[ex.exit_status] || errMsg;
-            }
-            dfd.reject(errMsg);
-        });
+                let errMsg = _("oVirt installation script failed with following output: ") + (ex.message || data);
+                if (ex.exit_status && ex.exit_status >= 1) {
+                    errMsg = INSTALL_SH_ERRORS[ex.exit_status] || errMsg;
+                }
+                dfd.reject(errMsg);
+            });
 }
 
 export default installationDialog;

@@ -54,7 +54,7 @@ var OnOffDemo = React.createClass({
                     <td><OnOffSwitch state={false} enabled={false}></OnOffSwitch></td>
                 </tr>
             </table>
-       );
+        );
     }
 });
 

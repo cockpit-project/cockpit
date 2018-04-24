@@ -43,11 +43,11 @@ var PVolTab = React.createClass({
                     <tr>
                         <td>{_("Volume Group")}</td>
                         <td>{vgroup
-                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
-                                 {vgroup.Name}
-                             </a>
+                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
+                                {vgroup.Name}
+                            </a>
                             : "-"
-                            }
+                        }
                         </td>
                     </tr>
                     <tr>
@@ -73,11 +73,11 @@ var MDRaidMemberTab = React.createClass({
                     <tr>
                         <td>{_("RAID Device")}</td>
                         <td>{mdraid
-                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
-                                 {utils.mdraid_name(mdraid)}
-                             </a>
+                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
+                                {utils.mdraid_name(mdraid)}
+                            </a>
                             : "-"
-                            }
+                        }
                         </td>
                     </tr>
                 </table>
@@ -99,11 +99,11 @@ var VDOBackingTab = React.createClass({
                     <tr>
                         <td>{_("VDO Device")}</td>
                         <td>{vdo
-                             ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
-                                 {vdo.name}
-                             </a>
+                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
+                                {vdo.name}
+                            </a>
                             : "-"
-                            }
+                        }
                         </td>
                     </tr>
                 </table>

@@ -53,6 +53,23 @@ In addition, for testing, the following dependencies are required:
 Refer to the [testing README](test/README) for details on running
 the Cockpit integration tests locally.
 
+
+## Running eslint
+Cockpit uses [ESLint](https://eslint.org/) to automatically check 
+JavaScript code style in `.jsx` and `.es6` files.
+
+The linter is executed within every build as a webpack preloader.
+
+For developer convenience, the ESLint can be started explicitly by:
+
+    $ npm run eslint
+
+Violations of some rules can be fixed automatically by:
+
+    $ npm run eslint:fix
+    
+Rules configuration can be found in the `.eslintrc.json` file.
+
 ## Working on Cockpit using Vagrant
 
 It is recommended to use a Vagrant virtual machine to develop Cockpit.

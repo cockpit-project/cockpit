@@ -696,16 +696,16 @@ function parseDumpxmlForInterfaces(devicesElem) {
             const localElem = addressElem ? getSingleOptionalElem(addressElem, 'local') : null;
 
             const networkInterface = { // see https://libvirt.org/formatdomain.html#elementsNICS
-                type: interfaceElem.getAttribute('type'), //Only one required parameter
+                type: interfaceElem.getAttribute('type'), // Only one required parameter
                 managed: interfaceElem.getAttribute('managed'),
-                name: interfaceElem.getAttribute('name') ? interfaceElem.getAttribute('name') : undefined, //Name of interface
+                name: interfaceElem.getAttribute('name') ? interfaceElem.getAttribute('name') : undefined, // Name of interface
                 target: targetElem ? targetElem.getAttribute('dev') : undefined,
-                mac: macElem.getAttribute('address'), //MAC address
-                model: modelElem.getAttribute('type'), //Device model
+                mac: macElem.getAttribute('address'), // MAC address
+                model: modelElem.getAttribute('type'), // Device model
                 aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined,
                 virtualportType: virtualportElem ? virtualportElem.getAttribute('type') : undefined,
                 driverName: driverElem ? driverElem.getAttribute('name') : undefined,
-                state: linkElem ? linkElem.getAttribute('state') : 'up', //State of interface, up/down (plug/unplug)
+                state: linkElem ? linkElem.getAttribute('state') : 'up', // State of interface, up/down (plug/unplug)
                 mtu: mtuElem ? mtuElem.getAttribute('size') : undefined,
                 source: {
                     bridge: sourceElem ? sourceElem.getAttribute('bridge') : undefined,

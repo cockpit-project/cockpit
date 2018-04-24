@@ -67,7 +67,7 @@
     ]);
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9_.]*[a-z0-9])?$/;
-    var USER_NAME_RE = /^[a-zA-Z0-9_.]([-a-zA-Z0-9 ,=@._]*[a-zA-Z0-9._])?$/;
+    var USER_NAME_RE = /^[a-zA-Z0-9_.]([-a-zA-Z0-9 ,=@._:]*[a-zA-Z0-9._:])?$/;
 
     /* Timeout for non-GET requests */
     var REQ_TIMEOUT = "120s";
@@ -1330,7 +1330,7 @@
                             if (check_re == NAME_RE) {
                                 ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
                             } else {
-                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _");
+                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _ :");
                             }
                     }
                     if (ex) {

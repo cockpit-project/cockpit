@@ -73,7 +73,7 @@ export class ConfigFile {
         if (rawContent == this._rawContent)
             return;
 
-        //if (skipNotify === undefined)
+        // if (skipNotify === undefined)
         //    skipNotify = false;
 
         this._rawContent = rawContent;

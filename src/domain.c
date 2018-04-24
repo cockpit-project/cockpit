@@ -1417,6 +1417,37 @@ virtDBusDomainGetNumaParameters(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetPerfEvents(GVariant *inArgs,
+                            GUnixFDList *inFDs G_GNUC_UNUSED,
+                            const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **outArgs,
+                            GUnixFDList **outFDs G_GNUC_UNUSED,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetPerfEvents(domain, &params.params,
+                               &params.nparams, flags) < 0) {
+        return virtDBusUtilSetLastVirtError(error);
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
 virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
                                      GUnixFDList *inFDs G_GNUC_UNUSED,
                                      const gchar *objectPath,
@@ -2431,6 +2462,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetMetadata", virtDBusDomainGetMetadata },
     { "GetNumaParameters", virtDBusDomainGetNumaParameters },
+    { "GetPerfEvents", virtDBusDomainGetPerfEvents },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },

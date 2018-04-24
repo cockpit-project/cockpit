@@ -254,6 +254,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="numaParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetPerfEvents">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetPerfEvents"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="perfEvents" type="a{sv}" direction="out"/>
+    </method>
     <method name="GetSchedulerParameters">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSchedulerParametersFlags"/>

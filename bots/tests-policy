@@ -176,15 +176,12 @@ def guessFlake(output, context):
         if result:
             cluster = model.clusters[result[0]]
             analysis = cluster.analyze()
-            merged = analysis["merged"][0]
-            print(repr(merged))
-            if merged[0] is None:
-                output += "\n# Flake unknown {0:.1f}% (clustering)\n".format(merged[1] * 100)
-            elif merged[0]:
-                output += "\n# Flake likely {0:.1f}% (clustering)\n".format(merged[1] * 100)
+            merged = analysis["merged"]
+            if merged > learn.cluster.FLAKE_THRESHOLD:
+                output += "\n# Flake likely: {0:.1f}% (clustering). Please file issue if this not a flake\n".format(merged)
                 flake = True
             else:
-                output += "\n# Flake unlikely {0:.1f}% (clustering)\n".format(merged[1] * 100)
+                output += "\n# Flake probability: {0:.3f} (clustering)\n".format(merged)
             if analysis["trackers"]:
                 tracker = analysis["trackers"][0]
                 output += "\n# Flake tracked {0} likelihood {1:.1f} (clustering)\n".format(tracker[0], tracker[1])

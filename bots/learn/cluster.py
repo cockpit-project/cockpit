@@ -31,9 +31,9 @@ VERSION = 5
 # These distances are currently calculated via normalized compression
 # distance in ncd.py
 
-# Value between zero and one, if this fraction of a cluster's failures
-# have been merged inspite of failure, then consider that a flake
-MERGED_BIAS = 0.3
+# The threshhold of where we start to treat a cluster as a flakey if
+# the number of tests that failed but were merged anyway is over:
+FLAKE_THRESHOLD = 0.4
 
 import gzip
 import operator
@@ -87,7 +87,6 @@ class Cluster():
         self.points = points
 
         self.merged = 0
-        self.not_merged = 0
         self.tracked = 0
         self.trackers = { }
 
@@ -99,8 +98,6 @@ class Cluster():
             merged = item.get("merged")
             if merged:
                 self.merged += 1
-            elif merged is not None:
-                self.not_merged += 1
             tracker = item.get("tracker")
             if tracker is not None:
                 self.trackers[tracker] = self.trackers.get(tracker, 0) + 1
@@ -111,20 +108,12 @@ class Cluster():
     # items array.
     def analyze(self):
         total = len(self.points)
-        merged_unknown = max(0, total - self.merged - self.not_merged)
 
         # Calculate the merged probabilities
-        merged_true = merged_false = merged_null = 0
         if total:
-            merged_true = (float(self.merged) / float(total)) + MERGED_BIAS
-            merged_false = (float(self.not_merged) / float(total)) - MERGED_BIAS
-            merged_null = (float(merged_unknown) / float(total)) - MERGED_BIAS
-        merged = [
-            (True, max(0, merged_true)),
-            (False, max(0, merged_false)),
-            (None, max(0, merged_null)),
-        ]
-        merged.sort(key=operator.itemgetter(1), reverse=True)
+            merged = (float(self.merged) / float(total))
+            if merged > 1:
+                merged = 1
 
         # Probability that this cluster represents each tracked issue
         trackers = [ ]

@@ -42,7 +42,7 @@ const InstallationDialogBody = ({ values, onChange }) => {
             <table className='form-table-ct'>
                 <tr>
                     <td className='top'>
-                        <label className='control-label' for='ovirt-provider-install-dialog-engine-fqdn'>
+                        <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-fqdn'>
                             {_("FQDN")}
                         </label>
                     </td>
@@ -60,7 +60,7 @@ const InstallationDialogBody = ({ values, onChange }) => {
                 </tr>
                 <tr>
                     <td className='top'>
-                        <label className='control-label' for='ovirt-provider-install-dialog-engine-port'>
+                        <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-port'>
                             {_("Port")}
                         </label>
                     </td>

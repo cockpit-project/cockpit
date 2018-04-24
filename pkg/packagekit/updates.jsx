@@ -882,7 +882,7 @@ class OsUpdates extends React.Component {
         case "restart":
             return (
                 <div className="blank-slate-pf">
-                    <div class="blank-slate-pf-icon">
+                    <div className="blank-slate-pf-icon">
                         <div className="spinner spinner-lg"></div>
                     </div>
                     <h1>{_("Restarting")}</h1>

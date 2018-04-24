@@ -247,7 +247,7 @@ var Dialog = React.createClass({
         return (
             <div>
                 { backdrop }
-                <div className="modal fade in dialog-ct-visible" tabindex="-1">
+                <div className="modal fade in dialog-ct-visible" tabIndex="-1">
                     <div id={this.props.id} className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">

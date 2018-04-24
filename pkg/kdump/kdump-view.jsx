@@ -170,7 +170,7 @@ var KdumpTargetBody = React.createClass({
                 <table className="form-table-ct">
                     <tr>
                         <td className="top">
-                            <label className="control-label" for="kdump-settings-location">
+                            <label className="control-label" htmlFor="kdump-settings-location">
                                 {_("Location")}
                             </label>
                         </td>
@@ -489,7 +489,7 @@ var KdumpPage = React.createClass({
                 <table className="form-table-ct">
                     <tr>
                         <td><label className="control-label">{_("kdump status")}</label></td>
-                        <td colspan="2">
+                        <td colSpan="2">
                             <div>
                                 <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
                                     enabled={!this.props.stateChanging}/>
@@ -500,13 +500,13 @@ var KdumpPage = React.createClass({
                     </tr>
                     <tr>
                         <td><label className="control-label">{_("Reserved memory")}</label></td>
-                        <td colspan="2">
+                        <td colSpan="2">
                             {reservedMemory}
                         </td>
                     </tr>
                     <tr>
                         <td><label className="control-label">{_("Crash dump location")}</label></td>
-                        <td colspan="2">{settingsLink}</td>
+                        <td colSpan="2">{settingsLink}</td>
                     </tr>
                     <tr>
                         <td></td>

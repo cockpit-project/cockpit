@@ -35,7 +35,7 @@
                     <table className="form-table-ct">
                         <tr>
                             <td className="top">
-                                <label className="control-label" for="control-1">
+                                <label className="control-label" htmlFor="control-1">
                                     Label
                                 </label>
                             </td>

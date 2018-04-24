@@ -345,7 +345,7 @@ var ContainerList = React.createClass({
                 listingActions={actions}/>;
         }, this);
 
-        var columnTitles = [ _("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
+        var columnTitles = [_("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
 
         var emptyCaption;
         if (this.props.onlyShowRunning) {

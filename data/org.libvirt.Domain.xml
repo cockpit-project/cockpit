@@ -222,6 +222,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="interfaceParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetIOThreadInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetIOThreadInfo"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="ioThreadInfo" type="a(uab)" direction="out"/>
+    </method>
     <method name="GetJobInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>

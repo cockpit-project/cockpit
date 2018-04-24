@@ -85,6 +85,25 @@ virtDBusDomainFSInfoListClear(virtDBusDomainFSInfoList *info)
 G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusDomainFSInfoList,
                                  virtDBusDomainFSInfoListClear);
 
+struct _virtDBusDomainIOThreadInfoList {
+    virDomainIOThreadInfoPtr *info;
+    gint count;
+};
+
+typedef struct _virtDBusDomainIOThreadInfoList virtDBusDomainIOThreadInfoList;
+
+static void
+virtDBusDomainIOThreadInfoListClear(virtDBusDomainIOThreadInfoList *info)
+{
+    for (gint i = 0; i < info->count; i++)
+        virDomainIOThreadInfoFree(info->info[i]);
+
+    g_free(info->info);
+}
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusDomainIOThreadInfoList,
+                                 virtDBusDomainIOThreadInfoListClear);
+
 static GVariant *
 virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
                                     gint nr_stats)
@@ -1216,6 +1235,53 @@ virtDBusDomainGetInterfaceParameters(GVariant *inArgs,
     grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
     *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
+static void
+virtDBusDomainGetIOThreadInfo(GVariant *inArgs,
+                              GUnixFDList *inFDs G_GNUC_UNUSED,
+                              const gchar *objectPath,
+                              gpointer userData,
+                              GVariant **outArgs,
+                              GUnixFDList **outFDs G_GNUC_UNUSED,
+                              GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_auto(virtDBusDomainIOThreadInfoList) info = { 0 };
+    GVariantBuilder builder;
+    guint flags;
+    gint cpuCount;
+    GVariant *gret;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    info.count = virDomainGetIOThreadInfo(domain, &info.info, flags);
+    if (info.count < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    cpuCount = virNodeGetCPUMap(connect->connection, NULL, NULL, 0);
+    if (cpuCount < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(uab)"));
+
+    for (gint i = 0; i < info.count; i++) {
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(uab)"));
+        g_variant_builder_add(&builder, "u", info.info[i]->iothread_id);
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("ab"));
+        for (gint j = 0; j < cpuCount; j++)
+            g_variant_builder_add(&builder, "b", VIR_CPU_USED(info.info[i]->cpumap, j));
+        g_variant_builder_close(&builder);
+        g_variant_builder_close(&builder);
+    }
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
 }
 
 static void
@@ -2621,6 +2687,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetGuestVcpus", virtDBusDomainGetGuestVcpus },
     { "GetHostname", virtDBusDomainGetHostname },
     { "GetInterfaceParameters", virtDBusDomainGetInterfaceParameters },
+    { "GetIOThreadInfo", virtDBusDomainGetIOThreadInfo },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetJobStats", virtDBusDomainGetJobStats },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },

@@ -209,6 +209,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="vcpus" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetHostname">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetHostname"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="hostname" type="s" direction="out"/>
+    </method>
     <method name="GetJobInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>

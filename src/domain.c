@@ -1152,6 +1152,33 @@ virtDBusDomainGetGuestVcpus(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetHostname(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree gchar *hostname = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    hostname = virDomainGetHostname(domain, flags);
+    if (!hostname)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", hostname);
+}
+
+static void
 virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
                          GUnixFDList *inFDs G_GNUC_UNUSED,
                          const gchar *objectPath,
@@ -2232,6 +2259,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetDiskErrors", virtDBusDomainGetDiskErrors },
     { "GetFSInfo", virtDBusDomainGetFSInfo },
     { "GetGuestVcpus", virtDBusDomainGetGuestVcpus },
+    { "GetHostname", virtDBusDomainGetHostname },
     { "GetJobInfo", virtDBusDomainGetJobInfo },
     { "GetMemoryParameters", virtDBusDomainGetMemoryParameters },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },

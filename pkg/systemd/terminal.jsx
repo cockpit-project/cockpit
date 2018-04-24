@@ -21,7 +21,7 @@
                                           createChannel: function (user) {
                                               return cockpit.channel({
                                                   "payload": "stream",
-                                                  "spawn": [ user.shell || "/bin/bash", "-i"],
+                                                  "spawn": [user.shell || "/bin/bash", "-i"],
                                                   "environ": [
                                                       "TERM=xterm-256color",
                                                       "PATH=/sbin:/bin:/usr/sbin:/usr/bin"

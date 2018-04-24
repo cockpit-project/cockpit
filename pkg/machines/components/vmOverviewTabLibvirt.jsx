@@ -26,8 +26,6 @@ import { rephraseUI, vmId } from "../helpers.es6";
 
 const _ = cockpit.gettext;
 
-React;
-
 function getBootOrder(vm) {
     let bootOrder = _("No boot device found");
     if (vm.bootOrder && vm.bootOrder.devices && vm.bootOrder.devices.length > 0) {

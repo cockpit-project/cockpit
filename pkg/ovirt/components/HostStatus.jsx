@@ -23,7 +23,6 @@ import rephraseUI from '../rephraseUI.es6';
 
 import './HostStatus.css';
 
-React;
 const _ = cockpit.gettext;
 
 const HostStatus = ({ host }) => {

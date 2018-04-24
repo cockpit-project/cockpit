@@ -25,8 +25,6 @@ import {
 import StateIcon from './stateIcon.jsx';
 import { ListingRow } from "cockpit-components-listing.jsx";
 
-React;
-
 /** One Ui Dummy VM in the list (a row)
  */
 const DummyVm = ({ vm }) => {

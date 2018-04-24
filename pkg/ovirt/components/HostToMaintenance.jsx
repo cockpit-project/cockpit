@@ -26,8 +26,6 @@ import { switchHostToMaintenance } from '../actions.es6';
 
 const _ = cockpit.gettext;
 
-React;
-
 const hostToMaintenanceDialog = (dispatch, host) => {
     const hostId = host && host.id;
 

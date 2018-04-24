@@ -19,8 +19,6 @@
 
 import React, { PropTypes } from "react";
 
-React;
-
 const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
     return (<tr>
         <td className={descrClass || 'top'}>

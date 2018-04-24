@@ -22,7 +22,6 @@ import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
 
-React;
 const _ = cockpit.gettext;
 
 const DiskTotal = ({ disks, idPrefix }) => {

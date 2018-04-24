@@ -30,7 +30,6 @@ import { startVm, goToSubpage } from '../actions.es6';
 import rephraseUI from '../rephraseUI.es6';
 import { getCurrentCluster, getHost } from '../selectors.es6';
 
-React;
 const _ = cockpit.gettext;
 
 const NoVm = () => (<div>{_("No VM found in oVirt.")}</div>);

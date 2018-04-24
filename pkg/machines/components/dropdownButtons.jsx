@@ -20,8 +20,6 @@ import React, { PropTypes } from "react";
 import { mouseClick } from '../helpers.es6';
 import './dropdownButtons.css';
 
-React;
-
 /**
  * Render group of buttons as a dropdown
  *

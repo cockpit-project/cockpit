@@ -29,8 +29,6 @@ import DropdownButtons from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
 
-React;
-
 const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI }) => {
     const id = vmId(vm.name);
     const state = vm.state;

@@ -21,8 +21,6 @@ import React, { PropTypes } from "react";
 
 const _ = cockpit.gettext;
 
-React;
-
 const Items = ({ items, idPrefix, divider, colClass }) => {
     if (!items) {
         return null;

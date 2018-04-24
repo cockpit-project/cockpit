@@ -18,8 +18,6 @@
  */
 import React from "react";
 
-React;
-
 // TODO: replace this by Cockpit's modal dialog
 const ConfirmButtons = ({ confirmText, dismissText, onYes, onNo }) => {
     return (

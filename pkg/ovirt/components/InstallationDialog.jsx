@@ -31,8 +31,6 @@ import './InstallationDialog.css';
 
 const _ = cockpit.gettext;
 
-React;
-
 const INSTALL_SH_ERRORS = {
     '1': _("oVirt Provider installation script failed due to missing arguments."),
     '3': _("oVirt Provider installation script failed: Can't write to /etc/cockpit/machines-ovirt.config, try as root."),

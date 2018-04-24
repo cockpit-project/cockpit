@@ -24,8 +24,6 @@ import {
 
 const _ = cockpit.gettext;
 
-React;
-
 const StateIcon = ({ state, config, valueId, extra }) => {
     if (state === undefined) {
         return (<div/>);

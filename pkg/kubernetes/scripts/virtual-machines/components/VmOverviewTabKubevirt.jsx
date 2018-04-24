@@ -28,8 +28,6 @@ import { getPairs, NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx
 
 import VmMessage from './VmMessage.jsx';
 
-React;
-
 function getNodeName(vm: Vm) {
     return (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || null
 }

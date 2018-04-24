@@ -21,7 +21,6 @@ import React from "react";
 
 import CONFIG from '../config.es6';
 
-React;
 const _ = cockpit.gettext;
 
 const ConsoleClientResources = ({ vm, providerState }) => {

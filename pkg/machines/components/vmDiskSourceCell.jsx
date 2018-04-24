@@ -21,7 +21,6 @@ import cockpit from 'cockpit';
 
 import InfoRecord from './infoRecord.jsx';
 
-React;
 const _ = cockpit.gettext;
 
 const DiskSourceCell = ({ diskSource, idPrefix }) => {

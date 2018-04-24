@@ -23,7 +23,6 @@ import { vmId } from '../helpers.es6';
 import VmDisksTab from './vmDisksTab.jsx';
 import DiskSourceCell from './vmDiskSourceCell.jsx';
 
-React;
 const _ = cockpit.gettext;
 
 class VmDisksTabLibvirt extends React.Component {

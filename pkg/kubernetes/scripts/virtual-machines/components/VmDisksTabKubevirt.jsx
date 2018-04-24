@@ -26,7 +26,6 @@ import type { Vm, PersistenVolume } from '../types.jsx';
 import { vmIdPrefx, getValueOrDefault } from '../utils.jsx';
 import VmDisksTab from '../../../../machines/components/vmDisksTab.jsx';
 
-React;
 const _ = cockpit.gettext;
 /**
  * Finds matching PersistentVolume for the given VM disk.

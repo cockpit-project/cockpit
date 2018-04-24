@@ -36,9 +36,6 @@ class TestDocker(MachineCase):
 
         m.execute("systemctl start docker || systemctl start docker-latest")
 
-        # HACK: docker fails to start a container without /etc/resolv.conf
-        m.execute("touch /etc/resolv.conf")
-
     def confirm(self):
         b = self.browser
         b.wait_popup("confirmation-dialog")
@@ -584,10 +581,8 @@ CMD ["/bin/sh"]
 class TestAtomicScan(MachineCase):
     def setUp(self):
         MachineCase.setUp(self)
-        self.machine.execute("systemctl start docker")
 
-        # HACK: docker fails to start a container without /etc/resolv.conf
-        self.machine.execute("touch /etc/resolv.conf")
+        self.machine.execute("systemctl start docker")
 
     def testBasic(self):
         b = self.browser

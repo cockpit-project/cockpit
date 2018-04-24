@@ -60,7 +60,6 @@ class KubernetesCase(testlib.MachineCase):
         # HACK: These are the default container secrets that which conflict
         # with kubernetes secrets and cause the pod to not start
         self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")
-        self.machine.execute("test -f /etc/resolv.conf || touch /etc/resolv.conf")
         self.machine.execute("systemctl start docker || journalctl -u docker")
 
         # HACK: work around https://github.com/kubernetes/kubernetes/issues/43805 until

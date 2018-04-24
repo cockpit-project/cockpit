@@ -660,7 +660,6 @@ class Machine:
             # but atomic doesn't forward the parameter, so we use the resulting command
             # also we need to wait for cockpit to be up and running
             cmd = """#!/bin/sh
-            test -f /etc/resolv.conf || touch /etc/resolv.conf
             systemctl start docker &&
             """
             if tls:

@@ -60,7 +60,7 @@ var PatternDialogBody = React.createClass({
                     <tbody>
                         <tr>
                             <td>
-                                <label className="control-label" for="subscription-proxy-server">
+                                <label className="control-label" htmlFor="subscription-proxy-server">
                                     {_("Server")}
                                 </label>
                             </td>
@@ -72,7 +72,7 @@ var PatternDialogBody = React.createClass({
 
                         <tr>
                             <td>
-                                <label className="control-label" for="subscription-proxy-user">
+                                <label className="control-label" htmlFor="subscription-proxy-user">
                                     {_("User")}
                                 </label>
                             </td>
@@ -84,7 +84,7 @@ var PatternDialogBody = React.createClass({
 
                         <tr>
                             <td>
-                                <label className="control-label" for="subscription-proxy-password">
+                                <label className="control-label" htmlFor="subscription-proxy-password">
                                     {_("Password")}
                                 </label>
                             </td>
@@ -106,7 +106,7 @@ var PatternDialogBody = React.createClass({
                 <table className="form-table-ct">
                     <tr>
                         <td className="top">
-                            <label className="control-label" for="subscription-register-url">
+                            <label className="control-label" htmlFor="subscription-register-url">
                                 {_("URL")}
                             </label>
                         </td>
@@ -136,7 +136,7 @@ var PatternDialogBody = React.createClass({
                     </tr>
                     <tr>
                         <td className="top ">
-                            <label className="control-label" for="subscription-register-username">
+                            <label className="control-label" htmlFor="subscription-register-username">
                                 {_("Login")}
                             </label>
                         </td>
@@ -148,7 +148,7 @@ var PatternDialogBody = React.createClass({
                     </tr>
                     <tr>
                         <td className="top">
-                            <label className="control-label" for="subscription-register-password">
+                            <label className="control-label" htmlFor="subscription-register-password">
                                 {_("Password")}
                             </label>
                         </td>
@@ -160,7 +160,7 @@ var PatternDialogBody = React.createClass({
                     </tr>
                     <tr>
                         <td className="top">
-                            <label className="control-label" for="subscription-register-key">
+                            <label className="control-label" htmlFor="subscription-register-key">
                                 {_("Activation Key")}
                             </label>
                         </td>
@@ -172,7 +172,7 @@ var PatternDialogBody = React.createClass({
                     </tr>
                     <tr>
                         <td className="top">
-                            <label className="control-label" for="subscription-register-org">
+                            <label className="control-label" htmlFor="subscription-register-org">
                                 {_("Organization")}
                             </label>
                         </td>

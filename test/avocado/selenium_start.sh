@@ -41,9 +41,6 @@ function wait_curl(){
     fi
 }
 
-# HACK: docker fails to start a container without /etc/resolv.conf
-touch /etc/resolv.conf
-
 # Make sure docker is up and running
 systemctl start docker
 

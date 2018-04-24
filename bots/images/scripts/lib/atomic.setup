@@ -20,12 +20,6 @@
 
 set -ex
 
-# HACK: docker fails without /etc/resolv.conf
-# https://bugzilla.redhat.com/show_bug.cgi?id=1448331
-mkdir -p /etc/systemd/system/docker.service.d
-printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
-systemctl daemon-reload
-
 # The docker pool should grow automatically as needed, but we grow it
 # explicitly here anyway.  This is hopefully more reliable.
 # Newer Fedora versions configure docker to use the root LV

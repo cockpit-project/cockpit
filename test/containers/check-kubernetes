@@ -39,8 +39,6 @@ class KubernetesContainerMachine(VirtMachine):
             host = ""
 
         self.execute("""#!/bin/sh
-            # HACK: docker fails to start a container without /etc/resolv.conf
-            test -f /etc/resolv.conf || touch /etc/resolv.conf
             systemctl start docker
             # HACK: Allow container to talk to the host
             iptables -I INPUT 4 -i docker0 -j ACCEPT

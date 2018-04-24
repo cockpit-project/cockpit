@@ -54,7 +54,6 @@ VmsListing.propTypes = {
     vms: PropTypes.object.isRequired,
     pvs: PropTypes.object.isRequired,
     pods: PropTypes.object.isRequired,
-    setting: PropTypes.object.isRequired,
     vmsMessages: PropTypes.object.isRequired,
 };
 

@@ -222,7 +222,8 @@ class AtomicCockpitInstaller:
 
     def run(self):
         # Delete previous deployment if it's present
-        output = subprocess.check_output(["ostree", "admin", "status"])
+        # HACK: this command fails with a GPG validation error (https://bugzilla.redhat.com/show_bug.cgi?id=1571264)
+        output = subprocess.check_output(["ostree admin status || true"], shell=True)
         if output.count("origin refspec") != 1:
             subprocess.check_call(["ostree", "admin", "undeploy", "1"])
 

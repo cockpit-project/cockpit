@@ -245,7 +245,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'SHUTDOWN_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed") }),
                                        args: ['shutdown', name]
         });
     },
@@ -254,7 +254,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'FORCEOFF_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed") }),
                                        args: ['destroy', name]
         });
     },
@@ -263,7 +263,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'REBOOT_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed") }),
                                        args: ['reboot', name]
         });
     },
@@ -272,7 +272,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'FORCEREBOOT_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed") }),
                                        args: ['reset', name]
         });
     },
@@ -281,7 +281,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.START_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'START_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed") }),
                                        args: ['start', name]
         });
     },
@@ -383,7 +383,7 @@ LIBVIRT_PROVIDER = {
         return dispatch => {
             spawnVirsh({connectionName,
                         method: 'CHANGE_NETWORK_STATE',
-                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed")}),
+                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed") }),
                         args: ['domif-setlink', name, networkMac, state]
             }).then(() => {
                 dispatch(getVm(connectionName, name));
@@ -401,7 +401,7 @@ LIBVIRT_PROVIDER = {
 
     USAGE_STOP_POLLING ({ name, connectionName }) {
         logDebug(`${this.name}.USAGE_STOP_POLLING(${name}):`);
-        return dispatch => dispatch(updateVm({ connectionName, name, usagePolling: false}));
+        return dispatch => dispatch(updateVm({ connectionName, name, usagePolling: false }));
     },
 
     /**
@@ -425,7 +425,7 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.SENDNMI_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
                                        method: 'SENDNMI_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed")}),
+                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed") }),
                                        args: ['inject-nmi', name]
         });
     },
@@ -464,7 +464,7 @@ LIBVIRT_PROVIDER = {
         };
     },
 
-    ENABLE_LIBVIRT({ enable, serviceName}) {
+    ENABLE_LIBVIRT({ enable, serviceName }) {
         logDebug(`${this.name}.ENABLE_LIBVIRT`);
         return dispatch => {
             const libvirtService = service.proxy(serviceName);

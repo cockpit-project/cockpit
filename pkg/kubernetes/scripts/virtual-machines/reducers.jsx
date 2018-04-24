@@ -91,7 +91,7 @@ const vmsMessagesReducer = createReducer({}, {
  * }
  */
 const uiReducer = createReducer({}, {
-    [actionTypes.VM_EXPANDED]: (state = {}, { payload: { vm, isExpanded }}) => {
+    [actionTypes.VM_EXPANDED]: (state = {}, { payload: { vm, isExpanded } }) => {
         return Object.assign({}, state, { [vm.metadata.uid]: { isExpanded } });
     }
 });

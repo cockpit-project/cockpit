@@ -137,12 +137,6 @@ systemctl disable apt-daily.service apt-daily.timer || true
 echo "kernel.core_pattern=|/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
 printf 'DefaultLimitCORE=infinity\n' >> /etc/systemd/system.conf
 
-# HACK: docker fails without /etc/resolv.conf
-# https://bugzilla.redhat.com/show_bug.cgi?id=1448331
-mkdir -p /etc/systemd/system/docker.service.d
-printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
-systemctl daemon-reload
-
 # HACK: we need to restart it in case aufs-dkms was installed after docker.io
 # and thus docker.io auto-switches its backend
 systemctl restart docker || journalctl -u docker

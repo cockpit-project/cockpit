@@ -410,6 +410,12 @@
       <arg name="sigNum" type="u" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetBlkioParameters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetBlkioParameters"/>
+      <arg name="params" type="a{sv}" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetMemory">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMemoryFlags"/>

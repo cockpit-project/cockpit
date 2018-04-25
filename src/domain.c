@@ -2128,6 +2128,38 @@ virtDBusDomainSendProcessSignal(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSetBlkioParameters(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **outArgs G_GNUC_UNUSED,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autoptr(GVariantIter) iter = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+
+    g_variant_get(inArgs, "(a{sv}u)", &iter, &flags);
+
+    if (!virtDBusUtilGVariantToTypedParams(iter, &params.params,
+                                           &params.nparams, error)) {
+        return;
+    }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSetBlkioParameters(domain, params.params,
+                                    params.nparams, flags) < 0) {
+        virtDBusUtilSetLastVirtError(error);
+    }
+}
+
+static void
 virtDBusDomainSetMemory(GVariant *inArgs,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -2488,6 +2520,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Save", virtDBusDomainSave },
     { "SendKey", virtDBusDomainSendKey },
     { "SendProcessSignal", virtDBusDomainSendProcessSignal },
+    { "SetBlkioParameters", virtDBusDomainSetBlkioParameters },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },
     { "SetMemoryStatsPeriod", virtDBusDomainSetMemoryStatsPeriod },

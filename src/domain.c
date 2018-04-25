@@ -2349,6 +2349,38 @@ virtDBusDomainSetMetadata(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSetNumaParameters(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath,
+                                gpointer userData,
+                                GVariant **outArgs G_GNUC_UNUSED,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autoptr(GVariantIter) iter = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+
+    g_variant_get(inArgs, "(a{sv}u)", &iter, &flags);
+
+    if (!virtDBusUtilGVariantToTypedParams(iter, &params.params,
+                                           &params.nparams, error)) {
+        return;
+    }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainSetNumaParameters(domain, params.params,
+                                   params.nparams, flags) < 0) {
+        virtDBusUtilSetLastVirtError(error);
+    }
+}
+
+static void
 virtDBusDomainSetPerfEvents(GVariant *inArgs,
                             GUnixFDList *inFDs G_GNUC_UNUSED,
                             const gchar *objectPath,
@@ -2626,6 +2658,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "SetMemoryParameters", virtDBusDomainSetMemoryParameters },
     { "SetMemoryStatsPeriod", virtDBusDomainSetMemoryStatsPeriod },
     { "SetMetadata", virtDBusDomainSetMetadata },
+    { "SetNumaParameters", virtDBusDomainSetNumaParameters },
     { "SetPerfEvents", virtDBusDomainSetPerfEvents },
     { "SetTime", virtDBusDomainSetTime },
     { "SetUserPassword", virtDBusDomainSetUserPassword },

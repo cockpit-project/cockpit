@@ -458,6 +458,12 @@
       <arg name="uri" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetNumaParameters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetNumaParameters"/>
+      <arg name="params" type="a{sv}" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetPerfEvents">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetPerfEvents"/>

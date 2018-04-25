@@ -330,8 +330,6 @@ sync
 /var/lib/testvm/zero-disk.setup
 systemctl start docker && sleep 10
 
-dnf install -y cockpit-system
-
 # Verify all pulled docker images are really present
 echo All present images:
 docker images

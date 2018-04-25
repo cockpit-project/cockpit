@@ -842,6 +842,49 @@ virtDBusConnectNetworkLookupByUUID(GVariant *inArgs,
     *outArgs = g_variant_new("(o)", path);
 }
 
+static void
+virtDBusConnectNodeGetCPUStats(GVariant *inArgs,
+                               GUnixFDList *inFDs G_GNUC_UNUSED,
+                               const gchar *objectPath G_GNUC_UNUSED,
+                               gpointer userData,
+                               GVariant **outArgs,
+                               GUnixFDList **outFDs G_GNUC_UNUSED,
+                               GError **error)
+{
+    virtDBusConnect *connect = userData;
+    gint cpuNum;
+    guint flags;
+    g_autofree virNodeCPUStatsPtr stats = NULL;
+    gint count = 0;
+    gint ret;
+    GVariant *gret;
+    GVariantBuilder builder;
+
+    g_variant_get(inArgs, "(iu)", &cpuNum, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    ret = virNodeGetCPUStats(connect->connection, cpuNum, NULL, &count, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (count != 0) {
+        stats = g_new0(virNodeCPUStats, count);
+        if (virNodeGetCPUStats(connect->connection, cpuNum, stats,
+                               &count, flags) < 0) {
+            return virtDBusUtilSetLastVirtError(error);
+        }
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{st}"));
+    for (gint i = 0; i < count; i++)
+        g_variant_builder_add(&builder, "{st}", stats[i].field, stats[i].value);
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
@@ -873,6 +916,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },
     { "NetworkLookupByName", virtDBusConnectNetworkLookupByName },
     { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
+    { "NodeGetCPUStats", virtDBusConnectNodeGetCPUStats },
     { 0 }
 };
 

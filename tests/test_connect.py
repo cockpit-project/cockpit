@@ -156,6 +156,10 @@ class TestConnect(libvirttest.BaseTestClass):
         path = getattr(self.connect, lookup_method_name)(prop)
         assert original_path == path
 
+    def test_connect_node_get_cpu_stats(self):
+        stats = self.connect.NodeGetCPUStats(0, 0)
+        assert isinstance(stats, dbus.Dictionary)
+
 
 if __name__ == '__main__':
     libvirttest.run()

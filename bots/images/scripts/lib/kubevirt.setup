@@ -45,6 +45,8 @@ TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarba
 ( mkdir kubevirt.src && cd kubevirt.src && curl -sL ${TARBALL} > kubevirt.tar.gz && tar -xzf kubevirt.tar.gz --strip=1 )
 cp kubevirt.src/cluster/vm-template-fedora.yaml ./
 
+curl -sL https://github.com/kubevirt/kubevirt/releases/download/v${KUBEVIRT_VERSION}/kubevirt.yaml > /kubevirt/kubevirt.yaml
+
 # change tag
 sed -i 's/:devel/:latest/g' ./vm-template-fedora.yaml
 grep -q 'running:' ./vm-template-fedora.yaml || sed -i '/^  spec:/a\ \ \ \ running: false' ./vm-template-fedora.yaml

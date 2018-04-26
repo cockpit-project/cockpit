@@ -496,6 +496,40 @@ virtDBusDomainBlockCommit(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainBlockCopy(GVariant *inArgs,
+                        GUnixFDList *inFDs G_GNUC_UNUSED,
+                        const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **outArgs G_GNUC_UNUSED,
+                        GUnixFDList **outFDs G_GNUC_UNUSED,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *disk;
+    const gchar *destxml;
+    g_autoptr(GVariantIter) iter = NULL;
+    guint flags;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+
+    g_variant_get(inArgs, "(&s&sa{sv}u)", &disk, &destxml, &iter, &flags);
+
+    if (!virtDBusUtilGVariantToTypedParams(iter, &params.params,
+                                           &params.nparams, error)) {
+        return;
+    }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainBlockCopy(domain, disk, destxml, params.params,
+                           params.nparams, flags) < 0) {
+        virtDBusUtilSetLastVirtError(error);
+    }
+}
+
+static void
 virtDBusDomainBlockJobAbort(GVariant *inArgs,
                             GUnixFDList *inFDs G_GNUC_UNUSED,
                             const gchar *objectPath,
@@ -2664,6 +2698,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "AddIOThread", virtDBusDomainAddIOThread },
     { "AttachDevice", virtDBusDomainAttachDevice },
     { "BlockCommit", virtDBusDomainBlockCommit },
+    { "BlockCopy", virtDBusDomainBlockCopy },
     { "BlockJobAbort", virtDBusDomainBlockJobAbort },
     { "BlockJobSetSpeed", virtDBusDomainBlockJobSetSpeed },
     { "BlockPeek", virtDBusDomainBlockPeek },

@@ -69,6 +69,14 @@
       <arg name="bandwidth" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="BlockCopy">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockCopy"/>
+      <arg name="disk" type="s" direction="in"/>
+      <arg name="destxml" type="s" direction="in"/>
+      <arg name="params" type="a{sv}" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="BlockJobAbort">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockJobAbort"/>

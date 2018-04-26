@@ -35,6 +35,12 @@ export const Enum = {
     INFO_BUGFIX: 6,
     INFO_IMPORTANT: 7,
     INFO_SECURITY: 8,
+    INFO_DOWNLOADING: 10,
+    INFO_UPDATING: 11,
+    INFO_INSTALLING: 12,
+    INFO_REMOVING: 13,
+    INFO_REINSTALLING: 19,
+    INFO_DOWNGRADING: 20,
     STATUS_WAIT: 1,
     STATUS_DOWNLOAD: 8,
     STATUS_INSTALL: 9,
@@ -48,6 +54,7 @@ export const Enum = {
     FILTER_ARCH: (1 << 18),
     FILTER_NOT_SOURCE: (1 << 21),
     ERROR_ALREADY_INSTALLED: 9,
+    TRANSACTION_FLAG_SIMULATE: (1 << 2),
 };
 
 export const transactionInterface = "org.freedesktop.PackageKit.Transaction";
@@ -309,4 +316,167 @@ export function watchRedHatSubscription(callback) {
                     console.warn("Failed to query RHEL subscription status:", ex);
             }
             );
+}
+
+/* Support for installing missing packages.
+ *
+ * First call check_missing_packages to determine whether something
+ * needs to be installed, then call install_missing_packages to
+ * actually install them.
+ *
+ * check_missing_packages resolves to an object that can be passed to
+ * install_missing_packages.  It contains these fields:
+ *
+ * - missing_names:     Packages that were requested, are currently not installed,
+ *                      and can be installed.
+ *
+ * - unavailable_names: Packages that were requested, are currently not installed,
+ *                      but can't be found in any repository.
+ *
+ * If unavailable_names is empty, a simulated installation of the missing packages
+ * is done and the result also contains these fields:
+ *
+ * - extra_names:       Packages that need to be installed as dependencies of
+ *                      missing_names.
+ *
+ * - remove_names:      Packages that need to be removed.
+ *
+ * - download_size:     Bytes that need to be downloaded.
+ */
+
+export function check_missing_packages(names, progress_cb) {
+    var data = {
+        missing_names: [ ],
+        unavailable_names: [ ],
+    };
+
+    if (names.length === 0)
+        return Promise.resolve(data);
+
+    function refresh() {
+        return cancellableTransaction("RefreshCache", [ false ], progress_cb);
+    }
+
+    function resolve() {
+        data.missing_ids = [ ];
+
+        var installed_names = { };
+
+        return cancellableTransaction("Resolve",
+                                      [ Enum.FILTER_ARCH | Enum.FILTER_NOT_SOURCE | Enum.FILTER_NEWEST, names ],
+                                      progress_cb,
+                                      {
+                                          Package: (info, package_id) => {
+                                              let parts = package_id.split(";");
+                                              let repos = parts[3].split(":");
+                                              if (repos.indexOf("installed") >= 0) {
+                                                  installed_names[parts[0]] = true;
+                                              } else {
+                                                  data.missing_ids.push(package_id);
+                                                  data.missing_names.push(parts[0]);
+                                              }
+                                          },
+                                      })
+                .then(() => {
+                    names.forEach(name => {
+                        if (!installed_names[name] && data.missing_names.indexOf(name) == -1)
+                            data.unavailable_names.push(name);
+                    });
+                    return data;
+                });
+    }
+
+    function simulate(data) {
+        data.install_ids = [ ];
+        data.remove_ids = [ ];
+        data.extra_names = [ ];
+        data.remove_names = [ ];
+
+        if (data.missing_ids.length > 0 && data.unavailable_names.length === 0) {
+            return cancellableTransaction("InstallPackages",
+                                          [ Enum.TRANSACTION_FLAG_SIMULATE, data.missing_ids ],
+                                          progress_cb,
+                                          {
+                                              Package: (info, package_id) => {
+                                                  let name = package_id.split(";")[0];
+                                                  if (info == Enum.INFO_REMOVING) {
+                                                      data.remove_ids.push(package_id);
+                                                      data.remove_names.push(name);
+                                                  } else if (info == Enum.INFO_INSTALLING ||
+                                                             info == Enum.INFO_UPDATING) {
+                                                      data.install_ids.push(package_id);
+                                                      if (data.missing_names.indexOf(name) == -1)
+                                                          data.extra_names.push(name);
+                                                  }
+                                              }
+                                          })
+                    .then(() => {
+                        data.missing_names.sort();
+                        data.extra_names.sort();
+                        data.remove_names.sort();
+                        return data;
+                    });
+        } else {
+            return data;
+        }
+    }
+
+    function get_details(data) {
+        data.download_size = 0;
+        if (data.install_ids.length > 0) {
+            return cancellableTransaction("GetDetails",
+                                          [ data.install_ids ],
+                                          progress_cb,
+                                          {
+                                              Details: details => {
+                                                  if (details.size)
+                                                      data.download_size += details.size.v;
+                                              }
+                                          })
+                    .then(() => data);
+        } else {
+            return data;
+        }
+    }
+
+    return refresh().then(resolve)
+            .then(simulate)
+            .then(get_details);
+}
+
+/* Carry out what check_missing_packages has planned.
+ *
+ * In addition to the usual "waiting", "percentage", and "cancel"
+ * fields, the object reported by progress_cb also includes "info" and
+ * "package" from the "Package" signal.
+ */
+
+export function install_missing_packages(data, progress_cb) {
+    if (!data || data.missing_ids.length === 0)
+        return Promise.resolve();
+
+    var last_progress, last_info, last_name;
+
+    function report_progess() {
+        progress_cb({
+            waiting: last_progress.waiting,
+            percentage: last_progress.percentage,
+            cancel: last_progress.cancel,
+            info: last_info,
+            package: last_name
+        });
+    }
+
+    return cancellableTransaction("InstallPackages", [ 0, data.missing_ids ],
+                                  p => {
+                                      last_progress = p;
+                                      report_progess();
+                                  },
+                                  {
+                                      Package: (info, id) => {
+                                          last_info = info;
+                                          last_name = id.split(";")[0];
+                                          report_progess();
+                                      }
+                                  });
 }

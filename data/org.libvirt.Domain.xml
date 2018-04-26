@@ -316,6 +316,13 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainInjectNMI"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="InterfaceAddresses">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainInterfaceAddresses"/>
+      <arg name="source" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="ifaces" type="a(ssa(isu))" direction="out"/>
+    </method>
     <method name="ManagedSave">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainManagedSave"/>

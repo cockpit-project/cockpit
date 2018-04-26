@@ -35,6 +35,12 @@ VIRT_DBUS_ENUM_IMPL(virtDBusDomainDiskError,
                     "unspec",
                     "no-space")
 
+VIRT_DBUS_ENUM_DECL(virtDBusDomainInterfaceAddressesSource)
+VIRT_DBUS_ENUM_IMPL(virtDBusDomainInterfaceAddressesSource,
+                    VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LAST,
+                    "lease",
+                    "agent")
+
 VIRT_DBUS_ENUM_DECL(virtDBusDomainJob)
 VIRT_DBUS_ENUM_IMPL(virtDBusDomainJob,
                     VIR_DOMAIN_JOB_LAST,
@@ -72,6 +78,25 @@ struct _virtDBusDomainFSInfoList {
 };
 
 typedef struct _virtDBusDomainFSInfoList virtDBusDomainFSInfoList;
+
+struct _virtDBusDomainInterfaceList {
+    virDomainInterfacePtr *ifaces;
+    gint count;
+};
+
+typedef struct _virtDBusDomainInterfaceList virtDBusDomainInterfaceList;
+
+static void
+virtDBusDomainInterfaceListClear(virtDBusDomainInterfaceList *ifaces)
+{
+    for (gint i = 0; i < ifaces->count; i++)
+        virDomainInterfaceFree(ifaces->ifaces[i]);
+
+    g_free(ifaces->ifaces);
+}
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(virtDBusDomainInterfaceList,
+                                 virtDBusDomainInterfaceListClear);
 
 static void
 virtDBusDomainFSInfoListClear(virtDBusDomainFSInfoList *info)
@@ -1751,6 +1776,67 @@ virtDBusDomainInjectNMI(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainInterfaceAddresses(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **outArgs G_GNUC_UNUSED,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    gint source;
+    const gchar *sourceStr;
+    g_auto(virtDBusDomainInterfaceList) ifaces = { 0 };
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *res;
+
+    g_variant_get(inArgs, "(&su)", &sourceStr, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    source = virtDBusDomainInterfaceAddressesSourceTypeFromString(sourceStr);
+    if (source < 0) {
+        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
+                    "Can't get valid virDomainInterfaceAddressesSource from string '%s'.",
+                    sourceStr);
+        return;
+    }
+    ifaces.count = virDomainInterfaceAddresses(domain, &(ifaces.ifaces),
+                                               source, flags);
+    if (ifaces.count < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(ssa(isu))"));
+    for (gint i = 0; i < ifaces.count; i++) {
+        virDomainInterfacePtr iface = ifaces.ifaces[i];
+
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(ssa(isu))"));
+        g_variant_builder_add(&builder, "s", iface->name);
+        g_variant_builder_add(&builder, "s",
+                              iface->hwaddr ? iface->hwaddr : "");
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("a(isu)"));
+        for (guint j = 0; j < iface->naddrs; j++) {
+            g_variant_builder_open(&builder, G_VARIANT_TYPE("(isu)"));
+            g_variant_builder_add(&builder, "i", iface->addrs[j].type);
+            g_variant_builder_add(&builder, "s", iface->addrs[j].addr);
+            g_variant_builder_add(&builder, "u", iface->addrs[j].prefix);
+            g_variant_builder_close(&builder);
+        }
+        g_variant_builder_close(&builder);
+        g_variant_builder_close(&builder);
+    }
+    res = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&res, 1);
+}
+
+static void
 virtDBusDomainManagedSave(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -2736,6 +2822,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },
     { "InjectNMI", virtDBusDomainInjectNMI },
+    { "InterfaceAddresses", virtDBusDomainInterfaceAddresses },
     { "ManagedSave", virtDBusDomainManagedSave },
     { "ManagedSaveRemove", virtDBusDomainManagedSaveRemove },
     { "MemoryPeek", virtDBusDomainMemoryPeek },

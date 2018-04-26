@@ -356,7 +356,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
+                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
             </span>);
     if (tabs.row_action) {
         if (last_column) {
@@ -375,9 +375,9 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     ];
     rows.push(
         <CockpitListing.ListingRow key={key}
-            columns={cols}
-            tabRenderers={tabs.renderers}
-            listingActions={tabs.actions}/>
+                                   columns={cols}
+                                   tabRenderers={tabs.renderers}
+                                   listingActions={tabs.actions}/>
     );
 }
 
@@ -534,7 +534,7 @@ function block_content(client, block, allow_partitions) {
 
     return (
         <CockpitListing.Listing title={_("Content")}
-            actions={format_disk_btn}>
+                                actions={format_disk_btn}>
             { block_rows(client, block) }
         </CockpitListing.Listing>
     );
@@ -682,7 +682,7 @@ var VGroup = React.createClass({
         var new_volume_link = (
             <div className="pull-right">
                 <StorageLink onClick={create_logical_volume}
-                    excuse={excuse}>
+                             excuse={excuse}>
                     <span className="pficon pficon-add-circle-o"></span>
                     {" "}
                     {_("Create new Logical Volume")}
@@ -691,8 +691,8 @@ var VGroup = React.createClass({
 
         return (
             <CockpitListing.Listing title="Logical Volumes"
-                actions={new_volume_link}
-                emptyCaption={_("No Logical Volumes")}>
+                                    actions={new_volume_link}
+                                    emptyCaption={_("No Logical Volumes")}>
                 { vgroup_rows(self.props.client, vgroup) }
             </CockpitListing.Listing>
         );

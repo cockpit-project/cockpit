@@ -286,7 +286,7 @@ export default class AutoUpdates extends React.Component {
                     <tr>
                         <td>
                             <Select.Select id="auto-update-type" enabled={!this.state.pending} initial={backend.type}
-                                onChange={ t => this.handleChange(null, t, null, null) }>
+                                           onChange={ t => this.handleChange(null, t, null, null) }>
                                 <Select.SelectEntry data="all">{_("Apply all updates")}</Select.SelectEntry>
                                 <Select.SelectEntry data="security">{_("Apply security updates")}</Select.SelectEntry>
                             </Select.Select>
@@ -294,7 +294,7 @@ export default class AutoUpdates extends React.Component {
 
                         <td>
                             <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
-                                onChange={ d => this.handleChange(null, null, d, null) }>
+                                           onChange={ d => this.handleChange(null, null, d, null) }>
                                 <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
                                 <Select.SelectEntry data="mon">{_("on Mondays")}</Select.SelectEntry>
                                 <Select.SelectEntry data="tue">{_("on Tuesdays")}</Select.SelectEntry>
@@ -310,7 +310,7 @@ export default class AutoUpdates extends React.Component {
 
                         <td>
                             <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
-                                onChange={ t => this.handleChange(null, null, null, t) }>
+                                           onChange={ t => this.handleChange(null, null, null, t) }>
                                 { hours.map(h => <Select.SelectEntry data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
                             </Select.Select>
                         </td>
@@ -330,7 +330,7 @@ export default class AutoUpdates extends React.Component {
                     <tr>
                         <td><h2>{_("Automatic Updates")}</h2></td>
                         <td><OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
-                            onChange={e => this.handleChange(e, null, null, null) } /></td>
+                                                     onChange={e => this.handleChange(e, null, null, null) } /></td>
                     </tr>
                 </table>
 

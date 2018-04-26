@@ -140,12 +140,12 @@ var SubscriptionStatus = React.createClass({
         if (this.props.status == 'Unknown') {
             label = <label>{ _("Status: System isn't registered") }</label>;
             action = (<button className="btn btn-primary"
-                onClick={this.handleRegisterSystem}>{_("Register")}</button>
+                              onClick={this.handleRegisterSystem}>{_("Register")}</button>
             );
         } else {
             label = <label>{ cockpit.format(_("Status: $0"), this.props.status) }</label>;
             action = (<button className="btn btn-primary" disabled={isUnregistering}
-                onClick={this.handleUnregisterSystem}>{_("Unregister")}</button>
+                              onClick={this.handleUnregisterSystem}>{_("Unregister")}</button>
             );
             if (isUnregistering) {
                 note = (

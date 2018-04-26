@@ -101,12 +101,12 @@ export class DrivesPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                    name={name}
-                    detail={desc}
-                    stats={io}
-                    highlight={dev == props.highlight}
-                    go={() => cockpit.location.go([ dev ])}
-                    job_path={path}/>
+                                      name={name}
+                                      detail={desc}
+                                      stats={io}
+                                      highlight={dev == props.highlight}
+                                      go={() => cockpit.location.go([ dev ])}
+                                      job_path={path}/>
             );
         }
 
@@ -115,8 +115,8 @@ export class DrivesPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="drives"
-                title={_("Drives")}
-                empty_text={_("No drives attached")}>
+                               title={_("Drives")}
+                               empty_text={_("No drives attached")}>
                 { drives }
             </OverviewSidePanel>
         );

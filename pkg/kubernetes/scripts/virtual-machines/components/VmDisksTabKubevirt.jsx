@@ -91,8 +91,8 @@ const VmDisksTabKubevirt = ({ vm, pvs }: { vm: Vm, pvs: Array<PersistenVolume> }
 
     return (
         <VmDisksTab idPrefix={idPrefix}
-            disks={disks}
-            renderCapacity={true}/>
+                    disks={disks}
+                    renderCapacity={true}/>
     );
 };
 

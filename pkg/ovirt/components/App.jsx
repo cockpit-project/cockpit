@@ -96,21 +96,21 @@ const TopMenu = ({ ovirtConfig, router, dispatch }) => {
     return (
         <nav className='content-extra-header'>
             <a className={'top-menu-link' + selected('hostvms')} href='#'
-                id='ovirt-topnav-hostvms'
-                aria-current={selected_aria('hostvms')}
-                onClick={() => onNavigate('hostvms')}>{_("Host")}</a>
+               id='ovirt-topnav-hostvms'
+               aria-current={selected_aria('hostvms')}
+               onClick={() => onNavigate('hostvms')}>{_("Host")}</a>
             <a className={'top-menu-link' + selected('clustervms')} href='#'
-                id='ovirt-topnav-clustervms'
-                aria-current={selected_aria('clustervms')}
-                onClick={() => onNavigate('clustervms')}>{_("Cluster")}</a>
+               id='ovirt-topnav-clustervms'
+               aria-current={selected_aria('clustervms')}
+               onClick={() => onNavigate('clustervms')}>{_("Cluster")}</a>
             <a className={'top-menu-link' + selected('clustertemplates')} href='#'
-                id='ovirt-topnav-clustertemplates'
-                aria-current={selected_aria('clustertemplates')}
-                onClick={() => onNavigate('clustertemplates')}>{_("Templates")}</a>
+               id='ovirt-topnav-clustertemplates'
+               aria-current={selected_aria('clustertemplates')}
+               onClick={() => onNavigate('clustertemplates')}>{_("Templates")}</a>
             <a className={'top-menu-link' + selected('vdsm')} href='#'
-                id='ovirt-topnav-vdsm'
-                aria-current={selected_aria('vdsm')}
-                onClick={() => onNavigate('vdsm')}>{_("VDSM")}</a>
+               id='ovirt-topnav-vdsm'
+               aria-current={selected_aria('vdsm')}
+               onClick={() => onNavigate('vdsm')}>{_("VDSM")}</a>
 
             <LoginInProgress ovirtConfig={ovirtConfig}/>
         </nav>
@@ -128,11 +128,11 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
         <div className='container-fluid'>
             <HostStatus host={host}/>
             <HostVmsList vms={vms}
-                config={config}
-                systemInfo={systemInfo}
-                ui={ui}
-                dispatch={dispatch}
-                actions={actions}/>
+                         config={config}
+                         systemInfo={systemInfo}
+                         ui={ui}
+                         dispatch={dispatch}
+                         actions={actions}/>
         </div>
     );
 };

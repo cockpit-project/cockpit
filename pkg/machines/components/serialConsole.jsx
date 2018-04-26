@@ -104,13 +104,13 @@ class SerialConsole extends React.Component {
             <div className="console-ct-container">
                 <div className="console-actions">
                     <button ref="disconnectButton" id={`${vmName}-serialconsole-disconnect`}
-                        className={`btn btn-default console-actions-buttons ${disconnectDisabled}`}
-                        onClick={this.onDisconnectClick}>
+                            className={`btn btn-default console-actions-buttons ${disconnectDisabled}`}
+                            onClick={this.onDisconnectClick}>
                         {_("Disconnect")}
                     </button>
 
                     <button ref="resetButton" id={`${vmName}-serialconsole-reconnect`}
-                        className="btn btn-default console-actions-buttons" onClick={this.onResetClick}>
+                            className="btn btn-default console-actions-buttons" onClick={this.onResetClick}>
                         {_("Reconnect")}
                     </button>
                 </div>

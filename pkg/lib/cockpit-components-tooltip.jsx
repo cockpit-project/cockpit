@@ -140,8 +140,8 @@ var Tooltip = React.createClass({
         return (
             <div className="tooltip-ct-outer">
                 <div className="tooltip-ct-inner"
-                    onMouseover={this.onMouseover}
-                    onMouseout={this.onMouseout}>
+                     onMouseover={this.onMouseover}
+                     onMouseout={this.onMouseout}>
                     {self.props.children}
                 </div>
                 <div ref={fixDOMElements} className={classes} style={{ top: 0, left: -10000 }}>

@@ -87,7 +87,7 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
     let notification = null;
     if (notificationText) {
         notification = (<Info text={notificationText}
-            textId={`${idPrefix}-notification`}/>);
+                              textId={`${idPrefix}-notification`}/>);
     }
 
     return (

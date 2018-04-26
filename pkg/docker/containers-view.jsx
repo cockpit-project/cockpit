@@ -102,11 +102,11 @@ var ContainerHeader = React.createClass({
                     <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
                 </Select.Select>
                 <input type="text"
-                    id="containers-filter"
-                    ref="filterTextInput"
-                    className="form-control"
-                    placeholder={_("Type to filter…")}
-                    onChange={this.handleFilterTextChange} />
+                       id="containers-filter"
+                       ref="filterTextInput"
+                       className="form-control"
+                       placeholder={_("Type to filter…")}
+                       onChange={this.handleFilterTextChange} />
             </div>
         );
     }
@@ -310,11 +310,11 @@ var ContainerList = React.createClass({
 
             var actions = [
                 <button className="btn btn-danger btn-delete pficon pficon-delete"
-                    onClick={ this.deleteContainer.bind(this, container) } />,
+                        onClick={ this.deleteContainer.bind(this, container) } />,
                 <button className="btn btn-default"
-                    disabled={isRunning}
-                    data-container-id={container.Id}
-                    data-toggle="modal" data-target="#container-commit-dialog">
+                        disabled={isRunning}
+                        data-container-id={container.Id}
+                        data-toggle="modal" data-target="#container-commit-dialog">
                     {_("Commit")}
                 </button>,
                 <Dropdown actions={startStopActions} />
@@ -339,10 +339,10 @@ var ContainerList = React.createClass({
             }
 
             return <Listing.ListingRow key={container.Id}
-                columns={columns}
-                tabRenderers={tabs}
-                navigateToItem={ this.navigateToContainer.bind(this, container) }
-                listingActions={actions}/>;
+                                       columns={columns}
+                                       tabRenderers={tabs}
+                                       navigateToItem={ this.navigateToContainer.bind(this, container) }
+                                       listingActions={actions}/>;
         }, this);
 
         var columnTitles = [_("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
@@ -638,15 +638,15 @@ var ImageList = React.createClass({
 
         var actions = [
             <button className="btn btn-danger btn-delete pficon pficon-delete"
-                onClick={ this.deleteImage.bind(this, image) } />
+                    onClick={ this.deleteImage.bind(this, image) } />
         ];
 
         return <Listing.ListingRow key={image.Id}
-            rowId={image.Id}
-            columns={columns}
-            tabRenderers={tabs}
-            navigateToItem={ this.navigateToImage.bind(this, image) }
-            listingActions={actions}/>;
+                                   rowId={image.Id}
+                                   columns={columns}
+                                   tabRenderers={tabs}
+                                   navigateToItem={ this.navigateToImage.bind(this, image) }
+                                   listingActions={actions}/>;
     },
 
     render: function () {

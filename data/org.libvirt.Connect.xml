@@ -173,6 +173,11 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="cpuStats" type="a{st}" direction="out"/>
     </method>
+    <method name="NodeGetFreeMemory">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetFreeMemory"/>
+      <arg name="freemem" type="t" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

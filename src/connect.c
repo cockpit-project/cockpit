@@ -1012,6 +1012,36 @@ virtDBusConnectNodeGetSecurityModel(GVariant *inArgs G_GNUC_UNUSED,
     *outArgs = g_variant_new("((ss))", secmodel.model, secmodel.doi);
 }
 
+static void
+virtDBusConnectNodeSetMemoryParameters(GVariant *inArgs,
+                                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                                       const gchar *objectPath G_GNUC_UNUSED,
+                                       gpointer userData,
+                                       GVariant **outArgs G_GNUC_UNUSED,
+                                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(GVariantIter) iter = NULL;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+
+    g_variant_get(inArgs, "(a{sv}u)", &iter, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (!virtDBusUtilGVariantToTypedParams(iter, &params.params,
+                                           &params.nparams, error)) {
+        return;
+    }
+
+    if (virNodeSetMemoryParameters(connect->connection, params.params,
+                                   params.nparams, flags) < 0) {
+        virtDBusUtilSetLastVirtError(error);
+    }
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
@@ -1048,6 +1078,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NodeGetMemoryParameters", virtDBusConnectNodeGetMemoryParameters },
     { "NodeGetMemoryStats", virtDBusConnectNodeGetMemoryStats },
     { "NodeGetSecurityModel", virtDBusConnectNodeGetSecurityModel },
+    { "NodeSetMemoryParameters", virtDBusConnectNodeSetMemoryParameters },
     { 0 }
 };
 

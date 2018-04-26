@@ -42,6 +42,7 @@ require("cockpit-components-dialog.css");
  *      - disabled optional, defaults to false
  *      - style defaults to 'default', other options: 'primary', 'danger'
  *  - static_error optional, always show this error
+ *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
 var DialogFooter = React.createClass({
@@ -159,6 +160,10 @@ var DialogFooter = React.createClass({
             wait_element = <div className="dialog-wait-ct pull-left">
                 <div className="spinner spinner-sm" />
                 <span>{ this.state.action_progress_message }</span>
+            </div>;
+        } else if (this.props.idle_message) {
+            wait_element = <div className="dialog-wait-ct pull-left">
+                { this.props.idle_message }
             </div>;
         }
 

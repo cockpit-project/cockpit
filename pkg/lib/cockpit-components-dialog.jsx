@@ -22,6 +22,7 @@ var React = require("react");
 var _ = cockpit.gettext;
 
 require("page.css");
+require("cockpit-components-dialog.css");
 
 /*
  * React template for a Cockpit dialog footer

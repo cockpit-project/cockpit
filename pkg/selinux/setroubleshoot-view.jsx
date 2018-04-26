@@ -103,7 +103,7 @@ var SELinuxEventDetails = React.createClass({
                 fixit = (
                     <div className="setroubleshoot-listing-action">
                         <button className="btn btn-default"
-                            onClick={ self.runFix.bind(self, itmIdx) }
+                                onClick={ self.runFix.bind(self, itmIdx) }
                         >{ _("Apply this solution") }
                         </button>
                     </div>
@@ -425,8 +425,8 @@ var SETroubleshootPage = React.createClass({
 
         troubleshooting = (
             <cockpitListing.Listing
-                title={ title }
-                emptyCaption={ emptyCaption }
+                    title={ title }
+                    emptyCaption={ emptyCaption }
             >
                 {entries}
             </cockpitListing.Listing>

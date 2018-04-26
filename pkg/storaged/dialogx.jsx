@@ -195,10 +195,10 @@ export const dialog_open = (def) => {
             id: "dialog",
             title: def.Title,
             body: <Body body={def.Body}
-                fields={fields}
-                values={values}
-                errors={errors}
-                onChange={() => update(null)}/>
+                        fields={fields}
+                        values={values}
+                        errors={errors}
+                        onChange={() => update(null)}/>
         };
     }
 
@@ -252,8 +252,8 @@ export const TextInput = (tag, title, options) => {
 
         render: (val, change) =>
             <input data-field={tag}
-                className="form-control" type="text" value={val}
-                onChange={event => change(event.target.value)}/>
+                   className="form-control" type="text" value={val}
+                   onChange={event => change(event.target.value)}/>
     }
 }
 
@@ -266,7 +266,7 @@ export const PassInput = (tag, title, options) => {
 
         render: (val, change) =>
             <input data-field={tag}
-                className="form-control" type="password" value={val}
-                onChange={event => change(event.target.value)}/>
+                   className="form-control" type="password" value={val}
+                   onChange={event => change(event.target.value)}/>
     }
 }

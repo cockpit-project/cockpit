@@ -108,10 +108,10 @@
         render: function () {
             // ensure react never reuses this div by keying it with the terminal widget
             return <div ref="terminal"
-                key={this.state.terminal}
-                className="console-ct"
-                onFocusIn={this.onFocusIn}
-                onFocusOut={this.onFocusOut} />;
+                        key={this.state.terminal}
+                        className="console-ct"
+                        onFocusIn={this.onFocusIn}
+                        onFocusOut={this.onFocusOut} />;
         },
 
         componentWillUnmount: function () {

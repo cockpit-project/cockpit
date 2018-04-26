@@ -398,7 +398,7 @@ var FormatButton = React.createClass({
     render: function () {
         return (
             <StorageControls.StorageButton onClick={this.onClick}
-                excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
+                                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
                 {_("Format")}
             </StorageControls.StorageButton>
         );

@@ -48,13 +48,13 @@ const InstallationDialogBody = ({ values, onChange }) => {
                     </td>
                     <td>
                         <input id='ovirt-provider-install-dialog-engine-fqdn'
-                            className='form-control'
-                            type='text'
-                            placeholder='engine.mydomain.com'
-                            onChange={(event) => {
-                                values.oVirtUrl = event.target.value;
-                                onChange();
-                            }}
+                               className='form-control'
+                               type='text'
+                               placeholder='engine.mydomain.com'
+                               onChange={(event) => {
+                                   values.oVirtUrl = event.target.value;
+                                   onChange();
+                               }}
                         />
                     </td>
                 </tr>
@@ -66,13 +66,13 @@ const InstallationDialogBody = ({ values, onChange }) => {
                     </td>
                     <td>
                         <input id='ovirt-provider-install-dialog-engine-fqdn'
-                            className='form-control'
-                            type='text'
-                            placeholder={OVIRT_DEFAULT_PORT}
-                            onChange={(event) => {
-                                values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
-                                onChange();
-                            }}
+                               className='form-control'
+                               type='text'
+                               placeholder={OVIRT_DEFAULT_PORT}
+                               onChange={(event) => {
+                                   values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
+                                   onChange();
+                               }}
                         />
                     </td>
                 </tr>

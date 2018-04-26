@@ -171,7 +171,7 @@
                 drive_rows.push(
                     <tr onClick={self.toggleDrive.bind(self, drive)}>
                         <td><input type="checkbox"
-                            checked={self.driveChecked(drive)}/>
+                                   checked={self.driveChecked(drive)}/>
                         </td>
                         <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
                         <td>
@@ -202,8 +202,8 @@
                     </div>
                     <div className="drives-panel-footer">
                         <button className="btn btn-primary"
-                            disabled={ !button_enabled }
-                            onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
+                                disabled={ !button_enabled }
+                                onClick={ self.onButtonClicked }>{_("Add Storage")}</button>
                     </div>
                 </div>
             );

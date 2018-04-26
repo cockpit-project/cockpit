@@ -358,8 +358,8 @@ export class MDRaidDetails extends React.Component {
         var content = <Content.Block client={this.props.client} block={block}/>;
 
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
-            header={ header }
-            sidebar={ sidebar }
-            content={ content }/>;
+                                 header={ header }
+                                 sidebar={ sidebar }
+                                 content={ content }/>;
     }
 }

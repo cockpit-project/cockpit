@@ -32,19 +32,19 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
     const isOpenshift = settings.flavor === 'openshift';
     const namespaceLabel = isOpenshift ? _("Project") : _("Namespace");
     const rows = vms.map(vm => (<VmsListingRow vm={vm}
-        vmMessages={vmsMessages[vm.metadata.uid]}
-        pod={getPod(vm, pods)}
-        pvs={pvs}
-        key={vm.metadata.uid} />));
+                                               vmMessages={vmsMessages[vm.metadata.uid]}
+                                               pod={getPod(vm, pods)}
+                                               pvs={pvs}
+                                               key={vm.metadata.uid} />));
     let actions = [(
         <CreateVmButton/>
     )];
 
     return (
         <Listing title={_("Virtual Machines")}
-            emptyCaption={_("No virtual machines")}
-            actions={actions}
-            columnTitles={[_("Name"), namespaceLabel, _("Node"), _("State")]}>
+                 emptyCaption={_("No virtual machines")}
+                 actions={actions}
+                 columnTitles={[_("Name"), namespaceLabel, _("Node"), _("State")]}>
             {rows}
         </Listing>
     );

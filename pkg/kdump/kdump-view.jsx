@@ -87,9 +87,9 @@ var KdumpTargetBody = React.createClass({
                     </td>
                     <td>
                         <input id="kdump-settings-local-directory" className="form-control" type="text"
-                            placeholder="/var/crash" value={directory}
-                            data-stored={directory}
-                            onChange={this.changeValue.bind(this, "path")}/>
+                               placeholder="/var/crash" value={directory}
+                               data-stored={directory}
+                               onChange={this.changeValue.bind(this, "path")}/>
                     </td>
                 </tr>
             );
@@ -107,8 +107,8 @@ var KdumpTargetBody = React.createClass({
                     <td>
                         <label>
                             <input id="kdump-settings-nfs-mount" className="form-control" type="text"
-                                placeholder="penguin.example.com:/export/cores" value={nfs}
-                                onChange={this.changeValue.bind(this, "nfs")}/>
+                                   placeholder="penguin.example.com:/export/cores" value={nfs}
+                                   onChange={this.changeValue.bind(this, "nfs")}/>
                         </label>
                     </td>
                 </tr>
@@ -130,8 +130,8 @@ var KdumpTargetBody = React.createClass({
                     <td>
                         <label>
                             <input id="kdump-settings-ssh-server" className="form-control" type="text"
-                                placeholder="user@server.com" value={ssh}
-                                onChange={this.changeValue.bind(this, "ssh")}/>
+                                   placeholder="user@server.com" value={ssh}
+                                   onChange={this.changeValue.bind(this, "ssh")}/>
                         </label>
                     </td>
                 </tr>),
@@ -144,8 +144,8 @@ var KdumpTargetBody = React.createClass({
                     <td>
                         <label>
                             <input id="kdump-settings-ssh-server" className="form-control" type="text"
-                                placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                                onChange={this.changeValue.bind(this, "sshkey")}/>
+                                   placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
+                                   onChange={this.changeValue.bind(this, "sshkey")}/>
                         </label>
                     </td>
                 </tr>),
@@ -176,7 +176,7 @@ var KdumpTargetBody = React.createClass({
                         </td>
                         <td>
                             <Select.Select key='location' onChange={this.changeLocation}
-                                id="kdump-settings-location" initial={storageDest}>
+                                           id="kdump-settings-location" initial={storageDest}>
                                 <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
                                 <Select.SelectEntry data='other' key='other'>{targetDescription.other}</Select.SelectEntry>
                             </Select.Select>
@@ -193,8 +193,8 @@ var KdumpTargetBody = React.createClass({
                             <div className="checkbox">
                                 <label>
                                     <input id="kdump-settings-compression" type="checkbox" checked={this.props.compressionEnabled}
-                                        onChange={this.handleCompressionClick.bind(this)}
-                                        enabled={compressionPossible}/>
+                                           onChange={this.handleCompressionClick.bind(this)}
+                                           enabled={compressionPossible}/>
                                     {_("Compress crash dumps to save space")}
                                 </label>
                             </div>

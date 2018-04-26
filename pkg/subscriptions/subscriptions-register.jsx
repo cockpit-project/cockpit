@@ -65,8 +65,8 @@ var PatternDialogBody = React.createClass({
                                 </label>
                             </td>
                             <td><input className="form-control" id="subscription-proxy-server" type="text"
-                                placeholder="hostname:port" value={this.props.proxyServer}
-                                onChange={this.props.onChange.bind(this, 'proxyServer')}/>
+                                       placeholder="hostname:port" value={this.props.proxyServer}
+                                       onChange={this.props.onChange.bind(this, 'proxyServer')}/>
                             </td>
                         </tr>
 
@@ -77,8 +77,8 @@ var PatternDialogBody = React.createClass({
                                 </label>
                             </td>
                             <td><input className="form-control" id="subscription-proxy-user" type="text"
-                                value={this.props.proxyUser}
-                                onChange={this.props.onChange.bind(this, 'proxyUser')}/>
+                                       value={this.props.proxyUser}
+                                       onChange={this.props.onChange.bind(this, 'proxyUser')}/>
                             </td>
                         </tr>
 
@@ -89,8 +89,8 @@ var PatternDialogBody = React.createClass({
                                 </label>
                             </td>
                             <td><input className="form-control" id="subscription-proxy-password" type="password"
-                                value={this.props.proxyPassword}
-                                onChange={this.props.onChange.bind(this, 'proxyPassword')}/>
+                                       value={this.props.proxyPassword}
+                                       onChange={this.props.onChange.bind(this, 'proxyPassword')}/>
                             </td>
                         </tr>
                     </tbody>
@@ -112,7 +112,7 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <Select.Select key='urlSource' onChange={ this.props.onChange.bind(this, 'url') }
-                                id="subscription-register-url" initial="default">
+                                           id="subscription-register-url" initial="default">
                                 <Select.SelectEntry data='default' key='default'>{ urlEntries['default'] }</Select.SelectEntry>
                                 <Select.SelectEntry data='custom' key='custom'>{ urlEntries['custom'] }</Select.SelectEntry>
                             </Select.Select>
@@ -128,7 +128,7 @@ var PatternDialogBody = React.createClass({
                         <td>
                             <label>
                                 <input id="subscription-proxy-use" type="checkbox" checked={this.props.proxy}
-                                    onChange={ this.props.onChange.bind(this, 'proxy') }/>
+                                       onChange={ this.props.onChange.bind(this, 'proxy') }/>
                                 {_("Use proxy server")}
                             </label>
                             {proxy}
@@ -142,8 +142,8 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <input id="subscription-register-username" className="form-control" type="text"
-                                value={this.props.user}
-                                onChange={this.props.onChange.bind(this, 'user')}/>
+                                   value={this.props.user}
+                                   onChange={this.props.onChange.bind(this, 'user')}/>
                         </td>
                     </tr>
                     <tr>
@@ -154,8 +154,8 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <input id="subscription-register-password" className="form-control" type="password"
-                                value={this.props.password}
-                                onChange={this.props.onChange.bind(this, 'password')}/>
+                                   value={this.props.password}
+                                   onChange={this.props.onChange.bind(this, 'password')}/>
                         </td>
                     </tr>
                     <tr>
@@ -166,8 +166,8 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <input id="subscription-register-key" className="form-control" type="text"
-                                placeholder="key_one,key_two" value={this.props.activationKeys}
-                                onChange={this.props.onChange.bind(this, 'activationKeys')}/>
+                                   placeholder="key_one,key_two" value={this.props.activationKeys}
+                                   onChange={this.props.onChange.bind(this, 'activationKeys')}/>
                         </td>
                     </tr>
                     <tr>
@@ -178,8 +178,8 @@ var PatternDialogBody = React.createClass({
                         </td>
                         <td>
                             <input id="subscription-register-org" className="form-control" type="text"
-                                value={this.props.org}
-                                onChange={this.props.onChange.bind(this, 'org')}/>
+                                   value={this.props.org}
+                                   onChange={this.props.onChange.bind(this, 'org')}/>
                         </td>
                     </tr>
                 </table>

@@ -252,11 +252,11 @@ export class IscsiPanel extends React.Component {
 
             return (
                 <OverviewSidePanelRow client={client}
-                    kind="array"
-                    name={session.data["target_name"] || ""}
-                    detail={session.data["persistent_address"] + ":" +
+                                      kind="array"
+                                      name={session.data["target_name"] || ""}
+                                      detail={session.data["persistent_address"] + ":" +
                                               session.data["persistent_port"]}
-                    actions={actions}/>
+                                      actions={actions}/>
             );
         }
 
@@ -285,10 +285,10 @@ export class IscsiPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="iscsi-sessions"
-                title={_("iSCSI Targets")}
-                empty_text={_("No iSCSI targets set up")}
-                hover={false}
-                actions={actions}>
+                               title={_("iSCSI Targets")}
+                               empty_text={_("No iSCSI targets set up")}
+                               hover={false}
+                               actions={actions}>
                 { sessions }
             </OverviewSidePanel>
         );

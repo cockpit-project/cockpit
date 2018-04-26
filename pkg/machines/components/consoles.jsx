@@ -76,9 +76,9 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
                 </td>
                 <td>
                     <Select.StatelessSelect id="console-type-select"
-                        selected={selected}
-                        onChange={onChange}
-                        extraClass='console-type-select'>
+                                            selected={selected}
+                                            onChange={onChange}
+                                            extraClass='console-type-select'>
                         {entries}
                     </Select.StatelessSelect>
                 </td>

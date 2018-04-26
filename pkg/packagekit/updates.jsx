@@ -953,10 +953,10 @@ class OsUpdates extends React.Component {
         return (
             <div>
                 <HeaderBar state={this.state.state} updates={this.state.updates}
-                    timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
-                    unregistered={this.state.unregistered}
-                    allowCancel={this.state.allowCancel}
-                    onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
+                           timeSinceRefresh={this.state.timeSinceRefresh} onRefresh={this.handleRefresh}
+                           unregistered={this.state.unregistered}
+                           allowCancel={this.state.allowCancel}
+                           onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) } />
                 <div className="container-fluid">
                     {this.renderContent()}
                 </div>

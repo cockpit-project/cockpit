@@ -32,10 +32,10 @@ const DeleteDialogBody = ({ values, onChange }) => {
             <tr>
                 <td>
                     <input type="checkbox" checked={disk.checked}
-                        onChange={(event) => {
-                            disk.checked = event.target.checked;
-                            onChange();
-                        }}/>
+                           onChange={(event) => {
+                               disk.checked = event.target.checked;
+                               onChange();
+                           }}/>
                 </td>
                 <td>{disk.file}</td>
                 <td>{disk.target}</td>

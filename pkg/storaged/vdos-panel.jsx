@@ -137,11 +137,11 @@ export class VDOsPanel extends React.Component {
             var block = client.slashdevs_block[vdo.dev];
             return (
                 <OverviewSidePanelRow client={client}
-                    kind="array"
-                    name={vdo.name}
-                    detail={fmt_size(vdo.logical_size)}
-                    go={() => cockpit.location.go([ "vdo", vdo.name ])}
-                    job_path={block && block.path}/>
+                                      kind="array"
+                                      name={vdo.name}
+                                      detail={fmt_size(vdo.logical_size)}
+                                      go={() => cockpit.location.go([ "vdo", vdo.name ])}
+                                      job_path={block && block.path}/>
             );
         }
 
@@ -155,9 +155,9 @@ export class VDOsPanel extends React.Component {
 
         return (
             <OverviewSidePanel id="vdos"
-                title={_("VDO Devices")}
-                empty_text={_("No storage set up as VDO")}
-                actions={actions}>
+                               title={_("VDO Devices")}
+                               empty_text={_("No storage set up as VDO")}
+                               actions={actions}>
                 { vdos }
             </OverviewSidePanel>
         );

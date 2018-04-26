@@ -63,17 +63,17 @@ const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitC
                         <div className="evenly-spaced-table">
                             <span className="evenly-spaced-cell">
                                 <input id={id} className="form-control"
-                                    type="number"
-                                    value={toFixedPrecision(value)}
-                                    onKeyPress={digitFilter}
-                                    step={1}
-                                    min={0}
-                                    onChange={onValueChange}/>
+                                       type="number"
+                                       value={toFixedPrecision(value)}
+                                       onKeyPress={digitFilter}
+                                       step={1}
+                                       min={0}
+                                       onChange={onValueChange}/>
                             </span>
                             <span className="thirty-five-spaced-cell padding-left">
                                 <Select.Select id={id + "-unit-select"}
-                                    initial={initialUnit}
-                                    onChange={onUnitChange}>
+                                               initial={initialUnit}
+                                               onChange={onUnitChange}>
                                     <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
                                         {_("MiB")}
                                     </Select.SelectEntry>
@@ -238,8 +238,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <input id="vm-name" className="form-control" type="text" minLength={1}
-                                value={this.props.vmParams.vmName}
-                                onChange={this.onChangedEventValue.bind(this, 'vmName')}/>
+                                   value={this.props.vmParams.vmName}
+                                   onChange={this.onChangedEventValue.bind(this, 'vmName')}/>
                         </td>
                     </tr>
                     <tr>
@@ -250,10 +250,10 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.Select id="source-type"
-                                initial={this.state.sourceType}
-                                onChange={this.onChangedValue.bind(this, 'sourceType')}>
+                                           initial={this.state.sourceType}
+                                           onChange={this.onChangedValue.bind(this, 'sourceType')}>
                                 <Select.SelectEntry data={COCKPIT_FILESYSTEM_SOURCE}
-                                    key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
+                                                    key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
                                 <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
                             </Select.Select>
                         </td>
@@ -276,8 +276,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.Select id="vendor-select"
-                                initial={this.state.vendor}
-                                onChange={this.onChangedValue.bind(this, 'vendor')}>
+                                           initial={this.state.vendor}
+                                           onChange={this.onChangedValue.bind(this, 'vendor')}>
                                 {vendorSelectEntries}
                             </Select.Select>
                         </td>
@@ -290,24 +290,24 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <Select.StatelessSelect id="system-select"
-                                selected={this.state.os}
-                                onChange={this.onChangedValue.bind(this, 'os')}>
+                                                    selected={this.state.os}
+                                                    onChange={this.onChangedValue.bind(this, 'os')}>
                                 {osEntries}
                             </Select.StatelessSelect>
                         </td>
                     </tr>
                     <MemorySelectRow label={_("Memory")}
-                        id={"memory-size"}
-                        value={this.state.memorySize}
-                        initialUnit={this.state.memorySizeUnit}
-                        onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                        onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')}/>
+                                     id={"memory-size"}
+                                     value={this.state.memorySize}
+                                     initialUnit={this.state.memorySizeUnit}
+                                     onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
+                                     onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')}/>
                     <MemorySelectRow label={_("Storage Size")}
-                        id={"storage-size"}
-                        value={this.state.storageSize}
-                        initialUnit={this.state.storageSizeUnit}
-                        onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                        onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')}/>
+                                     id={"storage-size"}
+                                     value={this.state.storageSize}
+                                     initialUnit={this.state.storageSizeUnit}
+                                     onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
+                                     onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')}/>
                     <tr>
                         <td className="top">
                             <label className="control-label" htmlFor="start-vm">
@@ -316,8 +316,8 @@ class CreateVM extends React.Component {
                         </td>
                         <td>
                             <input id="start-vm" className="form-control dialog-checkbox" type="checkbox"
-                                checked={this.props.vmParams.startVm}
-                                onChange={this.onChangedEventChecked.bind(this, 'startVm')}/>
+                                   checked={this.props.vmParams.startVm}
+                                   onChange={this.onChangedEventChecked.bind(this, 'startVm')}/>
                         </td>
                     </tr>
                 </table>
@@ -404,10 +404,10 @@ export const createVmDialog = (dispatch, osInfoList) => {
 
     const dialogBody = (
         <CreateVM vmParams={vmParams}
-            familyList={vendors.familyList}
-            familyMap={vendors.familyMap}
-            vendorMap={vendors.vendorMap}
-            valuesChanged={changeParams}/>
+                  familyList={vendors.familyList}
+                  familyMap={vendors.familyMap}
+                  vendorMap={vendors.vendorMap}
+                  valuesChanged={changeParams}/>
     );
 
     const dialogProps = {

@@ -70,7 +70,7 @@ const hostToMaintenance = ({ dispatch, host }) => {
     // TODO: "pficon-maintenance" seems to be added to patternfly since 3.26 release - change once this gets to cockpit
     return (
         <a className='card-pf-link-with-icon pull-right' id='ovirt-host-to-maintenance'
-            onClick={showHostToMaintenanceDialog(dispatch, host)}>
+           onClick={showHostToMaintenanceDialog(dispatch, host)}>
             <div className='ovirt-action-padding'>
                 <span className='pficon pficon-close'/>{_("Host to Maintenance")}
             </div>

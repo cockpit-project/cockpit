@@ -908,6 +908,44 @@ virtDBusConnectNodeGetFreeMemory(GVariant *inArgs G_GNUC_UNUSED,
     *outArgs = g_variant_new("(t)", freemem);
 }
 
+static void
+virtDBusConnectNodeGetMemoryParameters(GVariant *inArgs,
+                                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                                       const gchar *objectPath G_GNUC_UNUSED,
+                                       gpointer userData,
+                                       GVariant **outArgs,
+                                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_auto(virtDBusUtilTypedParams) params = { 0 };
+    guint flags;
+    gint ret;
+    GVariant *grecords;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    ret = virNodeGetMemoryParameters(connect->connection, NULL,
+                                     &params.nparams, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (params.nparams != 0) {
+        params.params = g_new0(virTypedParameter, params.nparams);
+        if (virNodeGetMemoryParameters(connect->connection, params.params,
+                                       &params.nparams, flags) < 0) {
+            return virtDBusUtilSetLastVirtError(error);
+        }
+    }
+
+    grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
+
+    *outArgs = g_variant_new_tuple(&grecords, 1);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
@@ -941,6 +979,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
     { "NodeGetCPUStats", virtDBusConnectNodeGetCPUStats },
     { "NodeGetFreeMemory", virtDBusConnectNodeGetFreeMemory },
+    { "NodeGetMemoryParameters", virtDBusConnectNodeGetMemoryParameters },
     { 0 }
 };
 

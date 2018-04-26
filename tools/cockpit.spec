@@ -97,14 +97,14 @@ Requires: %{name}-system = %{version}-%{release}
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 Recommends: %{name}-dashboard = %{version}-%{release}
-Recommends: %{name}-networkmanager = %{version}-%{release}
-Recommends: %{name}-storaged = %{version}-%{release}
+Recommends: (%{name}-networkmanager = %{version}-%{release} if NetworkManager)
+Recommends: (%{name}-storaged = %{version}-%{release} if udisks2)
 Recommends: sscg >= 2.3
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
 %endif
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-Recommends: %{name}-docker = %{version}-%{release}
+Recommends: (%{name}-docker = %{version}-%{release} if /usr/bin/docker)
 %endif
 Suggests: %{name}-pcp = %{version}-%{release}
 Suggests: %{name}-kubernetes = %{version}-%{release}

@@ -184,6 +184,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="memoryParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="NodeGetMemoryStats">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetMemoryStats"/>
+      <arg name="cellNum" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="stats" type="a{st}" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

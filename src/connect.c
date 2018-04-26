@@ -946,6 +946,50 @@ virtDBusConnectNodeGetMemoryParameters(GVariant *inArgs,
     *outArgs = g_variant_new_tuple(&grecords, 1);
 }
 
+static void
+virtDBusConnectNodeGetMemoryStats(GVariant *inArgs,
+                                  GUnixFDList *inFDs G_GNUC_UNUSED,
+                                  const gchar *objectPath G_GNUC_UNUSED,
+                                  gpointer userData,
+                                  GVariant **outArgs,
+                                  GUnixFDList **outFDs G_GNUC_UNUSED,
+                                  GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autofree virNodeMemoryStatsPtr params = NULL;
+    gint nparams = 0;
+    gint cellNum;
+    guint flags;
+    gint ret;
+    GVariantBuilder builder;
+    GVariant *res;
+
+    g_variant_get(inArgs, "(iu)", &cellNum, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    ret = virNodeGetMemoryStats(connect->connection, cellNum, NULL,
+                                &nparams, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (nparams != 0) {
+        params = g_new0(virNodeMemoryStats, nparams);
+        if (virNodeGetMemoryStats(connect->connection, cellNum, params,
+                                  &nparams, flags) < 0) {
+            return virtDBusUtilSetLastVirtError(error);
+        }
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{st}"));
+    for (gint i = 0; i < nparams; i++)
+        g_variant_builder_add(&builder, "{st}", params[i].field, params[i].value);
+    res = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&res, 1);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
@@ -980,6 +1024,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NodeGetCPUStats", virtDBusConnectNodeGetCPUStats },
     { "NodeGetFreeMemory", virtDBusConnectNodeGetFreeMemory },
     { "NodeGetMemoryParameters", virtDBusConnectNodeGetMemoryParameters },
+    { "NodeGetMemoryStats", virtDBusConnectNodeGetMemoryStats },
     { 0 }
 };
 

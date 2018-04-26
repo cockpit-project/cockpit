@@ -1,3 +1,4 @@
+/* jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -31,13 +32,9 @@ import {
     clearNotification,
 } from "./actions.es6";
 
-import {
-    vmId,
-    mouseClick,
-} from "./helpers.es6";
+import { vmId } from "./helpers.es6";
 
 import { Listing } from "cockpit-components-listing.jsx";
-import { createVmDialog } from './components/create-vm-dialog/createVmDialog.jsx';
 import NotificationArea from './components/notification/notificationArea.jsx';
 import Vm from './components/vm/vm.jsx';
 import DummyVm from './components/vm/dummyVm.jsx';
@@ -75,20 +72,12 @@ class HostVmsList extends React.Component {
     }
 
     render() {
-        const { vms, config, systemInfo, ui, dispatch, actions } = this.props;
+        const { vms, config, ui, dispatch, actions } = this.props;
         const combinedVms = [...vms, ...this.asDummVms(vms, ui.vms)];
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
-        let allActions = [
-            (
-                <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-                    onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
-                    <span className="pficon pficon-add-circle-o"/>{_("Create New VM")}
-                </a>
-            )
-        ];
-
+        let allActions = [];
         if (actions) {
             allActions = allActions.concat(actions);
         }
@@ -133,7 +122,6 @@ class HostVmsList extends React.Component {
 HostVmsList.propTypes = {
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
-    systemInfo: PropTypes.object.isRequired,
     ui: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
 };

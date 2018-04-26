@@ -23,6 +23,7 @@ import HostVmsList from '../../machines/hostvmslist.jsx';
 import ClusterVms from './ClusterVms.jsx';
 import ClusterTemplates from './ClusterTemplates.jsx';
 import VdsmView from './VdsmView.jsx';
+import { Tooltip } from "cockpit-components-tooltip.jsx";
 
 import { goToSubpage } from '../actions.es6';
 import hostToMaintenance from './HostToMaintenance.jsx';
@@ -117,7 +118,12 @@ const TopMenu = ({ ovirtConfig, router, dispatch }) => {
 };
 
 const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) => {
-    const actions = host && [hostToMaintenance({ dispatch, host })];
+    // TODO: add Create VM Action here once implemented for oVirt
+    const actions = [ createOvirtVmAction() ];
+    if (host) {
+        actions.push(hostToMaintenance({ dispatch, host }));
+    }
+
     return (
         <div className='container-fluid'>
             <HostStatus host={host}/>
@@ -127,6 +133,28 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
                 ui={ui}
                 dispatch={dispatch}
                 actions={actions}/>
+        </div>
+    );
+};
+
+/**
+ * The action is not yet implemented for oVirt.
+ * See createVmDialog.jsx : createVmAction() for more info
+ */
+const createOvirtVmAction = () => {
+    const noop = () => {
+        console.debug("Create VM action is not implemented for oVirt");
+    };
+    const tip = _("This host is managed by a virtualization manager, so creation of new VMs from the host is not possible.");
+
+    return (
+        <div className='card-pf-link-with-icon pull-right'>
+            <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
+                <span className="pficon pficon-add-circle-o"/>
+                <Tooltip tip={tip} pos="top">
+                    {_("Create New VM")}
+                </Tooltip>
+            </a>
         </div>
     );
 };

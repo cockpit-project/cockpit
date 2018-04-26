@@ -191,6 +191,11 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="stats" type="a{st}" direction="out"/>
     </method>
+    <method name="NodeGetSecurityModel">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetSecurityModel"/>
+      <arg name="secModel" type="(ss)" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

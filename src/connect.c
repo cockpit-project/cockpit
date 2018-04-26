@@ -843,6 +843,40 @@ virtDBusConnectNetworkLookupByUUID(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectNodeGetCPUMap(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath G_GNUC_UNUSED,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autofree guchar *cpumap = NULL;
+    guint online = 0;
+    guint flags;
+    gint ret;
+    GVariant *gret;
+    GVariantBuilder builder;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    ret = virNodeGetCPUMap(connect->connection, &cpumap, &online, flags);
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ab"));
+    for (gint i = 0; i < ret; i++)
+        g_variant_builder_add(&builder, "b", VIR_CPU_USED(cpumap, i));
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusConnectNodeGetCPUStats(GVariant *inArgs,
                                GUnixFDList *inFDs G_GNUC_UNUSED,
                                const gchar *objectPath G_GNUC_UNUSED,
@@ -1073,6 +1107,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },
     { "NetworkLookupByName", virtDBusConnectNetworkLookupByName },
     { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
+    { "NodeGetCPUMap", virtDBusConnectNodeGetCPUMap },
     { "NodeGetCPUStats", virtDBusConnectNodeGetCPUStats },
     { "NodeGetFreeMemory", virtDBusConnectNodeGetFreeMemory },
     { "NodeGetMemoryParameters", virtDBusConnectNodeGetMemoryParameters },

@@ -166,6 +166,12 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="network" type="o" direction="out"/>
     </method>
+    <method name="NodeGetCPUMap">
+      <annotation name="org.gtk.GDBus.DocString"
+          value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetCPUMap"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="res" type="ab" direction="out"/>
+    </method>
     <method name="NodeGetCPUStats">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetCPUStats"/>

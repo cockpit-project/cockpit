@@ -164,6 +164,10 @@ class TestConnect(libvirttest.BaseTestClass):
         free_mem = self.connect.NodeGetFreeMemory()
         assert isinstance(free_mem, dbus.UInt64)
 
+    def test_connect_node_get_cpumap(self):
+        info = self.connect.NodeGetCPUMap(0)
+        assert isinstance(info, dbus.Array)
+
 
 if __name__ == '__main__':
     libvirttest.run()

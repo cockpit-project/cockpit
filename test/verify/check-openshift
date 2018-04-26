@@ -92,8 +92,8 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.execute("chown -R admin:admin /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        # kubevirt not available, so should not show up in the menu
-        b.wait_not_present("#vms-menu-link")
+        # kubevirt is deployed by default, so link should appear in the menu
+        b.wait_present("#vms-menu-link")
 
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
@@ -399,12 +399,41 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt-admin")
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z default")
 
-        # o.execute("oc apply -f /kubevirt/kubevirt.yaml") # finalize installation of kubevirt
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2) # is it deployed and up?
+        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2) # No VM created/started yet
+
+    def testUndeployKubevirt(self):
+        # The kubevirt is deployed by default in the openshift image.
+        # Let's undeploy it and verify the "Virtual Machines" link disappears from
+        # the menu (vice-versa: appearance is verified within testConnect())
+
+        o = self.openshift
+        b = self.browser
+
+        # wait untill Kubevirt fully up, otherwise deprovision fails
+        o.execute("oc project kubevirt")
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2)
+        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2)
+
+        # undeploy
+        # would be better to use kubevirt-ansible via kubevirt-apb, but this requires internet access (github)
+        o.execute("oc project default")
+        o.execute("oc login -u system:admin")
+        o.execute("oc adm policy add-cluster-role-to-user cluster-admin admin")
+        o.execute("oc adm policy add-cluster-role-to-user cluster-admin system:admin")
+        o.execute("oc delete -f /kubevirt/kubevirt.yaml || true")
+        o.execute("oc delete project kubevirt")
+
+        wait(lambda: "virt-api" not in o.execute("oc get pods --all-namespaces"))
+        wait(lambda: "virt-controller" not in o.execute("oc get pods --all-namespaces"))
+        wait(lambda: "virt-handler" not in o.execute("oc get pods --all-namespaces"))
 
         # sit(self.machines)
 
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2) # is it deployed and up?
-        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2) # No VM created/started yet
+        self.login_and_go("/kubernetes")
+
+        # kubevirt is not available (means missing in API), so link should not be present
+        b.wait_not_present("#vms-menu-link")
 
     def testKubevirtMachinesList(self):
         self.bootstrapKubevirt()

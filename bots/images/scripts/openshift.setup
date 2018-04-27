@@ -64,12 +64,6 @@ echo "/nfsexport *(rw,sync)" > /etc/exports
 echo "INSECURE_REGISTRY='--insecure-registry registry:5000'" >> /etc/sysconfig/docker
 systemctl enable docker
 
-# HACK: docker fails without /etc/resolv.conf
-# https://bugzilla.redhat.com/show_bug.cgi?id=1448331
-mkdir -p /etc/systemd/system/docker.service.d
-printf "[Service]\nExecStartPre=/bin/sh -c 'echo -n >> /etc/resolv.conf'\n" > /etc/systemd/system/docker.service.d/resolv.conf
-systemctl daemon-reload
-
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 

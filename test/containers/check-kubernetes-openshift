@@ -136,7 +136,7 @@ class OCCase(kubelib.KubernetesCase):
         self.machine.wait_oc()
 
         # Expect the default container user limitations during testing
-        self.openshift.execute("oc patch scc restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+        self.openshift.execute("oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
         def intercept():
             if not self.checkSuccess():

@@ -1418,7 +1418,7 @@ function factory() {
         });
 
         if (counter === 0)
-            deferred.resolve(results);
+            deferred.resolve.apply(deferred, results);
         return deferred.promise;
     };
 

@@ -2222,6 +2222,29 @@ virtDBusDomainPinVcpu(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainPMWakeup(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainPMWakeup(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainReboot(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -2955,6 +2978,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "PinEmulator", virtDBusDomainPinEmulator },
     { "PinIOThread", virtDBusDomainPinIOThread },
     { "PinVcpu", virtDBusDomainPinVcpu },
+    { "PMWakeup", virtDBusDomainPMWakeup },
     { "Reboot", virtDBusDomainReboot },
     { "Rename", virtDBusDomainRename },
     { "Reset", virtDBusDomainReset },

@@ -551,7 +551,7 @@ class OsUpdates extends React.Component {
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"], {timeout: 5000}));
 
                     cockpit.all(promises)
-                            .done(roles => {
+                            .done((roles) => {
                                 // any transaction with UPDATE_PACKAGES role?
                                 for (let idx = 0; idx < roles.length; ++idx) {
                                     if (roles[idx].v === PK.Enum.ROLE_UPDATE_PACKAGES) {

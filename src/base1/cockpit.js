@@ -1402,23 +1402,34 @@ function factory() {
         var deferred = cockpit.defer();
         var counter = 0;
         var results = [];
+        var as_varargs = false;
 
-        if (!is_array (promises))
+        if (!is_array (promises)) {
             promises = Array.prototype.slice.call(arguments);
+            as_varargs = true;
+        }
 
         promises.forEach(function(promise, key) {
             counter++;
             cockpit.when(promise).then(function(value) {
                 results[key] = value;
-                if (!(--counter))
-                    deferred.resolve.apply(deferred, results);
+                if (!(--counter)) {
+                    if (as_varargs)
+                        deferred.resolve.apply(deferred, results);
+                    else
+                        deferred.resolve.call(deferred, results);
+                }
             }, function(/* ... */) {
                 deferred.reject.apply(deferred, arguments);
             });
         });
 
-        if (counter === 0)
-            deferred.resolve.apply(deferred, results);
+        if (counter === 0) {
+            if (as_varargs)
+                deferred.resolve.apply(deferred, results);
+            else
+                deferred.resolve.call(deferred, results);
+        }
         return deferred.promise;
     };
 

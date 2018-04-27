@@ -45,7 +45,7 @@ firewalld_service.addEventListener('changed', () => {
 });
 
 function fetchServiceInfos(services) {
-    var promises = cockpit.all(services.map(service => {
+    return cockpit.all(services.map(service => {
         if (firewall.services[service])
             return firewall.services[service];
 
@@ -66,14 +66,6 @@ function fetchServiceInfos(services) {
                     return info;
                 });
     }));
-
-    /*
-     * Work around `cockpit.all()` returning results in individual arguments -
-     * that's just confusing and doesn't work with ES6 style functions.
-     */
-    return promises.then(function () {
-        return Array.prototype.slice.call(arguments);
-    });
 }
 
 firewalld_dbus.addEventListener('owner', (event, owner) => {

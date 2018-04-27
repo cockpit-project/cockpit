@@ -2182,6 +2182,46 @@ virtDBusDomainPinIOThread(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainPinVcpu(GVariant *inArgs,
+                      GUnixFDList *inFDs G_GNUC_UNUSED,
+                      const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **outArgs G_GNUC_UNUSED,
+                      GUnixFDList **outFDs G_GNUC_UNUSED,
+                      GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint vcpu;
+    g_autoptr(GVariantIter) iter = NULL;
+    guint flags;
+    guint cpus;
+    guint cpumaplen;
+    g_autofree guchar *cpumap = NULL;
+    gboolean usable;
+    guint cnt = 0;
+
+    g_variant_get(inArgs, "(uabu)", &vcpu, &iter, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    cpus = g_variant_iter_n_children(iter);
+    cpumaplen = VIR_CPU_MAPLEN(cpus);
+    cpumap = g_new0(guchar, cpumaplen);
+    while (g_variant_iter_loop(iter, "b", &usable)) {
+        if (usable)
+            VIR_USE_CPU(cpumap, cnt);
+        cnt++;
+    }
+
+    if (virDomainPinVcpuFlags(domain, vcpu, cpumap, cpumaplen, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainReboot(GVariant *inArgs,
                      GUnixFDList *inFDs G_GNUC_UNUSED,
                      const gchar *objectPath,
@@ -2914,6 +2954,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "MigrateStartPostCopy", virtDBusDomainMigrateStartPostCopy },
     { "PinEmulator", virtDBusDomainPinEmulator },
     { "PinIOThread", virtDBusDomainPinIOThread },
+    { "PinVcpu", virtDBusDomainPinVcpu },
     { "Reboot", virtDBusDomainReboot },
     { "Rename", virtDBusDomainRename },
     { "Reset", virtDBusDomainReset },

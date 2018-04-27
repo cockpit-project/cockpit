@@ -395,6 +395,13 @@
       <arg name="cpumap" type="ab" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="PinVcpu">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainPinVcpuFlags"/>
+      <arg name="vcpu" type="u" direction="in"/>
+      <arg name="cpumap" type="ab" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Reboot">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainReboot"/>

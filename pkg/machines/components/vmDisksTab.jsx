@@ -96,7 +96,7 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
             <DiskTotal disks={disks} idPrefix={idPrefix}/>
             <Listing columnTitles={columnTitles}>
                 {disks.map(disk => {
-                    const idPrefixRow = `${idPrefix}-${disk.target}`;
+                    const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
                         { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`}/>, 'header': true },
                         <VmDiskCell value={disk.target} id={`${idPrefixRow}-target`}/>

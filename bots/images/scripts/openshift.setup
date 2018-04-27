@@ -67,22 +67,21 @@ systemctl enable docker
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 
-# Can't use latest because release on older versions are done out of order
-RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
 if [ -n "$PRERELEASE" ]; then
-    comp=""
+    VERSION=latest
 else
-    comp="not"
+    # Can't use latest because release on older versions are done out of order
+    RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
+    set +x
+    VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
+        echo "Failed to parse latest release:" >&2
+        echo "$RELEASES_JSON" >&2
+        echo "------------------------------------" >&2
+        exit 1
+    }
+    set -x
 fi
 
-set +x
-VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if $comp x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
-    echo "Failed to parse latest release:" >&2
-    echo "$RELEASES_JSON" >&2
-    echo "------------------------------------" >&2
-    exit 1
-}
-set -x
 
 # origin is too rotund to build in a normal sized VM. The linker
 # step runs out of memory. In addition origin has no Fedora packages

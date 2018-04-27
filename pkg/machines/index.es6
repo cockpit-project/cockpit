@@ -23,6 +23,7 @@ import store from './store.es6';
 import App from './app.jsx';
 import { initDataRetrieval } from './actions.es6';
 import { logDebug } from './helpers.es6';
+import { doReadConfiguration } from './config.es6';
 
 import Libvirt from './libvirt.es6';
 import { setVirtProvider } from './provider.es6';
@@ -40,14 +41,16 @@ function render() {
 export function appMain() {
     logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
 
-    setVirtProvider(Libvirt);
+    doReadConfiguration().finally(() => {
+        setVirtProvider(Libvirt);
 
-    // re-render app every time the state changes
-    store.subscribe(render);
+        // re-render app every time the state changes
+        store.subscribe(render);
 
-    // do initial render
-    render();
+        // do initial render
+        render();
 
-    // initiate data retrieval
-    store.dispatch(initDataRetrieval());
+        // initiate data retrieval
+        store.dispatch(initDataRetrieval());
+    });
 }

@@ -140,7 +140,7 @@ export function arrayEquals(arr1, arr2) {
 }
 
 export function logDebug(msg, ...params) {
-    if (VMS_CONFIG.isDev) {
+    if (VMS_CONFIG.debug) {
         console.log(msg, ...params);
     }
 }

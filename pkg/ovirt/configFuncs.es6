@@ -64,21 +64,29 @@ function doReadConfiguration ({ dispatch }) {
                 console.log('... and parsed');
                 Object.assign(CONFIG, config);
 
-                MACHINES_CONFIG.isDev = CONFIG.debug;
+                mergeOvirtConfigToMachines();
 
-                if (CONFIG.Virsh && CONFIG.Virsh.connections) {
-                    MACHINES_CONFIG.Virsh = CONFIG.Virsh; // adjust pkg/machines
-                    CONFIG.Virsh = null; // not used anywhere else within pkg/ovirt
-                    logDebug('Connection params for virsh: ', JSON.stringify(MACHINES_CONFIG.Virsh));
-                }
-
-                logDebug(`Configuration parsed, using merged result: ${JSON.stringify(CONFIG)}`);
+                console.debug('Configuration parsed, using merged result: ', JSON.stringify(CONFIG));
                 return doLogin({ dispatch });
             })
             .fail(() => {
                 console.info('Failed to read configuration, post-installation setup follows to generate: ', OVIRT_CONF_FILE);
                 installationDialog({ onCancel });
             });
+}
+
+/** The pkg/machines and pkg/ovirt are not meant to run simultaneously on a single host.
+ * Configuration options are different for both packages but since a lot of pkg/machines code
+ * is reused in pkg/ovirt, let's propagate relevant configuration from here to pkg/machines.
+ */
+function mergeOvirtConfigToMachines() {
+    MACHINES_CONFIG.debug = !!CONFIG.debug;
+
+    if (CONFIG.Virsh && CONFIG.Virsh.connections) {
+        MACHINES_CONFIG.Virsh = CONFIG.Virsh; // adjust pkg/machines
+        CONFIG.Virsh = null; // not used anywhere else within pkg/ovirt
+        logDebug('Connection params for virsh: ', JSON.stringify(MACHINES_CONFIG.Virsh));
+    }
 }
 
 function storeSsoUri (location) {

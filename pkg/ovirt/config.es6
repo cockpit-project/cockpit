@@ -18,7 +18,7 @@
  */
 export const INSTALL_SH = '/usr/share/cockpit/ovirt/install.sh';
 
-export const OVIRT_CONF_FILE = '/etc/cockpit/machines-ovirt.config'; // relative URL for async download
+export const OVIRT_CONF_FILE = '/etc/cockpit/machines-ovirt.config';
 export const VDSM_CONF_FILE = '/etc/vdsm/vdsm.conf';
 export const PEM_FILE = '/etc/pki/vdsm/certs/cacert.pem';
 export const OVIRT_DEFAULT_PORT = 443;

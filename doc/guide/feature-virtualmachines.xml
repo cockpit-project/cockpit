@@ -21,6 +21,70 @@
     </para>
     </section>
 
+    <section id="feature-virtualmachines-configuration">
+        <title>Optional configuration</title>
+        <para>
+            Defaults of the <emphasis>cockpit-machines</emphasis> plugin can be configured by
+            creating <filename>/etc/cockpit/virtual-machines.config</filename>.
+            The file is in JSON format and its content is merged to the plugin defaults.
+        </para>
+
+        <para>
+            Actual effective configuration is printed to browser's console log at the plugin's start-up in
+            <emphasis>debug</emphasis> (or <emphasis>verbose</emphasis>) scope.
+        </para>
+
+        <para>Options:</para>
+        <variablelist>
+            <varlistentry>
+                <term>DefaultRefreshInterval</term>
+                <listitem><para>Polling interval to read virtual machine's usage statistics. In milliseconds, default 10000.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>debug</term>
+                <listitem><para>Boolean value (true or false) to turn on/off verbose messages in browser's console log.</para></listitem>
+            </varlistentry>
+        </variablelist>
+
+        <para>Examples:</para>
+        <variablelist>
+            <varlistentry>
+                <term>Turn on debug messages in browser's console:</term>
+                <listitem>
+<programlisting>
+{"debug":true}
+</programlisting>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term>Default connections, refresh interval and verbose logging:</term>
+                <listitem>
+                    <para>
+<programlisting>
+{
+  "DefaultRefreshInterval":10000,
+  "Virsh": {
+    "connections": {
+      "system": {
+        "params":["-c","qemu:///system"]
+      },
+      "session":{
+        "params":["-c","qemu:///session"]
+      }
+    }
+  },
+  "debug":true
+}
+</programlisting>
+                    </para>
+                </listitem>
+            </varlistentry>
+
+        </variablelist>
+
+    </section>
+
     <section id="feature-virtualmachines-extending">
         <title>Extensions</title>
         <para>

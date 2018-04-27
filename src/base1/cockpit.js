@@ -1299,7 +1299,7 @@ function factory() {
             then = values[0] && values[0].then;
         if (is_function(then)) {
             state.status = -1;
-            then.call(values, function(/* ... */) {
+            then.call(values[0], function(/* ... */) {
                 if (done)
                     return;
                 done = true;

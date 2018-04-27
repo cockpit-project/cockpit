@@ -1794,36 +1794,6 @@ virtDBusDomainMigrateGetCompressionCache(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainMigrateGetMaxDowntime(GVariant *inArgs,
-                                    GUnixFDList *inFDs G_GNUC_UNUSED,
-                                    const gchar *objectPath,
-                                    gpointer userData,
-                                    GVariant **outArgs,
-                                    GUnixFDList **outFDs G_GNUC_UNUSED,
-                                    GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    gulong downtime;
-    guint flags;
-    gint ret;
-
-    g_variant_get(inArgs, "(u)", &flags);
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    ret = virDomainMigrateGetMaxDowntime(domain,
-                                         (unsigned long long *)&downtime,
-                                         flags);
-    if (ret < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *outArgs = g_variant_new("(t)", downtime);
-}
-
-static void
 virtDBusDomainMigrateGetMaxSpeed(GVariant *inArgs,
                                  GUnixFDList *inFDs G_GNUC_UNUSED,
                                  const gchar *objectPath,
@@ -2669,7 +2639,6 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "MemoryPeek", virtDBusDomainMemoryPeek },
     { "MemoryStats", virtDBusDomainMemoryStats },
     { "MigrateGetCompressionCache", virtDBusDomainMigrateGetCompressionCache },
-    { "MigrateGetMaxDowntime", virtDBusDomainMigrateGetMaxDowntime },
     { "MigrateGetMaxSpeed", virtDBusDomainMigrateGetMaxSpeed },
     { "MigrateSetCompressionCache", virtDBusDomainMigrateSetCompressionCache },
     { "MigrateSetMaxDowntime", virtDBusDomainMigrateSetMaxDowntime },

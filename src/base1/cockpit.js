@@ -1403,7 +1403,7 @@ function factory() {
         var counter = 0;
         var results = [];
 
-        if (arguments.length != 1 && !is_array (promises))
+        if (!is_array (promises))
             promises = Array.prototype.slice.call(arguments);
 
         promises.forEach(function(promise, key) {

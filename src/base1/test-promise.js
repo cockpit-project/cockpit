@@ -18,6 +18,24 @@ QUnit.test("cockpit.all with 0 promises", function (assert) {
     });
 });
 
+QUnit.test("cockpit.all with 1 promise", function (assert) {
+    assert.expect(2);
+
+    var done = assert.async(2);
+
+    var p = Promise.resolve(1);
+    cockpit.all(p).then(function (r) {
+        assert.equal(r, 1);
+        done();
+    });
+
+    p = Promise.resolve(1);
+    cockpit.all([p]).then(function (r) {
+        assert.equal(r, 1);
+        done();
+    });
+});
+
 QUnit.test("cockpit.all with ES6 promises", function (assert) {
     assert.expect(2);
 

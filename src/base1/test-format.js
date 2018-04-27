@@ -13,6 +13,12 @@ QUnit.test("format", function() {
     assert.equal(cockpit.format("My $0 message with lots of things", "special"),
           "My special message with lots of things", "vararg one key");
     assert.equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
+
+    /* All falsy values except `0` should return the empty string */
+    assert.equal(cockpit.format("$0", 0), "0", "`0` as argument");
+    assert.equal(cockpit.format("$0", 0.0), "0", "`0.0` as argument");
+    assert.equal(cockpit.format("$0", false), "", "`false` as argument");
+    assert.equal(cockpit.format("$0", null), "", "`null` as argument");
 });
 
 QUnit.test("format_number", function () {

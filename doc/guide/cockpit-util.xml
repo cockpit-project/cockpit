@@ -22,6 +22,9 @@ string = cockpit.format(template, [arg, ...])
 
     <para>In the second form, multiple <code>arg</code> arguments may be passed directly,
       and interpolated as as numeric fields in the <code>template</code>.</para>
+
+    <para>All falsy arguments except the numbers <code>0</code> and <code>0.0</code>are
+      replaced by an empty string.</para>
   </refsection>
 
   <refsection id="cockpit-format-bytes">

@@ -1442,7 +1442,20 @@ function factory() {
     cockpit.format = function format(fmt, args) {
         if (arguments.length != 2 || !is_object(args) || args === null)
             args = Array.prototype.slice.call(arguments, 1);
-        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+
+        function replace(m, x, y) {
+            var value = args[x || y];
+
+            /* Special-case 0 (also catches 0.0). All other falsy values return
+             * the empty string.
+             */
+            if (value === 0)
+                return '0';
+
+            return value || '';
+        }
+
+        return fmt.replace(fmt_re, replace);
     };
 
     cockpit.format_number = function format_number(number) {

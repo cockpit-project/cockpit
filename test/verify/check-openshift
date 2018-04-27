@@ -81,7 +81,6 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         # Expect the default container user limitations during testing
         self.openshift.execute("oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
-
         self.browser.wait_timeout(120)
 
     def testConnect(self):
@@ -410,7 +409,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o = self.openshift
         b = self.browser
 
-        # wait untill Kubevirt fully up, otherwise deprovision fails
+        # wait until Kubevirt fully up, otherwise deprovision fails
         o.execute("oc project kubevirt")
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2)
         wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2)
@@ -427,8 +426,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         wait(lambda: "virt-api" not in o.execute("oc get pods --all-namespaces"))
         wait(lambda: "virt-controller" not in o.execute("oc get pods --all-namespaces"))
         wait(lambda: "virt-handler" not in o.execute("oc get pods --all-namespaces"))
-
-        # sit(self.machines)
 
         self.login_and_go("/kubernetes")
 

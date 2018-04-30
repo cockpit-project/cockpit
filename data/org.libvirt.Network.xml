@@ -3,6 +3,7 @@
 
 <node name="/org/libvirt/network">
   <interface name="org.libvirt.Network">
+    <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
     <property name="Active" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkIsActive"/>

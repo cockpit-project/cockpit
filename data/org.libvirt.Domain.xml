@@ -3,6 +3,7 @@
 
 <node name="/org/libvirt/domain">
   <interface name="org.libvirt.Domain">
+    <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
     <property name="Active" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainIsActive"/>

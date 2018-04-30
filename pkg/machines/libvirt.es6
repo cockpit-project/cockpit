@@ -357,16 +357,29 @@ LIBVIRT_PROVIDER = {
             });
         }
 
+        function forceFileDelete() {
+            if (options.storage) {
+                let rm = ['rm', '-f']; // "-f" to not fail on already missing files
+                options.storage.forEach(storageToDelete => {
+                    if (storageToDelete.file) {
+                        return rm.push(storageToDelete.file);
+                    }
+                });
+
+                return rm.length > 2 && cockpit.spawn(rm, { err: "message", environ: ['LC_ALL=C'] });
+            }
+        }
+
         function undefine() {
             let args = ['undefine', name, '--managed-save'];
             if (options.storage) {
                 args.push('--storage');
-                args.push(options.storage.join(','));
+                args.push(options.storage.map(storageToDelete => storageToDelete.target).join(','));
             }
             return spawnVirsh({ connectionName,
                                 method: 'DELETE_VM',
                                 args: args
-            });
+            }).then(forceFileDelete);
         }
 
         return dispatch => {

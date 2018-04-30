@@ -109,28 +109,6 @@ virtDBusNetworkGetAutostart(const gchar *objectPath,
 }
 
 static void
-virtDBusNetworkGetBridgeName(const gchar *objectPath,
-                             gpointer userData,
-                             GVariant **value,
-                             GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virNetwork) network = NULL;
-    g_autofree gchar *bridge = NULL;
-
-    network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
-    if (!network)
-        return;
-
-    bridge = virNetworkGetBridgeName(network);
-
-    if (!bridge)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *value = g_variant_new("s", bridge);
-}
-
-static void
 virtDBusNetworkGetName(const gchar *objectPath,
                        gpointer userData,
                        GVariant **value,
@@ -405,7 +383,6 @@ virtDBusNetworkUpdate(GVariant *inArgs,
 static virtDBusGDBusPropertyTable virtDBusNetworkPropertyTable[] = {
     { "Active", virtDBusNetworkGetActive, NULL },
     { "Autostart", virtDBusNetworkGetAutostart, virtDBusNetworkSetAutostart },
-    { "BridgeName", virtDBusNetworkGetBridgeName, NULL },
     { "Name", virtDBusNetworkGetName, NULL },
     { "Persistent", virtDBusNetworkGetPersistent, NULL },
     { "UUID", virtDBusNetworkGetUUID, NULL },

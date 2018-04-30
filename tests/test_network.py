@@ -20,7 +20,6 @@ class TestNetwork(libvirttest.BaseTestClass):
         props = obj.GetAll('org.libvirt.Network', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Active'], dbus.Boolean)
         assert isinstance(props['Autostart'], dbus.Boolean)
-        assert isinstance(props['BridgeName'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)

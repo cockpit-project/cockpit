@@ -218,9 +218,7 @@ def links(url):
     except urllib.error.HTTPError as ex:
         if ex.code != 404:
             raise
-    except urllib.error.URLError as ex:
-        sys.stderr.write("{0}: {1}\n".format(url, ex))
-    except socket.gaierror as ex:
+    except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
         sys.stderr.write("{0}: {1}\n".format(url, ex))
     return result
 
@@ -409,9 +407,7 @@ def logs(revision):
                 if ex.code != 404:
                     raise
                 log = ""
-            except urllib.error.URLError as ex:
-                sys.stderr.write("{0}: {1}\n".format(target, ex))
-            except socket.gaierror as ex:
+            except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
                 sys.stderr.write("{0}: {1}\n".format(target, ex))
             if log is not None:
                 yield (status["context"], status["created_at"], target, log)

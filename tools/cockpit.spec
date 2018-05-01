@@ -106,7 +106,6 @@ Requires: %{name}-system = %{version}-%{release}
 Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: (%{name}-networkmanager = %{version}-%{release} if NetworkManager)
 Recommends: (%{name}-storaged = %{version}-%{release} if udisks2)
-Recommends: sscg >= 2.3
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
 %endif
@@ -472,6 +471,9 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
+%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+Recommends: sscg >= 2.3
+%endif
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

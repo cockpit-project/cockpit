@@ -65,11 +65,6 @@ class KubernetesCase(testlib.MachineCase):
         self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")
         self.machine.execute("systemctl start docker || journalctl -u docker")
 
-        # HACK: work around https://github.com/kubernetes/kubernetes/issues/43805 until
-        # the fix lands in Fedora 26
-        if self.machine.image == "fedora-26":
-            self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --cgroup-driver=systemd"/ }' /etc/kubernetes/kubelet""")
-
         # disable swap, newer kubernetes versions don't like it:
         # failed to run Kubelet: Running with swap on is not supported, please disable swap! or set --fail-swap-on flag to false
         self.machine.execute("swapoff --all --verbose")

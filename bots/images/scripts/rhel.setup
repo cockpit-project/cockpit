@@ -157,8 +157,6 @@ fi
 if [ "$IMAGE" = "rhel-8" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     # some packages are still missing from RHEL 8
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567736
-    dnf module enable virt:211
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
 fi

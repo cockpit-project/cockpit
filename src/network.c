@@ -3,38 +3,6 @@
 
 #include <libvirt/libvirt.h>
 
-VIRT_DBUS_ENUM_DECL(virtDBusNetworkIPAddr)
-VIRT_DBUS_ENUM_IMPL(virtDBusNetworkIPAddr,
-                    VIR_IP_ADDR_TYPE_LAST,
-                    "ipv4",
-                    "ipv6")
-
-VIRT_DBUS_ENUM_DECL(virtDBusNetworkUpdateCommand)
-VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateCommand,
-                    VIR_NETWORK_UPDATE_COMMAND_LAST,
-                    "none",
-                    "modify",
-                    "delete",
-                    "add-last",
-                    "add-first")
-
-VIRT_DBUS_ENUM_DECL(virtDBusNetworkUpdateSection)
-VIRT_DBUS_ENUM_IMPL(virtDBusNetworkUpdateSection,
-                    VIR_NETWORK_SECTION_LAST,
-                    "none",
-                    "bridge",
-                    "domain",
-                    "ip",
-                    "ip-dhcp-host",
-                    "ip-dhcp-range",
-                    "forward",
-                    "forward-interface",
-                    "forward-pf",
-                    "portgroup",
-                    "dns-host",
-                    "dns-txt",
-                    "dns-srv")
-
 static void
 virtDBusNetworkDHCPLeaseListFree(virNetworkDHCPLeasePtr *leases)
 {
@@ -262,20 +230,11 @@ virtDBusNetworkGetDHCPLeases(GVariant *inArgs,
 
     g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stssssuss)"));
     for (gint i = 0; i < nleases; i++) {
-        const gchar *typeStr;
-
         virNetworkDHCPLeasePtr lease = leases[i];
 
-        typeStr = virtDBusNetworkIPAddrTypeToString(lease->type);
-        if (!typeStr) {
-            g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                        "Can't format virIPAddrType '%d' to string.", lease->type);
-            return;
-        }
-
-        g_variant_builder_add(&builder, "(stssssuss)",
+        g_variant_builder_add(&builder, "(stusssuss)",
                               lease->iface, lease->expirytime,
-                              typeStr, lease->mac,
+                              lease->type, lease->mac,
                               lease->iaid ? lease->iaid : "" ,
                               lease->ipaddr, lease->prefix,
                               lease->hostname ? lease->hostname : "",
@@ -344,32 +303,15 @@ virtDBusNetworkUpdate(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virNetwork) network = NULL;
-    const gchar *commandStr;
     gint command;
-    const gchar *sectionStr;
     gint section;
     gint parentIndex;
     const gchar *xml;
     guint flags;
 
-    g_variant_get(inArgs, "(&s&si&su)",
-                  &commandStr, &sectionStr,
+    g_variant_get(inArgs, "(uui&su)",
+                  &command, &section,
                   &parentIndex, &xml, &flags);
-
-    command = virtDBusNetworkUpdateCommandTypeFromString(commandStr);
-    if (command < 0) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't get valid virNetworkUpdateCommand from string '%s'.",
-                    commandStr);
-        return;
-    }
-    section = virtDBusNetworkUpdateSectionTypeFromString(sectionStr);
-    if (section < 0) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't get valid virNetworkUpdateSection from string '%s'.",
-                    sectionStr);
-        return;
-    }
 
     network = virtDBusNetworkGetVirNetwork(connect, objectPath, error);
     if (!network)

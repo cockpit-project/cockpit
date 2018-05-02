@@ -42,7 +42,7 @@
                Empty string will be returned in output for NULL variables."/>
       <arg name="mac" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
-      <arg name="leases" type="a(stssssuss)" direction="out"/>
+      <arg name="leases" type="a(stusssuss)" direction="out"/>
     </method>
     <method name="GetXMLDesc">
       <annotation name="org.gtk.GDBus.DocString"
@@ -57,8 +57,8 @@
     <method name="Update">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkUpdate"/>
-      <arg name="command" type="s" direction="in"/>
-      <arg name="section" type="s" direction="in"/>
+      <arg name="command" type="u" direction="in"/>
+      <arg name="section" type="u" direction="in"/>
       <arg name="parentIndex" type="i" direction="in"/>
       <arg name="xml" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>

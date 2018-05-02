@@ -79,7 +79,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         self.main_loop()
 
     @pytest.mark.parametrize("command, section, parentIndex, xml_str, flags", [
-        ('add-first', 'ip-dhcp-host', 0, ip_dhcp_host_xml, 0),
+        ('4', '4', 0, ip_dhcp_host_xml, 0),  # add-first, ip-dhcp-host
     ])
     def test_network_update(self, command, section, parentIndex, xml_str, flags):
         _, test_network = self.test_network()

@@ -55,15 +55,12 @@ def run(training_data, verbose=False, dry=False, **kwargs):
     if not dry:
         subprocess.check_call(upload + [ training_data ])
 
-    # Train for the first one
-    path1 = train1(items, verbose)
-
     # Train for the second model
-    path2 = train2(items, verbose)
+    path = train(items, verbose)
 
     # Or do the upload if a real run
     if not dry:
-        subprocess.check_call(upload + [ path1, path2 ])
+        subprocess.check_call(upload + [ path ])
 
 
 # Load jsonl style data into items, or if no file specified
@@ -108,22 +105,7 @@ def loader(training_data, verbose, dry):
 
     return items
 
-def train1(items, verbose):
-    import learn.learn1
-    tokenizer = learn.learn1.Tokenizer1()
-    tokenizer.parse(items, verbose)
-
-    if verbose:
-        sys.stderr.write("Found {0} tokens, {1} contexts and {2} tests names\n".format(
-            len(tokenizer.tokens), len(tokenizer.contexts), len(tokenizer.tests)))
-        sys.stderr.write("Training neural network with dataset of {0} samples\n".format(len(items)))
-
-    network = learn.learn1.NNWithScaler1(tokenizer)
-    network.train(items)
-
-    return learn.learn1.save(DATA, network)
-
-def train2(items, verbose):
+def train(items, verbose):
     import learn.cluster
     model = learn.cluster.Model(verbose=verbose)
     model.train(items)

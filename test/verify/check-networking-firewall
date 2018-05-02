@@ -20,7 +20,6 @@
 
 import parent
 from testlib import *
-import time
 
 
 def wait_unit_state(machine, unit, state):
@@ -102,7 +101,6 @@ class TestFirewall(MachineCase):
 
     def testAddServices(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/network/firewall")
 

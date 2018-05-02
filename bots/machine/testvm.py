@@ -33,7 +33,7 @@ import tempfile
 import sys
 import time
 
-TEST_OS_DEFAULT = "fedora-27"
+TEST_OS_DEFAULT = "fedora-28"
 
 DEFAULT_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
 

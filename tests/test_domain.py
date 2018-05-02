@@ -47,11 +47,13 @@ class TestDomain(libvirttest.BaseTestClass):
         assert autostart_current == dbus.Boolean(autostart_expected)
 
     def test_domain_managed_save(self):
-        def domain_stopped(path, _event):
+        def domain_stopped(path, event):
+            if event != libvirttest.DomainEvent.STOPPED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_stopped, arg1='Stopped')
+        self.connect.connect_to_signal('DomainEvent', domain_stopped)
 
         obj, domain = self.domain()
         domain.ManagedSave(0)
@@ -72,11 +74,13 @@ class TestDomain(libvirttest.BaseTestClass):
         assert description_expected == domain.GetMetadata(metadata_description, "", 0)
 
     def test_resume(self):
-        def domain_resumed(path, _event):
+        def domain_resumed(path, event):
+            if event != libvirttest.DomainEvent.RESUMED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_resumed, arg1='Resumed')
+        self.connect.connect_to_signal('DomainEvent', domain_resumed)
 
         obj, domain = self.domain()
         domain.Suspend()
@@ -88,11 +92,13 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_shutdown(self):
-        def domain_stopped(path, _event):
+        def domain_stopped(path, event):
+            if event != libvirttest.DomainEvent.STOPPED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_stopped, arg1='Stopped')
+        self.connect.connect_to_signal('DomainEvent', domain_stopped)
 
         obj, domain = self.domain()
         domain.Shutdown(0)
@@ -103,11 +109,13 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_suspend(self):
-        def domain_suspended(path, _event):
+        def domain_suspended(path, event):
+            if event != libvirttest.DomainEvent.SUSPENDED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_suspended, arg1='Suspended')
+        self.connect.connect_to_signal('DomainEvent', domain_suspended)
 
         obj, domain = self.domain()
         domain.Suspend()
@@ -118,11 +126,13 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_undefine(self):
-        def domain_undefined(path, _event):
+        def domain_undefined(path, event):
+            if event != libvirttest.DomainEvent.UNDEFINED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_undefined, arg1='Undefined')
+        self.connect.connect_to_signal('DomainEvent', domain_undefined)
 
         _, domain = self.domain()
         domain.Shutdown(0)

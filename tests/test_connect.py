@@ -31,11 +31,13 @@ class TestConnect(libvirttest.BaseTestClass):
     '''
 
     def test_connect_domain_create_xml(self):
-        def domain_started(path, _event):
+        def domain_started(path, event):
+            if event != libvirttest.DomainEvent.STARTED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_started, arg1='Started')
+        self.connect.connect_to_signal('DomainEvent', domain_started)
 
         path = self.connect.DomainCreateXML(self.minimal_domain_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
@@ -43,11 +45,13 @@ class TestConnect(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_comnect_domain_define_xml(self):
-        def domain_defined(path, _event):
+        def domain_defined(path, event):
+            if event != libvirttest.DomainEvent.DEFINED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('DomainEvent', domain_defined, arg1='Defined')
+        self.connect.connect_to_signal('DomainEvent', domain_defined)
 
         path = self.connect.DomainDefineXML(self.minimal_domain_xml)
         assert isinstance(path, dbus.ObjectPath)

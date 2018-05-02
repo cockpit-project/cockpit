@@ -1,3 +1,4 @@
+from enum import IntEnum
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import dbus
@@ -85,3 +86,15 @@ class BaseTestClass():
         path = self.connect.ListNetworks(0)[0]
         obj = self.bus.get_object('org.libvirt', path)
         return path, obj
+
+
+class DomainEvent(IntEnum):
+    DEFINED = 0
+    UNDEFINED = 1
+    STARTED = 2
+    SUSPENDED = 3
+    RESUMED = 4
+    STOPPED = 5
+    SHUTDOWN = 6
+    PMSUSPENDED = 7
+    CRASHED = 8

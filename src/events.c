@@ -4,26 +4,6 @@
 
 #include <libvirt/libvirt.h>
 
-VIRT_DBUS_ENUM_DECL(virtDBusEventsDomainEvent)
-VIRT_DBUS_ENUM_IMPL(virtDBusEventsDomainEvent,
-                    VIR_DOMAIN_EVENT_LAST,
-                    "Defined",
-                    "Undefined",
-                    "Started",
-                    "Suspended",
-                    "Resumed",
-                    "Stopped",
-                    "Shutdown",
-                    "PMSuspended",
-                    "Crashed")
-
-static const gchar *
-virtDBusEventsDomainEventToString(gint event)
-{
-    const gchar *str = virtDBusEventsDomainEventTypeToString(event);
-    return str ? str : "unknown";
-}
-
 static gint
 virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
@@ -33,10 +13,6 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
-    const gchar *eventStr = virtDBusEventsDomainEventToString(event);
-
-    if (!eventStr)
-        return 0;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
 
@@ -45,7 +21,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "DomainEvent",
-                                  g_variant_new("(os)", path, eventStr),
+                                  g_variant_new("(ou)", path, event),
                                   NULL);
 
     return 0;

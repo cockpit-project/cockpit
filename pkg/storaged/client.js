@@ -801,7 +801,7 @@
             find_by_block: find_by_block,
 
             remove: remove,
-            get_adv: get_adv,
+            get_tang_adv: get_tang_adv,
             add: add,
             check_key: check_key,
             replace: replace,
@@ -853,20 +853,20 @@
             return spawn_tool([ "remove", utils.decode_filename(block.Device), key.slot ]);
         }
 
-        function get_adv(url) {
-            return spawn_tool([ "get-adv", url ]).then(JSON.parse);
+        function get_tang_adv(url) {
+            return spawn_tool([ "get-tang-adv", url ]).then(JSON.parse);
         }
 
-        function add(block, url, adv, passphrase) {
-            return spawn_tool([ "add", utils.decode_filename(block.Device), url, JSON.stringify(adv), passphrase ]);
+        function add(block, pin, config, passphrase) {
+            return spawn_tool([ "add", utils.decode_filename(block.Device), pin, JSON.stringify(config), passphrase ]);
         }
 
         function check_key(block, slot) {
             return spawn_tool([ "check-key", utils.decode_filename(block.Device), slot ]);
         }
 
-        function replace(block, slot, url, adv) {
-            return spawn_tool([ "replace", utils.decode_filename(block.Device), slot, url, JSON.stringify(adv) ]);
+        function replace(block, slot, pin, config) {
+            return spawn_tool([ "replace", utils.decode_filename(block.Device), slot, pin, JSON.stringify(config) ]);
         }
 
         function unlock(block) {

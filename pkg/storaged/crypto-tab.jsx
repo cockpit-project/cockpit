@@ -130,7 +130,7 @@ var CryptoTab = React.createClass({
                         keys.map(function (key) {
                             return (
                                 <tr>
-                                    <td>{key.url}</td>
+                                    <td>{key.type} {key.url}</td>
                                     <td>
                                         <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
                                             Remove

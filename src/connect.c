@@ -6,13 +6,6 @@
 
 #include <glib/gprintf.h>
 
-VIRT_DBUS_ENUM_DECL(virtDBusConnectCPUCompareResult)
-VIRT_DBUS_ENUM_IMPL(virtDBusConnectCPUCompareResult,
-                    VIR_CPU_COMPARE_LAST,
-                    "incompatible",
-                    "identical",
-                    "superset")
-
 static gint virtDBusConnectCredType[] = {
     VIR_CRED_AUTHNAME,
     VIR_CRED_ECHOPROMPT,
@@ -263,7 +256,6 @@ virtDBusConnectCompareCPU(GVariant *inArgs,
     const gchar *xmlDesc;
     guint flags;
     gint compareResult;
-    const gchar* compareResultStr;
 
     g_variant_get(inArgs, "(&su)", &xmlDesc, &flags);
 
@@ -274,15 +266,7 @@ virtDBusConnectCompareCPU(GVariant *inArgs,
     if (compareResult < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    compareResultStr = virtDBusConnectCPUCompareResultTypeToString(compareResult);
-    if (!compareResultStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virCPUCompareResult '%d' to string.",
-                    compareResult);
-        return;
-    }
-
-    *outArgs = g_variant_new("(s)", compareResultStr);
+    *outArgs = g_variant_new("(u)", compareResult);
 }
 
 static void

@@ -50,6 +50,12 @@
 %define libssh_version 0.6.0
 %endif
 
+%if 0%{?rhel} >= 8
+%global go_scl_prefix go-toolset-7-
+%else
+%global go_scl_prefix %{nil}
+%endif
+
 Name:           cockpit
 Summary:        A user interface for Linux servers
 
@@ -339,6 +345,10 @@ rm %{buildroot}/usr/share/pixmaps/cockpit-sosreport.png
 %description
 Cockpit runs in a browser and can manage your network of GNU/Linux
 machines.
+
+%if 0%{?rhel} >= 8
+%enable_gotoolset7
+%endif
 
 %files
 %{_docdir}/%{name}/AUTHORS
@@ -736,8 +746,8 @@ Requires: /usr/bin/kubectl
 # Requires: Needs newer localization support
 Requires: %{name}-bridge >= %{required_base}
 Requires: %{name}-shell >= %{required_base}
-BuildRequires: golang-bin
-BuildRequires: golang-src
+BuildRequires: %{go_scl_prefix}golang-bin
+BuildRequires: %{go_scl_prefix}golang-src
 Provides: cockpit-stub = %{version}-%{release}
 
 %description kubernetes

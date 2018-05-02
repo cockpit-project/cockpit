@@ -42,11 +42,11 @@ def can_manage(machine):
 
 # The Atomic variants can't build their own packages, so we build in
 # their non-Atomic siblings.  For example, fedora-atomic is built
-# in fedora-26
+# in fedora-28
 def get_build_image(test_os):
     build_os = test_os
     if test_os == "fedora-atomic":
-        build_os = "fedora-27"
+        build_os = "fedora-28"
     elif test_os == "rhel-atomic":
         build_os = "rhel-7"
     elif test_os == "continuous-atomic":

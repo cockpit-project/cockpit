@@ -157,6 +157,8 @@ if [ "$IMAGE" = "rhel-8" ]; then
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1537205
+    COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"

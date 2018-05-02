@@ -57,20 +57,9 @@ tuned \
 virt-install \
 "
 
-if [ "$IMAGE" = fedora-26 ]; then
-    COCKPIT_DEPS="$COCKPIT_DEPS storaged storaged-lvm2 storaged-iscsi"
-else
-    COCKPIT_DEPS="$COCKPIT_DEPS udisks2 udisks2-lvm2 udisks2-iscsi"
-fi
+COCKPIT_DEPS="$COCKPIT_DEPS udisks2 udisks2-lvm2 udisks2-iscsi"
 
 [ -z "$HAVE_KUBERNETES" ] || COCKPIT_DEPS="$COCKPIT_DEPS kubernetes"
-
-# On the latest Fedora we mix things up a bit and install docker-latest
-# which Fedora and RHEL package as a more up to date version of docker.
-#
-# HACK- expect docker-latest conflicts with docker oin fedora-26 currently.
-#
-# COCKPIT_DEPS="$COCKPIT_DEPS docker-latest"
 
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
@@ -149,7 +138,7 @@ srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 # copy the source rpm to a location that dnf can actually access.  A
 # workaround is to pass "--no-bootstrap-chroot".
 #
-# When you remove this hack, also remove it in fedora-26.install.
+# When you remove this hack, also remove it in fedora-*.install.
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1447627
 

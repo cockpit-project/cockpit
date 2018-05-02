@@ -114,7 +114,7 @@ def rhsmcertd_hack(m):
     m.execute("systemctl stop rhsmcertd || true")
 
 
-@skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-26", "fedora-27", "fedora-28", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-5", "rhel-8", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-27", "fedora-28", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-5", "rhel-8", "ubuntu-1604", "ubuntu-stable")
 class OstreeRestartCase(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.2/20", "dns": "10.111.113.2" }
@@ -432,7 +432,7 @@ class OstreeRestartCase(MachineCase):
 
         self.allow_restart_journal_messages()
 
-@skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-26", "fedora-27", "fedora-28", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-5", "rhel-8", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No OSTree available", "centos-7", "debian-stable", "debian-testing", "fedora-27", "fedora-28", "fedora-testing", "fedora-i386", "rhel-7", "rhel-7-5", "rhel-8", "ubuntu-1604", "ubuntu-stable")
 class OstreeCase(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.2/20", "dns": "10.111.113.2" }

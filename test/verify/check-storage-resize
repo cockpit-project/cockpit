@@ -104,14 +104,9 @@ class TestStorage(StorageCase):
 
     @skipImage("No NTFS support installed", "centos-7", "rhel-7-5", "rhel-7", "rhel-8")
     def testResizeNtfs(self):
-        if self.machine.image in [ "fedora-26" ]:
-            self.checkResize("ntfs",
-                             can_shrink=False,
-                             can_grow=False)
-        else:
-            self.checkResize("ntfs",
-                             can_shrink=True, shrink_needs_unmount=True,
-                             can_grow=True, grow_needs_unmount=True)
+        self.checkResize("ntfs",
+                         can_shrink=True, shrink_needs_unmount=True,
+                         can_grow=True, grow_needs_unmount=True)
 
     def testResizeLuks(self):
         # No version of UDisks supports resizing encrypted block

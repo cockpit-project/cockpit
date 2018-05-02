@@ -671,7 +671,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-26", "fedora-27", "fedora-28", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-27", "fedora-28", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
 @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1559414", "rhel-8")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {

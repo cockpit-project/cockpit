@@ -34,9 +34,14 @@ export function getHost(hosts, ovirtConfig) {
     const hostAddress = getHostAddress();
     let hostId = Object.getOwnPropertyNames(hosts).find(hostId => hosts[hostId].address === hostAddress);
 
-    // match by system's hostname as fallback
+    // try to match by system's hostname
     if (!hostId && ovirtConfig && ovirtConfig.hostname) {
         hostId = Object.getOwnPropertyNames(hosts).find(hostId => hosts[hostId].address === ovirtConfig.hostname);
+    }
+
+    // try to match one of host IPs to oVirt host.address
+    if (!hostId && ovirtConfig && ovirtConfig.hostIPs) {
+        hostId = Object.getOwnPropertyNames(hosts).find(hostId => ovirtConfig.hostIPs.includes(hosts[hostId].address));
     }
 
     return hostId && hosts[hostId];

@@ -101,6 +101,10 @@ function configReducer (state, action) {
     {
         return Object.assign({}, state, { hostname: action.payload.hostname });
     }
+    case 'OVIRT_SET_HOST_IPS':
+    {
+        return Object.assign({}, state, { hostIPs: action.payload.ips });
+    }
     default:
         return state;
     }

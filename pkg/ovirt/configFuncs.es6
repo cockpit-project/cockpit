@@ -24,7 +24,7 @@ import MACHINES_CONFIG from '../machines/config.es6';
 import { setOvirtApiCheckResult } from './provider.es6';
 import { ovirtApiGet } from './ovirtApiAccess.es6';
 import { startOvirtPolling } from './ovirt.es6';
-import { loginInProgress, setHostname } from './actions.es6';
+import { loginInProgress, setHostname, setHostIPs } from './actions.es6';
 import installationDialog from './components/InstallationDialog.jsx';
 
 import store, { waitForReducerSubtreeInit } from './store.es6';
@@ -35,6 +35,7 @@ export function readConfiguration ({ dispatch }) {
     const promises = [];
     promises.push(doReadConfiguration({ dispatch }));
     promises.push(doReadHostname({ dispatch }));
+    promises.push(doReadIpAddresses({ dispatch }));
 
     return cockpit.all(promises);
 }
@@ -103,6 +104,23 @@ function doReadHostname ({ dispatch }) {
             })
             .fail(ex => {
                 console.error("Getting 'hostname' failed:", ex);
+            });
+}
+
+function doReadIpAddresses ({ dispatch }) {
+    let output = '';
+    return cockpit.spawn(['hostname', '--all-ip-addresses'], {'err': 'message'})
+            .stream(data => {
+                output += data;
+            })
+            .done(() => {
+                // space separated list
+                const ips = output.split(' ');
+                logDebug('host ip addresses: ', ips);
+                waitForReducerSubtreeInit(() => dispatch(setHostIPs(ips)));
+            })
+            .fail(ex => {
+                console.error("Getting list of host ip addresses failed:", ex);
             });
 }
 

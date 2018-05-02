@@ -14,9 +14,3 @@ For invoking this code see the following bots:
     bots/learn-tests
     bots/tests-data
     bots/tests-invoke
-
-## Legacy Neural Network
-
-The code in learn1.py is legacy code related to a neural network that tried
-to predict whether something was a flake or not. This only partially worked
-and provided no further basis (such as clustering) to build on.

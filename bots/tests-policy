@@ -36,7 +36,6 @@ from task import github
 try:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore",category=DeprecationWarning)
-        import learn.learn1
         import learn.cluster
     WITH_LEARNING = True
 except ImportError:
@@ -146,7 +145,6 @@ def guessFlake(output, context):
         return output
 
     # The two different models we're using
-    network = learn.learn1.load(DATA)
     model = learn.cluster.load(DATA)
 
     # Build up an item just like in tests-data
@@ -161,13 +159,6 @@ def guessFlake(output, context):
         "url": None,
         "log": output
     }
-
-    # The old model
-    if network:
-        pred_proba = network.predict_proba(item)
-        if max(pred_proba) >= 0.5:
-            if int(pred_proba[1] >= pred_proba[0]) == 1:
-                output += "\n# Flake probability: {0:.1f}% (neural network)\n".format(pred_proba[1] * 100)
 
     # The new model
     flake = False

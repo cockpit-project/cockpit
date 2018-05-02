@@ -98,3 +98,10 @@ class DomainEvent(IntEnum):
     SHUTDOWN = 6
     PMSUSPENDED = 7
     CRASHED = 8
+
+
+class NetworkEvent(IntEnum):
+    DEFINED = 0
+    UNDEFINED = 1
+    STARTED = 2
+    STOPPED = 3

@@ -33,11 +33,13 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert autostart_current == dbus.Boolean(autostart_expected)
 
     def test_network_create(self):
-        def domain_started(path, _event):
+        def domain_started(path, event):
+            if event != libvirttest.NetworkEvent.STARTED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('NetworkEvent', domain_started, arg1='Started')
+        self.connect.connect_to_signal('NetworkEvent', domain_started)
 
         _,test_network = self.test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
@@ -47,11 +49,13 @@ class TestNetwork(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_network_destroy(self):
-        def network_stopped(path, _event):
+        def network_stopped(path, event):
+            if event != libvirttest.NetworkEvent.STOPPED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('NetworkEvent', network_stopped, arg1='Stopped')
+        self.connect.connect_to_signal('NetworkEvent', network_stopped)
 
         _, test_network = self.test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
@@ -65,11 +69,13 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(interface_obj.GetXMLDesc(0), dbus.String)
 
     def test_network_undefine(self):
-        def domain_undefined(path, _event):
+        def domain_undefined(path, event):
+            if event != libvirttest.NetworkEvent.UNDEFINED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('NetworkEvent', domain_undefined, arg1='Undefined')
+        self.connect.connect_to_signal('NetworkEvent', domain_undefined)
 
         _,test_network = self.test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')

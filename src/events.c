@@ -146,14 +146,6 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
     return 0;
 }
 
-VIRT_DBUS_ENUM_DECL(virtDBusEventsNetworkEvent)
-VIRT_DBUS_ENUM_IMPL(virtDBusEventsNetworkEvent,
-                    VIR_NETWORK_EVENT_LAST,
-                    "Defined",
-                    "Undefined",
-                    "Started",
-                    "Stopped")
-
 static gint
 virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                virNetworkPtr network,
@@ -163,10 +155,6 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
-    const gchar *eventStr = virtDBusEventsNetworkEventTypeToString(event);
-
-    if (!eventStr)
-        return 0;
 
     path = virtDBusUtilBusPathForVirNetwork(network, connect->networkPath);
 
@@ -175,7 +163,7 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "NetworkEvent",
-                                  g_variant_new("(os)", path, eventStr),
+                                  g_variant_new("(ou)", path, event),
                                   NULL);
 
     return 0;

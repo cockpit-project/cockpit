@@ -125,11 +125,13 @@ class TestConnect(libvirttest.BaseTestClass):
         assert isinstance(self.connect.GetCPUModelNames(arch, 0), dbus.Array)
 
     def test_connect_network_create_xml(self):
-        def network_started(path, _event):
+        def network_started(path, event):
+            if event != libvirttest.NetworkEvent.STARTED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('NetworkEvent', network_started, arg1='Started')
+        self.connect.connect_to_signal('NetworkEvent', network_started)
 
         path = self.connect.NetworkCreateXML(self.minimal_network_xml)
         assert isinstance(path, dbus.ObjectPath)
@@ -137,11 +139,13 @@ class TestConnect(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_connect_network_define_xml(self):
-        def network_defined(path, _event):
+        def network_defined(path, event):
+            if event != libvirttest.NetworkEvent.DEFINED:
+                return
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
-        self.connect.connect_to_signal('NetworkEvent', network_defined, arg1='Defined')
+        self.connect.connect_to_signal('NetworkEvent', network_defined)
 
         path = self.connect.NetworkDefineXML(self.minimal_network_xml)
         assert isinstance(path, dbus.ObjectPath)

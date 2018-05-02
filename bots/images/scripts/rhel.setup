@@ -132,7 +132,6 @@ sssd \
 "
 
 TEST_PACKAGES="\
-systemtap-runtime-virtguest \
 valgrind \
 gdb \
 nmap-ncat \
@@ -152,7 +151,6 @@ else
 fi
 if [ "$IMAGE" = "rhel-7-5" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
-    TEST_PACKAGES="${TEST_PACKAGES/systemtap-runtime-virtguest /}"
 fi
 if [ "$IMAGE" = "rhel-8" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"

@@ -3,75 +3,6 @@
 
 #include <libvirt/libvirt.h>
 
-VIRT_DBUS_ENUM_DECL(virtDBusDomainBlockJob)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainBlockJob,
-                    VIR_DOMAIN_BLOCK_JOB_TYPE_LAST,
-                    "unknown",
-                    "pull",
-                    "copy",
-                    "commit",
-                    "active-commit")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainControlErrorReason)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlErrorReason,
-                    VIR_DOMAIN_CONTROL_ERROR_REASON_LAST,
-                    "none",
-                    "unknown",
-                    "monitor",
-                    "internal")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainControlState)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainControlState,
-                    VIR_DOMAIN_CONTROL_LAST,
-                    "ok",
-                    "job",
-                    "occupied",
-                    "error")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainDiskError)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainDiskError,
-                    VIR_DOMAIN_DISK_ERROR_LAST,
-                    "none",
-                    "unspec",
-                    "no-space")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainInterfaceAddressesSource)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainInterfaceAddressesSource,
-                    VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LAST,
-                    "lease",
-                    "agent")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainJob)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainJob,
-                    VIR_DOMAIN_JOB_LAST,
-                    "none",
-                    "bounded",
-                    "unbounded",
-                    "completed",
-                    "failed",
-                    "canceled")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainMemoryStat)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainMemoryStat,
-                    VIR_DOMAIN_MEMORY_STAT_LAST,
-                    "swap_in",
-                    "swap_out",
-                    "major_fault",
-                    "minor_fault",
-                    "unused",
-                    "available",
-                    "actual_baloon",
-                    "rss",
-                    "usable",
-                    "last_update")
-
-VIRT_DBUS_ENUM_DECL(virtDBusDomainMetadata)
-VIRT_DBUS_ENUM_IMPL(virtDBusDomainMetadata,
-                    VIR_DOMAIN_METADATA_LAST,
-                    "description",
-                    "title",
-                    "element")
-
 static gchar *
 virtDBusDomainConvertBoolArrayToGuestVcpumap(GVariantIter *iter)
 {
@@ -170,14 +101,10 @@ virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
 {
     GVariantBuilder builder;
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{st}"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{ut}"));
 
-    for (gint i = 0; i < nr_stats; i++) {
-        const gchar *memoryStat = virtDBusDomainMemoryStatTypeToString(stats[i].tag);
-        if (!memoryStat)
-            continue;
-        g_variant_builder_add(&builder, "{st}", memoryStat, stats[i].val);
-    }
+    for (gint i = 0; i < nr_stats; i++)
+        g_variant_builder_add(&builder, "{ut}", stats[i].tag, stats[i].val);
 
     return g_variant_builder_end(&builder);
 }
@@ -1067,7 +994,6 @@ virtDBusDomainGetBlockJobInfo(GVariant *inArgs,
     virDomainBlockJobInfo info;
     const gchar *disk;
     guint flags;
-    const gchar *blockJobTypeStr;
 
     g_variant_get(inArgs, "(&su)", &disk, &flags);
 
@@ -1078,15 +1004,7 @@ virtDBusDomainGetBlockJobInfo(GVariant *inArgs,
     if (virDomainGetBlockJobInfo(domain, disk, &info, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    blockJobTypeStr = virtDBusDomainBlockJobTypeToString(info.type);
-    if (!blockJobTypeStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virDomainBlockJobType '%d' to string.",
-                    info.type);
-        return;
-    }
-
-    *outArgs = g_variant_new("((sttt))", blockJobTypeStr, info.bandwidth,
+    *outArgs = g_variant_new("((uttt))", info.type, info.bandwidth,
                              info.cur, info.end);
 }
 
@@ -1102,8 +1020,6 @@ virtDBusDomainGetControlInfo(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autofree virDomainControlInfoPtr controlInfo = NULL;
-    const gchar *stateStr;
-    const gchar *errorReasonStr;
     guint flags;
 
     g_variant_get(inArgs, "(u)", &flags);
@@ -1116,23 +1032,8 @@ virtDBusDomainGetControlInfo(GVariant *inArgs,
     if (virDomainGetControlInfo(domain, controlInfo, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    stateStr = virtDBusDomainControlStateTypeToString(controlInfo->state);
-    if (!stateStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virDomainControlState '%d' to string.",
-                    controlInfo->state);
-        return;
-    }
-    errorReasonStr = virtDBusDomainControlErrorReasonTypeToString(controlInfo->details);
-    if (!errorReasonStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virDomainControlErrorReason '%d' to string.",
-                    controlInfo->details);
-        return;
-    }
-
-    *outArgs = g_variant_new("((sst))", stateStr,
-                             errorReasonStr, controlInfo->stateTime);
+    *outArgs = g_variant_new("((uut))", controlInfo->state,
+                             controlInfo->details, controlInfo->stateTime);
 }
 
 static void
@@ -1172,15 +1073,11 @@ virtDBusDomainGetDiskErrors(GVariant *inArgs,
             return virtDBusUtilSetLastVirtError(error);
     }
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(ss)"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(su)"));
     for (gint i = 0; i < count; i++) {
-        const gchar *err = virtDBusDomainDiskErrorTypeToString(disks[i].error);
-
-        if (!err)
-            continue;
-        g_variant_builder_open(&builder, G_VARIANT_TYPE("(ss)"));
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(su)"));
         g_variant_builder_add(&builder, "s", disks[i].disk);
-        g_variant_builder_add(&builder, "s", err);
+        g_variant_builder_add(&builder, "u", disks[i].error);
         g_variant_builder_close(&builder);
     }
     res = g_variant_builder_end(&builder);
@@ -1390,7 +1287,6 @@ virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autofree virDomainJobInfoPtr jobInfo = NULL;
-    const gchar *jobTypeStr;
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
@@ -1400,13 +1296,7 @@ virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
     if (virDomainGetJobInfo(domain, jobInfo) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    jobTypeStr = virtDBusDomainJobTypeToString(jobInfo->type);
-    if (!jobTypeStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virDomainJobType '%d' to string.", jobInfo->type);
-        return;
-    }
-    *outArgs = g_variant_new("((sttttttttttt))", jobTypeStr,
+    *outArgs = g_variant_new("((uttttttttttt))", jobInfo->type,
                              jobInfo->timeElapsed, jobInfo->timeRemaining,
                              jobInfo->dataTotal, jobInfo->dataProcessed,
                              jobInfo->dataRemaining, jobInfo->memTotal,
@@ -1428,7 +1318,6 @@ virtDBusDomainGetJobStats(GVariant *inArgs,
     g_autoptr(virDomain) domain = NULL;
     g_auto(virtDBusUtilTypedParams) params = { 0 };
     guint flags;
-    const gchar *typeStr;
     gint type;
     GVariant *grecords;
     GVariantBuilder builder;
@@ -1447,15 +1336,8 @@ virtDBusDomainGetJobStats(GVariant *inArgs,
 
     grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
-    typeStr = virtDBusDomainJobTypeToString(type);
-    if (!typeStr) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't format virDomainJobType '%d' to string.", type);
-        return;
-    }
-
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("(sa{sv})"));
-    g_variant_builder_add(&builder, "s", typeStr);
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("(ua{sv})"));
+    g_variant_builder_add(&builder, "u", type);
     g_variant_builder_add_value(&builder, grecords);
     gret = g_variant_builder_end(&builder);
 
@@ -1509,27 +1391,18 @@ virtDBusDomainGetMetadata(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
-    const gchar *typeStr;
     gint type;
     const gchar *uri;
     guint flags;
     g_autofree gchar *ret = NULL;
 
-    g_variant_get(inArgs, "(&s&su)", &typeStr, &uri, &flags);
+    g_variant_get(inArgs, "(u&su)", &type, &uri, &flags);
     if (g_str_equal(uri, ""))
         uri = NULL;
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
         return;
-
-    type = virtDBusDomainMetadataTypeFromString(typeStr);
-    if (type < 0) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't get valid virDomainMetadataType from string '%s'.",
-                    typeStr);
-        return;
-    }
 
     ret = virDomainGetMetadata(domain, type, uri, flags);
     if (!ret)
@@ -1822,25 +1695,17 @@ virtDBusDomainInterfaceAddresses(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     gint source;
-    const gchar *sourceStr;
     g_auto(virtDBusDomainInterfaceList) ifaces = { 0 };
     guint flags;
     GVariantBuilder builder;
     GVariant *res;
 
-    g_variant_get(inArgs, "(&su)", &sourceStr, &flags);
+    g_variant_get(inArgs, "(uu)", &source, &flags);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
         return;
 
-    source = virtDBusDomainInterfaceAddressesSourceTypeFromString(sourceStr);
-    if (source < 0) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't get valid virDomainInterfaceAddressesSource from string '%s'.",
-                    sourceStr);
-        return;
-    }
     ifaces.count = virDomainInterfaceAddresses(domain, &(ifaces.ifaces),
                                                source, flags);
     if (ifaces.count < 0)
@@ -2680,14 +2545,13 @@ virtDBusDomainSetMetadata(GVariant *inArgs,
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
-    const gchar *typeStr;
     gint type;
     const gchar *metadata;
     const gchar *key;
     const gchar *uri;
     guint flags;
 
-    g_variant_get(inArgs, "(&s&s&s&su)", &typeStr, &metadata, &key, &uri, &flags);
+    g_variant_get(inArgs, "(u&s&s&su)", &type, &metadata, &key, &uri, &flags);
     if (g_str_equal(key, ""))
         key = NULL;
     if (g_str_equal(uri, ""))
@@ -2696,14 +2560,6 @@ virtDBusDomainSetMetadata(GVariant *inArgs,
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
         return;
-
-    type = virtDBusDomainMetadataTypeFromString(typeStr);
-    if (type < 0) {
-        g_set_error(error, VIRT_DBUS_ERROR, VIRT_DBUS_ERROR_LIBVIRT,
-                    "Can't get valid virDomainMetadataType from string '%s'.",
-                    typeStr);
-        return;
-    }
 
     if (virDomainSetMetadata(domain, type, metadata, key, uri, flags) < 0)
         virtDBusUtilSetLastVirtError(error);

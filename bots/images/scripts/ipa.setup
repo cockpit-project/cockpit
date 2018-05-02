@@ -2,6 +2,9 @@
 
 set -eufx
 
+# ipa requires an UTF-8 locale
+export LC_ALL=C.UTF-8
+
 echo foobar | passwd --stdin root
 
 dnf -y remove firewalld

@@ -296,8 +296,8 @@ class MetainfoDB:
                 if not comp['id'] in comps:
                     comps[comp['id']] = comp;
                 else:
-                    z = comps[comp['id']].copy()
-                    z.update(comp)
+                    z = comp.copy()
+                    z.update(comps[comp['id']])
                     comps[comp['id']] = z;
 
         data = {

@@ -789,10 +789,12 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { module_request }.*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
 
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820
-        # this affects every boot (so naughty override causes too much spamming)
         if self.image == 'rhel-8':
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820
+            # this affects every boot (so naughty override causes too much spamming)
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for  pid=1 comm="systemd" name="bpf".*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1573501
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .*comm="nft" .*firewalld_t.*')
 
         all_found = True
         first = None

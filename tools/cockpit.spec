@@ -336,7 +336,12 @@ rm -rf %{buildroot}/usr/src/debug
 %if 0%{?rhel}
 cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
+%endif
+
+%if 0%{?rhel}%{?centos}
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 %endif
 
 %if 0%{?build_basic}
@@ -526,6 +531,7 @@ BuildArch: noarch
 The Cockpit component for configuring kernel crash dumping.
 
 %files kdump -f kdump.list
+%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
@@ -567,7 +573,7 @@ Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
-Recommends: setroubleshoot-server >= 3.3.3
+Requires: setroubleshoot-server >= 3.3.3
 %endif
 BuildArch: noarch
 
@@ -576,6 +582,7 @@ This package contains the Cockpit user interface integration with the
 utility setroubleshoot to diagnose and resolve SELinux issues.
 
 %files selinux -f selinux.list
+%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 
 %endif
 

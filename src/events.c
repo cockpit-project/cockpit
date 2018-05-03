@@ -80,28 +80,15 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection G_GNUC_UNUSED,
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
-    const gchar *reasonstr;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
-
-    switch (reason) {
-    case VIR_DOMAIN_EVENT_TRAY_CHANGE_OPEN:
-        reasonstr = "open";
-        break;
-    case VIR_DOMAIN_EVENT_TRAY_CHANGE_CLOSE:
-        reasonstr = "close";
-        break;
-    default:
-        reasonstr = "";
-        break;
-    }
 
     g_dbus_connection_emit_signal(connect->bus,
                                   NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
                                   "TrayChange",
-                                  g_variant_new("(ss)", device, reasonstr),
+                                  g_variant_new("(su)", device, reason),
                                   NULL);
 
     return 0;

@@ -346,7 +346,8 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     url = "https://github.com/{0}/cockpit".format(user)
     clean = "https://github.com/{0}/cockpit".format(user)
 
-    execute("git", "add", "--", pathspec)
+    if pathspec is not None:
+        execute("git", "add", "--", pathspec)
     execute("git", "checkout", "--detach")
 
     # If there's nothing to add at that pathspec return None

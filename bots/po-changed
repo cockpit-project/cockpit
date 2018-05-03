@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2017 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# Check if a po file patch actually changed. Echo the entire
+# patchset if it did, otherwise ignore. This can act as an EDITOR
+# for git add --edit, which truncates the file if no msgstr changes
+# are present
+
+import argparse
+import os
+import sys
+
+sys.dont_write_bytecode = True
+
+import task
+
+def main():
+    parser = argparse.ArgumentParser(description='Ensure necessary issue learning from tests')
+    parser.add_argument('-v', '--verbose', action="store_true", default=True,
+                        help="Print verbose information")
+    parser.add_argument('patch', help="The patch to edit")
+    args = parser.parse_args()
+
+    first = True
+    msgstr = False
+    if args.patch:
+        with open(args.patch, 'r') as fp:
+            lines = fp.readlines()
+    else:
+        lines = sys.stdin.readlines()
+
+    for line in lines:
+        if first and args.verbose:
+            sys.stderr.write("po-changed: {0}".format(line))
+        first = False
+        if line.startswith("+msgstr ") and not line.endswith('""\n'):
+            if args.verbose:
+                sys.stderr.write("po-changed: {0}".format(line[8:]))
+            msgstr = True
+
+    if not msgstr:
+        lines = []
+
+    if args.patch:
+        os.rename(args.patch, args.patch + ".bak")
+        fp = open(args.patch, 'w')
+        fp.truncate()
+    else:
+        fp = sys.stdout
+    fp.writelines(lines)
+
+    if args.verbose:
+        if msgstr:
+            sys.stderr.write("po-changed: PO file has strings that changed\n")
+        else:
+            sys.stderr.write("po-changed: PO file has no strings that changed\n")
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

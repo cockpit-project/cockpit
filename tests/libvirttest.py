@@ -100,6 +100,18 @@ class DomainEvent(IntEnum):
     CRASHED = 8
 
 
+class DomainState(IntEnum):
+    NOSTATE = 0
+    RUNNING = 1
+    BLOCKED = 2
+    PAUSED = 3
+    SHUTDOWN = 4
+    SHUTOFF = 5
+    CRASHED = 6
+    PMSUSPENDED = 7
+    LAST = 8
+
+
 class NetworkEvent(IntEnum):
     DEFINED = 0
     UNDEFINED = 1

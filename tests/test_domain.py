@@ -19,7 +19,7 @@ class TestDomain(libvirttest.BaseTestClass):
         assert any([isinstance(props['SchedulerType'], dbus.Struct),
                     isinstance(props['SchedulerType'][0], dbus.String),
                     isinstance(props['SchedulerType'][1], dbus.Int32)])
-        assert isinstance(props['State'], dbus.String)
+        assert isinstance(props['State'], dbus.UInt32)
         assert isinstance(props['Updated'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
@@ -59,7 +59,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.ManagedSave(0)
         assert domain.HasManagedSaveImage(0) == dbus.Boolean(True)
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        assert state == 'shutoff'
+        assert state == libvirttest.DomainState.SHUTOFF
         domain.ManagedSaveRemove(0)
         assert domain.HasManagedSaveImage(0) == dbus.Boolean(False)
 
@@ -87,7 +87,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Resume()
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        assert state == 'running'
+        assert state == libvirttest.DomainState.RUNNING
 
         self.main_loop()
 
@@ -104,7 +104,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Shutdown(0)
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        assert state == 'shutoff'
+        assert state == libvirttest.DomainState.SHUTOFF
 
         self.main_loop()
 
@@ -121,7 +121,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Suspend()
 
         state = obj.Get('org.libvirt.Domain', 'State', dbus_interface=dbus.PROPERTIES_IFACE)
-        assert state == 'paused'
+        assert state == libvirttest.DomainState.PAUSED
 
         self.main_loop()
 

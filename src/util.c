@@ -214,33 +214,6 @@ virtDBusUtilVirDomainListFree(virDomainPtr *domains)
     g_free(domains);
 }
 
-const gchar *
-virtDBusUtilEnumToString(const gchar *const *types,
-                         guint ntypes,
-                         gint type)
-{
-    if (type < 0 || (guint)type >= ntypes)
-        return NULL;
-
-    return types[type];
-}
-
-gint
-virtDBusUtilEnumFromString(const gchar *const *types,
-                           guint ntypes,
-                           const gchar *type)
-{
-    guint i;
-    if (!type)
-        return -1;
-
-    for (i = 0; i < ntypes; i++)
-        if (g_str_equal(types[i], type))
-            return i;
-
-    return -1;
-}
-
 virNetworkPtr
 virtDBusUtilVirNetworkFromBusPath(virConnectPtr connection,
                                   const gchar *path,

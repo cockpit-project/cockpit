@@ -105,29 +105,16 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
-    const gchar *reasonstr;
 
     path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
-
-    switch (reason) {
-    case VIR_DOMAIN_EVENT_DISK_CHANGE_MISSING_ON_START:
-        reasonstr = "missing-on-start";
-        break;
-    case VIR_DOMAIN_EVENT_DISK_DROP_MISSING_ON_START:
-        reasonstr = "missing-on-start";
-        break;
-    default:
-        reasonstr = "";
-        break;
-    }
 
     g_dbus_connection_emit_signal(connect->bus,
                                   NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
                                   "DiskChange",
-                                  g_variant_new("(ssss)", old_src_path,
-                                                new_src_path, device, reasonstr),
+                                  g_variant_new("(sssu)", old_src_path,
+                                                new_src_path, device, reason),
                                   NULL);
 
     return 0;

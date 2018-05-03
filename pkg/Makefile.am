@@ -29,7 +29,9 @@ dist/ovirt/base.css: node_modules/noVNC/include/base.css
 	$(COPY_RULE)
 
 metainfodir = ${datarootdir}/metainfo
-metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml
+metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml \
+		pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
+		pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml
 
 pixmapsdir = ${datarootdir}/pixmaps
 pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png

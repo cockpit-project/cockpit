@@ -729,6 +729,7 @@ class OsUpdates extends React.Component {
 
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
                                                this.setState({ state: "updateSuccess", loadPercent: null });
+                                               this.loadHistory();
                                            } else if (exit === PK.Enum.EXIT_CANCELLED) {
                                                this.setState({ state: "loading", loadPercent: null });
                                                this.loadUpdates();
@@ -880,7 +881,6 @@ class OsUpdates extends React.Component {
             return <ApplyUpdates transaction={this.state.applyTransaction} />
 
         case "updateSuccess":
-            this.loadHistory();
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
 
         case "restart":

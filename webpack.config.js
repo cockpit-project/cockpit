@@ -474,11 +474,6 @@ module.exports = {
                 loader: "exports?angular"
             }
         ],
-
-        /* The stuff in noVNC are plain ol javascript */
-        noParse: [
-            /\/node_modules\/noVNC\//
-        ]
     },
 
     jshint: {

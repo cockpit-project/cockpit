@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 import * as Select from "cockpit-components-select.jsx";
 
 import SerialConsole from './serialConsole.jsx';
-import Vnc, { VncActions } from './vnc.jsx';
+import Vnc from './vnc.jsx';
 import DesktopConsole from './desktopConsole.jsx';
 
 import { logDebug } from '../helpers.es6';
@@ -196,36 +196,26 @@ class Consoles extends React.Component {
         };
 
         logDebug('Consoles render, this.state.consoleType: ', this.state.consoleType);
-        let console = null;
-        let actions = null;
+
+        const consoleSelector = (
+            <ConsoleSelector onChange={this.onConsoleTypeSelected}
+                             isSerialConsole={!!serialConsoleCommand}
+                             selected={this.state.consoleType}
+                             vm={vm} />
+        );
+
         switch (this.state.consoleType) {
         case 'serial-browser':
-            console = <SerialConsole vmName={vm.name} spawnArgs={serialConsoleCommand} />;
-            break;
+            return <SerialConsole vmName={vm.name} spawnArgs={serialConsoleCommand}>{consoleSelector}</SerialConsole>;
         case 'vnc-browser':
-            console = <Vnc vm={vm} consoleDetail={this.state.consoleDetail} />;
-            actions = <VncActions vm={vm} />;
-            break;
+            return <Vnc vm={vm} consoleDetail={this.state.consoleDetail}>{consoleSelector}</Vnc>;
         case 'desktop':
-            console = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />;
-            break;
+            return <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config}>{consoleSelector}</DesktopConsole>;
         default:
-            console = <NoConsoleDefined />;
             break;
         }
 
-        return (
-            <div>
-                <span className='console-menu'>
-                    <ConsoleSelector onChange={this.onConsoleTypeSelected}
-                        isSerialConsole={!!serialConsoleCommand}
-                        selected={this.state.consoleType}
-                        vm={vm} />
-                    {actions}
-                </span>
-                {console}
-            </div>
-        );
+        return (<NoConsoleDefined />);
     }
 }
 Consoles.propTypes = {

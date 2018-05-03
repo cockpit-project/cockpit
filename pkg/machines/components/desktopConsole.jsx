@@ -200,9 +200,10 @@ const ManualConnection = ({ displays, idPrefix }) => {
     );
 };
 
-const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
+const DesktopConsoleDownload = ({ children, vm, onDesktopConsole, config }) => {
     return (
         <div>
+            {children}
             <table className='machines-desktop-main'>
                 <tbody>
                     <tr>

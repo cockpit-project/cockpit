@@ -47,9 +47,10 @@ class TestDomain(libvirttest.BaseTestClass):
         assert autostart_current == dbus.Boolean(autostart_expected)
 
     def test_domain_managed_save(self):
-        def domain_stopped(path, event):
+        def domain_stopped(path, event, detail):
             if event != libvirttest.DomainEvent.STOPPED:
                 return
+            assert detail == libvirttest.DomainEventStoppedDetailType.SAVED
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
@@ -74,9 +75,10 @@ class TestDomain(libvirttest.BaseTestClass):
         assert description_expected == domain.GetMetadata(metadata_description, "", 0)
 
     def test_resume(self):
-        def domain_resumed(path, event):
+        def domain_resumed(path, event, detail):
             if event != libvirttest.DomainEvent.RESUMED:
                 return
+            assert detail == libvirttest.DomainEventResumedDetailType.UNPAUSED
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
@@ -92,9 +94,10 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_shutdown(self):
-        def domain_stopped(path, event):
+        def domain_stopped(path, event, detail):
             if event != libvirttest.DomainEvent.STOPPED:
                 return
+            assert detail == libvirttest.DomainEventStoppedDetailType.SHUTDOWN
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
@@ -109,9 +112,10 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_suspend(self):
-        def domain_suspended(path, event):
+        def domain_suspended(path, event, detail):
             if event != libvirttest.DomainEvent.SUSPENDED:
                 return
+            assert detail == libvirttest.DomainEventSuspendedDetailType.PAUSED
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 
@@ -126,9 +130,10 @@ class TestDomain(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_undefine(self):
-        def domain_undefined(path, event):
+        def domain_undefined(path, event, detail):
             if event != libvirttest.DomainEvent.UNDEFINED:
                 return
+            assert detail == libvirttest.DomainEventUndefinedDetailType.REMOVED
             assert isinstance(path, dbus.ObjectPath)
             self.loop.quit()
 

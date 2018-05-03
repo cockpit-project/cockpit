@@ -100,6 +100,61 @@ class DomainEvent(IntEnum):
     CRASHED = 8
 
 
+class DomainEventDefinedDetailType(IntEnum):
+    ADDED = 0
+    UPDATED = 1
+    RENAMED = 2
+    FROM_SNAPSHOT = 3
+    LAST = 4
+
+
+class DomainEventResumedDetailType(IntEnum):
+    UNPAUSED = 0
+    MIGRATED = 1
+    FROM_SNAPSHOT = 2
+    POSTCOPY = 3
+    LAST = 4
+
+
+class DomainEventStartedDetailType(IntEnum):
+    BOOTED = 0
+    MIGRATED = 1
+    RESTORED = 2
+    FROM_SNAPSHOT = 3
+    WAKEUP = 4
+    LAST = 5
+
+
+class DomainEventStoppedDetailType(IntEnum):
+    SHUTDOWN = 0
+    DESTROYED = 1
+    CRASHED = 2
+    MIGRATED =	3
+    SAVED = 4
+    FAILED = 5
+    FROM_SNAPSHOT = 6
+    LAST = 7
+
+
+class DomainEventSuspendedDetailType(IntEnum):
+    PAUSED = 0
+    MIGRATED	= 1
+    IOERROR = 2
+    WATCHDOG	= 3
+    RESTORED = 4
+    FROM_SNAPSHOT = 5
+    API_ERROR = 6
+    POSTCOPY = 7
+    POSTCOPY_FAILED = 8
+    LAST = 9
+
+
+class DomainEventUndefinedDetailType(IntEnum):
+    REMOVED = 0
+    RENAMED = 1
+    LAST = 2
+
+
 class DomainState(IntEnum):
     NOSTATE = 0
     RUNNING = 1

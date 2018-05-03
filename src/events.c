@@ -8,7 +8,7 @@ static gint
 virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
                               gint event,
-                              gint detail G_GNUC_UNUSED,
+                              gint detail,
                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
@@ -21,7 +21,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "DomainEvent",
-                                  g_variant_new("(ou)", path, event),
+                                  g_variant_new("(ouu)", path, event, detail),
                                   NULL);
 
     return 0;

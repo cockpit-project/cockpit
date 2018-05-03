@@ -21,7 +21,7 @@ def browser_path(headless=True):
     Support the following locations:
      - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM), if
        headless is true
-     - "chromium-browser" in $PATH (distro package)
+     - "chromium-browser", "chromium", or "google-chrome"  in $PATH (distro package)
      - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
 
     Exit with an error if none is found.
@@ -31,7 +31,7 @@ def browser_path(headless=True):
         if g:
             return g[0]
 
-    p = subprocess.check_output("which chromium-browser || which chromium || true", shell=True).strip()
+    p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true", shell=True).strip()
     if p:
         return p
 

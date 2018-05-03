@@ -17,60 +17,104 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { vmId, logDebug } from '../helpers.es6';
+import { VncConsole } from '@patternfly/react-console';
 
-import './consoles.css';
+import { logDebug } from '../helpers.es6';
 
 const _ = cockpit.gettext;
 
-const Frame = ({ url, novncContainerId }) => {
-    return (
-        <iframe src={url} className='machines-console-frame-vnc' frameBorder='0' name={novncContainerId} data-container-id={novncContainerId} title='VNC'>
-            {_("Your browser does not support iframes.")}
-        </iframe>
-    );
-};
-Frame.propTypes = {
-    url: PropTypes.string.isRequired,
-    novncContainerId: PropTypes.string.isRequired,
-};
+class Vnc extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            path: undefined,
+        };
 
-export const VncActions = ({ vm }) => {
-    const vmIdPrefix = vmId(vm.name);
-    return (
-        <span className='console-actions-pf'>
-            {_("Send shortcut")}
-            <button className='btn btn-default console-actions-buttons-pf' id={`${vmIdPrefix}-vnc-ctrl-alt-del`}>
-                Ctrl+Alt+Del
-            </button>
-        </span>
-    );
-};
-
-const Vnc = ({ vm, consoleDetail }) => {
-    if (!consoleDetail) {
-        logDebug('Vnc component: console detail not yet provided');
-        return null;
+        this.connect = this.connect.bind(this);
+        this.onDisconnected = this.onDisconnected.bind(this);
+        this.onInitFailed = this.onInitFailed.bind(this);
     }
 
-    const vmIdPrefix = vmId(vm.name);
-    const novncContainerId = `${vmIdPrefix}-novnc-frame-container`;
+    connect(props) {
+        if (this.state.path) { // already initialized
+            return;
+        }
 
-    const encrypt = window.location.protocol === "https:";
-    const port = consoleDetail.tlsPort || consoleDetail.port;
+        // consoleDetail can be retrieved asynchronously (like in pkg/ovirt flow)
+        const { consoleDetail } = props;
+        if (!consoleDetail) {
+            logDebug('Vnc component: console detail not yet provided');
+            return;
+        }
 
-    let params = `?host=${consoleDetail.address}&port=${port}&encrypt=${encrypt}&true_color=1&resize=true&containerId=${encodeURIComponent(vmIdPrefix)}`;
-    params = consoleDetail.password ? params += `&password=${consoleDetail.password}` : params;
+        cockpit.transport.wait(() => {
+            const query = JSON.stringify({
+                payload: "stream",
+                protocol: "binary",
+                binary: "raw",
+                address: consoleDetail.address,
+                port: parseInt(consoleDetail.tlsPort || consoleDetail.port, 10),
+            });
+            this.setState({
+                path: `cockpit/channel/${cockpit.transport.csrf_token}?${window.btoa(query)}`,
+            });
+        });
+    }
 
-    return (
-        <div id={novncContainerId} className='machines-console-frame' style={{ height: '100px' }}>
-            <br />
-            <Frame url={`vnc.html${params}`} novncContainerId={novncContainerId} />
-        </div>
-    );
-};
+    componentWillMount() {
+        this.connect(this.props);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.connect(nextProps);
+    }
+
+    getEncrypt() {
+        return window.location.protocol === 'https:';
+    }
+
+    onDisconnected(detail) { // server disconnected
+        console.info('Connection lost: ', detail);
+    }
+
+    onInitFailed(detail) {
+        console.error('VncConsole failed to init: ', detail, this);
+    }
+
+    render() {
+        const { consoleDetail } = this.props;
+        const { path } = this.state;
+        if (!consoleDetail || !path) {
+            // postpone rendering until consoleDetail is known and channel ready
+            return null;
+        }
+
+        const credentials = consoleDetail.password ? { password: consoleDetail.password } : undefined;
+        const encrypt = this.getEncrypt();
+
+        return (
+            <VncConsole host={window.location.hostname}
+                        port={window.location.port || (encrypt ? '443' : '80')}
+                        path={path}
+                        encrypt={encrypt}
+                        credentials={credentials}
+                        vncLogging='warn'
+                        onDisconnected={this.onDisconnected}
+                        onInitFailed={this.onInitFailed}
+                        textConnecting={_("Connecting")}
+                        textDisconnected={_("Disconnected")}
+                        textSendShortcut={_("Send key")}
+                        textCtrlAltDel={_("Ctrl+Alt+Del")}>
+                <div className='console-menu'>
+                    {this.props.children}
+                </div>
+            </VncConsole>
+        );
+    }
+}
+
+// TODO: define propTypes
 
 export default Vnc;

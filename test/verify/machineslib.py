@@ -859,12 +859,7 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
-        b.expect_load_frame("vm-subVmTest1-novnc-frame-container")
-        b.switch_to_frame("vm-subVmTest1-novnc-frame-container")
-        # FIXME: the usual b.wait_present() does not  work here
-        with b.wait_timeout(360):
-            b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('noVNC_status_normal') >= 0"))
-        b.wait(lambda: b.eval_js("document.documentElement.outerHTML.indexOf('Connected (unencrypted) to: QEMU (subVmTest1)') >= 0"))
+        b.wait_present(".toolbar-pf-results canvas")
 
     def testDelete(self):
         b = self.browser

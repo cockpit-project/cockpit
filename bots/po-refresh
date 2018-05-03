@@ -54,6 +54,16 @@ def run(context, verbose=False, **kwargs):
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
     subprocess.check_call(cmd, cwd=cwd)
 
+    # Here we have logic to only include files that actually
+    # changed translations, and reset all the remaining ones
+    files = output("git", "ls-files", "--modified", "po/")
+    os.environ["EDITOR"] = "bots/po-changed"
+    for name in files.split("\n"):
+        if name.endswith(".po"):
+            execute("rm", "-f", ".git/ADD_EDIT.patch")
+            execute("git", "add", "--edit", "--", name)
+            execute("git", "checkout", "--", name)
+
     # Create a pull request from these changes
     branch = task.branch(context, "po: Update from Fedora Zanata", pathspec="po/", **kwargs)
     if branch:

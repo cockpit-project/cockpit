@@ -491,7 +491,6 @@ WantedBy=default.target
         m.execute("timedatectl set-ntp on")
         self.allow_restart_journal_messages()
 
-    @skipImage("Not available with Cockpit 138", "rhel-7-4")
     def testConditions(self):
         m = self.machine
         b = self.browser

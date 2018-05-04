@@ -33,14 +33,6 @@ sys.dont_write_bytecode = True
 
 from task import github
 
-try:
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore",category=DeprecationWarning)
-        import learn.cluster
-    WITH_LEARNING = True
-except ImportError:
-    WITH_LEARNING = False
-
 BOTS = os.path.dirname(os.path.realpath(__file__))
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
@@ -94,7 +86,9 @@ def main():
         elif checkRetry(output):
             output = filterRetry(output, "# RETRY due to failure of test harness or framework")
         else:
-            output = guessFlake(output, context)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore",category=DeprecationWarning)
+                output = guessFlake(output, context)
 
         sys.stdout.write(output)
         return 0
@@ -141,7 +135,9 @@ def parseName(output):
 # Flakiness Checks
 
 def guessFlake(output, context):
-    if not WITH_LEARNING:
+    try:
+        import learn.cluster
+    except ImportError:
         return output
 
     # The two different models we're using

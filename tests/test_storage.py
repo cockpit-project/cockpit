@@ -28,6 +28,13 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_storage_pool_delete(self):
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        interface_obj.Destroy()
+        interface_obj.Delete(0)
+
     def test_storage_pool_destroy(self):
         def storage_pool_destroyed(path, event, _detail):
             if event != libvirttest.StoragePoolEvent.STOPPED:

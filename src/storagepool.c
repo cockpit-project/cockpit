@@ -73,6 +73,30 @@ virtDBusStoragePoolCreate(GVariant *inArgs,
 }
 
 static void
+virtDBusStoragePoolDelete(GVariant *inArgs,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs G_GNUC_UNUSED,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    if (virStoragePoolDelete(storagePool, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusStoragePoolDestroy(GVariant *inArgs G_GNUC_UNUSED,
                            GUnixFDList *inFDs G_GNUC_UNUSED,
                            const gchar *objectPath,
@@ -100,6 +124,7 @@ static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusStoragePoolMethodTable[] = {
     { "Build", virtDBusStoragePoolBuild },
     { "Create", virtDBusStoragePoolCreate },
+    { "Delete", virtDBusStoragePoolDelete },
     { "Destroy", virtDBusStoragePoolDestroy },
     { 0 }
 };

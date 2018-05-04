@@ -463,6 +463,13 @@
       <arg name="params" type="a{sv}" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="SetGuestVcpus">
+      <annotation name="org.gtk.GDBus.DocString"
+          value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetGuestVcpus"/>
+      <arg name="vcpumap" type="ab" direction="in"/>
+      <arg name="state" type="i" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="SetInterfaceParameters">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetInterfaceParameters"/>

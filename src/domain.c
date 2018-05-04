@@ -72,6 +72,41 @@ VIRT_DBUS_ENUM_IMPL(virtDBusDomainMetadata,
                     "title",
                     "element")
 
+static gchar *
+virtDBusDomainConvertBoolArrayToGuestVcpumap(GVariantIter *iter)
+{
+    gboolean set;
+    gboolean first = TRUE;
+    guint intervalStart = 0;
+    gboolean setPrev = 0;
+    g_autofree GString *ret = NULL;
+
+    ret = g_string_new("");
+    for (guint i = 0; ; i++) {
+        gboolean stop = !g_variant_iter_loop(iter, "b", &set);
+
+        if (set && !setPrev) {
+            intervalStart = i;
+        } else if (!set && setPrev) {
+            if (!first)
+                g_string_append_printf(ret, ",");
+            else
+                first = FALSE;
+
+            if (intervalStart != i - 1)
+                g_string_append_printf(ret, "%d-%d", intervalStart, i - 1);
+            else
+                g_string_append_printf(ret, "%d", intervalStart);
+        }
+        setPrev = set;
+
+        if (stop)
+            break;
+    }
+
+    return ret->str;
+}
+
 struct _virtDBusDomainFSInfoList {
     virDomainFSInfoPtr *info;
     gint count;
@@ -2491,6 +2526,34 @@ virtDBusDomainSetBlockIOTune(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainSetGuestVcpus(GVariant *inArgs,
+                            GUnixFDList *inFDs G_GNUC_UNUSED,
+                            const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **outArgs G_GNUC_UNUSED,
+                            GUnixFDList **outFDs G_GNUC_UNUSED,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autoptr(GVariantIter) iter = NULL;
+    gint state;
+    guint flags;
+    g_autofree gchar *cpumap = NULL;
+
+    g_variant_get(inArgs, "(abiu)", &iter, &state, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    cpumap = virtDBusDomainConvertBoolArrayToGuestVcpumap(iter);
+
+    if (virDomainSetGuestVcpus(domain, cpumap, state, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusDomainSetInterfaceParameters(GVariant *inArgs,
                                      GUnixFDList *inFDs G_GNUC_UNUSED,
                                      const gchar *objectPath,
@@ -2988,6 +3051,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "SendProcessSignal", virtDBusDomainSendProcessSignal },
     { "SetBlkioParameters", virtDBusDomainSetBlkioParameters },
     { "SetBlockIOTune", virtDBusDomainSetBlockIOTune },
+    { "SetGuestVcpus", virtDBusDomainSetGuestVcpus },
     { "SetInterfaceParameters", virtDBusDomainSetInterfaceParameters },
     { "SetVcpus", virtDBusDomainSetVcpus },
     { "SetMemory", virtDBusDomainSetMemory },

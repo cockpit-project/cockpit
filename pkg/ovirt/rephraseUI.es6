@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-const _ = cockpit.gettext;
 import { logDebug } from '../machines/helpers.es6';
+const _ = cockpit.gettext;
 
 const transform = {
     'hostStatus': {

@@ -19,14 +19,14 @@
 
 "use strict";
 
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var $ = require("jquery");
 
 var React = require("react");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
-
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 var _ = cockpit.gettext;
 

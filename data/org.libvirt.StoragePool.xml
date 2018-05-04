@@ -3,5 +3,9 @@
 
 <node name="/org/libvirt/storagepool">
   <interface name="org.libvirt.StoragePool">
+    <method name="Destroy">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolDestroy"/>
+    </method>
   </interface>
 </node>

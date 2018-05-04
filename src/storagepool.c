@@ -3,11 +3,54 @@
 
 #include <libvirt/libvirt.h>
 
+static virStoragePoolPtr
+virtDBusStoragePoolGetVirStoragePool(virtDBusConnect *connect,
+                                     const gchar *objectPath,
+                                     GError **error)
+{
+    virStoragePoolPtr storagePool;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    storagePool = virtDBusUtilVirStoragePoolFromBusPath(connect->connection,
+                                                        objectPath,
+                                                        connect->storagePoolPath);
+    if (!storagePool) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return storagePool;
+}
+
+static void
+virtDBusStoragePoolDestroy(GVariant *inArgs G_GNUC_UNUSED,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath,
+                           gpointer userData,
+                           GVariant **outArgs G_GNUC_UNUSED,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    if (virStoragePoolDestroy(storagePool) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
     { 0 }
 };
 
 static virtDBusGDBusMethodTable virtDBusStoragePoolMethodTable[] = {
+    { "Destroy", virtDBusStoragePoolDestroy },
     { 0 }
 };
 

@@ -87,6 +87,19 @@ class BaseTestClass():
         obj = self.bus.get_object('org.libvirt', path)
         return path, obj
 
+    def test_storage_pool(self):
+        """Fetch information for the test storage pool from test driver
+
+        Returns:
+            (dbus.proxies.ProxyObject, dbus.proxies.ProxyObject):
+            Test StoragePool Object, Local proxy for the test StoragePool
+            Object.
+
+        """
+        path = self.connect.ListStoragePools(0)[0]
+        obj = self.bus.get_object('org.libvirt', path)
+        return path, obj
+
 
 class DomainEvent(IntEnum):
     DEFINED = 0
@@ -172,3 +185,11 @@ class NetworkEvent(IntEnum):
     UNDEFINED = 1
     STARTED = 2
     STOPPED = 3
+
+
+class StoragePoolEvent(IntEnum):
+    DEFINED = 0
+    UNDEFINED = 1
+    STARTED = 2
+    STOPPED = 3
+    LAST = 4

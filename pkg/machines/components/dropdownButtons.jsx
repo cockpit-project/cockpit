@@ -46,7 +46,7 @@ const DropdownButtons = ({ buttons }) => {
                 {buttons[0].title}
             </button>
             <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
-                <span className='caret' id={caretId}/>
+                <span className='caret' id={caretId} />
             </button>
             <ul role='menu' className='dropdown-menu'>
                 {buttonsHtml}

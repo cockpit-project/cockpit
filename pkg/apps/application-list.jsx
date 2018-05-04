@@ -60,8 +60,8 @@ class ApplicationRow extends React.Component {
         }
 
         if (state.progress) {
-            summary_or_progress = <ProgressBar title={state.progress_title} data={state.progress}/>;
-            button = <CancelButton data={state.progress}/>;
+            summary_or_progress = <ProgressBar title={state.progress_title} data={state.progress} />;
+            button = <CancelButton data={state.progress} />;
         } else {
             if (state.error) {
                 summary_or_progress = (
@@ -70,9 +70,9 @@ class ApplicationRow extends React.Component {
                         <div className="alert alert-danger alert-dismissable">
                             <button className="close"
                                     onClick={left_click(() => { this.setState({ error: null }) })}>
-                                <span className="pficon pficon-close"/>
+                                <span className="pficon pficon-close" />
                             </button>
-                            <span className="pficon pficon-error-circle-o"/>
+                            <span className="pficon pficon-error-circle-o" />
                             {state.error}
                         </div>
                     </div>
@@ -90,7 +90,7 @@ class ApplicationRow extends React.Component {
 
         return (
             <tr onClick={left_click(() => cockpit.location.go(comp.id))}>
-                <td><img src={icon_url(comp.icon)} role="presentation"/></td>
+                <td><img src={icon_url(comp.icon)} role="presentation" /></td>
                 <td>{name}</td>
                 <td>{summary_or_progress}</td>
                 <td>{button}</td>
@@ -124,11 +124,11 @@ class ApplicationList extends React.Component {
 
         var refresh_progress, refresh_button, empty_caption, tbody, table_classes;
         if (this.state.progress) {
-            refresh_progress = <ProgressBar title={_("Checking for new applications")} data={this.state.progress}/>;
-            refresh_button = <CancelButton data={this.state.progress}/>;
+            refresh_progress = <ProgressBar title={_("Checking for new applications")} data={this.state.progress} />;
+            refresh_button = <CancelButton data={this.state.progress} />;
         } else {
             refresh_progress = null;
-            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)}/>
+            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)} />
         }
 
         table_classes = "table app-list";
@@ -136,11 +136,11 @@ class ApplicationList extends React.Component {
             if (this.props.metainfo_db.ready)
                 empty_caption = _("No applications installed or available");
             else
-                empty_caption = <div className="spinner spinner-sm"/>;
+                empty_caption = <div className="spinner spinner-sm" />;
             tbody = <tr className="app-list-empty"><td>{empty_caption}</td></tr>;
         } else {
             table_classes += " table-hover";
-            tbody = comps.map((c) => <ApplicationRow comp={c}/>);
+            tbody = comps.map((c) => <ApplicationRow comp={c} />);
         }
 
         return (

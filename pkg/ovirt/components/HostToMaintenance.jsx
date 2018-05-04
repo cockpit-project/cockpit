@@ -72,7 +72,7 @@ const hostToMaintenance = ({ dispatch, host }) => {
         <a className='card-pf-link-with-icon pull-right' id='ovirt-host-to-maintenance'
            onClick={showHostToMaintenanceDialog(dispatch, host)}>
             <div className='ovirt-action-padding'>
-                <span className='pficon pficon-close'/>{_("Host to Maintenance")}
+                <span className='pficon pficon-close' />{_("Host to Maintenance")}
             </div>
         </a>
     )

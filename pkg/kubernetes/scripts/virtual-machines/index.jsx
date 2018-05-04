@@ -65,7 +65,7 @@ function addKubeLoaderListener ($scope, kubeLoader, kubeSelect) {
 
 const VmsPlugin = () => (
     <Provider store={reduxStore}>
-        <VmsListing/>
+        <VmsListing />
     </Provider>
 );
 

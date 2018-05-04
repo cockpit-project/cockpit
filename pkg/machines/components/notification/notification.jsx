@@ -56,7 +56,7 @@ export const Notification = ({ notificationClass, iconClass, onDismiss, id, chil
         // do not use "data-dismiss='alert'" to close the notification
         closeButton = (
             <button id={identifier} type='button' className='close' aria-hidden='true' onClick={mouseClick(onDismiss)}>
-                <span className='pficon pficon-close'/>
+                <span className='pficon pficon-close' />
             </button>
         );
     }
@@ -64,7 +64,7 @@ export const Notification = ({ notificationClass, iconClass, onDismiss, id, chil
     return (
         <div className={notificationClass + dismissableClass} id={id}>
             {closeButton}
-            <span className={iconClass}/>
+            <span className={iconClass} />
             {children}
         </div>
     );

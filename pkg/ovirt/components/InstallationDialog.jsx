@@ -98,7 +98,7 @@ function installationDialog({ onCancel }) {
 
     const dlg = show_modal_dialog(
         { title: _("Connect to oVirt Engine"),
-          body: <InstallationDialogBody values={values} onChange={() => dlg.render()}/>
+          body: <InstallationDialogBody values={values} onChange={() => dlg.render()} />
         },
         {
             actions: [

@@ -246,7 +246,7 @@ export class IscsiPanel extends React.Component {
             if (self.state.armed)
                 actions = (
                     <StorageButton kind="danger" onClick={iscsi_remove}>
-                        <span className="pficon pficon-delete"/>
+                        <span className="pficon pficon-delete" />
                     </StorageButton>
                 );
 
@@ -256,7 +256,7 @@ export class IscsiPanel extends React.Component {
                                       name={session.data["target_name"] || ""}
                                       detail={session.data["persistent_address"] + ":" +
                                               session.data["persistent_port"]}
-                                      actions={actions}/>
+                                      actions={actions} />
             );
         }
 
@@ -272,14 +272,14 @@ export class IscsiPanel extends React.Component {
         var actions = [
             sessions.length > 0
                 ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
-                    onClick={toggle_armed}/> : null,
+                    onClick={toggle_armed} /> : null,
             "\n",
             <StorageButton onClick={iscsi_change_name} id="edit-iscsi">
-                <span className="pficon pficon-edit"/>
+                <span className="pficon pficon-edit" />
             </StorageButton>,
             "\n",
             <StorageButton kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
-                <span className="fa fa-plus"/>
+                <span className="fa fa-plus" />
             </StorageButton>
         ];
 

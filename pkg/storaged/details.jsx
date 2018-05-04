@@ -47,7 +47,7 @@ export class StdDetailsLayout extends React.Component {
                         <div id="detail-content">
                             { this.props.content }
                         </div>
-                        <JobsPanel client={this.props.client}/>
+                        <JobsPanel client={this.props.client} />
                     </div>
                 </div>
             );
@@ -62,7 +62,7 @@ export class StdDetailsLayout extends React.Component {
                         <div id="detail-content">
                             { this.props.content }
                         </div>
-                        <JobsPanel client={this.props.client}/>
+                        <JobsPanel client={this.props.client} />
                     </div>
                 </div>
             );
@@ -101,33 +101,33 @@ class Details extends React.Component {
 
             if (drive) {
                 name = utils.drive_name(drive);
-                body = <DriveDetails client={client} drive={drive}/>;
+                body = <DriveDetails client={client} drive={drive} />;
             } else if (block) {
                 name = utils.block_name(block);
-                body = <BlockDetails client={client} block={block}/>;
+                body = <BlockDetails client={client} block={block} />;
             }
         } else if (this.props.type == "vgroup") {
             var vgroup = client.vgnames_vgroup[this.props.name];
             if (vgroup) {
                 name = vgroup.Name;
-                body = <VGroupDetails client={client} vgroup={vgroup}/>;
+                body = <VGroupDetails client={client} vgroup={vgroup} />;
             }
         } else if (this.props.type == "mdraid") {
             var mdraid = client.uuids_mdraid[this.props.name];
             if (mdraid) {
                 name = utils.mdraid_name(mdraid);
-                body = <MDRaidDetails client={client} mdraid={mdraid}/>;
+                body = <MDRaidDetails client={client} mdraid={mdraid} />;
             }
         } else if (this.props.type == "vdo") {
             var vdo = client.vdo_overlay.by_name[this.props.name];
             if (vdo) {
                 name = vdo.name;
-                body = <VDODetails client={client} vdo={vdo}/>;
+                body = <VDODetails client={client} vdo={vdo} />;
             }
         } else if (this.props.type == "nfs") {
             var entry = client.nfs.find_entry(name, this.props.name2);
             if (entry)
-                body = <NFSDetails client={client} entry={entry}/>;
+                body = <NFSDetails client={client} entry={entry} />;
         }
 
         if (!body)
@@ -151,7 +151,7 @@ export function init(client) {
     var page = document.getElementById("storage-detail");
 
     function show(type, name, name2) {
-        React.render(<Details client={client} type={type} name={name} name2={name2}/>, page);
+        React.render(<Details client={client} type={type} name={name} name2={name2} />, page);
         page.style.display = "block";
     }
 

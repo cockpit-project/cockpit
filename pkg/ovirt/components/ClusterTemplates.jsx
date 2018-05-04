@@ -90,8 +90,8 @@ const TemplateActions = ({ template, cluster, dispatch }) => {
 
     return (
         <span>
-            <CreateVmFromTemplate template={template} cluster={cluster} dispatch={dispatch}/>
-            <VmLastMessage vm={template}/>
+            <CreateVmFromTemplate template={template} cluster={cluster} dispatch={dispatch} />
+            <VmLastMessage vm={template} />
         </span>
     );
 };

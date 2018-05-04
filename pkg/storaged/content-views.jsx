@@ -377,7 +377,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         <CockpitListing.ListingRow key={key}
                                    columns={cols}
                                    tabRenderers={tabs.renderers}
-                                   listingActions={tabs.actions}/>
+                                   listingActions={tabs.actions} />
     );
 }
 
@@ -423,7 +423,7 @@ function append_partitions(client, rows, level, block) {
         ];
 
         rows.push(
-            <CockpitListing.ListingRow columns={cols}/>
+            <CockpitListing.ListingRow columns={cols} />
         );
     }
 

@@ -26,7 +26,7 @@ const App = ({ store }) => {
     const dispatch = store.dispatch;
 
     if (systemInfo.libvirtService.activeState !== 'running') {
-        return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch}/>)
+        return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />)
     }
 
     // pass ui object
@@ -34,7 +34,7 @@ const App = ({ store }) => {
         config={config}
         ui={ui}
         dispatch={dispatch}
-        actions={createVmAction({ dispatch, systemInfo })}/>);
+        actions={createVmAction({ dispatch, systemInfo })} />);
 };
 App.propTypes = {
     store: React.PropTypes.object.isRequired,

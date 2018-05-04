@@ -38,7 +38,7 @@ const DummyVm = ({ vm }) => {
         state = 'in transition'; // install script finished and new vm is expected to appear any moment
     }
 
-    const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`}/>);
+    const stateIcon = (<StateIcon state={state} valueId={`${vmId(vm.name)}-state`} />);
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
 

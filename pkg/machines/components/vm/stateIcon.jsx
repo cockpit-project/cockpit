@@ -26,7 +26,7 @@ const _ = cockpit.gettext;
 
 const StateIcon = ({ state, config, valueId, extra }) => {
     if (state === undefined) {
-        return (<div/>);
+        return (<div />);
     }
 
     let stateMap = {

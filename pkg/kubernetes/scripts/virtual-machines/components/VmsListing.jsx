@@ -37,7 +37,7 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
                                                pvs={pvs}
                                                key={vm.metadata.uid} />));
     let actions = [(
-        <CreateVmButton/>
+        <CreateVmButton />
     )];
 
     return (

@@ -129,8 +129,8 @@ class MDRaidSidebar extends React.Component {
                         <div><img src="images/storage-disk.png"></img></div>
                     </td>
                     <td>
-                        {slot || "-"} <StorageBlockNavLink client={client} block={block}/>
-                        <br/>
+                        {slot || "-"} <StorageBlockNavLink client={client} block={block} />
+                        <br />
                         <span className="state">{states}</span>
                     </td>
                     { dynamic_members
@@ -201,7 +201,7 @@ export class MDRaidDetails extends React.Component {
             bitmap = (
                 <tr>
                     <td>{_("storage", "Bitmap")}</td>
-                    <td><StorageOnOff state={value} onChange={toggle_bitmap}/></td>
+                    <td><StorageOnOff state={value} onChange={toggle_bitmap} /></td>
                 </tr>
             );
         }
@@ -353,13 +353,13 @@ export class MDRaidDetails extends React.Component {
             </div>
         );
 
-        var sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid}/>;
+        var sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid} />;
 
-        var content = <Content.Block client={this.props.client} block={block}/>;
+        var content = <Content.Block client={this.props.client} block={block} />;
 
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
                                  header={ header }
                                  sidebar={ sidebar }
-                                 content={ content }/>;
+                                 content={ content } />;
     }
 }

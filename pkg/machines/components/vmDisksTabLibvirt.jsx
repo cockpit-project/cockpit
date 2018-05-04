@@ -82,7 +82,7 @@ class VmDisksTabLibvirt extends React.Component {
             readonly: disk.readonly,
 
             // ugly hack due to complexity, refactor if abstraction is really needed
-            diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix}/>),
+            diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix} />),
         };
     }
 
@@ -102,7 +102,7 @@ class VmDisksTabLibvirt extends React.Component {
             <VmDisksTab idPrefix={idPrefix}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
-                notificationText={this.getNotification(vm, areDiskStatsSupported)}/>
+                notificationText={this.getNotification(vm, areDiskStatsSupported)} />
         );
     }
 }

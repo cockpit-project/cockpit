@@ -263,7 +263,7 @@ var ListingRow = React.createClass({
             return (
                 <tbody>
                     {listingItem}
-                    <tr className="listing-ct-panel"/>
+                    <tr className="listing-ct-panel" />
                 </tbody>
             );
         }
@@ -336,7 +336,7 @@ var Listing = React.createClass({
                 </tr>
             );
         } else {
-            headerRow = <tr/>
+            headerRow = <tr />
         }
         var caption;
         if (this.props.title || (this.props.actions && this.props.actions.length > 0))

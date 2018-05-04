@@ -71,19 +71,19 @@ export class OverviewSidePanelRow extends React.Component {
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
                 <td className="storage-icon">
                     { this.props.kind !== false
-                        ? <div><img src={"images/storage-" + (this.props.kind || "disk") + ".png"}/></div>
+                        ? <div><img src={"images/storage-" + (this.props.kind || "disk") + ".png"} /></div>
                         : null
                     }
                 </td>
                 <td className="row">
                     <span className="col-md-12 storage-disk-name">{this.props.name}</span>
-                    <br/>
+                    <br />
                     <span className="col-md-12 col-lg-5 storage-disk-size">{this.props.detail}</span>
                     { this.props.stats
                         ? <span className="col-md-12 col-lg-7">
                             <span>R: {fmt_rate(this.props.stats[0])}</span>
                             { "\n" }
-                            <span className="rate-gap"/>
+                            <span className="rate-gap" />
                             { "\n" }
                             <span>W: {fmt_rate(this.props.stats[1])}</span>
                         </span>
@@ -96,7 +96,7 @@ export class OverviewSidePanelRow extends React.Component {
                     </td>
                 ) : this.props.client.path_jobs[this.props.job_path] ? (
                     <td className="storage-icon">
-                        <div className="spinner spinner-sm"/>
+                        <div className="spinner spinner-sm" />
                     </td>
                 ) : null
                 }
@@ -126,20 +126,20 @@ class Overview extends React.Component {
         return (
             <div>
                 <div className="col-md-8 col-lg-9 page-ct">
-                    <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })}/>
-                    <br/>
-                    <FilesystemsPanel client={client}/>
-                    <NFSPanel client={client}/>
-                    <JobsPanel client={client}/>
-                    <StorageLogsPanel/>
+                    <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
+                    <br />
+                    <FilesystemsPanel client={client} />
+                    <NFSPanel client={client} />
+                    <JobsPanel client={client} />
+                    <StorageLogsPanel />
                 </div>
                 <div className="col-md-4 col-lg-3 storage-sidebar page-ct">
-                    <MDRaidsPanel client={client}/>
-                    { client.features.lvm2 ? <VGroupsPanel client={client}/> : null }
-                    { client.features.vdo ? <VDOsPanel client={client}/> : null }
-                    { client.features.iscsi ? <IscsiPanel client={client}/> : null }
-                    <DrivesPanel client={client} highlight={this.state.highlight}/>
-                    <OthersPanel client={client}/>
+                    <MDRaidsPanel client={client} />
+                    { client.features.lvm2 ? <VGroupsPanel client={client} /> : null }
+                    { client.features.vdo ? <VDOsPanel client={client} /> : null }
+                    { client.features.iscsi ? <IscsiPanel client={client} /> : null }
+                    <DrivesPanel client={client} highlight={this.state.highlight} />
+                    <OthersPanel client={client} />
                 </div>
             </div>
         );
@@ -150,7 +150,7 @@ export function init(client, jobs) {
     var page = document.getElementById("storage");
 
     function show() {
-        React.render(<Overview client={client} jobs={jobs}/>, page);
+        React.render(<Overview client={client} jobs={jobs} />, page);
         page.style.display = "block";
     }
 

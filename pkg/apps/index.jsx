@@ -29,12 +29,12 @@ import "page.css";
 var metainfo_db = appstream.get_metainfo_db();
 
 function render_list() {
-    React.render(<ApplicationList.ApplicationList metainfo_db={metainfo_db}/>,
+    React.render(<ApplicationList.ApplicationList metainfo_db={metainfo_db} />,
                  document.getElementById('list'));
 }
 
 function render_app() {
-    React.render(<Application.Application metainfo_db={metainfo_db} id={cockpit.location.path[0]}/>,
+    React.render(<Application.Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />,
                  document.getElementById('app'));
 }
 

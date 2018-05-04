@@ -93,7 +93,7 @@ var TunedDialogBody = React.createClass({
             itm.active = (self.props.active_profile == itm.profile);
             itm.selected = (self.state.selected_profile == itm.name);
             itm.click = self.handleProfileClick.bind(self, itm.name);
-            return <TunedDialogProfile { ...itm }/>;
+            return <TunedDialogProfile { ...itm } />;
         });
         return (
             <div className="modal-body">

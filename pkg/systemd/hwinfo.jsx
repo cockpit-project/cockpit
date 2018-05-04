@@ -93,7 +93,7 @@ class HardwareInfo extends React.Component {
                 </ol>
 
                 <h2>{ _("System Information") }</h2>
-                <SystemInfo info={this.props.info.system}/>
+                <SystemInfo info={this.props.info.system} />
 
                 { pci }
             </div>

@@ -91,7 +91,7 @@ class SerialConsole extends React.Component {
 
         let terminal;
         if (this.state.channel) {
-            terminal = (<Terminal ref="terminal" channel={this.state.channel}/>);
+            terminal = (<Terminal ref="terminal" channel={this.state.channel} />);
         } else if (this.state.channel === null) {
             terminal = <span>{_("Disconnected from serial console. Click the Reconnect button.")}</span>
         } else {

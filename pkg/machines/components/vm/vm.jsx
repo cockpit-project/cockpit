@@ -90,7 +90,7 @@ const Vm = ({ vm, config, hostDevices, onStart, onInstall, onShutdown, onForceof
         listingActions={VmActions({
             vm, config, dispatch,
             onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI,
-        })}/>);
+        })} />);
 };
 
 Vm.propTypes = {

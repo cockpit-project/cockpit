@@ -35,7 +35,7 @@ const DeleteDialogBody = ({ values, onChange }) => {
                            onChange={(event) => {
                                disk.checked = event.target.checked;
                                onChange();
-                           }}/>
+                           }} />
                 </td>
                 <td>{disk.file}</td>
                 <td>{disk.target}</td>
@@ -86,7 +86,7 @@ export function deleteDialog(vm, dispatch) {
 
     let dlg = show_modal_dialog(
         { title: cockpit.format(_("Confirm deletion of $0"), vm.name),
-          body: <DeleteDialogBody values={values} onChange={() => dlg.render()}/>
+          body: <DeleteDialogBody values={values} onChange={() => dlg.render()} />
         },
         { actions: [
             { caption: _("Delete"),

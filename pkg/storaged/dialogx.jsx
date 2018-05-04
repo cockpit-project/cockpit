@@ -213,7 +213,7 @@ export const dialog_open = (def) => {
                         fields={fields}
                         values={values}
                         errors={errors}
-                        onChange={() => update(null)}/>
+                        onChange={() => update(null)} />
         };
     }
 
@@ -268,7 +268,7 @@ export const TextInput = (tag, title, options) => {
         render: (val, change) =>
             <input data-field={tag}
                    className="form-control" type="text" value={val}
-                   onChange={event => change(event.target.value)}/>
+                   onChange={event => change(event.target.value)} />
     }
 }
 
@@ -282,7 +282,7 @@ export const PassInput = (tag, title, options) => {
         render: (val, change) =>
             <input data-field={tag}
                    className="form-control" type="password" value={val}
-                   onChange={event => change(event.target.value)}/>
+                   onChange={event => change(event.target.value)} />
     }
 }
 
@@ -317,7 +317,7 @@ export const CheckBox = (tag, title, options) => {
                 <div className="checkbox">
                     <label>
                         <input type="checkbox" data-field={tag} checked={val}
-                            onChange={event => change(event.target.checked)}/>{title}
+                            onChange={event => change(event.target.checked)} />{title}
                     </label>
                 </div>
             );

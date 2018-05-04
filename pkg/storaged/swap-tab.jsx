@@ -75,7 +75,7 @@ var SwapTab = React.createClass({
                         ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                         : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                     }
-                    <FormatButton client={this.props.client} block={this.props.block}/>
+                    <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
                     <tr>

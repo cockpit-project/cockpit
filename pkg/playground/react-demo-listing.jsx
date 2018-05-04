@@ -38,8 +38,8 @@
         },
         render: function() {
             return (<div>
-                <span>This is a listing tab</span><br/>
-                <span>{this.props.description}</span><br/>
+                <span>This is a listing tab</span><br />
+                <span>{this.props.description}</span><br />
                 <span>Initialized at: {this.state.initTime}</span>
             </div>
             );
@@ -107,18 +107,18 @@
                 <cockpitListing.ListingRow
                     columns={ [ { name: 'standard', 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
                     tabRenderers={tabRenderers}
-                    navigateToItem={navigateToItem.bind(this, 'frontend')}/>
+                    navigateToItem={navigateToItem.bind(this, 'frontend')} />
                 <cockpitListing.ListingRow
                     columns={ [ { name: "can't navigate", 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
-                    tabRenderers={tabRenderers}/>
+                    tabRenderers={tabRenderers} />
                 <cockpitListing.ListingRow
                     columns={ [ { name: "with button", 'header': true }, 'aoeuaoeu', '127.30.168.10', rowAction ] }
-                    tabRenderers={tabRenderers}/>
+                    tabRenderers={tabRenderers} />
                 <cockpitListing.ListingRow
                     columns={ [ { name: "initially expanded", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] }
-                    tabRenderers={tabRenderers} initiallyExpanded/>
+                    tabRenderers={tabRenderers} initiallyExpanded />
                 <cockpitListing.ListingRow
-                    columns={ [ { name: 'nothing to expand', 'header': true }, 'some text', '127.30.168.11', 'some state' ] }/>
+                    columns={ [ { name: 'nothing to expand', 'header': true }, 'some text', '127.30.168.11', 'some state' ] } />
             </cockpitListing.Listing>
         );
         React.render(listing, rootElement);
@@ -129,17 +129,17 @@
                 columnTitles={['Name', 'Random', 'IP', 'State']}>
                 <cockpitListing.ListingRow
                     columns={ [ { name: 'selected by default', 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
-                    selected={true}/>
+                    selected={true} />
                 <cockpitListing.ListingRow
                     columns={ [ { name: "not selected by default", 'header': true }, 'aoeuaoeu', '127.30.168.11', 'Running' ] }
-                    selected={false}/>
+                    selected={false} />
                 <cockpitListing.ListingRow
-                    columns={ [ { name: "no selected entry", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] }/>
+                    columns={ [ { name: "no selected entry", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] } />
             </cockpitListing.Listing>
         );
         React.render(listing, rootElementSelectable);
 
-        var emptyListing = <cockpitListing.Listing title="Demo Empty Listing Pattern" emptyCaption="No Entries"/>;
+        var emptyListing = <cockpitListing.Listing title="Demo Empty Listing Pattern" emptyCaption="No Entries" />;
         React.render(emptyListing, rootElementEmptyList);
     };
 

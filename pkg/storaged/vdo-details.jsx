@@ -106,7 +106,7 @@ export class VDODetails extends React.Component {
                     <strong>{_("The creation of this VDO device did not finish and the device can't be used.")}</strong>
                 </div>
             );
-            return <StdDetailsLayout client={this.props.client} alert={broken}/>;
+            return <StdDetailsLayout client={this.props.client} alert={broken} />;
         }
 
         this.ensure_polling(block ? vdo.dev : null);
@@ -266,7 +266,7 @@ export class VDODetails extends React.Component {
                             <td>{_("Backing Device")}</td>
                             <td>
                                 { backing_block
-                                    ? <StorageBlockNavLink client={client} block={backing_block}/>
+                                    ? <StorageBlockNavLink client={client} block={backing_block} />
                                     : vdo.backing_dev
                                 }
                             </td>
@@ -304,13 +304,13 @@ export class VDODetails extends React.Component {
                         <tr>
                             <td>{_("Compression")}</td>
                             <td><StorageOnOff state={vdo.compression}
-                                              onChange={() => vdo.set_compression(!vdo.compression)}/>
+                                              onChange={() => vdo.set_compression(!vdo.compression)} />
                             </td>
                         </tr>
                         <tr>
                             <td>{_("Deduplication")}</td>
                             <td><StorageOnOff state={vdo.deduplication}
-                                              onChange={() => vdo.set_deduplication(!vdo.deduplication)}/>
+                                              onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
                             </td>
                         </tr>
                     </table>
@@ -318,11 +318,11 @@ export class VDODetails extends React.Component {
             </div>
         );
 
-        var content = <Content.Block client={client} block={block} allow_partitions={false}/>;
+        var content = <Content.Block client={client} block={block} allow_partitions={false} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  alert={alert}
                                  header={header}
-                                 content={content}/>;
+                                 content={content} />;
     }
 }

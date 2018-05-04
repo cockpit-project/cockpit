@@ -65,7 +65,7 @@ function ServiceRow(props) {
             </Tooltip>
         );
     } else {
-        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveService}/>;
+        deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
     }
 
     var columns = [
@@ -86,7 +86,7 @@ function ServiceRow(props) {
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}
                        columns={columns}
-                       tabRenderers={tabs}/>;
+                       tabRenderers={tabs} />;
 }
 
 class SearchInput extends React.Component {

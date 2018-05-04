@@ -66,7 +66,7 @@ var SELinuxEventDetails = React.createClass({
                     icon={ waiting ? 'waiting' : 'error' }
                     description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
-                    relative={true}/>
+                    relative={true} />
             );
         }
         var self = this;
@@ -164,7 +164,7 @@ var SELinuxEventLog = React.createClass({
                     icon={ waiting ? 'waiting' : 'error' }
                     description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
-                    relative={true}/>
+                    relative={true} />
             );
         }
         var self = this;
@@ -235,7 +235,7 @@ var DismissableError = React.createClass({
                 <span className="pficon pficon-error-circle-o" />
                 <span>{this.props.children}</span>
                 <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                    <span className="pficon pficon-close"/>
+                    <span className="pficon pficon-close" />
                 </button>
             </div>
         );
@@ -336,7 +336,7 @@ var SETroubleshootPage = React.createClass({
                     icon={ <div className="fa fa-exclamation-circle"></div> }
                     description={ _("SELinux is disabled on the system") }
                     message={null}
-                    relative={false}/>
+                    relative={false} />
             );
         }
         var self = this;
@@ -439,7 +439,7 @@ var SETroubleshootPage = React.createClass({
                     <span className="pficon pficon-error-circle-o" />
                     <span>{this.props.error}</span>
                     <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                        <span className="pficon pficon-close"/>
+                        <span className="pficon pficon-close" />
                     </button>
                 </div>
             );

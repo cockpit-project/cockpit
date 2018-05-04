@@ -342,7 +342,7 @@ var ContainerList = React.createClass({
                                        columns={columns}
                                        tabRenderers={tabs}
                                        navigateToItem={ this.navigateToContainer.bind(this, container) }
-                                       listingActions={actions}/>;
+                                       listingActions={actions} />;
         }, this);
 
         var columnTitles = [_("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
@@ -479,9 +479,9 @@ var ImageInline = React.createClass({
             return (
                 <div className="listing-ct-inline">
                     <h3>{_("Details")}</h3>
-                    <ImageDetails image={image}/>
+                    <ImageDetails image={image} />
                     <h3>{_("Security")}</h3>
-                    <ImageSecurity image={image} info={vulnerableInfo}/>
+                    <ImageSecurity image={image} info={vulnerableInfo} />
                 </div>
             );
         }
@@ -489,7 +489,7 @@ var ImageInline = React.createClass({
         return (
             <div className="listing-ct-inline">
                 <h3>{_("Details")}</h3>
-                <ImageDetails image={image}/>
+                <ImageDetails image={image} />
             </div>
         );
     }
@@ -644,7 +644,7 @@ var ImageList = React.createClass({
                                    columns={columns}
                                    tabRenderers={tabs}
                                    navigateToItem={ this.navigateToImage.bind(this, image) }
-                                   listingActions={actions}/>;
+                                   listingActions={actions} />;
     },
 
     render: function () {

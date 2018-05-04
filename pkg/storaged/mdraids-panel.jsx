@@ -108,7 +108,7 @@ export class MDRaidsPanel extends React.Component {
                                       name={mdraid_name(mdraid)}
                                       detail={fmt_size(mdraid.Size)}
                                       go={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}
-                                      job_path={path}/>
+                                      job_path={path} />
             );
         }
 
@@ -117,7 +117,7 @@ export class MDRaidsPanel extends React.Component {
 
         var actions = (
             <StorageButton kind="primary" onClick={create_mdraid} id="create-mdraid">
-                <span className="fa fa-plus"/>
+                <span className="fa fa-plus" />
             </StorageButton>
         );
 

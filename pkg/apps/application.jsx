@@ -97,13 +97,13 @@ class Application extends React.Component {
                 if (metainfo_db.ready)
                     return <div>{_("Unknown Application")}</div>;
                 else
-                    return <div className="spinner"/>;
+                    return <div className="spinner" />;
             }
 
             var progress_or_launch, button;
             if (state.progress) {
-                progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress}/>;
-                button = <CancelButton data={self.state.progress}/>;
+                progress_or_launch = <ProgressBar title={self.state.progress_title} data={self.state.progress} />;
+                button = <CancelButton data={self.state.progress} />;
             } else if (comp.installed) {
                 progress_or_launch = <a role="link" tabIndex="0" onClick={left_click(() => launch(comp))}>{_("Go to Application")}</a>;
                 button = <button className="btn btn-danger" onClick={left_click(remove)}>{_("Remove")}</button>;
@@ -117,7 +117,7 @@ class Application extends React.Component {
                     <table className="table app">
                         <tbody>
                             <tr>
-                                <td><img src={icon_url(comp.icon)} role="presentation"/></td>
+                                <td><img src={icon_url(comp.icon)} role="presentation" /></td>
                                 <td>{comp.summary}</td>
                                 <td>{progress_or_launch}</td>
                                 <td>{button}</td>
@@ -127,7 +127,7 @@ class Application extends React.Component {
                     {render_homepage_link(comp.urls)}
                     <div className="app-description">{render_description(comp.description)}</div>
                     <center>
-                        { comp.screenshots.map(s => <img className="app-screenshot" role="presentation" src={s.full}/>) }
+                        { comp.screenshots.map(s => <img className="app-screenshot" role="presentation" src={s.full} />) }
                     </center>
                 </div>
             );

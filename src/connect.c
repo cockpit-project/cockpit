@@ -710,6 +710,45 @@ virtDBusConnectListNetworks(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectListStoragePools(GVariant *inArgs,
+                                GUnixFDList *inFDs G_GNUC_UNUSED,
+                                const gchar *objectPath G_GNUC_UNUSED,
+                                gpointer userData,
+                                GVariant **outArgs,
+                                GUnixFDList **outFDs G_GNUC_UNUSED,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePoolPtr) storagePools = NULL;
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *gstoragePools;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectListAllStoragePools(connect->connection, &storagePools,
+                                      flags) < 0) {
+        return virtDBusUtilSetLastVirtError(error);
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
+
+    for (gint i = 0; storagePools[i]; i++) {
+        g_autofree gchar *path = NULL;
+        path = virtDBusUtilBusPathForVirStoragePool(storagePools[i],
+                                                    connect->storagePoolPath);
+
+        g_variant_builder_add(&builder, "o", path);
+    }
+
+    gstoragePools = g_variant_builder_end(&builder);
+    *outArgs = g_variant_new_tuple(&gstoragePools, 1);
+}
+
+static void
 virtDBusConnectNetworkCreateXML(GVariant *inArgs,
                                 GUnixFDList *inFDs G_GNUC_UNUSED,
                                 const gchar *objectPath G_GNUC_UNUSED,
@@ -1082,6 +1121,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },
+    { "ListStoragePools", virtDBusConnectListStoragePools },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },
     { "NetworkLookupByName", virtDBusConnectNetworkLookupByName },

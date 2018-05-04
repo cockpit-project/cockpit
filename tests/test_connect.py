@@ -126,6 +126,18 @@ class TestConnect(libvirttest.BaseTestClass):
         arch = "x86_64"
         assert isinstance(self.connect.GetCPUModelNames(arch, 0), dbus.Array)
 
+    def test_connect_list_storage_pools(self):
+        storage_pools = self.connect.ListStoragePools(0)
+        assert isinstance(storage_pools, dbus.Array)
+        assert len(storage_pools) == 1
+
+        for path in storage_pools:
+            assert isinstance(path, dbus.ObjectPath)
+            storage_pool = self.bus.get_object('org.libvirt', path)
+
+            # ensure the path exists by calling Introspect on it
+            storage_pool.Introspect(dbus_interface=dbus.INTROSPECTABLE_IFACE)
+
     def test_connect_network_create_xml(self):
         def network_started(path, event):
             if event != libvirttest.NetworkEvent.STARTED:

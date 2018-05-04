@@ -145,6 +145,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="networks" type="ao" direction="out"/>
     </method>
+    <method name="ListStoragePools">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virConnectListAllStoragePools"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="storagePools" type="ao" direction="out"/>
+    </method>
     <method name="NetworkCreateXML">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-network.html#virNetworkCreateXML"/>

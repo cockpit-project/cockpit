@@ -370,7 +370,7 @@ function validateParams(vmParams) {
         }
     }
 
-    if (isEmpty(vmParams.source)){
+    if (isEmpty(vmParams.source)) {
         return _("Installation Source should not be empty");
     }
 

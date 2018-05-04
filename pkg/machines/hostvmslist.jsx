@@ -62,7 +62,7 @@ class HostVmsList extends React.Component {
         this.forceUpdate();
     }
 
-    asDummVms(vms, uiVms){
+    asDummVms(vms, uiVms) {
         const result = Object.assign({}, uiVms);
         vms.forEach(vm => {
             delete result[vm.name];

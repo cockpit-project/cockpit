@@ -65,7 +65,7 @@ var StorageControl = React.createClass({
                 __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
                                        permission.user ? permission.user.name : '')
             }
-            excuse = <span dangerouslySetInnerHTML={markup}></span>;
+            excuse = <span dangerouslySetInnerHTML={markup} />;
         }
 
         return (
@@ -227,7 +227,7 @@ class StorageMultiAction extends React.Component {
                                         </button>
                                         <button className={btn_classes + " dropdown-toggle"}
                                                     data-toggle="dropdown">
-                                            <span className="caret"></span>
+                                            <span className="caret" />
                                         </button>
                                         <ul className="dropdown-menu action-dropdown-menu" role="menu">
                                             { this.props.actions.map((act) => (
@@ -259,8 +259,7 @@ class StorageUsageBar extends React.Component {
             <div className="progress">
                 { stats
                     ? <div className={ "progress-bar" + (fraction > this.props.critical ? " progress-bar-danger" : "") }
-                        style={{ width: fraction * 100 + "%" }}>
-                    </div>
+                        style={{ width: fraction * 100 + "%" }} />
                     : null
                 }
             </div>

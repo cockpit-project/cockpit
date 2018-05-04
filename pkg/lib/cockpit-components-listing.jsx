@@ -172,10 +172,10 @@ var ListingRow = React.createClass({
         var expandToggle;
         if (allowExpand) {
             expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
-                <i className="fa fa-fw"></i>
+                <i className="fa fa-fw" />
             </td>;
         } else {
-            expandToggle = <td className="listing-ct-toggle"></td>;
+            expandToggle = <td className="listing-ct-toggle" />;
         }
 
         var listingItemClasses = ["listing-ct-item"];
@@ -326,7 +326,7 @@ var Listing = React.createClass({
 
             headerRow = (
                 <tr>
-                    <th className="listing-ct-toggle"></th>
+                    <th className="listing-ct-toggle" />
                     { this.props.columnTitles.map(function (title, index) {
                         var clickHandler = null;
                         if (self.props.columnTitleClick)

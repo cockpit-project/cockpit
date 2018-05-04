@@ -148,7 +148,7 @@ var Tooltip = React.createClass({
                     {self.props.children}
                 </div>
                 <div ref={fixDOMElements} className={classes} style={{ top: 0, left: -10000 }}>
-                    <div className="tooltip-arrow"></div>
+                    <div className="tooltip-arrow" />
                     <div className="tooltip-inner">{self.props.tip}</div>
                 </div>
             </div>

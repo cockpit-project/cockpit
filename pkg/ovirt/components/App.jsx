@@ -47,7 +47,7 @@ const LoginInProgress = ({ ovirtConfig }) => {
         return (
             <p className='ovirt-login-in-progress'>
                 {_("oVirt login in progress") + '\xa0'}
-                <span className="spinner spinner-xs spinner-inline"></span>
+                <span className="spinner spinner-xs spinner-inline" />
             </p>
         );
     }

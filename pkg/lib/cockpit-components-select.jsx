@@ -121,7 +121,7 @@
                 <div className={classes} onClick={this.clickHandler} id={this.props.id}>
                     <button className={buttonClasses} type="button">
                         <span className="pull-left">{currentValue}</span>
-                        <span className="caret"></span>
+                        <span className="caret" />
                     </button>
                     <ul className="dropdown-menu">
                         {this.props.children}

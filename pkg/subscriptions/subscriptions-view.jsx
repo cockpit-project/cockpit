@@ -61,9 +61,9 @@ var Curtains = React.createClass({
 
         var icon = this.props.icon;
         if (icon == 'waiting')
-            icon = <div className="spinner spinner-lg"></div>;
+            icon = <div className="spinner spinner-lg" />;
         else if (icon == 'error')
-            icon = <div className="pficon pficon-error-circle-o"></div>;
+            icon = <div className="pficon pficon-error-circle-o" />;
 
         return (
             <div className={ curtains + " blank-slate-pf" }>
@@ -150,7 +150,7 @@ var SubscriptionStatus = React.createClass({
             if (isUnregistering) {
                 note = (
                     <div className="dialog-wait-ct">
-                        <div className="spinner spinner-sm"></div>
+                        <div className="spinner spinner-sm" />
                         <span>{ _("Unregistering system...") }</span>
                     </div>
                 );

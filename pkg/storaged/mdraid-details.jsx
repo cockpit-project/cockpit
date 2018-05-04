@@ -126,7 +126,7 @@ class MDRaidSidebar extends React.Component {
             return (
                 <tr>
                     <td className="storage-icon">
-                        <div><img src="images/storage-disk.png"></img></div>
+                        <div><img src="images/storage-disk.png" /></div>
                     </td>
                     <td>
                         {slot || "-"} <StorageBlockNavLink client={client} block={block} />
@@ -136,7 +136,7 @@ class MDRaidSidebar extends React.Component {
                     { dynamic_members
                         ? <td className="storage-action">
                             <StorageButton onClick={remove} excuse={remove_excuse}>
-                                <span className="fa fa-minus"></span>
+                                <span className="fa fa-minus" />
                             </StorageButton>
                         </td>
                         : null }
@@ -154,7 +154,7 @@ class MDRaidSidebar extends React.Component {
                     {dynamic_members
                         ? <span className="pull-right">
                             <StorageButton onClick={add_disk} excuse={add_excuse}>
-                                <span className="fa fa-plus"></span>
+                                <span className="fa fa-plus" />
                             </StorageButton>
                         </span>
                         : null}
@@ -214,7 +214,7 @@ export class MDRaidDetails extends React.Component {
             );
             degraded_message = (
                 <div className="alert alert-danger">
-                    <span className="pficon pficon-error-circle-o"></span>
+                    <span className="pficon pficon-error-circle-o" />
                     <span>{_("The RAID Array is in a degraded state")}</span> - {text}
                 </div>
             );

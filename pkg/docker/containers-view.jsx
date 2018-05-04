@@ -55,7 +55,7 @@ var Dropdown = React.createClass({
                     <span>{ this.props.actions[0].label }</span>
                 </button>
                 <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <div className="caret"></div>
+                    <div className="caret" />
                 </button>
                 <ul className="dropdown-menu dropdown-menu-right" role="menu">
                     {
@@ -139,7 +139,7 @@ var ContainerProblems = React.createClass({
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
             problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
-                <span className="pficon pficon-warning-triangle-o fa-lg"></span>
+                <span className="pficon pficon-warning-triangle-o fa-lg" />
                 {problem[i][1]}
             </a>)
         }
@@ -273,7 +273,7 @@ var ContainerList = React.createClass({
 
             var state;
             if (this.props.client.waiting[container.Id]) {
-                state = { element: <div className="spinner"></div>, tight: true }
+                state = { element: <div className="spinner" />, tight: true }
             } else {
                 state = util.render_container_status(container.State)
             }
@@ -284,7 +284,7 @@ var ContainerList = React.createClass({
 
             if (shortContID in this.state.problems) {
                 hasProblem = true;
-                state = <div><span className="pficon pficon-warning-triangle-o"></span>{state}</div>
+                state = <div><span className="pficon pficon-warning-triangle-o" />{state}</div>
             }
 
             var columns = [
@@ -466,7 +466,7 @@ var ImageInline = React.createClass({
             return (
                 <div className="curtains-ct blank-slate-pf">
                     <div className="blank-slate-pf-icon">
-                        <i className="fa fa-exclamation-circle"></i>
+                        <i className="fa fa-exclamation-circle" />
                     </div>
                     <h1>{_("This image does not exist.")}</h1>
                 </div>
@@ -588,7 +588,7 @@ var ImageList = React.createClass({
             if (count > 0)
                 vulnerabilityColumn = (
                     <div>
-                        <span className="pficon pficon-warning-triangle-o"></span>
+                        <span className="pficon pficon-warning-triangle-o" />
                         &nbsp;
                         { cockpit.format(cockpit.ngettext('1 Vulnerability', '$0 Vulnerabilities', count), count) }
                     </div>
@@ -597,7 +597,7 @@ var ImageList = React.createClass({
 
         var element;
         if (this.props.client.waiting[image.Id]) {
-            element = <div className="spinner"></div>
+            element = <div className="spinner" />
         } else {
             element = <button className="btn btn-default btn-control-ct fa fa-play"
                 onClick={ this.showRunImageDialog.bind(this) }
@@ -656,7 +656,7 @@ var ImageList = React.createClass({
         var imageRows = filtered.map(this.renderRow, this);
 
         var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
-            <span className="pficon pficon-add-circle-o"></span>{_("Get new image")}
+            <span className="pficon pficon-add-circle-o" />{_("Get new image")}
         </a>;
 
         var columnTitles = [ _("Name"), '', _("Created"), _("Size"), '' ];

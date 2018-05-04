@@ -43,7 +43,8 @@ function nfs_busy_dialog(client,
             $('#error-popup-message').text(error.toString());
             $('#error-popup').modal('show');
         } else {
-            let sessions = [ ], services = [ ];
+            let sessions = [ ];
+            let services = [ ];
             users.forEach((u) => {
                 var since = moment.duration(-u.since * 1000).humanize(true);
                 if (u.unit.endsWith(".scope")) {

@@ -78,7 +78,7 @@ var SELinuxEventDetails = React.createClass({
                     if (self.props.fix.running) {
                         msg = (
                             <div>
-                                <div className="spinner setroubleshoot-progress-spinner"></div>
+                                <div className="spinner setroubleshoot-progress-spinner" />
                                 <span className="setroubleshoot-progress-message"> { _("Applying solution...") }</span>
                             </div>
                         );
@@ -86,14 +86,14 @@ var SELinuxEventDetails = React.createClass({
                         if (self.props.fix.success) {
                             msg = (
                                 <div className="alert alert-success">
-                                    <span className="pficon pficon-ok"></span>
+                                    <span className="pficon pficon-ok" />
                                     <span> { _("Solution applied successfully") }: {self.props.fix.result}</span>
                                 </div>
                             );
                         } else {
                             msg = (
                                 <div className="alert alert-danger">
-                                    <span className="pficon pficon-error-circle-o"></span>
+                                    <span className="pficon pficon-error-circle-o" />
                                     <span> { _("Solution failed") }: {self.props.fix.result}</span>
                                 </div>
                             );
@@ -201,9 +201,9 @@ var EmptyState = React.createClass({
 
         var icon = this.props.icon;
         if (icon == 'waiting')
-            icon = <div className="spinner spinner-lg"></div>;
+            icon = <div className="spinner spinner-lg" />;
         else if (icon == 'error')
-            icon = <div className="pficon pficon-error-circle-o"></div>;
+            icon = <div className="pficon pficon-error-circle-o" />;
 
         return (
             <div className={ curtains + " blank-slate-pf" }>
@@ -333,7 +333,7 @@ var SETroubleshootPage = React.createClass({
         if (this.props.selinuxStatus.enabled === false) {
             return (
                 <EmptyState
-                    icon={ <div className="fa fa-exclamation-circle"></div> }
+                    icon={ <div className="fa fa-exclamation-circle" /> }
                     description={ _("SELinux is disabled on the system") }
                     message={null}
                     relative={false} />
@@ -348,7 +348,7 @@ var SETroubleshootPage = React.createClass({
             if (this.props.connecting) {
                 emptyCaption = (
                     <div>
-                        <div className="spinner spinner-sm"></div>
+                        <div className="spinner spinner-sm" />
                         <span>{_("Connecting to SETroubleshoot daemon...")}</span>
                     </div>
                 );
@@ -411,7 +411,7 @@ var SETroubleshootPage = React.createClass({
                                            itm.count);
                     columns.push(<span className="badge" title={title}>{itm.count}</span>);
                 } else {
-                    columns.push(<span></span>);
+                    columns.push(<span />);
                 }
                 return (
                     <cockpitListing.ListingRow

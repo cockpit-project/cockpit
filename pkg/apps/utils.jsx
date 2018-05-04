@@ -70,8 +70,7 @@ export const ProgressBar = ({ title, data }) => {
                     {title}
                 </div>
                 <div className="progress">
-                    <div className="progress-bar" style={{ "width": data.percentage + "%" }}>
-                    </div>
+                    <div className="progress-bar" style={{ "width": data.percentage + "%" }} />
                 </div>
             </div>
         );

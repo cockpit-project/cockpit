@@ -107,11 +107,11 @@ class VGroupSidebar extends React.Component {
             return (
                 <tr>
                     <td className="storage-icon">
-                        <div><img src="images/storage-disk.png"></img></div>
+                        <div><img src="images/storage-disk.png" /></div>
                     </td>
                     <td>
                         <StorageBlockNavLink client={client} block={ client.blocks[pvol.path] } />
-                        <br></br>
+                        <br />
                         <span>
                             {cockpit.format(_("$0, $1 free"),
                                             utils.fmt_size(pvol.Size),
@@ -120,7 +120,7 @@ class VGroupSidebar extends React.Component {
                     </td>
                     <td className="storage-action">
                         <StorageButton onClick={remove_action} excuse={remove_excuse}>
-                            <span className="fa fa-minus"></span>
+                            <span className="fa fa-minus" />
                         </StorageButton>
                     </td>
                 </tr>);
@@ -132,7 +132,7 @@ class VGroupSidebar extends React.Component {
                     <span>{_("Physical Volumes")}</span>
                     <span className="pull-right">
                         <StorageButton onClick={add_disk}>
-                            <span className="fa fa-plus"></span>
+                            <span className="fa fa-plus" />
                         </StorageButton>
                     </span>
                 </div>

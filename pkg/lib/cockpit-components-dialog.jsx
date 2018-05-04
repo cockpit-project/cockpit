@@ -156,7 +156,7 @@ var DialogFooter = React.createClass({
         if (this.state.action_in_progress) {
             actions_disabled = 'disabled';
             wait_element = <div className="dialog-wait-ct pull-left">
-                <div className="spinner spinner-sm"></div>
+                <div className="spinner spinner-sm" />
                 <span>{ this.state.action_progress_message }</span>
             </div>;
         }
@@ -193,7 +193,7 @@ var DialogFooter = React.createClass({
             error_message = this.state.error_message;
         if (error_message) {
             error_element = <div className="alert alert-danger dialog-error">
-                <span className="fa fa-exclamation-triangle"></span>
+                <span className="fa fa-exclamation-triangle" />
                 <span>{ error_message }</span>
             </div>;
         }
@@ -242,7 +242,7 @@ var Dialog = React.createClass({
     render: function() {
         var backdrop;
         if (!this.props.no_backdrop) {
-            backdrop = <div className="modal-backdrop fade in"></div>;
+            backdrop = <div className="modal-backdrop fade in" />;
         }
         return (
             <div>

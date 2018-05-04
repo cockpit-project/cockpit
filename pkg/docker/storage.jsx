@@ -300,8 +300,7 @@
                             </div>
                         </div>
                         <div className="progress">
-                            <div className="progress-bar" style={{width: used_perc}}>
-                            </div>
+                            <div className="progress-bar" style={{width: used_perc}} />
                         </div>
                         {self.state.error ? "" : <a translatable="yes" href="#/storage">{_("Configure storage...")}</a>}
                     </div>);
@@ -323,8 +322,7 @@
                             </div>
                         </div>
                         <div className="progress">
-                            <div className="progress-bar c2" style={{width: used_perc}}>
-                            </div>
+                            <div className="progress-bar c2" style={{width: used_perc}} />
                         </div>
                     </div>);
             }

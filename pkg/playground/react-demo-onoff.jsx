@@ -39,19 +39,19 @@ var OnOffDemo = React.createClass({
             <table>
                 <tr>
                     <td><span>Regular</span></td>
-                    <td><OnOffSwitch state={this.state.onOffA} onChange={this.onChangeA}></OnOffSwitch></td>
+                    <td><OnOffSwitch state={this.state.onOffA} onChange={this.onChangeA} /></td>
                 </tr>
                 <tr>
                     <td><span>Regular</span></td>
-                    <td><OnOffSwitch state={this.state.onOffB} onChange={this.onChangeB}></OnOffSwitch></td>
+                    <td><OnOffSwitch state={this.state.onOffB} onChange={this.onChangeB} /></td>
                 </tr>
                 <tr>
                     <td><span>Disabled On</span></td>
-                    <td><OnOffSwitch state={true} enabled={false}></OnOffSwitch></td>
+                    <td><OnOffSwitch state={true} enabled={false} /></td>
                 </tr>
                 <tr>
                     <td><span>Disabled Off</span></td>
-                    <td><OnOffSwitch state={false} enabled={false}></OnOffSwitch></td>
+                    <td><OnOffSwitch state={false} enabled={false} /></td>
                 </tr>
             </table>
         );

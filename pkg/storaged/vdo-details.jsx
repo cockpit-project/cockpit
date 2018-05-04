@@ -102,7 +102,7 @@ export class VDODetails extends React.Component {
                     <div className="pull-right">
                         <StorageButton onClick={force_delete}>{_("Remove device")}</StorageButton>
                     </div>
-                    <span className="pficon pficon-error-circle-o"></span>
+                    <span className="pficon pficon-error-circle-o" />
                     <strong>{_("The creation of this VDO device did not finish and the device can't be used.")}</strong>
                 </div>
             );
@@ -118,7 +118,7 @@ export class VDODetails extends React.Component {
                     <div className="pull-right">
                         <StorageButton onClick={vdo.grow_physical}>{_("Grow to take all space")}</StorageButton>
                     </div>
-                    <span className="pficon pficon-warning-triangle-o"></span>
+                    <span className="pficon pficon-warning-triangle-o" />
                     <strong>{_("This VDO device does not use all of its backing device.")}</strong>  <span>
                         { cockpit.format(_("Only $0 of $1 are used."),
                                          fmt_size(vdo.physical_size),

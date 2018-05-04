@@ -64,8 +64,8 @@ class ZoomControls extends React.Component {
             <div ref={setup} id="storage-graph-toolbar" className="zoom-controls standard-zoom-controls">
                 <div className="dropdown">
                     <button className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        <span></span>
-                        <div className="caret"></div>
+                        <span />
+                        <div className="caret" />
                     </button>
                     <ul className="dropdown-menu" role="menu">
                         <li role="presentation">
@@ -91,12 +91,12 @@ class ZoomControls extends React.Component {
                 </div>
                 { "\n" }
                 <button className="btn btn-default" data-action="zoom-out">
-                    <span className="glyphicon glyphicon-zoom-out"></span>
+                    <span className="glyphicon glyphicon-zoom-out" />
                 </button>
                 { "\n" }
                 <div className="btn-group">
-                    <button className="btn btn-default fa fa-angle-left" data-action="scroll-left"></button>
-                    <button className="btn btn-default fa fa-angle-right" data-action="scroll-right"></button>
+                    <button className="btn btn-default fa fa-angle-left" data-action="scroll-left" />
+                    <button className="btn btn-default fa fa-angle-right" data-action="scroll-right" />
                 </div>
             </div>
         );
@@ -200,7 +200,7 @@ class StoragePlot extends React.Component {
                     <span className="plot-unit">{this.state.unit}</span>
                     <span className="plot-title">{this.props.title}</span>
                 </div>
-                <div ref={setup_plot} className="zoomable-plot storage-graph"></div>
+                <div ref={setup_plot} className="zoomable-plot storage-graph" />
             </div>
         );
     }

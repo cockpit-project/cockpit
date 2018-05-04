@@ -287,7 +287,7 @@ var FileAutoComplete = React.createClass({
             <div className="combobox-container file-autocomplete-ct" id={this.props.id}>
                 <div className={classes}>
                     <input ref="input" autoComplete="false" placeholder={placeholder} className="combobox form-control" type="text" onChange={this.delayedOnChange} value={this.state.value} onBlur={this.onBlur} />
-                    <span onClick={this.showAllOptions} className={controlClasses}></span>
+                    <span onClick={this.showAllOptions} className={controlClasses} />
                     <ul onMouseDown={this.onMouseDown} onClick={this.selectItem} className="typeahead typeahead-long dropdown-menu">
                         {listItems}
                     </ul>

@@ -54,7 +54,7 @@
                                     <Select.SelectEntry data='one'>One</Select.SelectEntry>
                                     <Select.SelectEntry data='two'>Two</Select.SelectEntry>
                                     <Select.SelectEntry data='three'>Three</Select.SelectEntry>
-                                    <Select.SelectEntry data='four'></Select.SelectEntry>
+                                    <Select.SelectEntry data='four' />
                                 </Select.Select>
                             </td>
                         </tr>

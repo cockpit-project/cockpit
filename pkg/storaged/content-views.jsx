@@ -356,8 +356,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}}>
-            </span>);
+                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}} />);
     if (tabs.row_action) {
         if (last_column) {
             last_column = <span>{last_column}{tabs.row_action}</span>;
@@ -683,7 +682,7 @@ var VGroup = React.createClass({
             <div className="pull-right">
                 <StorageLink onClick={create_logical_volume}
                              excuse={excuse}>
-                    <span className="pficon pficon-add-circle-o"></span>
+                    <span className="pficon pficon-add-circle-o" />
                     {" "}
                     {_("Create new Logical Volume")}
                 </StorageLink>

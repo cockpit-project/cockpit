@@ -129,7 +129,7 @@ class VdsmConf extends React.Component { // TODO: needs design
                 </a>
 
                 <div className='ovirt-provider-vdsm-menu'>
-                    <div className="ovirt-provider-vdsm-inline-block"></div>
+                    <div className="ovirt-provider-vdsm-inline-block" />
                     <div className='btn-group ovirt-provider-vdsm-menu-buttons'>
                         {saveButton}
                         {reloadButton}

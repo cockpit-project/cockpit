@@ -233,7 +233,7 @@ var ContainerList = React.createClass({
         this.service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
         this.problems = this.problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
         this.problems.wait(function() {
-            if (typeof self.service.GetSession !== "undefined"){
+            if (typeof self.service.GetSession !== "undefined") {
                 self.service.GetSession()
                         .done(function(session_path) {
                             self.problems_client.call(session_path, "org.freedesktop.Problems2.Session", "Authorize", [{}]);

@@ -61,6 +61,16 @@ virtDBusConnectClose(virtDBusConnect *connect,
         }
     }
 
+    for (gint i = 0; i < VIR_SECRET_EVENT_ID_LAST; i++) {
+        if (connect->secretCallbackIds[i] >= 0) {
+            if (deregisterEvents) {
+                virConnectSecretEventDeregisterAny(connect->connection,
+                                                   connect->secretCallbackIds[i]);
+            }
+            connect->secretCallbackIds[i] = -1;
+        }
+    }
+
     for (gint i = 0; i < VIR_STORAGE_POOL_EVENT_ID_LAST; i++) {
         if (connect->storagePoolCallbackIds[i] >= 0) {
             if (deregisterEvents) {
@@ -1286,6 +1296,9 @@ virtDBusConnectNew(virtDBusConnect **connectp,
 
     for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i++)
         connect->networkCallbackIds[i] = -1;
+
+    for (gint i = 0; i < VIR_SECRET_EVENT_ID_LAST; i++)
+        connect->secretCallbackIds[i] = -1;
 
     for (gint i = 0; i < VIR_STORAGE_POOL_EVENT_ID_LAST; i++)
         connect->storagePoolCallbackIds[i] = -1;

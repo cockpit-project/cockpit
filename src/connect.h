@@ -21,6 +21,7 @@ struct virtDBusConnect {
 
     gint domainCallbackIds[VIR_DOMAIN_EVENT_ID_LAST];
     gint networkCallbackIds[VIR_NETWORK_EVENT_ID_LAST];
+    gint secretCallbackIds[VIR_SECRET_EVENT_ID_LAST];
     gint storagePoolCallbackIds[VIR_STORAGE_POOL_EVENT_ID_LAST];
 };
 typedef struct virtDBusConnect virtDBusConnect;

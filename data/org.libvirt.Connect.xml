@@ -248,6 +248,13 @@
       <arg name="network" type="o"/>
       <arg name="event" type="u"/>
     </signal>
+    <signal name="SecretEvent">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-secret.html#virConnectSecretEventLifecycleCallback"/>
+      <arg name="secret" type="o"/>
+      <arg name="event" type="u"/>
+      <arg name="detail" type="u"/>
+    </signal>
     <signal name="StoragePoolEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virConnectStoragePoolEventLifecycleCallback"/>

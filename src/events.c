@@ -144,6 +144,29 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsSecretLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+                              virSecretPtr secret,
+                              gint event,
+                              gint detail,
+                              gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirSecret(secret, connect->secretPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  connect->connectPath,
+                                  VIRT_DBUS_CONNECT_INTERFACE,
+                                  "SecretEvent",
+                                  g_variant_new("(ouu)", path, event, detail),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsStoragePoolLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                    virStoragePoolPtr storagePool,
                                    gint event,
@@ -198,6 +221,21 @@ virtDBusEventsRegisterNetworkEvent(virtDBusConnect *connect,
 }
 
 static void
+virtDBusEventsRegisterSecretEvent(virtDBusConnect *connect,
+                                  gint id,
+                                  virConnectSecretEventGenericCallback callback)
+{
+    g_assert(connect->secretCallbackIds[id] == -1);
+
+    connect->secretCallbackIds[id] = virConnectSecretEventRegisterAny(connect->connection,
+                                                                      NULL,
+                                                                      id,
+                                                                      VIR_SECRET_EVENT_CALLBACK(callback),
+                                                                      connect,
+                                                                      NULL);
+}
+
+static void
 virtDBusEventsRegisterStoragePoolEvent(virtDBusConnect *connect,
                                        gint id,
                                        virConnectStoragePoolEventGenericCallback callback)
@@ -238,6 +276,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterNetworkEvent(connect,
                                        VIR_NETWORK_EVENT_ID_LIFECYCLE,
                                        VIR_NETWORK_EVENT_CALLBACK(virtDBusEventsNetworkLifecycle));
+
+    virtDBusEventsRegisterSecretEvent(connect,
+                                      VIR_SECRET_EVENT_ID_LIFECYCLE,
+                                      VIR_SECRET_EVENT_CALLBACK(virtDBusEventsSecretLifecycle));
 
     virtDBusEventsRegisterStoragePoolEvent(connect,
                                            VIR_STORAGE_POOL_EVENT_ID_LIFECYCLE,

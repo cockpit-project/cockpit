@@ -89,7 +89,6 @@ export function prepareVendors(osInfoList) {
             familyMap[os.sort_family][os.sort_vendor] = null;
         }
         vendorMap[os.sort_vendor].push(os);
-
     });
 
     Object.keys(vendorMap)

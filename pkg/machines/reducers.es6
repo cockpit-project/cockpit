@@ -246,7 +246,6 @@ function timeSampleUsageData(newVmRecord, previousVmRecord) {
 
             // store computed actual usage stats
             newVmRecord.cpuUsage = (100 * cpuTimeDiff / timeDiff).toFixed(1);
-
         } else {
             logDebug(`timeSampleUsageData(): can't compute diff - missing previous record`);
             newVmRecord.cpuUsage = 0;

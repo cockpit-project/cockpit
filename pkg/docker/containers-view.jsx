@@ -410,10 +410,8 @@ var ImageSecurity = React.createClass({
 
         if (info.successful === false) {
             text = _("The scan from $time ($type) was not successful.");
-
         } else if (info.vulnerabilities.length === 0) {
             text = _("The scan from $time ($type) found no vulnerabilities.");
-
         } else {
             text = cockpit.ngettext('The scan from $time ($type) found one vulnerability:',
                                     'The scan from $time ($type) found $count vulnerabilities:',

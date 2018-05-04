@@ -44,6 +44,11 @@ import {
     updateLibvirtState,
     setHypervisorMaxVCPU,
     getHypervisorMaxVCPU,
+    getStoragePools,
+    getStorageVolumes,
+    updateStoragePools,
+    updateStorageVolumes,
+    attachDisk,
 } from './actions.es6';
 
 import { usagePollingEnabled } from './selectors.es6';
@@ -218,10 +223,77 @@ LIBVIRT_PROVIDER = {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 doGetAllVms(dispatch, connectionName);
+                dispatch(getStoragePools(connectionName));
             };
         }
 
         return unknownConnectionName(getAllVms, libvirtServiceName);
+    },
+
+    /**
+     * Retrieves list of libvirt "storage pools" for particular connection.
+     */
+    GET_STORAGE_POOLS({ connectionName }) {
+        logDebug(`${this.name}.GET_STORAGE_POOLS(connectionName='${connectionName}')`);
+
+        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+        // Workaround: virsh v1.3.1 in ubuntu-1604 does not support '--name' parameter
+        const command = `virsh ${connection} -r pool-list --type dir | grep active | awk '{print $1 }'`;
+        let poolList = '';
+        // TODO: add support for other pool types then just the "directory"
+        return dispatch => cockpit
+                .script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+                .stream(output => { poolList += output; })
+                .then(() => { // so far only pool names are needed, extend here otherwise
+                    const promises = parseStoragePoolList(dispatch, connectionName, poolList)
+                            .map(poolName => dispatch(getStorageVolumes(connectionName, poolName)));
+
+                    return cockpit.all(promises);
+                })
+                .fail((exception, data) => {
+                    console.error('Failed to get list of Libvirt storage pools for connection ', connectionName, ': ', data, exception);
+                });
+    },
+
+    GET_STORAGE_VOLUMES({ connectionName, poolName }) {
+        logDebug(`${this.name}.GET_STORAGE_VOLUMES(connectionName='${connectionName}', poolName='${poolName}')`);
+        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+        // Caution: output of virsh v1.3.1 (ubuntu-1604) and v3.7.0 differs, the 'grep' unifies it
+        const command = `virsh ${connection} -q pool-refresh ${poolName} && virsh ${connection} -q -r vol-list ${poolName} --details | (grep file || true)`;
+        let data = '';
+        return dispatch => cockpit
+                .script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+                .stream(output => { data += output; })
+                .then(() => parseStorageVolumes(dispatch, connectionName, poolName, data))
+                .fail((exception, data) => {
+                    console.error('Failed to get list of Libvirt storage volumes for connection: ', connectionName, ', pool: ', poolName, ': ', data, exception);
+                });
+    },
+
+    /**
+     * disk size - in MiB
+     */
+    CREATE_AND_ATTACH_VOLUME({ connectionName, poolName, volumeName, size, format, target, vmName, permanent, hotplug }) {
+        logDebug(`${this.name}.CREATE_AND_ATTACH_VOLUME("`, connectionName, '", "', poolName, '", "', volumeName, '", "', size, '", "', format, '", "', target, '", "', vmName, '"');
+        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+        // Workaround: The "grep" part of the command bellow is a workaround for old version of virsh (1.3.1 , ubuntu-1604), since the "virsh -q vol-create-as" produces extra line there
+        const command = `(virsh ${connection} -q vol-create-as ${poolName} ${volumeName} --capacity ${size}M --format ${format} && virsh ${connection} -q vol-path ${volumeName} --pool ${poolName}) | grep -v 'Vol ${volumeName} created'`;
+        logDebug('CREATE_AND_ATTACH_VOLUME command: ', command);
+        return dispatch => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+                .then(diskFileName => {
+                    logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName, ', diskFileName: ', diskFileName);
+                    return dispatch(attachDisk({ connectionName, diskFileName: diskFileName.trim(), target, vmName, permanent, hotplug }));
+                });
+    },
+
+    ATTACH_DISK({ connectionName, diskFileName, target, vmName, permanent, hotplug }) {
+        logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', diskFileName, '", "', target, '", "', vmName, '"');
+        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+        let scope = permanent ? '--config' : '';
+        scope = scope + (hotplug ? ' --live' : '');
+        const command = `virsh ${connection} attach-disk ${vmName} ${diskFileName} ${target} ${scope}`;
+        logDebug('ATTACH_DISK command: ', command);
+        return () => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
     },
 
     GET_OS_INFO_LIST () {
@@ -1062,6 +1134,45 @@ function parseDomstatsForDisks(domstatsLines) {
     return disksStats;
 }
 
+function parseStoragePoolList(dispatch, connectionName, poolList) {
+    logDebug('parsePoolList(), input: ', poolList);
+    const pools = poolList.trim()
+            .split('\n')
+            .map(rawPoolName => rawPoolName.trim())
+            .filter(rawPoolName => !!rawPoolName); // non-empty only, if pool list is de-facto empty
+
+    dispatch(updateStoragePools({
+        connectionName,
+        pools,
+    }));
+
+    return pools; // return pools to simplify further processing
+}
+
+function parseStorageVolumes(dispatch, connectionName, poolName, volumes) {
+    logDebug('parseStorageVolumes(), input: ', volumes);
+    return dispatch(updateStorageVolumes({ // return promise to allow waiting in addDiskDialog()
+        connectionName,
+        poolName,
+        volumes: volumes.trim()
+                .split('\n')
+                .map(volume => volume.trim())
+                .filter(volume => !!volume) // non-empty lines
+                .map(volume => {
+                    const fields = volume.split(/\s\s+/); // two spaces at least; lowers chance for bug with spaces in the volume name
+                    if (fields.length < 3 || fields[2] !== 'file') {
+                        // skip 'dir' type; use just flatten dir-pool structure
+                        return null;
+                    }
+                    return {
+                        name: fields[0].trim(),
+                        path: fields[1].trim(),
+                    };
+                })
+                .filter(volume => !!volume),
+    }));
+}
+
 function buildConsoleVVFile(consoleDetail) {
     return '[virt-viewer]\n' +
         `type=${consoleDetail.type}\n` +
@@ -1139,7 +1250,9 @@ function handleEvent(dispatch, connectionName, line) {
             break;
 
         case 'Stopped':
-            dispatch(updateVm({connectionName, name, state: 'shut off', actualTimeInMs: -1}));
+            // there might be changes between live and permanent domain definition, so full reload
+            dispatch(getVm(connectionName, name));
+
             // transient VMs don't have a separate Undefined event, so remove them on stop
             dispatch(undefineVm(connectionName, name, true));
             break;

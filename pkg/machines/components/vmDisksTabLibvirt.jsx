@@ -20,6 +20,7 @@ import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 
 import { vmId } from '../helpers.es6';
+import AddDiskAction from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import DiskSourceCell from './vmDiskSourceCell.jsx';
 
@@ -87,7 +88,7 @@ class VmDisksTabLibvirt extends React.Component {
     }
 
     render() {
-        const { vm } = this.props;
+        const { vm, dispatch, config, storagePools } = this.props;
 
         const idPrefix = `${vmId(vm.name)}-disks`;
         const areDiskStatsSupported = this.getDiskStatsSupport(vm);
@@ -100,6 +101,7 @@ class VmDisksTabLibvirt extends React.Component {
 
         return (
             <VmDisksTab idPrefix={idPrefix}
+                actions={[<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} vm={vm} storagePools={storagePools} />]}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 notificationText={this.getNotification(vm, areDiskStatsSupported)} />
@@ -109,6 +111,7 @@ class VmDisksTabLibvirt extends React.Component {
 
 VmDisksTabLibvirt.propTypes = {
     vm: PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
 
     onUsageStartPolling: PropTypes.func.isRequired,
     onUsageStopPolling: PropTypes.func.isRequired,

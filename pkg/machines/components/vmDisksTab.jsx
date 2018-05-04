@@ -24,17 +24,6 @@ import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
 
 const _ = cockpit.gettext;
 
-const DiskTotal = ({ disks, idPrefix }) => {
-    return (
-        <span className='machines-disks-total'>
-            {_("Count:")}&nbsp;
-            <span id={`${idPrefix}-total-value`} className='machines-disks-total-value'>
-                {disks.length}
-            </span>
-        </span>
-    );
-};
-
 const StorageUnit = ({ value, id }) => {
     if (!value) {
         return null;
@@ -63,7 +52,7 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
+const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText }) => {
     if (!disks || disks.length === 0) {
         return (<div>{_("No disks defined for this VM")}</div>);
     }
@@ -93,8 +82,7 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
     return (
         <div>
             {notification}
-            <DiskTotal disks={disks} idPrefix={idPrefix} />
-            <Listing columnTitles={columnTitles}>
+            <Listing columnTitles={columnTitles} actions={actions}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
@@ -125,6 +113,7 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
 
 VmDisksTab.propTypes = {
     idPrefix: PropTypes.string.isRequired,
+    actions: PropTypes.arrayOf(React.PropTypes.node),
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     notificationText: PropTypes.string,

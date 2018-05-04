@@ -533,9 +533,16 @@ function AskRestart(props) {
 class OsUpdates extends React.Component {
     constructor() {
         super();
-        this.state = { state: "loading", errorMessages: [], updates: {}, timeSinceRefresh: null,
-                       loadPercent: null, cockpitUpdate: false, allowCancel: null,
-                       history: null, unregistered: false, autoUpdatesEnabled: null };
+        this.state = { state: "loading",
+                       errorMessages: [],
+                       updates: {},
+                       timeSinceRefresh: null,
+                       loadPercent: null,
+                       cockpitUpdate: false,
+                       allowCancel: null,
+                       history: null,
+                       unregistered: false,
+                       autoUpdatesEnabled: null };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);

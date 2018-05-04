@@ -568,7 +568,9 @@ function parseDumpxml(dispatch, connectionName, domXml) {
     const ui = resolveUiState(dispatch, name);
 
     dispatch(updateOrAddVm({
-        connectionName, name, id,
+        connectionName,
+        name,
+        id,
         osType,
         currentMemory,
         vcpus,

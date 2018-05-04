@@ -34,7 +34,7 @@ const NotificationArea = ({ notifications, onDismiss, id }) => {
                               id={`${id}-notification-${notification.id}`}
                               notificationClass={'alert ' + clazz}
                               iconClass={'pficon ' + icon}>
-            <NotificationMessage description={notification.description} message={notification.message}/>
+            <NotificationMessage description={notification.description} message={notification.message} />
         </Notification>);
     });
 

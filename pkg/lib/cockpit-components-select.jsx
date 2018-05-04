@@ -196,7 +196,7 @@
     /* Divider
      * Example: <SelectDivider/>
      */
-    const SelectDivider = () => <li role="separator" className="divider"/>;
+    const SelectDivider = () => <li role="separator" className="divider" />;
 
     /* Header
      * Example: <SelectHeader>Some header</SelectHeader>

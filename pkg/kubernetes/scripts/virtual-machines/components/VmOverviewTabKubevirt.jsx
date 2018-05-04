@@ -70,11 +70,11 @@ const PodLink = ({ pod }) => {
 const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: VmMessages, pod: Pod }) => {
     const idPrefix = vmIdPrefx(vm);
 
-    const message = (<VmMessage vmMessages={vmMessages} vm={vm}/>);
+    const message = (<VmMessage vmMessages={vmMessages} vm={vm} />);
 
     const nodeName = getNodeName(vm);
     const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-';
-    const podLink = (<PodLink pod={pod}/>);
+    const podLink = (<PodLink pod={pod} />);
 
     const items = [
         {title: commonTitles.MEMORY, value: getMemory(vm), idPostfix: 'memory'},

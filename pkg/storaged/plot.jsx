@@ -71,7 +71,7 @@ class ZoomControls extends React.Component {
                         <li role="presentation">
                             <a role="menuitem" data-action="goto-now">{_("Go to now")}</a>
                         </li>
-                        <li role="presentation" className="divider"/>
+                        <li role="presentation" className="divider" />
                         <li role="presentation">
                             <a role="menuitem" data-range="300">{_("5 minutes")}</a>
                         </li>
@@ -258,14 +258,14 @@ export class StoragePlots extends React.Component {
         return (
             <div className={Object.keys(this.state.classes).join(" ")}>
                 <ZoomControls ref={setup_controls}
-                              onClassesChanged={(cls) => this.setState({ classes: cls })}/>
+                              onClassesChanged={(cls) => this.setState({ classes: cls })} />
                 <div className="row">
                     <StoragePlot devs={devs} onHover={this.props.onHover}
                                  onPlotCreated={new_plot}
-                                 title={_("Reading")} data={read_plot_data}/>
+                                 title={_("Reading")} data={read_plot_data} />
                     <StoragePlot devs={devs} onHover={this.props.onHover}
                                  onPlotCreated={new_plot}
-                                 title={_("Writing")} data={write_plot_data}/>
+                                 title={_("Writing")} data={write_plot_data} />
                 </div>
             </div>
         );

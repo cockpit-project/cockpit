@@ -87,7 +87,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     let providerActions = null;
     if (config.provider.VmActions) {
         const ProviderActions = config.provider.VmActions;
-        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch}/>;
+        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />;
     }
 
     let deleteAction = null;

@@ -870,7 +870,7 @@ class OsUpdates extends React.Component {
             return this.state.errorMessages.map(m => <pre>{m}</pre>);
 
         case "applying":
-            return <ApplyUpdates transaction={this.state.applyTransaction}/>
+            return <ApplyUpdates transaction={this.state.applyTransaction} />
 
         case "updateSuccess":
             this.loadHistory();

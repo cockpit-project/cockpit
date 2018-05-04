@@ -89,7 +89,7 @@ var KdumpTargetBody = React.createClass({
                         <input id="kdump-settings-local-directory" className="form-control" type="text"
                                placeholder="/var/crash" value={directory}
                                data-stored={directory}
-                               onChange={this.changeValue.bind(this, "path")}/>
+                               onChange={this.changeValue.bind(this, "path")} />
                     </td>
                 </tr>
             );
@@ -108,7 +108,7 @@ var KdumpTargetBody = React.createClass({
                         <label>
                             <input id="kdump-settings-nfs-mount" className="form-control" type="text"
                                    placeholder="penguin.example.com:/export/cores" value={nfs}
-                                   onChange={this.changeValue.bind(this, "nfs")}/>
+                                   onChange={this.changeValue.bind(this, "nfs")} />
                         </label>
                     </td>
                 </tr>
@@ -131,7 +131,7 @@ var KdumpTargetBody = React.createClass({
                         <label>
                             <input id="kdump-settings-ssh-server" className="form-control" type="text"
                                    placeholder="user@server.com" value={ssh}
-                                   onChange={this.changeValue.bind(this, "ssh")}/>
+                                   onChange={this.changeValue.bind(this, "ssh")} />
                         </label>
                     </td>
                 </tr>),
@@ -145,7 +145,7 @@ var KdumpTargetBody = React.createClass({
                         <label>
                             <input id="kdump-settings-ssh-server" className="form-control" type="text"
                                    placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                                   onChange={this.changeValue.bind(this, "sshkey")}/>
+                                   onChange={this.changeValue.bind(this, "sshkey")} />
                         </label>
                     </td>
                 </tr>),
@@ -194,7 +194,7 @@ var KdumpTargetBody = React.createClass({
                                 <label>
                                     <input id="kdump-settings-compression" type="checkbox" checked={this.props.compressionEnabled}
                                            onChange={this.handleCompressionClick.bind(this)}
-                                           enabled={compressionPossible}/>
+                                           enabled={compressionPossible} />
                                     {_("Compress crash dumps to save space")}
                                 </label>
                             </div>
@@ -492,7 +492,7 @@ var KdumpPage = React.createClass({
                         <td colSpan="2">
                             <div>
                                 <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
-                                    enabled={!this.props.stateChanging}/>
+                                    enabled={!this.props.stateChanging} />
                                 {serviceWaiting}
                                 {kdumpServiceDetails}
                             </div>

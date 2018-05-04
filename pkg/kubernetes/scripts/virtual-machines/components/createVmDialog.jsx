@@ -201,7 +201,7 @@ class CreateVmDialog extends React.Component {
         }
 
         if (this.state.isOverDropZone) {
-            overDropZoneOverlay = (<div className="overlay drop-overlay drop-area-over"/>);
+            overDropZoneOverlay = (<div className="overlay drop-overlay drop-area-over" />);
             textAreaClassName = "text-area-opacity";
         }
 
@@ -214,7 +214,7 @@ class CreateVmDialog extends React.Component {
                             {_("upload a JSON file")}
                             <input id="file-input" type="file" className="hide"
                                    accept=".json,.txt"
-                                   onChange={this.onNewFileEvent}/>
+                                   onChange={this.onNewFileEvent} />
                         </a>
                     </label>
                     {_(" or drag & drop.")}
@@ -229,7 +229,7 @@ class CreateVmDialog extends React.Component {
                                       key="resource-text"
                                       className={"form-control " + textAreaClassName}
                                       value={this.state.resource}
-                                      onChange={this.onResourceChanged}/>
+                                      onChange={this.onResourceChanged} />
                         </div>
                         {resourceErrorLabel}
                     </div>

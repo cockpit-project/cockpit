@@ -92,7 +92,7 @@ export class VGroupsPanel extends React.Component {
                                       name={vgroup.Name}
                                       detail={fmt_size(vgroup.Size)}
                                       go={() => cockpit.location.go([ "vg", vgroup.Name ])}
-                                      job_path={path}/>
+                                      job_path={path} />
             );
         }
 
@@ -101,7 +101,7 @@ export class VGroupsPanel extends React.Component {
 
         var actions = (
             <StorageButton kind="primary" onClick={create_vgroup} id="create-volume-group">
-                <span className="fa fa-plus"/>
+                <span className="fa fa-plus" />
             </StorageButton>
         );
 

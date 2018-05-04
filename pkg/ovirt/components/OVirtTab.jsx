@@ -65,7 +65,7 @@ class MigrateTo extends React.Component {
                         ? (<ConfirmButtons confirmText={_("Confirm migration")}
                                          dismissText={_("Cancel")}
                                          onYes={onActionConfirmed}
-                                         onNo={onActionCanceled}/>)
+                                         onNo={onActionCanceled} />)
                         : (<button className="btn btn-default btn-danger" onClick={onAction} id={`${idPrefix}-migratetobutton`}>
                             {_("Migrate To:")}
                         </button>)
@@ -122,7 +122,7 @@ const VmHA = ({ clusterVm, id }) => {
         value = _("enabled");
     }
 
-    return (<VmProperty descr={_("HA:")} value={value} id={id}/>);
+    return (<VmProperty descr={_("HA:")} value={value} id={id} />);
 };
 
 const OVirtTab = ({ vm, providerState, dispatch }) => {
@@ -138,21 +138,21 @@ const OVirtTab = ({ vm, providerState, dispatch }) => {
             <tr className='machines-listing-ct-body-detail'>
                 <td className='ovirt-provider-listing-top-column'>
                     <table className='form-table-ct'>
-                        <VmProperty descr={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`}/>
-                        <VmTemplate clusterVm={clusterVm} templates={providerState.templates} id={`${idPrefix}-template`}/>
-                        <VmProperty descr={_("OS Type:")} value={clusterVm.os.type} id={`${idPrefix}-ostype`}/>
+                        <VmProperty descr={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
+                        <VmTemplate clusterVm={clusterVm} templates={providerState.templates} id={`${idPrefix}-template`} />
+                        <VmProperty descr={_("OS Type:")} value={clusterVm.os.type} id={`${idPrefix}-ostype`} />
                     </table>
                 </td>
                 <td className='ovirt-provider-listing-top-column'>
                     <table className='form-table-ct'>
-                        <VmHA clusterVm={clusterVm} id={`${idPrefix}-ha`}/>
-                        <VmProperty descr={_("Stateless:")} value={rephraseUI('stateless', clusterVm.stateless)} id={`${idPrefix}-stateless`}/>
-                        <VmProperty descr={_("Optimized for:")} value={clusterVm.type} id={`${idPrefix}-optimizedfor`}/>
+                        <VmHA clusterVm={clusterVm} id={`${idPrefix}-ha`} />
+                        <VmProperty descr={_("Stateless:")} value={rephraseUI('stateless', clusterVm.stateless)} id={`${idPrefix}-stateless`} />
+                        <VmProperty descr={_("Optimized for:")} value={clusterVm.type} id={`${idPrefix}-optimizedfor`} />
                     </table>
                 </td>
                 <td className='ovirt-provider-listing-top-column'>
                     <table className='form-table-ct'>
-                        <MigrateTo vm={vm} hosts={providerState.hosts} dispatch={dispatch}/>
+                        <MigrateTo vm={vm} hosts={providerState.hosts} dispatch={dispatch} />
                     </table>
                 </td>
             </tr>

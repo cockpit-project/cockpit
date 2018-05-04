@@ -141,7 +141,7 @@ export class VDOsPanel extends React.Component {
                                       name={vdo.name}
                                       detail={fmt_size(vdo.logical_size)}
                                       go={() => cockpit.location.go([ "vdo", vdo.name ])}
-                                      job_path={block && block.path}/>
+                                      job_path={block && block.path} />
             );
         }
 
@@ -149,7 +149,7 @@ export class VDOsPanel extends React.Component {
 
         var actions = (
             <StorageButton kind="primary" onClick={create_vdo} id="create-vdo">
-                <span className="fa fa-plus"/>
+                <span className="fa fa-plus" />
             </StorageButton>
         );
 

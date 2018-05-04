@@ -50,7 +50,7 @@ export class NFSPanel extends React.Component {
                     <td>{ entry.fields[1] }</td>
                     <td>
                         { entry.mounted
-                            ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                            ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : _("Not mounted")
                         }
                     </td>
@@ -75,7 +75,7 @@ export class NFSPanel extends React.Component {
                 <div className="panel-heading">
                     <span className="pull-right">
                         <StorageButton kind="primary" onClick={add}>
-                            <span className="fa fa-plus"/>
+                            <span className="fa fa-plus" />
                         </StorageButton>
                     </span>
                     <span>{_("NFS Mounts")}</span>

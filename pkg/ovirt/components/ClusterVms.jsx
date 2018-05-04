@@ -101,8 +101,8 @@ const VmActions = ({ vm, hostName, dispatch }) => {
     if (buttons) {
         return (
             <span>
-                <DropdownButtons buttons={buttons}/>
-                <VmLastMessage vm={vm}/>
+                <DropdownButtons buttons={buttons} />
+                <VmLastMessage vm={vm} />
             </span>
         );
     }
@@ -128,7 +128,7 @@ const VmLastMessage = ({ vm }) => {
 };
 
 const Vm = ({ vm, hosts, templates, config, dispatch }) => {
-    const stateIcon = (<StateIcon state={vm.state} config={config}/>);
+    const stateIcon = (<StateIcon state={vm.state} config={config} />);
     const ovirtConfig = config.providerState && config.providerState.ovirtConfig;
     const currentHost = getHost(hosts, ovirtConfig);
     const hostName = currentHost && currentHost.name;

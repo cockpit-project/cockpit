@@ -37,7 +37,7 @@ function getBootOrder(vm) {
 
 const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
     const idPrefix = vmId(vm.name);
-    const message = (<VmLastMessage vm={vm} dispatch={dispatch}/>);
+    const message = (<VmLastMessage vm={vm} dispatch={dispatch} />);
 
     let items = [
         { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },
@@ -51,7 +51,7 @@ const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
     return (<VmOverviewTab message={message}
                            idPrefix={idPrefix}
                            items={items}
-                           extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)}/>);
+                           extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />);
 };
 
 VmOverviewTabLibvirt.propTypes = {

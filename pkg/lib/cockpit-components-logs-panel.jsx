@@ -48,11 +48,11 @@ class JournalOutput {
             <div className="cockpit-logline">
                 <div className="cockpit-log-warning">
                     { warning
-                        ? <i className="fa fa-exclamation-triangle"/>
+                        ? <i className="fa fa-exclamation-triangle" />
                         : null
                     }
                     { problem
-                        ? <i className="fa fa-times-circle-o"/>
+                        ? <i className="fa fa-times-circle-o" />
                         : null
                     }
                 </div>

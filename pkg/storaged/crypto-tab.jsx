@@ -156,7 +156,7 @@ var CryptoTab = React.createClass({
         return (
             <div>
                 <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block}/>
+                    <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
                     { !self.props.client.is_old_udisks2

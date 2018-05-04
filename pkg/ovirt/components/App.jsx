@@ -112,7 +112,7 @@ const TopMenu = ({ ovirtConfig, router, dispatch }) => {
                aria-current={selected_aria('vdsm')}
                onClick={() => onNavigate('vdsm')}>{_("VDSM")}</a>
 
-            <LoginInProgress ovirtConfig={ovirtConfig}/>
+            <LoginInProgress ovirtConfig={ovirtConfig} />
         </nav>
     );
 };
@@ -126,13 +126,13 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
 
     return (
         <div className='container-fluid'>
-            <HostStatus host={host}/>
+            <HostStatus host={host} />
             <HostVmsList vms={vms}
                          config={config}
                          systemInfo={systemInfo}
                          ui={ui}
                          dispatch={dispatch}
-                         actions={actions}/>
+                         actions={actions} />
         </div>
     );
 };
@@ -150,7 +150,7 @@ const createOvirtVmAction = () => {
     return (
         <div className='card-pf-link-with-icon pull-right'>
             <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
-                <span className="pficon pficon-add-circle-o"/>
+                <span className="pficon pficon-add-circle-o" />
                 <Tooltip tip={tip} pos="top">
                     {_("Create New VM")}
                 </Tooltip>
@@ -177,13 +177,13 @@ const App = ({ store }) => {
     let component = null;
     switch (route) {
     case 'clustervms':
-        component = (<ClusterVms config={config} dispatch={dispatch}/>);
+        component = (<ClusterVms config={config} dispatch={dispatch} />);
         break;
     case 'clustertemplates':
-        component = (<ClusterTemplates config={config} dispatch={dispatch}/>);
+        component = (<ClusterTemplates config={config} dispatch={dispatch} />);
         break;
     case 'vdsm':
-        component = (<VdsmView/>);
+        component = (<VdsmView />);
         break;
     default:
         component = (

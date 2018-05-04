@@ -85,7 +85,7 @@ class HostVmsList extends React.Component {
         return (<div className='container-fluid'>
             <NotificationArea id={"notification-area"}
                 notifications={ui.notifications}
-                onDismiss={(id) => dispatch(clearNotification(id))}/>
+                onDismiss={(id) => dispatch(clearNotification(id))} />
             <Listing title={_("Virtual Machines")}
                 columnTitles={[_("Name"), _("Connection"), _("State")]}
                 actions={allActions}
@@ -95,7 +95,7 @@ class HostVmsList extends React.Component {
                         .map(vm => {
                             if (vm.isUi) {
                                 return (
-                                    <DummyVm vm={vm}/>
+                                    <DummyVm vm={vm} />
                                 );
                             }
                             return (

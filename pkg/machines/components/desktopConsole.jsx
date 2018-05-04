@@ -27,7 +27,7 @@ const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
         <li className='machines-desktop-install-instructs-item'>
             <div className='machines-desktop-install-instructs-row'>
                 <b>{os}:</b>&nbsp;
-                {innerHtml && <div dangerouslySetInnerHTML={{__html: innerHtml}}/>}
+                {innerHtml && <div dangerouslySetInnerHTML={{__html: innerHtml}} />}
                 {!innerHtml && <div className='machines-desktop-shell-command'>{command}</div>}
             </div>
         </li>
@@ -52,10 +52,10 @@ const MoreInformationContent = () => {
             <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{__html: msg2}} />
 
             <ul className='machines-desktop-install-instructs'>
-                <MoreInformationInstallVariant os='RHEL, CentOS' command='sudo yum install virt-viewer'/>
-                <MoreInformationInstallVariant os='Fedora' command='sudo dnf install virt-viewer'/>
-                <MoreInformationInstallVariant os='Ubuntu, Debian' command='sudo apt-get install virt-viewer'/>
-                <MoreInformationInstallVariant os='Windows' innerHtml={downloadMsg}/>
+                <MoreInformationInstallVariant os='RHEL, CentOS' command='sudo yum install virt-viewer' />
+                <MoreInformationInstallVariant os='Fedora' command='sudo dnf install virt-viewer' />
+                <MoreInformationInstallVariant os='Ubuntu, Debian' command='sudo apt-get install virt-viewer' />
+                <MoreInformationInstallVariant os='Windows' innerHtml={downloadMsg} />
             </ul>
         </div>
     );
@@ -97,7 +97,7 @@ class MoreInformation extends React.Component {
         if (!this.state.expanded) {
             return (
                 <a href='#' tabIndex="0" onClick={this.onClick}>
-                    <span className='fa fa-angle-right'/>&nbsp;
+                    <span className='fa fa-angle-right' />&nbsp;
                     {_("More Information")}
                 </a>);
         }
@@ -105,7 +105,7 @@ class MoreInformation extends React.Component {
         return (
             <div className='machines-desktop-more-info-container'>
                 <a href='#' tabIndex="0" onClick={this.onClick}>
-                    <span className='fa fa-angle-down'/>&nbsp;
+                    <span className='fa fa-angle-down' />&nbsp;
                     {_("More Information")}
                 </a>
                 {this.getContent()}
@@ -192,7 +192,7 @@ const ManualConnection = ({ displays, idPrefix }) => {
             <h2>{_("Manual Connection")}</h2>
             <p className='machines-desktop-manual-block'>{msg}</p>
             <p className='machines-desktop-manual-block'>
-                <ManualConnectionDetails displays={displays} idPrefix={idPrefix}/>
+                <ManualConnectionDetails displays={displays} idPrefix={idPrefix} />
             </p>
         </td>
     )
@@ -204,7 +204,7 @@ const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
             <table className='machines-desktop-main'>
                 <tr>
                     <ConnectWithRemoteViewer config={config} vm={vm} onDesktopConsole={onDesktopConsole} />
-                    <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`}/>
+                    <ManualConnection displays={vm.displays} idPrefix={`${vmId(vm.name)}-consoles-manual`} />
                 </tr>
             </table>
         </div>

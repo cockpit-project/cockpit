@@ -27,7 +27,7 @@ const DiskSourceCell = ({ diskSource, idPrefix }) => {
     const addOptional = (chunks, value, descr) => {
         if (value) {
             chunks.push(<InfoRecord descrClass='machines-disks-source-descr' descr={descr}
-                                    valueClass='machines-disks-source-value' value={value}/>);
+                                    valueClass='machines-disks-source-value' value={value} />);
         }
     };
 

@@ -68,7 +68,7 @@ const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitC
                                        onKeyPress={digitFilter}
                                        step={1}
                                        min={0}
-                                       onChange={onValueChange}/>
+                                       onChange={onValueChange} />
                             </span>
                             <span className="thirty-five-spaced-cell padding-left">
                                 <Select.Select id={id + "-unit-select"}
@@ -181,7 +181,7 @@ class CreateVM extends React.Component {
         if (this.props.familyMap[DIVIDER_FAMILY]) {
             vendorSelectEntries.push((
                 <Select.SelectEntry data={NOT_SPECIFIED} key={NOT_SPECIFIED}>{_(NOT_SPECIFIED)}</Select.SelectEntry>));
-            vendorSelectEntries.push((<Select.SelectDivider/>));
+            vendorSelectEntries.push((<Select.SelectDivider />));
         }
 
         this.props.familyList.forEach(({ family, vendors }) => {
@@ -210,7 +210,7 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete.FileAutoComplete id={installationSourceId}
                     placeholder={_("Path to ISO file on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')}/>
+                    onChange={this.onChangedValue.bind(this, 'source')} />
             );
             break;
         case URL_SOURCE:
@@ -222,7 +222,7 @@ class CreateVM extends React.Component {
                     minLength={1}
                     placeholder={_("Remote URL")}
                     value={this.props.vmParams.source}
-                    onChange={this.onChangedEventValue.bind(this, 'source')}/>
+                    onChange={this.onChangedEventValue.bind(this, 'source')} />
             );
             break;
         }
@@ -239,7 +239,7 @@ class CreateVM extends React.Component {
                         <td>
                             <input id="vm-name" className="form-control" type="text" minLength={1}
                                    value={this.props.vmParams.vmName}
-                                   onChange={this.onChangedEventValue.bind(this, 'vmName')}/>
+                                   onChange={this.onChangedEventValue.bind(this, 'vmName')} />
                         </td>
                     </tr>
                     <tr>
@@ -301,13 +301,13 @@ class CreateVM extends React.Component {
                                      value={this.state.memorySize}
                                      initialUnit={this.state.memorySizeUnit}
                                      onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')}/>
+                                     onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')} />
                     <MemorySelectRow label={_("Storage Size")}
                                      id={"storage-size"}
                                      value={this.state.storageSize}
                                      initialUnit={this.state.storageSizeUnit}
                                      onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')}/>
+                                     onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')} />
                     <tr>
                         <td className="top">
                             <label className="control-label" htmlFor="start-vm">
@@ -317,7 +317,7 @@ class CreateVM extends React.Component {
                         <td>
                             <input id="start-vm" className="form-control dialog-checkbox" type="checkbox"
                                    checked={this.props.vmParams.startVm}
-                                   onChange={this.onChangedEventChecked.bind(this, 'startVm')}/>
+                                   onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
                         </td>
                     </tr>
                 </table>
@@ -407,7 +407,7 @@ export const createVmDialog = (dispatch, osInfoList) => {
                   familyList={vendors.familyList}
                   familyMap={vendors.familyMap}
                   vendorMap={vendors.vendorMap}
-                  valuesChanged={changeParams}/>
+                  valuesChanged={changeParams} />
     );
 
     const dialogProps = {
@@ -452,7 +452,7 @@ export function createVmAction({ dispatch, systemInfo }) {
     return (
         <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
             onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
-            <span className="pficon pficon-add-circle-o"/>{_("Create New VM")}
+            <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
         </a>
     );
 }

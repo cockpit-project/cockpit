@@ -87,36 +87,36 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
     let notification = null;
     if (notificationText) {
         notification = (<Info text={notificationText}
-                              textId={`${idPrefix}-notification`}/>);
+                              textId={`${idPrefix}-notification`} />);
     }
 
     return (
         <div>
             {notification}
-            <DiskTotal disks={disks} idPrefix={idPrefix}/>
+            <DiskTotal disks={disks} idPrefix={idPrefix} />
             <Listing columnTitles={columnTitles}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
-                        { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`}/>, 'header': true },
-                        <VmDiskCell value={disk.target} id={`${idPrefixRow}-target`}/>
+                        { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} />, 'header': true },
+                        <VmDiskCell value={disk.target} id={`${idPrefixRow}-target`} />
                     ];
 
                     if (renderCapacity) {
                         if (renderCapacityUsed) {
-                            columns.push(<StorageUnit value={disk.used} id={`${idPrefixRow}-used`}/>);
+                            columns.push(<StorageUnit value={disk.used} id={`${idPrefixRow}-used`} />);
                         }
-                        columns.push(<StorageUnit value={disk.capacity} id={`${idPrefixRow}-capacity`}/>);
+                        columns.push(<StorageUnit value={disk.capacity} id={`${idPrefixRow}-capacity`} />);
                     }
 
-                    columns.push(<VmDiskCell value={disk.bus} id={`${idPrefixRow}-bus`}/>);
+                    columns.push(<VmDiskCell value={disk.bus} id={`${idPrefixRow}-bus`} />);
 
                     if (renderReadOnly) {
                         columns.push(disk.readonly ? _("yes") : _("no"));
                     }
 
                     columns.push(disk.diskSourceCell);
-                    return (<ListingRow columns={columns} navigateToItem={disk.onNavigate}/>);
+                    return (<ListingRow columns={columns} navigateToItem={disk.onNavigate} />);
                 })}
             </Listing>
         </div>

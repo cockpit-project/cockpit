@@ -110,7 +110,7 @@ class VGroupSidebar extends React.Component {
                         <div><img src="images/storage-disk.png"></img></div>
                     </td>
                     <td>
-                        <StorageBlockNavLink client={client} block={ client.blocks[pvol.path] }/>
+                        <StorageBlockNavLink client={client} block={ client.blocks[pvol.path] } />
                         <br></br>
                         <span>
                             {cockpit.format(_("$0, $1 free"),
@@ -253,13 +253,13 @@ export class VGroupDetails extends React.Component {
             </div>
         );
 
-        var sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup}/>;
+        var sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;
 
-        var content = <Content.VGroup client={this.props.client} vgroup={vgroup}/>;
+        var content = <Content.VGroup client={this.props.client} vgroup={vgroup} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  header={ header }
                                  sidebar={ sidebar }
-                                 content={ content }/>;
+                                 content={ content } />;
     }
 }

@@ -92,13 +92,13 @@ class LibvirtSlate extends React.Component {
 
         if (activeState === 'running') {
             message = _("Virtualization Service is Available");
-            icon = (<span className="pficon-ok"/>);
+            icon = (<span className="pficon-ok" />);
         } else if (name && activeState === 'unknown') { // name === 'unknown' first
             message = _("Connecting to Virtualization Service");
-            icon = (<div className="spinner spinner-lg"/>);
+            icon = (<div className="spinner spinner-lg" />);
         } else {
             message = _("Virtualization Service (libvirt) is Not Active");
-            icon = (<span className="fa fa-exclamation-circle"/>);
+            icon = (<span className="fa fa-exclamation-circle" />);
             detail = (
                 <div className="checkbox">
                     <label>
@@ -106,7 +106,7 @@ class LibvirtSlate extends React.Component {
                                id="enable-libvirt"
                                disabled={!name}
                                checked={this.state.libvirtEnabled}
-                               onChange={this.onLibvirtEnabledChanged}/>
+                               onChange={this.onLibvirtEnabledChanged} />
                         {_("Automatically start libvirt on boot")}
                     </label>
                 </div>

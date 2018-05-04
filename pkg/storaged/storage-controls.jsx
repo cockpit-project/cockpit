@@ -109,7 +109,7 @@ var StorageButton = React.createClass({
                                             className={classes + (excuse ? " disabled" : "")}>
                                     {this.props.children}
                                 </button>
-                            )}/>
+                            )} />
         );
     }
 });
@@ -125,7 +125,7 @@ var StorageLink = React.createClass({
                                        className={excuse ? " disabled" : ""}>
                                     {this.props.children}
                                 </a>
-                            )}/>
+                            )} />
         );
     }
 });
@@ -204,8 +204,8 @@ class StorageOnOff extends React.Component {
                                     ? this.state.promise_goal_state
                                     : this.props.state}
                                                  enabled={!excuse && !this.state.promise}
-                                                 onChange={onChange}/>
-                            )}/>
+                                                 onChange={onChange} />
+                            )} />
         );
     }
 }
@@ -240,7 +240,7 @@ class StorageMultiAction extends React.Component {
                                         </ul>
                                     </div>
                                 );
-                            }}/>
+                            }} />
         );
     }
 }

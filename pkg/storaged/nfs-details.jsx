@@ -305,7 +305,7 @@ export class NFSDetails extends React.Component {
                             <td>{_("Size")}</td>
                             <td>
                                 { entry.mounted
-                                    ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                                    ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                                     : _("--")
                                 }
                             </td>
@@ -321,6 +321,6 @@ export class NFSDetails extends React.Component {
             </div>
         );
 
-        return <StdDetailsLayout client={client} header={header}/>;
+        return <StdDetailsLayout client={client} header={header} />;
     }
 }

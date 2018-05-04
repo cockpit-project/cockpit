@@ -95,7 +95,7 @@ var DismissableError = React.createClass({
                 <span className="pficon pficon-error-circle-o" />
                 <span>{this.props.children}</span>
                 <button type="button" className="close" aria-hidden="true" onClick={this.handleDismissError}>
-                    <span className="pficon pficon-close"/>
+                    <span className="pficon pficon-close" />
                 </button>
             </div>
         );
@@ -212,12 +212,12 @@ var SubscriptionsPage = React.createClass({
                 },
             ];
             var columns = [ { name: itm.productName, 'header': true } ];
-            return <cockpitListing.ListingRow columns={columns} tabRenderers={tabRenderers}/>;
+            return <cockpitListing.ListingRow columns={columns} tabRenderers={tabRenderers} />;
         });
 
         return (
             <div className="container-fluid">
-                <SubscriptionStatus {...this.props }/>
+                <SubscriptionStatus {...this.props } />
                 <cockpitListing.Listing
                     title={ _("Installed products") }
                     emptyCaption={ _("No installed products on the system.") }

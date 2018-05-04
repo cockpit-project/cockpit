@@ -79,7 +79,7 @@ export class FilesystemsPanel extends React.Component {
                     </td>
                     <td>
                         { fsys.MountPoints.length > 0
-                            ? <StorageUsageBar stats={fsys_size} critical={0.95}/>
+                            ? <StorageUsageBar stats={fsys_size} critical={0.95} />
                             : null
                         }
                     </td>

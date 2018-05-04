@@ -171,9 +171,9 @@
                 drive_rows.push(
                     <tr onClick={self.toggleDrive.bind(self, drive)}>
                         <td><input type="checkbox"
-                                   checked={self.driveChecked(drive)}/>
+                                   checked={self.driveChecked(drive)} />
                         </td>
-                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
                         <td>
                             <div>{drive.name}</div>
                             <div>{cockpit.format_bytes(drive.size)} {drive_class_desc(drive.class)}</div>
@@ -239,7 +239,7 @@
                     return (
                         <tr>
                             <td>{cockpit.format_bytes(drive.size)}</td>
-                            <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
+                            <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
                             <td>{drive.name}{drive.shared ? _(" (shared with the OS)") : ""}</td>
                         </tr>);
                 });
@@ -318,7 +318,7 @@
                             <div>
                                 <span className="free-text">{free_fmt[0]}</span>
                                 <div className="free-unit">
-                                    {free_fmt[1]}<br/>{_("Free")}
+                                    {free_fmt[1]}<br />{_("Free")}
                                 </div>
                             </div>
                         </div>
@@ -337,7 +337,7 @@
                 return (
                     <tr>
                         <td>{cockpit.format_bytes(drive.size)}</td>
-                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg"/></td>
+                        <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
                         <td>{drive.name}</td>
                     </tr>);
             });
@@ -462,11 +462,11 @@
 
         var model = get_storage_model();
 
-        React.render(<DriveBox model={model} callback={add_callback}/>,
+        React.render(<DriveBox model={model} callback={add_callback} />,
                      $("#storage-drives")[0]);
-        React.render(<PoolBox model={model}/>,
+        React.render(<PoolBox model={model} />,
                      $("#storage-pool")[0]);
-        React.render(<OverviewBox model={model}/>,
+        React.render(<OverviewBox model={model} />,
                      $("#storage-overview")[0]);
 
         function update() {

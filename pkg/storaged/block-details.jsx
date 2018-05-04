@@ -47,8 +47,8 @@ export class BlockDetails extends React.Component {
             </div>
         );
 
-        var content = <Content.Block client={this.props.client} block={block}/>;
+        var content = <Content.Block client={this.props.client} block={block} />;
 
-        return <StdDetailsLayout client={this.props.client} header={header} content={content}/>;
+        return <StdDetailsLayout client={this.props.client} header={header} content={content} />;
     }
 }

@@ -41,7 +41,7 @@ class CreateVmButton extends React.Component {
         const dialogProps = {
             title: _("Create Virtual Machine"),
             body: (
-                <CreateVmDialog ref={ d => { dialog = d; return d; } }/>
+                <CreateVmDialog ref={ d => { dialog = d; return d; } } />
             ),
         };
 
@@ -73,7 +73,7 @@ class CreateVmButton extends React.Component {
         return (
             <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
                 onClick={mouseClick(this.createVmDialog)}>
-                <span className="pficon pficon-add-circle-o"/>{_("Create")}
+                <span className="pficon pficon-add-circle-o" />{_("Create")}
             </a>
         );
     }

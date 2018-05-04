@@ -40,7 +40,7 @@
                                 </label>
                             </td>
                             <td>
-                                <input id="control-1" className="form-control" type="text"/>
+                                <input id="control-1" className="form-control" type="text" />
                             </td>
                         </tr>
                         <tr>

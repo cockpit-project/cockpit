@@ -497,7 +497,8 @@ function block_content(client, block, allow_partitions) {
                             Title: _("Partitioning"),
                             Options: [
                                 { value: "dos", Title: _("Compatible with all systems and devices (MBR)") },
-                                { value: "gpt", Title: _("Compatible with modern system and hard disks > 2TB (GPT)"),
+                                { value: "gpt",
+                                  Title: _("Compatible with modern system and hard disks > 2TB (GPT)"),
                                   selected: true
                                 },
                                 { value: "empty", Title: _("No partitioning") }
@@ -621,7 +622,8 @@ var VGroup = React.createClass({
                               { SelectOne: "purpose",
                                 Title: _("Purpose"),
                                 Options: [
-                                    { value: "block", Title: _("Block device for filesystems"),
+                                    { value: "block",
+                                      Title: _("Block device for filesystems"),
                                       selected: true
                                     },
                                     { value: "pool", Title: _("Pool for thinly provisioned volumes") }

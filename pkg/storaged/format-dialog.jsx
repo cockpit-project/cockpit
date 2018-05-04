@@ -243,7 +243,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     add_fsys("ext4", { value: "luks+ext4", Title: _("Encrypted EXT4 (LUKS)") });
     add_fsys("vfat", { value: "vfat", Title: _("VFAT - Compatible with all systems and devices") });
     add_fsys("ntfs", { value: "ntfs", Title: _("NTFS - Compatible with most systems") });
-    add_fsys(true, { value: "dos-extended", Title: _("Extended Partition"),
+    add_fsys(true, { value: "dos-extended",
+                     Title: _("Extended Partition"),
                      disabled: !(create_partition && enable_dos_extended) });
     add_fsys(true, { value: "empty", Title: _("No Filesystem") });
     add_fsys(true, { value: "custom", Title: _("Custom (Enter filesystem type)") });

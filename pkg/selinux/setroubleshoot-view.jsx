@@ -66,7 +66,7 @@ var SELinuxEventDetails = React.createClass({
                     icon={ waiting ? 'waiting' : 'error' }
                     description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
-                    relative={true} />
+                    relative />
             );
         }
         var self = this;
@@ -164,7 +164,7 @@ var SELinuxEventLog = React.createClass({
                     icon={ waiting ? 'waiting' : 'error' }
                     description={ waiting ? _("Waiting for details...") : _("Unable to get alert details.") }
                     message={null}
-                    relative={true} />
+                    relative />
             );
         }
         var self = this;

@@ -93,7 +93,7 @@ class AtomicCockpitInstaller:
         subprocess.call(["ostree", "remote", "delete", "local"])
 
         subprocess.check_call(["ostree", "remote", "add", "local",
-                               "file:///{}".format(self.repo_location),
+                               "file://{}".format(self.repo_location),
                                "--no-gpg-verify"])
 
         # HACK: https://github.com/candlepin/subscription-manager/issues/1404

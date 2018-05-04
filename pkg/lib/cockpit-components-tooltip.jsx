@@ -104,7 +104,9 @@ var Tooltip = React.createClass({
                 var arrow_left = tip.offsetWidth / 2;
 
                 // Figure out where it is on the page
-                var abs_left = left, abs_top = top, max_width = child.offsetWidth;
+                var abs_left = left;
+                var abs_top = top;
+                var max_width = child.offsetWidth;
                 var el = tip.offsetParent;
                 while (el) {
                     abs_left += el.offsetLeft;

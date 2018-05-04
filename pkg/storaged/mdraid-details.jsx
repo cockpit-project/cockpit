@@ -74,7 +74,8 @@ class MDRaidSidebar extends React.Component {
         var members = client.mdraids_members[mdraid.path] || [];
         var dynamic_members = (mdraid.Level != "raid0");
 
-        var n_spares = 0, n_recovering = 0;
+        var n_spares = 0;
+        var n_recovering = 0;
         mdraid.ActiveDevices.forEach(function(as) {
             if (as[2].indexOf("spare") >= 0) {
                 if (as[1] < 0)

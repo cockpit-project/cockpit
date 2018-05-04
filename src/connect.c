@@ -721,6 +721,42 @@ virtDBusConnectListNetworks(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectListSecrets(GVariant *inArgs,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath G_GNUC_UNUSED,
+                           gpointer userData,
+                           GVariant **outArgs,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecretPtr) secrets = NULL;
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *gsecrets;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectListAllSecrets(connect->connection, &secrets, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
+
+    for (gint i = 0; secrets[i]; i++) {
+        g_autofree gchar *path = NULL;
+        path = virtDBusUtilBusPathForVirSecret(secrets[i], connect->secretPath);
+
+        g_variant_builder_add(&builder, "o", path);
+    }
+
+    gsecrets = g_variant_builder_end(&builder);
+    *outArgs = g_variant_new_tuple(&gsecrets, 1);
+}
+
+static void
 virtDBusConnectListStoragePools(GVariant *inArgs,
                                 GUnixFDList *inFDs G_GNUC_UNUSED,
                                 const gchar *objectPath G_GNUC_UNUSED,
@@ -1191,6 +1227,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },
+    { "ListSecrets", virtDBusConnectListSecrets },
     { "ListStoragePools", virtDBusConnectListStoragePools },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },

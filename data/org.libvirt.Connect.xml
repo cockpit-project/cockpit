@@ -145,6 +145,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="networks" type="ao" direction="out"/>
     </method>
+    <method name="ListSecrets">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-secret.html#virConnectListAllSecrets"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="secrets" type="ao" direction="out"/>
+    </method>
     <method name="ListStoragePools">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virConnectListAllStoragePools"/>

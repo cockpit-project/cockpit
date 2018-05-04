@@ -568,7 +568,6 @@ class OsUpdates extends React.Component {
                                 // be robust, try to continue with loading updates anyway
                                 this.initialLoadOrRefresh();
                             });
-
                 })
                 .fail(this.handleLoadError);
     }
@@ -704,7 +703,6 @@ class OsUpdates extends React.Component {
                         this.handleRefresh();
                     else
                         this.loadUpdates();
-
                 })
                 .fail(this.handleLoadError);
     }
@@ -766,7 +764,6 @@ class OsUpdates extends React.Component {
                                                 this.state.errorMessages.push(ex.message);
                                             this.setState({state: "updateError"});
                                         });
-
                             });
                 })
                 .catch(ex => {

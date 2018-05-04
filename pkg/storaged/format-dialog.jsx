@@ -52,7 +52,6 @@ function extract_option(split, opt) {
 }
 
 function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
-
     if (!visible)
         visible = function () { return true; };
 

@@ -263,5 +263,4 @@ export function check(client, block, key) {
                     key_retrieval_failed(error);
                 });
     }
-
 }

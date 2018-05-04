@@ -133,7 +133,6 @@ class DnfImpl extends ImplBase {
             // if it's not already present, append it to the file
             script += "sed -i '/\\bupgrade_type\\b[ \\t]*=/ { h; s/^.*$/upgrade_type = " + value + "/ }; " +
                       "$ { x; /^$/ { s//upgrade_type = " + value + "/; H }; x }' /etc/dnf/automatic.conf; ";
-
         }
 
         // if we enable through Cockpit, make sure that starting the timer doesn't start the .service right away,

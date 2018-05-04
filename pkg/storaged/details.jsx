@@ -67,7 +67,6 @@ export class StdDetailsLayout extends React.Component {
                 </div>
             );
         }
-
     }
 }
 

@@ -28,7 +28,6 @@ function removeResource(state, id) {
         return newState;
     }
     return state;
-
 }
 
 function hostsReducer (state, action) {

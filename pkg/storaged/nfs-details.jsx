@@ -37,7 +37,6 @@ function nfs_busy_dialog(client,
     dialog_title,
     entry, error,
     action_title, action) {
-
     function show(users) {
         if (users.length === 0) {
             $('#error-popup-title').text(dialog_title);
@@ -83,7 +82,6 @@ function nfs_busy_dialog(client,
 }
 
 export function nfs_fstab_dialog(client, entry) {
-
     var server_to_check;
 
     function remote_choices(vals, setter) {

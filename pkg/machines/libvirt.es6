@@ -839,7 +839,6 @@ function parseDumpxmlForConsoles(devicesElem) {
                 // So far no additional details needs to be parsed since the console is accessed via 'virsh console'.
                 displays['pty'] = {};
             }
-
         }
     }
 

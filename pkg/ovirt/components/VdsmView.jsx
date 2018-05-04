@@ -142,7 +142,6 @@ class VdsmConf extends React.Component { // TODO: needs design
                 {loaded}
             </div>
         );
-
     }
 }
 

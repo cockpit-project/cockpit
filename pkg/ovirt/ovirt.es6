@@ -337,5 +337,4 @@ function doRefreshResourceWithCurrentCluster(dispatch, getState, name, resourceI
             .fail((reason) => deferred.reject(reason));
 
     return deferred.promise;
-
 }

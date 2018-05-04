@@ -129,7 +129,7 @@
                 columnTitles={['Name', 'Random', 'IP', 'State']}>
                 <cockpitListing.ListingRow
                     columns={ [ { name: 'selected by default', 'header': true }, 'aoeuaoeu', '127.30.168.10', 'Running' ] }
-                    selected={true} />
+                    selected />
                 <cockpitListing.ListingRow
                     columns={ [ { name: "not selected by default", 'header': true }, 'aoeuaoeu', '127.30.168.11', 'Running' ] }
                     selected={false} />

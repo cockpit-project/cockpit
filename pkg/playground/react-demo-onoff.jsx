@@ -47,7 +47,7 @@ var OnOffDemo = React.createClass({
                 </tr>
                 <tr>
                     <td><span>Disabled On</span></td>
-                    <td><OnOffSwitch state={true} enabled={false} /></td>
+                    <td><OnOffSwitch state enabled={false} /></td>
                 </tr>
                 <tr>
                     <td><span>Disabled Off</span></td>

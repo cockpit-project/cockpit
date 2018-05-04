@@ -4,6 +4,13 @@ import dbus
 import libvirttest
 
 class TestStoragePool(libvirttest.BaseTestClass):
+    def test_storage_pool_build(self):
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        interface_obj.Destroy()
+        interface_obj.Build(libvirttest.StoragePoolBuildFlags.NEW)
+
     def test_storage_pool_destroy(self):
         def storage_pool_destroyed(path, event, _detail):
             if event != libvirttest.StoragePoolEvent.STOPPED:

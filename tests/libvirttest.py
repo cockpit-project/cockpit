@@ -187,6 +187,14 @@ class NetworkEvent(IntEnum):
     STOPPED = 3
 
 
+class StoragePoolBuildFlags(IntEnum):
+    NEW = 0
+    REPAIR = 1
+    RESIZE = 2
+    NO_OVERWRITE = 4
+    OVERWRITE = 8
+
+
 class StoragePoolEvent(IntEnum):
     DEFINED = 0
     UNDEFINED = 1

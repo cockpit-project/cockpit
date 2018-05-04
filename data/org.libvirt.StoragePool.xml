@@ -3,6 +3,11 @@
 
 <node name="/org/libvirt/storagepool">
   <interface name="org.libvirt.StoragePool">
+    <method name="Build">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolBuild"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="Destroy">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolDestroy"/>

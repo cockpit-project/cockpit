@@ -143,6 +143,30 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
     return 0;
 }
 
+static gint
+virtDBusEventsStoragePoolLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+                                   virStoragePoolPtr storagePool,
+                                   gint event,
+                                   gint detail,
+                                   gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirStoragePool(storagePool,
+                                                connect->storagePoolPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  connect->connectPath,
+                                  VIRT_DBUS_CONNECT_INTERFACE,
+                                  "StoragePoolEvent",
+                                  g_variant_new("(ouu)", path, event, detail),
+                                  NULL);
+
+    return 0;
+}
+
 static void
 virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
                                   gint id,
@@ -173,6 +197,21 @@ virtDBusEventsRegisterNetworkEvent(virtDBusConnect *connect,
                                                                         NULL);
 }
 
+static void
+virtDBusEventsRegisterStoragePoolEvent(virtDBusConnect *connect,
+                                       gint id,
+                                       virConnectStoragePoolEventGenericCallback callback)
+{
+    g_assert(connect->storagePoolCallbackIds[id] == -1);
+
+    connect->storagePoolCallbackIds[id] = virConnectStoragePoolEventRegisterAny(connect->connection,
+                                                                                NULL,
+                                                                                id,
+                                                                                VIR_STORAGE_POOL_EVENT_CALLBACK(callback),
+                                                                                connect,
+                                                                                NULL);
+}
+
 void
 virtDBusEventsRegister(virtDBusConnect *connect)
 {
@@ -199,4 +238,8 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterNetworkEvent(connect,
                                        VIR_NETWORK_EVENT_ID_LIFECYCLE,
                                        VIR_NETWORK_EVENT_CALLBACK(virtDBusEventsNetworkLifecycle));
+
+    virtDBusEventsRegisterStoragePoolEvent(connect,
+                                           VIR_STORAGE_POOL_EVENT_ID_LIFECYCLE,
+                                           VIR_STORAGE_POOL_EVENT_CALLBACK(virtDBusEventsStoragePoolLifecycle));
 }

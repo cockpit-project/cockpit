@@ -27,9 +27,9 @@ import ConfirmButtons from './ConfirmButtons.jsx';
 import VmProperty from '../../machines/components/infoRecord.jsx';
 import rephraseUI from '../rephraseUI.es6';
 
-const _ = cockpit.gettext;
-
 import './OVirtTab.css';
+
+const _ = cockpit.gettext;
 
 function canVmMigrateToHost ({ host }) {
     return host.status === 'up';

@@ -21,9 +21,9 @@ import React from "react";
 
 import { formatDateTime } from '../helpers.es6';
 
-const _ = cockpit.gettext;
-
 import './VmOverviewColumn.css';
+
+const _ = cockpit.gettext;
 
 const VmIcon = ({ icons, iconId }) => {
     if (!iconId || !icons || !icons[iconId] || !icons[iconId].data) {

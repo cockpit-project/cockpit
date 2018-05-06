@@ -125,6 +125,25 @@ virtDBusDomainGVariantToMountpoints(GVariantIter *iter,
     }
 }
 
+static void
+virtDBusDomainGVariantToCpumap(GVariantIter *iter,
+                               guchar **cpumap,
+                               guint *cpumaplen)
+{
+    gboolean usable;
+    guint cpus = g_variant_iter_n_children(iter);
+    guint cnt = 0;
+
+    *cpumaplen = VIR_CPU_MAPLEN(cpus);
+    *cpumap = g_new0(guchar, cpumaplen);
+
+    while (g_variant_iter_loop(iter, "b", &usable)) {
+        if (usable)
+            VIR_USE_CPU(*cpumap, cnt);
+        cnt++;
+    }
+}
+
 static virDomainPtr
 virtDBusDomainGetVirDomain(virtDBusConnect *connect,
                            const gchar *objectPath,
@@ -1996,22 +2015,12 @@ virtDBusDomainPinEmulator(GVariant *inArgs,
     g_autoptr(virDomain) domain = NULL;
     g_autoptr(GVariantIter) iter = NULL;
     guint flags;
-    guint cpus;
     guint cpumaplen;
     g_autofree guchar *cpumap = NULL;
-    gboolean usable;
-    guint cnt = 0;
 
     g_variant_get(inArgs, "(abu)", &iter, &flags);
 
-    cpus = g_variant_iter_n_children(iter);
-    cpumaplen = VIR_CPU_MAPLEN(cpus);
-    cpumap = g_new0(guchar, cpumaplen);
-    while (g_variant_iter_loop(iter, "b", &usable)) {
-        if (usable)
-            VIR_USE_CPU(cpumap, cnt);
-        cnt++;
-    }
+    virtDBusDomainGVariantToCpumap(iter, &cpumap, &cpumaplen);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
@@ -2036,22 +2045,12 @@ virtDBusDomainPinIOThread(GVariant *inArgs,
     guint iothreadId;
     g_autoptr(GVariantIter) iter = NULL;
     guint flags;
-    guint cpus;
     guint cpumaplen;
     g_autofree guchar *cpumap = NULL;
-    gboolean usable;
-    guint cnt = 0;
 
     g_variant_get(inArgs, "(uabu)", &iothreadId, &iter, &flags);
 
-    cpus = g_variant_iter_n_children(iter);
-    cpumaplen = VIR_CPU_MAPLEN(cpus);
-    cpumap = g_new0(guchar, cpumaplen);
-    while (g_variant_iter_loop(iter, "b", &usable)) {
-        if (usable)
-            VIR_USE_CPU(cpumap, cnt);
-        cnt++;
-    }
+    virtDBusDomainGVariantToCpumap(iter, &cpumap, &cpumaplen);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
@@ -2076,22 +2075,12 @@ virtDBusDomainPinVcpu(GVariant *inArgs,
     guint vcpu;
     g_autoptr(GVariantIter) iter = NULL;
     guint flags;
-    guint cpus;
     guint cpumaplen;
     g_autofree guchar *cpumap = NULL;
-    gboolean usable;
-    guint cnt = 0;
 
     g_variant_get(inArgs, "(uabu)", &vcpu, &iter, &flags);
 
-    cpus = g_variant_iter_n_children(iter);
-    cpumaplen = VIR_CPU_MAPLEN(cpus);
-    cpumap = g_new0(guchar, cpumaplen);
-    while (g_variant_iter_loop(iter, "b", &usable)) {
-        if (usable)
-            VIR_USE_CPU(cpumap, cnt);
-        cnt++;
-    }
+    virtDBusDomainGVariantToCpumap(iter, &cpumap, &cpumaplen);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)

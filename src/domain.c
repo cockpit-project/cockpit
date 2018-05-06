@@ -109,6 +109,22 @@ virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
     return g_variant_builder_end(&builder);
 }
 
+static void
+virtDBusDomainGVariantToMountpoints(GVariantIter *iter,
+                                    const gchar ***mountpoints,
+                                    guint *nmountpoints)
+{
+    const gchar **tmp;
+
+    *nmountpoints = g_variant_iter_n_children(iter);
+    if (*nmountpoints > 0) {
+        *mountpoints = g_new0(const gchar*, *nmountpoints);
+        tmp = *mountpoints;
+        while (g_variant_iter_next(iter, "&s", tmp))
+            tmp++;
+    }
+}
+
 static virDomainPtr
 virtDBusDomainGetVirDomain(virtDBusConnect *connect,
                            const gchar *objectPath,
@@ -783,21 +799,14 @@ virtDBusDomainFSFreeze(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autofree const gchar **mountpoints = NULL;
-    const gchar **tmp;
     g_autoptr(GVariantIter) iter;
-    gsize nmountpoints = 0;
+    guint nmountpoints;
     guint flags;
     gint ret;
 
     g_variant_get(inArgs, "(asu)", &iter, &flags);
 
-    nmountpoints = g_variant_iter_n_children(iter);
-    if (nmountpoints > 0) {
-        mountpoints = g_new0(const gchar*, nmountpoints);
-        tmp = mountpoints;
-        while (g_variant_iter_next(iter, "&s", tmp))
-            tmp++;
-    }
+    virtDBusDomainGVariantToMountpoints(iter, &mountpoints, &nmountpoints);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)
@@ -822,7 +831,6 @@ virtDBusDomainFSThaw(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autofree const gchar **mountpoints = NULL;
-    const gchar **tmp;
     g_autoptr(GVariantIter) iter;
     guint nmountpoints;
     guint flags;
@@ -830,13 +838,7 @@ virtDBusDomainFSThaw(GVariant *inArgs,
 
     g_variant_get(inArgs, "(asu)", &iter, &flags);
 
-    nmountpoints = g_variant_iter_n_children(iter);
-    if (nmountpoints > 0) {
-        mountpoints = g_new0(const gchar*, nmountpoints);
-        tmp = mountpoints;
-        while (g_variant_iter_next(iter, "&s", tmp))
-            tmp++;
-    }
+    virtDBusDomainGVariantToMountpoints(iter, &mountpoints, &nmountpoints);
 
     domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
     if (!domain)

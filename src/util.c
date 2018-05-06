@@ -177,7 +177,7 @@ virtDBusUtilEncodeUUID(const gchar *uuid)
 static gchar *
 virtDBusUtilDecodeUUID(const gchar *uuid)
 {
-    gchar *ret = g_strdup(uuid+1);
+    gchar *ret = g_strdup(uuid + 1);
     return g_strdelimit(ret, "_", '-');
 }
 

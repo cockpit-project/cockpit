@@ -657,9 +657,6 @@ virtDBusConnectListDomains(GVariant *inArgs,
     if (virConnectListAllDomains(connect->connection, &domains, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    if (!*domains)
-        return;
-
     g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
 
     for (gint i = 0; domains[i]; i++) {
@@ -696,9 +693,6 @@ virtDBusConnectListNetworks(GVariant *inArgs,
 
     if (virConnectListAllNetworks(connect->connection, &networks, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
-
-    if (!*networks)
-        return;
 
     g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
 

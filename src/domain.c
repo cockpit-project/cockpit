@@ -1339,7 +1339,10 @@ virtDBusDomainGetMemoryParameters(GVariant *inArgs,
         return;
 
     ret = virDomainGetMemoryParameters(domain, NULL, &params.nparams, flags);
-    if (ret == 0 && params.nparams != 0) {
+    if (ret < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (params.nparams != 0) {
         params.params = g_new0(virTypedParameter, params.nparams);
         if (virDomainGetMemoryParameters(domain, params.params,
                                          &params.nparams, flags) < 0) {
@@ -1475,7 +1478,10 @@ virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
         return;
 
     ret = virDomainGetSchedulerType(domain, &params.nparams);
-    if (ret && params.nparams != 0) {
+    if (!ret)
+        return virtDBusUtilSetLastVirtError(error);
+
+    if (params.nparams != 0) {
         params.params = g_new0(virTypedParameter, params.nparams);
         if (virDomainGetSchedulerParametersFlags(domain, params.params,
                                                  &params.nparams, 0))

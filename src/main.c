@@ -54,7 +54,7 @@ virtDBusAcquired(GDBusConnection *connection,
     virtDBusRegisterData *data = opaque;
     g_autoptr(GError) error = NULL;
 
-    for (gsize i = 0; i < data->ndrivers; i += 1) {
+    for (gsize i = 0; i < data->ndrivers; i++) {
         virtDBusConnectNew(&data->connectList[i], connection,
                            data->drivers[i].uri, data->drivers[i].object,
                            &error);

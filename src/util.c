@@ -208,7 +208,7 @@ virtDBusUtilVirDomainFromBusPath(virConnectPtr connection,
 void
 virtDBusUtilVirDomainListFree(virDomainPtr *domains)
 {
-    for (gint i = 0; domains[i] != NULL; i += 1)
+    for (gint i = 0; domains[i] != NULL; i++)
         virDomainFree(domains[i]);
 
     g_free(domains);
@@ -241,7 +241,7 @@ virtDBusUtilBusPathForVirNetwork(virNetworkPtr network,
 void
 virtDBusUtilVirNetworkListFree(virNetworkPtr *networks)
 {
-    for (gint i = 0; networks[i] != NULL; i += 1)
+    for (gint i = 0; networks[i] != NULL; i++)
         virNetworkFree(networks[i]);
 
     g_free(networks);

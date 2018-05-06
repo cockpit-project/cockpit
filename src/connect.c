@@ -39,7 +39,7 @@ virtDBusConnectClose(virtDBusConnect *connect,
                      gboolean deregisterEvents)
 {
 
-    for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1) {
+    for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i++) {
         if (connect->domainCallbackIds[i] >= 0) {
             if (deregisterEvents) {
                 virConnectDomainEventDeregisterAny(connect->connection,
@@ -49,7 +49,7 @@ virtDBusConnectClose(virtDBusConnect *connect,
         }
     }
 
-    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i += 1) {
+    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i++) {
         if (connect->networkCallbackIds[i] >= 0) {
             if (deregisterEvents) {
                 virConnectNetworkEventDeregisterAny(connect->connection,
@@ -1135,10 +1135,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
 
     g_mutex_init(&connect->lock);
 
-    for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i += 1)
+    for (gint i = 0; i < VIR_DOMAIN_EVENT_ID_LAST; i++)
         connect->domainCallbackIds[i] = -1;
 
-    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i += 1)
+    for (gint i = 0; i < VIR_NETWORK_EVENT_ID_LAST; i++)
         connect->networkCallbackIds[i] = -1;
 
     connect->bus = bus;
@@ -1170,7 +1170,7 @@ virtDBusConnectListFree(virtDBusConnect **connectList)
     if (!connectList)
         return;
 
-    for (gint i = 0; connectList[i]; i += 1)
+    for (gint i = 0; connectList[i]; i++)
         virtDBusConnectFree(connectList[i]);
 
     g_free(connectList);

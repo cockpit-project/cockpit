@@ -6,7 +6,7 @@
 static void
 virtDBusNetworkDHCPLeaseListFree(virNetworkDHCPLeasePtr *leases)
 {
-    for (gint i = 0; leases[i] != NULL; i += 1)
+    for (gint i = 0; leases[i] != NULL; i++)
         virNetworkDHCPLeaseFree(leases[i]);
 
     g_free(leases);

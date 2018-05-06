@@ -1046,13 +1046,13 @@ virtDBusConnectNodeSetMemoryParameters(GVariant *inArgs,
 
     g_variant_get(inArgs, "(a{sv}u)", &iter, &flags);
 
-    if (!virtDBusConnectOpen(connect, error))
-        return;
-
     if (!virtDBusUtilGVariantToTypedParams(iter, &params.params,
                                            &params.nparams, error)) {
         return;
     }
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
 
     if (virNodeSetMemoryParameters(connect->connection, params.params,
                                    params.nparams, flags) < 0) {

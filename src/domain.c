@@ -1995,10 +1995,6 @@ virtDBusDomainPinEmulator(GVariant *inArgs,
 
     g_variant_get(inArgs, "(abu)", &iter, &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
     cpus = g_variant_iter_n_children(iter);
     cpumaplen = VIR_CPU_MAPLEN(cpus);
     cpumap = g_new0(guchar, cpumaplen);
@@ -2007,6 +2003,10 @@ virtDBusDomainPinEmulator(GVariant *inArgs,
             VIR_USE_CPU(cpumap, cnt);
         cnt++;
     }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     if (virDomainPinEmulator(domain, cpumap, cpumaplen, flags) < 0)
         virtDBusUtilSetLastVirtError(error);
@@ -2035,10 +2035,6 @@ virtDBusDomainPinIOThread(GVariant *inArgs,
 
     g_variant_get(inArgs, "(uabu)", &iothreadId, &iter, &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
     cpus = g_variant_iter_n_children(iter);
     cpumaplen = VIR_CPU_MAPLEN(cpus);
     cpumap = g_new0(guchar, cpumaplen);
@@ -2047,6 +2043,10 @@ virtDBusDomainPinIOThread(GVariant *inArgs,
             VIR_USE_CPU(cpumap, cnt);
         cnt++;
     }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     if (virDomainPinIOThread(domain, iothreadId, cpumap, cpumaplen, flags) < 0)
         virtDBusUtilSetLastVirtError(error);
@@ -2075,10 +2075,6 @@ virtDBusDomainPinVcpu(GVariant *inArgs,
 
     g_variant_get(inArgs, "(uabu)", &vcpu, &iter, &flags);
 
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
     cpus = g_variant_iter_n_children(iter);
     cpumaplen = VIR_CPU_MAPLEN(cpus);
     cpumap = g_new0(guchar, cpumaplen);
@@ -2087,6 +2083,10 @@ virtDBusDomainPinVcpu(GVariant *inArgs,
             VIR_USE_CPU(cpumap, cnt);
         cnt++;
     }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
 
     if (virDomainPinVcpuFlags(domain, vcpu, cpumap, cpumaplen, flags) < 0)
         virtDBusUtilSetLastVirtError(error);

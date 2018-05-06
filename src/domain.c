@@ -938,7 +938,8 @@ virtDBusDomainGetBlockIOTune(GVariant *inArgs,
     ret = virDomainGetBlockIoTune(domain, disk, NULL, &params.nparams, flags);
     if (ret < 0)
         return virtDBusUtilSetLastVirtError(error);
-    if (ret == 0 && params.nparams != 0) {
+
+    if (params.nparams != 0) {
         params.params = g_new0(virTypedParameter, params.nparams);
         if (virDomainGetBlockIoTune(domain, disk, params.params,
                                     &params.nparams, flags) < 0) {

@@ -342,7 +342,7 @@ virtDBusConnectDomainLookupByID(GVariant *inArgs,
 
     g_variant_get(inArgs, "(u)", &id);
 
-    if (!virtDBusConnectOpen(connect, NULL))
+    if (!virtDBusConnectOpen(connect, error))
         return;
 
     domain = virDomainLookupByID(connect->connection, id);
@@ -370,7 +370,7 @@ virtDBusConnectDomainLookupByName(GVariant *inArgs,
 
     g_variant_get(inArgs, "(s)", &name);
 
-    if (!virtDBusConnectOpen(connect, NULL))
+    if (!virtDBusConnectOpen(connect, error))
         return;
 
     domain = virDomainLookupByName(connect->connection, name);
@@ -398,7 +398,7 @@ virtDBusConnectDomainLookupByUUID(GVariant *inArgs,
 
     g_variant_get(inArgs, "(s)", &uuidstr);
 
-    if (!virtDBusConnectOpen(connect, NULL))
+    if (!virtDBusConnectOpen(connect, error))
         return;
 
     domain = virDomainLookupByUUIDString(connect->connection, uuidstr);

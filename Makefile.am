@@ -1,5 +1,5 @@
 
-SUBDIRS = data src tests
+SUBDIRS = data docs src tests
 
 ACLOCAL_AMFLAGS = -I m4
 

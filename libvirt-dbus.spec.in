@@ -17,6 +17,7 @@ BuildRequires: gcc
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: libvirt-devel >= %{libvirt_version}
 BuildRequires: libvirt-glib-devel >= %{libvirt_glib_version}
+BuildRequires: /usr/bin/pod2man
 
 Requires: dbus
 Requires: glib2 >= %{glib2_version}
@@ -55,5 +56,6 @@ exit 0
 %{_datadir}/dbus-1/system-services/org.libvirt.service
 %{_datadir}/dbus-1/system.d/org.libvirt.conf
 %{_datadir}/dbus-1/interfaces/org.libvirt.*.xml
+%{_mandir}/man8/libvirt-dbus.8*
 
 %changelog

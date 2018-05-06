@@ -1,0 +1,66 @@
+=head1 NAME
+
+libvirt-dbus - D-Bus daemon exporting libvirt API
+
+=head1 SYNOPSIS
+
+B<libvirt-dbus> [I<OPTION>]...
+
+=head1 DESCRIPTION
+
+libvirt-dbus wraps libvirt API to provide a high-level object-oriented
+API better suited for dbus-based applications.
+
+Normally libvirt-dbus is started by D-Bus daemon on demand.
+
+=head1 OPTIONS
+
+=over
+
+=item B<-h --help>
+
+Display command line help usage then exit.
+
+=item B<--system>
+
+Connect to the system bus.
+
+=item B<--session>
+
+Connect to the session bus.
+
+=item B<-t --threads> I<NUM>
+
+Configure maximal number of worker threads.
+
+=back
+
+=head1 BUGS
+
+Please report all bugs you discover.  This should be done via either:
+
+=over
+
+=item a) the mailing list
+
+L<https://libvirt.org/contact.html>
+
+=item b) the bug tracker
+
+L<https://libvirt.org/bugs.html>
+
+=back
+
+Alternatively, you may report bugs to your software distribution / vendor.
+
+=head1 AUTHORS
+
+Please refer to the AUTHORS file distributed with libvirt-dbus.
+
+=head1 LICENSE
+
+libvirt-dbus is Free Software and licenced under LGPLv2+.
+
+=head1 SEE ALSO
+
+L<https://libvirt.org/dbus.html>, L<https://libvirt.org/>

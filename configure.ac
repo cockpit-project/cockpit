@@ -74,6 +74,7 @@ AC_CONFIG_FILES([run],
                 [chmod +x,-w run])
 AC_OUTPUT(Makefile
           data/Makefile
+          docs/Makefile
           src/Makefile
           tests/Makefile
           libvirt-dbus.spec)

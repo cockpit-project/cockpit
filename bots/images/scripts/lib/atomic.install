@@ -260,6 +260,13 @@ class AtomicCockpitInstaller:
                           os.path.split(x)[-1].startswith("cockpit-machines")]
         self.install_packages(no_deps, deps=False, replace=True)
 
+        # If firewalld is installed, we need to poke a hole for cockpit, so
+        # that we can run firewall tests on it (change firewall-cmd to
+        # --add-service=cockpit once all supported atomics ship with the
+        # service file)
+        if subprocess.call(["systemctl", "enable", "--now", "firewalld"]) == 0:
+            subprocess.call(["firewall-cmd", "--permanent", "--add-port=9090/tcp"])
+
         self.commit_to_repo()
         self.switch_to_local_tree()
         self.update_container()

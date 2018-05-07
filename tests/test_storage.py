@@ -4,6 +4,19 @@ import dbus
 import libvirttest
 
 class TestStoragePool(libvirttest.BaseTestClass):
+    def test_storage_pool_autostart(self):
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        autostart_expected = True
+        interface_obj.Set('org.libvirt.StoragePool', 'Autostart',
+                          autostart_expected,
+                          dbus_interface=dbus.PROPERTIES_IFACE)
+        autostart_current = interface_obj.Get('org.libvirt.StoragePool',
+                                              'Autostart',
+                                              dbus_interface=dbus.PROPERTIES_IFACE)
+        assert autostart_current == dbus.Boolean(autostart_expected)
+
     def test_storage_pool_build(self):
         _, test_storage_pool = self.test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,

@@ -133,6 +133,27 @@ virtDBusStoragePoolGetUUID(const gchar *objectPath,
 }
 
 static void
+virtDBusStoragePoolSetAutostart(GVariant *value,
+                                const gchar *objectPath,
+                                gpointer userData,
+                                GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    gboolean autostart;
+
+    g_variant_get(value, "b", &autostart);
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    if (virStoragePoolSetAutostart(storagePool, autostart) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusStoragePoolBuild(GVariant *inArgs,
                          GUnixFDList *inFDs G_GNUC_UNUSED,
                          const gchar *objectPath,
@@ -306,7 +327,8 @@ virtDBusStoragePoolRefresh(GVariant *inArgs,
 
 static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
     { "Active", virtDBusStoragePoolGetActive, NULL },
-    { "Autostart", virtDBusStoragePoolGetAutostart, NULL },
+    { "Autostart", virtDBusStoragePoolGetAutostart,
+                   virtDBusStoragePoolSetAutostart },
     { "Name", virtDBusStoragePoolGetName, NULL },
     { "Persistent", virtDBusStoragePoolGetPersistent, NULL },
     { "UUID", virtDBusStoragePoolGetUUID, NULL },

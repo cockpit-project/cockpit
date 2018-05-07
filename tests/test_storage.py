@@ -59,6 +59,13 @@ class TestStoragePool(libvirttest.BaseTestClass):
         info = interface_obj.GetInfo()
         assert isinstance(info, dbus.Struct)
 
+    def test_storage_pool_get_xml_description(self):
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        info = interface_obj.GetXMLDesc(0)
+        assert isinstance(info, dbus.String)
+
     def test_storage_pool_properties_type(self):
         _, obj = self.test_storage_pool()
 

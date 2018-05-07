@@ -208,6 +208,34 @@ virtDBusStoragePoolGetInfo(GVariant *inArgs G_GNUC_UNUSED,
                              info->available);
 }
 
+static void
+virtDBusStoragePoolGetXMLDesc(GVariant *inArgs,
+                              GUnixFDList *inFDs G_GNUC_UNUSED,
+                              const gchar *objectPath,
+                              gpointer userData,
+                              GVariant **outArgs,
+                              GUnixFDList **outFDs G_GNUC_UNUSED,
+                              GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    xml = virStoragePoolGetXMLDesc(storagePool, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
     { "Autostart", virtDBusStoragePoolGetAutostart, NULL },
     { "Name", virtDBusStoragePoolGetName, NULL },
@@ -221,6 +249,7 @@ static virtDBusGDBusMethodTable virtDBusStoragePoolMethodTable[] = {
     { "Delete", virtDBusStoragePoolDelete },
     { "Destroy", virtDBusStoragePoolDestroy },
     { "GetInfo", virtDBusStoragePoolGetInfo },
+    { "GetXMLDesc", virtDBusStoragePoolGetXMLDesc },
     { 0 }
 };
 

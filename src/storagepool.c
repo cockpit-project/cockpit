@@ -90,6 +90,28 @@ virtDBusStoragePoolGetName(const gchar *objectPath,
 }
 
 static void
+virtDBusStoragePoolGetPersistent(const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **value,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    gint persistent;
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    persistent = virStoragePoolIsPersistent(storagePool);
+    if (persistent < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!persistent);
+}
+
+static void
 virtDBusStoragePoolGetUUID(const gchar *objectPath,
                            gpointer userData,
                            GVariant **value,
@@ -262,6 +284,7 @@ static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
     { "Active", virtDBusStoragePoolGetActive, NULL },
     { "Autostart", virtDBusStoragePoolGetAutostart, NULL },
     { "Name", virtDBusStoragePoolGetName, NULL },
+    { "Persistent", virtDBusStoragePoolGetPersistent, NULL },
     { "UUID", virtDBusStoragePoolGetUUID, NULL },
     { 0 }
 };

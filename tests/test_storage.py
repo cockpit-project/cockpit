@@ -74,6 +74,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         assert isinstance(props['Active'], dbus.Boolean)
         assert isinstance(props['Autostart'], dbus.Boolean)
         assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
 

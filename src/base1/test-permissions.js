@@ -25,9 +25,12 @@ var limited_user = {
 QUnit.module("Permission tests", {
     setup: function() {
         this.old_dbus = cockpit.dbus;
+        this.old_is_superuser = cockpit._is_superuser;
+        cockpit._is_superuser = false;
     },
     teardown: function() {
         cockpit.dbus = this.old_dbus;
+        cockpit._is_superuser = this.old_is_superuser;
     }
 });
 
@@ -58,7 +61,14 @@ QUnit.test("group-permissions", function() {
     assert.equal(p4.allowed, true, "no group match but root, allowed");
 });
 
-// Start tests after we have a user object
-cockpit.user().done(function (user) {
-    QUnit.start();
+QUnit.test("admin-permissions", function() {
+    assert.expect(2);
+
+    var p1 = cockpit.permission({ user: priv_user, _is_superuser: false, admin: true });
+    assert.equal(p1.allowed, false, "no superuser, admin not allowed");
+
+    var p2 = cockpit.permission({ user: priv_user, _is_superuser: true, admin: true });
+    assert.equal(p2.allowed, true, "superuser, admin allowed");
 });
+
+QUnit.start();

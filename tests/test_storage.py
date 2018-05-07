@@ -52,6 +52,13 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_storage_pool_properties_type(self):
+        _, obj = self.test_storage_pool()
+
+        props = obj.GetAll('org.libvirt.StoragePool',
+                           dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props['Autostart'], dbus.Boolean)
+
 
 if __name__ == '__main__':
     libvirttest.run()

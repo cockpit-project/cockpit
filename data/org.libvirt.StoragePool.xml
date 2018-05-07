@@ -27,5 +27,10 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolDestroy"/>
     </method>
+    <method name="GetInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolGetInfo"/>
+      <arg name="info" type="(uttt)" direction="out"/>
+    </method>
   </interface>
 </node>

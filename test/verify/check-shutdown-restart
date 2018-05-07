@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import parent
 from testlib import *
 
@@ -32,7 +34,7 @@ class TestShutdownRestart(MachineCase):
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
 
-    def testNoPermission(self):
+    def testNoAdminGroup(self):
         m = self.machine
         b = self.browser
 
@@ -55,6 +57,30 @@ class TestShutdownRestart(MachineCase):
         b.wait_present("#shutdown-group button.btn-danger.disabled")
         b.wait_present("#shutdown-group button.btn-default.disabled")
         b.wait_not_present("#shutdown-group button:not(.disabled)")
+
+        b.logout()
+
+        if m.image != "rhel-7-5":
+            # now give user direct sudo access
+            m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
+            self.login_and_go("/system", user="user")
+
+            # it takes a while for the permission check to finish, it is always enabled at first
+            time.sleep(2)
+
+            # shutdown button should be enabled and working
+            b.click("#shutdown-group button.btn-danger")
+            b.wait_popup("shutdown-dialog")
+            b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+            b.click("#shutdown-dialog .dropdown button")
+            b.click("a:contains('No Delay')")
+            b.click("#shutdown-dialog .btn-danger")
+            b.switch_to_top()
+
+            b.wait_visible(".curtains-ct")
+            b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+            m.wait_reboot()
 
     def testBasic(self):
         m = self.machine

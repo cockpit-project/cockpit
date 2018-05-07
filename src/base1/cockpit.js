@@ -4266,12 +4266,24 @@ function factory() {
 
     var authority = null;
 
+    function check_superuser() {
+        var dfd = cockpit.defer();
+        var ch = cockpit.channel({ payload: "null", superuser: "require" });
+        ch.wait()
+            .then(function () { dfd.resolve(true); })
+            .fail(function () { dfd.resolve(false); })
+            .always(function () { ch.close(); });
+
+        return dfd.promise();
+    }
+
     function Permission(options) {
         var self = this;
         event_mixin(self, { });
 
         self.allowed = null;
-        self.user = options ? options.user : null;
+        self.user = options ? options.user : null; // pre-fill for unit tests
+        self.is_superuser = options ? options._is_superuser : null; // pre-fill for unit tests
 
         var group = null;
         var admin = false;
@@ -4286,20 +4298,11 @@ function factory() {
             if (user.id === 0)
                 return true;
 
-            if (user.groups) {
-                var allowed = false;
-                user.groups.forEach(function(name) {
-                    if (name == group) {
-                        allowed = true;
-                        return false;
-                    }
-                    if (admin && (name == "wheel" || name == "sudo")) {
-                        allowed = true;
-                        return false;
-                    }
-                });
-                return allowed;
-            }
+            if (group)
+                return !!(user.groups || []).includes(group);
+
+            if (admin)
+                return self.is_superuser;
 
             if (user.id === undefined)
                 return null;
@@ -4307,17 +4310,19 @@ function factory() {
             return false;
         }
 
-        if (self.user) {
+        if (self.user && self.is_superuser !== null) {
             self.allowed = decide(self.user);
         } else {
-            cockpit.user().done(function (user) {
-                self.user = user;
-                var allowed = decide(user);
-                if (self.allowed !== allowed) {
-                    self.allowed = allowed;
-                    self.dispatchEvent("changed");
-                }
-            });
+            cockpit.all(cockpit.user(), check_superuser())
+                .done(function (user, is_superuser) {
+                    self.user = user;
+                    self.is_superuser = is_superuser;
+                    var allowed = decide(user);
+                    if (self.allowed !== allowed) {
+                        self.allowed = allowed;
+                        self.dispatchEvent("changed");
+                    }
+                });
         }
 
         self.close = function close() {

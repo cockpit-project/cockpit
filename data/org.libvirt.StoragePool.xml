@@ -8,6 +8,11 @@
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolGetAutostart"/>
     </property>
+    <property name="Name" type="s" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+          value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolGetName"/>
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+    </property>
     <method name="Build">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolBuild"/>

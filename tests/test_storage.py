@@ -65,6 +65,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         props = obj.GetAll('org.libvirt.StoragePool',
                            dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Autostart'], dbus.Boolean)
+        assert isinstance(props['Name'], dbus.String)
 
 
 if __name__ == '__main__':

@@ -325,6 +325,27 @@ virtDBusStoragePoolRefresh(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusStoragePoolUndefine(GVariant *inArgs G_GNUC_UNUSED,
+                            GUnixFDList *inFDs G_GNUC_UNUSED,
+                            const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **outArgs G_GNUC_UNUSED,
+                            GUnixFDList **outFDs G_GNUC_UNUSED,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    if (virStoragePoolUndefine(storagePool) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
     { "Active", virtDBusStoragePoolGetActive, NULL },
     { "Autostart", virtDBusStoragePoolGetAutostart,
@@ -343,6 +364,7 @@ static virtDBusGDBusMethodTable virtDBusStoragePoolMethodTable[] = {
     { "GetInfo", virtDBusStoragePoolGetInfo },
     { "GetXMLDesc", virtDBusStoragePoolGetXMLDesc },
     { "Refresh", virtDBusStoragePoolRefresh },
+    { "Undefine", virtDBusStoragePoolUndefine },
     { 0 }
 };
 

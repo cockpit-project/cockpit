@@ -90,6 +90,24 @@ class TestStoragePool(libvirttest.BaseTestClass):
         assert isinstance(props['Persistent'], dbus.Boolean)
         assert isinstance(props['UUID'], dbus.String)
 
+    def test_storage_pool_undefine(self):
+        def storage_pool_undefined(path, event, _detail):
+            if event != libvirttest.StoragePoolEvent.UNDEFINED:
+                return
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('StoragePoolEvent',
+                                       storage_pool_undefined)
+
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        interface_obj.Destroy()
+        interface_obj.Undefine()
+
+        self.main_loop()
+
 
 if __name__ == '__main__':
     libvirttest.run()

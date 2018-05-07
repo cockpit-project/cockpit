@@ -34,7 +34,6 @@ def wait_unit_state(machine, unit, state):
     wait(lambda: active_state(unit) == state, delay=0.2)
 
 
-@skipImage("firewalld not installed", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 @skipImage("enabling firewall got fixed in PR #10511", "rhel-7-6-distropkg")
 class TestFirewall(MachineCase):
 

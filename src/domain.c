@@ -118,7 +118,7 @@ virtDBusDomainGVariantToMountpoints(GVariantIter *iter,
 
     *nmountpoints = g_variant_iter_n_children(iter);
     if (*nmountpoints > 0) {
-        *mountpoints = g_new0(const gchar*, *nmountpoints);
+        *mountpoints = g_new0(const gchar *, *nmountpoints);
         tmp = *mountpoints;
         while (g_variant_iter_next(iter, "&s", tmp))
             tmp++;

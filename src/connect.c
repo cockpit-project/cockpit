@@ -227,7 +227,7 @@ virtDBusConnectBaselineCPU(GVariant *inArgs,
 
     ncpus = g_variant_iter_n_children(iter);
     if (ncpus > 0) {
-        xmlCPUs = g_new0(const gchar*, ncpus);
+        xmlCPUs = g_new0(const gchar *, ncpus);
         tmp = xmlCPUs;
         while (g_variant_iter_next(iter, "&s", tmp))
             tmp++;
@@ -517,7 +517,7 @@ virtDBusConnectGetAllDomainStats(GVariant *inArgs,
     g_variant_builder_init(&builder, G_VARIANT_TYPE("a(sa{sv})"));
 
     for (gint i = 0; i < nstats; i++) {
-        const gchar* name;
+        const gchar *name;
         GVariant *grecords;
 
         g_variant_builder_open(&builder, G_VARIANT_TYPE("(sa{sv})"));
@@ -582,7 +582,7 @@ virtDBusConnectGetDomainCapabilities(GVariant *inArgs,
     const gchar *machine;
     const gchar *virttype;
     guint flags;
-    g_autofree gchar* domCapabilities = NULL;
+    g_autofree gchar *domCapabilities = NULL;
 
     g_variant_get(inArgs, "(&s&s&s&su)", &emulatorbin, &arch, &machine,
                   &virttype, &flags);

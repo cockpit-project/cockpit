@@ -25,6 +25,7 @@ import re
 import subprocess
 
 WAIT_KRB_SCRIPT = """
+set -ex
 # HACK: This needs to work, but may take a minute
 for x in $(seq 1 60); do
     if getent passwd admin@cockpit.lan; then

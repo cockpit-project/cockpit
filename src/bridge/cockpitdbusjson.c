@@ -60,7 +60,6 @@ typedef struct {
   const gchar *default_name;
   guint default_watch;
   gboolean default_watched;
-  gboolean default_appeared;
 
   /* Call related */
   GCancellable *cancellable;
@@ -2676,12 +2675,6 @@ on_name_appeared (GDBusConnection *connection,
 
   g_object_ref (self);
 
-  if (!self->default_appeared)
-    {
-      self->default_appeared = TRUE;
-      send_ready (self);
-    }
-
   send_owned (self, name, name_owner);
 
   g_object_unref (self);
@@ -2699,8 +2692,6 @@ on_name_vanished (GDBusConnection *connection,
 
   if (!G_IS_DBUS_CONNECTION (connection) || g_dbus_connection_is_closed (connection))
     cockpit_channel_close (channel, "disconnected");
-  else if (!self->default_appeared)
-    cockpit_channel_close (channel, "not-found");
 }
 
 static CockpitDBusPeer *
@@ -2783,8 +2774,9 @@ process_connection (CockpitDBusJson *self,
       else
         {
           subscribe_and_cache (self);
-          send_ready (self);
         }
+
+      send_ready (self);
     }
 }
 

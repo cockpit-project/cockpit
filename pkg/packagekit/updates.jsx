@@ -581,7 +581,11 @@ class OsUpdates extends React.Component {
 
     handleLoadError(ex) {
         console.error("loading available updates failed:", JSON.stringify(ex));
-        if (ex.problem === "not-found")
+        /* HACK: As of version 170, cockpit-bridge return a proper dbus error
+         * in "name", whereas older versions closed the channel with a
+         * "not-found" problem. Support both errors for now.
+         */
+        if (ex.problem === "not-found" || ex.name === "org.freedesktop.DBus.Error.ServiceUnknown")
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
         this.setState({state: "loadError"});

@@ -130,6 +130,40 @@ QUnit.asyncTest("owned messages", function() {
     acquire_name();
 });
 
+QUnit.asyncTest("call method on non-existent name", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus("com.example.nonexistent", { bus: "session" });
+    dbus.call("/foo", "com.example.nonexistent", "Foo", []).
+        then(function(reply) {
+           assert.ok(false, "should not return a reply");
+        }).
+        catch(function(error) {
+            assert.equal(error.name, "org.freedesktop.DBus.Error.ServiceUnknown");
+        }).
+        always(function() {
+            QUnit.start();
+        });
+});
+
+QUnit.asyncTest("should not be able to create proxy for non-existent name", function() {
+    assert.expect(1);
+
+    var dbus = cockpit.dbus("com.example.nonexistent", { bus: "session" });
+    var proxy = dbus.proxy("com.example.nonexistent", "/foo");
+
+    proxy.wait().
+        then(function(reply) {
+           assert.ok(false, "proxy should not become ready");
+        }).
+        catch(function (error) {
+           assert.equal(proxy.valid, false);
+        }).
+        always(function() {
+            QUnit.start();
+        });
+});
+
 QUnit.asyncTest("bad dbus address", function() {
     assert.expect(1);
 

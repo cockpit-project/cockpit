@@ -760,6 +760,7 @@ class MachineCase(unittest.TestCase):
 
     def allow_authorize_journal_messages(self):
         self.allow_journal_messages("cannot reauthorize identity.*:.*unix-user:admin.*",
+                                    "cannot reauthorize identity\(s\).*:.*unix-user:.*",
                                     ".*: pam_authenticate failed: Authentication failure",
                                     ".*is not in the sudoers file.  This incident will be reported.",
                                     ".*: a password is required",

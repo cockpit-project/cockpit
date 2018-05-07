@@ -60,9 +60,29 @@ class TestRealms(MachineCase):
         "ipa": { "image": "ipa", "memory_mb": 2048 }
     }
 
+    def addSudoRule(self):
+        '''Allow "admins" IPA group members to run sudo'''
+
+        # HACK: https://pagure.io/freeipa/issue/7538
+        # This is an "unbreak my setup" step and ought to happen by default.
+        # Do that on the IPA server instead of the client:
+        #  - This avoids interfering too much with the client and test
+        #  - It is a more realistic scenario anyway (admins configuring everything
+        #    before clients join)
+        #  - It avoids long propagation delays
+        #  - It also works for Ubuntu clients that don't have the `ipa` CLI tool
+
+        ipa_machine = self.machines['ipa']
+        # need to wait for IPA to start up
+        ipa_machine.execute("while ! echo foobarfoo | kinit -f admin; do sleep 5; done", timeout=300)
+        ipa_machine.execute('export LC_ALL=C.UTF-8 && while ! ipa user-find >/dev/null; do sleep 5; done', timeout=300)
+        ipa_machine.execute('export LC_ALL=C.UTF-8 && ipa sudorule-add --hostcat=all --cmdcat=all All && ipa sudorule-add-user --groups=admins All')
+
     def testIpa(self):
         m = self.machine
         b = self.browser
+
+        self.addSudoRule()
 
         m.execute("hostnamectl set-hostname x0.cockpit.lan")
         self.login_and_go("/system")
@@ -99,9 +119,11 @@ class TestRealms(MachineCase):
         # should not have any leftover tickets from the joining
         m.execute("! klist")
         m.execute("! su -c klist admin")
+        b.logout()
 
-        # validate Kerberos setup for ws; requires FreeIPA with the "ipa" tool
+        # the following requires the "ipa" tool and fixed "admin" permission check (PR #9127)
         if m.image not in ["rhel-7-5", "ubuntu-1604"]:
+            # validate Kerberos setup for ws
             m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
             m.execute(script=WAIT_KRB_SCRIPT, timeout=300)
 
@@ -114,6 +136,28 @@ class TestRealms(MachineCase):
                                 'http://x0.cockpit.lan:9090/cockpit/login'])
             self.assertIn("HTTP/1.1 200 OK", output)
             self.assertIn('"csrf-token"', output)
+
+            # wait until IPA user works
+            m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin@cockpit.lan; do sleep 5; done',
+                      timeout=300)
+
+            # log in as IPA admin and check that we can do privileged operations
+            orig_password = b.password
+            b.password = 'foobarfoo'
+
+            # Joining a domain with realmd enables `use_fully_qualified_names` by default; this is inconsistent with
+            # ipa-client-install (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
+            self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
+            b.wait_present('#service-unit')
+            b.wait_in_text('#service-unit', "waiting")
+            b.wait_present('#service-unit-action button[data-action="StopUnit"]')
+            b.click('#service-unit-action button[data-action="StopUnit"]')
+            b.wait_in_text('#service-unit', "dead")
+            b.logout()
+            b.password = orig_password
+
+            self.allow_authorize_journal_messages()
+
         elif m.image != "rhel-7-5":  # on 7.5 with older ws curl succeeds
             # curl negotiation should fail without a proper ws keytab; this provides a hint
             # when FreeIPA becomes new enough on the images above to start working
@@ -122,6 +166,9 @@ class TestRealms(MachineCase):
                      'http://x0.cockpit.lan:9090/cockpit/login'])
 
         # Leave the domain
+        b.login_and_go("/system")
+        b.wait_present("#system-info-domain a")
+        b.wait_in_text("#system-info-domain a", "cockpit.lan")
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.wait_visible(".realms-op-leave-only-row")
@@ -167,6 +214,64 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         self.allow_restart_journal_messages()
+
+    @skipImage("Requires fixed admin permission check (PR #9127)", "rhel-7-5")
+    def testIpaUnqualifiedUsers(self):
+        m = self.machine
+        b = self.browser
+
+        self.addSudoRule()
+
+        m.execute("hostnamectl set-hostname x0.cockpit.lan")
+
+        # Wait for DNS to work as expected.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
+        wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+
+        # delete the local admin user, going to use the IPA one instead
+        m.execute("userdel --remove admin" )
+
+        # Tell realmd to not enable domain-qualified logins
+        # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
+        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
+        m.execute("echo foobarfoo | realm join -U admin cockpit.lan")
+
+        # wait until IPA user works
+        m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin; do sleep 5; done',
+                  timeout=300)
+
+        # login should now work with the IPA admin user
+        b.password = 'foobarfoo'
+        self.login_and_go("/system")
+        b.wait_present("#system-info-domain a")
+        b.wait_in_text("#system-info-domain a", "cockpit.lan")
+
+        # should be able to run admin operations
+        b.go('/system/services#/systemd-tmpfiles-clean.timer')
+        b.enter_page('/system/services')
+        b.wait_present('#service-unit')
+        b.wait_in_text('#service-unit', "waiting")
+        b.wait_present('#service-unit-action button[data-action="StopUnit"]')
+        b.click('#service-unit-action button[data-action="StopUnit"]')
+        b.wait_in_text('#service-unit', "dead")
+
+        b.go('/system')
+        b.enter_page('/system')
+        # it takes a while for the permission check to finish, it is always enabled at first
+        b.wait_present('#shutdown-group button.btn-danger[data-stable=yes]')
+        # shutdown button should be enabled and working
+        b.click("#shutdown-group button.btn-danger")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
+        b.click("#shutdown-dialog .dropdown button")
+        b.click("a:contains('No Delay')")
+        b.click("#shutdown-dialog .btn-danger")
+        b.switch_to_top()
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+        m.wait_reboot()
+
+        self.allow_authorize_journal_messages()
 
     def testNotSupported(self):
         m = self.machine

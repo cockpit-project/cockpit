@@ -136,6 +136,12 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFlags"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="CreateWithFiles">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateWithFiles"/>
+      <arg name="files" type="ah" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="DelIOThread">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainDelIOThread"/>

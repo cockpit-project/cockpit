@@ -1,6 +1,7 @@
 #include "domain.h"
 #include "util.h"
 
+#include <gio/gunixfdlist.h>
 #include <libvirt/libvirt.h>
 
 static gchar *
@@ -732,6 +733,37 @@ virtDBusDomainCreate(GVariant *inArgs,
         return;
 
     if (virDomainCreateWithFlags(domain, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
+virtDBusDomainCreateWithFiles(GVariant *inArgs,
+                              GUnixFDList *inFDs,
+                              const gchar *objectPath,
+                              gpointer userData,
+                              GVariant **outArgs G_GNUC_UNUSED,
+                              GUnixFDList **outFDs G_GNUC_UNUSED,
+                              GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gint *files = NULL;
+    guint nfiles = 0;
+    guint flags;
+
+    g_variant_get(inArgs, "(ahu)", NULL, &flags);
+
+    if (inFDs) {
+        nfiles = g_unix_fd_list_get_length(inFDs);
+        if (nfiles > 0)
+            files = g_unix_fd_list_peek_fds(inFDs, NULL);
+    }
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainCreateWithFiles(domain, nfiles, (gint *)files, flags) < 0)
         virtDBusUtilSetLastVirtError(error);
 }
 
@@ -2823,6 +2855,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "BlockResize", virtDBusDomainBlockResize },
     { "CoreDump", virtDBusDomainCoreDumpWithFormat },
     { "Create", virtDBusDomainCreate },
+    { "CreateWithFiles", virtDBusDomainCreateWithFiles },
     { "DelIOThread", virtDBusDomainDelIOThread },
     { "Destroy", virtDBusDomainDestroy },
     { "DetachDevice", virtDBusDomainDetachDevice },

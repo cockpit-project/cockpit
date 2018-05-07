@@ -25,6 +25,28 @@ virtDBusStoragePoolGetVirStoragePool(virtDBusConnect *connect,
 }
 
 static void
+virtDBusStoragePoolGetActive(const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **value,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    gint active;
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    active = virStoragePoolIsActive(storagePool);
+    if (active < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("b", !!active);
+}
+
+static void
 virtDBusStoragePoolGetAutostart(const gchar *objectPath,
                                 gpointer userData,
                                 GVariant **value,
@@ -237,6 +259,7 @@ virtDBusStoragePoolGetXMLDesc(GVariant *inArgs,
 }
 
 static virtDBusGDBusPropertyTable virtDBusStoragePoolPropertyTable[] = {
+    { "Active", virtDBusStoragePoolGetActive, NULL },
     { "Autostart", virtDBusStoragePoolGetAutostart, NULL },
     { "Name", virtDBusStoragePoolGetName, NULL },
     { "UUID", virtDBusStoragePoolGetUUID, NULL },

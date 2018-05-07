@@ -71,6 +71,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
         props = obj.GetAll('org.libvirt.StoragePool',
                            dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props['Active'], dbus.Boolean)
         assert isinstance(props['Autostart'], dbus.Boolean)
         assert isinstance(props['Name'], dbus.String)
         assert isinstance(props['UUID'], dbus.String)

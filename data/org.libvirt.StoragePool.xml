@@ -4,6 +4,10 @@
 <node name="/org/libvirt/storagepool">
   <interface name="org.libvirt.StoragePool">
     <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
+    <property name="Active" type="b" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolIsActive"/>
+    </property>
     <property name="Autostart" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolGetAutostart"/>

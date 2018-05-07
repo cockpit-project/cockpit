@@ -1133,6 +1133,36 @@ virtDBusConnectStoragePoolLookupByName(GVariant *inArgs,
     *outArgs = g_variant_new("(o)", path);
 }
 
+static void
+virtDBusConnectStoragePoolLookupByUUID(GVariant *inArgs,
+                                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                                       const gchar *objectPath G_GNUC_UNUSED,
+                                       gpointer userData,
+                                       GVariant **outArgs,
+                                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    g_autofree gchar *path = NULL;
+    const gchar *uuidstr;
+
+    g_variant_get(inArgs, "(s)", &uuidstr);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    storagePool = virStoragePoolLookupByUUIDString(connect->connection,
+                                                   uuidstr);
+    if (!storagePool)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirStoragePool(storagePool,
+                                                connect->storagePoolPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
 static virtDBusGDBusPropertyTable virtDBusConnectPropertyTable[] = {
     { "Encrypted", virtDBusConnectGetEncrypted, NULL },
     { "Hostname", virtDBusConnectGetHostname, NULL },
@@ -1173,6 +1203,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NodeGetSecurityModel", virtDBusConnectNodeGetSecurityModel },
     { "NodeSetMemoryParameters", virtDBusConnectNodeSetMemoryParameters },
     { "StoragePoolLookupByName", virtDBusConnectStoragePoolLookupByName },
+    { "StoragePoolLookupByUUID", virtDBusConnectStoragePoolLookupByUUID },
     { 0 }
 };
 

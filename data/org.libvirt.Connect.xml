@@ -223,6 +223,12 @@
       <arg name="name" type="s" direction="in"/>
       <arg name="storagePool" type="o" direction="out"/>
     </method>
+    <method name="StoragePoolLookupByUUID">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolLookupByUUIDString"/>
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="storagePool" type="o" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

@@ -192,6 +192,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("StoragePoolLookupByName", 'Name'),
+        ("StoragePoolLookupByUUID", 'UUID'),
     ])
     def test_connect_storage_pool_lookup_by_property(self,
                                                      lookup_method_name,

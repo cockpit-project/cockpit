@@ -190,6 +190,20 @@ class TestConnect(libvirttest.BaseTestClass):
         info = self.connect.NodeGetCPUMap(0)
         assert isinstance(info, dbus.Array)
 
+    @pytest.mark.parametrize("lookup_method_name,lookup_item", [
+        ("StoragePoolLookupByName", 'Name'),
+    ])
+    def test_connect_storage_pool_lookup_by_property(self,
+                                                     lookup_method_name,
+                                                     lookup_item):
+        """Parameterized test for all StoragePoolLookupBy* API calls of Connect interface
+        """
+        original_path, obj = self.test_storage_pool()
+        prop = obj.Get('org.libvirt.StoragePool', lookup_item,
+                       dbus_interface=dbus.PROPERTIES_IFACE)
+        path = getattr(self.connect, lookup_method_name)(prop)
+        assert original_path == path
+
 
 if __name__ == '__main__':
     libvirttest.run()

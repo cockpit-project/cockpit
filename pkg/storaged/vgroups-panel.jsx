@@ -106,11 +106,17 @@ export class VGroupsPanel extends React.Component {
             </StorageButton>
         );
 
+        var lvm2_feature = {
+            is_enabled: () => client.features.lvm2
+        }
+
         return (
             <OverviewSidePanel id="vgroups"
                                title={_("Volume Groups")}
                                empty_text={_("No volume groups created")}
-                               actions={actions}>
+                               actions={actions}
+                               client={client}
+                               feature={lvm2_feature}>
                 { vgroups }
             </OverviewSidePanel>
         );

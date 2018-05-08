@@ -31,6 +31,7 @@ import { VDOsPanel } from "./vdos-panel.jsx";
 import { IscsiPanel } from "./iscsi-panel.jsx";
 import { DrivesPanel } from "./drives-panel.jsx";
 import { OthersPanel } from "./others-panel.jsx";
+import { OptionalPanel } from "./optional-panel.jsx";
 
 import { JobsPanel } from "./jobs-panel.jsx";
 import { StorageLogsPanel } from "./logs-panel.jsx";
@@ -38,13 +39,13 @@ import { StorageLogsPanel } from "./logs-panel.jsx";
 export class OverviewSidePanel extends React.Component {
     render() {
         return (
-            <div className="panel panel-default" id={this.props.id}>
-                <div className="panel-heading">
-                    <span className="pull-right">
-                        { this.props.actions }
-                    </span>
-                    <span>{this.props.title}</span>
-                </div>
+            <OptionalPanel id={this.props.id}
+                           title={this.props.title}
+                           actions={this.props.actions}
+                           client={this.props.client}
+                           feature={this.props.feature}
+                           not_installed_text={this.props.not_installed_text}
+                           install_title={this.props.install_title}>
                 { this.props.children.length > 0
                     ? <table className={"table" + (this.props.hover !== false ? " table-hover" : "")}>
                         <tbody>
@@ -53,7 +54,7 @@ export class OverviewSidePanel extends React.Component {
                     </table>
                     : <div className="empty-panel-text">{this.props.empty_text}</div>
                 }
-            </div>
+            </OptionalPanel>
         );
     }
 }
@@ -135,9 +136,9 @@ class Overview extends React.Component {
                 </div>
                 <div className="col-md-4 col-lg-3 storage-sidebar page-ct">
                     <MDRaidsPanel client={client} />
-                    { client.features.lvm2 ? <VGroupsPanel client={client} /> : null }
-                    { client.features.vdo ? <VDOsPanel client={client} /> : null }
-                    { client.features.iscsi ? <IscsiPanel client={client} /> : null }
+                    <VGroupsPanel client={client} />
+                    <VDOsPanel client={client} />
+                    <IscsiPanel client={client} />
                     <DrivesPanel client={client} highlight={this.state.highlight} />
                     <OthersPanel client={client} />
                 </div>

@@ -284,12 +284,18 @@ export class IscsiPanel extends React.Component {
             </StorageButton>
         ];
 
+        var iscsi_feature = {
+            is_enabled: () => client.features.iscsi
+        }
+
         return (
             <OverviewSidePanel id="iscsi-sessions"
                                title={_("iSCSI Targets")}
                                empty_text={_("No iSCSI targets set up")}
                                hover={false}
-                               actions={actions}>
+                               actions={actions}
+                               client={client}
+                               feature={iscsi_feature}>
                 { sessions }
             </OverviewSidePanel>
         );

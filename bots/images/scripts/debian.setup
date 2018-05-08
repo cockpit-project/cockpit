@@ -14,6 +14,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default
 COCKPIT_DEPS="\
 cryptsetup \
 docker.io
+libblockdev-mdraid2 \
 libjson-glib-1.0-0 \
 libpcp3 \
 libpolkit-agent-1-0 \
@@ -32,6 +33,7 @@ selinux-basics \
 thin-provisioning-tools \
 xdg-utils \
 udisks2 \
+udisks2-lvm2 \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -57,9 +59,11 @@ xfsprogs \
 RELEASE=$(grep -m1 ^deb /etc/apt/sources.list | awk '{print $3}')
 case "$RELEASE" in
     stable)
-        # https://tracker.debian.org/pcp is not in Debian 9
+        # these packages are not in Debian 9
         COCKPIT_DEPS="${COCKPIT_DEPS/libpcp3 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
 
         echo >> /etc/apt/sources.list
         echo 'deb http://security.debian.org/debian-security stable/updates main' >> /etc/apt/sources.list
@@ -69,20 +73,21 @@ case "$RELEASE" in
         ;;
 
     testing)
-        COCKPIT_DEPS="${COCKPIT_DEPS} libblockdev-mdraid2 udisks2-lvm2"
-
         # docker.io got removed from testing; use backports-version
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
     xenial)
+        # these packages are not in Ubuntu 16.04
+        COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+
         # NFS and NetworkManager don't work together
         TEST_PACKAGES="${TEST_PACKAGES/nfs-server /}"
         # 16.04's pbuilder-satisfydepends-classic does not correctly resolve
         # our alternative debhelper build dependency
         PBUILDER_EXTRA="dh-systemd"
         ;;
-
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then
@@ -138,8 +143,8 @@ printf 'DefaultLimitCORE=infinity\n' >> /etc/systemd/system.conf
 # and thus docker.io auto-switches its backend
 systemctl restart docker || journalctl -u docker
 I=$(docker info)
-if ! echo "$I" | grep -qw aufs; then
-    echo "ERROR! docker does not use aufs"
+if ! echo "$I" | grep -Eq 'Storage.*(aufs|overlay)'; then
+    echo "ERROR! docker does not use aufs or overlayfs"
     exit 1
 fi
 

@@ -15,6 +15,7 @@ if [ "$VIRT_BUILDER_NO_CACHE" == "yes" ]; then
     virt_builder_caching="--no-cache"
 fi
 
+# 18.04 virt-builder image has an invalid apt proxy leftover; delete it
 virt-builder $virt_builder_image \
              $virt_builder_caching \
              --output "$out" \
@@ -30,5 +31,6 @@ virt-builder $virt_builder_image \
              --write /etc/apt/apt.conf.d/90nolanguages:'Acquire::Languages "none";' \
              --run-command "sed -i 's/GRUB_TIMEOUT.*/GRUB_TIMEOUT=0/; /GRUB_CMDLINE_LINUX=/ s/"'"'"$/ console=ttyS0,115200 net.ifnames=0 biosdevname=0"'"'"/' /etc/default/grub" \
              --run-command "update-grub" \
-             --run-command "sed -i 's/ens[^[:space:]]*/eth0/' /etc/network/interfaces" \
+             --run-command "sed -i 's/ens[^[:space:]:]*/eth0/' /etc/network/interfaces /etc/netplan/*.yaml || true" \
+             --run-command "rm --verbose -f /etc/apt/apt.conf" \
              --run-command "export DEBIAN_FRONTEND=noninteractive; apt-get -y update; apt-get -y install eatmydata; eatmydata apt-get -y dist-upgrade"

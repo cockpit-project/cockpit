@@ -743,6 +743,8 @@ class MachineCase(unittest.TestCase):
                                     ".*Broken pipe.*",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     "connection unexpectedly closed by peer",
+                                    "cockpit-session: .*timed out.*",
+                                    "ignoring failure from session process:.*",
                                     "peer did not close io when expected",
                                     "request timed out, closing",
                                     "PolicyKit daemon disconnected from the bus.",

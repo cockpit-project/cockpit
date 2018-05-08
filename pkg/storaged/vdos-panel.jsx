@@ -23,7 +23,8 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import {
     fmt_size, decode_filename,
-    get_available_spaces, available_space_to_option, prepare_available_spaces
+    get_available_spaces, available_space_to_option, prepare_available_spaces,
+    get_config
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
 import dialog from "./dialog.js";
@@ -154,11 +155,17 @@ export class VDOsPanel extends React.Component {
             </StorageButton>
         );
 
+        var vdo_feature = {
+            is_enabled: () => client.features.vdo
+        }
+
         return (
             <OverviewSidePanel id="vdos"
                                title={_("VDO Devices")}
                                empty_text={_("No storage set up as VDO")}
-                               actions={actions}>
+                               actions={actions}
+                               client={client}
+                               feature={vdo_feature}>
                 { vdos }
             </OverviewSidePanel>
         );

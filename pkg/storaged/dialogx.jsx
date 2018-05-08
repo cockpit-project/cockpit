@@ -59,6 +59,10 @@
    Each field function describes its options and its children.
    However, there are some options that apply to all fields:
 
+   - value
+
+   The initial value of the field.
+
    - visible: vals -> boolean
 
    This function determines whether the field is shown or not.
@@ -265,7 +269,7 @@ export const TextInput = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: "",
+        initial_value: options.value || "",
 
         render: (val, change) =>
             <input data-field={tag} data-field-type="text-input"
@@ -279,7 +283,7 @@ export const PassInput = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: "",
+        initial_value: options.value || "",
 
         render: (val, change) =>
             <input data-field={tag} data-field-type="text-input"
@@ -293,7 +297,7 @@ export const SelectOne = (tag, title, options, choices) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: choices[0].value,
+        initial_value: options.value || choices[0].value,
 
         render: (val, change) => {
             return (
@@ -312,7 +316,7 @@ export const CheckBox = (tag, title, options) => {
         tag: tag,
         title: "", // sic
         options: options,
-        initial_value: false,
+        initial_value: options.value || false,
 
         render: (val, change) => {
             return (

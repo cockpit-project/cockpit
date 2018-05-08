@@ -22,6 +22,7 @@ import parent
 
 from testlib import *
 from storagelib import *
+from packagelib import *
 
 @skipImage("VDO is too badly broken still", "rhel-x")
 class TestStorage(StorageCase):
@@ -260,6 +261,34 @@ config: !Configuration
 """)
 
         b.wait_in_text("#vdos", "vdo1")
+
+class TestStoragePackages(StorageCase, PackageCase):
+
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
+    def testVdoMissingPackages(self):
+        m = self.machine
+        b = self.browser
+
+        if m.execute("which vdo || true") == "":
+            self.skipTest("No vdo available")
+
+        m.execute("pkcon remove -y vdo")
+
+        self.createPackage("vdo", "999", "1")
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        self.login_and_go("/storage")
+        b.wait_present("button:contains('Install VDO support')")
+        b.click("button:contains('Install VDO support')")
+
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "vdo will be installed")
+        b.wait_in_text("#dialog", "Total size:")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#vdos button .fa-plus")
 
 if __name__ == '__main__':
     test_main()

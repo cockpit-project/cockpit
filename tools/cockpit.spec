@@ -56,6 +56,10 @@
 %global go_scl_prefix %{nil}
 %endif
 
+%if 0%{?rhel} >= 7 || 0%{?centos}
+%define vdo_on_demand 1
+%endif
+
 Name:           cockpit
 Summary:        A user interface for Linux servers
 
@@ -156,7 +160,8 @@ exec 2>&1
     --with-selinux-config-type=etc_t \
     %{?rhel:--without-storaged-iscsi-sessions} \
     --with-appstream-data-packages='[ "appstream-data" ]' \
-    --with-nfs-client-package='"nfs-utils"'
+    --with-nfs-client-package='"nfs-utils"' \
+    %{?vdo_on_demand:--with-vdo-package='"vdo"'}
 make -j4 %{?extra_flags} all
 
 %check

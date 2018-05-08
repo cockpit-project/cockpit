@@ -123,6 +123,7 @@ SUBST_RULE = \
 	-e 's,[@]with_appstream_config_packages[@],$(with_appstream_config_packages),g' \
 	-e 's,[@]with_appstream_data_packages[@],$(with_appstream_data_packages),g' \
 	-e 's,[@]with_nfs_client_package[@],$(with_nfs_client_package),g' \
+	-e 's,[@]with_vdo_package[@],$(with_vdo_package),g' \
 	$< > $@.tmp && $(MV) $@.tmp $@ \
 	$(NULL)
 

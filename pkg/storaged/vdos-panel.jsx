@@ -156,7 +156,12 @@ export class VDOsPanel extends React.Component {
         );
 
         var vdo_feature = {
-            is_enabled: () => client.features.vdo
+            is_enabled: () => client.features.vdo,
+            package: get_config("vdo_package", false),
+            enable: () => {
+                client.features.vdo = true;
+                client.vdo_overlay.start();
+            }
         }
 
         return (
@@ -165,7 +170,9 @@ export class VDOsPanel extends React.Component {
                                empty_text={_("No storage set up as VDO")}
                                actions={actions}
                                client={client}
-                               feature={vdo_feature}>
+                               feature={vdo_feature}
+                               install_title={_("Install VDO support")}
+                               not_installed_text={_("VDO support not installed")}>
                 { vdos }
             </OverviewSidePanel>
         );

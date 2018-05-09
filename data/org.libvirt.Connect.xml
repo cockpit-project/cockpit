@@ -229,6 +229,13 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="secret" type="o" direction="out"/>
     </method>
+    <method name="SecretLookupByUsage">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-secret.html#virSecretLookupByUsage"/>
+      <arg name="usageType" type="i" direction="in"/>
+      <arg name="usageID" type="s" direction="in"/>
+      <arg name="secret" type="o" direction="out"/>
+    </method>
     <method name="StoragePoolLookupByName">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolLookupByName"/>

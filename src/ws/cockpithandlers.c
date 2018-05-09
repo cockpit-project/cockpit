@@ -395,7 +395,7 @@ send_login_html (CockpitWebResponse *response,
           g_message ("%s", error->message);
           g_clear_error (&error);
         }
-      else
+      else if (po_bytes)
         {
           filter3 = cockpit_web_inject_new (marker, po_bytes, 1);
           g_bytes_unref (po_bytes);

@@ -418,13 +418,14 @@ PageServer.prototype = {
         }
 
         function check_for_updates() {
+            var os_updates = { };
             self.os_updates = null;
 
             packagekit.cancellableTransaction("GetUpdates", [0],
                 function (data) {
                     // we are getting progress, so PackageKit works; show spinner
                     if (self.os_updates === null) {
-                        self.os_updates = {};
+                        self.os_updates = os_updates;
                         $("#system_information_updates_text").text(_("Checking for updates…"));
                         self.os_updates_icon.className = "spinner spinner-xs spinner-inline";
                     }
@@ -434,7 +435,7 @@ PageServer.prototype = {
                         // dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
                         if (info < packagekit.Enum.INFO_LOW || info > packagekit.Enum.INFO_SECURITY)
                             info = packagekit.Enum.INFO_UNKNOWN;
-                        self.os_updates[info] = (self.os_updates[info] || 0) + 1;
+                        os_updates[info] = (os_updates[info] || 0) + 1;
                     }
                 })
                 .then(refresh_os_updates_state)

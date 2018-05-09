@@ -65,9 +65,31 @@ virtDBusSecretGetUsageID(const gchar *objectPath,
     *value = g_variant_new("s", usageID);
 }
 
+static void
+virtDBusSecretGetUsageType(const gchar *objectPath,
+                           gpointer userData,
+                           GVariant **value,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecret) secret = NULL;
+    gint usageType;
+
+    secret = virtDBusSecretGetVirSecret(connect, objectPath, error);
+    if (!secret)
+        return;
+
+    usageType = virSecretGetUsageType(secret);
+    if (usageType < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("u", usageType);
+}
+
 static virtDBusGDBusPropertyTable virtDBusSecretPropertyTable[] = {
     { "UUID", virtDBusSecretGetUUID, NULL },
     { "UsageID", virtDBusSecretGetUsageID, NULL },
+    { "UsageType", virtDBusSecretGetUsageType, NULL },
     { 0 }
 };
 

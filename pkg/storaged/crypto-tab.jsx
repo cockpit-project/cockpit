@@ -22,7 +22,6 @@
 var cockpit = require("cockpit");
 var dialog = require("./dialog");
 var utils = require("./utils.js");
-var $ = require("jquery");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
@@ -56,7 +55,7 @@ var CryptoTab = React.createClass({
             block.GetSecretConfiguration({}).done(
                 function (items) {
                     old_config = utils.array_find(items, function (c) { return c[0] == "crypttab"; });
-                    new_config = [ "crypttab", old_config ? $.extend({ }, old_config[1]) : { } ];
+                    new_config = [ "crypttab", old_config ? Object.assign({ }, old_config[1]) : { } ];
 
                     // UDisks insists on always having a "passphrase-contents" field when
                     // adding a crypttab entry, but doesn't include one itself when returning

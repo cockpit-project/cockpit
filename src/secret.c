@@ -3,7 +3,49 @@
 
 #include <libvirt/libvirt.h>
 
+static virSecretPtr
+virtDBusSecretGetVirSecret(virtDBusConnect *connect,
+                           const gchar *objectPath,
+                           GError **error)
+{
+    virSecretPtr secret;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    secret = virtDBusUtilVirSecretFromBusPath(connect->connection,
+                                              objectPath,
+                                              connect->secretPath);
+    if (!secret) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return secret;
+}
+
+static void
+virtDBusSecretGetUUID(const gchar *objectPath,
+                      gpointer userData,
+                      GVariant **value,
+                      GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecret) secret = NULL;
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+
+    secret = virtDBusSecretGetVirSecret(connect, objectPath, error);
+    if (!secret)
+        return;
+
+    if (virSecretGetUUIDString(secret, uuid) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", uuid);
+}
+
 static virtDBusGDBusPropertyTable virtDBusSecretPropertyTable[] = {
+    { "UUID", virtDBusSecretGetUUID, NULL },
     { 0 }
 };
 

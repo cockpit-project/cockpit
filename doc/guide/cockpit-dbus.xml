@@ -128,7 +128,7 @@ client = cockpit.dbus(name, [options])
         <listitem><para>Set to <code>"require"</code> to talk to this service as root.
           The DBus service will see the DBus method calls and accesses as coming from root,
           rather than the logged in user. This is useful for talking to services that do not
-          correctly use <ulink url="http://www.freedesktop.org/software/polkit">polkit</ulink>
+          correctly use <ulink url="https://www.freedesktop.org/software/polkit">polkit</ulink>
           to authorize administrative users. If the currently logged in user is not
           permitted to become root (eg: via <code>pkexec</code>) then the <code>client</code> will
           immediately be <link linkend="cockpit-dbus-onclose">closed</link> with a
@@ -611,7 +611,7 @@ invocation.done(function(args, options) { ... })
 invocation.fail(function(exception) { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
       It sets up a handler to be called when the DBus method call fails.</para>
 
     <para>The <code>exception</code> object passed to the handler can have the
@@ -643,7 +643,7 @@ invocation.fail(function(exception) { ... })
 invocation.always(function() { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
+      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink> method.
       It sets up a handler to be called when the DBus method call finishes whether successfully,
       or fails.</para>
   </refsection>
@@ -725,11 +725,11 @@ watch = client.watch({ "path_namespace": path_namespace, "interface": interface 
       show up before that method call reply is received, or signal event is triggered.
       It should be possible to rely on this guarantee, unless the DBus service in question
       behaves incorrectly. Internally these watches work well with code that implements the
-      <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager">ObjectManager</ulink>
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager">ObjectManager</ulink>
       portion of the DBus specification. If no ObjectManager implementation is available, the
       watch falls back to using DBus
-      <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable">Introspection</ulink> along with the usual
-      <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties">PropertiesChanged</ulink> signal. If the DBus service implements none of these, or implements them in an
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable">Introspection</ulink> along with the usual
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties">PropertiesChanged</ulink> signal. If the DBus service implements none of these, or implements them in an
       inconsistent manner, then this function will provide inconsistent or unexpected
       results.</para>
 
@@ -785,7 +785,7 @@ watch.done(function() { ... })
 watch.fail(function() { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
       method. It sets up a handler to be called if the watch fails to populate its initial
       properties and interfaces. Note that a watch will only fail if the DBus client
       closes or is somehow disconnected. It does not fail in the case of missing
@@ -798,7 +798,7 @@ watch.fail(function() { ... })
 watch.always(function() { ... })
 </programlisting>
     <para>This is a standard
-      <ulink url="http://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
+      <ulink url="https://api.jquery.com/category/deferred-object/">jQuery promise</ulink>
       method. It sets up a handler to be called when the watch has populated its initial
       properties and interfaces or has failed to do so.</para>
   </refsection>

@@ -70,7 +70,7 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 2, "one")
 
         # and remove it
-        m.execute("lvremove TEST1/one")
+        m.execute("lvremove -f TEST1/one")
         b.wait_not_in_text("#detail-content", "one")
 
         # remove a disk from the volume group

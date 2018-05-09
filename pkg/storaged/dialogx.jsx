@@ -314,7 +314,7 @@ export const SelectOne = (tag, title, options, choices) => {
 export const CheckBox = (tag, title, options) => {
     return {
         tag: tag,
-        title: "", // sic
+        title: options.row_title || "",
         options: options,
         initial_value: options.value || false,
 
@@ -325,6 +325,36 @@ export const CheckBox = (tag, title, options) => {
                         <input type="checkbox" data-field={tag} checked={val}
                             onChange={event => change(event.target.checked)} />{title}
                     </label>
+                </div>
+            );
+        }
+    }
+}
+
+/* A text input that is guarded by a check box.
+ *
+ * The value is either "false" when the checkbox
+ * is not checked, or the string from the text input.
+ */
+
+export const TextInputChecked = (tag, title, options) => {
+    return {
+        tag: tag,
+        title: options.row_title,
+        options: options,
+        initial_value: (options.value === undefined) ? false : options.value,
+
+        render: (val, change) => {
+            return (
+                <div className="dialog-checkbox-text" data-field={tag} data-field-type="TextInputChecked">
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" checked={val !== false}
+                                   onChange={event => change(event.target.checked ? "" : false)} />{title}
+                        </label>
+                    </div>
+                    <input className="form-control" type="text" hidden={val === false}
+                           value={val} onChange={event => change(event.target.value)} />
                 </div>
             );
         }

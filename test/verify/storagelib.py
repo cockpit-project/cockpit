@@ -192,7 +192,15 @@ class StorageCase(MachineCase):
         return '#dialog [data-field="%s"]' % field
 
     def dialog_val(self, field):
-        return self.browser.val(self.dialog_field(field))
+        sel = self.dialog_field(field)
+        ftype = self.browser.attr(sel, "data-field-type")
+        if ftype == "TextInputChecked":
+            if self.browser.is_present(sel + " input[type=checkbox]:not(:checked)"):
+                return False
+            else:
+                return self.browser.val(sel + " input[type=text]")
+        else:
+            return self.browser.val(self.dialog_field(field))
 
     def dialog_set_val(self, field, val):
         if isinstance(val, bool):
@@ -219,6 +227,12 @@ class StorageCase(MachineCase):
                 self.browser.click(sel + " li[data-data=%s] a" % val)
             elif ftype == "text-input":
                 self.browser.set_input_text(sel, val)
+            elif ftype == "TextInputChecked":
+                if val == False:
+                    self.browser.set_checked(sel + " input[type=checkbox]", False)
+                else:
+                    self.browser.set_checked(sel + " input[type=checkbox]", True)
+                    self.browser.set_val(sel + " input[type=text]", val)
             else:
                 self.browser.set_val(self.dialog_field(field), val)
 
@@ -277,7 +291,7 @@ class StorageCase(MachineCase):
             if isinstance(expect[f], CheckBoxText):
                 sel = self.dialog_field(f);
                 if expect[f].val == False:
-                    return self.brower.is_present(sel + " input[type=checkbox]:not(:checked)")
+                    return self.browser.is_present(sel + " input[type=checkbox]:not(:checked)")
                 else:
                     return (self.browser.is_present(sel + " input[type=checkbox]:checked") and
                             self.browser.val(sel + " input[type=text]") == expect[f].val)

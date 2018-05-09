@@ -150,6 +150,39 @@ virtDBusSecretGetXMLDesc(GVariant *inArgs,
 }
 
 static void
+virtDBusSecretSetValue(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecret) secret = NULL;
+    g_autoptr(GVariantIter) iter = NULL;
+    guint flags;
+    g_autofree guchar *value = NULL;
+    guchar *tmp;
+    gsize size;
+
+    g_variant_get(inArgs, "(ayu)", &iter, &flags);
+
+    size = g_variant_iter_n_children(iter);
+    value = g_new0(guchar, size);
+    tmp = value;
+    while (g_variant_iter_next(iter, "y", tmp))
+        tmp++;
+
+    secret = virtDBusSecretGetVirSecret(connect, objectPath, error);
+    if (!secret)
+        return;
+
+    if (virSecretSetValue(secret, value, size, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusSecretUndefine(GVariant *inArgs G_GNUC_UNUSED,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -180,6 +213,7 @@ static virtDBusGDBusMethodTable virtDBusSecretMethodTable[] = {
     { "GetXMLDesc", virtDBusSecretGetXMLDesc },
     { "Undefine", virtDBusSecretUndefine },
     { "GetValue", virtDBusSecretGetValue },
+    { "SetValue", virtDBusSecretSetValue },
     { 0 }
 };
 

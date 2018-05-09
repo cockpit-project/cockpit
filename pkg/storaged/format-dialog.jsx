@@ -19,6 +19,8 @@
 
 "use strict";
 
+import { CheckBox, TextInputChecked } from "./dialogx.jsx";
+
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var dialog = require("./dialog.js");
@@ -154,6 +156,29 @@ function crypto_options_dialog_fields(options, visible) {
     ];
 }
 
+function crypto_options_dialogx_fields(options, visible) {
+    var split_options = parse_options(options);
+    var opt_auto = !extract_option(split_options, "noauto");
+    var opt_ro = extract_option(split_options, "readonly");
+    var extra_options = unparse_options(split_options);
+
+    return [
+        CheckBox("crypto_options_auto", _("Unlock at boot"),
+                 { row_title: _("Encryption Options"),
+                   value: opt_auto,
+                   visible: visible
+                 }),
+        CheckBox("crypto_options_ro", _("Unlock read only"),
+                 { value: opt_ro,
+                   visible: visible
+                 }),
+        TextInputChecked("crypto_extra_options", _("Custom encryption options"),
+                         { value: extra_options == "" ? false : extra_options,
+                           visible: visible
+                         })
+    ];
+}
+
 function crypto_options_dialog_options(vals) {
     var opts = [ ];
     if (!vals.crypto_options_auto)
@@ -187,7 +212,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
 
     /* Older UDisks2 implementation don't have good
      * enough support for maintaining fstab and crypptab, so
-     * we do n't offer that in the UI.  (Most importantly, they
+     * we don't offer that in the UI.  (Most importantly, they
      * miss the 'tear-down' option and without that we'll end
      * up with obsolete fstab files all the time, which will
      * break the next boot.)
@@ -413,6 +438,7 @@ module.exports = {
     mounting_dialog_fields: mounting_dialog_fields,
     mounting_dialog_options: mounting_dialog_options,
     crypto_options_dialog_fields: crypto_options_dialog_fields,
+    crypto_options_dialogx_fields: crypto_options_dialogx_fields,
     crypto_options_dialog_options: crypto_options_dialog_options,
     format_dialog: format_dialog,
     FormatButton: FormatButton

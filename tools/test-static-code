@@ -8,39 +8,40 @@ builddir=$(pwd)
 cd "${srcdir:-.}"
 fail=0
 
+# we don't dist bots, so only check it when running in git
+[ -d bots ] &&  BOTS=$(grep -l '#!.*python' `find bots/ -type f ! -name '.*'` 2>/dev/null || true) || BOTS=
+
 #
 # pyflakes
 #
+PYFLAKES="python3 -m pyflakes"
 
-if ! which pyflakes >/dev/null 2>&1; then
-    echo "ok 1 pyflakes pkg tools # SKIP pyflakes not installed"
+if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
+    echo "ok 1 pyflakes bots pkg tools # SKIP pyflakes3 not installed"
 
-elif pyflakes pkg/docker/cockpit-atomic-storage tools/build-debian-copyright >&2; then
-    echo "ok 1 pyflakes pkg tools"
+elif $PYFLAKES $BOTS pkg/docker/cockpit-atomic-storage tools/build-debian-copyright >&2; then
+    echo "ok 1 pyflakes bots pkg tools"
 
 else
-    echo "not ok pyflakes pkg tools"
+    echo "not ok pyflakes bots pkg tools"
     fail=1
 fi
-
-# we don't dist bots, so only check it when running in git
-[ -d bots ] &&  BOTS=$(grep -l '#!.*python' `find bots/ -type f ! -name '.*'` 2>/dev/null || true) || BOTS=
 
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names
 # Filter these out until these get fixed properly.
-if ! python3 -m pyflakes /dev/null >/dev/null 2>&1; then
-    echo "ok 2 pyflakes bots test # SKIP python3 and pyflakes not installed"
+if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
+    echo "ok 2 pyflakes test # SKIP pyflakes3 not installed"
 
 else
-    out=$(python3 -m pyflakes $BOTS test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
+    out=$($PYFLAKES test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
     if [ -n "$out" ]; then
         echo "$out" >&2
-        echo "not ok 2 pyflakes bots test"
+        echo "not ok 2 pyflakes test"
         fail=1
     else
-        echo "ok 2 pyflakes bots test"
+        echo "ok 2 pyflakes test"
     fi
 fi
 

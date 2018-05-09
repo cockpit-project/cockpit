@@ -87,6 +87,42 @@ virtDBusSecretGetUsageType(const gchar *objectPath,
 }
 
 static void
+virtDBusSecretGetValue(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecret) secret = NULL;
+    g_autofree guchar *value =  NULL;
+    gsize size;
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *res;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    secret = virtDBusSecretGetVirSecret(connect, objectPath, error);
+    if (!secret)
+        return;
+
+    value = virSecretGetValue(secret, &size, flags);
+    if (!value)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ay"));
+    for (unsigned int i = 0; i < size; i++)
+        g_variant_builder_add(&builder, "y", value[i]);
+
+    res = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&res, 1);
+}
+
+static void
 virtDBusSecretGetXMLDesc(GVariant *inArgs,
                          GUnixFDList *inFDs G_GNUC_UNUSED,
                          const gchar *objectPath,
@@ -143,6 +179,7 @@ static virtDBusGDBusPropertyTable virtDBusSecretPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusSecretMethodTable[] = {
     { "GetXMLDesc", virtDBusSecretGetXMLDesc },
     { "Undefine", virtDBusSecretUndefine },
+    { "GetValue", virtDBusSecretGetValue },
     { 0 }
 };
 

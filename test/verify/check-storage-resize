@@ -23,7 +23,7 @@ import parent
 from testlib import *
 from storagelib import *
 
-@skipImage("UDisks doesn't have support for LVM", "debian-stable", "ubuntu-1604", "ubuntu-stable")
+@skipImage("UDisks doesn't have support for LVM", "debian-stable", "ubuntu-1604")
 class TestStorage(StorageCase):
     def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount = None, grow_needs_unmount = None):
         m = self.machine

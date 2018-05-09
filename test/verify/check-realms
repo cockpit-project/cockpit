@@ -100,7 +100,7 @@ class TestRealms(MachineCase):
         m.execute("! su -c klist admin")
 
         # validate Kerberos setup for ws; requires FreeIPA with the "ipa" tool
-        if m.image not in ["rhel-7-5", "ubuntu-1604", "ubuntu-stable"]:
+        if m.image not in ["rhel-7-5", "ubuntu-1604"]:
             m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
             m.execute(script=WAIT_KRB_SCRIPT, timeout=300)
 

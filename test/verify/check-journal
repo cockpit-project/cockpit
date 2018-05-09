@@ -94,7 +94,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1352905
         #
         m.execute("! systemctl --quiet is-active ntp || (systemctl disable ntp && systemctl stop ntp)")
-        m.execute("! systemctl --quiet is-active chronyd || (systemctl disable chronyd && systemctl stop chronyd)")
+        m.execute("if systemctl --quiet is-active chrony; then systemctl disable chrony && systemctl stop chrony; fi")
+        m.execute("if systemctl --quiet is-active chronyd; then systemctl disable chronyd && systemctl stop chronyd; fi")
 
         m.execute("timedatectl set-ntp off; timedatectl set-time 2038-01-01")
 

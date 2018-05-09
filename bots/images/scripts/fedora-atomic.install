@@ -4,3 +4,7 @@
 set -e
 
 /var/lib/testvm/atomic.install --verbose --skip cockpit-kdump "$@"
+
+# HACK: https://github.com/projectatomic/rpm-ostree/issues/1360
+# rpm-ostree upgrade --check otherwise fails
+mkdir -p /var/cache/rpm-ostree

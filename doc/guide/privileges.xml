@@ -9,8 +9,8 @@
     the console.</para>
 
   <para>In some cases Cockpit will try to escalate the privileges of the user
-    using <ulink url="http://www.freedesktop.org/wiki/Software/polkit/">Policy Kit</ulink>
-    or <ulink url="http://www.sudo.ws/">sudo</ulink>. If the user is able to escalate
+    using <ulink url="https://www.freedesktop.org/wiki/Software/polkit/">Policy Kit</ulink>
+    or <ulink url="https://www.sudo.ws/">sudo</ulink>. If the user is able to escalate
     privileges from the command line, then Cockpit will use that same capability to
     perform certain privileged tasks.</para>
 
@@ -42,9 +42,9 @@ $ pkexec cockpit-bridge
   <section id="privileges-polkit">
     <title>Customizing Polkit Privileges</title>
 
-    <para>Services like <ulink url="http://www.freedesktop.org/wiki/Software/systemd/">systemd</ulink>
+    <para>Services like <ulink url="https://www.freedesktop.org/wiki/Software/systemd/">systemd</ulink>
       and <ulink url="https://wiki.gnome.org/Projects/NetworkManager">NetworkManager</ulink> use
-      <ulink url="http://www.freedesktop.org/wiki/Software/polkit/">Polkit</ulink> to
+      <ulink url="https://www.freedesktop.org/wiki/Software/polkit/">Polkit</ulink> to
       validate and escalate privileges. It is possible to customize these rules with files
       in <filename>/etc/polkit-1/rules.d</filename>.</para>
 

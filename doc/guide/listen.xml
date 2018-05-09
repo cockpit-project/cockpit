@@ -26,7 +26,7 @@
     <title>Cockpit systemd Socket</title>
 
     <para>On servers with
-      <ulink url="http://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></ulink>
+      <ulink url="https://www.freedesktop.org/wiki/Software/systemd/"><code>systemd</code></ulink>
       Cockpit starts on demand via socket activation. To change its port and/or address
       you should place the following content in the
       <code>/etc/systemd/system/cockpit.socket.d/listen.conf</code> file. Create the file
@@ -70,7 +70,7 @@ $ sudo systemctl restart cockpit.socket
   <section id="listen-selinux">
     <title>SELinux Port</title>
 
-    <para>If <ulink url="http://selinuxproject.org/page/Main_Page">SELinux</ulink> is
+    <para>If <ulink url="https://selinuxproject.org/page/Main_Page">SELinux</ulink> is
       protecting your server, then you will need to tell it to allow Cockpit to listen
       on the new port. Run the following command to do so. The last argument specifies
       the desired TCP port.</para>

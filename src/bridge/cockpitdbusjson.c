@@ -2673,11 +2673,7 @@ on_name_appeared (GDBusConnection *connection,
 {
   CockpitDBusJson *self = COCKPIT_DBUS_JSON (user_data);
 
-  g_object_ref (self);
-
   send_owned (self, name, name_owner);
-
-  g_object_unref (self);
 }
 
 static void

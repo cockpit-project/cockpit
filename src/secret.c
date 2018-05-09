@@ -86,6 +86,33 @@ virtDBusSecretGetUsageType(const gchar *objectPath,
     *value = g_variant_new("u", usageType);
 }
 
+static void
+virtDBusSecretGetXMLDesc(GVariant *inArgs,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virSecret) secret = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    secret = virtDBusSecretGetVirSecret(connect, objectPath, error);
+    if (!secret)
+        return;
+
+    xml = virSecretGetXMLDesc(secret, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
 static virtDBusGDBusPropertyTable virtDBusSecretPropertyTable[] = {
     { "UUID", virtDBusSecretGetUUID, NULL },
     { "UsageID", virtDBusSecretGetUsageID, NULL },
@@ -94,6 +121,7 @@ static virtDBusGDBusPropertyTable virtDBusSecretPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusSecretMethodTable[] = {
+    { "GetXMLDesc", virtDBusSecretGetXMLDesc },
     { 0 }
 };
 

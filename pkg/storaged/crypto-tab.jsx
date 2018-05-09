@@ -19,19 +19,15 @@
 
 "use strict";
 
-var cockpit = require("cockpit");
-var dialog = require("./dialog");
-var utils = require("./utils.js");
+import cockpit from "cockpit";
+import { dialog_open, PassInput } from "./dialogx.jsx";
+import { array_find, encode_filename, decode_filename } from "./utils.js";
 
-var React = require("react");
-var StorageControls = require("./storage-controls.jsx");
-var FormatDialog = require("./format-dialog.jsx");
+import React from "react";
+import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { FormatButton, crypto_options_dialogx_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
 
-var StorageButton = StorageControls.StorageButton;
-var StorageLink = StorageControls.StorageLink;
-var FormatButton = FormatDialog.FormatButton;
-
-var ClevisDialogs = require("./clevis-dialogs.jsx");
+import * as ClevisDialogs from "./clevis-dialogs.jsx";
 
 var _ = cockpit.gettext;
 
@@ -54,7 +50,7 @@ var CryptoTab = React.createClass({
 
             block.GetSecretConfiguration({}).done(
                 function (items) {
-                    old_config = utils.array_find(items, function (c) { return c[0] == "crypttab"; });
+                    old_config = array_find(items, function (c) { return c[0] == "crypttab"; });
                     new_config = [ "crypttab", old_config ? Object.assign({ }, old_config[1]) : { } ];
 
                     // UDisks insists on always having a "passphrase-contents" field when
@@ -62,7 +58,7 @@ var CryptoTab = React.createClass({
                     // an entry without a stored passphrase.
                     //
                     if (!new_config[1]['passphrase-contents'])
-                        new_config[1]['passphrase-contents'] = { t: 'ay', v: utils.encode_filename("") };
+                        new_config[1]['passphrase-contents'] = { t: 'ay', v: encode_filename("") };
 
                     modify(new_config[1], commit);
                 });
@@ -70,21 +66,20 @@ var CryptoTab = React.createClass({
 
         function edit_stored_passphrase() {
             edit_config(function (config, commit) {
-                dialog.open({ Title: _("Stored Passphrase"),
+                dialog_open({ Title: _("Stored Passphrase"),
                               Fields: [
-                                  { PassInput: "passphrase",
-                                    Title: _("Stored Passphrase"),
-                                    Value: (config && config['passphrase-contents']
-                                        ? utils.decode_filename(config['passphrase-contents'].v)
-                                        : "")
-                                  }
+                                  PassInput("passphrase", _("Stored Passphrase"),
+                                            { value: (config && config['passphrase-contents']
+                                                ? decode_filename(config['passphrase-contents'].v)
+                                                : "")
+                                            })
                               ],
                               Action: {
                                   Title: _("Apply"),
                                   action: function (vals) {
                                       config["passphrase-contents"] = {
                                           t: 'ay',
-                                          v: utils.encode_filename(vals.passphrase)
+                                          v: encode_filename(vals.passphrase)
                                       }
                                       delete config["passphrase-path"];
                                       return commit();
@@ -96,9 +91,9 @@ var CryptoTab = React.createClass({
 
         var old_config, old_options;
 
-        old_config = utils.array_find(block.Configuration, function (c) { return c[0] == "crypttab"; });
+        old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab"; });
         if (old_config) {
-            old_options = (utils.decode_filename(old_config[1].options.v)
+            old_options = (decode_filename(old_config[1].options.v)
                     .split(",")
                     .filter(function (s) { return s.indexOf("x-parent") !== 0; })
                     .join(","));
@@ -106,14 +101,14 @@ var CryptoTab = React.createClass({
 
         function edit_options() {
             edit_config(function (config, commit) {
-                dialog.open({ Title: _("Encryption Options"),
-                              Fields: FormatDialog.crypto_options_dialog_fields(old_options),
+                dialog_open({ Title: _("Encryption Options"),
+                              Fields: crypto_options_dialogx_fields(old_options),
                               Action: {
                                   Title: _("Apply"),
                                   action: function (vals) {
                                       config["options"] = {
                                           t: 'ay',
-                                          v: utils.encode_filename(FormatDialog.crypto_options_dialog_options(vals))
+                                          v: encode_filename(crypto_options_dialog_options(vals))
                                       }
                                       return commit();
                                   }

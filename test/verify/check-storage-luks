@@ -77,8 +77,8 @@ class TestStorage(StorageCase):
             # Change options.  We keep trying until the stack has synched
             # up with crypttab and we see the old options.
             self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 2, "Options"),
-                                   expect = { "crypto_extra_options": CheckBoxText("crypto,options") },
-                                   values = { "crypto_extra_options": CheckBoxText("weird,options") })
+                                   expect = { "crypto_extra_options": "crypto,options" },
+                                   values = { "crypto_extra_options": "weird,options" })
 
             assert m.execute("grep 'weird,options' /etc/crypttab") != ""
             self.wait_in_storaged_configuration("weird,options")

@@ -615,6 +615,14 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventBalloonChangeCallback"/>
       <arg name="actual" type="t"/>
     </signal>
+    <signal name="BlockJob">
+      <annotation name="org.gtk.GDBus.DocString"
+          value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventBlockJobCallback
+                 Callback was registered using VIR_DOMAIN_EVENT_ID_BLOCK_JOB_2"/>
+      <arg name="disk" type="s"/>
+      <arg name="type" type="i"/>
+      <arg name="status" type="i"/>
+    </signal>
     <signal name="ControlError">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventGenericCallback"/>

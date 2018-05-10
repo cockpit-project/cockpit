@@ -312,6 +312,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="time" type="(tu)" direction="out"/>
     </method>
+    <method name="GetVcpuPinInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetVcpuPinInfo"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="vcpuPinInfo" type="aab" direction="out"/>
+    </method>
     <method name="GetVcpus">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetVcpusFlags"/>

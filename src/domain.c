@@ -1687,6 +1687,64 @@ virtDBusDomainGetTime(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetVcpuPinInfo(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+    virDomainInfo domInfo;
+    gint vcpuCount;
+    gint cpuCount;
+    g_autofree guchar *cpumaps = NULL;
+    gint cpumaplen;
+    GVariantBuilder builder;
+    GVariant *gret;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetInfo(domain, &domInfo) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    vcpuCount = domInfo.nrVirtCpu;
+
+    cpuCount = virNodeGetCPUMap(connect->connection, NULL, NULL, 0);
+    if (cpuCount < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    cpumaplen = VIR_CPU_MAPLEN(cpuCount);
+    cpumaps = g_new0(guchar, cpumaplen * vcpuCount);
+
+    if (virDomainGetVcpuPinInfo(domain, vcpuCount, cpumaps,
+                                cpumaplen, flags) < 0) {
+        return virtDBusUtilSetLastVirtError(error);
+    }
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("aab"));
+    for (gint i = 0; i < vcpuCount; i++) {
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("ab"));
+        for (gint j = 0; j < cpuCount; j++) {
+            g_variant_builder_add(&builder, "b",
+                                  VIR_CPU_USABLE(cpumaps, cpumaplen, i, j));
+        }
+        g_variant_builder_close(&builder);
+    }
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusDomainGetVcpus(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -3024,6 +3082,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetSecurityLabelList", virtDBusDomainGetSecurityLabelList },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },
+    { "GetVcpuPinInfo", virtDBusDomainGetVcpuPinInfo },
     { "GetVcpus", virtDBusDomainGetVcpus },
     { "GetXMLDesc", virtDBusDomainGetXMLDesc },
     { "HasManagedSaveImage", virtDBusDomainHasManagedSaveImage },

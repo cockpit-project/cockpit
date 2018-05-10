@@ -151,6 +151,15 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.SetVcpus(vcpus_expected, 0)
         assert domain.GetVcpus(0) == dbus.Int32(vcpus_expected)
 
+    def test_domain_vcpu_pin_info(self):
+        obj, domain = self.domain()
+        pinInfo_expected = [
+                [ True, True, True, True, True, True, True, True ],
+                [ True, True, True, True, True, True, True, True ]
+        ]
+        pinInfo = domain.GetVcpuPinInfo(0)
+        assert pinInfo == pinInfo_expected
+
 
 if __name__ == '__main__':
     libvirttest.run()

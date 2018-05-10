@@ -29,6 +29,28 @@ virtDBusEventsDomainAgentLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainBalloonChange(virConnectPtr connection G_GNUC_UNUSED,
+                                  virDomainPtr domain,
+                                  guint64 actual,
+                                  gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "BalloonChange",
+                                  g_variant_new("(t)", actual),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
                               gint event,
@@ -302,6 +324,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_AGENT_LIFECYCLE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainAgentLifecycle));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_BALLOON_CHANGE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainBalloonChange));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_LIFECYCLE,

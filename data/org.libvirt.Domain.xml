@@ -608,6 +608,11 @@
       <arg name="state" type="i"/>
       <arg name="reason" type="i"/>
     </signal>
+    <signal name="BalloonChange">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventBalloonChangeCallback"/>
+      <arg name="actual" type="t"/>
+    </signal>
     <signal name="DeviceAdded">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventDeviceAddedCallback"/>

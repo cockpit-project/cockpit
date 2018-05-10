@@ -4,6 +4,8 @@
 
 #include <libvirt/libvirt.h>
 
+#define VIRT_DBUS_EMPTY_STR(s) ((s) ? (s) : "")
+
 #define VIRT_DBUS_ERROR virtDBusErrorQuark()
 
 #define virtDBusUtilAutoLock g_autoptr(GMutexLocker) G_GNUC_UNUSED

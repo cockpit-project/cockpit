@@ -650,6 +650,15 @@
       <arg name="device" type="s"/>
       <arg name="reason" type="u"/>
     </signal>
+    <signal name="Graphics">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventGraphicsCallback"/>
+      <arg name="phase" type="i"/>
+      <arg name="local" type="(iss)"/>
+      <arg name="remote" type="(iss)"/>
+      <arg name="authScheme" type="s"/>
+      <arg name="identities" type="a(ss)"/>
+    </signal>
     <signal name="JobCompleted">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventJobCompletedCallback"/>

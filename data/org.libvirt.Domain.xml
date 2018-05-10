@@ -622,6 +622,11 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventDeviceAddedCallback"/>
       <arg name="device" type="s"/>
     </signal>
+    <signal name="DeviceRemovalFailed">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventDeviceRemovalFailedCallback"/>
+      <arg name="device" type="s"/>
+    </signal>
     <signal name="DeviceRemoved">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventDeviceRemovedCallback"/>

@@ -49,6 +49,14 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="domain" type="o" direction="out"/>
     </method>
+    <method name="DomainCreateXMLWithFiles">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCreateXMLWithFiles"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="files" type="ah" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="domain" type="o" direction="out"/>
+    </method>
     <method name="DomainDefineXML">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainDefineXML"/>

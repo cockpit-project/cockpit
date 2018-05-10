@@ -1111,6 +1111,50 @@ virtDBusDomainGetDiskErrors(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetEmulatorPinInfo(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath,
+                                 gpointer userData,
+                                 GVariant **outArgs,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+    gint cpuCount;
+    g_autofree guchar *cpumap = NULL;
+    gint cpumaplen;
+    GVariantBuilder builder;
+    GVariant *gret;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    cpuCount = virNodeGetCPUMap(connect->connection, NULL, NULL, 0);
+    if (cpuCount < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    cpumaplen = VIR_CPU_MAPLEN(cpuCount);
+    cpumap = g_new0(guchar, cpumaplen);
+
+    if (virDomainGetEmulatorPinInfo(domain, cpumap, cpumaplen, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ab"));
+
+    for (gint i = 0; i < cpuCount; i++)
+        g_variant_builder_add(&builder, "b", VIR_CPU_USED(cpumap, i));
+
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusDomainGetFSInfo(GVariant *inArgs,
                         GUnixFDList *inFDs G_GNUC_UNUSED,
                         const gchar *objectPath,
@@ -2930,6 +2974,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetBlockJobInfo", virtDBusDomainGetBlockJobInfo },
     { "GetControlInfo", virtDBusDomainGetControlInfo },
     { "GetDiskErrors", virtDBusDomainGetDiskErrors },
+    { "GetEmulatorPinInfo", virtDBusDomainGetEmulatorPinInfo },
     { "GetFSInfo", virtDBusDomainGetFSInfo },
     { "GetGuestVcpus", virtDBusDomainGetGuestVcpus },
     { "GetHostname", virtDBusDomainGetHostname },

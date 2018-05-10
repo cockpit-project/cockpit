@@ -213,6 +213,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="diskErrors" type="a(su)" direction="out"/>
     </method>
+    <method name="GetEmulatorPinInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetEmulatorPinInfo"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="cpumap" type="ab" direction="out"/>
+    </method>
     <method name="GetFSInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetFSInfo"/>

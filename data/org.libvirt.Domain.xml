@@ -640,6 +640,10 @@
       <arg name="device" type="s"/>
       <arg name="reason" type="u"/>
     </signal>
+    <signal name="Reboot">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventGenericCallback"/>
+    </signal>
     <signal name="TrayChange">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventTrayChangeCallback"/>

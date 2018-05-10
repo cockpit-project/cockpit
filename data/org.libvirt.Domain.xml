@@ -666,6 +666,11 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventPMSuspendDiskCallback"/>
       <arg name="reason" type="i"/>
     </signal>
+    <signal name="PMWakeup">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventPMWakeupCallback"/>
+      <arg name="reason" type="i"/>
+    </signal>
     <signal name="Reboot">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventGenericCallback"/>

@@ -520,6 +520,33 @@ virtDBusConnectDomainSaveImageDefineXML(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectDomainSaveImageGetXMLDesc(GVariant *inArgs,
+                                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                                         const gchar *objectPath G_GNUC_UNUSED,
+                                         gpointer userData,
+                                         GVariant **outArgs,
+                                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    const gchar *file;
+    guint flags;
+    g_autofree gchar *xml = NULL;
+
+    g_variant_get(inArgs, "(&su)", &file, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    xml = virDomainSaveImageGetXMLDesc(connect->connection, file, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
+static void
 virtDBusConnectFindStoragePoolSources(GVariant *inArgs,
                                       GUnixFDList *inFDs G_GNUC_UNUSED,
                                       const gchar *objectPath G_GNUC_UNUSED,
@@ -1355,6 +1382,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "DomainLookupByUUID", virtDBusConnectDomainLookupByUUID },
     { "DomainRestore", virtDBusConnectDomainRestoreFlags },
     { "DomainSaveImageDefineXML", virtDBusConnectDomainSaveImageDefineXML },
+    { "DomainSaveImageGetXMLDesc", virtDBusConnectDomainSaveImageGetXMLDesc },
     { "FindStoragePoolSources", virtDBusConnectFindStoragePoolSources },
     { "GetAllDomainStats", virtDBusConnectGetAllDomainStats },
     { "GetCapabilities", virtDBusConnectGetCapabilities },

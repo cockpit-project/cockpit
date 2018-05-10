@@ -1591,6 +1591,40 @@ virtDBusDomainGetSchedulerParameters(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainGetSecurityLabelList(GVariant *inArgs G_GNUC_UNUSED,
+                                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                                   const gchar *objectPath,
+                                   gpointer userData,
+                                   GVariant **outArgs,
+                                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                                   GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    g_autofree virSecurityLabelPtr seclabels = NULL;
+    gint nseclabels;
+    GVariantBuilder builder;
+    GVariant *gret;
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    nseclabels = virDomainGetSecurityLabelList(domain, &seclabels);
+    if (nseclabels < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(sb)"));
+    for (gint i = 0; i < nseclabels; i++) {
+        g_variant_builder_add(&builder, "(sb)", seclabels[i].label,
+                              !!seclabels[i].enforcing);
+    }
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
 virtDBusDomainGetStats(GVariant *inArgs,
                        GUnixFDList *inFDs G_GNUC_UNUSED,
                        const gchar *objectPath,
@@ -2987,6 +3021,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetNumaParameters", virtDBusDomainGetNumaParameters },
     { "GetPerfEvents", virtDBusDomainGetPerfEvents },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
+    { "GetSecurityLabelList", virtDBusDomainGetSecurityLabelList },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },
     { "GetVcpus", virtDBusDomainGetVcpus },

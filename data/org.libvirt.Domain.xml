@@ -294,6 +294,11 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="SchedulerParameters" type="a{sv}" direction="out"/>
     </method>
+    <method name="GetSecurityLabelList">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSecurityLabelList"/>
+      <arg name="securityLabels" type="a(sb)" direction="out"/>
+    </method>
     <method name="GetStats">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainListGetStats"/>

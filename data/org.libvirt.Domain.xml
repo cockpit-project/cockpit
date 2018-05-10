@@ -651,6 +651,11 @@
       <arg name="type" type="i"/>
       <arg name="nsuri" type="s"/>
     </signal>
+    <signal name="MigrationIteration">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventMigrationIterationCallback"/>
+      <arg name="iteration" type="i"/>
+    </signal>
     <signal name="Reboot">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventGenericCallback"/>

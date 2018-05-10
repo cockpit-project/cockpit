@@ -210,6 +210,28 @@ virtDBusEventsDomainMetadataChange(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainMigrationIteration(virConnectPtr connection G_GNUC_UNUSED,
+                                       virDomainPtr domain,
+                                       gint iteration,
+                                       gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "MigrationIteration",
+                                  g_variant_new("(i)", iteration),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainReboot(virConnectPtr connection G_GNUC_UNUSED,
                            virDomainPtr domain,
                            gpointer opaque)
@@ -473,6 +495,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_METADATA_CHANGE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainMetadataChange));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_MIGRATION_ITERATION,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainMigrationIteration));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_REBOOT,

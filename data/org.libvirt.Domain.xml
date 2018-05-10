@@ -691,5 +691,10 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventTunableCallback"/>
       <arg name="params" type="a{sv}"/>
     </signal>
+    <signal name="Watchdog">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventWatchdogCallback"/>
+      <arg name="action" type="i"/>
+    </signal>
   </interface>
 </node>

@@ -390,6 +390,28 @@ virtDBusEventsDomainTunable(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainWatchdog(virConnectPtr connection G_GNUC_UNUSED,
+                             virDomainPtr domain,
+                             gint action,
+                             gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "Watchdog",
+                                  g_variant_new("(i)", action),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
                                virDomainPtr domain,
                                const gchar *old_src_path,
@@ -641,6 +663,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_TUNABLE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTunable));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_WATCHDOG,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainWatchdog));
 
     virtDBusEventsRegisterNetworkEvent(connect,
                                        VIR_NETWORK_EVENT_ID_LIFECYCLE,

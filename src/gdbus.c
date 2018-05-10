@@ -1,5 +1,6 @@
 #include "gdbus.h"
 
+#include <gio/gunixfdlist.h>
 #include <glib/gprintf.h>
 
 struct _virtDBusGDBusMethodData {
@@ -201,7 +202,7 @@ virtDBusGDBusHandleMethod(GVariant *parameters,
     GDBusMessage *msg = g_dbus_method_invocation_get_message(invocation);
     GUnixFDList *inFDs = NULL;
     GVariant *outArgs = NULL;
-    GUnixFDList *outFDs = NULL;
+    g_autoptr(GUnixFDList) outFDs = NULL;
     g_autoptr(GError) error = NULL;
 
     for (gint i = 0; data->methods[i].name; i++) {

@@ -241,6 +241,33 @@ virtDBusEventsDomainGraphics(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainIOErrorReason(virConnectPtr connection G_GNUC_UNUSED,
+                                  virDomainPtr domain,
+                                  const gchar *srcPath,
+                                  const gchar *device,
+                                  gint action,
+                                  const gchar *reason,
+                                  gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "IOErrorReason",
+                                  g_variant_new("(ssis)", srcPath,
+                                                VIRT_DBUS_EMPTY_STR(device),
+                                                action, reason),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainJobCompleted(virConnectPtr connection G_GNUC_UNUSED,
                                  virDomainPtr domain,
                                  virTypedParameterPtr params,
@@ -711,6 +738,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_GRAPHICS,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainGraphics));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_IO_ERROR_REASON,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainIOErrorReason));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_JOB_COMPLETED,

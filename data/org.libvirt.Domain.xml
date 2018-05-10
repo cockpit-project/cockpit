@@ -659,6 +659,14 @@
       <arg name="authScheme" type="s"/>
       <arg name="identities" type="a(ss)"/>
     </signal>
+    <signal name="IOErrorReason">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventIOErrorReasonCallback"/>
+      <arg name="srcPath" type="s"/>
+      <arg name="device" type="s"/>
+      <arg name="action" type="i"/>
+      <arg name="reason" type="s"/>
+    </signal>
     <signal name="JobCompleted">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventJobCompletedCallback"/>

@@ -30,6 +30,16 @@ class TestConnect(libvirttest.BaseTestClass):
     </network>
     '''
 
+    minimal_storage_pool_xml = '''
+    <pool type='dir'>
+      <name>foo</name>
+      <uuid>35bb2ad9-388a-cdfe-461a-b8907f6e53fe</uuid>
+      <target>
+        <path>/foo</path>
+      </target>
+    </pool>
+    '''
+
     def test_connect_domain_create_xml(self):
         def domain_started(path, event, detail):
             if event != libvirttest.DomainEvent.STARTED:
@@ -189,6 +199,21 @@ class TestConnect(libvirttest.BaseTestClass):
     def test_connect_node_get_cpumap(self):
         info = self.connect.NodeGetCPUMap(0)
         assert isinstance(info, dbus.Array)
+
+    def test_connect_storage_pool_create_xml(self):
+        def storage_pool_started(path, event, _detail):
+            if event != libvirttest.StoragePoolEvent.STARTED:
+                return
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('StoragePoolEvent', storage_pool_started)
+
+        path = self.connect.StoragePoolCreateXML(
+            self.minimal_storage_pool_xml, 0)
+        assert isinstance(path, dbus.ObjectPath)
+
+        self.main_loop()
 
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("StoragePoolLookupByName", 'Name'),

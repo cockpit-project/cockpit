@@ -1304,6 +1304,36 @@ virtDBusConnectSecretLookupByUsage(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectStoragePoolCreateXML(GVariant *inArgs,
+                                    GUnixFDList *inFDs G_GNUC_UNUSED,
+                                    const gchar *objectPath G_GNUC_UNUSED,
+                                    gpointer userData,
+                                    GVariant **outArgs,
+                                    GUnixFDList **outFDs G_GNUC_UNUSED,
+                                    GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    g_autofree gchar *path = NULL;
+    gchar *xml;
+    guint flags;
+
+    g_variant_get(inArgs, "(&su)", &xml, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    storagePool = virStoragePoolCreateXML(connect->connection, xml, flags);
+    if (!storagePool)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirStoragePool(storagePool,
+                                                connect->storagePoolPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
+static void
 virtDBusConnectStoragePoolLookupByName(GVariant *inArgs,
                                        GUnixFDList *inFDs G_GNUC_UNUSED,
                                        const gchar *objectPath G_GNUC_UNUSED,
@@ -1407,6 +1437,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "SecretDefineXML", virtDBusConnectSecretDefineXML },
     { "SecretLookupByUUID", virtDBusConnectSecretLookupByUUID },
     { "SecretLookupByUsage", virtDBusConnectSecretLookupByUsage },
+    { "StoragePoolCreateXML", virtDBusConnectStoragePoolCreateXML },
     { "StoragePoolLookupByName", virtDBusConnectStoragePoolLookupByName },
     { "StoragePoolLookupByUUID", virtDBusConnectStoragePoolLookupByUUID },
     { 0 }

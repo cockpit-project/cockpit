@@ -161,6 +161,32 @@ virtDBusEventsDomainDeviceRemoved(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainJobCompleted(virConnectPtr connection G_GNUC_UNUSED,
+                                 virDomainPtr domain,
+                                 virTypedParameterPtr params,
+                                 gint nparams,
+                                 gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+    GVariant *gargs;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    gargs = virtDBusUtilTypedParamsToGVariant(params, nparams);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "JobCompleted",
+                                  g_variant_new_tuple(&gargs, 1),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainReboot(virConnectPtr connection G_GNUC_UNUSED,
                            virDomainPtr domain,
                            gpointer opaque)
@@ -416,6 +442,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_DISK_CHANGE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainDiskChange));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_JOB_COMPLETED,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainJobCompleted));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_REBOOT,

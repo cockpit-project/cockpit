@@ -686,5 +686,10 @@
       <arg name="device" type="s"/>
       <arg name="reason" type="u"/>
     </signal>
+    <signal name="Tunable">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventTunableCallback"/>
+      <arg name="params" type="a{sv}"/>
+    </signal>
   </interface>
 </node>

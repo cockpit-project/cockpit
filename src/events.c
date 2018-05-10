@@ -364,6 +364,32 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainTunable(virConnectPtr connection G_GNUC_UNUSED,
+                            virDomainPtr domain,
+                            virTypedParameterPtr params,
+                            gint nparams,
+                            gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+    GVariant *gargs;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    gargs = virtDBusUtilTypedParamsToGVariant(params, nparams);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "Tunable",
+                                  g_variant_new_tuple(&gargs, 1),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
                                virDomainPtr domain,
                                const gchar *old_src_path,
@@ -611,6 +637,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_TRAY_CHANGE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTrayChange));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_TUNABLE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainTunable));
 
     virtDBusEventsRegisterNetworkEvent(connect,
                                        VIR_NETWORK_EVENT_ID_LIFECYCLE,

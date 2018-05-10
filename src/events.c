@@ -1,6 +1,7 @@
 #include "domain.h"
 #include "events.h"
 #include "util.h"
+#include "storagepool.h"
 
 #include <libvirt/libvirt.h>
 
@@ -190,6 +191,28 @@ virtDBusEventsStoragePoolLifecycle(virConnectPtr connection G_GNUC_UNUSED,
     return 0;
 }
 
+static gint
+virtDBusEventsStoragePoolRefresh(virConnectPtr connection G_GNUC_UNUSED,
+                                 virStoragePoolPtr storagePool,
+                                 gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirStoragePool(storagePool,
+                                                connect->storagePoolPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_STORAGEPOOL_INTERFACE,
+                                  "Refresh",
+                                  NULL,
+                                  NULL);
+
+    return 0;
+}
+
 static void
 virtDBusEventsRegisterDomainEvent(virtDBusConnect *connect,
                                   gint id,
@@ -284,4 +307,8 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterStoragePoolEvent(connect,
                                            VIR_STORAGE_POOL_EVENT_ID_LIFECYCLE,
                                            VIR_STORAGE_POOL_EVENT_CALLBACK(virtDBusEventsStoragePoolLifecycle));
+
+    virtDBusEventsRegisterStoragePoolEvent(connect,
+                                           VIR_STORAGE_POOL_EVENT_ID_REFRESH,
+                                           VIR_STORAGE_POOL_EVENT_CALLBACK(virtDBusEventsStoragePoolRefresh));
 }

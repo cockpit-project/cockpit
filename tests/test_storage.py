@@ -108,6 +108,16 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_storage_pool_refresh(self):
+        _, test_storage_pool = self.test_storage_pool()
+        interface_obj = dbus.Interface(test_storage_pool,
+                                       'org.libvirt.StoragePool')
+        interface_obj.connect_to_signal('Refresh',
+                                        lambda: self.loop.quit())
+        interface_obj.Refresh(0)
+
+        self.main_loop()
+
 
 if __name__ == '__main__':
     libvirttest.run()

@@ -215,6 +215,21 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_connect_storage_pool_define_xml(self):
+        def storage_pool_defined(path, event, _detail):
+            if event != libvirttest.StoragePoolEvent.DEFINED:
+                return
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('StoragePoolEvent', storage_pool_defined)
+
+        path = self.connect.StoragePoolDefineXML(
+            self.minimal_storage_pool_xml, 0)
+        assert isinstance(path, dbus.ObjectPath)
+
+        self.main_loop()
+
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("StoragePoolLookupByName", 'Name'),
         ("StoragePoolLookupByUUID", 'UUID'),

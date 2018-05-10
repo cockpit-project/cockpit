@@ -265,6 +265,13 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="storagePool" type="o" direction="out"/>
     </method>
+    <method name="StoragePoolDefineXML">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolDefineXML"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="storagePool" type="o" direction="out"/>
+    </method>
     <method name="StoragePoolLookupByName">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolLookupByName"/>

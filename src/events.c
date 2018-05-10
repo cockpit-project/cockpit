@@ -187,6 +187,29 @@ virtDBusEventsDomainJobCompleted(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
+virtDBusEventsDomainMetadataChange(virConnectPtr connection G_GNUC_UNUSED,
+                                   virDomainPtr domain,
+                                   gint type,
+                                   const gchar *nsuri,
+                                   gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "MetadataChange",
+                                  g_variant_new("(is)", type, nsuri),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainReboot(virConnectPtr connection G_GNUC_UNUSED,
                            virDomainPtr domain,
                            gpointer opaque)
@@ -446,6 +469,10 @@ virtDBusEventsRegister(virtDBusConnect *connect)
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_JOB_COMPLETED,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainJobCompleted));
+
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_METADATA_CHANGE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainMetadataChange));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_REBOOT,

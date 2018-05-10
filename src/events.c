@@ -6,6 +6,29 @@
 #include <libvirt/libvirt.h>
 
 static gint
+virtDBusEventsDomainAgentLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+                                   virDomainPtr domain,
+                                   gint state,
+                                   gint reason,
+                                   gpointer opaque)
+{
+    virtDBusConnect *connect = opaque;
+    g_autofree gchar *path = NULL;
+
+    path = virtDBusUtilBusPathForVirDomain(domain, connect->domainPath);
+
+    g_dbus_connection_emit_signal(connect->bus,
+                                  NULL,
+                                  path,
+                                  VIRT_DBUS_DOMAIN_INTERFACE,
+                                  "AgentLifecycle",
+                                  g_variant_new("(ii)", state, reason),
+                                  NULL);
+
+    return 0;
+}
+
+static gint
 virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                               virDomainPtr domain,
                               gint event,
@@ -276,6 +299,10 @@ virtDBusEventsRegisterStoragePoolEvent(virtDBusConnect *connect,
 void
 virtDBusEventsRegister(virtDBusConnect *connect)
 {
+    virtDBusEventsRegisterDomainEvent(connect,
+                                      VIR_DOMAIN_EVENT_ID_AGENT_LIFECYCLE,
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainAgentLifecycle));
+
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_LIFECYCLE,
                                       VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));

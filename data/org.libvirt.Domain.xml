@@ -390,6 +390,13 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainMigrateStartPostCopy"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="OpenGraphicsFD">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainOpenGraphicsFD"/>
+      <arg name="idx" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="fd" type="h" direction="out"/>
+    </method>
     <method name="PinEmulator">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainPinEmulator"/>

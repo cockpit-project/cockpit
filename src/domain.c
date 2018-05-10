@@ -2034,6 +2034,36 @@ virtDBusDomainMigrateStartPostCopy(GVariant *inArgs,
 }
 
 static void
+virtDBusDomainOpenGraphicsFD(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs,
+                             GError **error)
+
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint idx;
+    guint flags;
+    gint fd;
+
+    g_variant_get(inArgs, "(uu)", &idx, &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    fd = virDomainOpenGraphicsFD(domain, idx, flags);
+    if (fd < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(h)", 0);
+    *outFDs = g_unix_fd_list_new_from_array(&fd, 1);
+}
+
+static void
 virtDBusDomainPinEmulator(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -2896,6 +2926,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "MigrateSetMaxDowntime", virtDBusDomainMigrateSetMaxDowntime },
     { "MigrateSetMaxSpeed", virtDBusDomainMigrateSetMaxSpeed },
     { "MigrateStartPostCopy", virtDBusDomainMigrateStartPostCopy },
+    { "OpenGraphicsFD", virtDBusDomainOpenGraphicsFD },
     { "PinEmulator", virtDBusDomainPinEmulator },
     { "PinIOThread", virtDBusDomainPinIOThread },
     { "PinVcpu", virtDBusDomainPinVcpu },

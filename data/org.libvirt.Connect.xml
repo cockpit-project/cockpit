@@ -208,6 +208,12 @@
       <arg name="xml" type="s" direction="in"/>
       <arg name="nwfilter" type="o" direction="out"/>
     </method>
+    <method name="NWFilterLookupByName">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virNWFilterLookupByName"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="nwfilter" type="o" direction="out"/>
+    </method>
     <method name="NodeGetCPUMap">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetCPUMap"/>

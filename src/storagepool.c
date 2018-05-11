@@ -268,7 +268,7 @@ virtDBusStoragePoolGetInfo(GVariant *inArgs G_GNUC_UNUSED,
     if (virStoragePoolGetInfo(storagePool, info) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    *outArgs = g_variant_new("((uttt))", info->state,
+    *outArgs = g_variant_new("((ittt))", info->state,
                              info->capacity, info->allocation,
                              info->available);
 }

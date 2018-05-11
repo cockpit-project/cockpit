@@ -102,10 +102,10 @@ virtDBusDomainMemoryStatsToGVariant(virDomainMemoryStatPtr stats,
 {
     GVariantBuilder builder;
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{ut}"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a{it}"));
 
     for (gint i = 0; i < nr_stats; i++)
-        g_variant_builder_add(&builder, "{ut}", stats[i].tag, stats[i].val);
+        g_variant_builder_add(&builder, "{it}", stats[i].tag, stats[i].val);
 
     return g_variant_builder_end(&builder);
 }
@@ -1009,7 +1009,7 @@ virtDBusDomainGetBlockJobInfo(GVariant *inArgs,
     if (virDomainGetBlockJobInfo(domain, disk, &info, flags) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    *outArgs = g_variant_new("((uttt))", info.type, info.bandwidth,
+    *outArgs = g_variant_new("((ittt))", info.type, info.bandwidth,
                              info.cur, info.end);
 }
 
@@ -1078,11 +1078,11 @@ virtDBusDomainGetDiskErrors(GVariant *inArgs,
             return virtDBusUtilSetLastVirtError(error);
     }
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(su)"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(si)"));
     for (gint i = 0; i < count; i++) {
-        g_variant_builder_open(&builder, G_VARIANT_TYPE("(su)"));
+        g_variant_builder_open(&builder, G_VARIANT_TYPE("(si)"));
         g_variant_builder_add(&builder, "s", disks[i].disk);
-        g_variant_builder_add(&builder, "u", disks[i].error);
+        g_variant_builder_add(&builder, "i", disks[i].error);
         g_variant_builder_close(&builder);
     }
     res = g_variant_builder_end(&builder);
@@ -1345,7 +1345,7 @@ virtDBusDomainGetJobInfo(GVariant *inArgs G_GNUC_UNUSED,
     if (virDomainGetJobInfo(domain, jobInfo) < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    *outArgs = g_variant_new("((uttttttttttt))", jobInfo->type,
+    *outArgs = g_variant_new("((ittttttttttt))", jobInfo->type,
                              jobInfo->timeElapsed, jobInfo->timeRemaining,
                              jobInfo->dataTotal, jobInfo->dataProcessed,
                              jobInfo->dataRemaining, jobInfo->memTotal,
@@ -1385,8 +1385,8 @@ virtDBusDomainGetJobStats(GVariant *inArgs,
 
     grecords = virtDBusUtilTypedParamsToGVariant(params.params, params.nparams);
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("(ua{sv})"));
-    g_variant_builder_add(&builder, "u", type);
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("(ia{sv})"));
+    g_variant_builder_add(&builder, "i", type);
     g_variant_builder_add_value(&builder, grecords);
     gret = g_variant_builder_end(&builder);
 
@@ -1448,7 +1448,7 @@ virtDBusDomainGetMetadata(GVariant *inArgs,
     guint flags;
     g_autofree gchar *ret = NULL;
 
-    g_variant_get(inArgs, "(u&su)", &type, &uri, &flags);
+    g_variant_get(inArgs, "(i&su)", &type, &uri, &flags);
     if (g_str_equal(uri, ""))
         uri = NULL;
 
@@ -2758,7 +2758,7 @@ virtDBusDomainSetMetadata(GVariant *inArgs,
     const gchar *uri;
     guint flags;
 
-    g_variant_get(inArgs, "(u&s&s&su)", &type, &metadata, &key, &uri, &flags);
+    g_variant_get(inArgs, "(i&s&s&su)", &type, &metadata, &key, &uri, &flags);
     if (g_str_equal(key, ""))
         key = NULL;
     if (g_str_equal(uri, ""))

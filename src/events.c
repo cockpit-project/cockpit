@@ -112,7 +112,7 @@ virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "DomainEvent",
-                                  g_variant_new("(ouu)", path, event, detail),
+                                  g_variant_new("(oii)", path, event, detail),
                                   NULL);
 
     return 0;
@@ -464,7 +464,7 @@ virtDBusEventsDomainTrayChange(virConnectPtr connection G_GNUC_UNUSED,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
                                   "TrayChange",
-                                  g_variant_new("(su)", device, reason),
+                                  g_variant_new("(si)", device, reason),
                                   NULL);
 
     return 0;
@@ -537,7 +537,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
                                   "DiskChange",
-                                  g_variant_new("(sssu)", old_src_path,
+                                  g_variant_new("(sssi)", old_src_path,
                                                 new_src_path, device, reason),
                                   NULL);
 
@@ -561,7 +561,7 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "NetworkEvent",
-                                  g_variant_new("(ou)", path, event),
+                                  g_variant_new("(oi)", path, event),
                                   NULL);
 
     return 0;
@@ -584,7 +584,7 @@ virtDBusEventsSecretLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "SecretEvent",
-                                  g_variant_new("(ouu)", path, event, detail),
+                                  g_variant_new("(oii)", path, event, detail),
                                   NULL);
 
     return 0;
@@ -608,7 +608,7 @@ virtDBusEventsStoragePoolLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   connect->connectPath,
                                   VIRT_DBUS_CONNECT_INTERFACE,
                                   "StoragePoolEvent",
-                                  g_variant_new("(ouu)", path, event, detail),
+                                  g_variant_new("(oii)", path, event, detail),
                                   NULL);
 
     return 0;

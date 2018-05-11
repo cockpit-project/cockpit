@@ -195,7 +195,7 @@
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetBlockJobInfo"/>
       <arg name="disk" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
-      <arg name="blockJobInfo" type="(uttt)" direction="out"/>
+      <arg name="blockJobInfo" type="(ittt)" direction="out"/>
     </method>
     <method name="GetControlInfo">
       <annotation name="org.gtk.GDBus.DocString"
@@ -207,7 +207,7 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetDiskErrors"/>
       <arg name="flags" type="u" direction="in"/>
-      <arg name="diskErrors" type="a(su)" direction="out"/>
+      <arg name="diskErrors" type="a(si)" direction="out"/>
     </method>
     <method name="GetEmulatorPinInfo">
       <annotation name="org.gtk.GDBus.DocString"
@@ -249,13 +249,13 @@
     <method name="GetJobInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobInfo"/>
-      <arg name="jobInfo" type="(uttttttttttt)" direction="out"/>
+      <arg name="jobInfo" type="(ittttttttttt)" direction="out"/>
     </method>
     <method name="GetJobStats">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetJobStats"/>
       <arg name="flags" type="u" direction="in"/>
-      <arg name="stats" type="(ua{sv})" direction="out"/>
+      <arg name="stats" type="(ia{sv})" direction="out"/>
     </method>
     <method name="GetMemoryParameters">
       <annotation name="org.gtk.GDBus.DocString"
@@ -267,7 +267,7 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetMetadata
                Empty string can be used to pass a NULL as @uri argument."/>
-      <arg name="type" type="u" direction="in"/>
+      <arg name="type" type="i" direction="in"/>
       <arg name="uri" type="s" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
       <arg name="metadata" type="s" direction="out"/>
@@ -372,7 +372,7 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainMemoryStats"/>
       <arg name="flags" type="u" direction="in"/>
-      <arg name="stats" type="a{ut}" direction="out"/>
+      <arg name="stats" type="a{it}" direction="out"/>
     </method>
     <method name="MigrateGetCompressionCache">
       <annotation name="org.gtk.GDBus.DocString"
@@ -540,7 +540,7 @@
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainSetMetadata
                  Empty string can be used to pass a NULL as @key or @uri argument."/>
-      <arg name="type" type="u" direction="in"/>
+      <arg name="type" type="i" direction="in"/>
       <arg name="metadata" type="s" direction="in"/>
       <arg name="key" type="s" direction="in"/>
       <arg name="uri" type="s" direction="in"/>
@@ -648,7 +648,7 @@
       <arg name="oldSrcPath" type="s"/>
       <arg name="newSrcPath" type="s"/>
       <arg name="device" type="s"/>
-      <arg name="reason" type="u"/>
+      <arg name="reason" type="i"/>
     </signal>
     <signal name="Graphics">
       <annotation name="org.gtk.GDBus.DocString"
@@ -711,7 +711,7 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventTrayChangeCallback"/>
       <arg name="device" type="s"/>
-      <arg name="reason" type="u"/>
+      <arg name="reason" type="i"/>
     </signal>
     <signal name="Tunable">
       <annotation name="org.gtk.GDBus.DocString"

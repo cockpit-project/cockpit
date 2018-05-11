@@ -289,7 +289,7 @@ virtDBusConnectCompareCPU(GVariant *inArgs,
     if (compareResult < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    *outArgs = g_variant_new("(u)", compareResult);
+    *outArgs = g_variant_new("(i)", compareResult);
 }
 
 static void
@@ -399,9 +399,9 @@ virtDBusConnectDomainLookupByID(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autofree gchar *path = NULL;
-    guint id;
+    gint id;
 
-    g_variant_get(inArgs, "(u)", &id);
+    g_variant_get(inArgs, "(i)", &id);
 
     if (!virtDBusConnectOpen(connect, error))
         return;

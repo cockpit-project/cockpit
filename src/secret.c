@@ -83,7 +83,7 @@ virtDBusSecretGetUsageType(const gchar *objectPath,
     if (usageType < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    *value = g_variant_new("u", usageType);
+    *value = g_variant_new("i", usageType);
 }
 
 static void

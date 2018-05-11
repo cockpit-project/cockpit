@@ -228,11 +228,11 @@ virtDBusNetworkGetDHCPLeases(GVariant *inArgs,
     if (nleases < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stusssuss)"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stisssuss)"));
     for (gint i = 0; i < nleases; i++) {
         virNetworkDHCPLeasePtr lease = leases[i];
 
-        g_variant_builder_add(&builder, "(stusssuss)",
+        g_variant_builder_add(&builder, "(stisssuss)",
                               lease->iface, lease->expirytime,
                               lease->type, lease->mac,
                               lease->iaid ? lease->iaid : "" ,

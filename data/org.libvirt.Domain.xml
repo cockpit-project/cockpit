@@ -33,10 +33,6 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSchedulerType"/>
     </property>
-    <property name="State" type="u" access="read">
-      <annotation name="org.gtk.GDBus.DocString"
-        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetState"/>
-    </property>
     <property name="Updated" type="b" access="read">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainIsUpdated"/>
@@ -298,6 +294,12 @@
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetSecurityLabelList"/>
       <arg name="securityLabels" type="a(sb)" direction="out"/>
+    </method>
+    <method name="GetState">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetState"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="state" type="(ii)" direction="out"/>
     </method>
     <method name="GetStats">
       <annotation name="org.gtk.GDBus.DocString"

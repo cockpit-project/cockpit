@@ -314,26 +314,6 @@ virtDBusDomainGetSchedulerType(const gchar *objectPath,
 }
 
 static void
-virtDBusDomainGetState(const gchar *objectPath,
-                       gpointer userData,
-                       GVariant **value,
-                       GError **error)
-{
-    virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
-    gint state = 0;
-
-    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
-    if (!domain)
-        return;
-
-    if (virDomainGetState(domain, &state, NULL, 0) < 0)
-        return virtDBusUtilSetLastVirtError(error);
-
-    *value = g_variant_new("u", state);
-}
-
-static void
 virtDBusDomainGetUpdated(const gchar *objectPath,
                          gpointer userData,
                          GVariant **value,
@@ -1622,6 +1602,33 @@ virtDBusDomainGetSecurityLabelList(GVariant *inArgs G_GNUC_UNUSED,
     gret = g_variant_builder_end(&builder);
 
     *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
+static void
+virtDBusDomainGetState(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virDomain) domain = NULL;
+    guint flags;
+    gint state;
+    gint reason;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    domain = virtDBusDomainGetVirDomain(connect, objectPath, error);
+    if (!domain)
+        return;
+
+    if (virDomainGetState(domain, &state, &reason, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("((ii))", state, reason);
 }
 
 static void
@@ -3034,7 +3041,6 @@ static virtDBusGDBusPropertyTable virtDBusDomainPropertyTable[] = {
     { "OSType", virtDBusDomainGetOsType, NULL },
     { "Persistent", virtDBusDomainGetPersistent, NULL },
     { "SchedulerType", virtDBusDomainGetSchedulerType, NULL},
-    { "State", virtDBusDomainGetState, NULL },
     { "Updated", virtDBusDomainGetUpdated, NULL },
     { "UUID", virtDBusDomainGetUUID, NULL },
     { 0 }
@@ -3080,6 +3086,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "GetPerfEvents", virtDBusDomainGetPerfEvents },
     { "GetSchedulerParameters", virtDBusDomainGetSchedulerParameters },
     { "GetSecurityLabelList", virtDBusDomainGetSecurityLabelList },
+    { "GetState", virtDBusDomainGetState },
     { "GetStats", virtDBusDomainGetStats },
     { "GetTime", virtDBusDomainGetTime },
     { "GetVcpuPinInfo", virtDBusDomainGetVcpuPinInfo },

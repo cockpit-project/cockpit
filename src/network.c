@@ -228,7 +228,7 @@ virtDBusNetworkGetDHCPLeases(GVariant *inArgs,
     if (nleases < 0)
         return virtDBusUtilSetLastVirtError(error);
 
-    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stssssuss)"));
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("a(stusssuss)"));
     for (gint i = 0; i < nleases; i++) {
         virNetworkDHCPLeasePtr lease = leases[i];
 

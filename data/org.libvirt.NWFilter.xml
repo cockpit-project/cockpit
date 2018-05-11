@@ -13,5 +13,11 @@
         value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virNWFilterGetUUIDString"/>
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
     </property>
+    <method name="GetXMLDesc">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virNWFilterGetXMLDesc"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="xml" type="s" direction="out"/>
+    </method>
   </interface>
 </node>

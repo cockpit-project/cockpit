@@ -1021,6 +1021,34 @@ virtDBusConnectNetworkLookupByUUID(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectNWFilterDefineXML(GVariant *inArgs,
+                                 GUnixFDList *inFDs G_GNUC_UNUSED,
+                                 const gchar *objectPath G_GNUC_UNUSED,
+                                 gpointer userData,
+                                 GVariant **outArgs,
+                                 GUnixFDList **outFDs G_GNUC_UNUSED,
+                                 GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNWFilter) nwfilter = NULL;
+    g_autofree gchar *path = NULL;
+    const gchar *xml;
+
+    g_variant_get(inArgs, "(&s)", &xml);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    nwfilter = virNWFilterDefineXML(connect->connection, xml);
+    if (!nwfilter)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirNWFilter(nwfilter, connect->nwfilterPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
+static void
 virtDBusConnectNodeGetCPUMap(GVariant *inArgs,
                              GUnixFDList *inFDs G_GNUC_UNUSED,
                              const gchar *objectPath G_GNUC_UNUSED,
@@ -1495,6 +1523,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NetworkDefineXML", virtDBusConnectNetworkDefineXML },
     { "NetworkLookupByName", virtDBusConnectNetworkLookupByName },
     { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
+    { "NWFilterDefineXML", virtDBusConnectNWFilterDefineXML },
     { "NodeGetCPUMap", virtDBusConnectNodeGetCPUMap },
     { "NodeGetCPUStats", virtDBusConnectNodeGetCPUStats },
     { "NodeGetFreeMemory", virtDBusConnectNodeGetFreeMemory },

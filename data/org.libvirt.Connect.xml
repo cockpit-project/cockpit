@@ -202,6 +202,12 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="network" type="o" direction="out"/>
     </method>
+    <method name="NWFilterDefineXML">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virNWFilterDefineXML"/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="nwfilter" type="o" direction="out"/>
+    </method>
     <method name="NodeGetCPUMap">
       <annotation name="org.gtk.GDBus.DocString"
           value="See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetCPUMap"/>

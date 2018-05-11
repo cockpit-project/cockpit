@@ -5,6 +5,7 @@
 #include "nwfilter.h"
 #include "secret.h"
 #include "storagepool.h"
+#include "storagevol.h"
 #include "util.h"
 
 #include <gio/gunixfdlist.h>
@@ -1612,6 +1613,7 @@ virtDBusConnectFree(virtDBusConnect *connect)
     g_free(connect->nwfilterPath);
     g_free(connect->secretPath);
     g_free(connect->storagePoolPath);
+    g_free(connect->storageVolPath);
     g_free(connect);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virtDBusConnect, virtDBusConnectFree);
@@ -1676,6 +1678,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
         return;
 
     virtDBusStoragePoolRegister(connect, error);
+    if (error && *error)
+        return;
+
+    virtDBusStorageVolRegister(connect, error);
     if (error && *error)
         return;
 

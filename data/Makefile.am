@@ -24,7 +24,9 @@ interfaces_files = \
 	org.libvirt.Network.xml \
         org.libvirt.NWFilter.xml \
 	org.libvirt.Secret.xml \
-	org.libvirt.StoragePool.xml
+	org.libvirt.StoragePool.xml \
+	org.libvirt.StorageVol.xml \
+	$(NULL)
 interfacesdir = $(DBUS_INTERFACES_DIR)
 interfaces_DATA = $(interfaces_files)
 

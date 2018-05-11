@@ -417,3 +417,38 @@ virtDBusUtilVirStoragePoolListFree(virStoragePoolPtr *storagePools)
 
     g_free(storagePools);
 }
+
+virStorageVolPtr
+virtDBusUtilVirStorageVolFromBusPath(virConnectPtr connection,
+                                     const gchar *path,
+                                     const gchar *storageVolPath)
+{
+    g_autofree gchar *key = NULL;
+    gsize prefixLen = strlen(storageVolPath) + 1;
+
+    key = virtDBusUtilDecodeStr(path + prefixLen);
+
+    return virStorageVolLookupByKey(connection, key);
+}
+
+gchar *
+virtDBusUtilBusPathForVirStorageVol(virStorageVolPtr storageVol,
+                                    const gchar *storageVolPath)
+{
+    const gchar *key = NULL;
+    g_autofree const gchar *encodedKey = NULL;
+
+    key = virStorageVolGetKey(storageVol);
+    encodedKey = virtDBusUtilEncodeStr(key);
+
+    return g_strdup_printf("%s/%s", storageVolPath, encodedKey);
+}
+
+void
+virtDBusUtilVirStorageVolListFree(virStorageVolPtr *storageVols)
+{
+    for (gint i = 0; storageVols[i] != NULL; i++)
+        virStorageVolFree(storageVols[i]);
+
+    g_free(storageVols);
+}

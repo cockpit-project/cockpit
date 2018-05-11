@@ -133,3 +133,19 @@ virtDBusUtilVirStoragePoolListFree(virStoragePoolPtr *storagePools);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virStoragePool, virStoragePoolFree);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virStoragePoolPtr,
                               virtDBusUtilVirStoragePoolListFree);
+
+virStorageVolPtr
+virtDBusUtilVirStorageVolFromBusPath(virConnectPtr connection,
+                                     const gchar *path,
+                                     const gchar *storageVolPath);
+
+gchar *
+virtDBusUtilBusPathForVirStorageVol(virStorageVolPtr storageVol,
+                                    const gchar *storageVolPath);
+
+void
+virtDBusUtilVirStorageVolListFree(virStorageVolPtr *storageVols);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virStorageVol, virStorageVolFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virStorageVolPtr,
+                              virtDBusUtilVirStorageVolListFree);

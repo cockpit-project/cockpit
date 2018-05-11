@@ -17,6 +17,7 @@ struct virtDBusConnect {
     gchar *nwfilterPath;
     gchar *secretPath;
     gchar *storagePoolPath;
+    gchar *storageVolPath;
     virConnectPtr connection;
     GMutex lock;
 

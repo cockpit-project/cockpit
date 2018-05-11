@@ -160,6 +160,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="networks" type="ao" direction="out"/>
     </method>
+    <method name="ListNWFilters">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virConnectListAllNWFilters"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="nwfilters" type="ao" direction="out"/>
+    </method>
     <method name="ListSecrets">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-secret.html#virConnectListAllSecrets"/>

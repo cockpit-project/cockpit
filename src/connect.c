@@ -797,6 +797,43 @@ virtDBusConnectListNetworks(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectListNWFilters(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath G_GNUC_UNUSED,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNWFilterPtr) nwfilters = NULL;
+    guint flags;
+    GVariantBuilder builder;
+    GVariant *gnwfilters;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    if (virConnectListAllNWFilters(connect->connection, &nwfilters, flags) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("ao"));
+
+    for (gint i = 0; nwfilters[i]; i++) {
+        g_autofree gchar *path = NULL;
+        path = virtDBusUtilBusPathForVirNWFilter(nwfilters[i],
+                                                 connect->nwfilterPath);
+
+        g_variant_builder_add(&builder, "o", path);
+    }
+
+    gnwfilters = g_variant_builder_end(&builder);
+    *outArgs = g_variant_new_tuple(&gnwfilters, 1);
+}
+
+static void
 virtDBusConnectListSecrets(GVariant *inArgs,
                            GUnixFDList *inFDs G_GNUC_UNUSED,
                            const gchar *objectPath G_GNUC_UNUSED,
@@ -1451,6 +1488,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "GetSysinfo", virtDBusConnectGetSysinfo },
     { "ListDomains", virtDBusConnectListDomains },
     { "ListNetworks", virtDBusConnectListNetworks },
+    { "ListNWFilters", virtDBusConnectListNWFilters },
     { "ListSecrets", virtDBusConnectListSecrets },
     { "ListStoragePools", virtDBusConnectListStoragePools },
     { "NetworkCreateXML", virtDBusConnectNetworkCreateXML },

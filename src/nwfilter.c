@@ -45,8 +45,29 @@ virtDBusNWFilterGetName(const gchar *objectPath,
     *value = g_variant_new("s", name);
 }
 
+static void
+virtDBusNWFilterGetUUID(const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **value,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNWFilter) nwfilter = NULL;
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+
+    nwfilter = virtDBusNWFilterGetVirNWFilter(connect, objectPath, error);
+    if (!nwfilter)
+        return;
+
+    if (virNWFilterGetUUIDString(nwfilter, uuid) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", uuid);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNWFilterPropertyTable[] = {
     { "Name", virtDBusNWFilterGetName, NULL },
+    { "UUID", virtDBusNWFilterGetUUID, NULL },
     { 0 }
 };
 

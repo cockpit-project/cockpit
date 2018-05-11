@@ -3,7 +3,50 @@
 
 #include <libvirt/libvirt.h>
 
+static virNWFilterPtr
+virtDBusNWFilterGetVirNWFilter(virtDBusConnect *connect,
+                               const gchar *objectPath,
+                               GError **error)
+{
+    virNWFilterPtr nwfilter;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    nwfilter = virtDBusUtilVirNWFilterFromBusPath(connect->connection,
+                                                  objectPath,
+                                                  connect->nwfilterPath);
+    if (!nwfilter) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return nwfilter;
+}
+
+static void
+virtDBusNWFilterGetName(const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **value,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNWFilter) nwfilter = NULL;
+    const gchar *name;
+
+    nwfilter = virtDBusNWFilterGetVirNWFilter(connect, objectPath, error);
+    if (!nwfilter)
+        return;
+
+    name = virNWFilterGetName(nwfilter);
+    if (!name)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", name);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNWFilterPropertyTable[] = {
+    { "Name", virtDBusNWFilterGetName, NULL },
     { 0 }
 };
 

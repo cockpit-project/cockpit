@@ -74,6 +74,21 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetwork, virNetworkFree);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetworkPtr, virtDBusUtilVirNetworkListFree);
 
+virNWFilterPtr
+virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
+                                   const gchar *path,
+                                   const gchar *nwfilterPath);
+
+gchar *
+virtDBusUtilBusPathForVirNWFilter(virNWFilterPtr nwfilter,
+                                  const gchar *nwfilterPath);
+
+void
+virtDBusUtilVirNWFilterListFree(virNWFilterPtr *nwfilters);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNWFilter, virNWFilterFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNWFilterPtr, virtDBusUtilVirNWFilterListFree);
+
 typedef gchar *virtDBusCharArray;
 
 void

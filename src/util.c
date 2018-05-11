@@ -247,6 +247,38 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks)
     g_free(networks);
 }
 
+virNWFilterPtr
+virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
+                                  const gchar *path,
+                                  const gchar *nwfilterPath)
+{
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(nwfilterPath) + 1;
+
+    name = virtDBusUtilDecodeUUID(path + prefixLen);
+
+    return virNWFilterLookupByUUIDString(connection, name);
+}
+
+gchar *
+virtDBusUtilBusPathForVirNWFilter(virNWFilterPtr nwfilter,
+                                 const gchar *nwfilterPath)
+{
+    gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
+    g_autofree gchar *newUuid = NULL;
+    virNWFilterGetUUIDString(nwfilter, uuid);
+    newUuid = virtDBusUtilEncodeUUID(uuid);
+    return g_strdup_printf("%s/%s", nwfilterPath, newUuid);
+}
+
+void
+virtDBusUtilVirNWFilterListFree(virNWFilterPtr *nwfilters)
+{
+    for (gint i = 0; nwfilters[i] != NULL; i++)
+        virNWFilterFree(nwfilters[i]);
+
+    g_free(nwfilters);
+}
 void
 virtDBusUtilStringListFree(virtDBusCharArray *item)
 {

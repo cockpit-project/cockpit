@@ -22,7 +22,7 @@ import parent
 from testlib import *
 from netlib import *
 
-@skipImage("No network checkpoint support", "centos-7", "continuous-atomic", "fedora-atomic", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No network checkpoint support", "continuous-atomic", "fedora-atomic", "rhel-atomic", "ubuntu-1604", "ubuntu-stable")
 class TestNetworking(NetworkCase):
     def testCheckpoint(self):
         b = self.browser

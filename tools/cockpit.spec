@@ -391,18 +391,12 @@ embed or extend Cockpit.
 %exclude %{_docdir}/%{name}/README.md
 %{_docdir}/%{name}
 
-# storaged on RHEL 7.4 and Fedora < 27, udisks on newer ones
+# storaged on Fedora < 27, udisks on newer ones
 # Recommends: not supported in RHEL < 8
 %package storaged
-Summary: Cockpit user interface for storage, using Storaged
+Summary: Cockpit user interface for storage, using udisks
 Requires: %{name}-shell >= %{required_base}
-%if (0%{?rhel} == 7 && "%{os_version_id}" == "7.4") || 0%{?centos} == 7
-Requires: storaged >= 2.1.1
-Requires: storaged-lvm2 >= 2.1.1
-Requires: storaged-iscsi >= 2.1.1
-Requires: device-mapper-multipath
-%else
-%if 0%{?rhel} == 7
+%if 0%{?rhel} == 7 || 0%{?centos} == 7
 Requires: udisks2 >= 2.6
 Requires: udisks2-lvm2 >= 2.6
 Requires: udisks2-iscsi >= 2.6
@@ -421,7 +415,6 @@ Recommends: storaged-iscsi >= 2.1.1
 Recommends: device-mapper-multipath
 %endif
 %endif
-%endif
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: python3
 Requires: python3-dbus
@@ -432,7 +425,7 @@ Requires: python-dbus
 BuildArch: noarch
 
 %description storaged
-The Cockpit component for managing storage.  This package uses Storaged.
+The Cockpit component for managing storage.  This package uses udisks.
 
 %files storaged -f storaged.list
 

@@ -119,6 +119,9 @@ setroubleshoot-server \
 subscription-manager \
 sos \
 tuned \
+udisks2 \
+udisks2-lvm2 \
+udisks2-iscsi \
 "
 
 # We also install the packages necessary to join a FreeIPA domain so
@@ -143,11 +146,8 @@ qemu-kvm \
 "
 
 if [ "$IMAGE" = "centos-7" ]; then
-    UDISKS="storaged storaged-lvm2 storaged-iscsi"
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
-else
-    UDISKS="udisks2 udisks2-lvm2 udisks2-iscsi"
 fi
 if [ "$IMAGE" = "rhel-7-5" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
@@ -161,7 +161,7 @@ if [ "$IMAGE" = "rhel-8" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 fi
 
-COCKPIT_DEPS="$COCKPIT_DEPS $UDISKS"
+COCKPIT_DEPS="$COCKPIT_DEPS"
 
 # The rhel-7.5 image has the cockpit packages from base preinstalled, to check for API breakages
 if [ "$IMAGE" = "rhel-7-5" ]; then
@@ -190,7 +190,7 @@ done
 set -x
 
 # For debugging udisks/storaged crashes
-debuginfo-install -y $UDISKS
+debuginfo-install -y udisks2
 
 # Prepare for building
 

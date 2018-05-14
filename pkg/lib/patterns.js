@@ -468,6 +468,7 @@
                   tooltip_element.attr('title', denied_message);
               tooltip_element.tooltip('fixTitle');
             }
+            $(this).attr('data-stable', 'yes');
         });
 
         return selector;

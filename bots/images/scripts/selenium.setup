@@ -35,9 +35,9 @@ systemctl start docker || journalctl -u docker
 systemctl enable docker
 
 # docker images that we need for integration testing
-docker pull selenium/hub:2.48.2
-docker pull selenium/node-chrome:2.48.2
-docker pull selenium/node-firefox:2.48.2
+docker pull selenium/hub:2.53.1
+docker pull selenium/node-chrome:2.53.1
+docker pull selenium/node-firefox:2.53.1
 
 # reduce image size
 dnf clean all

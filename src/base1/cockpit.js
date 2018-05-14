@@ -97,7 +97,7 @@ function invoke_functions(functions, self, args) {
 /* -------------------------------------------------------------------------
  * Channels
  *
- * Public: http://cockpit-project.org/guide/latest/api-base1.html
+ * Public: https://cockpit-project.org/guide/latest/api-base1.html
  */
 
 var default_transport = null;

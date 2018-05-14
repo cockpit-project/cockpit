@@ -180,6 +180,14 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
     });
 }
 
+export class TransactionError extends Error {
+    constructor(code, detail) {
+        super(detail);
+        this.detail = detail;
+        this.code = code;
+    }
+}
+
 /**
  * Run a long cancellable PackageKit transaction
  *
@@ -189,7 +197,7 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
  *              be called to cancel the current transaction. if wait is true, PackageKit is waiting for its lock (i. e.
  *              on another package operation)
  * signalHandlers, notifyHandler: As in method #transaction, but ErrorCode and Finished are handled internally
- * Returns: Promise that resolves when the transaction finished successfully, or rejects with {detail, code}
+ * Returns: Promise that resolves when the transaction finished successfully, or rejects with TransactionError
  *          on failure.
  */
 export function cancellableTransaction(method, arglist, progress_cb, signalHandlers) {
@@ -237,7 +245,7 @@ export function cancellableTransaction(method, arglist, progress_cb, signalHandl
                         // avoid calling progress_cb after ending the transaction, to avoid flickering cancel buttons
                         ErrorCode: (code, detail) => {
                             progress_cb = null;
-                            reject({ detail, code: cancelled ? "cancelled" : code });
+                            reject(new TransactionError(cancelled ? "cancelled" : code, detail));
                         },
                         Finished: (exit, runtime) => {
                             progress_cb = null;

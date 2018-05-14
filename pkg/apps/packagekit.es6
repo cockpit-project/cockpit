@@ -44,7 +44,7 @@ function resolve(method, filter, name, progress_cb) {
     return resolve_many(method, filter, [ name ], progress_cb)
             .then(function (ids) {
                 if (ids.length === 0)
-                    return Promise.reject({ detail: "Can't resolve package", code: "not-found" });
+                    return Promise.reject(new PK.TransactionError("not-found", "Can't resolve package"));
                 else
                     return ids[0];
             });

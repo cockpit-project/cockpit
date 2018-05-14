@@ -12,9 +12,9 @@ echo superhardpasswordtest5554 | passwd --stdin test
 usermod -a -G wheel test
 
 # in case of you would like to use selenium server in docker:
-docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.48.2
-docker run -d --link selenium-hub:hub selenium/node-chrome:2.48.2
-docker run -d --link selenium-hub:hub selenium/node-firefox:2.48.2
+docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.53.1
+docker run -d --link selenium-hub:hub selenium/node-chrome:2.53.1
+docker run -d --link selenium-hub:hub selenium/node-firefox:2.53.1
 
 systemctl start cockpit
 

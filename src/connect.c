@@ -529,7 +529,6 @@ virtDBusConnectDomainSaveImageGetXMLDesc(GVariant *inArgs,
                                          GError **error)
 {
     virtDBusConnect *connect = userData;
-    g_autoptr(virDomain) domain = NULL;
     const gchar *file;
     guint flags;
     g_autofree gchar *xml = NULL;

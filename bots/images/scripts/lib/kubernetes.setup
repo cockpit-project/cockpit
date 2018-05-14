@@ -41,6 +41,6 @@ fi
 echo -e '{"user":"admin"}\n{"user":"scruffy","readonly": true}' > /etc/kubernetes/authorization
 echo -e 'fubar,admin,10101\nscruffy,scruffy,10102' > /etc/kubernetes/passwd
 
-echo 'KUBE_API_ARGS="--service_account_key_file=/etc/kubernetes/server.key --client-ca-file=/etc/kubernetes/ca.crt --tls-cert-file=/etc/kubernetes/server.crt --tls-private-key-file=/etc/kubernetes/server.key --basic_auth_file=/etc/kubernetes/passwd --authorization_mode=ABAC --authorization_policy_file=/etc/kubernetes/authorization"' >> apiserver
+echo 'KUBE_API_ARGS="--service-account-key-file=/etc/kubernetes/server.key --client-ca-file=/etc/kubernetes/ca.crt --tls-cert-file=/etc/kubernetes/server.crt --tls-private-key-file=/etc/kubernetes/server.key --basic-auth-file=/etc/kubernetes/passwd --authorization-mode=ABAC --authorization-policy-file=/etc/kubernetes/authorization"' >> apiserver
 echo 'KUBE_CONTROLLER_MANAGER_ARGS="--root-ca-file=/etc/kubernetes/ca.crt --service-account-private-key-file=/etc/kubernetes/server.key"' >> controller-manager
 

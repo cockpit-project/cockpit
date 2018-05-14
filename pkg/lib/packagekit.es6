@@ -136,7 +136,7 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
  *                  If undefined, only a transaction will be created without calling a method on it
  * arglist (array): "in" arguments of @method
  * signalHandlers (object): maps PackageKit.Transaction signal names to handlers
- * notifyHandler (function): handler for http://cockpit-project.org/guide/latest/cockpit-dbus.html#cockpit-dbus-onnotify
+ * notifyHandler (function): handler for https://cockpit-project.org/guide/latest/cockpit-dbus.html#cockpit-dbus-onnotify
  *                           signals, called on property changes with (changed_properties, transaction_path)
  * Returns: Promise that resolves with transaction path on success, or rejects on an error
  *

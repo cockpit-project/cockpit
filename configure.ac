@@ -19,7 +19,7 @@ AC_INIT([Cockpit],
         [m4_esyscmd([tools/git-version-gen .tarball])],
         [devel@lists.cockpit-project.org],
         [cockpit],
-        [http://www.cockpit-project.org/])
+        [https://cockpit-project.org/])
 
 # The above git-version-gen command can either use .git or a .tarball file
 # in the top level directory to determine the version. If that didn't work

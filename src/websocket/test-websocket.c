@@ -297,7 +297,7 @@ test_parse_headers (void)
       "Header1: value3\r\n"
       "Header2:  field\r\n"
       "Head3:  Another \r\n"
-      "Host:http://cockpit-project.org\r\n"
+      "Host:https://cockpit-project.org\r\n"
       "\r\n"
       "BODY  ",
   };
@@ -313,7 +313,7 @@ test_parse_headers (void)
       g_assert_cmpstr (g_hash_table_lookup (headers, "header1"), ==, "value3");
       g_assert_cmpstr (g_hash_table_lookup (headers, "Header2"), ==, "field");
       g_assert_cmpstr (g_hash_table_lookup (headers, "hEAD3"), ==, "Another");
-      g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, "http://cockpit-project.org");
+      g_assert_cmpstr (g_hash_table_lookup (headers, "Host"), ==, "https://cockpit-project.org");
       g_assert (g_hash_table_lookup (headers, "Something else") == NULL);
       g_hash_table_unref (headers);
     }

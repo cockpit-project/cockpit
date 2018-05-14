@@ -106,7 +106,7 @@ you can:
 It's easy to set up your local Linux machine for rapid development of Cockpit's
 javascript code. First install Cockpit on your local machine as described in:
 
-http://cockpit-project.org/running.html
+https://cockpit-project.org/running.html
 
 Next run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.

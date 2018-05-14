@@ -60,7 +60,7 @@ Name:           cockpit
 Summary:        A user interface for Linux servers
 
 License:        LGPLv2+
-URL:            http://cockpit-project.org/
+URL:            https://cockpit-project.org/
 
 Version:        0
 %if %{defined wip}

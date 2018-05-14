@@ -45,7 +45,7 @@ above if you do not.
 Use the following guide to configure things, with more troubleshooting advice
 below:
 
-http://cockpit-project.org/guide/latest/sso.html
+https://cockpit-project.org/guide/latest/sso.html
 
 **BUG:** The host name of the computer Cockpit is running on should end with
 the domain name. If it does not, then rename the computer Cockpit is running on:
@@ -90,6 +90,6 @@ Use the IPA GUI to setup "Trusted for delegation" for the host and service that
 Cockpit is running on. Make sure to tell the browser to delegate credentials
 as seen in the guide:
 
-http://cockpit-project.org/guide/latest/sso.html
+https://cockpit-project.org/guide/latest/sso.html
 
 Ze goggles, zey do nothing!

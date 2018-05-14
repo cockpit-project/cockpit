@@ -326,15 +326,30 @@ class OstreeRestartCase(MachineCase):
         m.start_cockpit()
         b.reload()
         b.login_and_go("/updates")
-
-        # After reboot upgrade but no rollback target
         b.wait_present('table.listing-ct')
         b.wait_present('table.listing-ct tbody')
-        b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
-        b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Update")
-        b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-check-circle-o')
+
+        if m.image in ["fedora-atomic"]:
+            # newer rpm-ostree flips back and forth between the two latest releases with rollback
+            b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
+            b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")
+            b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-head", "Running")
+
+            b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-circle')
+            b.wait_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', name + " cockpit-base.2")
+            b.wait_present("table.listing-ct tbody:nth-child(4) div.listing-ct-head button")
+            b.wait_in_text("table.listing-ct tbody:nth-child(4) div.listing-ct-head button", "Roll Back")
+        else:
+            # older rpm-ostree doesn't "roll back" forwards to the current release, it appears as regular update
+            b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-circle')
+            b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.2")
+            b.wait_in_text("table.listing-ct tbody:nth-child(3) div.listing-ct-actions button", "Update")
+
+            b.wait_present('table.listing-ct tbody:nth-child(4) i.fa-check-circle-o')
+            b.wait_text('table.listing-ct tbody:nth-child(4) div.listing-ct-head h3', name + " cockpit-base.1")
+            b.wait_not_present("button:contains('Roll Back')");
+
         b.wait_not_present('table.listing-ct tbody:nth-child(5)')
-        b.wait_not_present("button:contains('Roll Back')");
 
         self.allow_restart_journal_messages()
 

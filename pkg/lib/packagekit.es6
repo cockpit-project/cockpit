@@ -194,7 +194,7 @@ export function transaction(method, arglist, signalHandlers, notifyHandler) {
  */
 export function cancellableTransaction(method, arglist, progress_cb, signalHandlers) {
     if (signalHandlers && (signalHandlers.ErrorCode || signalHandlers.Finished))
-        throw "cancellableTransaction handles ErrorCode and Finished signals internally";
+        throw Error("cancellableTransaction handles ErrorCode and Finished signals internally");
 
     return new Promise((resolve, reject) => {
         let cancelled = false;

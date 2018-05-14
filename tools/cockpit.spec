@@ -112,6 +112,7 @@ Requires: %{name}-system = %{version}-%{release}
 Recommends: %{name}-dashboard = %{version}-%{release}
 Recommends: (%{name}-networkmanager = %{version}-%{release} if NetworkManager)
 Recommends: (%{name}-storaged = %{version}-%{release} if udisks2)
+Recommends: (%{name}-packagekit = %{version}-%{release} if PackageKit)
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
 %endif

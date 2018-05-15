@@ -20,6 +20,7 @@
 
 import os
 import sys
+import time
 
 test_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(test_dir)
@@ -62,10 +63,8 @@ class KubernetesContainerCase(kubelib.KubernetesCase):
         self.stop_kubernetes()
         self.start_kubernetes()
         super(KubernetesContainerCase, self).wait_api_server(address='10.111.113.1', **kwargs)
-        # HACK: work around https://github.com/kubernetes/kubernetes/issues/8311, give kubernetes some time to start up
-        if self.machine.image == 'fedora-26':
-            import time
-            time.sleep(60)
+        # HACK: give kubernetes some time to start up (was previously hidden by a wait_api_server() bug, see commit db5d4083e)
+        time.sleep(20)
 
     def forbid_anon(self, **kwargs):
         self.machine.execute("sed -i 's/--basic-auth-file=/--anonymous-auth=false --basic_auth_file=/g' /etc/kubernetes/apiserver")

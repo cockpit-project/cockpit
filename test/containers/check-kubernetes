@@ -68,7 +68,7 @@ class KubernetesContainerCase(kubelib.KubernetesCase):
             time.sleep(60)
 
     def forbid_anon(self, **kwargs):
-        self.machine.execute("sed -i 's/--basic_auth_file=/--anonymous-auth=false --basic_auth_file=/g' /etc/kubernetes/apiserver")
+        self.machine.execute("sed -i 's/--basic-auth-file=/--anonymous-auth=false --basic_auth_file=/g' /etc/kubernetes/apiserver")
         self.restart_api_server(**kwargs)
 
     def wait_api_server(self, port=8080, timeout=60, scheme='http', forbid_anon=True):
@@ -166,8 +166,8 @@ class TestKubernetesLogin(KubernetesContainerCase):
 
         self.check_login("ABAC")
         m.execute("sed -i 's/--anonymous-auth=false//g' /etc/kubernetes/apiserver")
-        m.execute("sed -i 's#--authorization_policy_file=/etc/kubernetes/authorization##g' /etc/kubernetes/apiserver")
-        m.execute("sed -i 's/--authorization_mode=ABAC/--authorization_mode=RBAC/g' /etc/kubernetes/apiserver")
+        m.execute("sed -i 's#--authorization-policy-file=/etc/kubernetes/authorization##g' /etc/kubernetes/apiserver")
+        m.execute("sed -i 's/--authorization-mode=ABAC/--authorization-mode=RBAC/g' /etc/kubernetes/apiserver")
         self.restart_api_server(port=6443, scheme='https')
 
         self.check_login("RBAC")
@@ -180,7 +180,7 @@ class TestKubernetesLogin(KubernetesContainerCase):
         # broke having an open API. So if api is closed
         # make use RBAC and make cluster bindings
         if self.get_bad_auth_code(port=6443) == "401":
-            m.execute("echo 'KUBE_API_ARGS=\"--authorization_mode=RBAC\"' >> /etc/kubernetes/apiserver")
+            m.execute("echo 'KUBE_API_ARGS=\"--authorization-mode=RBAC\"' >> /etc/kubernetes/apiserver")
             m.execute("kubectl create clusterrolebinding anon-cluster-admin-binding --clusterrole=cluster-admin --user=system:anonymous")
             self.restart_api_server(port=6443, scheme='https')
 

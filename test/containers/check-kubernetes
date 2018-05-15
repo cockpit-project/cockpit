@@ -212,6 +212,9 @@ class KubernetesCase(KubernetesContainerCase, kubelib.KubernetesCommonTests):
         if ("-1.1.0-0.17" in version or version < "kubernetes-master-1.1.0-0.17"):
             self.supports_websocket = False
 
+        # HACK: https://github.com/cockpit-project/cockpit/issues/9179 ; fix this in docker-images.setup instead and rebuild images
+        self.machine.execute("docker tag gcr.io/google_containers/pause-amd64:3.0 k8s.gcr.io/pause-amd64:3.1")
+
     def check_logs(self, b):
         if not self.supports_websocket:
             print("No websocket support on kubernetes yet")

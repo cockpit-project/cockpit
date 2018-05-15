@@ -35,8 +35,11 @@ systemctl start docker || journalctl -u docker
 systemctl enable docker
 
 # docker images that we need for integration testing
-docker pull selenium/hub:2.53.1
-docker pull selenium/node-chrome:2.53.1
+docker pull selenium/hub:3
+docker pull selenium/node-chrome:3
+docker pull selenium/node-firefox:3
+# HACK: Fedora 27's python2-selenium does not work with :3, so install the
+# one as well; see https://github.com/cockpit-project/cockpit/pull/9178
 docker pull selenium/node-firefox:2.53.1
 
 # reduce image size

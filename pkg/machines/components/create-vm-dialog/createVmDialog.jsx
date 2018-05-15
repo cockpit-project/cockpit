@@ -315,7 +315,7 @@ class CreateVM extends React.Component {
                             </label>
                         </td>
                         <td>
-                            <input id="start-vm" className="form-control dialog-checkbox" type="checkbox"
+                            <input id="start-vm" type="checkbox"
                                    checked={this.props.vmParams.startVm}
                                    onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
                         </td>

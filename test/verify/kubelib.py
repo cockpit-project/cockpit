@@ -84,12 +84,14 @@ class KubernetesCase(testlib.MachineCase):
         waiter = """
         for a in $(seq 0 {timeout}); do
             if curl -o /dev/null -k -s {scheme}://{address}:{port}; then
-                if kubectl get all | grep -q svc/kubernetes; then
-                    break
+                if kubectl get all | grep -q s.*v.*c.*/kubernetes; then
+                    exit 0
                 fi
             fi
             sleep 0.5
         done
+        echo "Timed out waiting for service/kubernetes to appear" >&2
+        exit 1
         """.format(**locals())
         self.machine.execute(script=waiter)
 

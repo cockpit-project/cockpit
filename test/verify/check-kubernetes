@@ -58,7 +58,6 @@ class TestConnection(kubelib.KubernetesCase):
         m.execute("echo 'KUBE_API_PORT=\"--port=1111\"' >> /etc/kubernetes/apiserver")
         m.execute("sed -i s/8080/1111/g /etc/kubernetes/*")
         self.start_kubernetes()
-        self.wait_api_server(port=6443, scheme='https')
 
         # Setup the kube stuff in the right place
         m.upload(["verify/files/mock-kube-config-basic.json"], "/tmp")

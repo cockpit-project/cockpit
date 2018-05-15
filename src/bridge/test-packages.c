@@ -37,8 +37,14 @@
 
 /*
  * To recalculate the checksums found in this file, do something like:
- * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistant ./cockpit-bridge --packages
  */
+#define CHECKSUM_GLOB           "f5d1bfe84c378dee517cea3e0f0380ad2c9201f6be021fbae877a89d4cb51859"
+#define CHECKSUM_BADPACKAGE     "86ae6170eb6245c5c80dbcbcc0ba12beddee2e1d807cfdb705440e944b177fbc"
+#define CHECKSUM_RELOAD_OLD     "53264dd51401b6f6de0ba63180397919697155653855848dee0f6f71c6e93f40"
+#define CHECKSUM_RELOAD_NEW     "eae62ca12c4a92b4ae7f6b0d2f41cb20be0005a6fc62466fccda1ebe0532cc23"
+#define CHECKSUM_RELOAD_UPDATED "0d1c0b7c6133cc7c3956197fd8a76bef68b158bd78beac75cfa80b75c36aa827"
+#define CHECKSUM_CSP            "25cab69451c3667cb9ed33f006fc7003c248f1029dae4a763bbadb0c4cafaf8d"
 
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
@@ -622,8 +628,8 @@ test_list_bad_name (TestCase *tc,
   data = mock_transport_combine_output (tc->transport, "444", &count);
   cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
                                      "{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\","
-                                     "\"X-Cockpit-Pkg-Checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$524d07b284cda92c86a908c67014ee882a80193b\\\"\"}}"
-                                 "{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\",\"ok\":{\".checksum\":\"524d07b284cda92c86a908c67014ee882a80193b\"}}", -1);
+                                     "\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_BADPACKAGE "\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$" CHECKSUM_BADPACKAGE "\\\"\"}}"
+                                 "{\".checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ok\":{\".checksum\":\"" CHECKSUM_BADPACKAGE "\"}}", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }
@@ -648,7 +654,7 @@ test_glob (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"4f2a5a7bb5bf355776e1fc83831b1d846914182e\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/plain\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GLOB "\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/plain\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");
@@ -914,15 +920,15 @@ test_reload_added (TestCase *tc,
   setup_reload_packages (datadir, "old");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_OLD);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_OLD);
 
   setup_reload_packages (datadir, "new");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
-  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_OLD);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_OLD);
+  assert_manifest_checksum (tc, "new", CHECKSUM_RELOAD_NEW);
 
   teardown_reload_packages (datadir);
 }
@@ -940,15 +946,15 @@ test_reload_removed (TestCase *tc,
   setup_reload_packages (datadir, "new");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec");
-  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
-  assert_manifest_checksum (tc, "new", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_NEW);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_NEW);
+  assert_manifest_checksum (tc, "new", CHECKSUM_RELOAD_NEW);
 
   setup_reload_packages (datadir, "old");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "516e9877b1255fa22f18c869e1715f39dd4b39ec");
-  assert_manifest_checksum (tc, "old", "516e9877b1255fa22f18c869e1715f39dd4b39ec");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_NEW);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_NEW);
   assert_manifest_checksum (tc, "new", NULL);
 
   teardown_reload_packages (datadir);
@@ -967,14 +973,14 @@ test_reload_updated (TestCase *tc,
   setup_reload_packages (datadir, "old");
   tc->packages = cockpit_packages_new ();
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
-  assert_manifest_checksum (tc, "old", "0e4445bda678eede7c520a0a0b87aae56e7570cf");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_OLD);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_OLD);
 
   setup_reload_packages (datadir, "updated");
   cockpit_packages_reload (tc->packages);
 
-  assert_manifest_checksum (tc, NULL,  "0e4445bda678eede7c520a0a0b87aae56e7570cf");
-  assert_manifest_checksum (tc, "old", "252178c3fba5843c8c3bb4ce7733b405741cedee");
+  assert_manifest_checksum (tc, NULL,  CHECKSUM_RELOAD_OLD);
+  assert_manifest_checksum (tc, "old", CHECKSUM_RELOAD_UPDATED);
 
   teardown_reload_packages (datadir);
 }
@@ -999,7 +1005,7 @@ test_csp_strip (TestCase *tc,
   g_assert_cmpstr (tc->problem, ==, NULL);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"0c58347ff749c5918f7f311c109369c377dc2ba1\",\"Content-Type\":\"text/html\",\"Referrer-Policy\":\"no-referrer\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content; img-src: 'self' http://blah:9090 data:; default-src 'self' http://blah:9090\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
+  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\",\"Content-Type\":\"text/html\",\"Referrer-Policy\":\"no-referrer\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content; img-src: 'self' http://blah:9090 data:; default-src 'self' http://blah:9090\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
   g_assert_cmpuint (count, ==, 2);
   g_bytes_unref (data);
 }

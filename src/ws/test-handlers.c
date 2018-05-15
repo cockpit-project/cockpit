@@ -40,8 +40,9 @@
 
 /*
  * To recalculate the checksums found in this file, do something like:
- * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant ./cockpit-bridge --packages
  */
+#define CHECKSUM "$6d675909f0b33b83a48e67e29cea9797012ded09394546634b9cd967bbe3fbf5"
 
 /* Mock override this from cockpitconf.c */
 extern const gchar *cockpit_config_file;
@@ -441,7 +442,7 @@ test_default (Test *test,
 }
 
 static const DefaultFixture fixture_resource_checksum = {
-  .path = "/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/test/sub/file.ext",
+  .path = "/cockpit/" CHECKSUM "/test/sub/file.ext",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
     "These are the contents of file.ext*"
@@ -501,7 +502,7 @@ static const DefaultFixture fixture_shell_path_package = {
   .org_path = "/path/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/path/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
+      "<base href=\"/path/cockpit/" CHECKSUM "/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -541,7 +542,7 @@ static const DefaultFixture fixture_machine_shell_index = {
   .auth = "/cockpit+=machine",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit+=machine/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/second/test.html\">*"
+      "<base href=\"/cockpit+=machine/" CHECKSUM "/second/test.html\">*"
       "<title>In system dir</title>*"
 };
 
@@ -559,7 +560,7 @@ static const DefaultFixture fixture_shell_package = {
   .path = "/system/host",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-      "<base href=\"/cockpit/$060119c2a544d8e5becd0f74f9dcde146b8d99e3/another/test.html\">*"
+      "<base href=\"/cockpit/" CHECKSUM "/another/test.html\">*"
       "<title>In system dir</title>*"
 };
 

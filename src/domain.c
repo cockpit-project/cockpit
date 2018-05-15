@@ -910,13 +910,13 @@ virtDBusDomainFSTrim(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainGetBlkioParameters(GVariant *inArgs,
-                                 GUnixFDList *inFDs G_GNUC_UNUSED,
-                                 const gchar *objectPath,
-                                 gpointer userData,
-                                 GVariant **outArgs,
-                                 GUnixFDList **outFDs G_GNUC_UNUSED,
-                                 GError **error)
+virtDBusDomainGetBlockIOParameters(GVariant *inArgs,
+                                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                                   const gchar *objectPath,
+                                   gpointer userData,
+                                   GVariant **outArgs,
+                                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                                   GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -2533,13 +2533,13 @@ virtDBusDomainSendProcessSignal(GVariant *inArgs,
 }
 
 static void
-virtDBusDomainSetBlkioParameters(GVariant *inArgs,
-                                 GUnixFDList *inFDs G_GNUC_UNUSED,
-                                 const gchar *objectPath,
-                                 gpointer userData,
-                                 GVariant **outArgs G_GNUC_UNUSED,
-                                 GUnixFDList **outFDs G_GNUC_UNUSED,
-                                 GError **error)
+virtDBusDomainSetBlockIOParameters(GVariant *inArgs,
+                                   GUnixFDList *inFDs G_GNUC_UNUSED,
+                                   const gchar *objectPath,
+                                   gpointer userData,
+                                   GVariant **outArgs G_GNUC_UNUSED,
+                                   GUnixFDList **outFDs G_GNUC_UNUSED,
+                                   GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
@@ -3067,7 +3067,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "FSFreeze", virtDBusDomainFSFreeze },
     { "FSThaw", virtDBusDomainFSThaw },
     { "FSTrim", virtDBusDomainFSTrim },
-    { "GetBlkioParameters", virtDBusDomainGetBlkioParameters },
+    { "GetBlockIOParameters", virtDBusDomainGetBlockIOParameters },
     { "GetBlockIOTune", virtDBusDomainGetBlockIOTune },
     { "GetBlockJobInfo", virtDBusDomainGetBlockJobInfo },
     { "GetControlInfo", virtDBusDomainGetControlInfo },
@@ -3118,7 +3118,7 @@ static virtDBusGDBusMethodTable virtDBusDomainMethodTable[] = {
     { "Save", virtDBusDomainSave },
     { "SendKey", virtDBusDomainSendKey },
     { "SendProcessSignal", virtDBusDomainSendProcessSignal },
-    { "SetBlkioParameters", virtDBusDomainSetBlkioParameters },
+    { "SetBlockIOParameters", virtDBusDomainSetBlockIOParameters },
     { "SetBlockIOTune", virtDBusDomainSetBlockIOTune },
     { "SetGuestVcpus", virtDBusDomainSetGuestVcpus },
     { "SetInterfaceParameters", virtDBusDomainSetInterfaceParameters },

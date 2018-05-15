@@ -61,14 +61,19 @@ class KubernetesContainerCase(kubelib.KubernetesCase):
         self.machine.execute("kubectl delete svc/kubernetes")
         self.stop_kubernetes()
         self.start_kubernetes()
-        super(KubernetesContainerCase, self).wait_api_server(**kwargs)
+        super(KubernetesContainerCase, self).wait_api_server(address='10.111.113.1', **kwargs)
+        # HACK: work around https://github.com/kubernetes/kubernetes/issues/8311, give kubernetes some time to start up
+        if self.machine.image == 'fedora-26':
+            import time
+            time.sleep(60)
 
     def forbid_anon(self, **kwargs):
         self.machine.execute("sed -i 's/--basic_auth_file=/--anonymous-auth=false --basic_auth_file=/g' /etc/kubernetes/apiserver")
         self.restart_api_server(**kwargs)
 
     def wait_api_server(self, port=8080, timeout=60, scheme='http', forbid_anon=True):
-        super(KubernetesContainerCase, self).wait_api_server(port=port, timeout=timeout, scheme=scheme)
+        super(KubernetesContainerCase, self).wait_api_server(
+                port=port, timeout=timeout, scheme=scheme, address='10.111.113.1')
 
         if forbid_anon and self.get_bad_auth_code(port=port) == "403":
             self.forbid_anon(timeout=timeout, port=port, scheme=scheme)

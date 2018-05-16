@@ -57,6 +57,9 @@ class KubernetesCase(testlib.MachineCase):
         self.machine.upload(["verify/files/mock-kube-config-basic.json"], "/etc/kubernetes/kubeconfig")
         self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s%"$% --kubeconfig=/etc/kubernetes/kubeconfig"% }' /etc/kubernetes/kubelet""")
 
+        # disable imagefs eviction to protect our docker images
+        self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --eviction-hard=imagefs.available<0% --eviction-soft=imagefs.available<0%"/ }' /etc/kubernetes/kubelet""")
+
         # HACK: These are the default container secrets that which conflict
         # with kubernetes secrets and cause the pod to not start
         self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")

@@ -21,8 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
-import { format_fsys_usage } from "./utils.js";
+import { format_fsys_usage, get_config } from "./utils.js";
 import { nfs_fstab_dialog } from "./nfs-details.jsx";
+import { OptionalPanel } from "./optional-panel.jsx";
 
 const _ = cockpit.gettext;
 
@@ -70,16 +71,29 @@ export class NFSPanel extends React.Component {
             nfs_fstab_dialog(client, null);
         }
 
+        var actions = (
+            <StorageButton kind="primary" onClick={add}>
+                <span className="fa fa-plus" />
+            </StorageButton>
+        );
+
+        var nfs_feature = {
+            is_enabled: () => client.features.nfs,
+            package: get_config("nfs_client_package", false),
+            enable: () => {
+                client.features.nfs = true;
+                client.nfs.start();
+            }
+        }
+
         return (
-            <div className="panel panel-default storage-mounts" id="nfs-mounts">
-                <div className="panel-heading">
-                    <span className="pull-right">
-                        <StorageButton kind="primary" onClick={add}>
-                            <span className="fa fa-plus" />
-                        </StorageButton>
-                    </span>
-                    <span>{_("NFS Mounts")}</span>
-                </div>
+            <OptionalPanel className="storage-mounts" id="nfs-mounts"
+                           client={client}
+                           title={_("NFS Mounts")}
+                           actions={actions}
+                           feature={nfs_feature}
+                           not_installed_text={_("NFS Support not installed")}
+                           install_title={_("Install NFS Support")}>
                 { mounts.length > 0
                     ? <table className="table table-hover">
                         <thead>
@@ -96,7 +110,7 @@ export class NFSPanel extends React.Component {
                     </table>
                     : <div className="empty-panel-text">{_("No NFS mounts set up")}</div>
                 }
-            </div>
+            </OptionalPanel>
         );
     }
 }

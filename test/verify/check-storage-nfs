@@ -21,6 +21,7 @@
 import parent
 from testlib import *
 from storagelib import *
+from packagelib import *
 
 @skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
 class TestStorage(StorageCase):
@@ -199,6 +200,62 @@ class TestStorage(StorageCase):
         self.dialog_apply()
 
         b.wait_present("#detail-header button:contains(Mount)")
+
+@skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
+class TestStoragePackages(StorageCase, PackageCase):
+
+    def testNfsMissingPackages(self):
+        m = self.machine
+        b = self.browser
+
+        # Override configuration so that we don't have to remove the
+        # real package.
+
+        self.machine.write("/usr/share/cockpit/storaged/override.json",
+                           """{ "config": { "nfs_client_package": "fake-nfs-utils" } }""")
+
+        m.execute("mv /sbin/mount.nfs /sbin/mount.nfs.off")
+
+        self.login_and_go("/storage")
+
+        # The fake-nfs-utils package is not available yet
+
+        b.wait_present("button:contains('Install NFS Support')")
+        b.click("button:contains('Install NFS Support')")
+
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "fake-nfs-utils is not available from any repository.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Now make the package available
+
+        self.createPackage("dummy", "1.0", "1")
+        self.createPackage("fake-nfs-utils", "1.0", "1", depends="fake-libnfs")
+        self.createPackage("fake-libnfs", "1.0", "1")
+        self.enableRepo()
+
+        # HACK
+        #
+        # The first simulated install seems to silently not report
+        # anything on the Debian test images, for unknown reasons.  So
+        # we install a dummy package to warm up all parts of the
+        # machinery and distribute the fluids evenly.
+        #
+        if "debian" in m.image or "ubuntu" in m.image:
+            m.execute("pkcon refresh && pkcon install -y dummy")
+
+        b.reload()
+        b.enter_page("/storage")
+        b.wait_present("button:contains('Install NFS Support')")
+        b.click("button:contains('Install NFS Support')")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "fake-nfs-utils will be installed")
+        b.wait_in_text("#dialog", "fake-libnfs")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_present("#nfs-mounts button .fa-plus")
 
 if __name__ == '__main__':
     test_main()

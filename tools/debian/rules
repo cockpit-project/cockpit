@@ -41,6 +41,7 @@ override_dh_auto_configure: debian/git-patches-applied
 		--with-networkmanager-needs-root=yes \
 		--with-cockpit-user=cockpit-ws \
 		--with-appstream-config-packages='[ "appstream" ]' \
+		--with-nfs-client-packages='"nfs-common"' \
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 

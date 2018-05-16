@@ -6,11 +6,11 @@
 #include <libvirt/libvirt.h>
 
 static gint
-virtDBusEventsDomainAgentLifecycle(virConnectPtr connection G_GNUC_UNUSED,
-                                   virDomainPtr domain,
-                                   gint state,
-                                   gint reason,
-                                   gpointer opaque)
+virtDBusEventsDomainAgentEvent(virConnectPtr connection G_GNUC_UNUSED,
+                               virDomainPtr domain,
+                               gint state,
+                               gint reason,
+                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
@@ -96,11 +96,11 @@ virtDBusEventsDomainControlError(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
-virtDBusEventsDomainLifecycle(virConnectPtr connection G_GNUC_UNUSED,
-                              virDomainPtr domain,
-                              gint event,
-                              gint detail,
-                              gpointer opaque)
+virtDBusEventsDomainEvent(virConnectPtr connection G_GNUC_UNUSED,
+                          virDomainPtr domain,
+                          gint event,
+                          gint detail,
+                          gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
@@ -241,13 +241,13 @@ virtDBusEventsDomainGraphics(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
-virtDBusEventsDomainIOErrorReason(virConnectPtr connection G_GNUC_UNUSED,
-                                  virDomainPtr domain,
-                                  const gchar *srcPath,
-                                  const gchar *device,
-                                  gint action,
-                                  const gchar *reason,
-                                  gpointer opaque)
+virtDBusEventsDomainIOError(virConnectPtr connection G_GNUC_UNUSED,
+                            virDomainPtr domain,
+                            const gchar *srcPath,
+                            const gchar *device,
+                            gint action,
+                            const gchar *reason,
+                            gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
@@ -545,7 +545,7 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
-virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+virtDBusEventsNetworkEvent(virConnectPtr connection G_GNUC_UNUSED,
                                virNetworkPtr network,
                                gint event,
                                gint detail G_GNUC_UNUSED,
@@ -568,7 +568,7 @@ virtDBusEventsNetworkLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
-virtDBusEventsSecretLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+virtDBusEventsSecretEvent(virConnectPtr connection G_GNUC_UNUSED,
                               virSecretPtr secret,
                               gint event,
                               gint detail,
@@ -591,7 +591,7 @@ virtDBusEventsSecretLifecycle(virConnectPtr connection G_GNUC_UNUSED,
 }
 
 static gint
-virtDBusEventsStoragePoolLifecycle(virConnectPtr connection G_GNUC_UNUSED,
+virtDBusEventsStoragePoolEvent(virConnectPtr connection G_GNUC_UNUSED,
                                    virStoragePoolPtr storagePool,
                                    gint event,
                                    gint detail,
@@ -701,7 +701,7 @@ virtDBusEventsRegister(virtDBusConnect *connect)
 {
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_AGENT_LIFECYCLE,
-                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainAgentLifecycle));
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainAgentEvent));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_BALLOON_CHANGE,
@@ -717,7 +717,7 @@ virtDBusEventsRegister(virtDBusConnect *connect)
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_LIFECYCLE,
-                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainLifecycle));
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainEvent));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_DEVICE_ADDED,
@@ -741,7 +741,7 @@ virtDBusEventsRegister(virtDBusConnect *connect)
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_IO_ERROR_REASON,
-                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainIOErrorReason));
+                                      VIR_DOMAIN_EVENT_CALLBACK(virtDBusEventsDomainIOError));
 
     virtDBusEventsRegisterDomainEvent(connect,
                                       VIR_DOMAIN_EVENT_ID_JOB_COMPLETED,
@@ -789,15 +789,15 @@ virtDBusEventsRegister(virtDBusConnect *connect)
 
     virtDBusEventsRegisterNetworkEvent(connect,
                                        VIR_NETWORK_EVENT_ID_LIFECYCLE,
-                                       VIR_NETWORK_EVENT_CALLBACK(virtDBusEventsNetworkLifecycle));
+                                       VIR_NETWORK_EVENT_CALLBACK(virtDBusEventsNetworkEvent));
 
     virtDBusEventsRegisterSecretEvent(connect,
                                       VIR_SECRET_EVENT_ID_LIFECYCLE,
-                                      VIR_SECRET_EVENT_CALLBACK(virtDBusEventsSecretLifecycle));
+                                      VIR_SECRET_EVENT_CALLBACK(virtDBusEventsSecretEvent));
 
     virtDBusEventsRegisterStoragePoolEvent(connect,
                                            VIR_STORAGE_POOL_EVENT_ID_LIFECYCLE,
-                                           VIR_STORAGE_POOL_EVENT_CALLBACK(virtDBusEventsStoragePoolLifecycle));
+                                           VIR_STORAGE_POOL_EVENT_CALLBACK(virtDBusEventsStoragePoolEvent));
 
     virtDBusEventsRegisterStoragePoolEvent(connect,
                                            VIR_STORAGE_POOL_EVENT_ID_REFRESH,

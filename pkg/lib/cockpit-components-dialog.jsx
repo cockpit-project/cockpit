@@ -58,6 +58,7 @@ var DialogFooter = React.createClass({
             action_in_progress: false,
             action_in_progress_promise: null,
             action_progress_message: '',
+            action_progress_cancel: null,
             action_canceled: false,
             error_message: null,
         };
@@ -76,8 +77,8 @@ var DialogFooter = React.createClass({
         document.body.classList.remove("modal-in");
         document.removeEventListener('keyup', this.keyUpHandler.bind(this));
     },
-    update_progress: function(msg) {
-        this.setState({ action_progress_message: msg });
+    update_progress: function(msg, cancel) {
+        this.setState({ action_progress_message: msg, action_progress_cancel: cancel });
     },
     action_click: function(handler, e) {
         // only consider clicks with the primary button
@@ -129,6 +130,10 @@ var DialogFooter = React.createClass({
             this.props.cancel_clicked();
 
         // an action might be in progress, let that handler decide what to do if they added a cancel function
+        if (this.state.action_in_progress && this.state.action_progress_cancel) {
+            this.state.action_progress_cancel();
+            return;
+        }
         if (this.state.action_in_progress && 'cancel' in this.state.action_in_progress_promise) {
             this.state.action_in_progress_promise.cancel();
             return;
@@ -152,11 +157,17 @@ var DialogFooter = React.createClass({
             cancel_style = "cancel";
         cancel_style = "btn btn-default " + cancel_style;
 
-        // If an action is in progress, show the spinner with its message and disable all actions except cancel
+        // If an action is in progress, show the spinner with its message and disable all actions.
+        // Cancel is only enabled when the action promise has a cancel method, or we get one
+        // via the progress reporting.
+
         var wait_element;
         var actions_disabled;
+        var cancel_disabled;
         if (this.state.action_in_progress) {
             actions_disabled = 'disabled';
+            if (!this.state.action_in_progress_promise.cancel && !this.state.action_progress_cancel)
+                cancel_disabled = 'disabled';
             wait_element = <div className="dialog-wait-ct pull-left">
                 <div className="spinner spinner-sm" />
                 <span>{ this.state.action_progress_message }</span>
@@ -210,6 +221,7 @@ var DialogFooter = React.createClass({
                 <button
                     className={ cancel_style }
                     onClick={ this.cancel_click.bind(this) }
+                    disabled={ cancel_disabled }
                 >{ cancel_caption }</button>
                 { action_buttons }
             </div>

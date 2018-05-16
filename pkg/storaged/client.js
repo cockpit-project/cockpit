@@ -22,6 +22,7 @@
 
     var $ = require('jquery');
     var cockpit = require('cockpit');
+    var PK = require('packagekit.es6');
 
     var utils = require('./utils');
 
@@ -425,11 +426,29 @@
                 });
         }
 
+        function enable_nfs_features() {
+            return cockpit.spawn([ "which", "mount.nfs" ], { err: "ignore" }).then(
+                function () {
+                    client.features.nfs = true;
+                    client.nfs.start();
+                    return cockpit.resolve();
+                },
+                function () {
+                    return cockpit.resolve();
+                });
+        }
+
+        function enable_pk_features() {
+            return PK.detect().then(function (available) { client.features.packagekit = available; });
+        }
+
         function enable_features() {
             client.features = { };
             return (enable_udisks_features()
                     .then(enable_vdo_features)
-                    .then(enable_clevis_features));
+                    .then(enable_clevis_features)
+                    .then(enable_nfs_features)
+                    .then(enable_pk_features));
         }
 
         function query_fsys_info() {
@@ -518,6 +537,8 @@
             entries: [ ],
             fsys_sizes: { },
 
+            start: start,
+
             get_fsys_size: get_fsys_size,
             entry_users: entry_users,
 
@@ -537,25 +558,27 @@
             return python.spawn([ inotify_py, nfs_mounts_py ], args, { superuser: "try", err: "message" });
         }
 
-        var buf = "";
-        spawn_nfs_mounts([ "monitor" ])
-            .stream(function (output) {
-                var lines;
+        function start() {
+            var buf = "";
+            spawn_nfs_mounts([ "monitor" ])
+                .stream(function (output) {
+                    var lines;
 
-                buf += output;
-                lines = buf.split("\n");
-                buf = lines[lines.length-1];
-                if (lines.length >= 2) {
-                    self.entries = JSON.parse(lines[lines.length-2]);
-                    self.fsys_sizes = { };
-                    client.dispatchEvent('changed');
-                }
-            }).
-            fail(function (error) {
-                if (error != "closed") {
-                    console.warn(error);
-                }
-            });
+                    buf += output;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length-1];
+                    if (lines.length >= 2) {
+                        self.entries = JSON.parse(lines[lines.length-2]);
+                        self.fsys_sizes = { };
+                        client.dispatchEvent('changed');
+                    }
+                }).
+                fail(function (error) {
+                    if (error != "closed") {
+                        console.warn(error);
+                    }
+                });
+        }
 
         function get_fsys_size(entry) {
             var path = entry.fields[1];

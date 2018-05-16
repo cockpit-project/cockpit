@@ -45,8 +45,9 @@
 
 /*
  * To recalculate the checksums found in this file, do something like:
- * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant cockpit-bridge --packages
+ * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistant ./cockpit-bridge --packages
  */
+#define CHECKSUM "$6d675909f0b33b83a48e67e29cea9797012ded09394546634b9cd967bbe3fbf5"
 
 #define PASSWORD "this is the password"
 
@@ -499,7 +500,7 @@ test_resource_checksum (TestResourceCase *tc,
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                CHECKSUM,
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -512,7 +513,7 @@ test_resource_checksum (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
+                           "ETag: \"" CHECKSUM "-c\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
@@ -536,11 +537,11 @@ test_resource_not_modified (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
+                       g_strdup ("\"" CHECKSUM "-c\""));
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                CHECKSUM,
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -552,7 +553,7 @@ test_resource_not_modified (TestResourceCase *tc,
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 304 Not Modified\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\"\r\n"
+                           "ETag: \"" CHECKSUM "-c\"\r\n"
                            "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n", -1);
   g_bytes_unref (bytes);
@@ -570,12 +571,12 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
+                       g_strdup ("\"" CHECKSUM "-c\""));
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de"));
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                CHECKSUM,
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -588,7 +589,7 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-de\"\r\n"
+                           "ETag: \"" CHECKSUM "-de\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"
@@ -613,14 +614,14 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   request_checksum (tc);
 
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
-                       g_strdup ("\"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-c\""));
+                       g_strdup ("\"" CHECKSUM "-c\""));
 
   cookie = g_strdup_printf ("%s; CockpitLang=fr", (gchar *)g_hash_table_lookup (tc->headers, "Cookie"));
   g_hash_table_insert (tc->headers, g_strdup ("Cookie"), cookie);
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, tc->headers);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
-                                "$060119c2a544d8e5becd0f74f9dcde146b8d99e3",
+                                CHECKSUM,
                                 "/test/sub/file.ext");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -633,7 +634,7 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   cockpit_assert_bytes_eq (bytes,
                            "HTTP/1.1 200 OK\r\n"
                            "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"$060119c2a544d8e5becd0f74f9dcde146b8d99e3-fr\"\r\n"
+                           "ETag: \"" CHECKSUM "-fr\"\r\n"
                            "Access-Control-Allow-Origin: http://localhost\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "Cache-Control: max-age=31556926, public\r\n"

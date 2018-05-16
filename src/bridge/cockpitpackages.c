@@ -131,8 +131,6 @@ struct _CockpitPackage {
  * It is also *not* a security sensitive use case. The hashes are never shared
  * or compared between different users, only the same user (with same credentials)
  * on different machines.
- *
- * So we use the fastest, good ol' SHA1.
  */
 
 static gboolean   package_walk_directory   (GChecksum *own_checksum,
@@ -222,7 +220,7 @@ package_walk_file (GChecksum *own_checksum,
   if (own_checksum && bundle_checksum)
     {
       bytes = g_mapped_file_get_bytes (mapped);
-      string = g_compute_checksum_for_bytes (G_CHECKSUM_SHA1, bytes);
+      string = g_compute_checksum_for_bytes (G_CHECKSUM_SHA256, bytes);
       g_bytes_unref (bytes);
 
       /*
@@ -612,7 +610,7 @@ maybe_add_package (GHashTable *listing,
     paths = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   if (bundle_checksum)
-    own_checksum = g_checksum_new (G_CHECKSUM_SHA1);
+    own_checksum = g_checksum_new (G_CHECKSUM_SHA256);
 
   if (bundle_checksum || paths)
     {
@@ -731,7 +729,7 @@ build_packages (CockpitPackages *packages)
   g_free (packages->bundle_checksum);
   packages->bundle_checksum = NULL;
 
-  checksum = g_checksum_new (G_CHECKSUM_SHA1);
+  checksum = g_checksum_new (G_CHECKSUM_SHA256);
   if (build_package_listing (packages->listing, checksum, old_listing))
     {
       packages->bundle_checksum = g_strdup (g_checksum_get_string (checksum));

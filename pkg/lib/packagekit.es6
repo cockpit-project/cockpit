@@ -87,6 +87,16 @@ export function call(objectPath, iface, method, args, opts) {
 }
 
 /**
+ * Figure out whether PackageKit is available
+ */
+export function detect() {
+    return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
+                "Get", [ "org.freedesktop.PackageKit", "VersionMajor" ])
+            .then(() => true,
+                  () => false);
+}
+
+/**
  * Watch a running PackageKit transaction
  *
  * transactionPath (string): D-Bus object path of the PackageKit transaction

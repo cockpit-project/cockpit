@@ -21,7 +21,7 @@ virtDBusEventsDomainAgentLifecycle(virConnectPtr connection G_GNUC_UNUSED,
                                   NULL,
                                   path,
                                   VIRT_DBUS_DOMAIN_INTERFACE,
-                                  "AgentLifecycle",
+                                  "AgentEvent",
                                   g_variant_new("(ii)", state, reason),
                                   NULL);
 

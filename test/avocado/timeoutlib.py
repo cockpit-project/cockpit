@@ -22,6 +22,9 @@
 import signal
 import time
 
+class TimeoutError(RuntimeError):
+    pass
+
 class Timeout(object):
     def __init__(self, retry, timeout):
         self.retry = retry
@@ -32,7 +35,7 @@ class Timeout(object):
             if __debug__:
                 self.retry.timeouts_triggered += 1
 
-            raise Exception()
+            raise TimeoutError("%is timeout reached" % self.timeout)
 
         self.orig_sighand = signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(self.timeout)
@@ -52,7 +55,7 @@ class NOPTimeout(object):
         pass
 
 class Retry(object):
-    def __init__(self, attempts = 1, timeout = None, exceptions = (Exception,), error = None, inverse = False, delay = None):
+    def __init__(self, attempts = 1, timeout = None, exceptions = (), error = None, inverse = False, delay = None):
         """
         Try to run things ATTEMPTS times, at max, each attempt must not exceed TIMEOUT seconds.
         Restart only when one of EXCEPTIONS is raised, all other exceptions will just bubble up.
@@ -114,7 +117,7 @@ class Retry(object):
                         if not self.inverse:
                             return output
 
-                    except self.exceptions as e:
+                    except (self.exceptions + (TimeoutError,)) as e:
                         if self.inverse:
                             return True
 
@@ -141,7 +144,7 @@ if __name__ == '__main__':
     white_horse = []
 
     # Simple "try so many times, and die" case
-    @Retry(attempts = 5, error = IFailedError('Too many retries!'))
+    @Retry(attempts = 5, exceptions=(IFailedError,), error = IFailedError('Too many retries!'))
     def do_something1(a, b, c, d = 79):
         white_horse.append(d)
         raise IFailedError()
@@ -193,7 +196,7 @@ if __name__ == '__main__':
         assert retry.timeouts_triggered == 0
 
     # Use inverted result of wrapped fn
-    @Retry(attempts = 1 , timeout = 1, error = IFailedError('Too many retries!'), inverse = True)
+    @Retry(attempts = 1 , timeout = 1, exceptions = (IFailedError,), error = IFailedError('Too many retries!'), inverse = True)
     def do_something4():
         raise IFailedError('No, I did not!')
 
@@ -224,3 +227,17 @@ if __name__ == '__main__':
             assert red_horse[i] - red_horse[i - 1] >= 20.0, 'Interval #%i was shorter than expected: %f' % (i, red_horse[i] - red_horse[i - 1])
 
         assert (end_time - start_time) >= (4 * 20.0 + 5.0), 'All attempts took shorter time than expected: %f' % (end_time - start_time)
+
+    # Immediately fail on unexpected exceptions
+    @Retry(attempts = 3)
+    def do_something6():
+        raise IndexError('This one goes right to the top')
+
+    try:
+        do_something6()
+
+    except IndexError as e:
+        retry = do_something3.func_closure[1].cell_contents
+
+        assert retry.failed_attempts == 1
+        assert retry.timeouts_triggered == 0

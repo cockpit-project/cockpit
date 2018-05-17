@@ -1,6 +1,8 @@
 etc/cockpit/ws-certs.d
+etc/motd.d/cockpit
 etc/pam.d/cockpit
 lib/systemd/system/cockpit.service
+lib/systemd/system/cockpit-motd.service
 lib/systemd/system/cockpit.socket
 lib/*/security/pam_ssh_add.so
 usr/lib/tmpfiles.d/cockpit-tempfiles.conf
@@ -9,7 +11,7 @@ usr/lib/cockpit/cockpit-ws
 usr/lib/firewalld/services/cockpit.xml
 usr/sbin/remotectl
 usr/share/cockpit/branding/
-usr/share/cockpit/issue/
+usr/share/cockpit/motd/
 usr/share/cockpit/static/
 usr/share/locale/
 usr/share/man/man5/cockpit.conf.5

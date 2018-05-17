@@ -172,33 +172,32 @@ class TestConnection(MachineCase):
         m = self.machine
 
         if not m.image in ["rhel-7-5"]:
-            self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
-            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
+            self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit()
 
         if not m.image in ["rhel-7-5"]:
-            self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
-            self.assertIn("9090", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
 
         m.execute("systemctl stop cockpit.socket")
 
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
-        m.execute("echo 'custom activemessage' > /etc/cockpit/active.issue")
-        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443\nExecStartPost=-/bin/ln -sf /etc/cockpit/active.issue /run/cockpit/issue" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         # cockpit-ws from base package
         if not m.image in ["rhel-7-5"]:
-            self.assertIn("systemctl", m.execute("cat /run/cockpit/issue"))
-            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
-            self.assertNotIn("custom activemessage", m.execute("cat /run/cockpit/issue"))
+            self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertNotIn("443", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit(tls=True)
 
         # cockpit-ws from base package
         if not m.image in ["rhel-7-5"]:
-            self.assertNotIn("systemctl", m.execute("cat /run/cockpit/issue"))
-            self.assertNotIn("9090", m.execute("cat /run/cockpit/issue"))
-            self.assertIn("custom activemessage", m.execute("cat /run/cockpit/issue"))
+            self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)

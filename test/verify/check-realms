@@ -234,7 +234,7 @@ class TestRealms(MachineCase):
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
-        m.execute("echo foobarfoo | realm join -U admin cockpit.lan")
+        m.execute("echo foobarfoo | realm join -vU admin cockpit.lan")
 
         # wait until IPA user works
         m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin; do sleep 5; done',
@@ -314,7 +314,7 @@ for x in $(seq 1 20); do
     fi
 done
 
-if ! echo '%(password)s' | realm join -U admin cockpit.lan; then
+if ! echo '%(password)s' | realm join -vU admin cockpit.lan; then
     if systemctl --quiet is-failed sssd.service; then
         systemctl status --lines=100 sssd.service >&2
     fi

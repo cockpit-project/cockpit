@@ -44,9 +44,9 @@ function wait_curl(){
 # Make sure docker is up and running
 systemctl start docker
 
-docker run  -d -p 4444:4444 --name selenium-hub selenium/hub:2.53.1 2> >(grep -v 'Usage of loopback devices' >&2)
+docker run  -d -p 4444:4444 --name selenium-hub selenium/hub:2.53.1
 wait_curl /grid/console "Grid Console"
-docker run -d --link selenium-hub:hub selenium/node-chrome:2.53.1 2> >(grep -v 'Usage of loopback devices' >&2)
+docker run -d --link selenium-hub:hub selenium/node-chrome:2.53.1
 wait_curl /grid/console "googlechrome"
-docker run -d --link selenium-hub:hub selenium/node-firefox:2.53.1 2> >(grep -v 'Usage of loopback devices' >&2)
+docker run -d --link selenium-hub:hub selenium/node-firefox:2.53.1
 wait_curl /grid/console "firefox"

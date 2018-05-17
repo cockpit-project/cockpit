@@ -402,6 +402,7 @@ var aliases = {
     "react": "react-lite/dist/react-lite.js",
     "react-dom": "react-lite/dist/react-lite.js",
     "term": "term.js-cockpit/src/term.js",
+    "react-redux": "react-redux/dist/react-redux.js"
 };
 
 /* HACK: To get around redux warning about reminimizing code */

@@ -282,6 +282,10 @@ EXTRA_DIST += \
 # -----------------------------------------------------------------------------
 # PCP
 
+# make sure this ends up in the tarball, even with --disable-pcp
+pmlogconf_files = src/bridge/pmlogconf/cockpit
+EXTRA_DIST += $(pmlogconf_files)
+
 if ENABLE_PCP
 
 libexec_PROGRAMS += cockpit-pcp
@@ -322,9 +326,7 @@ cockpit_pcp_CFLAGS = \
 cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
 
 pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
-pmlogconf_DATA = src/bridge/pmlogconf/cockpit
-
-EXTRA_DIST += $(pmlogconf_DATA)
+pmlogconf_DATA = $(pmlogconf_files)
 
 BRIDGE_CHECKS += \
 	test-pcp \

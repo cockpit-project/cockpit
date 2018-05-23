@@ -57,7 +57,6 @@ import {
     units,
     isEmpty,
     logDebug,
-    rephraseUI,
     fileDownload,
 } from './helpers.es6';
 
@@ -83,7 +82,9 @@ import {
     getSingleOptionalElem,
     parseDumpxmlForBootOrder,
     parseDumpxmlForConsoles,
+    parseDumpxmlForCpu,
     parseDumpxmlForDisks,
+    parseDumpxmlForVCPU,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -809,44 +810,6 @@ function parseDumpxmlForInterfaces(devicesElem) {
         }
     }
     return interfaces;
-}
-
-function parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr) {
-    const vcpus = {};
-    vcpus.count = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
-    vcpus.placement = vcpuElem.getAttribute("placement");
-    vcpus.max = vcpuElem.childNodes[0].nodeValue;
-    return vcpus;
-}
-
-function parseDumpxmlForCpu(cpuElem) {
-    if (!cpuElem) {
-        return { topology: {} };
-    }
-
-    const cpu = {};
-
-    const cpuMode = cpuElem.getAttribute('mode');
-    let cpuModel = '';
-    if (cpuMode && cpuMode === 'custom') {
-        const modelElem = getSingleOptionalElem(cpuElem, 'model');
-        if (modelElem) {
-            cpuModel = modelElem.childNodes[0].nodeValue; // content of the domain/cpu/model element
-        }
-    }
-
-    cpu.model = rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
-    cpu.topology = {};
-
-    const topologyElem = getSingleOptionalElem(cpuElem, 'topology');
-
-    if (topologyElem) {
-        cpu.topology.sockets = topologyElem.getAttribute('sockets');
-        cpu.topology.threads = topologyElem.getAttribute('threads');
-        cpu.topology.cores = topologyElem.getAttribute('cores');
-    }
-
-    return cpu;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

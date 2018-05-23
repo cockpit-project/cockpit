@@ -19,6 +19,15 @@ import store from './store.es6';
 
 const _ = cockpit.gettext;
 
+export function buildConsoleVVFile(consoleDetail) {
+    return '[virt-viewer]\n' +
+        `type=${consoleDetail.type}\n` +
+        `host=${consoleDetail.address}\n` +
+        `port=${consoleDetail.port}\n` +
+        'delete-this-file=1\n' +
+        'fullscreen=0\n';
+}
+
 /**
  * Returns a function handling VM action failures.
  */

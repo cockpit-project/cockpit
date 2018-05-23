@@ -140,3 +140,68 @@ export function parseDumpxmlForConsoles(devicesElem) {
 
     return displays;
 }
+
+export function parseDumpxmlForDisks(devicesElem) {
+    const disks = {};
+    const diskElems = devicesElem.getElementsByTagName('disk');
+    if (diskElems) {
+        for (let i = 0; i < diskElems.length; i++) {
+            const diskElem = diskElems[i];
+
+            const targetElem = diskElem.getElementsByTagName('target')[0];
+
+            const driverElem = getSingleOptionalElem(diskElem, 'driver');
+            const sourceElem = getSingleOptionalElem(diskElem, 'source');
+            const serialElem = getSingleOptionalElem(diskElem, 'serial');
+            const aliasElem = getSingleOptionalElem(diskElem, 'alias');
+            const readonlyElem = getSingleOptionalElem(diskElem, 'readonly');
+            const shareableElem = getSingleOptionalElem(diskElem, 'shareable');
+            const bootElem = getSingleOptionalElem(diskElem, 'boot');
+
+            const sourceHostElem = sourceElem ? getSingleOptionalElem(sourceElem, 'host') : undefined;
+
+            const disk = { // see https://libvirt.org/formatdomain.html#elementsDisks
+                target: targetElem.getAttribute('dev'), // identifier of the disk, i.e. sda, hdc
+                driver: {
+                    name: driverElem ? driverElem.getAttribute('name') : undefined, // optional
+                    type: driverElem ? driverElem.getAttribute('type') : undefined,
+                    cache: driverElem ? driverElem.getAttribute('cache') : undefined, // optional
+                    discard: driverElem ? driverElem.getAttribute('discard') : undefined, // optional
+                    io: driverElem ? driverElem.getAttribute('io') : undefined, // optional
+                    errorPolicy: driverElem ? driverElem.getAttribute('error_policy') : undefined, // optional
+                },
+                bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                type: diskElem.getAttribute('type'), // i.e.: file
+                device: diskElem.getAttribute('device'), // i.e. cdrom, disk
+                source: {
+                    file: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
+                    dev: sourceElem ? sourceElem.getAttribute('dev') : undefined,
+                    pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
+                    volume: sourceElem ? sourceElem.getAttribute('volumne') : undefined,
+                    protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
+                    host: {
+                        name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,
+                        port: sourceHostElem ? sourceHostElem.getAttribute('port') : undefined,
+                    },
+                    startupPolicy: sourceElem ? sourceElem.getAttribute('startupPolicy') : undefined, // optional startupPolicy of the disk
+
+                },
+                bus: targetElem.getAttribute('bus'), // i.e. scsi, ide
+                serial: serialElem ? serialElem.getAttribute('serial') : undefined, // optional serial number
+                aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined, // i.e. scsi0-0-0-0, ide0-1-0
+                readonly: !!readonlyElem,
+                shareable: !!shareableElem,
+                removable: targetElem.getAttribute('removable'),
+            };
+
+            if (disk.target) {
+                disks[disk.target] = disk;
+                logDebug(`parseDumpxmlForDisks(): disk device found: ${JSON.stringify(disk)}`);
+            } else {
+                console.warn(`parseDumpxmlForDisks(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(disk)}`);
+            }
+        }
+    }
+
+    return disks;
+}

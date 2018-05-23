@@ -18,6 +18,7 @@ import {
 import store from './store.es6';
 
 const _ = cockpit.gettext;
+const METADATA_NAMESPACE = "https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
 
 export function buildConsoleVVFile(consoleDetail) {
     return '[virt-viewer]\n' +
@@ -318,6 +319,15 @@ export function parseDumpxmlForInterfaces(devicesElem) {
         }
     }
     return interfaces;
+}
+
+export function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
+    if (!metadataElem) {
+        return null;
+    }
+    const subElems = metadataElem.getElementsByTagNameNS(METADATA_NAMESPACE, name);
+
+    return subElems.length > 0 ? subElems[0].textContent : null;
 }
 
 export function parseOsInfoList(dispatch, osList) {

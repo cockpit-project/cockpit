@@ -85,6 +85,7 @@ import {
     parseDumpxmlForDisks,
     parseDumpxmlForVCPU,
     parseDumpxmlForInterfaces,
+    parseDumpxmlMachinesMetadataElement,
     parseOsInfoList,
     resolveUiState,
 } from './libvirt-common.es6';
@@ -92,8 +93,6 @@ import {
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
-
-const METADATA_NAMESPACE = "https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";
 
 /**
  * Parse non-XML stdout of virsh.
@@ -745,15 +744,6 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     }
 
     return state;
-}
-
-function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
-    if (!metadataElem) {
-        return null;
-    }
-    const subElems = metadataElem.getElementsByTagNameNS(METADATA_NAMESPACE, name);
-
-    return subElems.length > 0 ? subElems[0].textContent : null;
 }
 
 function parseDommemstat(dispatch, connectionName, name, dommemstat) {

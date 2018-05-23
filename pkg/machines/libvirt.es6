@@ -85,6 +85,7 @@ import {
     parseDumpxmlForCpu,
     parseDumpxmlForDisks,
     parseDumpxmlForVCPU,
+    parseDumpxmlForInterfaces,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -755,61 +756,6 @@ function resolveUiState(dispatch, name) {
     }
 
     return result;
-}
-
-function parseDumpxmlForInterfaces(devicesElem) {
-    const interfaces = [];
-    const interfaceElems = devicesElem.getElementsByTagName('interface');
-    if (interfaceElems) {
-        for (let i = 0; i < interfaceElems.length; i++) {
-            const interfaceElem = interfaceElems[i];
-
-            const targetElem = interfaceElem.getElementsByTagName('target')[0];
-            const macElem = getSingleOptionalElem(interfaceElem, 'mac');
-            const modelElem = getSingleOptionalElem(interfaceElem, 'model');
-            const aliasElem = getSingleOptionalElem(interfaceElem, 'alias');
-            const sourceElem = getSingleOptionalElem(interfaceElem, 'source');
-            const driverElem = getSingleOptionalElem(interfaceElem, 'driver');
-            const virtualportElem = getSingleOptionalElem(interfaceElem, 'virtualport');
-            const addressElem = getSingleOptionalElem(interfaceElem, 'address');
-            const linkElem = getSingleOptionalElem(interfaceElem, 'link');
-            const mtuElem = getSingleOptionalElem(interfaceElem, 'mtu');
-            const localElem = addressElem ? getSingleOptionalElem(addressElem, 'local') : null;
-
-            const networkInterface = { // see https://libvirt.org/formatdomain.html#elementsNICS
-                type: interfaceElem.getAttribute('type'), // Only one required parameter
-                managed: interfaceElem.getAttribute('managed'),
-                name: interfaceElem.getAttribute('name') ? interfaceElem.getAttribute('name') : undefined, // Name of interface
-                target: targetElem ? targetElem.getAttribute('dev') : undefined,
-                mac: macElem.getAttribute('address'), // MAC address
-                model: modelElem.getAttribute('type'), // Device model
-                aliasName: aliasElem ? aliasElem.getAttribute('name') : undefined,
-                virtualportType: virtualportElem ? virtualportElem.getAttribute('type') : undefined,
-                driverName: driverElem ? driverElem.getAttribute('name') : undefined,
-                state: linkElem ? linkElem.getAttribute('state') : 'up', // State of interface, up/down (plug/unplug)
-                mtu: mtuElem ? mtuElem.getAttribute('size') : undefined,
-                source: {
-                    bridge: sourceElem ? sourceElem.getAttribute('bridge') : undefined,
-                    network: sourceElem ? sourceElem.getAttribute('network') : undefined,
-                    portgroup: sourceElem ? sourceElem.getAttribute('portgroup') : undefined,
-                    dev: sourceElem ? sourceElem.getAttribute('dev') : undefined,
-                    mode: sourceElem ? sourceElem.getAttribute('mode') : undefined,
-                    address: sourceElem ? sourceElem.getAttribute('address') : undefined,
-                    port: sourceElem ? sourceElem.getAttribute('port') : undefined,
-                    local: {
-                        address: localElem ? localElem.getAttribute('address') : undefined,
-                        port: localElem ? localElem.getAttribute('port') : undefined,
-                    },
-                },
-                address: {
-                    bus: addressElem ? addressElem.getAttribute('bus') : undefined,
-                    function: addressElem ? addressElem.getAttribute('function') : undefined,
-                },
-            };
-            interfaces.push(networkInterface);
-        }
-    }
-    return interfaces;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

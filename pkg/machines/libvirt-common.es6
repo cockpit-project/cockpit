@@ -101,6 +101,44 @@ export function parseDumpxmlForBootOrder(osElem, devicesElem) {
     return bootOrder;
 }
 
+export function parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr) {
+    const vcpus = {};
+    vcpus.count = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
+    vcpus.placement = vcpuElem.getAttribute("placement");
+    vcpus.max = vcpuElem.childNodes[0].nodeValue;
+    return vcpus;
+}
+
+export function parseDumpxmlForCpu(cpuElem) {
+    if (!cpuElem) {
+        return { topology: {} };
+    }
+
+    const cpu = {};
+
+    const cpuMode = cpuElem.getAttribute('mode');
+    let cpuModel = '';
+    if (cpuMode && cpuMode === 'custom') {
+        const modelElem = getSingleOptionalElem(cpuElem, 'model');
+        if (modelElem) {
+            cpuModel = modelElem.childNodes[0].nodeValue; // content of the domain/cpu/model element
+        }
+    }
+
+    cpu.model = rephraseUI('cpuMode', cpuMode) + (cpuModel ? ` (${cpuModel})` : '');
+    cpu.topology = {};
+
+    const topologyElem = getSingleOptionalElem(cpuElem, 'topology');
+
+    if (topologyElem) {
+        cpu.topology.sockets = topologyElem.getAttribute('sockets');
+        cpu.topology.threads = topologyElem.getAttribute('threads');
+        cpu.topology.cores = topologyElem.getAttribute('cores');
+    }
+
+    return cpu;
+}
+
 export function parseDumpxmlForConsoles(devicesElem) {
     const displays = {};
     const graphicsElems = devicesElem.getElementsByTagName("graphics");

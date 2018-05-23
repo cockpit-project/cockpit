@@ -106,3 +106,7 @@ if [ -n "$do_install" ]; then
     rm -rf /var/log/journal/*
     rm -rf /var/lib/NetworkManager/dhclient-*.lease
 fi
+
+if [ -n "$do_build" ]; then
+    su builder -c "mock --clean"
+fi

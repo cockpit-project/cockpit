@@ -10,6 +10,13 @@ import {
     rephraseUI,
 } from './helpers.es6';
 
+import {
+    removeVmCreateInProgress,
+    clearVmUiState,
+} from './components/create-vm-dialog/uiState.es6';
+
+import store from './store.es6';
+
 const _ = cockpit.gettext;
 
 /**
@@ -319,4 +326,27 @@ export function parseOsInfoList(dispatch, osList) {
     });
 
     dispatch(updateOsInfoList(parsedList));
+}
+
+export function resolveUiState(dispatch, name) {
+    const result = {
+        // used just the first time vm is shown
+        initiallyExpanded: false,
+        initiallyOpenedConsoleTab: false,
+    };
+
+    const uiState = store.getState().ui.vms[name];
+
+    if (uiState) {
+        result.initiallyExpanded = uiState.expanded;
+        result.initiallyOpenedConsoleTab = uiState.openConsoleTab;
+
+        if (uiState.installInProgress) {
+            removeVmCreateInProgress(dispatch, name);
+        } else {
+            clearVmUiState(dispatch, name);
+        }
+    }
+
+    return result;
 }

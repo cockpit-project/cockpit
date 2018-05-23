@@ -5,14 +5,5 @@ set -e
 # HACK: kubernetes is not currently available in RHEL-8
 /var/lib/testvm/fedora.install --rhel --skip cockpit-kubernetes "$@"
 
-# HACK: ipa-client-install expects this unit (https://bugzilla.redhat.com/show_bug.cgi?id=1560452)
-cat <<EOF > /etc/systemd/system/rhel-domainname.service
-[Unit]
-Description=dummy
-
-[Service]
-ExecStart=/bin/true
-EOF
-
 # HACK: oci-register-machine is broken (https://bugzilla.redhat.com/show_bug.cgi?id=1564056)
 rpm --verbose --erase oci-register-machine

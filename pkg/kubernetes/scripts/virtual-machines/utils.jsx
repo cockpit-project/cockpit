@@ -19,6 +19,7 @@
 
 export const NODE_LABEL = 'kubevirt.io/nodeName';
 export const VM_UID_LABEL = 'kubevirt.io/vmUID';
+export const VM_CREATED_BY_LABEL = 'kubevirt.io/created-by';
 
 /**
  * @return {Array<{key: *, value: *}>} all own enumerable key-value pairs

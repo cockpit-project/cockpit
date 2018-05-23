@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getValueOrDefault, VM_UID_LABEL } from "./utils.jsx";
+import { getValueOrDefault, VM_UID_LABEL, VM_CREATED_BY_LABEL } from "./utils.jsx";
 
 /**
  * Returns pod corresponding to the given vm.
@@ -32,5 +32,6 @@ export function getPod(vm, pods) {
         return null;
     }
 
-    return pods.find(pod => getValueOrDefault(() => pod.metadata.labels[VM_UID_LABEL], null) === vmId);
+    return pods.find(pod => getValueOrDefault(() => (pod.metadata.annotations[VM_CREATED_BY_LABEL] /* kubevirt >= 0.5 */ ||
+                                                     pod.metadata.labels[VM_UID_LABEL]), null) === vmId);
 }

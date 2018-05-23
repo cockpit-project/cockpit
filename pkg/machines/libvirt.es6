@@ -77,6 +77,7 @@ import {
     buildConsoleVVFile,
     buildFailHandler,
     buildScriptTimeoutFailHandler,
+    canLoggedUserConnectSession,
     getSingleOptionalElem,
     parseDumpxmlForBootOrder,
     parseDumpxmlForConsoles,
@@ -617,10 +618,6 @@ function createTempFile (content) {
                 dfd.reject(ex, data, "Can't create temporary file");
             });
     return dfd.promise;
-}
-
-function canLoggedUserConnectSession (connectionName, loggedUser) {
-    return connectionName !== 'session' || loggedUser.name !== 'root';
 }
 
 function doGetAllVms (dispatch, connectionName) {

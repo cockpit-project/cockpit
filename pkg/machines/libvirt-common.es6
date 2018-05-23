@@ -56,6 +56,10 @@ export function buildScriptTimeoutFailHandler(args, delay) {
     };
 }
 
+export function canLoggedUserConnectSession (connectionName, loggedUser) {
+    return connectionName !== 'session' || loggedUser.name !== 'root';
+}
+
 function getBootableDeviceType(device) {
     const tagName = device.tagName;
     let type = _("other");

@@ -74,6 +74,7 @@ import {
 import VCPUModal from './components/vcpuModal.jsx';
 
 import {
+    buildConsoleVVFile,
     buildFailHandler,
     buildScriptTimeoutFailHandler,
     getSingleOptionalElem,
@@ -848,15 +849,6 @@ function parseStorageVolumes(dispatch, connectionName, poolName, volumes) {
                 })
                 .filter(volume => !!volume),
     }));
-}
-
-function buildConsoleVVFile(consoleDetail) {
-    return '[virt-viewer]\n' +
-        `type=${consoleDetail.type}\n` +
-        `host=${consoleDetail.address}\n` +
-        `port=${consoleDetail.port}\n` +
-        'delete-this-file=1\n' +
-        'fullscreen=0\n';
 }
 
 function doUsagePolling (name, connectionName) {

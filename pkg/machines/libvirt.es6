@@ -80,6 +80,7 @@ import VCPUModal from './components/vcpuModal.jsx';
 import {
     buildFailHandler,
     buildScriptTimeoutFailHandler,
+    parseDumpxmlForConsoles,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -970,46 +971,6 @@ function parseDumpxmlForCpu(cpuElem) {
     }
 
     return cpu;
-}
-
-function parseDumpxmlForConsoles(devicesElem) {
-    const displays = {};
-    const graphicsElems = devicesElem.getElementsByTagName("graphics");
-    if (graphicsElems) {
-        for (let i = 0; i < graphicsElems.length; i++) {
-            const graphicsElem = graphicsElems[i];
-            const display = {
-                type: graphicsElem.getAttribute('type'),
-                port: graphicsElem.getAttribute('port'),
-                tlsPort: graphicsElem.getAttribute('tlsPort'),
-                address: graphicsElem.getAttribute('listen'),
-                autoport: graphicsElem.getAttribute('autoport'),
-            };
-            if (display.type &&
-                (display.autoport ||
-                (display.address && (display.port || display.tlsPort)))) {
-                displays[display.type] = display;
-                logDebug(`parseDumpxmlForConsoles(): graphics device found: ${JSON.stringify(display)}`);
-            } else {
-                console.warn(`parseDumpxmlForConsoles(): mandatory properties are missing in dumpxml, found: ${JSON.stringify(display)}`);
-            }
-        }
-    }
-
-    // console type='pty'
-    const consoleElems = devicesElem.getElementsByTagName("console");
-    if (consoleElems) {
-        for (let i = 0; i < consoleElems.length; i++) {
-            const consoleElem = consoleElems[i];
-            if (consoleElem.getAttribute('type') === 'pty') {
-                // Definition of serial console is detected.
-                // So far no additional details needs to be parsed since the console is accessed via 'virsh console'.
-                displays['pty'] = {};
-            }
-        }
-    }
-
-    return displays;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

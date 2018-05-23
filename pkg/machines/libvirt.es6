@@ -38,7 +38,6 @@ import {
     undefineVm,
     deleteUnlistedVMs,
     getOsInfoList,
-    updateOsInfoList,
     checkLibvirtStatus,
     updateLibvirtState,
     setHypervisorMaxVCPU,
@@ -86,6 +85,7 @@ import {
     parseDumpxmlForDisks,
     parseDumpxmlForVCPU,
     parseDumpxmlForInterfaces,
+    parseOsInfoList,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -780,27 +780,6 @@ function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
     const subElems = metadataElem.getElementsByTagNameNS(METADATA_NAMESPACE, name);
 
     return subElems.length > 0 ? subElems[0].textContent : null;
-}
-
-function parseOsInfoList(dispatch, osList) {
-    const osColumnsNames = ['shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
-    let parsedList = [];
-
-    osList.split('\n').forEach(line => {
-        const osColumns = line.split('|');
-
-        const result = {};
-
-        for (let i = 0; i < osColumnsNames.length; i++) {
-            result[osColumnsNames[i]] = osColumns.length > i ? osColumns[i] : null;
-        }
-
-        if (result.shortId) {
-            parsedList.push(result);
-        }
-    });
-
-    dispatch(updateOsInfoList(parsedList));
 }
 
 function parseDommemstat(dispatch, connectionName, name, dommemstat) {

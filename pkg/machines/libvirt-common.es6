@@ -1,7 +1,8 @@
 import cockpit from 'cockpit';
 
 import {
-    vmActionFailed
+    vmActionFailed,
+    updateOsInfoList,
 } from './actions.es6';
 
 import {
@@ -297,4 +298,25 @@ export function parseDumpxmlForInterfaces(devicesElem) {
         }
     }
     return interfaces;
+}
+
+export function parseOsInfoList(dispatch, osList) {
+    const osColumnsNames = ['shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
+    let parsedList = [];
+
+    osList.split('\n').forEach(line => {
+        const osColumns = line.split('|');
+
+        const result = {};
+
+        for (let i = 0; i < osColumnsNames.length; i++) {
+            result[osColumnsNames[i]] = osColumns.length > i ? osColumns[i] : null;
+        }
+
+        if (result.shortId) {
+            parsedList.push(result);
+        }
+    });
+
+    dispatch(updateOsInfoList(parsedList));
 }

@@ -37,7 +37,6 @@ import {
     delayPolling,
     undefineVm,
     deleteUnlistedVMs,
-    vmActionFailed,
     getOsInfoList,
     updateOsInfoList,
     checkLibvirtStatus,
@@ -78,6 +77,11 @@ import {
 
 import VCPUModal from './components/vcpuModal.jsx';
 
+import {
+    buildFailHandler,
+    buildScriptTimeoutFailHandler,
+} from './libvirt-common.es6';
+
 import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
@@ -107,34 +111,6 @@ function getValueFromLine(parsedLines, pattern) {
     return isEmpty(selectedLine) ? undefined : selectedLine.toString().trim()
             .substring(pattern.length)
             .trim();
-}
-
-/**
- * Returns a function handling VM action failures.
- */
-export function buildFailHandler({ dispatch, name, connectionName, message, extraPayload }) {
-    return ({ exception, data }) =>
-        dispatch(vmActionFailed({
-            name,
-            connectionName,
-            message,
-            detail: {
-                exception,
-                data,
-            },
-            extraPayload,
-        }));
-}
-
-export function buildScriptTimeoutFailHandler(args, delay) {
-    let handler = buildFailHandler(args);
-    return ({ message, exception }) => {
-        window.setTimeout(() => {
-            handler({
-                exception: exception || message,
-            });
-        }, delay);
-    };
 }
 
 let LIBVIRT_PROVIDER = {};

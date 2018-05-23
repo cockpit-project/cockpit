@@ -27,7 +27,6 @@ import createVmScript from 'raw!./scripts/create_machine.sh';
 import installVmScript from 'raw!./scripts/install_machine.sh';
 import getOSListScript from 'raw!./scripts/get_os_list.sh';
 import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
-import store from './store.es6';
 
 import {
     updateOrAddVm,
@@ -69,7 +68,6 @@ import {
     setVmInstallInProgress,
     finishVmCreateInProgress,
     finishVmInstallInProgress,
-    removeVmCreateInProgress,
     clearVmUiState,
 } from './components/create-vm-dialog/uiState.es6';
 
@@ -86,6 +84,7 @@ import {
     parseDumpxmlForVCPU,
     parseDumpxmlForInterfaces,
     parseOsInfoList,
+    resolveUiState,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -733,29 +732,6 @@ function parseDumpxml(dispatch, connectionName, domXml) {
         metadata,
         ui,
     }));
-}
-
-function resolveUiState(dispatch, name) {
-    const result = {
-        // used just the first time vm is shown
-        initiallyExpanded: false,
-        initiallyOpenedConsoleTab: false,
-    };
-
-    const uiState = store.getState().ui.vms[name];
-
-    if (uiState) {
-        result.initiallyExpanded = uiState.expanded;
-        result.initiallyOpenedConsoleTab = uiState.openConsoleTab;
-
-        if (uiState.installInProgress) {
-            removeVmCreateInProgress(dispatch, name);
-        } else {
-            clearVmUiState(dispatch, name);
-        }
-    }
-
-    return result;
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

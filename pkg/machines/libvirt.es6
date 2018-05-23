@@ -80,6 +80,8 @@ import VCPUModal from './components/vcpuModal.jsx';
 import {
     buildFailHandler,
     buildScriptTimeoutFailHandler,
+    getSingleOptionalElem,
+    parseDumpxmlForBootOrder,
     parseDumpxmlForConsoles,
 } from './libvirt-common.es6';
 
@@ -753,11 +755,6 @@ function resolveUiState(dispatch, name) {
     return result;
 }
 
-function getSingleOptionalElem(parent, name) {
-    const subElems = parent.getElementsByTagName(name);
-    return subElems.length > 0 ? subElems[0] : undefined; // optional
-}
-
 function parseDumpxmlForDisks(devicesElem) {
     const disks = {};
     const diskElems = devicesElem.getElementsByTagName('disk');
@@ -878,69 +875,12 @@ function parseDumpxmlForInterfaces(devicesElem) {
     return interfaces;
 }
 
-function getBootableDeviceType(device) {
-    const tagName = device.tagName;
-    let type = _("other");
-    switch (tagName) {
-    case 'disk':
-        type = rephraseUI('bootableDisk', device.getAttribute('device')); // Example: disk, cdrom
-        break;
-    case 'interface':
-        type = rephraseUI('bootableDisk', 'interface');
-        break;
-    default:
-        console.info(`Unrecognized type of bootable device: ${tagName}`);
-    }
-    return type;
-}
-
 function parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr) {
     const vcpus = {};
     vcpus.count = (vcpuCurrentAttr && vcpuCurrentAttr.value) ? vcpuCurrentAttr.value : vcpuElem.childNodes[0].nodeValue;
     vcpus.placement = vcpuElem.getAttribute("placement");
     vcpus.max = vcpuElem.childNodes[0].nodeValue;
     return vcpus;
-}
-
-function parseDumpxmlForBootOrder(osElem, devicesElem) {
-    const bootOrder = {
-        devices: [],
-    };
-
-    // Prefer boot order defined in domain/os element
-    const osBootElems = osElem.getElementsByTagName('boot');
-    if (osBootElems.length > 0) {
-        for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
-            const bootElem = osBootElems[bootNum];
-            const dev = bootElem.getAttribute('dev');
-            if (dev) {
-                bootOrder.devices.push({
-                    order: bootNum,
-                    type: rephraseUI('bootableDisk', dev) // Example: hd, network, fd, cdrom
-                });
-            }
-        }
-        return bootOrder; // already sorted
-    }
-
-    // domain/os/boot elements not found, decide from device's boot elements
-    // VM can be theoretically booted from any device.
-    const bootableDevices = [];
-    for (let devNum = 0; devNum < devicesElem.childNodes.length; devNum++) {
-        const deviceElem = devicesElem.childNodes[devNum];
-        if (deviceElem.nodeType === 1) { // XML elements only
-            const bootElem = getSingleOptionalElem(deviceElem, 'boot');
-            if (bootElem && bootElem.getAttribute('order')) {
-                bootableDevices.push({
-                    // so far just the 'type' is rendered, skipping redundant attributes
-                    order: parseInt(bootElem.getAttribute('order')),
-                    type: getBootableDeviceType(deviceElem),
-                });
-            }
-        }
-    }
-    bootOrder.devices = bootableDevices.sort((devA, devB) => devA.order - devB.order);
-    return bootOrder;
 }
 
 function parseDumpxmlForCpu(cpuElem) {

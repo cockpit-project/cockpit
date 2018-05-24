@@ -380,11 +380,6 @@ CMD ["/bin/sh"]
         # to have the same name as our admin test user
         m.execute("usermod -G '' admin; sed -i '/^%admin/d' /etc/sudoers")
 
-        # HACK: Logging in without the admin group will try to write to
-        # /var/lib/cockpit/, but this will fail.
-        # https://github.com/cockpit-project/cockpit/issues/1248
-        #
-        self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
         self.allow_journal_messages("http:///var/run/docker.sock/.*: couldn't connect: .*")
 
         self.login_and_go("/docker", authorized=False)

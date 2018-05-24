@@ -46,12 +46,6 @@ class TestRoles(MachineCase):
         b.switch_to_top()
         b.wait_text('#content-user-name', 'User')
 
-        # HACK: Logging in as "user" will try to write to
-        # /var/lib/cockpit/, but this will fail.
-        # https://github.com/cockpit-project/cockpit/issues/1248
-        #
-        self.allow_journal_messages(".*Failed to create file '/var/lib/cockpit/.*': Permission denied")
-
         # Check permissions for own account
         b.click('#content-user-name')
         b.wait_visible('#go-account')

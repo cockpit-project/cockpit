@@ -247,10 +247,6 @@ export function toFixedPrecision(value, precision) {
     return result;
 }
 
-function isFirefox() {
-    return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-}
-
 /**
  * Download given content as a file in the browser
  *
@@ -270,12 +266,13 @@ export function fileDownload({ data, fileName = 'myFile.dat', mimeType = 'applic
     a.href = `data:${mimeType},${encodeURIComponent(data)}`;
     document.body.appendChild(a); // if not used further then at least within integration tests
 
-    // Workaround since I can't get CSP working on newer Firefox versions for this
-    if (!isFirefox() && 'download' in a) { // html5 A[download]
+    // Workaround since I can't get CSP working for this
+    /*
+    if ('download' in a) { // html5 A[download]
         logDebug('fileDownload() is using A.HREF');
         a.setAttribute('download', fileName);
         a.click();
-    } else { // do iframe dataURL download (old ch+FF):
+    } else */ { // do iframe dataURL download
         logDebug('fileDownload() is using IFRAME');
         const f = document.createElement('iframe');
         f.width = '1';

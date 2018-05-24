@@ -22,9 +22,8 @@ set -ex
 if [ $(uname -m) = x86_64 ]; then
     docker pull busybox:latest
     docker pull busybox:buildroot-2014.02
-    docker pull gcr.io/google_containers/pause:2.0
     docker pull gcr.io/google_containers/pause:0.8.0
-    docker pull gcr.io/google_containers/pause-amd64:3.0
+    docker pull k8s.gcr.io/pause-amd64:3.1
 fi
 
 # Download the i386 image and rename it

@@ -21,10 +21,8 @@
  * Provider for Libvirt
  */
 import cockpit from 'cockpit';
-import $ from 'jquery';
 
 import {
-    updateOrAddVm,
     updateVm,
     getVm,
     getAllVms,
@@ -44,8 +42,6 @@ import {
 import { usagePollingEnabled } from './selectors.es6';
 import { spawnScript, spawnProcess } from './services.es6';
 import {
-    convertToUnit,
-    units,
     isEmpty,
     logDebug,
 } from './helpers.es6';
@@ -55,15 +51,8 @@ import VCPUModal from './components/vcpuModal.jsx';
 import {
     buildFailHandler,
     canLoggedUserConnectSession,
-    getSingleOptionalElem,
-    parseDumpxmlForBootOrder,
-    parseDumpxmlForConsoles,
-    parseDumpxmlForCpu,
-    parseDumpxmlForDisks,
-    parseDumpxmlForVCPU,
-    parseDumpxmlForInterfaces,
-    parseDumpxmlMachinesMetadataElement,
-    resolveUiState,
+    getDomainElem,
+    parseDumpxml,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -495,78 +484,6 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
 
 function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
     return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
-}
-
-function getDomainElem(domXml) {
-    const xmlDoc = $.parseXML(domXml);
-
-    if (!xmlDoc) {
-        console.warn(`Can't parse dumpxml, input: "${domXml}"`);
-        return;
-    }
-
-    return xmlDoc.getElementsByTagName("domain")[0];
-}
-
-function parseDumpxml(dispatch, connectionName, domXml) {
-    const domainElem = getDomainElem(domXml);
-    if (!domainElem) {
-        return;
-    }
-
-    const osElem = domainElem.getElementsByTagName("os")[0];
-    const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
-    const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
-    const cpuElem = domainElem.getElementsByTagName("cpu")[0];
-    const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
-    const devicesElem = domainElem.getElementsByTagName("devices")[0];
-    const osTypeElem = osElem.getElementsByTagName("type")[0];
-    const metadataElem = getSingleOptionalElem(domainElem, "metadata");
-
-    const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
-    const id = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
-    const osType = osTypeElem.nodeValue;
-    const emulatedMachine = osTypeElem.getAttribute("machine");
-
-    const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
-    const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
-
-    const vcpus = parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr);
-
-    const disks = parseDumpxmlForDisks(devicesElem);
-    const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
-    const cpu = parseDumpxmlForCpu(cpuElem);
-    const displays = parseDumpxmlForConsoles(devicesElem);
-    const interfaces = parseDumpxmlForInterfaces(devicesElem);
-
-    const hasInstallPhase = parseDumpxmlMachinesMetadataElement(metadataElem, 'has_install_phase') === 'true';
-    const installSource = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source');
-    const osVariant = parseDumpxmlMachinesMetadataElement(metadataElem, 'os_variant');
-
-    const metadata = {
-        hasInstallPhase,
-        installSource,
-        osVariant,
-    };
-
-    const ui = resolveUiState(dispatch, name);
-
-    dispatch(updateOrAddVm({
-        connectionName,
-        name,
-        id,
-        osType,
-        currentMemory,
-        vcpus,
-        disks,
-        emulatedMachine,
-        cpu,
-        bootOrder,
-        displays,
-        interfaces,
-        metadata,
-        ui,
-    }));
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

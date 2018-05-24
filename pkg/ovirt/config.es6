@@ -75,6 +75,15 @@ const CONFIG = { // will be dynamically replaced by content of CONFIG_FILE_URL w
      * oVirt SSO token, filled in login.js
      */
     token: null,
+    /**
+         * The hostname found in configFuncs.es6:doReadHostname required for auto calculating
+         * the 'Virsh' connection URI property, if libvirt connection URI is not provided by oVirt config file.
+         * The auto calculated libvirt URI is as follows: qemu+tls://${hostName}/system
+         *
+         * See ovirt/config.es6
+         * See ovirt/configFuncs.es6:readConfiguration()
+         */
+    hostName: null,
 };
 
 export function getOvirtBaseUrl () {

@@ -33,7 +33,7 @@ DEFAULT_VERIFY = {
     'verify/debian-stable': [ 'master' ],
     'verify/debian-testing': [ 'master' ],
     'verify/fedora-i386': BRANCHES,
-    'verify/fedora-27': [ 'master' ],
+    'verify/fedora-27': [ ],
     'verify/fedora-28': [ 'master' ],
     'verify/fedora-atomic': BRANCHES,
     'verify/fedora-testing': [ ],
@@ -45,7 +45,7 @@ DEFAULT_VERIFY = {
 REDHAT_VERIFY = {
     "verify/rhel-7": [ 'master' ],
     "verify/rhel-7-5": [ 'master', 'rhel-7.5' ],
-    "verify/rhel-8": [ ],
+    "verify/rhel-8": [ 'master' ],
     "verify/rhel-atomic": [ 'master' ],
     'selenium/explorer': [ 'master' ],
 }

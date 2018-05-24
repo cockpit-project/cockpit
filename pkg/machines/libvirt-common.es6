@@ -1,4 +1,5 @@
 import cockpit from 'cockpit';
+import $ from 'jquery';
 import service from '../lib/service.js';
 import createVmScript from 'raw!./scripts/create_machine.sh';
 import installVmScript from 'raw!./scripts/install_machine.sh';
@@ -12,6 +13,7 @@ import {
     getOsInfoList,
     vmActionFailed,
     updateLibvirtState,
+    updateOrAddVm,
     updateOsInfoList,
 } from './actions.es6';
 
@@ -100,9 +102,81 @@ function getBootableDeviceType(device) {
     return type;
 }
 
+export function getDomainElem(domXml) {
+    const xmlDoc = $.parseXML(domXml);
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${domXml}"`);
+        return;
+    }
+
+    return xmlDoc.getElementsByTagName("domain")[0];
+}
+
 export function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional
+}
+
+export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
+    const domainElem = getDomainElem(domXml);
+    if (!domainElem) {
+        return;
+    }
+
+    const osElem = domainElem.getElementsByTagName("os")[0];
+    const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
+    const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
+    const cpuElem = domainElem.getElementsByTagName("cpu")[0];
+    const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
+    const devicesElem = domainElem.getElementsByTagName("devices")[0];
+    const osTypeElem = osElem.getElementsByTagName("type")[0];
+    const metadataElem = getSingleOptionalElem(domainElem, "metadata");
+
+    const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+    const id = id_overwrite || domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
+    const osType = osTypeElem.nodeValue;
+    const emulatedMachine = osTypeElem.getAttribute("machine");
+
+    const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
+    const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
+
+    const vcpus = parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr);
+
+    const disks = parseDumpxmlForDisks(devicesElem);
+    const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
+    const cpu = parseDumpxmlForCpu(cpuElem);
+    const displays = parseDumpxmlForConsoles(devicesElem);
+    const interfaces = parseDumpxmlForInterfaces(devicesElem);
+
+    const hasInstallPhase = parseDumpxmlMachinesMetadataElement(metadataElem, 'has_install_phase') === 'true';
+    const installSource = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source');
+    const osVariant = parseDumpxmlMachinesMetadataElement(metadataElem, 'os_variant');
+
+    const metadata = {
+        hasInstallPhase,
+        installSource,
+        osVariant,
+    };
+
+    const ui = resolveUiState(dispatch, name);
+
+    dispatch(updateOrAddVm({
+        connectionName,
+        name,
+        id,
+        osType,
+        currentMemory,
+        vcpus,
+        disks,
+        emulatedMachine,
+        cpu,
+        bootOrder,
+        displays,
+        interfaces,
+        metadata,
+        ui,
+    }));
 }
 
 export function parseDumpxmlForBootOrder(osElem, devicesElem) {

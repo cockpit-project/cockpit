@@ -83,7 +83,7 @@ systemctl is-enabled sshd.socket || systemctl is-enabled sshd.service || systemc
 %end
 EOF
 
-qemu-img create -f qcow2 "$out" 8G
+qemu-img create -f qcow2 "$out" 12G
 
 connect="--connect=qemu:///session"
 name=$(basename $1)-builder

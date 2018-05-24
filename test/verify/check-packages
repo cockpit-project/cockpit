@@ -74,8 +74,8 @@ class TestPackages(MachineCase):
         b.wait_text("h1", "Test")
 
         m.execute("rm -rf /usr/share/cockpit/test")
-        b.switch_to_top()
-        b.switch_to_frame("cockpit1:localhost/playground/pkgs")
+        b.go("/playground/pkgs")
+        b.enter_page("/playground/pkgs")
         b.click("#reload")
 
         b.switch_to_top()

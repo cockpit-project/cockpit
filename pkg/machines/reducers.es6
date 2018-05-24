@@ -79,7 +79,10 @@ function vms(state, action) {
         const index = id ? getFirstIndexOfVm(state, 'id', id, connectionName)
             : getFirstIndexOfVm(state, 'name', name, connectionName);
         if (index < 0) {
-            logDebug(`vms reducer: vm (name='${name}', connectionName='${connectionName}') not found, skipping`);
+            if (id)
+                logDebug(`vms reducer: vm (id='${id}', connectionName='${connectionName}') not found, skipping`);
+            else
+                logDebug(`vms reducer: vm (name='${name}', connectionName='${connectionName}') not found, skipping`);
             return null;
         }
         return { // return object of {index, copyOfVm}

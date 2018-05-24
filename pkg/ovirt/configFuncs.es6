@@ -111,6 +111,8 @@ function doReadHostname ({ dispatch }) {
             .done(() => {
                 hostname = hostname.trim();
                 logDebug('hostname read: ', hostname);
+                CONFIG.hostName = hostname;
+
                 waitForReducerSubtreeInit(() => dispatch(setHostname(hostname)));
             })
             .fail(ex => {

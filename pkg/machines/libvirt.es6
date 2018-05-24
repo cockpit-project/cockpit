@@ -136,7 +136,7 @@ LIBVIRT_PROVIDER = {
      * Initialize the provider.
      * Arguments are used for reference only, they are actually not needed for this Libvirt provider.
      *
-     * @param providerContext - see `getProviderContext()` in provider.es6
+     * @param providerContext - contains context details, like the dispatch function, see provider.es6
      * @returns {boolean} - true, if initialization succeeded; or Promise
      */
     init(providerContext) {

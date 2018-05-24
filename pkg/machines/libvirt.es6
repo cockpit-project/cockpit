@@ -21,12 +21,7 @@
  * Provider for Libvirt
  */
 import cockpit from 'cockpit';
-import service from '../lib/service.js';
 import $ from 'jquery';
-import createVmScript from 'raw!./scripts/create_machine.sh';
-import installVmScript from 'raw!./scripts/install_machine.sh';
-import getOSListScript from 'raw!./scripts/get_os_list.sh';
-import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
 
 import {
     updateOrAddVm,
@@ -36,9 +31,7 @@ import {
     delayPolling,
     undefineVm,
     deleteUnlistedVMs,
-    getOsInfoList,
     checkLibvirtStatus,
-    updateLibvirtState,
     setHypervisorMaxVCPU,
     getHypervisorMaxVCPU,
     getStoragePools,
@@ -55,28 +48,12 @@ import {
     units,
     isEmpty,
     logDebug,
-    fileDownload,
 } from './helpers.es6';
-
-import {
-    prepareDisksParam,
-    prepareDisplaysParam,
-} from './libvirtUtils.es6';
-
-import {
-    setVmCreateInProgress,
-    setVmInstallInProgress,
-    finishVmCreateInProgress,
-    finishVmInstallInProgress,
-    clearVmUiState,
-} from './components/create-vm-dialog/uiState.es6';
 
 import VCPUModal from './components/vcpuModal.jsx';
 
 import {
-    buildConsoleVVFile,
     buildFailHandler,
-    buildScriptTimeoutFailHandler,
     canLoggedUserConnectSession,
     getSingleOptionalElem,
     parseDumpxmlForBootOrder,
@@ -86,8 +63,15 @@ import {
     parseDumpxmlForVCPU,
     parseDumpxmlForInterfaces,
     parseDumpxmlMachinesMetadataElement,
-    parseOsInfoList,
     resolveUiState,
+    CONSOLE_VM,
+    CHECK_LIBVIRT_STATUS,
+    CREATE_VM,
+    ENABLE_LIBVIRT,
+    GET_OS_INFO_LIST,
+    INIT_DATA_RETRIEVAL,
+    INSTALL_VM,
+    START_LIBVIRT,
 } from './libvirt-common.es6';
 
 import VMS_CONFIG from './config.es6';
@@ -148,6 +132,17 @@ LIBVIRT_PROVIDER = {
 
     serialConsoleCommand: ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false,
 
+    /* Start of common provider functions */
+    CONSOLE_VM,
+    CHECK_LIBVIRT_STATUS,
+    CREATE_VM,
+    ENABLE_LIBVIRT,
+    GET_OS_INFO_LIST,
+    INIT_DATA_RETRIEVAL,
+    INSTALL_VM,
+    START_LIBVIRT,
+    /* End of common provider functions  */
+
     /**
      * Read VM properties of a single VM (virsh)
      *
@@ -167,29 +162,6 @@ LIBVIRT_PROVIDER = {
                             parseDominfo(dispatch, connectionName, name, domInfo);
                         }); // end of GET_VM return
             }
-        };
-    },
-
-    INIT_DATA_RETRIEVAL () {
-        logDebug(`${this.name}.INIT_DATA_RETRIEVAL():`);
-        return dispatch => {
-            dispatch(getOsInfoList());
-            return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
-                    .then(serviceName => {
-                        const match = serviceName.match(/([^\s]+)/);
-                        const name = match ? match[0] : null;
-                        dispatch(updateLibvirtState({ name }));
-                        if (name) {
-                            dispatch(getAllVms(null, name));
-                        } else {
-                            console.error("initialize failed: getting libvirt service name failed");
-                        }
-                        dispatch(getHypervisorMaxVCPU());
-                    })
-                    .fail((exception, data) => {
-                        dispatch(updateLibvirtState({ name: null }));
-                        console.error(`initialize failed: getting libvirt service name returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-                    });
         };
     },
 
@@ -278,17 +250,6 @@ LIBVIRT_PROVIDER = {
         return () => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
     },
 
-    GET_OS_INFO_LIST () {
-        logDebug(`${this.name}.GET_OS_INFO_LIST():`);
-        return dispatch => cockpit.script(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
-                .then(osList => {
-                    parseOsInfoList(dispatch, osList);
-                })
-                .fail((exception, data) => {
-                    console.error(`get os list returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-                });
-    },
-
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
@@ -334,67 +295,6 @@ LIBVIRT_PROVIDER = {
                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed") }),
                                        args: ['start', name]
         });
-    },
-
-    CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm }) {
-        logDebug(`${this.name}.CREATE_VM(${vmName}):`);
-        return dispatch => {
-            // shows dummy vm  until we get vm from virsh (cleans up inProgress)
-            setVmCreateInProgress(dispatch, vmName, { openConsoleTab: startVm });
-
-            if (startVm) {
-                setVmInstallInProgress(dispatch, vmName);
-            }
-
-            return cockpit.script(createVmScript, [
-                vmName,
-                source,
-                os,
-                memorySize,
-                storageSize,
-                startVm,
-            ], { err: "message", environ: ['LC_ALL=C'] })
-                    .done(() => {
-                        finishVmCreateInProgress(dispatch, vmName);
-                        if (startVm) {
-                            finishVmInstallInProgress(dispatch, vmName);
-                        }
-                    })
-                    .fail((exception, data) => {
-                        clearVmUiState(dispatch, vmName); // inProgress cleanup
-                        console.info(`spawn 'vm creation' returned error: "${JSON.stringify(exception)}", data: "${JSON.stringify(data)}"`);
-                    });
-        };
-    },
-
-    INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName }) {
-        logDebug(`${this.name}.INSTALL_VM(${name}):`);
-        return dispatch => {
-            // shows dummy vm until we get vm from virsh (cleans up inProgress)
-            // vm should be returned even if script fails
-            setVmInstallInProgress(dispatch, name);
-
-            return cockpit.script(installVmScript, [
-                name,
-                metadata.installSource,
-                metadata.osVariant,
-                convertToUnit(currentMemory, units.KiB, units.MiB),
-                vcpus.count,
-                prepareDisksParam(disks),
-                prepareDisplaysParam(displays),
-            ], { err: "message", environ: ['LC_ALL=C'] })
-                    .done(() => finishVmInstallInProgress(dispatch, name))
-                    .fail(({ message, exception }) => {
-                        finishVmInstallInProgress(dispatch, name, { openConsoleTab: false });
-                        const handler = buildScriptTimeoutFailHandler({
-                            dispatch,
-                            name,
-                            connectionName,
-                            message: _("INSTALL VM action failed"),
-                        }, VMS_CONFIG.WaitForRetryInstallVm);
-                        handler({ message, exception });
-                    });
-        };
     },
 
     SET_VCPU_SETTINGS ({ name, connectionName, count, max, sockets, cores, threads, isRunning }) {
@@ -501,23 +401,6 @@ LIBVIRT_PROVIDER = {
         return dispatch => dispatch(updateVm({ connectionName, name, usagePolling: false }));
     },
 
-    /**
-     * Basic, but working.
-     * TODO: provide support for more complex scenarios, like with TLS or proxy
-     *
-     * To try with virt-install: --graphics spice,listen=[external host IP]
-     */
-    CONSOLE_VM ({ name, consoleDetail }) {
-        logDebug(`${this.name}.CONSOLE_VM(name='${name}'), detail = `, consoleDetail);
-        return dispatch => {
-            fileDownload({
-                data: buildConsoleVVFile(consoleDetail),
-                fileName: 'console.vv',
-                mimeType: 'application/x-virt-viewer'
-            });
-        };
-    },
-
     SENDNMI_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SENDNMI_VM(${name}):`);
         return dispatch => spawnVirsh({connectionName,
@@ -527,51 +410,6 @@ LIBVIRT_PROVIDER = {
         });
     },
 
-    CHECK_LIBVIRT_STATUS({ serviceName }) {
-        logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);
-        return dispatch => {
-            const libvirtService = service.proxy(serviceName);
-            const dfd = cockpit.defer();
-
-            libvirtService.wait(() => {
-                let activeState = libvirtService.exists ? libvirtService.state : 'stopped';
-                let unitState = libvirtService.exists && libvirtService.enabled ? 'enabled' : 'disabled';
-
-                dispatch(updateLibvirtState({
-                    activeState,
-                    unitState,
-                }));
-                dfd.resolve();
-            });
-
-            return dfd.promise();
-        };
-    },
-
-    START_LIBVIRT({ serviceName }) {
-        logDebug(`${this.name}.START_LIBVIRT`);
-        return dispatch => {
-            return service.proxy(serviceName).start()
-                    .done(() => {
-                        dispatch(checkLibvirtStatus(serviceName));
-                    })
-                    .fail(exception => {
-                        console.info(`starting libvirt failed: "${JSON.stringify(exception)}"`);
-                    });
-        };
-    },
-
-    ENABLE_LIBVIRT({ enable, serviceName }) {
-        logDebug(`${this.name}.ENABLE_LIBVIRT`);
-        return dispatch => {
-            const libvirtService = service.proxy(serviceName);
-            const promise = enable ? libvirtService.enable() : libvirtService.disable();
-
-            return promise.fail(exception => {
-                console.info(`enabling libvirt failed: "${JSON.stringify(exception)}"`);
-            });
-        };
-    },
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
         logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
         if (connectionName) {

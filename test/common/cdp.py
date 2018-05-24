@@ -108,7 +108,7 @@ class CDP:
 
         if "error" in res:
             if self.trace:
-                print("<- raise " + res["error"])
+                print("<- raise %s" % str(res["error"]))
             raise RuntimeError(res["error"])
         return res["result"]
 

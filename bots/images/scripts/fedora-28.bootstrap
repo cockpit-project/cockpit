@@ -18,6 +18,4 @@
 # 02110-1301 USA.
 
 BASE=$(dirname $0)
-$BASE/virt-install-fedora "$1" x86_64 "http://dl.fedoraproject.org/pub/fedora/linux/development/28/Server/x86_64/os/"
-# once Fedora 28 is released, switch to this:
-#$BASE/virt-install-fedora "$1" x86_64 "http://dl.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/os/"
+$BASE/virt-install-fedora "$1" x86_64 "http://dl.fedoraproject.org/pub/fedora/linux/releases/28/Server/x86_64/os/"

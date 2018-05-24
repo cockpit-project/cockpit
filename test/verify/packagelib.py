@@ -206,11 +206,9 @@ rm -rf ~/rpmbuild
     def enableRepo(self):
         if self.backend == "apt":
             self.createAptChangelogs()
-            # HACK: on Debian jessie, apt has an error propagation bug that causes "Err file: Packages" for each absent
-            # compression format with file:// sources, which breaks PackageKit; work around by providing all formats
             self.machine.execute('''set -e; echo 'deb [trusted=yes] file://{0} /' > /etc/apt/sources.list.d/test.list
                                     cd {0}; apt-ftparchive packages . > Packages
-                                    gzip -c Packages > Packages.gz; bzip2 -c Packages > Packages.bz2; xz -c Packages > Packages.xz
+                                    xz -c Packages > Packages.xz
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
                                     setsid python -m SimpleHTTPServer 12345 >/dev/null 2>&1 < /dev/null &

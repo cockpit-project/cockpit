@@ -29,11 +29,6 @@ class TestDocker(MachineCase):
         MachineCase.setUp(self)
         m = self.machine
 
-        # HACK: https://github.com/docker/docker/issues/25246
-        if m.image in [ "debian-8", "debian-testing" ]:
-            m.execute("printf '\\n\\n[Service]\\nKillMode=process\\n' >> /lib/systemd/system/docker.service")
-            m.execute("systemctl daemon-reload")
-
         m.execute("systemctl start docker || systemctl start docker-latest")
 
     def confirm(self):
@@ -419,11 +414,6 @@ CMD ["/bin/sh"]
     def testRestart(self):
         b = self.browser
         m = self.machine
-
-        # HACK: https://github.com/docker/docker/issues/25246
-        if m.image in [ "debian-stable", "debian-testing" ]:
-            m.execute("printf '\\n\\n[Service]\\nKillMode=process\\n' >> /lib/systemd/system/docker.service")
-            m.execute("systemctl daemon-reload")
 
         m.execute("systemctl start docker || systemctl start docker-latest")
 

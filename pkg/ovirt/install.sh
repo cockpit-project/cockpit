@@ -67,17 +67,7 @@ function generateProviderConfig() {
         > ${CONFIG_FILE} || exit ${EXIT_NO_ACCESS_MACHINES_OVIRT_CONFIG}
 
   if [ x${VIRSH_CONNECTION_URI} = x ] ; then
-    echo " \
-        \"Virsh\": { \
-            \"connections\": { \
-                \"system\": { \
-                    \"params\": [\"-c\", \"qemu:///system\"] \
-                }, \
-                \"session\": { \
-                    \"params\": [\"-c\", \"qemu:///session\"] \
-                } \
-            } \
-        }" >> ${CONFIG_FILE}
+    echo \"___info\": \"Default oVirt remote connection will be used\" >> ${CONFIG_FILE}
   else
     echo " \
         \"Virsh\": { \

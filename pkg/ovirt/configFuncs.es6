@@ -37,7 +37,18 @@ export function readConfiguration ({ dispatch }) {
     promises.push(doReadHostname({ dispatch }));
     promises.push(doReadIpAddresses({ dispatch }));
 
-    return cockpit.all(promises);
+    return cockpit.all(promises).done(setDefaultLibvirtConnection);
+}
+
+function setDefaultLibvirtConnection () {
+    // If hostname was found by doReadHostname() and VIRSH_CONNECTION_URI wasn't set in CONFIG_FILE
+    // (or CONFIG_FILE wasn't created) then auto calculate the Virsh connection URI as:
+    // qemu+tls://${hostName}/system
+    if (CONFIG.hostName && MACHINES_CONFIG.Virsh && MACHINES_CONFIG.Virsh.connections &&
+        Object.getOwnPropertyNames(MACHINES_CONFIG.Virsh.connections).indexOf('remote') === -1) {
+        MACHINES_CONFIG.Virsh.connections = {'remote': { params: ['-c', `qemu+tls://${CONFIG.hostName}/system`] }};
+    }
+    console.info('Libvirt connections to be used: ', JSON.stringify(MACHINES_CONFIG.Virsh));
 }
 
 /**

@@ -22,6 +22,16 @@ import parent
 from testlib import *
 
 class TestJournal(MachineCase):
+    def setUp(self):
+        super(TestJournal, self).setUp()
+
+        if self.machine.image in ["rhel-7", "rhel-7-5", "centos-7", "rhel-atomic"]:
+            self.python = "python"
+            self.crash_fn = "posix_kill"
+        else:
+            self.python = "python3"
+            self.crash_fn = "os_kill"
+
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
@@ -252,13 +262,12 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
-        m.execute(
-"""
-python -c '
+        m.execute(self.python +
+""" -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
-s.send("MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n")'
+s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n")'
 """)
 
         self.login_and_go("/system/logs")
@@ -281,13 +290,12 @@ s.send("MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\n
         b = self.browser
         m = self.machine
 
-        m.execute(
-"""
-python -c '
+        m.execute(self.python +
+""" -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
-s.send("PRIORITY=3\\nFOO=bar\\n")'
+s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 """)
 
         self.login_and_go("/system/logs")
@@ -307,9 +315,9 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; " + self.python + " -c 'import os; os.kill(os.getpid(), 11)' || true")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
@@ -321,7 +329,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
 
         b.click("li:contains(Problem info)")
-        wait_field("crash_function", "posix_kill")
+        wait_field("crash_function", self.crash_fn)
 
         b.click("li:contains(Problem details)")
         sel = "#journal-entry-fields #accordion-markup .panel .panel-heading"
@@ -342,9 +350,9 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; python -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; " + self.python + " -c 'import os; os.kill(os.getpid(), 11)' || true")
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
@@ -357,9 +365,9 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         b.click(sel)
 
         b.wait_visible("#journal-box")
-        b.wait_in_text('#journal-box', "crashed in posix_kill")
+        b.wait_in_text('#journal-box', "crashed in " + self.crash_fn)
 
-        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in posix_kill')"
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
         b.wait_present("#journal-entry-id")
@@ -367,7 +375,7 @@ s.send("PRIORITY=3\\nFOO=bar\\n")'
         # details view should hide log view
         b.wait_present('.cockpit-log-panel')
         b.wait_not_visible('.cockpit-log-panel')
-        b.wait_present("#journal-entry-message:contains('crashed in posix_kill')")
+        b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav")
 
 

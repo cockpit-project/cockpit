@@ -702,7 +702,7 @@ class Machine:
             with Timeout(seconds=60, error_message="Timeout while waiting for cockpit/ws to stop"):
                 self.execute("docker kill `docker ps | grep cockpit/ws | awk '{print $1;}'`")
         else:
-            self.execute("systemctl stop cockpit.socket")
+            self.execute("systemctl stop cockpit.socket cockpit.service")
 
     def set_address(self, address, mac='52:54:01'):
         """Set IP address for the network interface with given mac prefix"""

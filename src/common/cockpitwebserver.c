@@ -302,6 +302,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   gboolean claimed = FALSE;
   GQuark detail;
   gchar *pos;
+  gchar *orig_pos;
   gchar bak;
 
   /* Yes, we happen to know that we can modify this string safely. */
@@ -311,6 +312,12 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
       *pos = '\0';
       pos++;
     }
+
+  /* We also have to strip original_path so that CockpitWebResponse
+     can rediscover url_root. */
+  orig_pos = strchr (original_path, '?');
+  if (orig_pos != NULL)
+    *orig_pos = '\0';
 
   /* TODO: Correct HTTP version for response */
   response = cockpit_web_response_new (io_stream, original_path, path, pos, headers);

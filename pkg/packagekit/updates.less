@@ -10,6 +10,19 @@ tr.listing-ct-item {
     td.version {
         max-width: 18ex;
         word-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    td.version:hover {
+      overflow: visible;
+
+      .truncating {
+        background: #def3ff;
+        position: relative;
+        padding: 0.5em 1em;
+        left: -1em;
+      }
     }
     td.type {
         white-space: nowrap;
@@ -21,6 +34,10 @@ tr.listing-ct-item {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+}
+
+.listing-ct .security td.version:hover .truncating {
+  background: #fbf0f0;
 }
 
 .severity-critical {

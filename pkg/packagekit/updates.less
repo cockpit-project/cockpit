@@ -8,21 +8,23 @@ tr.listing-ct-item {
         text-align: left;
     }
     td.version {
+        width: 18ex;
+        /* Tables are stretchy, so we *also* need the max-width */
         max-width: 18ex;
-        word-wrap: break-word;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    td.version:hover {
-      overflow: visible;
 
-      .truncating {
-        background: #def3ff;
-        position: relative;
-        padding: 0.5em 1em;
-        left: -1em;
-      }
+        /* Expand version string when hovering */
+        &:hover {
+            overflow: visible;
+
+            .truncating {
+                background: linear-gradient(to left, transparent, #def3ff 3em);
+                position: relative;
+                padding: 0.5em 4em 0.5em 0;
+            }
+        }
     }
     td.type {
         white-space: nowrap;
@@ -33,6 +35,12 @@ tr.listing-ct-item {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+}
+tbody.open {
+    td.version:hover .truncating {
+        /* Adapt background color for version expansion when row is expanded */
+        background: linear-gradient(to left, transparent, #ededed 3em);
     }
 }
 

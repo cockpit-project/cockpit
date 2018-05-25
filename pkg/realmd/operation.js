@@ -325,38 +325,49 @@
             return creds;
         }
 
-        // Request and install a kerberos keytab for cockpit-ws (with IPA)
+        // Request and install a kerberos keytab and an SSL certificate for cockpit-ws (with IPA)
         // This is opportunistic: Some realms might not use IPA, or an unsupported auth mechanism
-        function install_ws_keytab() {
+        function install_ws_credentials() {
             // skip this on remote ssh hosts, only set up ws hosts
             if (cockpit.transport.host !== "localhost")
                 return cockpit.resolve();
 
             if (auth !== "password/administrator") {
-                console.log("Installing kerberos keytab not supported for auth mode", auth);
+                console.log("Installing kerberos keytab and SSL certificate not supported for auth mode", auth);
                 return cockpit.resolve();
             }
 
             var user = $(".realms-op-admin").val();
             var password = $(".realms-op-admin-password").val();
 
-            // ipa-getkeytab needs root to create the file
+            // ipa-getkeytab needs root to create the file, same for cert installation
             var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
             // not an IPA setup? cannot handle this
             script += 'type ipa >/dev/null 2>&1 || exit 0; ';
+
+            script += 'HOST=$(hostname -f); ';
 
             // IPA operations require auth; read password from stdin to avoid quoting issues
             // if kinit fails, we can't handle this setup, exit cleanly
             script += 'kinit ' + user + '@' + kerberos.RealmName + ' || exit 0; ';
 
             // create a kerberos Service Principal Name for cockpit-ws, unless already present
-            script += 'service="HTTP/$(hostname -f)@' + kerberos.RealmName + '"; ' +
+            script += 'service="HTTP/${HOST}@' + kerberos.RealmName + '"; ' +
                       'ipa service-show "$service" || ipa service-add --ok-as-delegate=true --force "$service"; ';
 
             // add cockpit-ws key, unless already present
             script += 'mkdir -p /etc/cockpit; ';
             script += 'klist -k /etc/cockpit/krb5.keytab | grep -qF "$service" || ' +
-                      'ipa-getkeytab -p HTTP/$(hostname -f) -k /etc/cockpit/krb5.keytab; ';
+                      'ipa-getkeytab -p HTTP/$HOST -k /etc/cockpit/krb5.keytab; ';
+
+            // request an SSL certificate; be sure to not leave traces of the .key on disk or
+            // get race conditions with file permissions; also, ipa-getcert
+            // cannot directly write into /etc/cockpit due to SELinux
+            script += 'if ipa-getcert request -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key -K HTTP/$HOST -w -v; then ' +
+                      '    mv /run/cockpit/ipa.crt /etc/cockpit/ws-certs.d/10-ipa.cert; ' +
+                      '    cat /run/cockpit/ipa.key  >> /etc/cockpit/ws-certs.d/10-ipa.cert; ' +
+                      '    rm -f /run/cockpit/ipa.key; ' +
+                      'fi; ';
 
             // use a temporary keytab to avoid interfering with the system one
             var proc = cockpit.script(script, [], { superuser: "require", err: "message",
@@ -365,8 +376,8 @@
             return proc;
         }
 
-        // Remove SPN from cockpit-ws keytab
-        function cleanup_ws_keytab() {
+        // Remove SPN from cockpit-ws keytab and SSL cert
+        function cleanup_ws_credentials() {
             // skip this on remote ssh hosts, only set up ws hosts
             if (cockpit.transport.host !== "localhost")
                 return cockpit.resolve();
@@ -376,9 +387,18 @@
             kerberos = realmd.proxy(KERBEROS, realm.path);
             kerberos.wait()
                 .done(function() {
-                    cockpit.script('[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
-                                   '"HTTP/$(hostname -f)@' + kerberos.RealmName + '"',
-                                   [], { superuser: "require", err: "message" })
+                    // ipa-rmkeytab needs root
+                    var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
+
+                    // clean up keytab
+                    script += '[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
+                        '"HTTP/$(hostname -f)@' + kerberos.RealmName + '"; ';
+
+                    // clean up certificate
+                    script += 'ipa-getcert stop-tracking -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key; ' +
+                              'rm -f /etc/cockpit/ws-certs.d/10-ipa.cert; ';
+
+                    cockpit.script(script, [], { superuser: "require", err: "message" })
                         .done(dfd.resolve)
                         .fail(function(ex) {
                             console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));
@@ -421,14 +441,14 @@
                         if (computer_ou)
                             options["computer-ou"] = cockpit.variant('s', computer_ou);
                         if (kerberos_membership.valid) {
-                            call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_keytab);
+                            call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_credentials);
                         } else {
                             busy(null);
                             $(".realms-op-message").empty().text(_("Joining this domain is not supported"));
                             $(".realms-op-error").show();
                         }
                     } else if (mode == 'leave') {
-                        call = cleanup_ws_keytab().then(function() { realm.Deconfigure(options); });
+                        call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options); });
                     }
 
                     if (!call) {

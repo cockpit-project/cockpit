@@ -108,7 +108,7 @@ export function sendNMI(vm) {
 }
 
 export function changeNetworkState(vm, networkMac, state) {
-    return virt('CHANGE_NETWORK_STATE', { name: vm.name, networkMac, state, connectionName: vm.connectionName });
+    return virt('CHANGE_NETWORK_STATE', { name: vm.name, id: vm.id, networkMac, state, connectionName: vm.connectionName });
 }
 
 export function checkLibvirtStatus(serviceName) {

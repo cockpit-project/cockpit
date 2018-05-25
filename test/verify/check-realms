@@ -141,6 +141,24 @@ class TestRealms(MachineCase):
             self.assertIn("HTTP/1.1 200 OK", output)
             self.assertIn('"csrf-token"', output)
 
+            # Restart cockpit with SSL enabled, this should have gotten an SSL cert from FreeIPA
+            m.stop_cockpit()
+            m.start_cockpit(tls=True)
+            # OpenSSL and curl should use the system PKI which should trust the IPA server CA
+            out = m.execute("openssl s_client -verify 5 -verify_return_error -connect localhost:9090")
+            self.assertIn("subject=/O=COCKPIT.LAN/CN=x0.cockpit.lan", out)
+            self.assertIn("issuer=/O=COCKPIT.LAN/CN=Certificate Authority", out)
+            self.assertIn("Content-Type: text/html", m.execute("curl --head https://x0.cockpit.lan:9090"))
+            # don't leave the secret key copy behind
+            m.execute("! test -e /run/cockpit/ipa.key")
+            # remotectl agrees
+            self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.cert", m.execute("remotectl certificate"))
+            # cert is being tracked
+            self.assertIn("MONITORING", m.execute("ipa-getcert list"))
+            # Restart without SSL (IPA certificate is not on the testing host)
+            m.stop_cockpit()
+            m.start_cockpit()
+
             # wait until IPA user works
             m.execute('while ! su - -c "echo foobarfoo | sudo -S true" admin@cockpit.lan; do sleep 5; done',
                       timeout=300)
@@ -183,6 +201,10 @@ class TestRealms(MachineCase):
 
         # should have cleaned up ws keytab
         m.execute("! klist -k /etc/cockpit/krb5.keytab | grep COCKPIT.LAN")
+        # should have cleaned up certificates
+        m.execute("! test -e /etc/cockpit/ws-certs.d/10-ipa.cert")
+        # should have stopped cert tracking
+        self.assertNotIn("status:", m.execute("ipa-getcert list"))
 
         # Send a wrong password
         b.click("#system-info-domain a")

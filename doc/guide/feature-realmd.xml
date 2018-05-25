@@ -24,13 +24,16 @@ $ <command>realm join example.com</command>
 Password for Administrator:
 </programlisting>
 
-<para>
-<ulink url="http://www.freedesktop.org/software/realmd/">realmd</ulink>
-sets up domain-qualified user names by default, i. e. login user names look like
-"<code>user@example.com</code>". For using unqualified names (just
-"<code>user</code>"), set the <code>fully-qualified-names</code> option in
-<ulink url="https://www.freedesktop.org/software/realmd/docs/realmd-conf.html">/etc/realmd.conf</ulink>
-before joining a domain.
-</para>
+  <para>
+    <ulink url="http://www.freedesktop.org/software/realmd/">realmd</ulink>
+    sets up domain-qualified user names by default, i. e. login user names look like
+    "<code>user@example.com</code>". For using unqualified names (just
+    "<code>user</code>"), set the <code>fully-qualified-names</code> option in
+    <ulink url="https://www.freedesktop.org/software/realmd/docs/realmd-conf.html">/etc/realmd.conf</ulink>
+    before joining a domain.</para>
+
+  <para>Cockpit requests an SSL certificate from the IPA server for
+    <command>cockpit-ws</command> with the
+    <ulink url="https://www.freeipa.org/page/Certmonger">ipa-getcert</ulink> command.</para>
 
 </chapter>

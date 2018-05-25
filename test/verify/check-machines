@@ -447,9 +447,6 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
         # Test basic disk properties
-        b.wait_present("#vm-subVmTest1-disks-total-value") # wait for the "Count" value
-        b.wait_in_text("#vm-subVmTest1-disks-total-value", "2")
-
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
 
@@ -470,13 +467,14 @@ class TestMachines(MachineCase):
 
             b.wait_in_text("#vm-subVmTest1-disks-hdb-capacity", "1")
 
-        # Test add disk
+        # Test add disk by external action
         m.execute("qemu-img create -f raw /var/lib/libvirt/images/image3.img 128M")
         m.execute("virsh attach-disk subVmTest1 /var/lib/libvirt/images/image3.img vdc") # attach to the virtio bus instead of ide
 
-        b.wait_in_text("#vm-subVmTest1-disks-total-value", "3")
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
+        b.wait_present("#vm-subVmTest1-disks-hdb-used")
+        b.wait_present("#vm-subVmTest1-disks-vdc-target")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-target", "vdc")
 
         b.wait_in_text("#vm-subVmTest1-disks-hda-bus", "ide")
@@ -486,21 +484,146 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "/var/lib/libvirt/images/image3.img")
 
         self.wait_for_disk_stats("subVmTest1", "vdc")
-        if b.is_present("#vm-subVmTest1-disks-hda-used"):
+        if b.is_present("#vm-subVmTest1-disks-vdc-used"):
             b.wait_in_text("#vm-subVmTest1-disks-vdc-used", "0.00")
             b.wait_in_text("#vm-subVmTest1-disks-vdc-capacity", "0.13") # 128 MB
 
-        # Test remove disk
+        # Test remove disk - by external action
         m.execute("virsh detach-disk subVmTest1 vdc")
         print("Restarting vm-subVmTest1, might take a while")
         b.click("#vm-subVmTest1-reboot-caret")
         b.wait_visible("#vm-subVmTest1-forceReboot")
         b.click("#vm-subVmTest1-forceReboot")
 
-        b.wait_in_text("#vm-subVmTest1-disks-total-value", "2")
-
+        b.wait_not_present("#vm-subVmTest1-disks-vdc-target")
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
+
+     # Test Add Disk via dialog
+    def testAddDisk(self):
+        b = self.browser
+        m = self.machine
+
+        # prepare libvirt storage pools
+        m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/vm_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/vm_tmp")
+        m.execute("virsh pool-create-as default_tmp --type dir --target /mnt/vm_tmp")
+        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
+
+        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
+        wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        b.wait_present("#vm-subVmTest1-disks") # wait for the tab
+        b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
+        b.wait_present("#vm-subVmTest1-disks-adddisk") # button
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present(".add-disk-dialog ul li a:contains(Create New)") # subtab title in the modal dialog
+        b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
+
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vde")
+        self._setVal("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone")
+        self._setVal("#vm-subVmTest1-disks-adddisk-new-size", 2048)
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "raw") # verify content of the dropdown box
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "qcow2") # and switch it back
+        # keep "Attach permanently" un-checked (by default)
+        b.wait_in_text("#vm-subVmTest1-state", "running") # re-check
+        b.click(".modal-footer button:contains(Add Disk)")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-subVmTest1-disks-vde-target") # verify after modal dialog close
+        b.wait_in_text("#vm-subVmTest1-disks-vde-target", "vde")
+        b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
+        b.wait_in_text("#vm-subVmTest1-disks-vde-device", "disk")
+        b.wait_in_text("#vm-subVmTest1-disks-vde-source", "/mnt/vm_one/mydiskofpoolone") # should be gone after shut down
+
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-new-permanent")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-new-name")
+        b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vda")
+        self._setVal("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
+        self._setVal("#vm-subVmTest1-disks-adddisk-new-size", 2) # keep GiB and qcow2 format
+        b.click(".modal-footer button:contains(Add Disk)")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-subVmTest1-disks-vda-target") # verify after modal dialog close
+        b.wait_in_text("#vm-subVmTest1-disks-vda-target", "vda")
+        b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
+        b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
+        b.wait_in_text("#vm-subVmTest1-disks-vda-source", "/mnt/vm_one/mydiskofpoolone_permanent") # should survive the shut down
+
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
+        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)") # since both disks are already attached
+        b.click(".modal-footer button:contains(Cancel)")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
+        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-permanent")
+        b.click("#vm-subVmTest1-disks-adddisk-existing-permanent")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_permanent")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdd")
+        b.click(".modal-footer button:contains(Add Disk)")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-subVmTest1-disks-vdd-target") # verify after modal dialog close
+        b.wait_in_text("#vm-subVmTest1-disks-vdd-target", "vdd")
+        b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
+        b.wait_in_text("#vm-subVmTest1-disks-vdd-device", "disk")
+        b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "/mnt/vm_two/mydiskofpooltwo_permanent")
+
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
+        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo")
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdb")
+        b.click(".modal-footer button:contains(Add Disk)")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-subVmTest1-disks-vdb-target") # verify after modal dialog close
+        b.wait_in_text("#vm-subVmTest1-disks-vdb-target", "vdb")
+        b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
+        b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
+        b.wait_in_text("#vm-subVmTest1-disks-vdb-source", "/mnt/vm_two/mydiskofpooltwo")
+
+        # shut off
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # check if the just added non-permanent disks are gone
+        b.wait_not_present("#vm-subVmTest1-disks-vdb-target")
+        b.wait_not_present("#vm-subVmTest1-disks-vde-target")
+        b.wait_present("#vm-subVmTest1-disks-vda-target")
+        b.wait_present("#vm-subVmTest1-disks-vdd-target")
+
+    def _selectFromDropdown(self, selector, value):
+        selectFromDropdown(self.browser, selector, value)
+
+    def _setVal(self, selector, value):
+        setValToElement(self.browser, selector, value)
 
     def testNetworks(self):
         b = self.browser
@@ -1183,16 +1306,7 @@ class TestMachines(MachineCase):
             return self
 
         def _selectFromDropdown(self, selector, value):
-            b = self.browser
-            button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
-
-            b.wait_visible(selector)
-            if not b.text(button_text_selector) == value:
-                item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
-                b.click(selector)
-                b.wait_visible(item_selector)
-                b.click(item_selector)
-            b.wait_in_text(button_text_selector, value)
+            selectFromDropdown(self.browser, selector, value)
 
         def _setFileAutocompleteVal(self, selector, location):
             b = self.browser
@@ -1215,16 +1329,7 @@ class TestMachines(MachineCase):
             b.wait_val(selector + " input", location)
 
         def _setVal(self, selector, value):
-            b = self.browser
-            value = str(value)
-
-            b.wait_present(selector)
-            b.wait_visible(selector)
-            b.click(selector)
-            b.focus(selector)
-            b.set_val(selector, '')  # clear value
-            b.key_press(value)
-            b.wait_val(selector, value)
+            setValToElement(self.browser, selector, value)
 
     class CreateVmRunner:
         def __init__(self, test_obj):
@@ -1292,11 +1397,8 @@ class TestMachines(MachineCase):
             b.wait_present("#vm-{0}-disks".format(name))  # wait for the tab
             b.click("#vm-{0}-disks".format(name))  # open the "Disks" subtab
 
-            # Test number of disks and disk creation
+            # Test disk creation
             if dialog.storage_size > 0:
-                b.wait_present("#vm-{0}-disks-total-value".format(name))
-                b.wait_in_text("#vm-{0}-disks-total-value".format(name), 2 if dialog.start_vm else 1)  # CD-ROM
-
                 if b.is_present("#vm-{0}-disks-vda-target".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-target".format(name), "vda")
                 else:
@@ -1381,6 +1483,28 @@ class TestMachines(MachineCase):
 
             return self
 
+
+def selectFromDropdown(b, selector, value):
+    button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
+
+    b.wait_visible(selector)
+    if not b.text(button_text_selector) == value:
+        item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
+        b.click(selector)
+        b.wait_visible(item_selector)
+        b.click(item_selector)
+        b.wait_in_text(button_text_selector, value)
+
+def setValToElement(b, selector, value):
+    value = str(value)
+
+    b.wait_present(selector)
+    b.wait_visible(selector)
+    b.click(selector)
+    b.focus(selector)
+    b.set_val(selector, '')  # clear value
+    b.key_press(value)
+    b.wait_val(selector, value)
 
 if __name__ == '__main__':
     test_main()

@@ -23,6 +23,7 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
     var React = require("react");
+    var ReactDOM = require("react-dom");
 
     var util = require("./util");
     var view = require("./containers-view.jsx");
@@ -100,7 +101,7 @@
             var info = this.client.images[this.image_id];
             util.docker_debug("image-details", this.image_id, info);
 
-            React.render(React.createElement(view.ImageInline, {
+            ReactDOM.render(React.createElement(view.ImageInline, {
                 image: info
             }), document.querySelector('#image-details .content'));
 

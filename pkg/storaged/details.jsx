@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import ReactDOM from 'react-dom';
 
 import utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
@@ -151,13 +152,13 @@ export function init(client) {
     var page = document.getElementById("storage-detail");
 
     function show(type, name, name2) {
-        React.render(<Details client={client} type={type} name={name} name2={name2} />, page);
+        ReactDOM.render(<Details client={client} type={type} name={name} name2={name2} />, page);
         page.style.display = "block";
     }
 
     function hide() {
         page.style.display = "none";
-        React.unmountComponentAtNode(page);
+        ReactDOM.unmountComponentAtNode(page);
     }
 
     return { show: show, hide: hide };

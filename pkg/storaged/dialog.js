@@ -23,7 +23,8 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var React = require("react");
+    var ReactDOM = require("react-dom");
+
     var mustache = require("mustache");
     var utils = require("./utils.js");
     require("patterns");
@@ -99,7 +100,7 @@
         cur_dialog = $dialog;
 
         if (def.ReactBody)
-            React.render(def.ReactBody, $dialog.find('.react-body')[0]);
+            ReactDOM.render(def.ReactBody, $dialog.find('.react-body')[0]);
 
         $dialog.on('hidden.bs.modal', function () {
             $dialog.remove();

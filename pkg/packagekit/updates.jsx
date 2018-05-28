@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import '../lib/polyfills.js'; // once per application
 import React from "react";
+import ReactDOM from 'react-dom';
+
 import moment from "moment";
 import { Tooltip } from "cockpit-components-tooltip.jsx";
 import Markdown from "react-remarkable";
@@ -965,5 +967,5 @@ class OsUpdates extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
-    React.render(<OsUpdates />, document.getElementById("app"));
+    ReactDOM.render(<OsUpdates />, document.getElementById("app"));
 });

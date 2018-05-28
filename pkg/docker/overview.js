@@ -24,6 +24,8 @@
     var cockpit = require("cockpit");
 
     var React = require("react");
+    var ReactDOM = require("react-dom");
+
     var plot = require("plot");
     var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
 
@@ -42,7 +44,7 @@
         var imageNode = document.getElementById('containers-images');
 
         function update_container_list(onlyShowRunning, filterText) {
-            React.render(React.createElement(view.ContainerList, {
+            ReactDOM.render(React.createElement(view.ContainerList, {
                 client: client,
                 onlyShowRunning: onlyShowRunning,
                 filterText: filterText
@@ -50,13 +52,13 @@
         }
 
         function update_image_list(filterText) {
-            React.render(React.createElement(view.ImageList, {
+            ReactDOM.render(React.createElement(view.ImageList, {
                 client: client,
                 filterText: filterText
             }), imageNode);
         }
 
-        React.render(React.createElement(view.ContainerHeader, {
+        ReactDOM.render(React.createElement(view.ContainerHeader, {
             onFilterChanged: function (filter, filterText) {
                 update_container_list(filter === 'running', filterText);
                 update_image_list(filterText);
@@ -147,7 +149,7 @@
             mem_plot.resize();
         });
 
-        React.render(React.createElement(storage.OverviewBox,
+        ReactDOM.render(React.createElement(storage.OverviewBox,
                                          { model: storage.get_storage_model(),
                                            small: true }),
                      $("#containers-storage-details")[0]);

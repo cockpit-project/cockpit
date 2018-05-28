@@ -18,6 +18,7 @@
  */
 
 import React from "react";
+import ReactDOM from 'react-dom';
 
 import { fmt_rate } from "./utils.js";
 
@@ -151,7 +152,7 @@ export function init(client, jobs) {
     var page = document.getElementById("storage");
 
     function show() {
-        React.render(<Overview client={client} jobs={jobs} />, page);
+        ReactDOM.render(<Overview client={client} jobs={jobs} />, page);
         page.style.display = "block";
     }
 

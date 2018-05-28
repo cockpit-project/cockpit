@@ -18,15 +18,16 @@
  */
 
 var React = require("react");
+var ReactDOM = require("react-dom");
 
 var FileAutoComplete = require("cockpit-components-file-autocomplete.jsx").FileAutoComplete;
 
 var render = function(rootElement) {
-    React.render(<FileAutoComplete />, rootElement);
+    ReactDOM.render(<FileAutoComplete />, rootElement);
 };
 
 var remove = function(rootElement) {
-    React.unmountComponentAtNode(rootElement);
+    ReactDOM.unmountComponentAtNode(rootElement);
 };
 
 module.exports = {

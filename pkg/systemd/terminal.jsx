@@ -5,6 +5,7 @@
     var _ = cockpit.gettext;
 
     var React = require("react");
+    var ReactDOM = require("react-dom");
     var componentsTerminal = require("cockpit-components-terminal.jsx");
 
     cockpit.translate();
@@ -87,7 +88,7 @@
                                           }
     });
 
-    React.render(<UserTerminal />, document.getElementById('terminal'));
+    ReactDOM.render(<UserTerminal />, document.getElementById('terminal'));
 
     /* And show the body */
     document.body.removeAttribute("hidden");

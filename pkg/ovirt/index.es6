@@ -19,6 +19,8 @@
 import '../lib/polyfills.js'; // once per application
 
 import React from 'react';
+import ReactDOM from 'react-dom';
+
 import store from './store.es6';
 import { initDataRetrieval } from '../machines/actions/provider-actions.es6';
 import { logDebug } from '../machines/helpers.es6';
@@ -28,7 +30,7 @@ import App from './components/App.jsx';
 import { setVirtProvider } from '../machines/provider.es6';
 
 function render() {
-    React.render(
+    ReactDOM.render(
         React.createElement(App, {store: store}),
         document.getElementById('app')
     );

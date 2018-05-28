@@ -22,6 +22,7 @@
 
     var React = require("react");
     var ReactDOM = require("react-dom");
+    var PropTypes = require("prop-types");
 
     var cockpitListing = require("cockpit-components-listing.jsx");
 
@@ -30,7 +31,7 @@
      */
     var DemoListingTab = React.createClass({
         propTypes: {
-            description: React.PropTypes.string.isRequired,
+            description: PropTypes.string.isRequired,
         },
         getInitialState: function() {
             return {

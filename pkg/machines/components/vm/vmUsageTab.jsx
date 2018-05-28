@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import React from 'react';
+import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import React, { PropTypes } from "react";
 
 import {
     logDebug,
@@ -108,7 +109,7 @@ class VmUsageTab extends React.Component {
 }
 
 VmUsageTab.propTypes = {
-    vm: React.PropTypes.object.isRequired,
+    vm: PropTypes.object.isRequired,
     onUsageStartPolling: PropTypes.func.isRequired,
     onUsageStopPolling: PropTypes.func.isRequired,
 };

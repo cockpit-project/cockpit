@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import cockpit from 'cockpit';
 import { mouseClick } from "../helpers.es6";
 import {
@@ -142,8 +144,8 @@ class LibvirtSlate extends React.Component {
 }
 
 LibvirtSlate.propTypes = {
-    dispatch: React.PropTypes.func.isRequired,
-    libvirtService: React.PropTypes.object.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    libvirtService: PropTypes.object.isRequired,
 };
 
 export default LibvirtSlate;

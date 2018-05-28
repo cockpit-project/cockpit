@@ -19,6 +19,7 @@
 
 var cockpit = require("cockpit");
 var React = require("react");
+var PropTypes = require("prop-types");
 
 var _ = cockpit.gettext;
 
@@ -33,12 +34,12 @@ var _ = cockpit.gettext;
  */
 var TunedDialogProfile = React.createClass({
     propTypes: {
-        name: React.PropTypes.string.isRequired,
-        recommended: React.PropTypes.bool.isRequired,
-        selected: React.PropTypes.bool.isRequired,
-        title: React.PropTypes.string.isRequired,
-        description: React.PropTypes.string.isRequired,
-        click: React.PropTypes.func.isRequired,
+        name: PropTypes.string.isRequired,
+        recommended: PropTypes.bool.isRequired,
+        selected: PropTypes.bool.isRequired,
+        title: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired,
+        click: PropTypes.func.isRequired,
     },
     render: function() {
         var classes = "list-group-item";
@@ -70,9 +71,9 @@ var TunedDialogProfile = React.createClass({
  */
 var TunedDialogBody = React.createClass({
     propTypes: {
-        active_profile: React.PropTypes.string.isRequired,
-        change_selected: React.PropTypes.func.isRequired,
-        profiles: React.PropTypes.array.isRequired,
+        active_profile: PropTypes.string.isRequired,
+        change_selected: PropTypes.func.isRequired,
+        profiles: PropTypes.array.isRequired,
     },
     getInitialState: function() {
         return {

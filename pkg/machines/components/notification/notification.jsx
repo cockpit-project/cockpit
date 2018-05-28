@@ -17,7 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { PropTypes } from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import { mouseClick } from "../../helpers.es6";
 
 import './notification.css';

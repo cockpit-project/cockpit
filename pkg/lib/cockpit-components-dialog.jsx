@@ -20,6 +20,7 @@
 var cockpit = require("cockpit");
 var React = require("react");
 var ReactDOM = require("react-dom");
+var PropTypes = require("prop-types");
 var _ = cockpit.gettext;
 
 require("page.css");
@@ -48,11 +49,11 @@ require("cockpit-components-dialog.css");
  */
 var DialogFooter = React.createClass({
     propTypes: {
-        cancel_clicked: React.PropTypes.func,
-        cancel_caption: React.PropTypes.string,
-        actions: React.PropTypes.array,
-        static_error: React.PropTypes.string,
-        dialog_done: React.PropTypes.func,
+        cancel_clicked: PropTypes.func,
+        cancel_caption: PropTypes.string,
+        actions: PropTypes.array,
+        static_error: PropTypes.string,
+        dialog_done: PropTypes.func,
     },
     getInitialState: function() {
         return {
@@ -249,11 +250,11 @@ var DialogFooter = React.createClass({
 var Dialog = React.createClass({
     propTypes: {
         // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
-        title: React.PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
-        no_backdrop: React.PropTypes.bool,
-        body: React.PropTypes.element, // is effectively required, see above
-        footer: React.PropTypes.element, // is effectively required, see above
-        id: React.PropTypes.string,
+        title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
+        no_backdrop: PropTypes.bool,
+        body: PropTypes.element, // is effectively required, see above
+        footer: PropTypes.element, // is effectively required, see above
+        id: PropTypes.string
     },
     componentDidMount: function() {
         // if we used a button to open this, make sure it's not focused anymore

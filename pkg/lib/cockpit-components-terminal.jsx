@@ -22,6 +22,7 @@
 
     var React = require("react");
     var ReactDOM = require("react-dom");
+    var PropTypes = require("prop-types");
     var Term = require("term");
 
     require("console.css");
@@ -43,10 +44,10 @@
      */
     var Terminal = React.createClass({
         propTypes: {
-            cols: React.PropTypes.number,
-            rows: React.PropTypes.number,
-            channel: React.PropTypes.object.isRequired,
-            onTitleChanged: React.PropTypes.func
+            cols: PropTypes.number,
+            rows: PropTypes.number,
+            channel: PropTypes.object.isRequired,
+            onTitleChanged: PropTypes.func
         },
 
         componentWillMount: function () {

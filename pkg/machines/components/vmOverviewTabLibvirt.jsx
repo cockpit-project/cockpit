@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import React from 'react';
+import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import React, { PropTypes } from "react";
 
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import VmLastMessage from './vmLastMessage.jsx';

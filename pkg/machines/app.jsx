@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import HostVmsList from "./hostvmslist.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { createVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
@@ -38,7 +40,7 @@ const App = ({ store }) => {
         actions={createVmAction({ dispatch, systemInfo })} />);
 };
 App.propTypes = {
-    store: React.PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
 };
 
 export default App;

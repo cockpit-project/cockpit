@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
@@ -199,12 +200,12 @@ class VCPUModalBody extends React.Component {
 }
 
 VCPUModalBody.propTypes = {
-    vcpus: React.PropTypes.object,
-    cpu: React.PropTypes.shape({
-        topology: React.PropTypes.object.isRequired
+    vcpus: PropTypes.object,
+    cpu: PropTypes.shape({
+        topology: PropTypes.object.isRequired
     }).isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    hypervisorMax: React.PropTypes.number
+    onChange: PropTypes.func.isRequired,
+    hypervisorMax: PropTypes.number
 };
 
 export default function ({ vm, dispatch, config }) {

@@ -13,8 +13,8 @@
 
 export function injectMockUpdates(updates) {
     // some security updates
-    updates["security-one;2.3-4"] = {
-        name: "security-one",
+    updates["security-crit;2.3-4"] = {
+        name: "security-crit",
         version: "2.3-4",
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-123456", "https://cve.example.com?name=CVE-2017-9999"],
@@ -23,8 +23,8 @@ export function injectMockUpdates(updates) {
         severity: 8,
         description: "This will wreck your data center!",
     };
-    updates["security-two;1-2+sec1"] = {
-        name: "security-two",
+    updates["security-low;1-2+sec1"] = {
+        name: "security-low",
         version: "1-2+sec1",
         bug_urls: [],
         cve_urls: ["https://cve.example.com?name=CVE-2014-54321"],
@@ -33,8 +33,8 @@ export function injectMockUpdates(updates) {
         severity: 8,
         description: "Mostly Harmless",
     };
-    updates["security-three;5-2"] = {
-        name: "security-three",
+    updates["security-imp;5-2"] = {
+        name: "security-imp",
         version: "5-2",
         bug_urls: [],
         vendor_urls: ["https://access.redhat.com/security/updates/classification/#low", "low",
@@ -42,9 +42,17 @@ export function injectMockUpdates(updates) {
         severity: 8,
         description: "This update will make you sleep more peacefully.",
     };
+    updates["security-mod;12.3-4"] = {
+        name: "security-mod",
+        version: "12.3-4",
+        bug_urls: [],
+        vendor_urls: ["https://access.redhat.com/security/updates/classification/#moderate", "moderate"],
+        severity: 8,
+        description: "This update will make you sleep more peacefully.",
+    };
     // no vendor URLs, default severity
-    updates["security-four;42"] = {
-        name: "security-four",
+    updates["security-default;42"] = {
+        name: "security-default",
         version: "42",
         cve_urls: ["https://cve.example.com?name=CVE-2014-54321"],
         vendor_urls: [],

@@ -26,7 +26,6 @@ var _ = cockpit.gettext;
  * Expected props:
  *  - name (key)
  *  - recommended (boolean)
- *  - active (boolean)
  *  - selected (boolean)
  *  - title
  *  - description
@@ -36,7 +35,6 @@ var TunedDialogProfile = React.createClass({
     propTypes: {
         name: React.PropTypes.string.isRequired,
         recommended: React.PropTypes.bool.isRequired,
-        active: React.PropTypes.bool.isRequired,
         selected: React.PropTypes.bool.isRequired,
         title: React.PropTypes.string.isRequired,
         description: React.PropTypes.string.isRequired,

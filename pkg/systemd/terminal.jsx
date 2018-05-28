@@ -6,6 +6,8 @@
 
     var React = require("react");
     var ReactDOM = require("react-dom");
+    var createReactClass = require('create-react-class');
+
     var componentsTerminal = require("cockpit-components-terminal.jsx");
 
     cockpit.translate();
@@ -18,74 +20,74 @@
      *
      * Spawns the user's shell in the user's home directory.
      */
-    var UserTerminal = React.createClass({displayName: "UserTerminal",
-                                          createChannel: function (user) {
-                                              return cockpit.channel({
-                                                  "payload": "stream",
-                                                  "spawn": [user.shell || "/bin/bash", "-i"],
-                                                  "environ": [
-                                                      "TERM=xterm-256color",
-                                                      "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-                                                  ],
-                                                  "directory": user.home || "/",
-                                                  "pty": true
-                                              });
-                                          },
+    var UserTerminal = createReactClass({displayName: "UserTerminal",
+                                         createChannel: function (user) {
+                                             return cockpit.channel({
+                                                 "payload": "stream",
+                                                 "spawn": [user.shell || "/bin/bash", "-i"],
+                                                 "environ": [
+                                                     "TERM=xterm-256color",
+                                                     "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
+                                                 ],
+                                                 "directory": user.home || "/",
+                                                 "pty": true
+                                             });
+                                         },
 
-                                          getInitialState: function () {
-                                              return {
-                                                  title: 'Terminal'
-                                              };
-                                          },
+                                         getInitialState: function () {
+                                             return {
+                                                 title: 'Terminal'
+                                             };
+                                         },
 
-                                          componentWillMount: function () {
-                                              cockpit.user().done(function (user) {
-                                                  this.setState({ user: user, channel: this.createChannel(user) });
-                                              }.bind(this));
-                                          },
+                                         componentWillMount: function () {
+                                             cockpit.user().done(function (user) {
+                                                 this.setState({ user: user, channel: this.createChannel(user) });
+                                             }.bind(this));
+                                         },
 
-                                          onTitleChanged: function (title) {
-                                              this.setState({ title: title });
-                                          },
+                                         onTitleChanged: function (title) {
+                                             this.setState({ title: title });
+                                         },
 
-                                          onResetClick: function (event) {
-                                              if (event.button !== 0)
-                                                  return;
+                                         onResetClick: function (event) {
+                                             if (event.button !== 0)
+                                                 return;
 
-                                              if (this.state.channel)
-                                                  this.state.channel.close();
+                                             if (this.state.channel)
+                                                 this.state.channel.close();
 
-                                              if (this.state.user)
-                                                  this.setState({ channel: this.createChannel(this.state.user) });
+                                             if (this.state.user)
+                                                 this.setState({ channel: this.createChannel(this.state.user) });
 
-                                              // don't focus the button, but keep it on the terminal
-                                              this.refs.resetButton.blur();
-                                              this.refs.terminal.focus();
-                                          },
+                                             // don't focus the button, but keep it on the terminal
+                                             this.refs.resetButton.blur();
+                                             this.refs.terminal.focus();
+                                         },
 
-                                          render: function () {
-                                              var terminal;
-                                              if (this.state.channel)
-                                                  terminal = (<componentsTerminal.Terminal ref="terminal"
+                                         render: function () {
+                                             var terminal;
+                                             if (this.state.channel)
+                                                 terminal = (<componentsTerminal.Terminal ref="terminal"
                                                       channel={this.state.channel}
                                                       onTitleChanged={this.onTitleChanged} />);
-                                              else
-                                                  terminal = <span>Loading...</span>;
+                                             else
+                                                 terminal = <span>Loading...</span>;
 
-                                              return (
-                                                  <div className="console-ct-container">
-                                                      <div className="panel-heading">
-                                                          <tt className="terminal-title">{this.state.title}</tt>
-                                                          <button ref="resetButton"
+                                             return (
+                                                 <div className="console-ct-container">
+                                                     <div className="panel-heading">
+                                                         <tt className="terminal-title">{this.state.title}</tt>
+                                                         <button ref="resetButton"
                                                               className="btn btn-default pull-right"
                                                               onClick={this.onResetClick}>{_("Reset")}</button>
-                                                      </div>
-                                                      <div className="panel-body">
-                                                          {terminal}
-                                                      </div>
-                                                  </div>
-                                              );
-                                          }
+                                                     </div>
+                                                     <div className="panel-body">
+                                                         {terminal}
+                                                     </div>
+                                                 </div>
+                                             );
+                                         }
     });
 
     ReactDOM.render(<UserTerminal />, document.getElementById('terminal'));

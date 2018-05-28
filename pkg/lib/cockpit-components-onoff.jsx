@@ -21,6 +21,8 @@
 
 var cockpit = require("cockpit");
 var React = require("react");
+var createReactClass = require('create-react-class');
+
 var _ = cockpit.gettext;
 
 require("./cockpit-components-onoff.css");
@@ -32,7 +34,7 @@ require("./cockpit-components-onoff.css");
  * onChange   triggered when the switch is flipped, parameter: new state
  * enabled    whether the component is enabled or not, defaults to true
  */
-var OnOffSwitch = React.createClass({
+var OnOffSwitch = createReactClass({
     getDefaultProps: function() {
         return {
             captionOff: _("Off"),

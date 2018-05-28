@@ -22,6 +22,7 @@ var cockpit = require("cockpit");
 
 var React = require("react");
 var ReactDOM = require("react-dom");
+var createReactClass = require('create-react-class');
 var Mustache = require("mustache");
 var authorized_keys = require("./authorized-keys");
 
@@ -272,7 +273,7 @@ function is_user_in_group(user, group) {
     return false;
 }
 
-var AccountItem = React.createClass({
+var AccountItem = createReactClass({
     displayName: 'AccountItem',
     click: function(ev) {
         if (ev && ev.button === 0)
@@ -287,7 +288,7 @@ var AccountItem = React.createClass({
     }
 });
 
-var AccountList = React.createClass({
+var AccountList = createReactClass({
     displayName: 'AccountList',
     render: function() {
         var i, items = [];

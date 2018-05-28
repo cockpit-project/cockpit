@@ -23,6 +23,7 @@ import cockpit from "cockpit";
 import utils from "./utils.js";
 
 import React from "react";
+import createReactClass from 'create-react-class';
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { clevis_recover_passphrase } from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialogx.jsx";
@@ -219,7 +220,7 @@ function lvol_shrink(client, lvol, info) {
     });
 }
 
-var BlockVolTab = React.createClass({
+var BlockVolTab = createReactClass({
     render: function () {
         var self = this;
         var client = self.props.client;
@@ -355,7 +356,7 @@ var BlockVolTab = React.createClass({
     },
 });
 
-var PoolVolTab = React.createClass({
+var PoolVolTab = createReactClass({
     render: function () {
         var self = this;
 

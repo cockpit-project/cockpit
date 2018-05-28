@@ -22,10 +22,12 @@
 var cockpit = require("cockpit");
 var React = require("react");
 var PropTypes = require("prop-types");
+var createReactClass = require('create-react-class');
+
 var _ = cockpit.gettext;
 require("./cockpit-components-file-autocomplete.css");
 
-var FileAutoComplete = React.createClass({
+var FileAutoComplete = createReactClass({
     propTypes: {
         id: PropTypes.string,
         placeholder: PropTypes.string,

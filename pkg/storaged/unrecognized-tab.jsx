@@ -19,16 +19,17 @@
 
 "use strict";
 
+var React = require("react");
+var createReactClass = require('create-react-class');
 var cockpit = require("cockpit");
 
-var React = require("react");
 var FormatDialog = require("./format-dialog.jsx");
 
 var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var UnrecognizedTab = React.createClass({
+var UnrecognizedTab = createReactClass({
     render: function () {
         return (
             <div>

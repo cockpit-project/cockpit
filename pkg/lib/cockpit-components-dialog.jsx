@@ -21,6 +21,8 @@ var cockpit = require("cockpit");
 var React = require("react");
 var ReactDOM = require("react-dom");
 var PropTypes = require("prop-types");
+var createReactClass = require('create-react-class');
+
 var _ = cockpit.gettext;
 
 require("page.css");
@@ -47,7 +49,7 @@ require("cockpit-components-dialog.css");
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
-var DialogFooter = React.createClass({
+var DialogFooter = createReactClass({
     propTypes: {
         cancel_clicked: PropTypes.func,
         cancel_caption: PropTypes.string,
@@ -247,7 +249,7 @@ var DialogFooter = React.createClass({
  *  - footer (react element, top element should be of class modal-footer)
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  */
-var Dialog = React.createClass({
+var Dialog = createReactClass({
     propTypes: {
         // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
         title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.

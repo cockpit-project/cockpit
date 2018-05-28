@@ -20,6 +20,7 @@
 var cockpit = require("cockpit");
 var React = require("react");
 var PropTypes = require("prop-types");
+var createReactClass = require('create-react-class');
 
 var _ = cockpit.gettext;
 
@@ -32,7 +33,7 @@ var _ = cockpit.gettext;
  *  - description
  *  - click (callback function)
  */
-var TunedDialogProfile = React.createClass({
+var TunedDialogProfile = createReactClass({
     propTypes: {
         name: PropTypes.string.isRequired,
         recommended: PropTypes.bool.isRequired,
@@ -69,7 +70,7 @@ var TunedDialogProfile = React.createClass({
  *    - title (string)
  *    - description (string)
  */
-var TunedDialogBody = React.createClass({
+var TunedDialogBody = createReactClass({
     propTypes: {
         active_profile: PropTypes.string.isRequired,
         change_selected: PropTypes.func.isRequired,
@@ -104,7 +105,7 @@ var TunedDialogBody = React.createClass({
     }
 });
 
-var TunedLink = React.createClass({
+var TunedLink = createReactClass({
     render: function() {
         var self = this;
 

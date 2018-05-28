@@ -20,6 +20,7 @@
 'use strict';
 
 const React = require('react');
+const PropTypes = require("prop-types");
 
 require('./listing.less');
 // TODO remove next line and detail-page.less file as well once React 16 is merged
@@ -48,8 +49,8 @@ const DetailPageRow = ({title, idPrefix, children}) => {
 };
 
 DetailPageRow.propTypes = {
-    title: React.PropTypes.string,
-    idPrefix: React.PropTypes.string, // row will have no elements with id if not specified
+    title: PropTypes.string,
+    idPrefix: PropTypes.string, // row will have no elements with id if not specified
 };
 
 const DetailPageHeader = ({title, iconClass, navigateUpTitle, onNavigateUp, actions, idPrefix}) => {
@@ -75,12 +76,12 @@ const DetailPageHeader = ({title, iconClass, navigateUpTitle, onNavigateUp, acti
 };
 
 DetailPageHeader.propTypes = {
-    title: React.PropTypes.string,
-    iconClass: React.PropTypes.string, // className used for an icon
-    navigateUpTitle: React.PropTypes.string,
-    onNavigateUp: React.PropTypes.func,
-    actions: React.PropTypes.object,
-    idPrefix: React.PropTypes.string, // header will have no elements with id if not specified
+    title: PropTypes.string,
+    iconClass: PropTypes.string, // className used for an icon
+    navigateUpTitle: PropTypes.string,
+    onNavigateUp: PropTypes.func,
+    actions: PropTypes.object,
+    idPrefix: PropTypes.string, // header will have no elements with id if not specified
 };
 
 module.exports = {

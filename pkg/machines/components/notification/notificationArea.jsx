@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { PropTypes } from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Notification, NotificationMessage } from "./notification.jsx";
 
 const NotificationArea = ({ notifications, onDismiss, id }) => {

@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
+
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
@@ -113,7 +115,7 @@ const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText
 
 VmDisksTab.propTypes = {
     idPrefix: PropTypes.string.isRequired,
-    actions: PropTypes.arrayOf(React.PropTypes.node),
+    actions: PropTypes.arrayOf(PropTypes.node),
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     notificationText: PropTypes.string,

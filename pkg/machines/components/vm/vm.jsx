@@ -16,8 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import React from 'react';
+import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
-import React, { PropTypes } from "react";
+
+import { ListingRow } from "cockpit-components-listing.jsx";
+
 import {
     rephraseUI,
     vmId,
@@ -30,7 +34,6 @@ import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
 import VmActions from './vmActions.jsx';
 import StateIcon from './stateIcon.jsx';
 import VmUsageTab from './vmUsageTab.jsx';
-import { ListingRow } from "cockpit-components-listing.jsx";
 
 const _ = cockpit.gettext;
 

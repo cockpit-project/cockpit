@@ -16,14 +16,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React, { PropTypes } from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import { ListingRow } from "cockpit-components-listing.jsx";
+
 import {
     rephraseUI,
     vmId,
 } from "../../helpers.es6";
 
 import StateIcon from './stateIcon.jsx';
-import { ListingRow } from "cockpit-components-listing.jsx";
 
 /** One Ui Dummy VM in the list (a row)
  */

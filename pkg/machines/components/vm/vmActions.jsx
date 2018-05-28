@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import React, { PropTypes } from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import {
     vmId,

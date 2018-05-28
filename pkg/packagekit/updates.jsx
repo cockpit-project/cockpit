@@ -650,7 +650,7 @@ class OsUpdates extends React.Component {
                                       },
                                   })
                 .then(() => {
-                // get the details for all packages
+                    // get the details for all packages
                     let pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
                         this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });

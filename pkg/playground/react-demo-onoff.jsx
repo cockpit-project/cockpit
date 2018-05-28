@@ -19,10 +19,11 @@
 
 var React = require("react");
 var ReactDOM = require("react-dom");
+var createReactClass = require('create-react-class');
 
 var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
 
-var OnOffDemo = React.createClass({
+var OnOffDemo = createReactClass({
     getInitialState: function() {
         return {
             onOffA: true,

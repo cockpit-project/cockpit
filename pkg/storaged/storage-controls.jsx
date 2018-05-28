@@ -17,15 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
+var React = require("react");
+var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var $ = require("jquery");
 
-var React = require("react");
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
 var _ = cockpit.gettext;
@@ -45,7 +45,7 @@ var _ = cockpit.gettext;
 
 var permission = cockpit.permission({ admin: true });
 
-var StorageControl = React.createClass({
+var StorageControl = createReactClass({
     getInitialState: function () {
         return { allowed: permission.allowed !== false };
     },
@@ -93,7 +93,7 @@ function checked(callback) {
     };
 }
 
-var StorageButton = React.createClass({
+var StorageButton = createReactClass({
     render: function () {
         var classes = "btn";
         if (this.props.kind)
@@ -114,7 +114,7 @@ var StorageButton = React.createClass({
     }
 });
 
-var StorageLink = React.createClass({
+var StorageLink = createReactClass({
     render: function () {
         return (
             <StorageControl excuse={this.props.excuse}
@@ -139,7 +139,7 @@ var StorageLink = React.createClass({
    - block
  */
 
-var StorageBlockNavLink = React.createClass({
+var StorageBlockNavLink = createReactClass({
     render: function () {
         var self = this;
         var client = self.props.client;

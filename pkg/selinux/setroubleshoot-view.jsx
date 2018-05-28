@@ -21,6 +21,7 @@ var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
 var React = require("react");
+var createReactClass = require('create-react-class');
 
 var cockpitListing = require("cockpit-components-listing.jsx");
 var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
@@ -28,7 +29,7 @@ var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
 /* Show details for an alert, including possible solutions
  * Props correspond to an item in the setroubleshoot dataStore
  */
-var SELinuxEventDetails = React.createClass({
+var SELinuxEventDetails = createReactClass({
     getInitialState: function() {
         var expanded;
         // all details are collapsed by default
@@ -154,7 +155,7 @@ var SELinuxEventDetails = React.createClass({
 });
 
 /* Show the audit log events for an alert */
-var SELinuxEventLog = React.createClass({
+var SELinuxEventLog = createReactClass({
     render: function() {
         if (!this.props.details) {
             // details should be requested by default, so we just need to wait for them
@@ -185,7 +186,7 @@ var SELinuxEventLog = React.createClass({
  *   - 'waiting' - display spinner
  *   - 'error'   - display error icon
  */
-var EmptyState = React.createClass({
+var EmptyState = createReactClass({
     render: function() {
         var description = null;
         if (this.props.description)
@@ -220,7 +221,7 @@ var EmptyState = React.createClass({
 /* Component to show a dismissable error, message as child text
  * dismissError callback function triggered when the close button is pressed
  */
-var DismissableError = React.createClass({
+var DismissableError = createReactClass({
     handleDismissError: function(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
@@ -248,7 +249,7 @@ var DismissableError = React.createClass({
  * changeSelinuxMode  function to use for changing the selinux enforcing mode
  * dismissError       function to dismiss the error message
  */
-var SELinuxStatus = React.createClass({
+var SELinuxStatus = createReactClass({
     render: function() {
         var errorMessage;
         if (this.props.selinuxStatusError) {
@@ -311,7 +312,7 @@ var SELinuxStatus = React.createClass({
  * changeSelinuxMode  function to use for changing the selinux enforcing mode
  * dismissStatusError function that is triggered to dismiss the selinux status error
  */
-var SETroubleshootPage = React.createClass({
+var SETroubleshootPage = createReactClass({
     handleDeleteAlert: function(alertId, e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)

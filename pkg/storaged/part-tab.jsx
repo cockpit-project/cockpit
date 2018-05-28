@@ -19,14 +19,15 @@
 
 "use strict";
 
+var React = require("react");
+var createReactClass = require('create-react-class');
+
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 
-var React = require("react");
-
 var _ = cockpit.gettext;
 
-var PartitionTab = React.createClass({
+var PartitionTab = createReactClass({
     render: function () {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 

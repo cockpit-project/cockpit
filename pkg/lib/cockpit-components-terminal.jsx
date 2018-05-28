@@ -23,6 +23,8 @@
     var React = require("react");
     var ReactDOM = require("react-dom");
     var PropTypes = require("prop-types");
+    var createReactClass = require('create-react-class');
+
     var Term = require("term");
 
     require("console.css");
@@ -42,7 +44,7 @@
      *
      * Call focus() to set the input focus on the terminal.
      */
-    var Terminal = React.createClass({
+    var Terminal = createReactClass({
         propTypes: {
             cols: PropTypes.number,
             rows: PropTypes.number,

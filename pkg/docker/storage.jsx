@@ -25,6 +25,8 @@
 
     var React = require("react");
     var ReactDOM = require("react-dom");
+    var createReactClass = require('create-react-class');
+
     var dialog_view = require("cockpit-components-dialog.jsx");
 
     var python = require("python.jsx");
@@ -101,7 +103,7 @@
      *           the "Add" button is clicked.
      *
      */
-    var DriveBox = React.createClass({
+    var DriveBox = createReactClass({
         getInitialState: function () {
             return {
                 drives: this.props.model.extra_devices,
@@ -215,7 +217,7 @@
      *
      * model: The model as returned by get_storage_model.
      */
-    var PoolBox = React.createClass({
+    var PoolBox = createReactClass({
         getInitialState: function () {
             return {
                 drives: [ ]
@@ -260,7 +262,7 @@
      * small: If true, a small version is rendered
      *        with a link to the setup page.
      */
-    var OverviewBox = React.createClass({
+    var OverviewBox = createReactClass({
         getInitialState: function () {
             return { total: 0, used: 0 };
         },

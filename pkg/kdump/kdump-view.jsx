@@ -21,6 +21,7 @@ var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
 var React = require("react");
+var createReactClass = require('create-react-class');
 
 var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
 var Select = require("cockpit-components-select.jsx");
@@ -43,7 +44,7 @@ var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
  * nfs and ssh are disabled for now
  */
 
-var KdumpTargetBody = React.createClass({
+var KdumpTargetBody = createReactClass({
     getInitialState: function() {
         return {
             storeDest: this.props.initialTarget.target, // dialog mode, depends on location
@@ -218,7 +219,7 @@ var KdumpTargetBody = React.createClass({
  * reservedMemory    memory reserved at boot time for kdump use
  * onCrashKernel     callback to crash the kernel via kdumpClient, expects a promise
  */
-var KdumpPage = React.createClass({
+var KdumpPage = createReactClass({
     getInitialState: function() {
         return {
             dialogSettings: undefined,

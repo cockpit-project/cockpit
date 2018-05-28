@@ -25,10 +25,12 @@ import {
     BlockingMessage, TeardownMessage
 } from "./dialogx.jsx";
 
+var React = require("react");
+var createReactClass = require('create-react-class');
+
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 
-var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
 
 var _ = cockpit.gettext;
@@ -377,7 +379,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     });
 }
 
-var FormatButton = React.createClass({
+var FormatButton = createReactClass({
     onClick: function () {
         format_dialog(this.props.client, this.props.block.path);
     },

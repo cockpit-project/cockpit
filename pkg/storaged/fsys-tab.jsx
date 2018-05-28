@@ -19,11 +19,13 @@
 
 import { dialog_open, TextInput } from "./dialogx.jsx";
 
+var React = require("react");
+var createReactClass = require('create-react-class');
+
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var $ = require("jquery");
 
-var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
 var FormatDialog = require("./format-dialog.jsx");
 
@@ -33,7 +35,7 @@ var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var FilesystemTab = React.createClass({
+var FilesystemTab = createReactClass({
     onSamplesChanged: function () {
         this.setState({});
     },

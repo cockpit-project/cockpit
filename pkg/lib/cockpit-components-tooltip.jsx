@@ -20,6 +20,7 @@
 "use strict";
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 require('./tooltip.css');
 
@@ -38,7 +39,7 @@ require('./tooltip.css');
  * outermost element of the tooltip.
  */
 
-var Tooltip = React.createClass({
+var Tooltip = createReactClass({
     getInitialState: function () {
         return { open: false, pos: "top" };
     },

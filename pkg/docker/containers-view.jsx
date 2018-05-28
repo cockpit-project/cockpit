@@ -19,6 +19,9 @@
 
 'use strict';
 
+var React = require('react');
+var createReactClass = require('create-react-class');
+
 var cockpit = require('cockpit');
 var _ = cockpit.gettext;
 
@@ -27,14 +30,14 @@ var docker = require('./docker');
 var atomic = require('./atomic');
 var util = require('./util');
 var searchImage = require("./search");
-var React = require('react');
+
 var Listing = require('cockpit-components-listing.jsx');
 var Select = require('cockpit-components-select.jsx');
 var moment = require('moment');
 
 moment.locale(cockpit.language);
 
-var Dropdown = React.createClass({
+var Dropdown = createReactClass({
     getDefaultProps: function () {
         return {
             actions: [ { label: '' } ]
@@ -75,7 +78,7 @@ var Dropdown = React.createClass({
     }
 });
 
-var ContainerHeader = React.createClass({
+var ContainerHeader = createReactClass({
     getInitialState: function () {
         return {
             filter: 'running',
@@ -114,7 +117,7 @@ var ContainerHeader = React.createClass({
     }
 });
 
-var ContainerDetails = React.createClass({
+var ContainerDetails = createReactClass({
     render: function () {
         var container = this.props.container;
         return (
@@ -132,7 +135,7 @@ var ContainerDetails = React.createClass({
     }
 });
 
-var ContainerProblems = React.createClass({
+var ContainerProblems = createReactClass({
     onItemClick: function (event) {
         cockpit.jump(event.currentTarget.dataset.url, cockpit.transport.host);
     },
@@ -155,7 +158,7 @@ var ContainerProblems = React.createClass({
     }
 });
 
-var ContainerList = React.createClass({
+var ContainerList = createReactClass({
     getDefaultProps: function () {
         return {
             client: {},
@@ -371,7 +374,7 @@ var ContainerList = React.createClass({
     }
 });
 
-var ImageDetails = React.createClass({
+var ImageDetails = createReactClass({
     render: function () {
         var image = this.props.image;
         var created = moment.unix(image.Created);
@@ -403,7 +406,7 @@ var ImageDetails = React.createClass({
     }
 });
 
-var ImageSecurity = React.createClass({
+var ImageSecurity = createReactClass({
     render: function () {
         var info = this.props.info;
         var text, rows;
@@ -445,7 +448,7 @@ var ImageSecurity = React.createClass({
     }
 });
 
-var ImageInline = React.createClass({
+var ImageInline = createReactClass({
     getInitialState: function () {
         return {
             vulnerableInfos: {}
@@ -500,7 +503,7 @@ var ImageInline = React.createClass({
     }
 });
 
-var ImageList = React.createClass({
+var ImageList = createReactClass({
     getDefaultProps: function () {
         return {
             client: {},

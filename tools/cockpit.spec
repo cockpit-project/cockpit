@@ -493,9 +493,11 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %config(noreplace) %{_sysconfdir}/%{name}/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
-%{_datadir}/%{name}/issue/active.issue
-%{_datadir}/%{name}/issue/inactive.issue
+%config %{_sysconfdir}/motd.d/cockpit
+%{_datadir}/%{name}/motd/update-motd
+%{_datadir}/%{name}/motd/inactive.motd
 %{_unitdir}/cockpit.service
+%{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
 %{_prefix}/%{__lib}/firewalld/services/cockpit.xml
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf

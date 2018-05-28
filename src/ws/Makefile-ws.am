@@ -162,16 +162,20 @@ remotectl_LDADD = \
 nodist_systemdunit_DATA += \
 	src/ws/cockpit.socket \
 	src/ws/cockpit.service \
+	src/ws/cockpit-motd.service \
 	$(NULL)
 
 firewalldir = $(prefix)/lib/firewalld/services
 firewall_DATA = src/ws/cockpit.xml
 
-issuedir = $(datadir)/$(PACKAGE)/issue/
-issue_DATA = \
-	src/ws/inactive.issue \
-	src/ws/active.issue \
-	$(NULL)
+motddir = $(datadir)/$(PACKAGE)/motd/
+dist_motd_DATA = src/ws/inactive.motd
+dist_motd_SCRIPTS = src/ws/update-motd
+
+# Automake: 'Variables using ... ‘sysconf’ ... are installed by install-exec.'
+install-exec-hook::
+	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/motd.d
+	$(LN_S) -nf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tempconf_DATA = src/ws/cockpit-tempfiles.conf
@@ -187,16 +191,17 @@ install-exec-hook::
 	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
 
 EXTRA_DIST += \
+	src/ws/cockpit-motd.service.in \
 	src/ws/cockpit.service.in \
 	src/ws/cockpit.socket.in \
 	$(firewall_DATA) \
-	$(issue_DATA) \
 	$(tempconf_in) \
 	$(NULL)
 
 CLEANFILES += \
 	src/ws/cockpit.socket \
 	src/ws/cockpit.service \
+	src/ws/cockpit-motd.service \
 	$(nodist_tempconf_DATA) \
 	$(NULL)
 

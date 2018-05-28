@@ -1323,14 +1323,14 @@
                 if (meta) {
                     ex = null;
                     if (meta.name !== undefined) {
-                        var check_re = (resource.kind == "User") ? USER_NAME_RE : NAME_RE;
+                        var check_re = (resource.kind == "User" || resource.kind == "Group") ? USER_NAME_RE : NAME_RE;
                         if (!meta.name)
                             ex = new Error("The name cannot be empty");
                         else if (!check_re.test(meta.name))
                             if (check_re == NAME_RE) {
                                 ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
                             } else {
-                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _ :");
+                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _ - :");
                             }
                     }
                     if (ex) {

@@ -18,11 +18,12 @@
  */
 
 var React = require("react");
+var ReactDOM = require("react-dom");
 
 var FileAutoComplete = require("cockpit-components-file-autocomplete.jsx").FileAutoComplete;
 
 var showFileAcDemo = function(rootElement) {
-    React.render(<FileAutoComplete />, rootElement);
+    ReactDOM.render(<FileAutoComplete />, rootElement);
 };
 
 module.exports = {

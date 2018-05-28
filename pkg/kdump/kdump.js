@@ -20,6 +20,7 @@
 var cockpit = require("cockpit");
 
 var React = require("react");
+var ReactDOM = require("react-dom");
 
 var kdumpView = require("./kdump-view.jsx");
 var kdumpClient = require("./kdump-client.es6");
@@ -58,7 +59,7 @@ var initStore = function(rootElement) {
         });
     }
     var render = function() {
-        React.render(React.createElement(kdumpView.page, {
+        ReactDOM.render(React.createElement(kdumpView.page, {
             kdumpActive: false,
             onSetServiceState: setServiceState,
             stateChanging: dataStore.stateChanging,

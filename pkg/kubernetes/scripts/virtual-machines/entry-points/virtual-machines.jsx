@@ -19,6 +19,7 @@
 
 import 'regenerator-runtime/runtime'; // required for library initialization
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import VmsListing from '../components/VmsListing.jsx';
@@ -56,7 +57,7 @@ function init ($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest) {
     initialize($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest, store);
 
     const rootElement = document.querySelector('#kubernetes-virtual-machines-root');
-    React.render(<VmsPage />, rootElement);
+    ReactDOM.render(<VmsPage />, rootElement);
 }
 
 export { init };

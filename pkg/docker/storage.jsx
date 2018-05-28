@@ -24,6 +24,7 @@
     var cockpit = require("cockpit");
 
     var React = require("react");
+    var ReactDOM = require("react-dom");
     var dialog_view = require("cockpit-components-dialog.jsx");
 
     var python = require("python.jsx");
@@ -460,12 +461,12 @@
 
         var model = get_storage_model();
 
-        React.render(<DriveBox model={model} callback={add_callback} />,
-                     $("#storage-drives")[0]);
-        React.render(<PoolBox model={model} />,
-                     $("#storage-pool")[0]);
-        React.render(<OverviewBox model={model} />,
-                     $("#storage-overview")[0]);
+        ReactDOM.render(<DriveBox model={model} callback={add_callback} />,
+                        $("#storage-drives")[0]);
+        ReactDOM.render(<PoolBox model={model} />,
+                        $("#storage-pool")[0]);
+        ReactDOM.render(<OverviewBox model={model} />,
+                        $("#storage-overview")[0]);
 
         function update() {
             if (model.error) {

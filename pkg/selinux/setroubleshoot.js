@@ -21,6 +21,7 @@ var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
 var React = require("react");
+var ReactDOM = require("react-dom");
 
 var troubleshootClient = require("./setroubleshoot-client");
 var selinuxClient = require("./selinux-client.es6");
@@ -139,7 +140,7 @@ var initStore = function(rootElement) {
 
     var render = function() {
         var enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
-        React.render(React.createElement(troubleshootView.SETroubleshootPage, {
+        ReactDOM.render(React.createElement(troubleshootView.SETroubleshootPage, {
                 connected: dataStore.connected,
                 connecting: dataStore.connecting,
                 error: dataStore.error,

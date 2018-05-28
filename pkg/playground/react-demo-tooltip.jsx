@@ -21,6 +21,7 @@
     "use strict";
 
     var React = require("react");
+    var ReactDOM = require("react-dom");
 
     var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
@@ -49,7 +50,7 @@
             </table>
         );
 
-        React.render(tooltip, element);
+        ReactDOM.render(tooltip, element);
 
         var top_tooltip = (
             <center>
@@ -59,7 +60,7 @@
             </center>
         );
 
-        React.render(top_tooltip, top_element);
+        ReactDOM.render(top_tooltip, top_element);
     }
 
     module.exports = {

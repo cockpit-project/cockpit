@@ -21,6 +21,8 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import ReactDOM from 'react-dom';
+
 import firewall from "./firewall-client.es6";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
@@ -338,5 +340,5 @@ export class Firewall extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
 
-    React.render(<Firewall />, document.getElementById("firewall"));
+    ReactDOM.render(<Firewall />, document.getElementById("firewall"));
 });

@@ -19,6 +19,7 @@
 
 import 'regenerator-runtime/runtime'; // required for library initialization
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import { setVms, vmExpanded } from '../action-creators.jsx';
@@ -90,7 +91,7 @@ function init ($scope, $routeParams, kubeLoader, kubeSelect, kubeMethods, KubeRe
     initialize($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest, store, onDestroy);
 
     const rootElement = document.querySelector('#kubernetes-virtual-machine-root');
-    React.render(<VmPage pageParams={{name, namespace}} />, rootElement);
+    ReactDOM.render(<VmPage pageParams={{name, namespace}} />, rootElement);
 }
 
 export { init };

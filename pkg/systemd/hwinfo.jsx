@@ -21,6 +21,8 @@ import cockpit from "cockpit";
 import moment from 'moment';
 import '../lib/polyfills.js'; // once per application
 import React from "react";
+import ReactDOM from 'react-dom';
+
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
 import detect from "./hw-detect.es6";
@@ -107,6 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
     moment.locale(cockpit.language);
     detect().then(info => {
         console.debug("hardware info collection data:", JSON.stringify(info));
-        React.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));
+        ReactDOM.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));
     });
 });

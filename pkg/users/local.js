@@ -21,6 +21,7 @@ var $ = require("jquery");
 var cockpit = require("cockpit");
 
 var React = require("react");
+var ReactDOM = require("react-dom");
 var Mustache = require("mustache");
 var authorized_keys = require("./authorized-keys");
 
@@ -353,7 +354,7 @@ PageAccounts.prototype = {
                      account["shell"] === '/bin/false');
         });
 
-        React.render(
+        ReactDOM.render(
             React.createElement(AccountList, { accounts: accounts }),
             document.getElementById('accounts-list')
         );

@@ -50,9 +50,18 @@ import VCPUModal from './components/vcpuModal.jsx';
 
 import {
     buildFailHandler,
+    canConsole,
+    canDelete,
+    canInstall,
+    canReset,
+    canRun,
+    canSendNMI,
+    canShutdown,
     canLoggedUserConnectSession,
     getDomainElem,
+    isRunning,
     parseDumpxml,
+    serialConsoleCommand,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -109,19 +118,18 @@ LIBVIRT_PROVIDER = {
         return true; // or Promise
     },
 
-    canReset: (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused',
-    canShutdown: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
-    canDelete: (vmState, vmId, providerState) => true,
-    isRunning: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
-    canRun: (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off',
-    canInstall: (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase,
-    canConsole: (vmState) => vmState == 'running',
-    canSendNMI: (vmState) => LIBVIRT_PROVIDER.canReset(vmState),
     openVCPUModal: (params) => VCPUModal(params),
 
-    serialConsoleCommand: ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false,
-
     /* Start of common provider functions */
+    canConsole,
+    canDelete,
+    canInstall,
+    canReset,
+    canRun,
+    canSendNMI,
+    canShutdown,
+    isRunning,
+    serialConsoleCommand,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,

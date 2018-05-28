@@ -476,6 +476,16 @@ export function resolveUiState(dispatch, name) {
  * The order should be kept alphabetical in this section.
  */
 
+export let canConsole = (vmState) => vmState == 'running';
+export let canDelete = (vmState, vmId, providerState) => true;
+export let canInstall = (vmState, hasInstallPhase) => vmState != 'running' && hasInstallPhase;
+export let canReset = (vmState) => vmState == 'running' || vmState == 'idle' || vmState == 'paused';
+export let canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
+export let canSendNMI = (vmState) => canReset(vmState);
+export let canShutdown = (vmState) => canReset(vmState);
+export let isRunning = (vmState) => canReset(vmState);
+export let serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
+
 export function CHECK_LIBVIRT_STATUS({ serviceName }) {
     logDebug(`${this.name}.CHECK_LIBVIRT_STATUS`);
     return dispatch => {

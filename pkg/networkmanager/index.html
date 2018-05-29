@@ -40,7 +40,19 @@
   </div>
 
   <div id="networking" class="container-fluid page-ct" hidden>
-    <div class="row">
+    <div id="networking-nm-crashed" class="alert alert-danger" hidden>
+      <button class="btn btn-default pull-right" type="submit" translatable="yes">Start Service</button>
+        <span class="pficon pficon-error-circle-o"></span>
+        <strong translatable="yes">NetworkManager is not running.</strong> <a href="#" class="alert-link">Troubleshoot…</a>
+    </div>
+
+    <div id="networking-nm-disabled" class="alert alert-info" hidden>
+      <button class="btn btn-default pull-right" type="submit" translatable="yes">Enable Service</button>
+      <span class="pficon pficon-info"></span>
+      <strong translatable="yes">Network devices and graphs require NetworkManager.</strong>
+    </div>
+
+    <div id="networking-graphs" class="row">
       <div id="networking-graph-toolbar" class="zoom-controls standard-zoom-controls">
         <div class="dropdown">
           <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">

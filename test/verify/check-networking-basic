@@ -85,5 +85,74 @@ class TestNetworking(NetworkCase):
 
         wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show '%s'" % con_id))
 
+    @skipImage("cockpit-system too old", "rhel-7-5")
+    def testNoService(self):
+        b = self.browser
+        m = self.machine
+
+        def assert_running():
+            b.wait_not_visible("#networking-nm-crashed")
+            b.wait_not_visible("#networking-nm-disabled")
+            b.wait_visible("#networking-graphs")
+            b.wait_visible("#networking-interfaces")
+            b.wait_present("#networking-interfaces tr[data-interface='eth1']")
+
+        def assert_stopped(enabled):
+            # should hide graphs and actions and show the appropriate notification
+            b.wait_not_visible("#networking-graphs")
+            b.wait_not_visible("#networking-interfaces")
+            if enabled:
+                b.wait_visible("#networking-nm-crashed")
+                b.wait_not_visible("#networking-nm-disabled")
+            else:
+                b.wait_not_visible("#networking-nm-crashed")
+                b.wait_visible("#networking-nm-disabled")
+
+        self.login_and_go("/network")
+        assert_running()
+
+        # Disable NM D-Bus activation; it auto-starts at unpredictable times from background actions,
+        # which makes it impossible/meaningless to write a test; copy the full unit file, Alias= cannot
+        # be reliably disabled with drop-ins
+        m.execute("""systemctl cat NetworkManager.service | sed '/Alias=/d' > /etc/systemd/system/NetworkManager.service
+rm -f --verbose /etc/systemd/system/dbus-org.freedesktop.NetworkManager.service
+systemctl daemon-reload""")
+
+        # stop/start NM on CLI, page should notice
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        m.execute("systemctl start NetworkManager")
+        assert_running()
+
+        # stop NM, test inline start button
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        b.click("#networking-nm-crashed button")
+        assert_running()
+
+        # stop NM, test troubleshoot button
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        b.click("#networking-nm-crashed a")
+        b.enter_page("/system/services")
+        b.wait_present("#service-unit")
+        b.wait_in_text("#service-unit", "NetworkManager.service")
+        b.wait_present("button[data-action='StartUnit']")
+        b.click("button[data-action='StartUnit']")
+        b.wait_in_text("#service-unit", "(running)")
+        # networking page should notice start from Services page
+        b.go("/network")
+        b.enter_page("/network")
+        assert_running()
+
+        # stop and disable NM, enablement info notification
+        m.execute("systemctl stop NetworkManager; systemctl disable NetworkManager")
+        assert_stopped(False)
+        b.click("#networking-nm-disabled button")
+        assert_running()
+        wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
+
+        self.allow_journal_messages(".*org.freedesktop.NetworkManager.*")
+
 if __name__ == '__main__':
     test_main()

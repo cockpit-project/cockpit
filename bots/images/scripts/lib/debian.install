@@ -81,6 +81,9 @@ if [ -n "$do_install" ]; then
     # after start_cockpit().
     systemctl disable cockpit.socket
 
+    # HACK: tuned breaks QEMU (https://launchpad.net/bugs/1774000)
+    systemctl disable tuned.service 2>/dev/null || true
+
     # firewall-cmd --add-service=cockpit --permanent
 
     rm -rf /var/log/journal/*

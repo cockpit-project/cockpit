@@ -22,6 +22,7 @@ var cockpit = require('cockpit');
 
 var firewall = require('./firewall-client.es6').default;
 var utils = require('./utils');
+var service = require('service');
 
 var Mustache = require('mustache');
 var plot = require('plot');
@@ -406,6 +407,65 @@ function NetworkManagerModel() {
             return export_model_deferred.promise();
         }
     };
+
+    /**
+     * Handle NM not running
+     */
+    var nm_service = service.proxy("NetworkManager");
+    var nm_enabled = null;
+    var nm_running = null;
+
+    function update_nm_trouble() {
+        nm_debug("update_nm_trouble; enabled", nm_enabled, "running", nm_running);
+        // need to wait until we have both pieces of information
+        if (nm_enabled === null || nm_running === null)
+            return;
+
+        // running
+        if (nm_running) {
+            $("#networking-nm-crashed").hide();
+            $("#networking-nm-disabled").hide();
+            $("#networking-graphs").show();
+            $("#networking-interfaces").show();
+            // NM appearing will also trigger a device update, which hides it if necessary
+            $("#networking-unmanaged-interfaces").show();
+        } else {
+            $("#networking-graphs").hide();
+            $("#networking-interfaces").hide();
+            $("#networking-unmanaged-interfaces").hide();
+            if (nm_enabled) {
+                $("#networking-nm-disabled").hide();
+                $("#networking-nm-crashed").show();
+            } else {
+                $("#networking-nm-disabled").show();
+                $("#networking-nm-crashed").hide();
+            }
+        }
+    }
+
+    nm_service.addEventListener('changed', function() {
+        nm_enabled = nm_service.enabled;
+        update_nm_trouble();
+    });
+
+    // track NM going away or reappearing
+    client.addEventListener("owner", function(event, owner) {
+        nm_debug("NetworkManager owner changed:", JSON.stringify(owner));
+        nm_running = (owner !== null);
+        update_nm_trouble();
+    });
+
+    // Troubleshoot link and start button
+    $("#networking-nm-crashed a").click(function() {
+        cockpit.jump("/system/services#/NetworkManager.service", cockpit.transport.host);
+    });
+    $("#networking-nm-crashed button").click(nm_service.start);
+
+    // Enable NM button
+    $("#networking-nm-disabled button").click(function() {
+        nm_service.enable();
+        nm_service.start();
+    });
 
     client.call("/org/freedesktop/NetworkManager",
                 "org.freedesktop.DBus.Properties", "Get",

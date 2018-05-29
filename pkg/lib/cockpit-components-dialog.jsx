@@ -166,7 +166,7 @@ var DialogFooter = React.createClass({
         var cancel_disabled;
         if (this.state.action_in_progress) {
             actions_disabled = 'disabled';
-            if (!this.state.action_in_progress_promise.cancel && !this.state.action_progress_cancel)
+            if (!(this.state.action_in_progress_promise && this.state.action_in_progress_promise.cancel) && !this.state.action_progress_cancel)
                 cancel_disabled = 'disabled';
             wait_element = <div className="dialog-wait-ct pull-left">
                 <div className="spinner spinner-sm" />

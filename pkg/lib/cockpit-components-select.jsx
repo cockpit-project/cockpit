@@ -22,6 +22,7 @@
 
     const cockpit = require("cockpit");
     const React = require("react");
+    const ReactDOM = require("react-dom");
 
     require("page.css");
 
@@ -53,7 +54,7 @@
         }
 
         componentDidMount() {
-            const handler = this.handleDocumentClick.bind(this, React.findDOMNode(this));
+            const handler = this.handleDocumentClick.bind(this, ReactDOM.findDOMNode(this));
             this.setState({ documentClickHandler: handler });
             document.addEventListener('click', handler, false);
         }

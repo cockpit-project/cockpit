@@ -97,7 +97,7 @@ class HostVmsList extends React.Component {
                         .map(vm => {
                             if (vm.isUi) {
                                 return (
-                                    <DummyVm vm={vm} />
+                                    <DummyVm vm={vm} key={`${vmId(vm.name)}`} />
                                 );
                             }
                             return (

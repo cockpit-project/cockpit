@@ -101,7 +101,7 @@ class VmDisksTabLibvirt extends React.Component {
         let actions = [];
 
         if (config.provider.name != 'oVirt')
-            actions = [<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} vm={vm} storagePools={storagePools} />];
+            actions = [<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} key='add-disk' vm={vm} storagePools={storagePools} />];
 
         return (
             <VmDisksTab idPrefix={idPrefix}

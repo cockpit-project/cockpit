@@ -25,18 +25,23 @@ const NotificationArea = ({ notifications, onDismiss, id }) => {
         return null;
     }
 
-    const notificationList = [...notifications].sort((a, b) => a.id < b.id).map((notification) => {
-        const isError = notification.type === 'error';
-        const clazz = isError ? 'alert-danger' : 'alert-info';
-        const icon = isError ? 'pficon-error-circle-o' : 'pficon pficon-info';
+    const notificationList = [...notifications].sort((a, b) => a.id < b.id)
+            .map((notification) => {
+                const isError = notification.type === 'error';
+                const clazz = isError ? 'alert-danger' : 'alert-info';
+                const icon = isError ? 'pficon-error-circle-o' : 'pficon pficon-info';
 
-        return (<Notification onDismiss={onDismiss ? onDismiss.bind(onDismiss, notification.id) : null}
-                              id={`${id}-notification-${notification.id}`}
-                              notificationClass={'alert ' + clazz}
-                              iconClass={'pficon ' + icon}>
-            <NotificationMessage description={notification.description} message={notification.message} />
-        </Notification>);
-    });
+                const description = notification.description ? notification.description.toString() : notification.description;
+                const message = notification.message ? notification.message.toString() : notification.message;
+
+                return (<Notification onDismiss={onDismiss ? onDismiss.bind(onDismiss, notification.id) : null}
+                                  id={`${id}-notification-${notification.id}`}
+                                  notificationClass={'alert ' + clazz}
+                                  iconClass={'pficon ' + icon}
+                                  key={notification}>
+                    <NotificationMessage description={description} message={message} />
+                </Notification>);
+            });
 
     return (
         <div id={id}>
@@ -45,11 +50,9 @@ const NotificationArea = ({ notifications, onDismiss, id }) => {
     );
 };
 
-Notification.propTypes = {
+NotificationArea.propTypes = {
     notifications: PropTypes.array.isRequired,
-    messages: PropTypes.string,
-    onErrorsDismiss: PropTypes.func,
-    onMessagesDismiss: PropTypes.func,
+    onDismiss: PropTypes.func,
     id: PropTypes.string,
 };
 

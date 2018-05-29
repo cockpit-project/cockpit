@@ -283,7 +283,7 @@ var ListingRow = React.createClass({
  */
 var Listing = React.createClass({
     propTypes: {
-        title: React.PropTypes.string.isRequired,
+        title: React.PropTypes.string,
         fullWidth: React.PropTypes.bool,
         emptyCaption: React.PropTypes.string.isRequired,
         columnTitles: React.PropTypes.arrayOf(
@@ -296,6 +296,7 @@ var Listing = React.createClass({
     },
     getDefaultProps: function () {
         return {
+            title: '',
             fullWidth: true,
             columnTitles: [],
             actions: []

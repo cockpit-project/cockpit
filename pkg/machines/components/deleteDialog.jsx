@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 const DeleteDialogBody = ({ values, onChange }) => {
     function disk_row(disk) {
         return (
-            <tr>
+            <tr key={disk}>
                 <td>
                     <input type="checkbox" checked={disk.checked}
                            onChange={(event) => {

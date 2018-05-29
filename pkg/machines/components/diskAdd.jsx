@@ -331,7 +331,7 @@ class AddDisk extends React.Component {
                                        name="source"
                                        checked={this.state.mode === CREATE_NEW}
                                        onChange={e => this.onValueChanged('mode', CREATE_NEW)}
-                                       extraClass={this.state.mode === CREATE_NEW && "active"} />
+                                       extraClass={this.state.mode === CREATE_NEW ? "active" : ''} />
                                 <label className="control-label" htmlFor={`${idPrefix}-createnew`}>
                                     {_("Create New")}
                                 </label>
@@ -343,7 +343,7 @@ class AddDisk extends React.Component {
                                        name="source"
                                        checked={this.state.mode === USE_EXISTING}
                                        onChange={e => this.onValueChanged('mode', USE_EXISTING)}
-                                       extraClass={this.state.mode === USE_EXISTING && "active"} />
+                                       extraClass={this.state.mode === USE_EXISTING ? "active" : ''} />
                                 <label className="control-label" htmlFor={`${idPrefix}-useexisting`}>
                                     {_("Use Existing")}
                                 </label>

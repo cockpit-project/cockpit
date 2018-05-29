@@ -72,15 +72,18 @@ class MigrateTo extends React.Component {
                     }
                 </td>
                 <td>
-                    <select className='combobox form-control ovirt-provider-migrateto-combo' onChange={onHostChange} disabled={this.state.confirmAction} id={`${idPrefix}-migratetoselect`}>
-                        <option value={null} selected={!this.state.selectedHostId}>
-                            <i>{_("Automatically selected host")}</i>
+                    <select className='combobox form-control ovirt-provider-migrateto-combo'
+                            onChange={onHostChange}
+                            disabled={this.state.confirmAction}
+                            id={`${idPrefix}-migratetoselect`}
+                            defaultValue={this.state.selectedHostId}>
+                        <option value={null} key='select-automatically'>
+                            {_("Automatically selected host")}
                         </option>
                         {Object.getOwnPropertyNames(hosts)
                                 .filter(hostId => canVmMigrateToHost({host: hosts[hostId]}))
                                 .map(hostId => (
-                                    <option value={hostId}
-                                        selected={hostId === this.state.selectedHostId}
+                                    <option value={hostId} key={hostId}
                                         disabled={isSameHostAddress(hosts[hostId].address)}>
                                         {hosts[hostId].name}
                                     </option>
@@ -135,27 +138,35 @@ const OVirtTab = ({ vm, providerState, dispatch }) => {
 
     return (
         <table className='machines-width-max'>
-            <tr className='machines-listing-ct-body-detail'>
-                <td className='ovirt-provider-listing-top-column'>
-                    <table className='form-table-ct'>
-                        <VmProperty descr={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
-                        <VmTemplate clusterVm={clusterVm} templates={providerState.templates} id={`${idPrefix}-template`} />
-                        <VmProperty descr={_("OS Type:")} value={clusterVm.os.type} id={`${idPrefix}-ostype`} />
-                    </table>
-                </td>
-                <td className='ovirt-provider-listing-top-column'>
-                    <table className='form-table-ct'>
-                        <VmHA clusterVm={clusterVm} id={`${idPrefix}-ha`} />
-                        <VmProperty descr={_("Stateless:")} value={rephraseUI('stateless', clusterVm.stateless)} id={`${idPrefix}-stateless`} />
-                        <VmProperty descr={_("Optimized for:")} value={clusterVm.type} id={`${idPrefix}-optimizedfor`} />
-                    </table>
-                </td>
-                <td className='ovirt-provider-listing-top-column'>
-                    <table className='form-table-ct'>
-                        <MigrateTo vm={vm} hosts={providerState.hosts} dispatch={dispatch} />
-                    </table>
-                </td>
-            </tr>
+            <tbody>
+                <tr className='machines-listing-ct-body-detail'>
+                    <td className='ovirt-provider-listing-top-column'>
+                        <table className='form-table-ct'>
+                            <tbody>
+                                <VmProperty descr={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
+                                <VmTemplate clusterVm={clusterVm} templates={providerState.templates} id={`${idPrefix}-template`} />
+                                <VmProperty descr={_("OS Type:")} value={clusterVm.os.type} id={`${idPrefix}-ostype`} />
+                            </tbody>
+                        </table>
+                    </td>
+                    <td className='ovirt-provider-listing-top-column'>
+                        <table className='form-table-ct'>
+                            <tbody>
+                                <VmHA clusterVm={clusterVm} id={`${idPrefix}-ha`} />
+                                <VmProperty descr={_("Stateless:")} value={rephraseUI('stateless', clusterVm.stateless)} id={`${idPrefix}-stateless`} />
+                                <VmProperty descr={_("Optimized for:")} value={clusterVm.type} id={`${idPrefix}-optimizedfor`} />
+                            </tbody>
+                        </table>
+                    </td>
+                    <td className='ovirt-provider-listing-top-column'>
+                        <table className='form-table-ct'>
+                            <tbody>
+                                <MigrateTo vm={vm} hosts={providerState.hosts} dispatch={dispatch} />
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     );
 };

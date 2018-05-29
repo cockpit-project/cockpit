@@ -57,8 +57,10 @@ class CreateVM extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            vmName: props.vmParams.vmName,
             vendor: props.vmParams.vendor,
             os: props.vmParams.os,
+            source: props.vmParams.source,
             memorySize: convertToUnit(props.vmParams.memorySize, units.MiB, units.GiB), // tied to Unit
             memorySizeUnit: units.GiB.name,
             storageSize: props.vmParams.storageSize, // tied to Unit
@@ -87,6 +89,10 @@ class CreateVM extends React.Component {
         };
 
         switch (key) {
+        case 'vmName': {
+            this.setState({ [key]: value });
+            break;
+        }
         case 'vendor': {
             const os = this.props.vendorMap[value][0].shortId;
             this.setState({
@@ -102,6 +108,8 @@ class CreateVM extends React.Component {
         case 'source':
             if (valueParams) {
                 notifyValuesChanged('error', valueParams.error);
+            } else {
+                this.setState({ [key]: value });
             }
             break;
         case 'sourceType':
@@ -140,14 +148,14 @@ class CreateVM extends React.Component {
         if (this.props.familyMap[DIVIDER_FAMILY]) {
             vendorSelectEntries.push((
                 <Select.SelectEntry data={NOT_SPECIFIED} key={NOT_SPECIFIED}>{_(NOT_SPECIFIED)}</Select.SelectEntry>));
-            vendorSelectEntries.push((<Select.SelectDivider />));
+            vendorSelectEntries.push((<Select.SelectDivider key='divider' />));
         }
 
         this.props.familyList.forEach(({ family, vendors }) => {
             if (family === DIVIDER_FAMILY) {
                 return;
             }
-            vendorSelectEntries.push((<Select.SelectHeader>{family}</Select.SelectHeader>));
+            vendorSelectEntries.push((<Select.SelectHeader key={family}>{family}</Select.SelectHeader>));
 
             vendors.forEach((vendor) => {
                 vendorSelectEntries.push((
@@ -157,8 +165,10 @@ class CreateVM extends React.Component {
 
         const osEntries = (
             this.props.vendorMap[this.state.vendor]
-                    .map(os => (<Select.SelectEntry data={os.shortId}
-                        key={os.shortId}>{getOSStringRepresentation(os)}</Select.SelectEntry>))
+                    .map(os => (
+                        <Select.SelectEntry data={os.shortId} key={os.shortId}>
+                            {getOSStringRepresentation(os)}
+                        </Select.SelectEntry>))
         );
 
         let installationSource;
@@ -180,7 +190,7 @@ class CreateVM extends React.Component {
                     type="text"
                     minLength={1}
                     placeholder={_("Remote URL")}
-                    value={this.props.vmParams.source}
+                    value={this.state.source}
                     onChange={this.onChangedEventValue.bind(this, 'source')} />
             );
             break;
@@ -189,96 +199,99 @@ class CreateVM extends React.Component {
         return (
             <div className="modal-body modal-dialog-body-table">
                 <table className="form-table-ct">
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="vm-name">
-                                {_("Name")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="vm-name" className="form-control" type="text" minLength={1}
-                                   value={this.props.vmParams.vmName}
-                                   onChange={this.onChangedEventValue.bind(this, 'vmName')} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="source-type">
-                                {_("Installation Source Type")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select id="source-type"
-                                           initial={this.state.sourceType}
-                                           onChange={this.onChangedValue.bind(this, 'sourceType')}>
-                                <Select.SelectEntry data={COCKPIT_FILESYSTEM_SOURCE}
-                                                    key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
-                                <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
-                            </Select.Select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor={installationSourceId}>
-                                {_("Installation Source")}
-                            </label>
-                        </td>
-                        <td>
-                            {installationSource}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="vendor-select">
-                                {_("OS Vendor")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select id="vendor-select"
-                                           initial={this.state.vendor}
-                                           onChange={this.onChangedValue.bind(this, 'vendor')}>
-                                {vendorSelectEntries}
-                            </Select.Select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="vendor-select">
-                                {_("Operating System")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.StatelessSelect id="system-select"
-                                                    selected={this.state.os}
-                                                    onChange={this.onChangedValue.bind(this, 'os')}>
-                                {osEntries}
-                            </Select.StatelessSelect>
-                        </td>
-                    </tr>
-                    <MemorySelectRow label={_("Memory")}
-                                     id={"memory-size"}
-                                     value={this.state.memorySize}
-                                     initialUnit={this.state.memorySizeUnit}
-                                     onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')} />
-                    <MemorySelectRow label={_("Storage Size")}
-                                     id={"storage-size"}
-                                     value={this.state.storageSize}
-                                     initialUnit={this.state.storageSizeUnit}
-                                     onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                                     onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')} />
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="start-vm">
-                                {_("Immediately Start VM")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="start-vm" type="checkbox"
-                                   checked={this.props.vmParams.startVm}
-                                   onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="vm-name">
+                                    {_("Name")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="vm-name" className="form-control" type="text" minLength={1}
+                                       value={this.state.vmName}
+                                       placeholder={_("Unique name")}
+                                       onChange={this.onChangedEventValue.bind(this, 'vmName')} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="source-type">
+                                    {_("Installation Source Type")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select id="source-type"
+                                               initial={this.state.sourceType}
+                                               onChange={this.onChangedValue.bind(this, 'sourceType')}>
+                                    <Select.SelectEntry data={COCKPIT_FILESYSTEM_SOURCE}
+                                                        key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
+                                    <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
+                                </Select.Select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor={installationSourceId}>
+                                    {_("Installation Source")}
+                                </label>
+                            </td>
+                            <td>
+                                {installationSource}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="vendor-select">
+                                    {_("OS Vendor")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select id="vendor-select"
+                                               initial={this.state.vendor}
+                                               onChange={this.onChangedValue.bind(this, 'vendor')}>
+                                    {vendorSelectEntries}
+                                </Select.Select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="vendor-select">
+                                    {_("Operating System")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.StatelessSelect id="system-select"
+                                                        selected={this.state.os}
+                                                        onChange={this.onChangedValue.bind(this, 'os')}>
+                                    {osEntries}
+                                </Select.StatelessSelect>
+                            </td>
+                        </tr>
+                        <MemorySelectRow label={_("Memory")}
+                                         id={"memory-size"}
+                                         value={this.state.memorySize}
+                                         initialUnit={this.state.memorySizeUnit}
+                                         onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
+                                         onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')} />
+                        <MemorySelectRow label={_("Storage Size")}
+                                         id={"storage-size"}
+                                         value={this.state.storageSize}
+                                         initialUnit={this.state.storageSizeUnit}
+                                         onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
+                                         onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')} />
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="start-vm">
+                                    {_("Immediately Start VM")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="start-vm" type="checkbox"
+                                       checked={this.props.vmParams.startVm}
+                                       onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );
@@ -344,9 +357,9 @@ function validateParams(vmParams) {
 
 export const createVmDialog = (dispatch, osInfoList) => {
     const vmParams = {
-        'vmName': null,
+        'vmName': '',
         "sourceType": COCKPIT_FILESYSTEM_SOURCE,
-        'source': null,
+        'source': '',
         'vendor': NOT_SPECIFIED,
         "os": OTHER_OS_SHORT_ID,
         'memorySize': 1024, // MiB
@@ -409,7 +422,7 @@ export const createVmDialog = (dispatch, osInfoList) => {
 
 export function createVmAction({ dispatch, systemInfo }) {
     return (
-        <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
+        <a key='create-vm-action' className="card-pf-link-with-icon pull-right" id="create-new-vm"
             onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
             <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
         </a>

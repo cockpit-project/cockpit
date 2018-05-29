@@ -60,7 +60,7 @@ class InlineNotification extends React.Component {
                     {text}
                 </strong>
                 {detailButton}
-                {this.state.isDetail && detail}
+                {this.state.isDetail && (<p>{detail}</p>)}
             </div>
         );
     }

@@ -62,7 +62,7 @@ const StateIcon = ({ state, config, valueId, extra }) => {
 };
 
 StateIcon.propTypes = {
-    state: PropTypes.string.isRequired,
+    state: PropTypes.string,
     config: PropTypes.object,
     valueId: PropTypes.string,
     extra: PropTypes.any,

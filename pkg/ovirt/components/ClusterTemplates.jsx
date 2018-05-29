@@ -131,7 +131,7 @@ const ClusterTemplates = ({ config, dispatch }) => {
     }
 
     return (<div className='container-fluid'>
-        <Listing title={title} columnTitles={[
+        <Listing title={title} emptyCaption='' columnTitles={[
             _("Name"), _("Version"), _("Base Template"), _("Description"), _("Memory"), _("vCPUs"), _("OS"),
             _("HA"), _("Stateless"), _("Action")]}>
             {Object.getOwnPropertyNames(templates).map(templateId => {
@@ -140,7 +140,7 @@ const ClusterTemplates = ({ config, dispatch }) => {
                         templates={templates}
                         cluster={currentCluster}
                         dispatch={dispatch}
-                    />);
+                        key={templateId} />);
             })}
         </Listing>
     </div>);

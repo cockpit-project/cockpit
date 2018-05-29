@@ -72,14 +72,14 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
 
     let run = null;
     if (config.provider.canRun(state, hasInstallPhase)) {
-        run = (<button className="btn btn-default btn-danger" onClick={mouseClick(onStart)} id={`${id}-run`}>
+        run = (<button key='action-run' className="btn btn-default btn-danger" onClick={mouseClick(onStart)} id={`${id}-run`}>
             {_("Run")}
         </button>);
     }
 
     let install = null;
     if (config.provider.canInstall(state, hasInstallPhase)) {
-        install = (<button className="btn btn-default btn-danger" onClick={mouseClick(onInstall)} id={`${id}-install`}>
+        install = (<button key='action-install' className="btn btn-default btn-danger" onClick={mouseClick(onInstall)} id={`${id}-install`}>
             {_("Install")}
         </button>);
     }
@@ -87,27 +87,27 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     let providerActions = null;
     if (config.provider.VmActions) {
         const ProviderActions = config.provider.VmActions;
-        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} />;
+        providerActions = <ProviderActions vm={vm} providerState={config.providerState} dispatch={dispatch} key='provider-actions' />;
     }
 
     let deleteAction = null;
     if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state, vm.id, config.providerState)) {
         deleteAction = (
-            <button className="btn btn-danger" id={`${id}-delete`}
+            <button key='action-delete' className="btn btn-danger" id={`${id}-delete`}
                     onClick={mouseClick(() => deleteDialog(vm, dispatch))}>
                 {_("Delete")}
             </button>
         );
     }
 
-    return (<div>
-        {reset}
-        {shutdown}
-        {run}
-        {install}
-        {providerActions}
-        {deleteAction}
-    </div>);
+    return [
+        reset,
+        shutdown,
+        run,
+        install,
+        providerActions,
+        deleteAction,
+    ];
 };
 
 VmActions.propTypes = {

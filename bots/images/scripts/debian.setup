@@ -31,6 +31,7 @@ python3-dbus \
 realmd \
 selinux-basics \
 thin-provisioning-tools \
+tuned \
 xdg-utils \
 udisks2 \
 udisks2-lvm2 \
@@ -64,6 +65,7 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
         echo >> /etc/apt/sources.list
         echo 'deb http://security.debian.org/debian-security stable/updates main' >> /etc/apt/sources.list
@@ -81,6 +83,7 @@ case "$RELEASE" in
         # these packages are not in Ubuntu 16.04
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
         # NFS and NetworkManager don't work together
         TEST_PACKAGES="${TEST_PACKAGES/nfs-server /}"

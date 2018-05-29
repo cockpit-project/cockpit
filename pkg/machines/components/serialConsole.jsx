@@ -23,6 +23,11 @@ import { SerialConsole } from '@patternfly/react-console';
 
 const _ = cockpit.gettext;
 
+const XTERM_FONT_FAMILY = 'Menlo, Monaco, Consolas, monospace';
+const XTERM_FONT_SIZE = 12;
+const XTERM_COLS = 90;
+const XTERM_ROWS = 30;
+
 class SerialConsoleCockpit extends React.Component {
     constructor (props) {
         super(props);
@@ -116,8 +121,10 @@ class SerialConsoleCockpit extends React.Component {
     render () {
         return (
             <SerialConsole id={this.props.vmName} ref='serialconsole'
-                rows={30}
-                cols={90}
+                rows={XTERM_ROWS}
+                cols={XTERM_COLS}
+                fontFamily={XTERM_FONT_FAMILY}
+                fontSize={XTERM_FONT_SIZE}
                 status={this.getStatus()}
                 onConnect={this.onConnect}
                 onDisconnect={this.onDisconnect}

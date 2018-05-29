@@ -72,11 +72,11 @@ var DialogFooter = React.createClass({
     },
     componentDidMount: function() {
         document.body.classList.add("modal-in");
-        document.addEventListener('keyup', this.keyUpHandler.bind(this));
+        document.addEventListener('keyup', this.keyUpHandler);
     },
     componentWillUnmount: function() {
         document.body.classList.remove("modal-in");
-        document.removeEventListener('keyup', this.keyUpHandler.bind(this));
+        document.removeEventListener('keyup', this.keyUpHandler);
     },
     update_progress: function(msg, cancel) {
         this.setState({ action_progress_message: msg, action_progress_cancel: cancel });
@@ -93,7 +93,7 @@ var DialogFooter = React.createClass({
             action_canceled: false,
         });
 
-        var p = handler(this.update_progress.bind(this))
+        var p = handler(this.update_progress)
                 .then(function() {
                     self.setState({ action_in_progress: false, error_message: null });
                     if (self.props.dialog_done)
@@ -113,7 +113,7 @@ var DialogFooter = React.createClass({
                 });
 
         if (p.progress)
-            p.progress(this.update_progress.bind(this));
+            p.progress(this.update_progress);
 
         this.setState({ action_in_progress_promise: p });
 
@@ -222,7 +222,7 @@ var DialogFooter = React.createClass({
                 { wait_element }
                 <button
                     className={ cancel_style }
-                    onClick={ this.cancel_click.bind(this) }
+                    onClick={ this.cancel_click }
                     disabled={ cancel_disabled }
                 >{ cancel_caption }</button>
                 { action_buttons }

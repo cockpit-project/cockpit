@@ -27,8 +27,8 @@ const VmLastMessage = ({ vm, dispatch }) => {
     }
 
     const textId = `${vmId(vm.name)}-last-message`;
-    let detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception : null;
-    detail = detail && (<p>{detail}</p>);
+    let detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception : undefined;
+    detail = detail ? (detail.toString ? detail.toString() : detail) : undefined;
 
     const onDismiss = () => {
         dispatch(deleteVmMessage({ name: vm.name, connectionName: vm.connectionName }));

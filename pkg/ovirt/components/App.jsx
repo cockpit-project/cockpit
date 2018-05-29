@@ -148,7 +148,7 @@ const createOvirtVmAction = () => {
     const tip = _("This host is managed by a virtualization manager, so creation of new VMs from the host is not possible.");
 
     return (
-        <div className='card-pf-link-with-icon pull-right'>
+        <div className='card-pf-link-with-icon pull-right' key='create-vm-ovirt'>
             <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
                 <span className="pficon pficon-add-circle-o" />
                 <Tooltip tip={tip} pos="top">

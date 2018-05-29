@@ -225,7 +225,7 @@ class TestOVirtMachines(MachineCase):
         b.wait_present("button:contains('Create VM')") # try again
         b.click("button:contains('Create VM')")
         b.wait_present("input.form-control")
-        b.set_val("input.form-control", "myVMFromBlankTemplate")
+        b.set_input_text("input.form-control", "myVMFromBlankTemplate")
 
         # Workaround to speed-up whole test execution - should be in setUp() but effectively needed up here.
         self.wait_for_dc() # make sure the ovirt's DC is up before new VM is created
@@ -235,7 +235,7 @@ class TestOVirtMachines(MachineCase):
         b.wait_present("button:contains('Create VM')")
         b.click("button:contains('Create VM')")
         b.wait_present("input.form-control")
-        b.set_val("input.form-control", "VM") # the 'VM' machine exists already
+        b.set_input_text("input.form-control", "VM") # the 'VM' machine exists already
         # assuming the DC is still up - otherwise its environment issue
         b.click("button:contains('Create')") # expected to fail here
         b.wait_present("#clustervm-Blank-actionerror")
@@ -258,7 +258,8 @@ class TestOVirtMachines(MachineCase):
         b.click("#ovirt-topnav-vdsm")
         b.wait_in_text("body", "Edit the vdsm.conf")
         b.wait_present("#vdsmview-data-loaded")
-        b.set_val("textarea", TEST_VDSM_CONF_CONTENT)
+        b.wait_present("textarea")
+        b.set_input_text("textarea", TEST_VDSM_CONF_CONTENT)
         b.click("button:contains('Save')")
         b.wait_present("button:contains('OK')")
         b.click("button:contains('OK')")  # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().

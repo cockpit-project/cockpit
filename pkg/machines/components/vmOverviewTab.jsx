@@ -42,7 +42,7 @@ const Items = ({ items, idPrefix, divider, colClass }) => {
                     }
 
                     return (
-                        <div className={`${colClass} ${item.className || ''}`}>
+                        <div key={item.title} className={`${colClass} ${item.className || ''}`}>
                             {content}
                         </div>
                     );
@@ -62,7 +62,7 @@ const VmOverviewTab = ({ message, idPrefix, items, extraItems }) => {
             <Items items={items} idPrefix={idPrefix} divider={extraItems ? 6 : 12} />
             {extraItems && extraItems.map(col =>
                 (<Items items={col} idPrefix={idPrefix} divider='3'
-                        colClass='col-lg-12 col-md-12 col-sm-12 col-xs-12' />))}
+                        colClass='col-lg-12 col-md-12 col-sm-12 col-xs-12' key={col} />))}
         </div>);
 };
 

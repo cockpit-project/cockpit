@@ -72,19 +72,21 @@ const ConsoleSelector = ({ onChange, selected, isSerialConsole, vm }) => {
 
     return (
         <table className='form-table-ct'>
-            <tr>
-                <td className='top'>
-                    <label>{_("Console Type")}</label>
-                </td>
-                <td>
-                    <Select.StatelessSelect id="console-type-select"
-                                            selected={selected}
-                                            onChange={onChange}
-                                            extraClass='console-type-select'>
-                        {entries}
-                    </Select.StatelessSelect>
-                </td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td className='top'>
+                        <label>{_("Console Type")}</label>
+                    </td>
+                    <td>
+                        <Select.StatelessSelect id="console-type-select"
+                                                selected={selected}
+                                                onChange={onChange}
+                                                extraClass='console-type-select'>
+                            {entries}
+                        </Select.StatelessSelect>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     );
 };

@@ -68,7 +68,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
         { name: _("MAC Address"), value: 'mac' },
         { name: _("Target"), value: 'target' },
         { name: _("Source"), value: (network, networkId) => {
-            const setSourceClass = (source) => checkDeviceAviability(source) && "machines-network-source-link";
+            const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link" : undefined;
             const mapSource = {
                 direct: (source) => <span className={setSourceClass(source.dev)} onClick={sourceJump(source.dev)}>{source.dev}</span>,
                 network: (source) => <span className={setSourceClass(source.network)} onClick={sourceJump(source.network)}>{source.network}</span>,
@@ -132,7 +132,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
 
     return (
         <div className="machines-network-list">
-            <Listing columnTitles={detailMap.map(target => target.name)} actions={null}>
+            <Listing columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
                 {vm.interfaces.sort().map(target => {
                     const columns = detailMap.map(d => {
                         let column = null;
@@ -148,7 +148,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
                     });
                     networkId++;
 
-                    return (<ListingRow columns={columns} />);
+                    return (<ListingRow columns={columns} key={networkId} />);
                 })}
             </Listing>
         </div>

@@ -65,7 +65,7 @@ const Vnc = ({ vm, consoleDetail }) => {
     params = consoleDetail.password ? params += `&password=${consoleDetail.password}` : params;
 
     return (
-        <div id={novncContainerId} className='machines-console-frame' style={{ height: '100px;' }}>
+        <div id={novncContainerId} className='machines-console-frame' style={{ height: '100px' }}>
             <br />
             <Frame url={`vnc.html${params}`} novncContainerId={novncContainerId} />
         </div>

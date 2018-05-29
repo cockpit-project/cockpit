@@ -40,49 +40,51 @@ const InstallationDialogBody = ({ values, onChange }) => {
     return (
         <div className='modal-body'>
             <table className='form-table-ct'>
-                <tr>
-                    <td className='top'>
-                        <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-fqdn'>
-                            {_("FQDN")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id='ovirt-provider-install-dialog-engine-fqdn'
-                               className='form-control'
-                               type='text'
-                               placeholder='engine.mydomain.com'
-                               onChange={(event) => {
-                                   values.oVirtUrl = event.target.value;
-                                   onChange();
-                               }}
-                        />
-                    </td>
-                </tr>
-                <tr>
-                    <td className='top'>
-                        <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-port'>
-                            {_("Port")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id='ovirt-provider-install-dialog-engine-fqdn'
-                               className='form-control'
-                               type='text'
-                               placeholder={OVIRT_DEFAULT_PORT}
-                               onChange={(event) => {
-                                   values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
-                                   onChange();
-                               }}
-                        />
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan='2'>
-                        <p>
-                            {_("Please provide fully qualified domain name and port of the oVirt engine.")}
-                        </p>
-                    </td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td className='top'>
+                            <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-fqdn'>
+                                {_("FQDN")}
+                            </label>
+                        </td>
+                        <td>
+                            <input id='ovirt-provider-install-dialog-engine-fqdn'
+                                   className='form-control'
+                                   type='text'
+                                   placeholder='engine.mydomain.com'
+                                   onChange={(event) => {
+                                       values.oVirtUrl = event.target.value;
+                                       onChange();
+                                   }}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='top'>
+                            <label className='control-label' htmlFor='ovirt-provider-install-dialog-engine-port'>
+                                {_("Port")}
+                            </label>
+                        </td>
+                        <td>
+                            <input id='ovirt-provider-install-dialog-engine-fqdn'
+                                   className='form-control'
+                                   type='text'
+                                   placeholder={OVIRT_DEFAULT_PORT}
+                                   onChange={(event) => {
+                                       values.oVirtPort = isNumeric(event.target.value) ? event.target.value : values.oVirtPort;
+                                       onChange();
+                                   }}
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan='2'>
+                            <p>
+                                {_("Please provide fully qualified domain name and port of the oVirt engine.")}
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     );

@@ -34,8 +34,8 @@ const VmActions = ({ vm, providerState, dispatch }) => {
 
     // TODO: add user confirmation
     return (
-        <div className='btn-group'>
-            <button className='btn btn-default' id={`${idPrefix}-suspendbutton`}
+        <div className='btn-group' key='action-suspend-group'>
+            <button key='action-suspend' className='btn btn-default' id={`${idPrefix}-suspendbutton`}
                     onClick={() => dispatch(suspendVm({ id: clusterVm.id, name: clusterVm.name, connectionName: vm.connectionName }))}>
                 {_("Suspend")}
             </button>

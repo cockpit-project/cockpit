@@ -177,7 +177,7 @@ const ClusterVms = ({ dispatch, config }) => {
     }
 
     return (<div className='container-fluid'>
-        <Listing title={title} columnTitles={[
+        <Listing title={title} emptyCaption='' columnTitles={[
             _("Name"), _("Description"), _("Template"), _("Memory"), _("vCPUs"), _("OS"),
             _("HA"), _("Stateless"), _("Host"),
             (<div className='ovirt-provider-cluster-vms-actions'>{_("Action")}</div>),
@@ -189,6 +189,7 @@ const ClusterVms = ({ dispatch, config }) => {
                         templates={templates}
                         config={config}
                         dispatch={dispatch}
+                        key={vmId}
                     />);
             })}
         </Listing>

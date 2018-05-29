@@ -33,7 +33,7 @@ const DropdownButtons = ({ buttons }) => {
         const buttonsHtml = buttons
                 .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
                 .map(button => {
-                    return (<li className='presentation'>
+                    return (<li className='presentation' key={button.title}>
                         <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id}>
                             {button.title}
                         </a>
@@ -41,7 +41,7 @@ const DropdownButtons = ({ buttons }) => {
                 });
 
         const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
-        return (<div className='btn-group dropdown-buttons-container'>
+        return (<div className='btn-group dropdown-buttons-container' key={`dropdown-${caretId}`}>
             <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
                 {buttons[0].title}
             </button>

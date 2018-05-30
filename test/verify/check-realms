@@ -121,7 +121,7 @@ class TestRealms(MachineCase):
         m.execute("! su -c klist admin")
         b.logout()
 
-        if m.image in ["fedora-28"]:
+        if m.image in ["fedora-28", "fedora-testing"]:
             # HACK: fix authselect/IPA regression (https://bugzilla.redhat.com/show_bug.cgi?id=1582111)
             self.machine.execute("authselect enable-feature with-sudo")
 
@@ -262,7 +262,7 @@ class TestRealms(MachineCase):
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
         m.execute("echo foobarfoo | realm join -vU admin cockpit.lan")
 
-        if m.image in ["fedora-28"]:
+        if m.image in ["fedora-28", "fedora-testing"]:
             # HACK: fix authselect/IPA regression (https://bugzilla.redhat.com/show_bug.cgi?id=1582111)
             self.machine.execute("authselect enable-feature with-sudo")
 

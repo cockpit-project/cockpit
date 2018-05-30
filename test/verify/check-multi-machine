@@ -497,6 +497,25 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/cockpit-new/');
         self.allow_hostkey_messages()
 
+    @skipImage("cockpit-ws too old", "rhel-7-5")
+    def testUrlRootWithQuery(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.start_cockpit()
+
+        b.open("/cockpit-new/system?access_token=XXXX")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.set_checked("#authorized-input", True)
+        b.click('#login-button')
+        b.expect_load()
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
+
     def testExternalPage(self):
         b = self.browser
         m1 = self.machine

@@ -211,7 +211,7 @@ var DialogFooter = React.createClass({
         if (error_message) {
             error_element = <div className="alert alert-danger dialog-error">
                 <span className="fa fa-exclamation-triangle" />
-                <span>{ error_message }</span>
+                <span>{ React.isValidElement(error_message) ? error_message : error_message.toString() }</span>
             </div>;
         }
         return (

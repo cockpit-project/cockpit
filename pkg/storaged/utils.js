@@ -687,5 +687,14 @@
         }
     };
 
+    // TODO - generalize this to arbitrary number of arguments (when needed)
+    utils.fmt_to_array = function fmt_to_array(fmt, arg) {
+        var index = fmt.indexOf("$0");
+        if (index >= 0)
+            return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
+        else
+            return [ fmt ];
+    };
+
     module.exports = utils;
 }());

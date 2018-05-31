@@ -30,7 +30,6 @@
     var inotify_py = require("raw!inotify.py");
     var nfs_mounts_py = require("raw!./nfs-mounts.py");
     var vdo_monitor_py = require("raw!./vdo-monitor.py");
-    var cockpit_clevis_tool_py = require("raw!./cockpit-clevis-tool.py");
 
     /* STORAGED CLIENT
      */
@@ -411,13 +410,9 @@
         }
 
         function enable_clevis_features() {
-            if (window.localStorage["clevis-feature"] != "on")
-                return cockpit.resolve();
-
-            return cockpit.spawn([ "which", "clevis" ], { err: "ignore" }).then(
+            return cockpit.spawn([ "which", "clevis-bind-luks" ], { err: "ignore" }).then(
                 function () {
                     client.features.clevis = true;
-                    client.clevis_overlay.start();
                     return cockpit.resolve();
                 },
                 function () {
@@ -822,94 +817,6 @@
     }
 
     client.vdo_overlay = vdo_overlay();
-
-    /* HACK - clevis */
-
-    function clevis_overlay() {
-        var self = {
-            start: start,
-
-            info: { },
-
-            find_by_block: find_by_block,
-
-            remove: remove,
-            get_tang_adv: get_tang_adv,
-            add: add,
-            check_key: check_key,
-            replace: replace,
-            unlock: unlock
-        };
-
-        function spawn_tool(args) {
-            return cockpit.spawn([ "python3", "--", "-" ].concat(args), { superuser: "try", err: "message" })
-                .input(cockpit_clevis_tool_py);
-        }
-
-        function start() {
-            var buf = "";
-            spawn_tool([ "monitor" ])
-                .stream(function (output) {
-                    var lines;
-
-                    buf += output;
-                    lines = buf.split("\n");
-                    buf = lines[lines.length-1];
-                    if (lines.length >= 2) {
-                        self.info = JSON.parse(lines[lines.length-2]);
-                        client.dispatchEvent("changed");
-                    }
-                }).
-                fail(function (error) {
-                    if (error != "closed") {
-                        console.warn(error);
-                    }
-                });
-        }
-
-        function some(array, func) {
-            var i;
-            for (i = 0; i < array.length; i++) {
-                var val = func(array[i]);
-                if (val)
-                    return val;
-            }
-            return null;
-        }
-
-        function find_by_block(block) {
-            function check(encoded) { return self.info[utils.decode_filename(encoded)] }
-            return check(block.Device) || some(block.Symlinks, check);
-        }
-
-        function remove(block, key) {
-            return spawn_tool([ "remove", utils.decode_filename(block.Device), key.slot ]);
-        }
-
-        function get_tang_adv(url) {
-            return spawn_tool([ "get-tang-adv", url ]).then(JSON.parse);
-        }
-
-        function add(block, pin, config, passphrase) {
-            return spawn_tool([ "add", utils.decode_filename(block.Device), pin, JSON.stringify(config), passphrase ]);
-        }
-
-        function check_key(block, slot) {
-            return spawn_tool([ "check-key", utils.decode_filename(block.Device), slot ]);
-        }
-
-        function replace(block, slot, pin, config) {
-            return spawn_tool([ "replace", utils.decode_filename(block.Device), slot, pin, JSON.stringify(config) ]);
-        }
-
-        function unlock(block) {
-            return spawn_tool([ "unlock", utils.decode_filename(block.Device) ]);
-        }
-
-        return self;
-    }
-
-    client.clevis_overlay = clevis_overlay();
 
     function init_manager() {
         /* Storaged 2.6 and later uses the UDisks2 API names, but try the

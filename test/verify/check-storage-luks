@@ -24,6 +24,7 @@ from storagelib import *
 
 class TestStorage(StorageCase):
     def testLuks(self):
+        self.allow_journal_messages("Device is not initialized.*")
         m = self.machine
         b = self.browser
 
@@ -123,12 +124,12 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
+    @skipImage("No clevis/tang",
+               "centos-7", "rhel-7-5-distropkg", "rhel-7-6",
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
-
-        if m.execute("which clevis || true") == "":
-            self.skipTest("No clevis/tang here")
 
         # HACK - clevis in rhel devel is too old
         can_unlock = m.image not in [ "rhel-x" ]
@@ -173,32 +174,32 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-        # Set the flag and reload the page to make the Clevis stuff appear
-        #
-        b.eval_js('window.localStorage["clevis-feature"] = "on"')
-        b.reload()
-        b.enter_page("/storage")
-
         # Lock the disk
         #
         self.content_head_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
+        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        tab = self.content_tab_expand(1, 1)
+        panel = tab + " .panel:contains(Keys) "
+        b.wait_present(panel)
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "Passphrase")
+
         # Add a key
         #
-        self.content_tab_wait_in_info(1, 1, "Network keys", "")
-        self.content_tab_action(1, 1, "Add")
+        b.click(panel + ".fa-plus")
         self.dialog_wait_open()
-        self.dialog_set_val("method", "tang")
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("type", "tang")
         self.dialog_set_val("tang_url", "127.0.0.1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        b.wait_in_text("#dialog", "The output should match this text")
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches:")
         b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
-
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "127.0.0.1")
+        b.wait_present(panel + ".table tr:nth-child(2)")
+        b.wait_in_text(panel + ".table tr:nth-child(2)", "127.0.0.1")
 
         if can_unlock:
             # Unlock it.  This should succeed without prompting.
@@ -206,84 +207,41 @@ class TestStorage(StorageCase):
             self.content_head_action(1, "Unlock")
             self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-        # Rotate the encryption key on the server, and rebind
-
-        m.execute("mv /var/db/tang/enc1.jwk /var/db/tang/.enc1.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc2.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-
-        self.content_tab_action(1, 1, "Check")
+        # Edit the key, without providing an existing passphrase
+        #
+        b.click(panel + ".table tr:nth-child(2) .pficon-edit")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is obsolete.")
-        b.wait_in_text("#dialog", "A new key has been securely retrieved from the server.")
+        self.dialog_wait_apply_enabled()
+        self.dialog_wait_val("tang_url", "127.0.0.1")
+        self.dialog_set_val("tang_url", "http://127.0.0.1/")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches:")
+        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
         self.dialog_apply()
         self.dialog_wait_close()
-
-        # Remove obsolete key, disk should still unlock
-
-        m.execute("rm /var/db/tang/.enc1.jwk")
-        m.execute("systemctl restart tangd-update")
-        if can_unlock:
-            self.content_head_action(1, "Lock")
-            b.wait_not_in_text("#detail-content", "ext4 File System")
-            self.content_head_action(1, "Unlock")
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Rotate both the encryption key and the signing key on the server, and rebind
-
-        m.execute("mv /var/db/tang/enc2.jwk /var/db/tang/.enc2.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc3.jwk")
-        m.execute("mv /var/db/tang/sig1.jwk /var/db/tang/.sig1.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ES512\"}' >/var/db/tang/sig2.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is obsolete.")
-        b.wait_in_text("#dialog", "The output should match this text")
-        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig2.jwk").strip())
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        # Remove the key on the server
-
-        m.execute("rm /var/db/tang/enc3.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is not recognized anymore by the server.")
-        self.dialog_cancel()
-        self.dialog_wait_close()
+        b.wait_in_text(panel + ".table tr:nth-child(2)", "http://127.0.0.1/")
 
         # Remove key on client
-
-        b.wait_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
-        self.content_tab_action(1, 1, "Remove")
+        #
+        b.click(panel + ".table tr:nth-child(2) .fa-minus")
         self.confirm()
-        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
+        b.wait_not_present(panel + ".table tr:nth-child(2)")
 
-    def testClevisHttp(self):
+    @skipImage("No clevis/tang",
+               "centos-7", "rhel-7-5-distropkg", "rhel-7-6",
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+    def testSlots(self):
+        self.allow_journal_messages("Device is not initialized.*")
         m = self.machine
         b = self.browser
 
-        if m.execute("which clevis || true") == "":
-            self.skipTest("No clevis/tang here")
-
-        # HACK - clevis in rhel devel is too old
-        can_unlock = m.image not in [ "rhel-x" ]
-
-        # Start our escrow server
-        m.upload([ "verify/files/mock-escrow-server" ], "/usr/local/bin/")
-        escrow_pid = m.spawn("/usr/local/bin/mock-escrow-server /tmp/SECRET 88", "mock-escrow-server.log")
-
         self.login_and_go("/storage")
 
-        # Add a disk and format it with luks
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
-
+        # create volume and passphrase
         self.content_tab_action(1, 1, "Format")
         self.dialog({ "type": "luks+ext4",
                       "name": "ENCRYPTED",
@@ -291,70 +249,103 @@ class TestStorage(StorageCase):
                       "passphrase2": "vainu-reku-toma-rolle-kaja" })
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Set the flag and reload the page to make the Clevis stuff appear
-        #
-        b.eval_js('window.localStorage["clevis-feature"] = "on"')
-        b.reload()
-        b.enter_page("/storage")
-
-        # Lock the disk
-        #
-        self.content_head_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
-
-        # Add a key
-        #
-        self.content_tab_wait_in_info(1, 1, "Network keys", "")
-        self.content_tab_action(1, 1, "Add")
+        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        # add one more passphrase
+        tab = self.content_tab_expand(1, 1)
+        panel = tab + " .panel:contains(Keys) "
+        b.click(panel + ".fa-plus")
         self.dialog_wait_open()
-        self.dialog_set_val("method", "http")
-        self.dialog_set_val("http_url", "http://127.0.0.1:88")
-        self.dialog_set_val("allow_plain_http", True)
-        self.dialog_set_val("http_method", "PUT")
-        self.dialog_set_val("key_type", "octet-stream")
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("type", "luks-passphrase")
+        self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1:88")
-
-        # Unlock it.  This should succeed without prompting.
-        #
-        if can_unlock:
-            self.content_head_action(1, "Unlock")
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Check the key, should be working right now
-        #
-        self.content_tab_action(1, 1, "Check")
+        # unlock with first passphrase
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+        self.content_head_action(1, "Unlock")
+        self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja" })
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        # unlock with second passphrase
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+        self.content_head_action(1, "Unlock")
+        self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja-1" })
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        # delete second key slot by providing passphrase
+        b.click(panel + "tr:nth-child(2) .fa-minus")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key works fine right now")
-        self.dialog_cancel()
+        b.set_val(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_apply()
         self.dialog_wait_close()
-
-        # Break the key in the server and check again
-        #
-        m.execute("echo foo >/tmp/SECRET")
-        self.content_tab_action(1, 1, "Check")
+        # check that it is not possible to unlock with deleted passphrase
+        self.content_head_action(1, "Lock")
+        b.wait_not_in_text("#detail-content", "ext4 File System")
+        self.content_head_action(1, "Unlock")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "The server has returned a key that doesn't work.")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_apply()
+        b.wait_present(".dialog-error")
+        b.wait_in_text(".dialog-error", "Error unlocking /dev/sda: Failed to activate device: Operation not permitted")
         self.dialog_cancel()
-        self.dialog_wait_close()
 
-        # Kill the server and check
-        #
-        m.execute("kill %s" % escrow_pid)
-        self.content_tab_action(1, 1, "Check")
+        # add more passphrases, seven exactly, to reach the limit of eight
+        for i in range(1,8):
+            b.click(panel + ".fa-plus")
+            self.dialog_wait_open()
+            self.dialog_wait_apply_enabled()
+            self.dialog_set_val("type", "luks-passphrase")
+            self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-%s" % i)
+            self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-%s" % i)
+            self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+        # check if add button is inactive
+        b.wait_present(panel + ".disabled")
+        # check if edit button is inactive
+        slots_table = tab + " .panel table "
+        b.wait_present(slots_table + ".disabled")
+        # remove one slot
+        slots_table = tab + " .panel table "
+        b.wait_present(slots_table + "tbody tr:last-child .fa-minus")
+        b.click(slots_table + "tbody tr:last-child .fa-minus")
+        b.set_val(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        # check if buttons have become enabled after removing last slot
+        b.wait_not_present(slots_table + ".disabled")
+        b.wait_not_present(panel + ".disabled")
+        # remove slot 0, with the original passphrase
+        b.click(slots_table + "tbody tr:nth-child(1) .fa-minus")
+        b.click(self.dialog_field("passphrase") + " label:contains(Force remove passphrase in key slot 0)")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        # check that it is not possible to unlock with deleted passphrase
+        self.content_head_action(1, "Unlock")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Retrieving the key from http://127.0.0.1:88 has failed: Connection refused.")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        b.wait_present(".dialog-error")
+        b.wait_in_text(".dialog-error", "Error unlocking /dev/sda: Failed to activate device: Operation not permitted")
         self.dialog_cancel()
+        # change one of the passphrases
+        b.wait_present(slots_table + "tbody tr:last-child .pficon-edit")
+        b.click(slots_table + "tbody tr:last-child .pficon-edit")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja-6")
+        self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-8")
+        self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-8")
+        self.dialog_apply()
         self.dialog_wait_close()
+        # unlock volume with the newly created passphrase
+        self.content_head_action(1, "Unlock")
+        self.dialog({ "passphrase": "vainu-reku-toma-rolle-kaja-8" })
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-        # Remove key on client
-        #
-        self.content_tab_action(1, 1, "Remove")
-        self.confirm()
-        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "http://127.0.0.1:88")
 
 if __name__ == '__main__':
     test_main()

@@ -148,15 +148,6 @@ var StorageBlockNavLink = React.createClass({
         if (!block)
             return null;
 
-        // TODO - generalize this to arbitrary number of arguments (when needed)
-        function fmt_to_array(fmt, arg) {
-            var index = fmt.indexOf("$0");
-            if (index >= 0)
-                return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
-            else
-                return [ fmt ];
-        }
-
         var parts = utils.get_block_link_parts(client, block.path);
 
         var link = (
@@ -165,7 +156,7 @@ var StorageBlockNavLink = React.createClass({
             </a>
         );
 
-        return <span>{fmt_to_array(parts.format, link)}</span>;
+        return <span>{utils.fmt_to_array(parts.format, link)}</span>;
     }
 });
 

@@ -631,6 +631,7 @@ Requires: udisks2 >= 2.6
 Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
+Recommends: clevis-luks
 %else
 # Fedora < 27
 Requires: storaged >= 2.1.1

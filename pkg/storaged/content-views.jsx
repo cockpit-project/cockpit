@@ -170,11 +170,25 @@ function create_tabs(client, target, is_partition) {
         return crypto.Lock({});
     }
 
+    function clevis_unlock() {
+        var dev = utils.decode_filename(block.Device);
+        var clear_dev = "luks-" + block.IdUUID;
+        return cockpit.spawn([ "clevis", "luks", "unlock", "-d", dev, "-n", clear_dev ],
+                             { superuser: true })
+                .catch(() => {
+                    // HACK - https://github.com/latchset/clevis/issues/36
+                    // Clevis-luks-unlock before version 10 always exit 1, so
+                    // we check whether the expected device exists afterwards.
+                    return cockpit.spawn([ "test", "-e", "/dev/mapper/" + clear_dev ],
+                                         { superuser: true });
+                });
+    }
+
     function unlock() {
         if (!client.features.clevis)
             return unlock_with_passphrase();
         else {
-            return client.clevis_overlay.unlock(block)
+            return clevis_unlock()
                     .then(null,
                           function () {
                               return unlock_with_passphrase();

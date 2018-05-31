@@ -44,7 +44,7 @@ const VmMessage = ({ vm, vmMessages, onDismiss }: { vm: Vm, vmMessages: VmMessag
 
 VmMessage.propTypes = {
     vm: PropTypes.object.isRequired,
-    vmMessages: PropTypes.object.isRequired,
+    vmMessages: PropTypes.object,
     onDismiss: PropTypes.func.isRequired,
 };
 

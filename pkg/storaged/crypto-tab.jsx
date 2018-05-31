@@ -34,13 +34,48 @@ var FormatButton = FormatDialog.FormatButton;
 
 var ClevisDialogs = require("./clevis-dialogs.jsx");
 
+var python = require("python.jsx");
+var luksmeta_monitor_hack_py = require("raw!./luksmeta-monitor-hack.py");
+
 var _ = cockpit.gettext;
 
 var CryptoTab = React.createClass({
+    monitor_slots: function (block) {
+        // HACK - we only need this until UDisks2 has a Encrypted.Slot property or similar.
+        if (block != this.monitored_block) {
+            if (this.monitored_block)
+                this.monitor_channel.close();
+            this.monitored_block = block;
+            if (block) {
+                var dev = utils.decode_filename(block.Device);
+                console.log("Explicitly monitoring luksmeta slots on " + dev);
+                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ],
+                                                    { superuser: "try" });
+
+                var buf = "";
+                this.monitor_channel.stream(output => {
+                    var lines;
+                    buf += output;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length - 1];
+                    if (lines.length >= 2) {
+                        this.setState({ slots: JSON.parse(lines[lines.length - 2]) });
+                    }
+                });
+            }
+        }
+    },
+
+    componentDidUnmount: function () {
+        this.monitor_slots(null);
+    },
+
     render: function () {
         var self = this;
         var client = self.props.client;
         var block = self.props.block;
+
+        this.monitor_slots(block);
 
         function edit_config(modify) {
             var old_config, new_config;
@@ -123,25 +158,36 @@ var CryptoTab = React.createClass({
             });
         }
 
-        function render_clevis_keys(keys) {
+        function decode_clevis_slot(slot) {
+            if (slot.ClevisConfig) {
+                var clevis = JSON.parse(slot.ClevisConfig.v);
+                if (clevis.pin && clevis[clevis.pin] && (clevis.pin == "tang" || clevis.pin == "http")) {
+                    return { slot: slot.Index.v,
+                             type: clevis.pin,
+                             url: clevis[clevis.pin].url
+                    };
+                }
+            }
+        }
+
+        function render_clevis_keys(slots) {
             return (
                 <table className="network-keys-table">
                     <tbody>
                         {
-                            keys.map(function (key) {
-                                return (
-                                    <tr key={key.slot}>
-                                        <td>{key.type} {key.url}</td>
-                                        <td>
-                                            <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
-                                                Remove
-                                            </StorageButton>
-                                            <StorageButton onClick={() => ClevisDialogs.check(client, block, key)}>
-                                                Check
-                                            </StorageButton>
-                                        </td>
-                                    </tr>
-                                );
+                            slots.map(decode_clevis_slot).map(key => {
+                                if (key) {
+                                    return (
+                                        <tr key={key.slot}>
+                                            <td>{key.type} {key.url}</td>
+                                            <td>
+                                                <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
+                                                    Remove
+                                                </StorageButton>
+                                            </td>
+                                        </tr>
+                                    );
+                                }
                             })
                         }
                         <tr>
@@ -177,7 +223,7 @@ var CryptoTab = React.createClass({
                         { self.props.client.features.clevis
                             ? <tr>
                                 <td>{_("Network keys")}</td>
-                                <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
+                                <td>{ render_clevis_keys(this.state.slots || [ ]) }</td>
                             </tr> : null
                         }
                     </tbody>

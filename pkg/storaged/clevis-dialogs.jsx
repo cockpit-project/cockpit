@@ -21,8 +21,78 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { dialog_open, SelectOne, TextInput, PassInput, CheckBox } from "./dialogx.jsx";
+import { decode_filename } from "./utils.js";
+
+import sha1 from "js-sha1";
+import stable_stringify from "json-stable-stringify";
 
 const _ = cockpit.gettext;
+
+/* Tang advertisement utilities
+ */
+
+function get_tang_adv(url) {
+    return cockpit.spawn([ "curl", "-sSf", url + "/adv" ], { err: "message" }).then(JSON.parse);
+}
+
+function tang_adv_payload(adv) {
+    return JSON.parse(cockpit.utf8_decoder().decode(cockpit.base64_decode(adv["payload"])));
+}
+
+function jwk_b64_encode(bytes) {
+    // Use the urlsafe character set, and strip the padding.
+    return cockpit.base64_encode(bytes).replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, '');
+}
+
+function compute_thp(jwk) {
+    var REQUIRED_ATTRS = {
+        'RSA': ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
+        'EC':  ['kty', 'crv', 'x', 'y'],
+        'oct': ['kty', 'k'],
+    };
+
+    var req = REQUIRED_ATTRS[jwk.kty];
+    var norm = { };
+    req.forEach(k => { if (k in jwk) norm[k] = jwk[k]; });
+    return jwk_b64_encode(sha1.digest(stable_stringify(norm)));
+}
+
+function compute_sigkey_thps(adv) {
+    function is_signing_key(jwk) {
+        if (!jwk.use && !jwk.key_ops)
+            return true;
+        if (jwk.use == "sig")
+            return true;
+        if (jwk.key_ops && jwk.key_ops.indexOf("verify") >= 0)
+            return true;
+        return false;
+    }
+
+    return adv.keys.filter(is_signing_key).map(compute_thp);
+}
+
+/* Clevis operations
+ */
+
+function clevis_add(block, pin, cfg, passphrase) {
+    // HACK - clevis 6 has only "bind luks", let's use that for now
+    var dev = decode_filename(block.Device);
+    return cockpit.spawn([ "clevis", "bind", "luks", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg) ],
+                         { superuser: true, err: "message" }).input(passphrase);
+}
+
+function clevis_remove(block, key) {
+    // HACK - only clevis version 10 brings "luks unbind"
+    // cryptsetup needs a terminal on stdin, even with -q or --key-file.
+    var script = 'cryptsetup luksKillSlot -q "$0" "$1" && luksmeta wipe -d "$0" -s "$1" -f';
+    return cockpit.spawn([ "/bin/sh", "-c", script, decode_filename(block.Device), key.slot ],
+                         { superuser: true, err: "message", pty: true });
+}
+
+/* Dialogs
+ */
 
 export function add(client, block) {
     dialog_open({ Title: _("Add network key"),
@@ -59,7 +129,7 @@ export function add(client, block) {
                                 [ { value: "octet-stream", title: "octet-stream" },
                                     { value: "jwk+json", title: "jwk+json" }
                                 ]),
-                      TextInput("tang_url", _("Key server address"),
+                      TextInput("tang_url", _("Key server URL"),
                                 { validate: val => !val.length && _("Server address cannot be empty"),
                                   visible: vals => vals.method == "tang"
                                 }),
@@ -71,37 +141,39 @@ export function add(client, block) {
                       Title: _("Add"),
                       action: function (vals) {
                           if (vals.method == "tang") {
-                              return client.clevis_overlay.get_tang_adv(vals.tang_url).then(function (info) {
-                                  add_tang_adv(client, block, vals.tang_url, info, vals.passphrase);
+                              return get_tang_adv(vals.tang_url).then(function (adv) {
+                                  add_tang_adv(client, block, vals.tang_url, adv, vals.passphrase);
                               });
                           } else if (vals.method == "http") {
-                              return client.clevis_overlay.add(block, "http",
-                                                               { url: vals.http_url,
-                                                                 http: vals.allow_plain_http,
-                                                                 type: vals.key_type,
-                                                                 method: vals.http_method },
-                                                               vals.passphrase);
+                              return clevis_add(block, "http",
+                                                { url: vals.http_url,
+                                                  http: vals.allow_plain_http,
+                                                  type: vals.key_type,
+                                                  method: vals.http_method },
+                                                vals.passphrase);
                           }
                       }
                   }
     });
 }
 
-function add_tang_adv(client, block, url, info, passphrase) {
-    verify_tang_adv(url, info,
+function add_tang_adv(client, block, url, adv, passphrase) {
+    verify_tang_adv(url, adv,
                     _("Verify Key"),
                     null,
                     _("Trust Key"),
                     function () {
-                        return client.clevis_overlay.add(block, "tang", { url: url, adv: info.adv }, passphrase);
+                        return clevis_add(block, "tang", { url: url, adv: adv }, passphrase);
                     });
 }
 
-function verify_tang_adv(url, info, title, extra, action_title, action) {
+function verify_tang_adv(url, adv, title, extra, action_title, action) {
     var port_pos = url.lastIndexOf(":");
     var host = (port_pos >= 0) ? url.substr(0, port_pos) : url;
     var port = (port_pos >= 0) ? url.substr(port_pos + 1) : "";
     var cmd = cockpit.format("ssh $0 tang-show-keys $1", host, port);
+
+    var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 
     dialog_open({ Title: title,
                   Body: (
@@ -113,7 +185,7 @@ function verify_tang_adv(url, info, title, extra, action_title, action) {
                           </p>
                           <p>
                               <span>{_("The output should match this text: ")}</span>
-                              <pre><samp>{info.sigkeys.join("\n")}</samp></pre>
+                              <pre><samp>{sigkey_thps.join("\n")}</samp></pre>
                           </p>
                       </div>
                   ),
@@ -136,131 +208,8 @@ export function remove(client, block, key) {
                       DangerButton: true,
                       Title: _("Remove key"),
                       action: function () {
-                          return client.clevis_overlay.remove(block, key);
+                          return clevis_remove(block, key);
                       }
                   }
     });
-}
-
-export function check(client, block, key) {
-    // Cases for tang:
-    //
-    // 0) server decrypts with key and advertises it -> say everything okay, do nothing
-    // 1) server doesn't decrypt with key anymore -> let people remove
-    // 2) server decrypts but doesn't advertise anymore -> let people update
-    // 3) can't reach the server -> say that, do nothing
-    //
-    // Cases for http:
-    //
-    // 0) we get a key and that key decrypts -> say everything okay, do nothing
-    // 1) we get a key but it doesn't decrypt -> let people remove
-    // 2) can't reach the server -> say that, do nothing
-
-    function key_is_okay() {
-        dialog_open({ Title: _("Key is okay"),
-                      Body: <p>{_("This network key works fine right now and the encrypted data can be unlocked with it.")}</p>
-        });
-    }
-
-    function key_is_broken(reason) {
-        dialog_open({ Title: _("Key does not work"),
-                      Body: (
-                          <div>
-                              <p>{reason} {_("You might want to remove it.")}</p>
-                              <p>{_("Removing network keys might prevent unattended booting.")}</p>
-                          </div>
-                      ),
-                      Action: {
-                          DangerButton: true,
-                          Title: _("Remove key"),
-                          action: function () {
-                              return client.clevis_overlay.remove(block, key);
-                          }
-                      }
-        });
-    }
-
-    function key_is_obsolete(info) {
-        function replace() {
-            return client.clevis_overlay.replace(block, key.slot, "tang", { url: key.url, adv: info.adv });
-        }
-
-        for (var i = 0; i < key.sigkeys.length; i++) {
-            if (info.sigkeys.indexOf(key.sigkeys[i]) >= 0) {
-                dialog_open({ Title: _("Key is obsolete"),
-                              Body: (
-                                  <div>
-                                      <p>{_("This network key is obsolete. It is still functional but it should be replaced. A new key has been securely retrieved from the server.")}</p>
-                                  </div>
-                              ),
-                              Action: {
-                                  Title: _("Use new key"),
-                                  action: replace
-                              }
-                });
-                return;
-            }
-        }
-
-        verify_tang_adv(key.url, info,
-                        _("Key is obsolete"),
-                        _("This network key is obsolete. It is still functional but it should be replaced. A new key has been retrieved from the server."),
-                        _("Trust new key"),
-                        replace);
-    }
-
-    function server_cant_be_reached() {
-        dialog_open({ Title: _("Server can't be reached"),
-                      Body: (
-                          <p>{cockpit.format(_("The key server at $0 can not be reached.  This network key can not unlock the encrypted data right now, but it might be able to when the server becomes reachable again."), key.url)}</p>
-                      )
-        });
-    }
-
-    function key_retrieval_failed(error) {
-        var msg = error.toString();
-        msg = msg.replace(/curl: (.*) Failed to connect to .*: /, "");
-        dialog_open({ Title: _("Key can't be retrieved"),
-                      Body: (
-                          <p>{cockpit.format(_("Retrieving the key from $0 has failed: $1."),
-                                             key.url, msg)}</p>
-                      )
-        });
-    }
-
-    if (key.type == "tang") {
-        client.clevis_overlay.get_tang_adv(key.url)
-                .then(function (info) {
-                    client.clevis_overlay.check_key(block, key.slot)
-                            .then(function () {
-                                if (info.keys.indexOf(key.key) >= 0) {
-                                    key_is_okay();
-                                } else {
-                                    key_is_obsolete(info);
-                                }
-                            })
-                            .catch(function (error) {
-                                console.log(error.toString());
-                                key_is_broken(_("This network key is not recognized anymore by the server."));
-                            });
-                })
-                .catch(function (error) {
-                    console.log(error.toString());
-                    server_cant_be_reached();
-                });
-    } else if (key.type == "http") {
-        cockpit.spawn([ "curl", "-sSfg", "-o", "/dev/null", key.url ], { err: "message" })
-                .then(() => {
-                    client.clevis_overlay.check_key(block, key.slot)
-                            .then(key_is_okay)
-                            .catch(error => {
-                                console.log(error.toString());
-                                key_is_broken(_("The server has returned a key that doesn't work."));
-                            });
-                })
-                .catch(error => {
-                    console.log(error.toString());
-                    key_retrieval_failed(error);
-                });
-    }
 }

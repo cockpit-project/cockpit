@@ -114,8 +114,8 @@
             return <div ref="terminal"
                         key={this.state.terminal}
                         className="console-ct"
-                        onFocusIn={this.onFocusIn}
-                        onFocusOut={this.onFocusOut} />;
+                        onFocus={this.onFocusIn}
+                        onBlur={this.onFocusOut} />;
         },
 
         componentWillUnmount: function () {

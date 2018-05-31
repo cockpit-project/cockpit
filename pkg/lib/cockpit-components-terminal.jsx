@@ -21,6 +21,7 @@
     "use strict";
 
     var React = require("react");
+    var ReactDOM = require("react-dom");
     var Term = require("term");
 
     require("console.css");
@@ -153,7 +154,7 @@
 
         onWindowResize: function () {
             var padding = 2 * 11;
-            var node = this.getDOMNode();
+            var node = ReactDOM.findDOMNode(this);
             var terminal = this.refs.terminal.querySelector('.terminal');
 
             var ch = document.createElement('span');

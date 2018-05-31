@@ -22,6 +22,7 @@ var $ = require("jquery");
 var cockpit = require("cockpit");
 var machine_info = require("machine-info.es6");
 var packagekit = require("packagekit.es6");
+var install_dialog = require("cockpit-components-install-dialog.jsx").install_dialog;
 
 var Mustache = require("mustache");
 var plot = require("plot");
@@ -343,43 +344,73 @@ PageServer.prototype = {
         var pmcd_service = service.proxy("pmcd");
         var pmlogger_service = service.proxy("pmlogger");
         var pmlogger_promise;
+        var pmlogger_exists = false;
+        var packagekit_exists = false;
 
-        $("#server-pmlogger-switch").on("change", function(ev) {
-            var val = $(this).onoff('value');
-            if (pmlogger_service.exists) {
-                if (val) {
-                    pmlogger_promise = cockpit.all(pmcd_service.enable(),
-                           pmcd_service.start(),
-                           pmlogger_service.enable(),
-                           pmlogger_service.start()).
-                        fail(function (error) {
-                            console.warn("Enabling pmlogger failed", error);
-                        });
-                } else {
-                    pmlogger_promise = cockpit.all(pmlogger_service.disable(),
-                           pmlogger_service.stop()).
-                        fail(function (error) {
-                            console.warn("Disabling pmlogger failed", error);
-                        });
-                }
-                pmlogger_promise.always(function() {
-                    pmlogger_promise = null;
-                    refresh_pmlogger_state();
-                });
-            }
-        });
-
-        function refresh_pmlogger_state() {
-            if (!pmlogger_service.exists)
+        function update_pmlogger_row() {
+            if (!pmlogger_exists) {
+                $('#system-information-enable-pcp').toggle(packagekit_exists);
                 $('#server-pmlogger-onoff-row').hide();
-            else if (!pmlogger_promise) {
+            } else if (!pmlogger_promise) {
+                $('#system-information-enable-pcp').hide();
                 $("#server-pmlogger-switch").onoff('value', pmlogger_service.enabled);
                 $('#server-pmlogger-onoff-row').show();
             }
         }
 
-        $(pmlogger_service).on('changed', refresh_pmlogger_state);
-        refresh_pmlogger_state();
+        function pmlogger_service_changed() {
+            pmlogger_exists = pmlogger_service.exists;
+
+            /* HACK: The pcp packages on Ubuntu and Debian include SysV init
+             * scripts in /etc, which stay around when removing (as opposed to
+             * purging) the package. Systemd treats those as valid units, even
+             * if they're not backed by packages anymore. Thus,
+             * pmlogger_service.exists will be true. Check for the binary
+             * directly to make sure the package is actually available.
+             */
+            if (pmlogger_exists) {
+                cockpit.spawn([ "which", "pmlogger" ], { err: "ignore" })
+                    .fail(function () {
+                        pmlogger_exists = false;
+                    })
+                    .always(update_pmlogger_row);
+            } else {
+                update_pmlogger_row();
+            }
+        }
+
+        packagekit.detect().then(function (exists) {
+            packagekit_exists = exists;
+            update_pmlogger_row();
+        });
+
+        $("#server-pmlogger-switch").on("change", function(ev) {
+            if (!pmlogger_exists)
+                return;
+
+            if ($(this).onoff('value')) {
+                pmlogger_promise = cockpit.all(pmcd_service.enable(),
+                       pmcd_service.start(),
+                       pmlogger_service.enable(),
+                       pmlogger_service.start()).
+                    fail(function (error) {
+                        console.warn("Enabling pmlogger failed", error);
+                    });
+            } else {
+                pmlogger_promise = cockpit.all(pmlogger_service.disable(),
+                       pmlogger_service.stop()).
+                    fail(function (error) {
+                        console.warn("Disabling pmlogger failed", error);
+                    });
+            }
+            pmlogger_promise.always(function() {
+                pmlogger_promise = null;
+                pmlogger_service_changed();
+            });
+        });
+
+        $(pmlogger_service).on('changed', pmlogger_service_changed);
+        pmlogger_service_changed();
 
         // if cockpit component "page" is available, set element content to a link to it, otherwise just text
         function set_page_link(element_sel, page, text) {
@@ -1576,6 +1607,10 @@ $("#system_information_hardware_text").on("click", function() {
     $("#system_information_hardware_text").tooltip("hide");
     cockpit.jump("/system/hwinfo", cockpit.transport.host);
     return false;
+});
+
+$("#system-information-enable-pcp-link").on("click", function() {
+    install_dialog("cockpit-pcp");
 });
 
 

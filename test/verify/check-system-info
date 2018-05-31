@@ -22,6 +22,7 @@ import parent
 from testlib import *
 import time
 import subprocess
+import packagelib
 
 os_release = """
 NAME="Foobar Adventure Linux Server"
@@ -387,6 +388,49 @@ class TestSystemInfo(MachineCase):
         # go back to system page
         b.click('.breadcrumb a')
         b.enter_page("/system")
+
+
+class TestPcp(packagelib.PackageCase):
+
+    @skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5")
+    @skipImage("doesn't have pcp", "debian-stable")
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1559414", "rhel-x")
+    def testEnablePcpLink(self):
+        m = self.machine
+        b = self.browser
+
+        # the atomics don't have pcp and can't install additional software
+        if m.atomic_image:
+            self.login_and_go("/system")
+            b.wait_present("#server-pmlogger-onoff-row")
+            b.wait_not_visible("#server-pmlogger-onoff-row")
+            b.wait_not_visible("#system-information-enable-pcp")
+            return
+
+        m.execute("pkcon remove -y pcp")
+
+        pmlogger = {
+            "/usr/bin/pmlogger": "",
+            "/etc/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/true"
+        }
+
+        self.createPackage("cockpit-pcp", "999", "1", content=pmlogger, postinst="chmod +x /usr/bin/pmlogger; systemctl daemon-reload")
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        # the offer to install it should be visible
+        self.login_and_go("/system")
+        b.wait_present("#server-pmlogger-onoff-row")
+        b.wait_not_visible("#server-pmlogger-onoff-row")
+        b.wait_visible("#system-information-enable-pcp")
+        b.wait_in_text("#system-information-enable-pcp", "Enable persistent metrics…")
+        b.click("#system-information-enable-pcp-link")
+        b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
+        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        b.wait_visible("#server-pmlogger-onoff-row")
+        b.wait_not_visible("#system-information-enable-pcp")
 
 
 if __name__ == '__main__':

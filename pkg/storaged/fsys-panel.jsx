@@ -69,11 +69,11 @@ export class FilesystemsPanel extends React.Component {
             }
 
             return (
-                <tr onClick={go}>
+                <tr onClick={go} key={path}>
                     <td>{ block.IdLabel || block_name(block) }</td>
                     <td>
                         { fsys.MountPoints.length > 0
-                            ? fsys.MountPoints.map((mp) => <div>{decode_filename(mp)}</div>)
+                            ? fsys.MountPoints.map((mp) => <div key={mp}>{decode_filename(mp)}</div>)
                             : "-"
                         }
                     </td>

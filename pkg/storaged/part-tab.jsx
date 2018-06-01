@@ -33,22 +33,24 @@ var PartitionTab = React.createClass({
         return (
             <div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Name")}</td>
-                        <td>{block_part.Name || "-"}</td>
-                    </tr>
-                    <tr>
-                        <td>{_("Size")}</td>
-                        <td>{utils.fmt_size(block_part.Size)}</td>
-                    </tr>
-                    <tr>
-                        <td>{_("UUID")}</td>
-                        <td>{block_part.UUID}</td>
-                    </tr>
-                    <tr>
-                        <td>{_("Type")}</td>
-                        <td>{block_part.Type}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Name")}</td>
+                            <td>{block_part.Name || "-"}</td>
+                        </tr>
+                        <tr>
+                            <td>{_("Size")}</td>
+                            <td>{utils.fmt_size(block_part.Size)}</td>
+                        </tr>
+                        <tr>
+                            <td>{_("UUID")}</td>
+                            <td>{block_part.UUID}</td>
+                        </tr>
+                        <tr>
+                            <td>{_("Type")}</td>
+                            <td>{block_part.Type}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

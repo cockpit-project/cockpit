@@ -31,6 +31,7 @@ const _ = cockpit.gettext;
 class JournalOutput {
     constructor() {
         this.logs = [ ];
+        this.reboot_key = 0;
     }
 
     render_line(ident, prio, message, count, time, entry) {
@@ -45,7 +46,7 @@ class JournalOutput {
         }
 
         return (
-            <div className="cockpit-logline" role="row">
+            <div className="cockpit-logline" role="row" key={entry["__MONOTONIC_TIMESTAMP"]}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <i className="fa fa-exclamation-triangle" />
@@ -71,12 +72,12 @@ class JournalOutput {
     }
 
     render_day_header(day) {
-        return <div className="panel-heading">{day}</div>;
+        return <div className="panel-heading" key={day}>{day}</div>;
     }
 
     render_reboot_separator() {
         return (
-            <div className="cockpit-logline" role="row">
+            <div className="cockpit-logline" role="row" key={"reboot-" + this.reboot_key++}>
                 <div className="cockpit-log-warning" role="cell" />
                 <span className="cockpit-log-message cockpit-logmsg-reboot" role="cell">{_("Reboot")}</span>
             </div>
@@ -118,10 +119,13 @@ export class LogsPanel extends React.Component {
         });
     }
 
-    componentDillUnmount() {
+    componentWillUnmount() {
         this.journalctl.stop();
     }
 
+    // TODO: refactor, the state object can't store neither functions nor React components
+    // Better approach: store just data to the component's state and render rows directly in the render() method
+    // Do not use helper functions (the "render_*" above) to generate elements but make components from them (start with CapitalLetter)
     render() {
         return (
             <div className="panel panel-default cockpit-log-panel" role="table">

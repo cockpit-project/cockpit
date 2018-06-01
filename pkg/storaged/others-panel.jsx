@@ -56,7 +56,8 @@ export class OthersPanel extends React.Component {
                                       name={name}
                                       detail={cockpit.format(_("$0 Block Device"), fmt_size(block.Size))}
                                       go={() => cockpit.location.go([ dev ])}
-                                      job_path={path} />
+                                      job_path={path}
+                                      key={path} />
             );
         }
 

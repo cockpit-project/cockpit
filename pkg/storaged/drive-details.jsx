@@ -33,12 +33,11 @@ export class DriveDetails extends React.Component {
         var drive_block = drive && client.drives_block[drive.path];
         var multipath_blocks = drive && client.drives_multipath_blocks[drive.path];
 
-        function row(title, value) {
-            if (value)
-                return <tr><td>{title}</td><td>{value}</td></tr>;
-            else
+        const DriveDetailsRow = ({ title, value }) => {
+            if (!value)
                 return null;
-        }
+            return (<tr><td>{title}</td><td>{value}</td></tr>);
+        };
 
         var assessment = null;
         if (drive_ata) {
@@ -64,17 +63,18 @@ export class DriveDetails extends React.Component {
                 <div className="panel-heading">{_("Drive")}</div>
                 <div className="panel-body">
                     <table className="info-table-ct">
-                        { row(_("storage", "Model"), drive.Model) }
-                        { row(_("storage", "Firmware Version"), drive.Revision) }
-                        { row(_("storage", "Serial Number"), drive.Serial) }
-                        { row(_("storage", "World Wide Name"), drive.WWN) }
-                        { row(_("storage", "Capacity"),
-                              drive.Size ? utils.fmt_size_long(drive.Size)
-                                  : _("No media inserted")) }
-                        { assessment }
-                        { row(_("storage", "Device File"), drive_block ? utils.block_name(drive_block) : "-") }
-                        { multipath_blocks.length > 0 && row(_("storage", "Multipathed Devices"),
-                                                             multipath_blocks.map(utils.block_name).join(" ")) }
+                        <tbody>
+                            <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
+                            <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
+                            <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />
+                            <DriveDetailsRow title={_("storage", "World Wide Name")} value={drive.WWN} />
+                            <DriveDetailsRow title={_("storage", "Capacity")} value={drive.Size ? utils.fmt_size_long(drive.Size) : _("No media inserted")} />
+                            { assessment }
+                            <DriveDetailsRow title={_("storage", "Device File")} value={drive_block ? utils.block_name(drive_block) : "-"} />
+                            {multipath_blocks.length > 0 && (
+                                <DriveDetailsRow title={_("storage", "Multipathed Devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
+                            )}
+                        </tbody>
                     </table>
                 </div>
             </div>

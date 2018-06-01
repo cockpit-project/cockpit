@@ -48,6 +48,18 @@ class TestKdump(MachineCase):
         self.browser.switch_to_top()
         self.browser.relogin("/kdump")
 
+    # TODO: move to common library
+    def _type_val(self, selector, value):
+        b = self.browser
+        value = str(value)
+
+        b.wait_present(selector)
+        b.wait_visible(selector)
+        b.click(selector)
+        b.focus(selector)
+        b.set_val(selector, '')  # clear value
+        b.key_press(value)
+
     def testBasic(self):
         self.browser.wait_timeout(120)
 
@@ -89,7 +101,7 @@ class TestKdump(MachineCase):
         pathInput = "#kdump-settings-local-directory"
         self.browser.wait_present(pathInput)
         self.browser.wait_visible(pathInput)
-        self.browser.set_val(pathInput, customPath)
+        self._type_val(pathInput, customPath)
         # make sure the backend is updated before we try hitting apply
         self.browser.wait_attr(pathInput, "data-stored", customPath)
         self.browser.click("button.btn-primary:contains('Apply')")

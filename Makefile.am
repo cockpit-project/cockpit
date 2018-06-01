@@ -214,10 +214,10 @@ install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
-	find $(DESTDIR)$(pkgdatadir) -type f -delete
-	find $(DESTDIR)$(pkgdatadir) -type d -empty -delete
-	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type f -delete
-	find $(DESTDIR)$(debugdir)$(pkgdatadir) -type d -empty -delete
+	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -delete
+	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
+	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
+	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_PO)
 	tar -cf - $^ | tar -C $(distdir) -xf -
 

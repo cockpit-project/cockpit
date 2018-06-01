@@ -5,7 +5,7 @@
 
 [cockpit-project.org](https://cockpit-project.org/)
 
-Cockpit is an interactive server admin interface. It is easy to use and very light weight.
+Cockpit is an interactive server admin interface. It is easy to use and very lightweight.
 Cockpit interacts directly with the operating system from a real Linux session in a browser.
 
 ### Using Cockpit

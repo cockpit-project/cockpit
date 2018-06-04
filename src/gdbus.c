@@ -163,20 +163,19 @@ virtDBusGDBusHandlePropertyGetAll(GDBusMethodInvocation *invocation,
 {
     GVariant *value;
     g_auto(GVariantBuilder) builder;
-    g_autoptr(GError) error = NULL;
 
     g_variant_builder_init(&builder, G_VARIANT_TYPE("(a{sv})"));
 
     g_variant_builder_open(&builder, G_VARIANT_TYPE("a{sv}"));
 
     for (gint i = 0; data->properties[i].name; i++) {
+        g_autoptr(GError) error = NULL;
+
         data->properties[i].getFunc(objectPath, data->userData,
                                     &value, &error);
 
-        if (error) {
-            g_dbus_method_invocation_return_gerror(invocation, error);
-            return;
-        }
+        if (error)
+            continue;
 
         g_return_if_fail(value);
 

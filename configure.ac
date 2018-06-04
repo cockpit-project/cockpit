@@ -1,4 +1,4 @@
-AC_INIT([libvirt-dbus], [1.0.0], [libvir-list@redhat.com], [], [http://libvirt.org])
+AC_INIT([libvirt-dbus], [1.1.0], [libvir-list@redhat.com], [], [http://libvirt.org])
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_AUX_DIR([build-aux])

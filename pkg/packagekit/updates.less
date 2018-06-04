@@ -1,4 +1,8 @@
 /* override default cockpit CSS, as this doesn't fit our table */
+table.listing-ct {
+    width: 100%;
+}
+
 table.listing-ct thead th:last-child {
     text-align: left;
 }
@@ -8,8 +12,23 @@ tr.listing-ct-item {
         text-align: left;
     }
     td.version {
+        width: 18ex;
+        /* Tables are stretchy, so we *also* need the max-width */
         max-width: 18ex;
-        word-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        /* Expand version string when hovering */
+        &:hover {
+            overflow: visible;
+
+            .truncating {
+                background: linear-gradient(to left, rgba(222, 243, 255, 0), rgb(222, 243, 255) 3em);
+                position: relative;
+                padding: 0.5em 4em 0.5em 0;
+            }
+        }
     }
     td.type {
         white-space: nowrap;
@@ -21,6 +40,16 @@ tr.listing-ct-item {
         overflow: hidden;
         text-overflow: ellipsis;
     }
+}
+tbody.open {
+    td.version:hover .truncating {
+        /* Adapt background color for version expansion when row is expanded */
+        background: linear-gradient(to left, rgba(237, 237, 237, 0), rgb(237, 237, 237) 3em);
+    }
+}
+
+.listing-ct .security td.version:hover .truncating {
+  background: #fbf0f0;
 }
 
 .severity-critical {

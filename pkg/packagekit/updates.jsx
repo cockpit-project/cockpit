@@ -327,7 +327,7 @@ class UpdateItem extends React.Component {
                         <i className="fa fa-fw" />
                     </td>
                     <th>{pkgsTruncated}</th>
-                    <td className="version">{info.version}</td>
+                    <td className="version"><span className="truncating">{info.version}</span></td>
                     <td className="type">{type}</td>
                     <td className="changelog">{descriptionFirstLine}</td>
                 </tr>

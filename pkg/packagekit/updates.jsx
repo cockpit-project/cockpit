@@ -326,7 +326,7 @@ class UpdateItem extends React.Component {
                     <td className="listing-ct-toggle">
                         <i className="fa fa-fw" />
                     </td>
-                    <th>{pkgsTruncated}</th>
+                    <th className="packages">{pkgsTruncated}</th>
                     <td className="version">{info.version}</td>
                     <td className="type">{type}</td>
                     <td className="changelog">{descriptionFirstLine}</td>
@@ -376,7 +376,7 @@ function UpdatesList(props) {
                     <th>{_("Name")}</th>
                     <th>{_("Version")}</th>
                     <th>{_("Severity")}</th>
-                    <th>{_("Details")}</th>
+                    <th className="details-header">{_("Details")}</th>
                 </tr>
             </thead>
             { updates.map(id => <UpdateItem pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }

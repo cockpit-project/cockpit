@@ -40,6 +40,7 @@
             } else if (count === 2) {
                 test.equal(value.myobject, "value2", "parent consumer got child value");
             }
+            maybe_done();
         }
 
         cache = cockpit.cache("cross-frame-cache", provider, consumer, 'parent');

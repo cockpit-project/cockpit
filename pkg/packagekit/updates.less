@@ -45,10 +45,6 @@ tr.listing-ct-item {
     }
     td {
         padding-left: 0;
-
-        &:last-child {
-            text-align: left;
-        }
     }
 
     @media screen and (min-width: 641px) {
@@ -83,12 +79,17 @@ tr.listing-ct-item {
     td.type {
         white-space: nowrap;
     }
-    td.changelog, td.changelog p {
-        max-width: 60vw;
-        margin-bottom: 0;  // counter-act <Markdown>
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    td.changelog {
+        vertical-align: top;
+        text-align: left;
+
+        &, p {
+            max-width: 60vw;
+            margin-bottom: 0;  // counter-act <Markdown>
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 tbody.open {

@@ -172,7 +172,7 @@ function HeaderBar(props) {
             actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for Updates")}</button>;
         if (props.timeSinceRefresh !== null) {
             lastChecked = (
-                <span style={ {paddingRight: "3ex"} }>
+                <span>
                     { cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize()) }
                 </span>
             );
@@ -183,12 +183,9 @@ function HeaderBar(props) {
 
     return (
         <div className="content-header-extra">
-            <table width="100%">
-                <tr>
-                    <td id="state">{state}</td>
-                    <td className="text-right">{lastChecked} {actionButton}</td>
-                </tr>
-            </table>
+            <div id="state" className="content-header-extra--state">{state}</div>
+            <div className="content-header-extra--updated">{lastChecked}</div>
+            <div className="content-header-extra--action">{actionButton}</div>
         </div>
     );
 }
@@ -822,33 +819,30 @@ class OsUpdates extends React.Component {
                 let num_security_updates = count_security_updates(this.state.updates);
 
                 applyAll = (
-                    <button className="btn btn-primary" onClick={ () => this.applyUpdates(false) }>
+                    <button className="pk-update--all btn btn-primary" onClick={ () => this.applyUpdates(false) }>
                         { num_updates == num_security_updates
                             ? _("Install Security Updates") : _("Install All Updates") }
                     </button>);
 
                 if (num_security_updates > 0 && num_updates > num_security_updates) {
                     applySecurity = (
-                        <button className="btn btn-default" onClick={ () => this.applyUpdates(true) }>
+                        <button className="pk-update--security btn btn-default" onClick={ () => this.applyUpdates(true) }>
                             {_("Install Security Updates")}
                         </button>);
                 }
             }
 
             return (
-                <div>
+                <div className="pk-updates">
                     {unregisteredWarning}
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
-                    <table id="available" width="100%">
-                        <tr>
-                            <td><h2>{_("Available Updates")}</h2></td>
-                            <td className="text-right">
-                                {applySecurity}
-                                    &nbsp; &nbsp;
-                                {applyAll}
-                            </td>
-                        </tr>
-                    </table>
+                    <div id="available" className="pk-updates--header">
+                        <h2 className="pk-updates--header--heading">{_("Available Updates")}</h2>
+                        <div className="pk-updates--header--actions">
+                            {applySecurity}
+                            {applyAll}
+                        </div>
+                    </div>
                     { this.state.cockpitUpdate
                         ? <div className="alert alert-warning">
                             <span className="pficon pficon-warning-triangle-o" />

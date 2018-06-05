@@ -639,8 +639,7 @@ class TestUpdates(PackageCase):
         m.execute("systemctl kill --signal=SEGV packagekit.service")
 
         b.wait_in_text("#state", "Applying updates failed")
-        b.wait_present("#app .container-fluid pre")
-        self.assertEqual(b.text("#app .container-fluid pre"), "PackageKit crashed")
+        b.wait_in_text("#app .container-fluid", "PackageKit crashed")
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
 

@@ -23,7 +23,11 @@ set -ex
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker
 lvresize atomicos/root        -l+50%FREE -r
-lvresize atomicos/docker-pool -l+100%FREE
+if lvs atomicos/docker-pool 2>/dev/null; then
+    lvresize atomicos/docker-pool -l+100%FREE
+elif lvs atomicos/docker-root-lv; then
+    lvresize atomicos/docker-root-lv -l+100%FREE
+fi
 
 # Get the centos cockpit/ws image
 docker pull registry.centos.org/cockpit/ws:latest

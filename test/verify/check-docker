@@ -410,6 +410,9 @@ CMD ["/bin/sh"]
         b = self.browser
         m = self.machine
 
+        # This happens due to the Docker restart
+        self.allow_journal_messages('.*received truncated HTTP response.*')
+
         m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")

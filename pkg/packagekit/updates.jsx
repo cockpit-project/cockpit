@@ -120,7 +120,7 @@ class Expander extends React.Component {
         let title = <a href="#">{this.props.title}</a>;
         let cls = "expander-caret fa " + (this.state.expanded ? "fa-angle-down" : "fa-angle-right");
         return (
-            <div>
+            <React.Fragment>
                 <div className="expander-title">
                     <hr />
                     <span onClick={() => this.setState({expanded: !this.state.expanded})} >
@@ -129,7 +129,7 @@ class Expander extends React.Component {
                     <hr />
                 </div>
                 {this.state.expanded ? this.props.children : null}
-            </div>);
+            </React.Fragment>);
     }
 }
 
@@ -172,13 +172,8 @@ function HeaderBar(props) {
     if (props.state == "uptodate" || props.state == "available") {
         if (!props.unregistered)
             actionButton = <button className="btn btn-default" onClick={props.onRefresh} >{_("Check for Updates")}</button>;
-        if (props.timeSinceRefresh !== null) {
-            lastChecked = (
-                <span>
-                    { cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize()) }
-                </span>
-            );
-        }
+        if (props.timeSinceRefresh !== null)
+            lastChecked = cockpit.format(_("Last checked: $0 ago"), moment.duration(props.timeSinceRefresh * 1000).humanize());
     } else if (props.state == "applying") {
         actionButton = <button className="btn btn-default" onClick={props.onCancel} disabled={!props.allowCancel} >{_("Cancel")}</button>;
     }
@@ -261,16 +256,16 @@ class UpdateItem extends React.Component {
             if (secSeverityURL)
                 secSeverityURL = <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
-                <span>
+                <React.Fragment>
                     <span className={iconClasses}>&nbsp;</span>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
-                </span>);
+                </React.Fragment>);
         } else {
             type = (
-                <span>
+                <React.Fragment>
                     <span className={iconClasses}>&nbsp;</span>
                     { bugs ? info.bug_urls.length : "" }
-                </span>);
+                </React.Fragment>);
         }
 
         var pkgList = this.props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
@@ -404,13 +399,13 @@ function UpdateHistory(props) {
         history = history.slice(0, props.limit);
 
     var paragraphs = history.map(pkgs => (
-        <div>
+        <React.Fragment>
             <p>{formatHeading(pkgs["_time"])}</p>
             <ul className='flow-list'>{formatPkgs(pkgs)}</ul>
-        </div>
+        </React.Fragment>
     ));
 
-    return <div>{paragraphs}</div>;
+    return paragraphs;
 }
 
 class ApplyUpdates extends React.Component {
@@ -465,10 +460,10 @@ class ApplyUpdates extends React.Component {
         if (this.state.actions.length > 0) {
             let lastAction = this.state.actions[this.state.actions.length - 1];
             actionHTML = (
-                <span>
+                <React.Fragment>
                     <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
                     &nbsp;{lastAction.package}
-                </span>);
+                </React.Fragment>);
             logRows = this.state.actions.slice(0, -1).map(action => (
                 <tr>
                     <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
@@ -479,7 +474,7 @@ class ApplyUpdates extends React.Component {
         }
 
         return (
-            <div>
+            <React.Fragment>
                 <div className="progress-main-view">
                     <div className="progress-description">
                         <div className="spinner spinner-xs spinner-inline" />
@@ -505,7 +500,7 @@ class ApplyUpdates extends React.Component {
                         </div>
                     </Expander>
                 </div>
-            </div>
+            </React.Fragment>
         );
     }
 }
@@ -801,7 +796,7 @@ class OsUpdates extends React.Component {
             // when unregistered, hide the Apply buttons and show a warning
             if (this.state.unregistered) {
                 unregisteredWarning = (
-                    <div>
+                    <React.Fragment>
                         <h2>{ _("Unregistered System") }</h2>
                         <div className="alert alert-warning">
                             <span className="pficon pficon-warning-triangle-o" />
@@ -815,7 +810,7 @@ class OsUpdates extends React.Component {
                                 { _("View Registration Details") }
                             </button>
                         </div>
-                    </div>);
+                    </React.Fragment>);
             } else {
                 let num_updates = Object.keys(this.state.updates).length;
                 let num_security_updates = count_security_updates(this.state.updates);
@@ -908,7 +903,7 @@ class OsUpdates extends React.Component {
             }
 
             return (
-                <div>
+                <React.Fragment>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />
                     <div className="blank-slate-pf">
                         <div className="blank-slate-pf-icon">
@@ -920,7 +915,7 @@ class OsUpdates extends React.Component {
                             ? <div className="flow-list-blank-slate"><UpdateHistory history={this.state.history} limit="1" /></div>
                             : null }
                     </div>
-                </div>);
+                </React.Fragment>);
 
         default:
             return null;

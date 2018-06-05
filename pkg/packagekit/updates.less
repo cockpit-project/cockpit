@@ -1,5 +1,31 @@
+.pk-updates--header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0 1rem;
+
+    &--heading,
+    &--actions {
+        padding: 0.5rem 0 0;
+    }
+    &--heading {
+        margin: 0;
+    }
+    &--actions {
+        .btn {
+            margin: 5px 5px 0 0;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+}
+
 /* override default cockpit CSS, as this doesn't fit our table */
 table.listing-ct {
+    margin-top: 0;
     width: 100%;
 }
 
@@ -150,13 +176,33 @@ tr.security.listing-ct-item {
     border-bottom: 1px solid #ddd;
     padding: 10px 20px;
     width: 100%;
-    position: fixed;
     z-index: 900;
     top: 0;
-}
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 
-.container-fluid {
-    margin-top: 5em;
+    @media screen and (min-width: 640px) {
+        position: sticky;
+    }
+
+    &--state,
+    &--updated {
+        /* Make the height similar to the button (2px padding + 1px border) */
+        padding: 3px 0;
+    }
+
+    &--state {
+        flex: 100 1 auto;
+        padding-right: 1ex;
+    }
+    &--updated {
+        flex: auto;
+    }
+    &--action {
+        text-align: right;
+        padding-left: 1ex;
+    }
 }
 
 /* fixed width to avoid jumpy text between expanded/collapsed */

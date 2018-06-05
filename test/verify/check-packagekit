@@ -120,11 +120,11 @@ class TestUpdates(PackageCase):
         # no updates on the Software Updates page
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_present(".content-header-extra td button")
+        b.wait_present(".content-header-extra button")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_present(".content-header-extra td.text-right span")
+        b.wait_present(".content-header-extra--updated")
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
-        self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
+        b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
 
@@ -138,11 +138,10 @@ class TestUpdates(PackageCase):
         self.enableRepo()
 
         # check again
-        b.wait_in_text(".content-header-extra td button", "Check for Updates")
-        b.click(".content-header-extra td button")
+        b.wait_in_text(".content-header-extra button", "Check for Updates")
+        b.click(".content-header-extra button")
 
-        b.wait_present(".content-header-extra td.text-right span")
-        self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
+        b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
 
         b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
@@ -182,12 +181,12 @@ class TestUpdates(PackageCase):
         b.wait_present("#app div.progress-bar")
 
         # no refresh button or "last checked", but Cancel button
-        b.wait_present(".content-header-extra td.text-right button")
-        self.assertFalse(b.is_present(".content-header-extra td.text-right span"))
-        b.wait_in_text(".content-header-extra td button", "Cancel")
+        b.wait_text(".content-header-extra--updated", "")
+        b.wait_present(".content-header-extra button")
+        b.wait_in_text(".content-header-extra button", "Cancel")
 
         # Cancel button should eventually get disabled
-        b.wait_present(".content-header-extra td button:disabled")
+        b.wait_present(".content-header-extra button:disabled")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_present("#update-log"))
@@ -214,8 +213,7 @@ class TestUpdates(PackageCase):
         # should go back to updates overview, nothing pending any more
         b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_present(".content-header-extra td.text-right span")
-        b.wait_in_text(".content-header-extra td.text-right span", "Last checked:")
+        b.wait_in_text(".content-header-extra--updated", "Last checked:")
 
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
@@ -458,8 +456,8 @@ class TestUpdates(PackageCase):
             self.createPackage("secnocve", "1", "2", severity="security", changes="Fix leak")
             self.enableRepo()
             # check for updates
-            b.wait_in_text(".content-header-extra td button", "Check for Updates")
-            b.click(".content-header-extra td button")
+            b.wait_in_text(".content-header-extra button", "Check for Updates")
+            b.click(".content-header-extra button")
             b.wait_present("#available h2")
             b.wait_in_text("#available h2", "Available Updates")
             b.wait_in_text("#state", "2")
@@ -604,8 +602,8 @@ class TestUpdates(PackageCase):
         self.createPackage("cockpit-ws", "999", "1")
         self.createPackage("cockpit", "999", "1")  # as that depends on same version of ws
         self.enableRepo()
-        b.wait_in_text(".content-header-extra td button", "Check for Updates")
-        b.click(".content-header-extra td button")
+        b.wait_in_text(".content-header-extra button", "Check for Updates")
+        b.click(".content-header-extra button")
 
         b.wait_present(".container-fluid #available h2")
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
@@ -739,7 +737,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.register()
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_present(".content-header-extra td button")
+        b.wait_present(".content-header-extra button")
         b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
         b.wait_present(".container-fluid div.blank-slate-pf")
@@ -785,7 +783,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present("#state")
         self.assertEqual(b.text("#state"), "1 update")
         b.wait_present(".content-header-extra")
-        self.assertEqual(b.text(".content-header-extra td.text-right span"), "Last checked: a few seconds ago")
+        b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
         # should be unique; no other action buttons
         b.wait_present("button")
         b.wait_in_text("button", "Registration")
@@ -806,7 +804,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertFalse(b.is_present("#history"))
 
         # has action buttons
-        b.wait_present(".content-header-extra td button")
+        b.wait_present(".content-header-extra button")
         b.wait_present("#app .container-fluid button")
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
 

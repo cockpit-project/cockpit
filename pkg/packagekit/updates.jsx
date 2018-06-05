@@ -551,11 +551,11 @@ class OsUpdates extends React.Component {
 
     componentDidMount() {
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
-        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [], {timeout: 5000})
+        PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
                 .done(result => {
                     let transactions = result[0];
                     let promises = transactions.map(transactionPath => PK.call(
-                        transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"], {timeout: 5000}));
+                        transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
                     cockpit.all(promises)
                             .done(roles => {
@@ -701,7 +701,7 @@ class OsUpdates extends React.Component {
         PK.watchRedHatSubscription(registered => this.setState({ unregistered: !registered }));
 
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
-                [PK.Enum.ROLE_REFRESH_CACHE], {timeout: 5000})
+                [PK.Enum.ROLE_REFRESH_CACHE])
                 .done(seconds => {
                     this.setState({timeSinceRefresh: seconds});
 

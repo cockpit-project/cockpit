@@ -172,12 +172,14 @@ class TestConnection(MachineCase):
         m = self.machine
 
         if not m.image in ["rhel-7-5"]:
+            self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit()
 
         if not m.image in ["rhel-7-5"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit"))
             self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
 
         m.execute("systemctl stop cockpit.socket")
@@ -188,6 +190,7 @@ class TestConnection(MachineCase):
 
         # cockpit-ws from base package
         if not m.image in ["rhel-7-5"]:
+            self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("443", m.execute("cat /etc/motd.d/cockpit"))
@@ -197,6 +200,7 @@ class TestConnection(MachineCase):
         if not m.image in ["rhel-7-5"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+            self.assertIn("443", m.execute("cat /etc/issue.d/cockpit"))
             self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
 
         output = m.execute('curl -k https://localhost 2>&1 || true')

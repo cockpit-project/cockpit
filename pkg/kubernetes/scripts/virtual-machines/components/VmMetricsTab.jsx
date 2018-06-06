@@ -62,20 +62,17 @@ const CPUChart = ({ id, podMetrics }) => {
             <DonutChart
                 size={{ width: 150, height: 150 }}
                 data={{
-                    columns: [["Used", used], ["Free", available]],
+                    columns: [[_("Used"), used], [_("Free"), available]],
                     order: null,
                     colors: {
                         "Used": color,
                         "Free": "#BBBBBB",
                     },
                 }}
-                title={{ primary: used + unit, secondary: "Used" }}
+                title={{ primary: used + unit, secondary: _("Used") }}
                 tooltip={{
-                    contents: (data) => {
-                        return `${data[0].value}${unit}&nbsp;${data[0].name}`;
-                    },
+                    contents: (data) => `${data[0].value}${unit}&nbsp;${data[0].name}`
                 }}
-
                 donut={{ width: 9, label: { show: false } }}
             />
         </div>

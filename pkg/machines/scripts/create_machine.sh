@@ -26,8 +26,10 @@ spiceSupported(){
         *) QEMU=qemu-system-$ARCH;
     esac
 
-    printf '{"execute":"qmp_capabilities"}\n{"execute":"query-spice"}\n{"execute":"quit"}' | \
-        $QEMU --qmp stdio --nographic -nodefaults  | grep -q '"enabled":'
+    # if qemu-system-* is missing, SPICE is disabled by default
+    type -P $QEMU > /dev/null && \
+        printf '{"execute":"qmp_capabilities"}\n{"execute":"query-spice"}\n{"execute":"quit"}' | \
+            $QEMU --qmp stdio --nographic -nodefaults  | grep -q '"enabled":'
 }
 
 # prepare virt-install parameters

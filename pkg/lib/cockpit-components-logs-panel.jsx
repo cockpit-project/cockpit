@@ -45,8 +45,8 @@ class JournalOutput {
         }
 
         return (
-            <div className="cockpit-logline">
-                <div className="cockpit-log-warning">
+            <div className="cockpit-logline" role="row">
+                <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <i className="fa fa-exclamation-triangle" />
                         : null
@@ -56,15 +56,15 @@ class JournalOutput {
                         : null
                     }
                 </div>
-                <div className="cockpit-log-time">{time}</div>
-                <span className="cockpit-log-message">{message}</span>
+                <div className="cockpit-log-time" role="cell">{time}</div>
+                <span className="cockpit-log-message" role="cell">{message}</span>
                 {
                     count > 1
-                        ? <div className="cockpit-log-service-container">
-                            <div className="cockpit-log-service-reduced">{ident}</div>
-                            <span className="badge">{count}&#160;<i className="fa fa-caret-right" /></span>
+                        ? <div className="cockpit-log-service-container" role="cell">
+                            <div className="cockpit-log-service-reduced" role="cell">{ident}</div>
+                            <span className="badge" role="cell">{count}&#160;<i className="fa fa-caret-right" /></span>
                         </div>
-                        : <div className="cockpit-log-service">{ident}</div>
+                        : <div className="cockpit-log-service" role="cell">{ident}</div>
                 }
             </div>
         );
@@ -76,9 +76,9 @@ class JournalOutput {
 
     render_reboot_separator() {
         return (
-            <div className="cockpit-logline">
-                <div className="cockpit-log-warning" />
-                <span className="cockpit-log-message cockpit-logmsg-reboot">{_("Reboot")}</span>
+            <div className="cockpit-logline" role="row">
+                <div className="cockpit-log-warning" role="cell" />
+                <span className="cockpit-log-message cockpit-logmsg-reboot" role="cell">{_("Reboot")}</span>
             </div>
         );
     }
@@ -124,9 +124,9 @@ export class LogsPanel extends React.Component {
 
     render() {
         return (
-            <div className="panel panel-default cockpit-log-panel">
+            <div className="panel panel-default cockpit-log-panel" role="table">
                 <div className="panel-heading">{this.props.title}</div>
-                <div className="panel-body">
+                <div className="panel-body" role="rowgroup">
                     { this.state.logs }
                 </div>
             </div>

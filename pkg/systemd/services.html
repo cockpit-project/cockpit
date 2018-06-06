@@ -312,9 +312,9 @@
 
     <div id="service-valid">
       <div id="service-unit"></div>
-      <div class="panel panel-default cockpit-log-panel" id="service-log-box">
-        <div class="panel-heading" translatable="yes">Service Logs</div>
-        <div class="panel-body" id="service-log"></div>
+      <div class="panel panel-default cockpit-log-panel" id="service-log-box" role="table" aria-describedby="service-log-box-heading">
+        <div class="panel-heading" id="service-log-box-heading" translatable="yes">Service Logs</div>
+        <div class="panel-body" id="service-log" role="rowgroup"></div>
       </div>
     </div>
 

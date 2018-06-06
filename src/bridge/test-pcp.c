@@ -42,7 +42,7 @@
 
 void (*mock_pmda_control) (const char *cmd, ...);
 
-static void
+static void *
 init_mock_pmda (void)
 {
   if (pmLoadNameSpace (SRCDIR "/src/bridge/mock-pmns") < 0)
@@ -59,6 +59,8 @@ init_mock_pmda (void)
 
   mock_pmda_control = dlsym (handle, "mock_control");
   g_assert (mock_pmda_control != NULL);
+
+  return handle;
 }
 
 typedef struct AtTeardown {
@@ -588,12 +590,15 @@ int
 main (int argc,
       char *argv[])
 {
+  void *handle;
+  int ret;
+
   cockpit_test_init (&argc, &argv);
 
   if (chdir (BUILDDIR) < 0)
     g_assert_not_reached ();
 
-  init_mock_pmda ();
+  handle = init_mock_pmda ();
 
   g_test_add ("/metrics/compression", TestCase, NULL,
               setup, test_metrics_compression, teardown);
@@ -626,6 +631,8 @@ main (int argc,
   g_test_add ("/metrics/counter-across-meta", TestCase, NULL,
               setup, test_metrics_counter_across_meta, teardown);
 
+  ret = g_test_run ();
 
-  return g_test_run ();
+  dlclose (handle);
+  return ret;
 }

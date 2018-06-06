@@ -41,41 +41,47 @@ def upload(store, source):
     ca = os.path.join(BOTS, "images", "files", "ca.pem")
     url = urllib.parse.urlparse(store)
 
-    # Parse out the user name if present
-    user = url.username or getpass.getuser()
+    # Start building the command
+    cmd = ["curl", "--progress-bar", "--cacert", ca, "--fail", "--upload-file", source ]
 
+    def try_curl(cmd):
+        # Passing through a non terminal stdout is necessary to make progress work
+        curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        cat = subprocess.Popen(["cat"], stdin=curl.stdout)
+        curl.stdout.close()
+        ret = curl.wait()
+        cat.wait()
+        if ret != 0:
+            sys.stderr.write("image-upload: unable to upload image: {0}\n".format(cmd[-1]))
+        return ret
+
+    # Parse the user name and token, if present
+    user = url.username or getpass.getuser()
+    try:
+        with open(os.path.expanduser(TOKEN), "r") as gt:
+            token = gt.read().strip()
+        cmd += [ "--user", user + ":" + token ]
+    except IOError as exc:
+        if exc.errno == errno.ENOENT:
+           pass
+
+    # First try to use the original store URL, for stores with valid SSL cert on an OpenShift proxy
+    if try_curl(cmd + [store]) == 0:
+        return 0
+
+    # Fall back for stores that use our self-signed cockpit certificate
     # Parse out the actual address to connect to and override certificate info
     defport = url.scheme == 'http' and 80 or 443
     ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
     for (family, socktype, proto, canonname, sockaddr) in ai:
         resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
-        message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
-        break
+        curl_url = "https://cockpit-tests:{0}{1}".format(url.port or defport, url.path)
+        ret = try_curl(cmd + ["--resolve", resolve, curl_url])
+        if ret == 0:
+            return 0
 
-    # Start building the command
-    cmd = ["curl", "--progress-bar", "--cacert", ca, "--resolve", resolve, "--fail", "--upload-file", source ]
+    return 1
 
-    token = ""
-    try:
-        with open(os.path.expanduser(TOKEN), "r") as gt:
-            token = gt.read().strip()
-    except IOError as exc:
-        if exc.errno == errno.ENOENT:
-           pass
-    if token:
-        cmd += [ "--user", user + ":" + token ]
-
-    cmd.append("https://cockpit-tests:{0}{1}".format(url.port or defport, url.path))
-
-    # Passing through a non terminal stdout is necessary to make progress work
-    curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    cat = subprocess.Popen(["cat"], stdin=curl.stdout)
-    curl.stdout.close()
-    ret = curl.wait()
-    cat.wait()
-    if ret != 0:
-        sys.stderr.write("image-upload: unable to upload image: {0}\n".format(message))
-    return ret
 
 def main():
     parser = argparse.ArgumentParser(description='Upload bot state or images')

@@ -96,8 +96,9 @@ def download(dest, force, quiet, stores):
             source = urllib.parse.urljoin("{0}://cockpit-tests:{1}{2}".format(url.scheme, sockaddr[1], url.path), name)
             message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
 
+            # first try with stores that accept the "cockpit-tests" host name
             try:
-                cmd = ["curl", "--head", "--silent", "--resolve", resolve, "--fail", "--cacert", ca, source ]
+                cmd = ["curl", "--head", "--silent", "--resolve", resolve, "--fail", "--cacert", ca, source]
                 found.append((cmd, subprocess.check_output(cmd, universal_newlines=True), message))
                 if not quiet:
                     sys.stderr.write(" > {0}\n".format(message))
@@ -105,8 +106,10 @@ def download(dest, force, quiet, stores):
             except subprocess.CalledProcessError:
                 pass
 
+            # fall back for OpenShift proxied stores which send their own SSL cert initially; host name has to match that
+            source = urllib.parse.urljoin(store, name)
             try:
-                cmd = ["curl", "--head", "--silent", "--fail", source]
+                cmd = ["curl", "--head", "--silent", "--fail", "--cacert", ca, source]
                 found.append((cmd, subprocess.check_output(cmd, universal_newlines=True), message))
                 if not quiet:
                     sys.stderr.write(" > {0}\n".format(message))

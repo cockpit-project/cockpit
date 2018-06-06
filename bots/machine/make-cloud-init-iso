@@ -20,9 +20,6 @@
 
 set -e
 
-out=$1
-arch=x86_64
-
 # create the cloud-init iso
 init_dir=$(mktemp -d)
 meta_data="$init_dir/meta-data"

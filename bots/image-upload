@@ -18,10 +18,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 
-# The default settings here should match one of the default
-# download stores. These are usually cockpit/images instances
-# verifymachine{4,5} are the only ones publicly accessible
-DEFAULT_UPLOAD = ["https://209.132.184.41:8493/", "https://209.132.184.69:8493/"]
+# The default settings here should match one of the default download stores
+DEFAULT_UPLOAD = [
+    "https://images-cockpit.apps.ci.centos.org/",
+    "https://209.132.184.41:8493/",
+    "https://209.132.184.69:8493/",
+]
+
 TOKEN = "~/.config/github-token"
 
 import argparse

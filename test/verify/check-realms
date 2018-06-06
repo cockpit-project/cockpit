@@ -352,7 +352,16 @@ if ! echo '%(password)s' | realm join -vU admin cockpit.lan; then
     exit 1
 fi
 
-echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN
+# On certain OS's it takes time for sssd to come up properly
+#   [8347] 1528294262.886088: Sending initial UDP request to dgram 172.27.0.15:88
+#   kinit: Cannot contact any KDC for realm 'COCKPIT.LAN' while getting initial credentials
+for x in $(seq 1 20); do
+    if echo '%(password)s' | KRB5_TRACE=/dev/stderr kinit -f admin@COCKPIT.LAN; then
+        break
+    else
+        sleep $x
+    fi
+done
 
 # create SPN and keytab for ws
 if type ipa >/dev/null 2>&1; then

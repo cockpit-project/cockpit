@@ -290,16 +290,16 @@ rm %{buildroot}/usr/bin/cockpit-bridge %{buildroot}/usr/sbin/remotectl
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
 for pkg in apps dashboard docker kubernetes machines ostree ovirt packagekit pcp playground ssh; do
-    rm -r %{buildroot}/%{_datadir}/%{name}/$pkg
+    rm -rf %{buildroot}/%{_datadir}/%{name}/$pkg
 done
 # files from -tests
 rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets %{buildroot}/%{_sysconfdir}/cockpit/cockpit.conf
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -kubernetes
-rm %{buildroot}/%{_libexecdir}/cockpit-kube-auth %{buildroot}/%{_libexecdir}/cockpit-kube-launch %{buildroot}/%{_libexecdir}/cockpit-stub
+rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth %{buildroot}/%{_libexecdir}/cockpit-kube-launch %{buildroot}/%{_libexecdir}/cockpit-stub
 # files from -dashboard
-rm %{buildroot}%{_libexecdir}/cockpit-ssh
+rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 %endif
 
 sed -i "s|%{buildroot}||" *.list

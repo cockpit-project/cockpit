@@ -214,7 +214,7 @@ install-data-local:: $(WEBPACK_DEBUG)
 	$(MKDIR_P) $(DESTDIR)$(debugdir)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(debugdir)$(pkgdatadir) --strip-components=1 -xvf -
 uninstall-local::
-	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -delete
+	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \;
 	find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete
 	find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete

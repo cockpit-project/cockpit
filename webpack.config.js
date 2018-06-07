@@ -206,6 +206,7 @@ var info = {
         "kubernetes/index.html",
         "kubernetes/registry.html",
 
+        "machines/base.css",
         "machines/index.html",
         "machines/vnc.html",
         "machines/vnc.css",

@@ -13,11 +13,6 @@ playground_DATA = \
 dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
-machinesdir = $(pkgdatadir)/machines
-machines_DATA = \
-	dist/machines/base.css \
-	$(NULL)
-
 dist/machines/base.css: node_modules/noVNC/include/base.css
 	$(COPY_RULE)
 

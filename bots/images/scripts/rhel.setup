@@ -153,7 +153,7 @@ if [ "$IMAGE" = "rhel-7-5" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
 fi
 if [ "$IMAGE" = "rhel-8" ]; then
-    TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
+    TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils} clevis-luks tang"
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"

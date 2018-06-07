@@ -185,6 +185,8 @@
     class SelectEntry extends React.Component {
         render() {
             const value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
+            // if value is not undefined then data-data is not rendered, tests changed accordingly
+            // TODO: better approach is via dataSets: https://github.com/facebook/react/issues/1259
             return (
                 <li data-value={value} data-data={this.props.data}>
                     <a>{value}</a>

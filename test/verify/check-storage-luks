@@ -130,6 +130,10 @@ class TestStorage(StorageCase):
         if m.execute("which clevis || true") == "":
             self.skipTest("No clevis/tang here")
 
+        # HACK - clevis in rhel-8 is too old
+        #
+        can_unlock = m.image not in [ "rhel-8" ]
+
         # We generate the keys and cache explicitly before starting
         # the socket.  This allows us to control their names, which
         # helps later on.
@@ -197,10 +201,11 @@ class TestStorage(StorageCase):
         self.dialog_wait_close()
         self.content_tab_wait_in_info(1, 1, "Network keys", "127.0.0.1")
 
-        # Unlock it.  This should succeed without prompting.
-        #
-        self.content_head_action(1, "Unlock")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        if can_unlock:
+            # Unlock it.  This should succeed without prompting.
+            #
+            self.content_head_action(1, "Unlock")
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         # Rotate the encryption key on the server, and rebind
 
@@ -219,10 +224,11 @@ class TestStorage(StorageCase):
 
         m.execute("rm /var/db/tang/.enc1.jwk")
         m.execute("systemctl restart tangd-update")
-        self.content_head_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
-        self.content_head_action(1, "Unlock")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        if can_unlock:
+            self.content_head_action(1, "Lock")
+            b.wait_not_in_text("#detail-content", "ext4 File System")
+            self.content_head_action(1, "Unlock")
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         # Rotate both the encryption key and the signing key on the server, and rebind
 
@@ -263,6 +269,10 @@ class TestStorage(StorageCase):
 
         if m.execute("which clevis || true") == "":
             self.skipTest("No clevis/tang here")
+
+        # HACK - clevis in rhel-8 is too old
+        #
+        can_unlock = m.image not in [ "rhel-8" ]
 
         # Start our escrow server
         m.upload([ "verify/files/mock-escrow-server" ], "/usr/local/bin/")
@@ -312,8 +322,9 @@ class TestStorage(StorageCase):
 
         # Unlock it.  This should succeed without prompting.
         #
-        self.content_head_action(1, "Unlock")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
+        if can_unlock:
+            self.content_head_action(1, "Unlock")
+            self.content_row_wait_in_col(2, 1, "ext4 File System")
 
         # Check the key, should be working right now
         #

@@ -273,9 +273,6 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
     latest_occurrences = "Latest occurrences:\n\n"
     for comment in reversed(comments):
         if 'body' in comment and comment['body'].startswith(comment_key):
-            if len(comment['body']) >= 65536:
-                # comment is too long already, use next one
-                continue
             parts = comment['body'].split("<hr>")
             updated = False
             for part_idx, part in enumerate(parts):
@@ -303,7 +300,17 @@ def update_known_issue(api, number, err, details, context, timestamp=None):
                         updated = True
                     break
 
-            if not updated:
+            if updated:
+                # shuffle the updated part to the end
+                assert len(parts) > part_idx
+                parts.append(parts[part_idx])
+                del parts[part_idx]
+
+            else:
+                # add a new part
+                while len(parts) > 10: # maximum 10 traces
+                    parts.pop()
+
                 parts.append("""
 ```
 {0}
@@ -316,6 +323,14 @@ Times recorded: 1
 
             # update comment, no need to check others
             body = "<hr>\n".join(parts)
+
+            # ensure that the body is not longer than 64k.
+            # drop earlier parts if we need to.
+            while len(body) >= 65536:
+                parts.pop(1) # parts[0] is the header
+
+                body = "<hr>\n".join(parts)
+
             return api.patch("issues/comments/{0}".format(comment['id']), { "body": body })
 
     # create a new comment, since we didn't find one to update

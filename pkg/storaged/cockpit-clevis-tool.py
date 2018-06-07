@@ -120,7 +120,9 @@ def get_tang_adv(url):
         sys.stdout.flush()
 
 def add(dev, pin, config, passphrase):
-    subprocess.run([ "clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, config ],
+    # Clevis 6 has "bind luks" while clevis 7 and later have "luks
+    # bind".  We use the former so that this also works with clevis 6.
+    subprocess.run([ "clevis", "bind", "luks", "-f", "-k", "-", "-d", dev, pin, config ],
                    check=True, input=passphrase.encode())
 
 def check_key(dev, slot):

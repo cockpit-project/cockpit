@@ -3,33 +3,57 @@ table.listing-ct {
     width: 100%;
 }
 
-table.listing-ct thead th:last-child {
-    text-align: left;
+table.listing-ct thead th {
+    padding-left: 0;
+
+    &:last-child {
+        text-align: left;
+    }
 }
 
 tr.listing-ct-item {
-    td:last-child {
-        text-align: left;
+    vertical-align: baseline;
+
+    .listing-ct-toggle {
+        vertical-align: middle;
     }
-    td.version {
-        width: 18ex;
-        /* Tables are stretchy, so we *also* need the max-width */
-        max-width: 18ex;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    td {
+        padding-left: 0;
 
-        /* Expand version string when hovering */
-        &:hover {
-            overflow: visible;
+        &:last-child {
+            text-align: left;
+        }
+    }
 
-            .truncating {
-                background: linear-gradient(to left, rgba(222, 243, 255, 0), rgb(222, 243, 255) 3em);
-                position: relative;
-                padding: 0.5em 4em 0.5em 0;
+    @media screen and (min-width: 641px) {
+        /* Desktop: Truncate version by default and untruncate on hover */
+        td.version {
+            width: 18ex;
+            /* Tables are stretchy, so we *also* need the max-width */
+            max-width: 18ex;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            /* Expand version string when hovering */
+            &:hover {
+                overflow: visible;
+
+                .truncating {
+                    background: linear-gradient(to left, rgba(222, 243, 255, 0), rgb(222, 243, 255) 3em);
+                    position: relative;
+                    padding: 0.5em 4em 0.5em 0;
+                }
             }
         }
     }
+    @media screen and (max-width: 640px) {
+        /* Mobile: force wrap version strings */
+        td.version {
+            word-break: break-all;
+        }
+    }
+
     td.type {
         white-space: nowrap;
     }
@@ -95,33 +119,22 @@ tr.security.listing-ct-item {
 
 /* Reformat table for narrow widths */
 @media screen and (max-width: 640px) {
-    .listing-ct {
+    table.listing-ct {
         /* counteract .container-fluid */
-        margin: 0 0 0 -20px;
-        width: 100vw;
+        margin: 0 -20px;
         overflow: hidden;
-        thead {
+
+        /* Setting the width is bad for mobile, when undoing .container-fluid */
+        width: auto;
+
+        /* Don't shift size of cells, even when info is expanded */
+        table-layout: fixed;
+
+        /* Hide changelog header (there's no class) & data */
+        thead th:last-child,
+        td.changelog {
             display: none;
         }
-    }
-    .listing-ct-item {
-        display: block;
-        width: 100vw;
-        th, td {
-            display: block;
-            width: 100%;
-            max-width: 100% !important;
-            padding: 10px 15px !important;
-        }
-        th + td, td + td {
-            padding-top: 0 !important;
-        }
-    }
-}
-
-@media screen and (min-width: 641px) and (max-width: 1150px) {
-    .listing-ct-item th {
-        min-width: 30%;
     }
 }
 

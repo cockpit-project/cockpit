@@ -52,6 +52,10 @@ tbody.open {
   background: #fbf0f0;
 }
 
+th.packages {
+    white-space: nowrap;
+}
+
 .severity-critical {
     color: #a30000;
 }
@@ -122,6 +126,15 @@ tr.security.listing-ct-item {
 @media screen and (min-width: 641px) and (max-width: 1150px) {
     .listing-ct-item th {
         min-width: 30%;
+    }
+    .listing-ct th.details-header, .listing-ct td.changelog {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 1151px) and (max-width: 1648px) {
+    tr.listing-ct-item td.changelog, tr.listing-ct-item td.changelog p {
+        max-width: 40vw;
     }
 }
 

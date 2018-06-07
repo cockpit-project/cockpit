@@ -271,7 +271,7 @@ touch kubernetes.list
 
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
-for pkg in base1 branding issue kdump networkmanager realmd selinux shell sosreport static storaged systemd tuned users; do
+for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport static storaged systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/%{name}/$pkg
 done
 for data in applications doc locale man metainfo pixmaps; do
@@ -283,7 +283,7 @@ done
 for libexec in cockpit-askpass cockpit-session cockpit-ws; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
-rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d
+rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
 rm %{buildroot}/usr/bin/cockpit-bridge %{buildroot}/usr/sbin/remotectl
 %endif
 

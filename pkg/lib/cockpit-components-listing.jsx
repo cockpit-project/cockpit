@@ -286,7 +286,11 @@ var Listing = React.createClass({
         title: React.PropTypes.string.isRequired,
         fullWidth: React.PropTypes.bool,
         emptyCaption: React.PropTypes.string.isRequired,
-        columnTitles: React.PropTypes.arrayOf(React.PropTypes.string),
+        columnTitles: React.PropTypes.arrayOf(
+            React.PropTypes.oneOfType([
+                React.PropTypes.string,
+                React.PropTypes.element,
+            ])),
         columnTitleClick: React.PropTypes.func,
         actions: React.PropTypes.arrayOf(React.PropTypes.node)
     },

@@ -35,3 +35,13 @@ minimal_storage_pool_xml = '''
   </target>
 </pool>
 '''
+
+minimal_storage_vol_xml = '''
+<volume>
+  <name>sparse.img</name>
+  <capacity unit="G">2</capacity>
+  <target>
+    <path>/var/lib/virt/images/sparse.img</path>
+  </target>
+</volume>
+'''

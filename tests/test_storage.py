@@ -2,6 +2,7 @@
 
 import dbus
 import libvirttest
+import pytest
 
 class TestStoragePool(libvirttest.BaseTestClass):
     def test_storage_pool_autostart(self):
@@ -128,6 +129,16 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
     def test_storage_pool_volume_create(self, storage_volume_create):
         assert isinstance(storage_volume_create, dbus.ObjectPath)
+
+
+@pytest.mark.usefixtures('storage_volume_create')
+class TestStorageVolume(libvirttest.BaseTestClass):
+    def test_storage_vol_properties_type(self):
+        _, obj = self.get_test_storage_volume()
+
+        props = obj.GetAll('org.libvirt.StorageVol',
+                           dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props['Name'], dbus.String)
 
 
 if __name__ == '__main__':

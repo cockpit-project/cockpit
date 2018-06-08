@@ -3,7 +3,51 @@
 
 #include <libvirt/libvirt.h>
 
+static virStorageVolPtr
+virtDBusStorageVolGetVirStorageVol(virtDBusConnect *connect,
+                                   const gchar *objectPath,
+                                   GError **error)
+{
+    virStorageVolPtr storageVol;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    storageVol = virtDBusUtilVirStorageVolFromBusPath(connect->connection,
+                                                      objectPath,
+                                                      connect->storageVolPath);
+    if (!storageVol) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return storageVol;
+}
+
+static void
+virtDBusStorageVolGetName(const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **value,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStorageVol) storageVol = NULL;
+    const gchar *name;
+
+    storageVol = virtDBusStorageVolGetVirStorageVol(connect, objectPath,
+                                                    error);
+    if (!storageVol)
+        return;
+
+    name = virStorageVolGetName(storageVol);
+    if (!name)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", name);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
+    { "Name", virtDBusStorageVolGetName, NULL },
     { 0 }
 };
 

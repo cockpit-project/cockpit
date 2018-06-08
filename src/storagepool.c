@@ -401,6 +401,46 @@ virtDBusStoragePoolStorageVolCreateXML(GVariant *inArgs,
 }
 
 static void
+virtDBusStoragePoolStorageVolCreateXMLFrom(GVariant *inArgs,
+                                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                                           const gchar *objectPath,
+                                           gpointer userData,
+                                           GVariant **outArgs,
+                                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStoragePool) storagePool = NULL;
+    g_autoptr(virStorageVol) storageVol = NULL;
+    g_autoptr(virStorageVol) storageVolOld = NULL;
+    const gchar *key;
+    const gchar *xml;
+    guint flags;
+    g_autofree gchar *path = NULL;
+
+    g_variant_get(inArgs, "(&s&su)", &xml, &key, &flags);
+
+    storagePool = virtDBusStoragePoolGetVirStoragePool(connect, objectPath,
+                                                       error);
+    if (!storagePool)
+        return;
+
+    storageVolOld = virStorageVolLookupByKey(connect->connection, key);
+    if (!storageVolOld)
+        return virtDBusUtilSetLastVirtError(error);
+
+    storageVol = virStorageVolCreateXMLFrom(storagePool, xml, storageVolOld,
+                                            flags);
+    if (!storageVol)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirStorageVol(storageVol,
+                                               connect->storageVolPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
+static void
 virtDBusStoragePoolStorageVolLookupByName(GVariant *inArgs,
                                           GUnixFDList *inFDs G_GNUC_UNUSED,
                                           const gchar *objectPath,
@@ -474,6 +514,7 @@ static virtDBusGDBusMethodTable virtDBusStoragePoolMethodTable[] = {
     { "ListStorageVolumes", virtDBusStoragePoolListStorageVolumes },
     { "Refresh", virtDBusStoragePoolRefresh },
     { "StorageVolCreateXML", virtDBusStoragePoolStorageVolCreateXML },
+    { "StorageVolCreateXMLFrom", virtDBusStoragePoolStorageVolCreateXMLFrom },
     { "StorageVolLookupByName", virtDBusStoragePoolStorageVolLookupByName },
     { "Undefine", virtDBusStoragePoolUndefine },
     { 0 }

@@ -75,6 +75,15 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="storageVol" type="o" direction="out"/>
     </method>
+    <method name="StorageVolCreateXMLFrom">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolCreateXMLFrom
+               Call with @key argument set to the key of the storage volume to be cloned."/>
+      <arg name="xml" type="s" direction="in"/>
+      <arg name="key" type="s" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="storageVol" type="o" direction="out"/>
+    </method>
     <method name="StorageVolLookupByName">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolLookupByName"/>

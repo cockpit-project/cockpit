@@ -90,6 +90,34 @@ virtDBusStorageVolGetPath(const gchar *objectPath,
     *value = g_variant_new("s", path);
 }
 
+static void
+virtDBusStorageVolGetXMLDesc(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStorageVol) storageVol = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    storageVol = virtDBusStorageVolGetVirStorageVol(connect, objectPath,
+                                                    error);
+    if (!storageVol)
+        return;
+
+    xml = virStorageVolGetXMLDesc(storageVol, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
     { "Name", virtDBusStorageVolGetName, NULL },
     { "Key", virtDBusStorageVolGetKey, NULL },
@@ -98,6 +126,7 @@ static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusStorageVolMethodTable[] = {
+    { "GetXMLDesc", virtDBusStorageVolGetXMLDesc },
     { 0 }
 };
 

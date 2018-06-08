@@ -140,18 +140,20 @@ class ApplicationList extends React.Component {
             tbody = <tr className="app-list-empty"><td>{empty_caption}</td></tr>;
         } else {
             table_classes += " table-hover";
-            tbody = comps.map((c) => <ApplicationRow comp={c} />);
+            tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);
         }
 
         return (
             <table className={table_classes}>
                 <caption>
                     <table>
-                        <tr>
-                            <td><h2>{_("Applications")}</h2></td>
-                            <td>{refresh_progress}</td>
-                            <td>{refresh_button}</td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td><h2>{_("Applications")}</h2></td>
+                                <td>{refresh_progress}</td>
+                                <td>{refresh_button}</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </caption>
                 <tbody>

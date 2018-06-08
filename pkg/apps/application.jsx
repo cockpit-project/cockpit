@@ -62,7 +62,7 @@ class Application extends React.Component {
         function render_homepage_link(urls) {
             return urls.map(url => {
                 if (url.type == 'homepage') {
-                    return (<div className="app-links">
+                    return (<div className="app-links" key={url.link}>
                         <a href={url.link} target="_blank" rel="noopener" data-linkedhost={url.link}>
                                     View Project Website <i className="fa fa-external-link" aria-hidden="true" />
                         </a>
@@ -78,13 +78,13 @@ class Application extends React.Component {
             if (!description)
                 return <p>{_("No description provided.")}</p>;
 
-            return description.map(paragraph => {
+            return description.map((paragraph, index) => {
                 if (paragraph.tag == 'ul') {
-                    return <ul>{paragraph.items.map(item => <li>{item}</li>)}</ul>;
+                    return <ul key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ul>;
                 } else if (paragraph.tag == 'ol') {
-                    return <ol>{paragraph.items.map(item => <li>{item}</li>)}</ol>;
+                    return <ol key={`paragraph-${index}`}>{paragraph.items.map(item => <li key={item}>{item}</li>)}</ol>;
                 } else {
-                    return <p>{paragraph}</p>;
+                    return <p key={`paragraph-${index}`}>{paragraph}</p>;
                 }
             });
         }
@@ -127,7 +127,7 @@ class Application extends React.Component {
                     {render_homepage_link(comp.urls)}
                     <div className="app-description">{render_description(comp.description)}</div>
                     <center>
-                        { comp.screenshots.map(s => <img className="app-screenshot" role="presentation" src={s.full} />) }
+                        { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" src={s.full} />) }
                     </center>
                 </div>
             );

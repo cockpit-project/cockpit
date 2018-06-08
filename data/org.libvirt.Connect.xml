@@ -308,6 +308,12 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="storagePool" type="o" direction="out"/>
     </method>
+    <method name="StorageVolLookupByKey">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolLookupByKey"/>
+      <arg name="key" type="s" direction="in"/>
+      <arg name="storageVol" type="o" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

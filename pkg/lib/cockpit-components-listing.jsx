@@ -157,25 +157,25 @@ var ListingRow = React.createClass({
         // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
         var allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
-        var headerEntries = this.props.columns.map(function(itm) {
+        var headerEntries = this.props.columns.map((itm, index) => {
             if (typeof itm === 'string' || typeof itm === 'number' || itm === null || itm === undefined || itm instanceof String || React.isValidElement(itm))
-                return (<td>{itm}</td>);
+                return (<td key={index}>{itm}</td>);
             else if ('header' in itm && itm.header)
-                return (<th>{itm.name}</th>);
+                return (<th key={index}>{itm.name}</th>);
             else if ('tight' in itm && itm.tight)
-                return (<td className="listing-ct-actions">{itm.name || itm.element}</td>);
+                return (<td key={index} className="listing-ct-actions">{itm.name || itm.element}</td>);
             else
-                return (<td>{itm.name}</td>);
+                return (<td key={index}>{itm.name}</td>);
         });
 
         var allowExpand = (this.props.tabRenderers.length > 0);
         var expandToggle;
         if (allowExpand) {
-            expandToggle = <td className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
+            expandToggle = <td key="expandToggle" className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
                 <i className="fa fa-fw" />
             </td>;
         } else {
-            expandToggle = <td className="listing-ct-toggle" />;
+            expandToggle = <td key="expandToggle-empty" className="listing-ct-toggle" />;
         }
 
         var listingItemClasses = ["listing-ct-item"];
@@ -207,7 +207,7 @@ var ListingRow = React.createClass({
         );
 
         if (this.state.expanded) {
-            var links = this.props.tabRenderers.map(function(itm, idx) {
+            var links = this.props.tabRenderers.map((itm, idx) => {
                 return (
                     <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
                         <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
@@ -326,12 +326,12 @@ var Listing = React.createClass({
 
             headerRow = (
                 <tr>
-                    <th className="listing-ct-toggle" />
-                    { this.props.columnTitles.map(function (title, index) {
+                    <th key="empty" className="listing-ct-toggle" />
+                    { this.props.columnTitles.map((title, index) => {
                         var clickHandler = null;
                         if (self.props.columnTitleClick)
                             clickHandler = function() { self.props.columnTitleClick(index) };
-                        return <th onClick={clickHandler}>{title}</th>;
+                        return <th key={index} onClick={clickHandler}>{title}</th>;
                     }) }
                 </tr>
             );

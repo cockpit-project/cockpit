@@ -57,6 +57,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
     </method>
+    <method name="ListStorageVolumes">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolListAllVolumes"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="storageVols" type="ao" direction="out"/>
+    </method>
     <method name="Refresh">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolRefresh"/>

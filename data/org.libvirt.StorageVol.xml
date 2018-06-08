@@ -18,6 +18,12 @@
           value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolGetPath"/>
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
     </property>
+    <method name="GetInfo">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolGetInfoFlags"/>
+      <arg name="flags" type="u" direction="in"/>
+      <arg name="info" type="(itt)" direction="out"/>
+    </method>
     <method name="GetXMLDesc">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolGetXMLDesc"/>

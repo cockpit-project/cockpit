@@ -75,6 +75,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="storageVol" type="o" direction="out"/>
     </method>
+    <method name="StorageVolLookupByName">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolLookupByName"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="storageVol" type="o" direction="out"/>
+    </method>
     <method name="Undefine">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStoragePoolUndefine"/>

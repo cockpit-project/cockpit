@@ -650,7 +650,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                 b.wait_present(id)
                 b.upload_file(id, filename)
 
-            def _setVal(self, selector, value, by_key_press=False):
+            def _setVal(self, selector, value):
                 b = self.browser
                 value = str(value)
 
@@ -659,11 +659,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                 b.click(selector)
                 b.focus(selector)
                 b.set_val(selector, '')  # clear value
-                if by_key_press:
-                    b.key_press(value)
-                else:
-                    b.set_val(selector, value)
-                b.wait_val(selector, value)
+                b.key_press(value)
+                # b.wait_val(selector, value) # TODO: find reliable way how to check the key_pres is finished
 
         self.bootstrapKubevirt()
         runner = CreateVmRunner(self)

@@ -314,6 +314,12 @@
       <arg name="key" type="s" direction="in"/>
       <arg name="storageVol" type="o" direction="out"/>
     </method>
+    <method name="StorageVolLookupByPath">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolLookupByPath"/>
+      <arg name="path" type="s" direction="in"/>
+      <arg name="storageVol" type="o" direction="out"/>
+    </method>
     <signal name="DomainEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectDomainEventCallback"/>

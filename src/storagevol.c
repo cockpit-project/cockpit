@@ -91,6 +91,30 @@ virtDBusStorageVolGetPath(const gchar *objectPath,
 }
 
 static void
+virtDBusStorageVolDelete(GVariant *inArgs,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs G_GNUC_UNUSED,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStorageVol) storageVol = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    storageVol = virtDBusStorageVolGetVirStorageVol(connect, objectPath,
+                                                    error);
+    if (!storageVol)
+        return;
+
+    if (virStorageVolDelete(storageVol, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
+static void
 virtDBusStorageVolGetInfo(GVariant *inArgs,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -204,6 +228,7 @@ static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
 };
 
 static virtDBusGDBusMethodTable virtDBusStorageVolMethodTable[] = {
+    { "Delete", virtDBusStorageVolDelete },
     { "GetInfo", virtDBusStorageVolGetInfo },
     { "GetXMLDesc", virtDBusStorageVolGetXMLDesc },
     { "Resize", virtDBusStorageVolResize },

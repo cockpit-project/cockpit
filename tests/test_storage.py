@@ -133,6 +133,12 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
 @pytest.mark.usefixtures('storage_volume_create')
 class TestStorageVolume(libvirttest.BaseTestClass):
+    def test_storage_vol_delete(self):
+        test_storage_vol_path, test_storage_vol = self.get_test_storage_volume()
+        interface_obj = dbus.Interface(test_storage_vol,
+                                       'org.libvirt.StorageVol')
+        interface_obj.Delete(0)
+
     def test_storage_vol_properties_type(self):
         _, obj = self.get_test_storage_volume()
 

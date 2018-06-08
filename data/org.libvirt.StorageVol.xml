@@ -18,6 +18,11 @@
           value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolGetPath"/>
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
     </property>
+    <method name="Delete">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolDelete"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
     <method name="GetInfo">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolGetInfoFlags"/>

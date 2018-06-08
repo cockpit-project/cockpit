@@ -2,7 +2,7 @@
 Description=Cockpit motd updater service
 Documentation=man:cockpit-ws(8)
 Wants=network-online.target
-After=network-online.target
+After=network-online.target cockpit.socket
 
 [Service]
 Type=oneshot

@@ -5,7 +5,7 @@ Wants=cockpit-motd.service
 
 [Socket]
 ListenStream=9090
-ExecStartPost=-@datadir@/@PACKAGE@/motd/update-motd
+ExecStartPost=-@datadir@/@PACKAGE@/motd/update-motd '' localhost
 ExecStartPost=-/bin/ln -snf active.motd /run/cockpit/motd
 ExecStopPost=-/bin/ln -snf @datadir@/@PACKAGE@/motd/inactive.motd /run/cockpit/motd
 

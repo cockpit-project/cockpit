@@ -143,6 +143,31 @@ virtDBusStorageVolResize(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusStorageVolWipe(GVariant *inArgs,
+                       GUnixFDList *inFDs G_GNUC_UNUSED,
+                       const gchar *objectPath,
+                       gpointer userData,
+                       GVariant **outArgs G_GNUC_UNUSED,
+                       GUnixFDList **outFDs G_GNUC_UNUSED,
+                       GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virStorageVol) storageVol = NULL;
+    guint pattern;
+    guint flags;
+
+    g_variant_get(inArgs, "(uu)", &pattern, &flags);
+
+    storageVol = virtDBusStorageVolGetVirStorageVol(connect, objectPath,
+                                                    error);
+    if (!storageVol)
+        return;
+
+    if (virStorageVolWipePattern(storageVol, pattern, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
     { "Name", virtDBusStorageVolGetName, NULL },
     { "Key", virtDBusStorageVolGetKey, NULL },
@@ -153,6 +178,7 @@ static virtDBusGDBusPropertyTable virtDBusStorageVolPropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusStorageVolMethodTable[] = {
     { "GetXMLDesc", virtDBusStorageVolGetXMLDesc },
     { "Resize", virtDBusStorageVolResize },
+    { "Wipe", virtDBusStorageVolWipe },
     { 0 }
 };
 

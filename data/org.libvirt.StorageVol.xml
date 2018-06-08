@@ -30,5 +30,11 @@
       <arg name="capacity" type="t" direction="in"/>
       <arg name="flags" type="u" direction="in"/>
     </method>
+    <method name="Wipe">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolWipePattern"/>
+      <arg name="pattern" type="u" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
   </interface>
 </node>

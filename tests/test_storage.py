@@ -138,6 +138,7 @@ class TestStorageVolume(libvirttest.BaseTestClass):
 
         props = obj.GetAll('org.libvirt.StorageVol',
                            dbus_interface=dbus.PROPERTIES_IFACE)
+        assert isinstance(props['Key'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
 
 

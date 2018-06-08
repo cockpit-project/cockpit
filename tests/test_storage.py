@@ -140,6 +140,7 @@ class TestStorageVolume(libvirttest.BaseTestClass):
                            dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Key'], dbus.String)
         assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['Path'], dbus.String)
 
 
 if __name__ == '__main__':

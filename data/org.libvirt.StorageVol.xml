@@ -24,5 +24,11 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
     </method>
+    <method name="Resize">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-storage.html#virStorageVolResize"/>
+      <arg name="capacity" type="t" direction="in"/>
+      <arg name="flags" type="u" direction="in"/>
+    </method>
   </interface>
 </node>

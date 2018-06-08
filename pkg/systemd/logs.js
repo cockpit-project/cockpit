@@ -95,8 +95,8 @@ $(function() {
 
     /* Not public API */
     function journalbox(outer, start, match, day_box) {
-        var box = $('<div class="panel panel-default cockpit-log-panel">');
-        var start_box = $('<div class="journal-start">');
+        var box = $('<div class="panel panel-default cockpit-log-panel" role="table">');
+        var start_box = $('<div class="journal-start" role="rowgroup">');
 
         outer.empty().append(box, start_box);
 

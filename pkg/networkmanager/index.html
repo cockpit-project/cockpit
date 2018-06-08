@@ -140,9 +140,10 @@
         </tbody>
       </table>
     </div>
-    <div class="panel panel-default cockpit-log-panel">
-      <div class="panel-heading" translatable="yes">Networking Logs</div>
-      <div class="panel-body" id="networking-log"></div>
+    <div class="panel panel-default cockpit-log-panel" role="table"
+     aria-labelledby="networking-log-header">
+      <div class="panel-heading" translatable="yes" id="networking-log-header">Networking Logs</div>
+      <div class="panel-body" id="networking-log" role="rowgroup"></div>
     </div>
   </div>
 

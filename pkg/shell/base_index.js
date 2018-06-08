@@ -923,6 +923,15 @@
                         item.path = info.path.replace(/\.html$/, "");
                     else
                         item.path = name + "/" + prop;
+
+                    /* Split out any hash in the path */
+                    var pos = item.path.indexOf("#");
+                    if (pos !== -1) {
+                        item.hash = item.path.substr(pos + 1);
+                        item.path = item.path.substr(0, pos);
+                    }
+
+                    /* Fix component for compatibility and normalize it */
                     if (item.path.indexOf("/") === -1)
                         item.path = name + "/" + item.path;
                     if (item.path.slice(-6) == "/index")

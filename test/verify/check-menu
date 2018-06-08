@@ -25,6 +25,11 @@ class TestMenu(MachineCase):
     @enableAxe
     def testBasic(self):
         b = self.browser
+        m = self.machine
+
+        # Add a link with a hash in it to test that this works
+        m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
+        m.execute("""sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
 
         self.login_and_go("/system")
 
@@ -37,6 +42,12 @@ class TestMenu(MachineCase):
         b.wait_popdown("about")
 
         self.check_axe("Test-navigation")
+
+        # Check that we can use a link with a hash in it
+        b.switch_to_top()
+        b.click("a[href='/system/#/memory']")
+        b.enter_page("/system")
+        b.wait_visible("#memory_status")
 
 if __name__ == '__main__':
     test_main()

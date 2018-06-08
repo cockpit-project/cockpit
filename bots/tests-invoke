@@ -40,7 +40,7 @@ DEVNULL = open("/dev/null", "r+")
 def main():
     parser = argparse.ArgumentParser(description='Run integration tests')
     parser.add_argument('-j', '--jobs', dest="jobs", type=int,
-            default=os.environ.get("TEST_JOBS", 1), help="Number of concurrent jobs")
+            default=4, help="Number of concurrent jobs")
     parser.add_argument('--rebase', help="Rebase onto the specific branch before testing")
     parser.add_argument('--remote', help="The Git remote to use (instead of 'origin')",
                         default="origin")

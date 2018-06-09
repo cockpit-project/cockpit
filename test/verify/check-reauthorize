@@ -76,6 +76,10 @@ class TestReauthorize(MachineCase):
 
         b.enter_page("/playground/test")
 
+        # Twice to avoid races. This race is with cockpit-bridge --privileged exiting
+        b.click(".super-channel .btn")
+        b.wait_in_text(".super-channel span", 'result:')
+
         b.click(".super-channel .btn")
         b.wait_in_text(".super-channel span", 'result: access-denied')
 

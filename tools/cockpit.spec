@@ -315,8 +315,8 @@ rm -rf %{buildroot}/usr/src/debug
 # On RHEL kdump, networkmanager, selinux, and sosreport are part of the system package
 %if 0%{?rhel}
 cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
-rm %{buildroot}/usr/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
-rm %{buildroot}/usr/share/pixmaps/cockpit-sosreport.png
+rm -f %{buildroot}/usr/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+rm -f %{buildroot}/usr/share/pixmaps/cockpit-sosreport.png
 %endif
 
 %if 0%{?build_basic}

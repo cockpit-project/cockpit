@@ -43,6 +43,12 @@ void
 virtDBusUtilSetLastVirtError(GError **error);
 
 gchar *
+virtDBusUtilEncodeStr(const gchar *str);
+
+gchar *
+virtDBusUtilDecodeStr(const gchar *str);
+
+gchar *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
                                 const gchar *domainPath);
 

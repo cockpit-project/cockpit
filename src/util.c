@@ -181,6 +181,70 @@ virtDBusUtilDecodeUUID(const gchar *uuid)
     return g_strdelimit(ret, "_", '-');
 }
 
+static guchar
+virtDBusUtilNumToHexchar(const guchar c)
+{
+    if (c < 10)
+        return '0' + c;
+    return 'a' + (c & 0x0f) - 10;
+}
+
+static guchar
+virtDBusUtilHexcharToNum(const guchar c)
+{
+    if (c >= 'a')
+        return 10 + c - 'a';
+    return c - '0';
+}
+
+gchar *
+virtDBusUtilEncodeStr(const gchar *str)
+{
+    gint len = strlen(str);
+    gint j = 0;
+    gchar *ret = g_new(gchar, len * 3 + 1);
+
+    for (gint i = 0; i < len; i++) {
+        guchar c = str[i];
+        if ((c >= 'A' && c <= 'Z') ||
+            (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9')) {
+            ret[j++] = c;
+        } else {
+            ret[j] = '_';
+            ret[j + 1] = virtDBusUtilNumToHexchar(c >> 4);
+            ret[j + 2] = virtDBusUtilNumToHexchar(c);
+            j += 3;
+        }
+    }
+    ret[j] = 0;
+
+    return ret;
+}
+
+gchar *
+virtDBusUtilDecodeStr(const gchar *str)
+{
+    gint len = strlen(str);
+    gint j = 0;
+    gchar *ret = g_new(gchar, len + 1);
+
+    for (gint i = 0; i < len; i++) {
+        gchar c = str[i];
+        if (c != '_' || (i + 2) >= len) {
+            ret[j++] = c;
+        } else {
+            guchar a = virtDBusUtilHexcharToNum(str[i + 1]);
+            guchar b = virtDBusUtilHexcharToNum(str[i + 2]);
+            ret[j++] = (a << 4) + b;
+            i += 2;
+        }
+    }
+    ret[j] = 0;
+
+    return ret;
+}
+
 gchar *
 virtDBusUtilBusPathForVirDomain(virDomainPtr domain,
                                 const gchar *domainPath)

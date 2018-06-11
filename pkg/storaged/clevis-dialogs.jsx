@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { dialog_open, SelectOne, TextInput, PassInput, CheckBox } from "./dialogx.jsx";
+import { dialog_open, TextInput, PassInput } from "./dialogx.jsx";
 import { decode_filename } from "./utils.js";
 
 import sha1 from "js-sha1";
@@ -97,41 +97,8 @@ function clevis_remove(block, key) {
 export function add(client, block) {
     dialog_open({ Title: _("Add network key"),
                   Fields: [
-                      SelectOne("method", _("Method"), { },
-                                [ { value: "tang",
-                                    title: _("\"tang\" Binding server") },
-                                { value: "http",
-                                  title: _("\"http\" Key escrow") }
-                                ]),
-                      TextInput("http_url", _("URL"),
-                                { validate: val => {
-                                    if (val.length === 0)
-                                        return _("URL cannot be empty");
-                                    if (!val.startsWith("http:") && !val.startsWith("https:"))
-                                        return _("URL must start with either \"http:\" or \"https:\"");
-                                },
-                                  visible: vals => vals.method == "http"
-                                }),
-                      CheckBox("allow_plain_http", _("Allow \"http://\" URL"),
-                               { visible: vals => vals.method == "http",
-                                 validate: (val, vals) => {
-                                     if (vals.http_url.startsWith("http:") && !val)
-                                         return _("This box must be checked to confirm that the key will be transported without HTTPS");
-                                 }
-                               }),
-                      SelectOne("http_method", _("HTTP method"),
-                                { visible: vals => vals.method == "http" },
-                                [ { value: "PUT", title: "PUT" },
-                                    { value: "POST", title: "POST" }
-                                ]),
-                      SelectOne("key_type", _("Type"),
-                                { visible: vals => vals.method == "http" },
-                                [ { value: "octet-stream", title: "octet-stream" },
-                                    { value: "jwk+json", title: "jwk+json" }
-                                ]),
-                      TextInput("tang_url", _("Key server URL"),
-                                { validate: val => !val.length && _("Server address cannot be empty"),
-                                  visible: vals => vals.method == "tang"
+                      TextInput("tang_url", _("Tang URL"),
+                                { validate: val => !val.length && _("Tang URL cannot be empty")
                                 }),
                       PassInput("passphrase", _("Existing passphrase"),
                                 { validate: val => !val.length && _("Passphrase cannot be empty"),
@@ -140,18 +107,9 @@ export function add(client, block) {
                   Action: {
                       Title: _("Add"),
                       action: function (vals) {
-                          if (vals.method == "tang") {
-                              return get_tang_adv(vals.tang_url).then(function (adv) {
-                                  add_tang_adv(client, block, vals.tang_url, adv, vals.passphrase);
-                              });
-                          } else if (vals.method == "http") {
-                              return clevis_add(block, "http",
-                                                { url: vals.http_url,
-                                                  http: vals.allow_plain_http,
-                                                  type: vals.key_type,
-                                                  method: vals.http_method },
-                                                vals.passphrase);
-                          }
+                          return get_tang_adv(vals.tang_url).then(function (adv) {
+                              add_tang_adv(client, block, vals.tang_url, adv, vals.passphrase);
+                          });
                       }
                   }
     });

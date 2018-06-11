@@ -83,6 +83,10 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         self.browser.wait_timeout(120)
 
+        # This happens with docker restarts and during startup polling
+        self.allow_journal_messages('.*received truncated HTTP response.*')
+        self.allow_journal_messages(".*api/.*couldn't connect.*")
+
     def testConnect(self):
         m = self.machine
         b = self.browser
@@ -805,6 +809,10 @@ class TestRegistry(MachineCase, RegistryTests):
         self.openshift.execute("oc project default")
 
         self.browser.wait_timeout(120)
+
+        # This happens with docker restarts and during startup polling
+        self.allow_journal_messages('.*received truncated HTTP response.*')
+        self.allow_journal_messages(".*api/.*couldn't connect.*")
 
 
 class TestRegistryPrerelease(TestRegistry):

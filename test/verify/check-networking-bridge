@@ -34,10 +34,9 @@ class TestNetworking(NetworkCase):
 
         self.login_and_go("/network")
 
-        # The second interface is connected to a different outside
-        # network than the first to avoid a cycle between the
-        # "cockpit1" bridge that all VMs are connected to, and the
-        # bridge we are creating here.
+        # The second interface is connected to a different outside network than
+        # the first to avoid a cycle between the bridge that all VMs are
+        # connected to, and the bridge we are creating here.
 
         iface1 = self.add_iface()
         iface2 = self.add_iface(vlan=1, activate=False)

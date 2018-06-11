@@ -50,20 +50,11 @@ REDHAT_VERIFY = {
     'selenium/explorer': [ 'master' ],
 }
 
-# Host interfaces that tell us we're not in a namespaced network
-HOST_INTERFACES = [ "cockpit1", "docker0", "virbr0" ]
-
-# Branches that need the bridged network to work
-LEGACY_BRANCHES = [
-    'rhel-7.4',
-]
-
 import argparse
 import os
 import json
 import pipes
 import random
-import subprocess
 import sys
 import time
 import urllib.request, urllib.parse, urllib.error
@@ -110,17 +101,6 @@ def default_policy():
         policy.update(REDHAT_VERIFY)
     except IOError:
         pass
-
-    # Check if we're in a namespaced network
-    null = open("/dev/null", "r+")
-    for interface in HOST_INTERFACES:
-        if subprocess.call([ "ip", "link", "show", interface ], stdout=null, stderr=null) == 0:
-            break
-
-    # In a namespaced network, remove legacy branches
-    else:
-        for context, branches in policy.items():
-            policy[context] = [branch for branch in branches if branch not in LEGACY_BRANCHES]
 
     return policy
 

@@ -64,7 +64,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
                 phase // phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
             ]}
             tabRenderers={[ overviewTabRenderer, disksTabRenderer ]}
-            listingActions={<VmActions vm={vm} />}
+            listingActions={[ <VmActions vm={vm} /> ]}
             expandChanged={onExpandChanged(vm)}
             initiallyExpanded={initiallyExpanded} />
     );
@@ -72,7 +72,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs, pod, vmUi, onExpandChanged }:
 
 VmsListingRow.propTypes = {
     vm: PropTypes.object.isRequired,
-    vmMessages: PropTypes.object.isRequired,
+    vmMessages: PropTypes.object,
     pvs: PropTypes.array.isRequired,
     pod: PropTypes.object.isRequired,
     vmUi: PropTypes.object,

@@ -37,7 +37,7 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
                                                pvs={pvs}
                                                key={vm.metadata.uid} />));
     let actions = [(
-        <CreateVmButton />
+        <CreateVmButton key='create-vm' />
     )];
 
     return (
@@ -51,9 +51,9 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
 };
 
 VmsListing.propTypes = {
-    vms: PropTypes.object.isRequired,
-    pvs: PropTypes.object.isRequired,
-    pods: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
+    pvs: PropTypes.array.isRequired,
+    pods: PropTypes.array.isRequired,
     vmsMessages: PropTypes.object.isRequired,
 };
 

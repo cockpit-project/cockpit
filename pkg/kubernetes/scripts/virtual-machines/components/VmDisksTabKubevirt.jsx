@@ -115,7 +115,7 @@ const VmDisksTabKubevirt = ({ vm, pvs }: { vm: Vm, pvs: Array<PersistenVolume> }
 
 VmDisksTabKubevirt.propTypes = {
     vm: PropTypes.object.isRequired,
-    pvs: PropTypes.object.isRequired,
+    pvs: PropTypes.array.isRequired,
 };
 
 export default VmDisksTabKubevirt;

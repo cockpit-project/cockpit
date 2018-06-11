@@ -130,9 +130,8 @@ class TestStorage(StorageCase):
         if m.execute("which clevis || true") == "":
             self.skipTest("No clevis/tang here")
 
-        # HACK - clevis in rhel-8 is too old
-        #
-        can_unlock = m.image not in [ "rhel-8" ]
+        # HACK - clevis in rhel devel is too old
+        can_unlock = m.image not in [ "rhel-x" ]
 
         # We generate the keys and cache explicitly before starting
         # the socket.  This allows us to control their names, which
@@ -270,9 +269,8 @@ class TestStorage(StorageCase):
         if m.execute("which clevis || true") == "":
             self.skipTest("No clevis/tang here")
 
-        # HACK - clevis in rhel-8 is too old
-        #
-        can_unlock = m.image not in [ "rhel-8" ]
+        # HACK - clevis in rhel devel is too old
+        can_unlock = m.image not in [ "rhel-x" ]
 
         # Start our escrow server
         m.upload([ "verify/files/mock-escrow-server" ], "/usr/local/bin/")

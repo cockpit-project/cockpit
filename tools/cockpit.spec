@@ -38,7 +38,7 @@
 
 %define __lib lib
 
-# on RHEL 7.x we build subscriptions; superseded in RHEL 8 (and Fedora) by
+# on RHEL 7.x we build subscriptions; superseded later by
 # external subscription-manager-cockpit
 %if 0%{?rhel} >= 7 && 0%{?rhel} < 8
 %define build_subscriptions 1
@@ -393,7 +393,7 @@ embed or extend Cockpit.
 %{_docdir}/cockpit
 
 # storaged on Fedora < 27, udisks on newer ones
-# Recommends: not supported in RHEL < 8
+# Recommends: not supported in RHEL <= 7
 %package storaged
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}

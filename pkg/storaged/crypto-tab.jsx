@@ -161,10 +161,9 @@ var CryptoTab = React.createClass({
         function decode_clevis_slot(slot) {
             if (slot.Active.v && slot.ClevisConfig) {
                 var clevis = JSON.parse(slot.ClevisConfig.v);
-                if (clevis.pin && clevis[clevis.pin] && (clevis.pin == "tang" || clevis.pin == "http")) {
+                if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
                     return { slot: slot.Index.v,
-                             type: clevis.pin,
-                             url: clevis[clevis.pin].url
+                             url: clevis.tang.url
                     };
                 }
             }
@@ -179,7 +178,7 @@ var CryptoTab = React.createClass({
                                 if (key) {
                                     return (
                                         <tr key={key.slot}>
-                                            <td>{key.type} {key.url}</td>
+                                            <td>{key.url}</td>
                                             <td>
                                                 <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
                                                     Remove

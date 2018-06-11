@@ -28,7 +28,7 @@ def info(dev):
             raw = subprocess.check_output([ "luksmeta", "load", "-d", dev, "-s", fields[0] ]).decode("utf-8")
             header = b64_decode(raw.split(".")[0]).decode("utf-8")
             header_object = json.loads(header)
-            if "clevis" in header_object:
+            if "clevis" in header_object and header_object["clevis"]["pin"] == "tang":
                 info["ClevisConfig"] = { "v": json.dumps(header_object["clevis"]) }
         if fields[1] == b"active" or "ClevisConfig" in info:
             slots.append(info)

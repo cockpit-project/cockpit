@@ -70,16 +70,19 @@ class StorageCase(MachineCase):
 
     # Content
 
+    def content_row_tbody(self, index):
+        return "#detail-content > table > tbody:nth-of-type(%d)" % index
+
     def content_row_expand(self, index):
         b = self.browser
-        tbody = "#detail-content tbody:nth-of-type(%d)" % index
+        tbody = self.content_row_tbody(index)
         b.wait_present(tbody)
         if not "open" in (b.attr(tbody, "class") or ""):
             b.click(tbody + " tr.listing-ct-item")
             b.wait_present(tbody + ".open")
 
     def content_row_action(self, index, title):
-        btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-item .listing-ct-actions button:contains(%s)" % (index, title)
+        btn = self.content_row_tbody(index) + " .listing-ct-item .listing-ct-actions button:contains(%s)" % title
         self.browser.wait_present(btn)
         self.browser.click(btn)
 
@@ -88,18 +91,18 @@ class StorageCase(MachineCase):
     # temporarily disappearing element, so we use self.retry.
 
     def content_row_wait_in_col(self, row_index, col_index, val):
-        col = "#detail-content tbody:nth-of-type(%d) .listing-ct-item :nth-child(%d)" % (row_index, col_index+1)
+        col = self.content_row_tbody(row_index) +" .listing-ct-item :nth-child(%d)" % (col_index + 1)
         self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
 
     def content_head_action(self, index, title):
         self.content_row_expand(index)
-        btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-head .listing-ct-actions button:contains(%s)" % (index, title)
+        btn = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions button:contains(%s)" % title
         self.browser.wait_present(btn)
         self.browser.click(btn)
 
     def content_tab_expand(self, row_index, tab_index):
-        tab_btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-head li:nth-child(%d) a" % (row_index, tab_index)
-        tab = "#detail-content tbody:nth-of-type(%d) .listing-ct-body:nth-child(%d)" % (row_index, tab_index + 1)
+        tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head li:nth-child(%d) a" % tab_index
+        tab = self.content_row_tbody(row_index) + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.wait_present(tab_btn)
         self.browser.click(tab_btn)
@@ -138,7 +141,7 @@ class StorageCase(MachineCase):
             pass
 
         def check():
-            row = "#detail-content tbody:nth-of-type(%d)" % row_index
+            row = self.content_row_tbody(row_index)
             row_item = row + " tr.listing-ct-item"
             tab_btn = row + " .listing-ct-head li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)

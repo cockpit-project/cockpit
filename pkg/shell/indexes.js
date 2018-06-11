@@ -269,7 +269,7 @@
                 listItem = $("<li class='list-group-item'>")
                     .toggleClass("active", active)
                     .append($("<a>")
-                        .attr("href", index.href({ host: machine.address, component: component.path }))
+                        .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
                         .append($("<span>").text(component.label)));
 
                 if (active)

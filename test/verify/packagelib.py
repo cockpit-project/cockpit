@@ -33,7 +33,7 @@ class PackageCase(MachineCase):
         # expected backend; hardcode this on image names to check the auto-detection
         if self.machine.image.startswith("debian") or self.machine.image.startswith("ubuntu"):
             self.backend = "apt"
-        elif self.machine.image.startswith("fedora") or self.machine.image in ["rhel-8"]:
+        elif self.machine.image.startswith("fedora") or self.machine.image in ["rhel-x"]:
             self.backend = "dnf"
         elif self.machine.image in ["centos-7", "rhel-7", "rhel-7-5"]:
             self.backend = "yum"

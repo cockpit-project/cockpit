@@ -25,8 +25,7 @@ df -Th /
 # subscriptions, adding repos, deleting existing entries
 SKIP_REPO_FLAG="/root/.skip_repos"
 
-# on RHEL-8 nightlies, subscription-manager is not installed by default; we also don't need a subscription
-if [ "$IMAGE" != "rhel-8" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
+if [ "$IMAGE" != "rhel-x" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Remove any internal files
     rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
 
@@ -62,7 +61,7 @@ EOF
         # disable all default repos as they don't exist yet
         sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
         yum -y install yum-utils
-    elif [ "$IMAGE" = "rhel-8" ]; then
+    elif [ "$IMAGE" = "rhel-x" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-8-NIGHTLY-BaseOS]
 name=baseos
@@ -152,7 +151,7 @@ fi
 if [ "$IMAGE" = "rhel-7-5" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
 fi
-if [ "$IMAGE" = "rhel-8" ]; then
+if [ "$IMAGE" = "rhel-x" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils} clevis-luks tang"
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
@@ -222,7 +221,7 @@ fi
 yum clean all || true
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    [ "$IMAGE" = "rhel-8" ] || subscription-manager unregister
+    [ "$IMAGE" = "rhel-x" ] || subscription-manager unregister
 fi
 
 # For the D-Bus test server

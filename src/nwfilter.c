@@ -92,6 +92,26 @@ virtDBusNWFilterGetXMLDesc(GVariant *inArgs,
     *outArgs = g_variant_new("(s)", xml);
 }
 
+static void
+virtDBusNWFilterUndefine(GVariant *inArgs G_GNUC_UNUSED,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs G_GNUC_UNUSED,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNWFilter) nwfilter = NULL;
+
+    nwfilter = virtDBusNWFilterGetVirNWFilter(connect, objectPath, error);
+    if (!nwfilter)
+        return;
+
+    if (virNWFilterUndefine(nwfilter) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNWFilterPropertyTable[] = {
     { "Name", virtDBusNWFilterGetName, NULL },
     { "UUID", virtDBusNWFilterGetUUID, NULL },
@@ -100,6 +120,7 @@ static virtDBusGDBusPropertyTable virtDBusNWFilterPropertyTable[] = {
 
 static virtDBusGDBusMethodTable virtDBusNWFilterMethodTable[] = {
     { "GetXMLDesc", virtDBusNWFilterGetXMLDesc },
+    { "Undefine", virtDBusNWFilterUndefine},
     { 0 }
 };
 

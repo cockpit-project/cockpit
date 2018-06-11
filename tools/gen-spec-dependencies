@@ -34,14 +34,17 @@ curpkg = None
 pkg_base_dep = None
 for line in fileinput.input(sys.argv[1], inplace=True):
     if line.startswith("%package"):
-        curpkg = line.split()[1]
+        # translate package name into pkg/<page> name
+        curpkg = line.split()[-1]
+        if curpkg.startswith('cockpit-'):
+            curpkg = curpkg[8:]
+        if curpkg == "machines-ovirt":
+            curpkg = "ovirt"
         pkg_base_dep = None
     elif "%{required_base}" in line:
         assert curpkg, "spec file uses %{required_base} outside of %package stanza"
         # lazily determine this -- some packages don't use %{required_base} and some multiple times
         if not pkg_base_dep:
-            if "machines-ovirt" == curpkg:
-                curpkg = "ovirt"
             pkg_base_dep = subprocess.check_output([min_base_version_path, curpkg], universal_newlines=True).strip()
             sys.stderr.write('base dependency of %s: %s\n' % (curpkg, pkg_base_dep))
         line = line.replace("%{required_base}", pkg_base_dep)

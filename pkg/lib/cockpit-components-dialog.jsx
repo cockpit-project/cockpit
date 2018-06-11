@@ -211,7 +211,7 @@ var DialogFooter = React.createClass({
         if (error_message) {
             error_element = <div className="alert alert-danger dialog-error">
                 <span className="fa fa-exclamation-triangle" />
-                <span>{ error_message }</span>
+                <span>{ React.isValidElement(error_message) ? error_message : error_message.toString() }</span>
             </div>;
         }
         return (
@@ -246,10 +246,11 @@ var DialogFooter = React.createClass({
  */
 var Dialog = React.createClass({
     propTypes: {
-        title: React.PropTypes.string.isRequired,
+        // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
+        title: React.PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
         no_backdrop: React.PropTypes.bool,
-        body: React.PropTypes.element.isRequired,
-        footer: React.PropTypes.element.isRequired,
+        body: React.PropTypes.element, // is effectively required, see above
+        footer: React.PropTypes.element, // is effectively required, see above
         id: React.PropTypes.string,
     },
     componentDidMount: function() {

@@ -142,7 +142,7 @@ export class VDOsPanel extends React.Component {
                                       detail={fmt_size(vdo.logical_size)}
                                       go={() => cockpit.location.go([ "vdo", vdo.name ])}
                                       job_path={block && block.path}
-                                      key={vdo} />
+                                      key={vdo.dev} />
             );
         }
 

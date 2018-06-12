@@ -304,7 +304,7 @@ function create_tabs(client, target, is_partition) {
 
     return {
         renderers: tabs,
-        actions: [ <div>{tab_actions}</div> ],
+        actions: [ <div key="actions" >{tab_actions}</div> ],
         row_action: row_action,
     };
 }
@@ -423,7 +423,7 @@ function append_partitions(client, rows, level, block) {
         ];
 
         rows.push(
-            <CockpitListing.ListingRow columns={cols} key="free-space" />
+            <CockpitListing.ListingRow columns={cols} key={"free-space-" + rows.length.toString()} />
         );
     }
 

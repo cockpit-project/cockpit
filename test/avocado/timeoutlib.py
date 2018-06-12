@@ -156,11 +156,6 @@ if __name__ == '__main__':
         assert retry.failed_attempts == 5
         assert retry.timeouts_triggered == 0
 
-    except Exception as e:
-        import sys, traceback
-        sys.stderr.write(traceback.format_exc())
-        assert False, 'Unexpected exception raised: %s' % repr(e)
-
 
     # Now with timeout
     black_horse = []
@@ -183,11 +178,6 @@ if __name__ == '__main__':
         assert retry.timeouts_triggered == 2
         assert retry.failed_attempts == 2
 
-    except Exception as e:
-        import sys, traceback
-        sys.stderr.write(traceback.format_exc())
-        assert False, 'Unexpected exception raised: %s' % repr(e)
-
     # And react only to a set of exceptions
     @Retry(attempts = 3, exceptions = (ValueError,))
     def do_something3():
@@ -201,11 +191,6 @@ if __name__ == '__main__':
 
         assert retry.failed_attempts == 1
         assert retry.timeouts_triggered == 0
-
-    except Exception as e:
-        import sys, traceback
-        sys.stderr.write(traceback.format_exc())
-        assert False, 'Unexpected exception raised: %s' % repr(e)
 
     # Use inverted result of wrapped fn
     @Retry(attempts = 1 , timeout = 1, error = IFailedError('Too many retries!'), inverse = True)
@@ -239,8 +224,3 @@ if __name__ == '__main__':
             assert red_horse[i] - red_horse[i - 1] >= 20.0, 'Interval #%i was shorter than expected: %f' % (i, red_horse[i] - red_horse[i - 1])
 
         assert (end_time - start_time) >= (4 * 20.0 + 5.0), 'All attempts took shorter time than expected: %f' % (end_time - start_time)
-
-    except Exception as e:
-        import sys, traceback
-        sys.stderr.write(traceback.format_exc())
-        assert False, 'Unexpected exception raised: %s' % repr(e)

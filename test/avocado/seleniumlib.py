@@ -26,6 +26,7 @@ HUB=localhost BROWSER=chrome GUEST=`hostname -i` avocado run selenium-login.py
 
 import inspect
 import selenium.webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -55,7 +56,9 @@ class SeleniumTest(Test):
     """
     def setUp(self):
         if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
-            @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to attach firefox driver'))
+            @Retry(attempts = 3, timeout = 30,
+                   exceptions = (WebDriverException,),
+                   error = Exception('Timeout: Unable to attach firefox driver'))
             def connectfirefox():
                 self.driver = selenium.webdriver.Firefox()
             connectfirefox()
@@ -66,7 +69,9 @@ class SeleniumTest(Test):
             if browser == "explorer":
                 browser = "internet explorer"
             guest_machine = os.environ["GUEST"]
-            @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to attach remote Browser on hub'))
+            @Retry(attempts = 3, timeout = 30,
+                   exceptions = (WebDriverException,),
+                   error = Exception('Timeout: Unable to attach remote Browser on hub'))
             def connectbrowser():
                 self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
             connectbrowser()
@@ -79,7 +84,9 @@ class SeleniumTest(Test):
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
-        @Retry(attempts = 3, timeout = 30, error = Exception('Timeout: Unable to get page'))
+        @Retry(attempts = 3, timeout = 30,
+               exceptions = (WebDriverException,),
+               error = Exception('Timeout: Unable to get page'))
         def connectwebpage():
             self.driver.get('http://%s:9090' % guest_machine)
         connectwebpage()

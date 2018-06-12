@@ -46,7 +46,7 @@ export class NFSPanel extends React.Component {
             }
 
             return (
-                <tr onClick={go}>
+                <tr onClick={go} key={entry.fields[0] + ":" + entry.fields[1]}>
                     <td>{ server + " " + remote_dir }</td>
                     <td>{ entry.fields[1] }</td>
                     <td>

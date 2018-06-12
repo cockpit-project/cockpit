@@ -29,13 +29,15 @@ class SosReportingTab(SeleniumTest):
         self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))
         self.wait_id("sos")
         self.wait_text("Generating report")
-        @Retry(attempts = 10, timeout = 3, error = Exception('Timeout: sosreport did not start'))
+        @Retry(attempts = 10, timeout = 3, exceptions = (process.CmdError,),
+               error = Exception('Timeout: sosreport did not start'))
         def waitforsosreportstarted():
             process.run("pgrep sosreport", shell=True)
         waitforsosreportstarted()
         # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
         # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
-        @Retry(attempts = 30, timeout = 10, error = Exception('Timeout: sosreport did not finish'), inverse = True)
+        @Retry(attempts = 30, timeout = 10, exceptions = (process.CmdError,),
+               error = Exception('Timeout: sosreport did not finish'), inverse = True)
         def waitforsosreport():
             process.run("pgrep sosreport", shell=True)
             self.wait_text("Generating report", overridetry=5)

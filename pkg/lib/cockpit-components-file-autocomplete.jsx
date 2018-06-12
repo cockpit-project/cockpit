@@ -254,7 +254,7 @@ var FileAutoComplete = React.createClass({
 
     renderError: function(error) {
         return (
-            <li className="alert alert-warning">
+            <li key="error" className="alert alert-warning">
                 {error}
             </li>
         );
@@ -278,9 +278,11 @@ var FileAutoComplete = React.createClass({
             listItems = [this.renderError(this.state.error)];
             classes += " error";
         } else {
-            listItems = React.Children.map(this.state.displayFiles, function(file) {
-                return <li className={file.type}><a data-type={file.type}>{file.path}</a></li>;
-            });
+            listItems = this.state.displayFiles.map(file => (
+                <li className={file.type} key={file.path}>
+                    <a data-type={file.type}>{file.path}</a>
+                </li>
+            ));
         }
 
         return (

@@ -142,14 +142,13 @@ yum-utils \
 virt-install \
 cryptsetup \
 qemu-kvm \
+vdo \
+kmod-kvdo \
 "
 
 if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
-fi
-if [ "$IMAGE" = "rhel-7-5" ]; then
-    COCKPIT_DEPS="$COCKPIT_DEPS kmod-kvdo vdo"
 fi
 if [ "$IMAGE" = "rhel-x" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils} clevis-luks tang"

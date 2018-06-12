@@ -79,7 +79,7 @@ var KdumpTargetBody = React.createClass({
             if (this.props.settings && "path" in this.props.settings)
                 directory = this.props.settings["path"].value;
             detailRows = (
-                <tr>
+                <tr key="directory">
                     <td className="top">
                         <label className="control-label">
                             {_("Directory")}
@@ -98,7 +98,7 @@ var KdumpTargetBody = React.createClass({
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings["nfs"].value;
             detailRows = (
-                <tr>
+                <tr key="mount">
                     <td className="top">
                         <label className="control-label">
                             {_("Mount")}
@@ -121,7 +121,7 @@ var KdumpTargetBody = React.createClass({
             if (this.props.settings && "sshkey" in this.props.settings)
                 sshkey = this.props.settings["sshkey"].value;
             detailRows = [
-                (<tr>
+                (<tr key="server">
                     <td className="top">
                         <label className="control-label">
                             {_("Server")}
@@ -135,7 +135,7 @@ var KdumpTargetBody = React.createClass({
                         </label>
                     </td>
                 </tr>),
-                (<tr>
+                (<tr key="ssh-key">
                     <td className="top">
                         <label className="control-label">
                             {_("ssh key")}
@@ -168,38 +168,40 @@ var KdumpTargetBody = React.createClass({
         return (
             <div className="modal-body">
                 <table className="form-table-ct">
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="kdump-settings-location">
-                                {_("Location")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select key='location' onChange={this.changeLocation}
-                                           id="kdump-settings-location" initial={storageDest}>
-                                <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
-                                <Select.SelectEntry data='other' key='other'>{targetDescription.other}</Select.SelectEntry>
-                            </Select.Select>
-                        </td>
-                    </tr>
-                    {detailRows}
-                    <tr>
-                        <td className="top">
-                            <label className="control-label">
-                                {_("Compression")}
-                            </label>
-                        </td>
-                        <td>
-                            <div className="checkbox">
-                                <label>
-                                    <input id="kdump-settings-compression" type="checkbox" checked={this.props.compressionEnabled}
-                                           onChange={this.handleCompressionClick.bind(this)}
-                                           enabled={compressionPossible} />
-                                    {_("Compress crash dumps to save space")}
+                    <tbody>
+                        <tr key="location">
+                            <td className="top">
+                                <label className="control-label" htmlFor="kdump-settings-location">
+                                    {_("Location")}
                                 </label>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                            <td>
+                                <Select.Select key='location' onChange={this.changeLocation}
+                                               id="kdump-settings-location" initial={storageDest}>
+                                    <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
+                                    <Select.SelectEntry data='other' key='other'>{targetDescription.other}</Select.SelectEntry>
+                                </Select.Select>
+                            </td>
+                        </tr>
+                        {detailRows}
+                        <tr key="compression">
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Compression")}
+                                </label>
+                            </td>
+                            <td>
+                                <div className="checkbox">
+                                    <label>
+                                        <input id="kdump-settings-compression" type="checkbox" checked={this.props.compressionEnabled}
+                                               onChange={this.handleCompressionClick.bind(this)}
+                                               enabled={compressionPossible.toString()} />
+                                        {_("Compress crash dumps to save space")}
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );
@@ -447,11 +449,11 @@ var KdumpPage = React.createClass({
                 serviceDescription = <span>{_("More details")}</span>;
             if (this.props.reservedMemory == 0) {
                 serviceHint = (
-                    <a className="popover-ct-kdump">
+                    <div className="popover-ct-kdump">
                         <Tooltip tip={_("No memory reserved. Append a crashkernel option to the kernel command line (e.g. in /etc/default/grub) to reserve memory at boot time. Example: crashkernel=512M")} pos="top">
                             <span className="fa fa-lg fa-info-circle" />
                         </Tooltip>
-                    </a>
+                    </div>
                 );
             }
             kdumpServiceDetails = <a href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
@@ -487,38 +489,40 @@ var KdumpPage = React.createClass({
         return (
             <div className="container-fluid">
                 <table className="form-table-ct">
-                    <tr>
-                        <td><label className="control-label">{_("kdump status")}</label></td>
-                        <td colSpan="2">
-                            <div>
-                                <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
-                                    enabled={!this.props.stateChanging} />
-                                {serviceWaiting}
-                                {kdumpServiceDetails}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label className="control-label">{_("Reserved memory")}</label></td>
-                        <td colSpan="2">
-                            {reservedMemory}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label className="control-label">{_("Crash dump location")}</label></td>
-                        <td colSpan="2">{settingsLink}</td>
-                    </tr>
-                    <tr>
-                        <td />
-                        <td>
-                            {testButton}
-                            <a className="popover-ct-kdump">
-                                <Tooltip tip={_("This will test the kdump configuration by crashing the kernel.")} pos="top">
-                                    <span className="fa fa-lg fa-info-circle" />
-                                </Tooltip>
-                            </a>
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td><label className="control-label">{_("kdump status")}</label></td>
+                            <td colSpan="2">
+                                <div>
+                                    <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
+                                        enabled={(!this.props.stateChanging).toString()} />
+                                    {serviceWaiting}
+                                    {kdumpServiceDetails}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label className="control-label">{_("Reserved memory")}</label></td>
+                            <td colSpan="2">
+                                {reservedMemory}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label className="control-label">{_("Crash dump location")}</label></td>
+                            <td colSpan="2">{settingsLink}</td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td>
+                                {testButton}
+                                <a className="popover-ct-kdump">
+                                    <Tooltip tip={_("This will test the kdump configuration by crashing the kernel.")} pos="top">
+                                        <span className="fa fa-lg fa-info-circle" />
+                                    </Tooltip>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

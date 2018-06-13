@@ -1,5 +1,7 @@
 #include "util.h"
 
+#include <stdlib.h>
+
 static gint
 virtTestEncodeStr(const gchar *input,
                   const gchar *expected)

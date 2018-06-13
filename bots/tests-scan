@@ -228,7 +228,7 @@ def cockpit_tasks (api, update, policy):
                 branch_contexts[branch] = [ ]
             branch_contexts[branch].append(context)
 
-    whitelist = github.whitelist()
+    whitelist = api.whitelist()
     for pull in api.pulls():
         title = pull["title"]
         number = pull["number"]

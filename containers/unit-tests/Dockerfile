@@ -25,5 +25,6 @@ RUN npm install -g n && n stable && \
     adduser --system --gecos "Builder" builder
 
 USER builder
-ADD run.sh /
-CMD ["/run.sh"]
+
+VOLUME /source
+CMD ["/source/containers/unit-tests/run.sh"]

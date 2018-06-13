@@ -787,7 +787,7 @@ class MachineCase(unittest.TestCase):
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1557913
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143
         # these fail tons of tests due to the SELinux violations (so naughty override causes too much spamming)
-        if self.image == 'fedora-28':
+        if self.image == 'fedora-28' or self.image == 'fedora-atomic':
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { dac_override }.*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { module_request }.*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')

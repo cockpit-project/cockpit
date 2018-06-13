@@ -35,7 +35,6 @@ from . import cache
 __all__ = (
     'GitHub',
     'Checklist',
-    'whitelist',
     'TESTING',
     'NO_TESTING',
     'NOT_TESTED'
@@ -60,37 +59,13 @@ ISSUE_TITLE_IMAGE_REFRESH = "Image refresh for {0}"
 BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TOKEN = "~/.config/github-token"
 
-# the user name is accepted if it's found in either list
-WHITELIST = os.path.join(BASE, "bots", "whitelist")
-WHITELIST_LOCAL = "~/.config/github-whitelist"
+TEAM_CONTRIBUTORS = "Contributors"
 
 def known_context(context):
     for prefix in OUR_CONTEXTS:
         if context.startswith(prefix):
             return True
     return False
-
-def whitelist(filename=WHITELIST):
-    # Try to load the whitelists
-    whitelist = []
-    try:
-        with open(filename, "r") as wh:
-            whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
-    except IOError as exc:
-        if exc.errno != errno.ENOENT:
-            raise
-
-    # The local file may or may not exist
-    try:
-        path = os.path.expanduser(WHITELIST_LOCAL)
-        wh = open(path, "r")
-        whitelist += [x.strip() for x in wh.read().split("\n") if x.strip()]
-    except IOError as exc:
-        if exc.errno != errno.ENOENT:
-            raise
-
-    # Remove duplicate entries
-    return set(whitelist)
 
 class Logger(object):
     def __init__(self, directory):
@@ -324,6 +299,26 @@ class GitHub(object):
             for commit in commits or []:
                 yield commit
                 count += 1
+
+    def whitelist(self):
+        users = set()
+        teamId = self.teamIdFromName(TEAM_CONTRIBUTORS)
+        page = 1
+        count = 100
+        while count == 100:
+            data = self.get("/teams/{0}/members?page={1}&per_page={2}".format(teamId, page, count)) or []
+            users.update(user.get("login") for user in data)
+            count = len(data)
+            page += 1
+        return users
+
+    def teamIdFromName(self, name):
+        for team in self.get("/orgs/cockpit-project/teams") or []:
+            if team.get("name") == name:
+                return team["id"]
+        else:
+            raise KeyError("Team {0} not found".format(name))
+
 
 class Checklist(object):
     def __init__(self, body=None):

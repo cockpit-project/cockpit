@@ -371,7 +371,7 @@ QUnit.asyncTest("watching", function() {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
-            cockpit.spawn([ "bash", "-c", "echo 1234 > " + dir + "/foobar" ]);
+            cockpit.spawn([ "bash", "-c", "cd " + dir + " && echo 1234 > foobar.tmp && mv foobar.tmp foobar" ]);
         } else if (n == 2) {
             assert.equal(content, "1234\n", "correct new content");
             cockpit.spawn([ "bash", "-c", "rm " + dir + "/foobar" ]);
@@ -395,7 +395,7 @@ QUnit.asyncTest("syntax watching", function() {
         n += 1;
         if (n == 1) {
             assert.equal(content, null, "initially non-existent");
-            cockpit.spawn([ "bash", "-c", "echo '[ 1, 2, 3, 4 ]'  > " + dir + "/foobar.json" ]);
+            cockpit.spawn([ "bash", "-c", "cd " + dir + " && echo '[ 1, 2, 3, 4 ]' > foobar.json.tmp && mv foobar.json.tmp foobar.json" ]);
         } else if (n == 2) {
             assert.deepEqual(content, [ 1, 2, 3, 4], "correct new content");
             cockpit.spawn([ "bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json" ]);

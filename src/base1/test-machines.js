@@ -141,7 +141,7 @@ function machinesUpdateTest(origJson, host, props, expectedJson)
     cockpit.file(f).replace(origJson).
         done(function(tag) {
             dbus.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, props ], { "type": "ssa{sv}" })
-                .done(function(reply) {
+                .then(function(reply) {
                     assert.deepEqual(reply, [], "no expected return value");
                     return cockpit.file(f, { syntax: JSON }).read().
                         done(function(content, tag) {

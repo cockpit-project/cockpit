@@ -189,7 +189,7 @@ class CDP:
 
         # wait for CDP to be up
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        for retry in range(300):
+        for retry in range(3000):
             try:
                 s.connect(('127.0.0.1', cdp_port))
                 break

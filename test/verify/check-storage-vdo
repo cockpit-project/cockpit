@@ -23,6 +23,7 @@ import parent
 from testlib import *
 from storagelib import *
 
+@skipImage("VDO is too badly broken still", "rhel-x")
 class TestStorage(StorageCase):
     def testVdo(self):
         m = self.machine

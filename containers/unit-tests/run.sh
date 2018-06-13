@@ -13,7 +13,7 @@ git clone /source /tmp/source
 cd /tmp/source
 
 # HACK: Debugging unit-tests container hanging in Semaphore
-( while true; do sleep 60; ps -xa; done ) &
+( while true; do sleep 60; ps -xa; ps -fa; done ) &
 trap "kill %%" EXIT
 
 # cross-build flags

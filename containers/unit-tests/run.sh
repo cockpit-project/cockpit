@@ -25,18 +25,17 @@ case $ARCH in
         exit 1
 esac
 
-${CC:-gcc} ./tools/careful-cat.c -o careful-cat
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 make -j2 V=1 all
 
 # only run distcheck on main arch
 if [ "$ARCH" = amd64 ]; then
-    make -j8 distcheck 2>&1 | ./careful-cat
+    make -j8 distcheck
 else
-    make -j8 check 2>&1 | ./careful-cat
+    make -j8 check
 fi
 
-make -j8 check-memory 2>&1 | ./careful-cat || {
-    ./careful-cat test-suite.log
+make -j8 check-memory || {
+    cat test-suite.log
     exit 1
 }

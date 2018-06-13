@@ -44,7 +44,7 @@ In addition, for testing, the following dependencies are required:
     $ sudo yum install curl expect \
         libvirt libvirt-client libvirt-daemon libvirt-python \
         python python-libguestfs python-lxml libguestfs-xfs \
-	python3 libvirt-python3 \
+        python3 libvirt-python3 \
         libguestfs-tools qemu qemu-kvm rpm-build rsync xz \
         chromium-headless
 
@@ -55,7 +55,7 @@ the Cockpit integration tests locally.
 
 
 ## Running eslint
-Cockpit uses [ESLint](https://eslint.org/) to automatically check 
+Cockpit uses [ESLint](https://eslint.org/) to automatically check
 JavaScript code style in `.jsx` and `.es6` files.
 
 The linter is executed within every build as a webpack preloader.
@@ -67,7 +67,7 @@ For developer convenience, the ESLint can be started explicitly by:
 Violations of some rules can be fixed automatically by:
 
     $ npm run eslint:fix
-    
+
 Rules configuration can be found in the `.eslintrc.json` file.
 
 ## Working on Cockpit using Vagrant

@@ -348,10 +348,6 @@ rm -f %{buildroot}/usr/share/pixmaps/cockpit-sosreport.png
 Cockpit runs in a browser and can manage your network of GNU/Linux
 machines.
 
-%if 0%{?rhel} >= 8
-%enable_gotoolset7
-%endif
-
 %files
 %{_docdir}/cockpit/AUTHORS
 %{_docdir}/cockpit/COPYING
@@ -751,6 +747,10 @@ Provides: cockpit-stub = %{version}-%{release}
 %description -n cockpit-kubernetes
 The Cockpit components for visualizing and configuring a Kubernetes
 cluster. Installed on the Kubernetes master. This package is not yet complete.
+
+%if 0%{?rhel} >= 8
+%enable_gotoolset7
+%endif
 
 %files -n cockpit-kubernetes -f kubernetes.list
 %{_libexecdir}/cockpit-kube-auth

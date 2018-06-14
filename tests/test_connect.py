@@ -3,43 +3,10 @@
 import dbus
 import libvirttest
 import pytest
+import xmldata
 
 
 class TestConnect(libvirttest.BaseTestClass):
-    minimal_domain_xml = '''
-    <domain type="test">
-      <name>foo</name>
-      <memory>1024</memory>
-      <os>
-        <type>hvm</type>
-      </os>
-    </domain>
-    '''
-
-    minimal_network_xml = '''
-    <network>
-      <name>bar</name>
-      <uuid>004b96e12d78c30f5aa5f03c87d21e69</uuid>
-      <bridge name='brdefault'/>
-      <forward dev='eth0'/>
-      <ip address='192.168.122.1' netmask='255.255.255.0'>
-        <dhcp>
-          <range start='192.168.122.128' end='192.168.122.253'/>
-        </dhcp>
-      </ip>
-    </network>
-    '''
-
-    minimal_storage_pool_xml = '''
-    <pool type='dir'>
-      <name>foo</name>
-      <uuid>35bb2ad9-388a-cdfe-461a-b8907f6e53fe</uuid>
-      <target>
-        <path>/foo</path>
-      </target>
-    </pool>
-    '''
-
     def test_connect_domain_create_xml(self):
         def domain_started(path, event, detail):
             if event != libvirttest.DomainEvent.STARTED:
@@ -50,7 +17,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_started)
 
-        path = self.connect.DomainCreateXML(self.minimal_domain_xml, 0)
+        path = self.connect.DomainCreateXML(xmldata.minimal_domain_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -65,7 +32,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_defined)
 
-        path = self.connect.DomainDefineXML(self.minimal_domain_xml)
+        path = self.connect.DomainDefineXML(xmldata.minimal_domain_xml)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -157,7 +124,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('NetworkEvent', network_started)
 
-        path = self.connect.NetworkCreateXML(self.minimal_network_xml)
+        path = self.connect.NetworkCreateXML(xmldata.minimal_network_xml)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -171,7 +138,7 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('NetworkEvent', network_defined)
 
-        path = self.connect.NetworkDefineXML(self.minimal_network_xml)
+        path = self.connect.NetworkDefineXML(xmldata.minimal_network_xml)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -210,7 +177,7 @@ class TestConnect(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('StoragePoolEvent', storage_pool_started)
 
         path = self.connect.StoragePoolCreateXML(
-            self.minimal_storage_pool_xml, 0)
+            xmldata.minimal_storage_pool_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()
@@ -225,7 +192,7 @@ class TestConnect(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('StoragePoolEvent', storage_pool_defined)
 
         path = self.connect.StoragePoolDefineXML(
-            self.minimal_storage_pool_xml, 0)
+            xmldata.minimal_storage_pool_xml, 0)
         assert isinstance(path, dbus.ObjectPath)
 
         self.main_loop()

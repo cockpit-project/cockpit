@@ -59,16 +59,20 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          glib-networking
+Provides: cockpit-ssh
+Breaks: cockpit-dashboard (<< 170.x)
+Replaces: cockpit-dashboard (<< 170.x)
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.
 
 Package: cockpit-dashboard
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         cockpit-ws (= ${binary:Version})
-Provides: cockpit-ssh
+         cockpit-bridge (>= 170.x),
+         cockpit-ws (>= ${source:Version}),
+         cockpit-ws (<< ${source:Version}.1~),
 Replaces: cockpit-system (<< 128), cockpit-ws (<< 128)
 Description: Cockpit remote servers and dashboard
  Cockpit support for connecting to remote servers (through ssh)

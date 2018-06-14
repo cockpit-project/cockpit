@@ -11,10 +11,8 @@ if [ -z "$OFFLINE" ]; then
     "$INSTALLER" install -y python3 openssl
 fi
 
-/container/scripts/install-rpms.sh cockpit-ws cockpit-dashboard
-
-# Remove unwanted packages
-rm -rf /usr/share/cockpit/dashboard/
+/container/scripts/install-rpms.sh cockpit-ws
+/container/scripts/install-rpms.sh --nodeps cockpit-bridge
 
 rm -rf /container/scripts
 rm -rf /container/rpms

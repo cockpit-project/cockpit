@@ -137,11 +137,9 @@ function ph_set_checked (sel, val)
     var el = ph_find(sel);
     if (el.checked === undefined)
         throw sel + " is not checkable";
-    el.checked = val;
 
-    var ev = document.createEvent("Event");
-    ev.initEvent("change", true, false);
-    el.dispatchEvent(ev);
+    if (el.checked != val)
+        ph_click(sel, true);
 }
 
 function ph_is_visible (sel)

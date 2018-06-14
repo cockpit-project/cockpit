@@ -231,6 +231,11 @@ class Browser:
             else:
                 self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
 
+    def set_input_text(self, selector, val):
+        self.set_val(selector, "")
+        self.focus(selector)
+        self.key_press(val)
+
     def wait_timeout(self, timeout):
         browser = self
         class WaitParamsRestorer():

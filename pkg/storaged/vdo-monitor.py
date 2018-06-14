@@ -36,15 +36,18 @@ class Watcher:
                 callback()
         self.inotify.process(event)
 
-# Temporary patch to address layout changes
-for dir in sys.path:
-  vdoDir = os.path.join(dir, 'vdo')
-  if os.path.isdir(vdoDir):
-    sys.path.append(vdoDir)
-    break
-
-from statistics import *
-from vdomgmnt import *
+if sys.version_info >= (3, 0):
+    from vdo.statistics import *
+    from vdo.vdomgmnt import *
+else:
+    # Temporary patch to address layout changes
+    for dir in sys.path:
+        vdoDir = os.path.join(dir, 'vdo')
+        if os.path.isdir(vdoDir):
+            sys.path.append(vdoDir)
+            break
+    from statistics import *
+    from vdomgmnt import *
 
 # Converts NotAvailable to None, recursively, and other things.  The goal is to make OBJ serializable.
 def wash(obj):
@@ -55,7 +58,7 @@ def wash(obj):
     elif isinstance(obj, dict):
         return { key: wash(obj[key]) for key in obj.keys() }
     elif isinstance(obj, list):
-        return map(wash, obj)
+        return list(map(wash, obj))
     else:
         return obj
 

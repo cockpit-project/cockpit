@@ -24,7 +24,7 @@ export type Annotations = Object;
 
 export type Vm = {
     apiVersion: string,
-    kind: 'VirtualMachine',
+    kind: 'VirtualMachineInstance',
     metadata: {
         clusterName: string,
         creationTimestamp: string,

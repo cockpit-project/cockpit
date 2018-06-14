@@ -38,7 +38,7 @@
 
     var KUBE = "/api/v1";
     var OPENSHIFT = "/oapi/v1";
-    var KUBEVIRT = "/apis/kubevirt.io/v1alpha1";
+    var KUBEVIRT = "/apis/kubevirt.io/v1alpha2";
     var DEFAULT = { api: KUBE, create: 0 };
     var SCHEMA = flatSchema([
         { kind: "DeploymentConfig", type: "deploymentconfigs", api: OPENSHIFT },
@@ -63,7 +63,7 @@
         { kind: "Service", type: "services", api: KUBE, create: -80 },
         { kind: "SubjectAccessReview", type: "subjectaccessreviews", api: OPENSHIFT },
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
-        { kind: "VirtualMachine", type: "virtualmachines", api: KUBEVIRT },
+        { kind: "VirtualMachineInstance", type: "virtualmachineinstances", api: KUBEVIRT },
     ]);
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9_.]*[a-z0-9])?$/;

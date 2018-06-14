@@ -36,10 +36,10 @@ const VmsPage = () => (
 
 function addVmsListener (store, $scope, kubeLoader, kubeSelect) {
     kubeLoader.listen(() => {
-        const vms = kubeSelect().kind('VirtualMachine');
+        const vms = kubeSelect().kind('VirtualMachineInstance');
         store.dispatch(setVms(Object.values(vms)));
     }, $scope);
-    kubeLoader.watch('VirtualMachine', $scope);
+    kubeLoader.watch('VirtualMachineInstance', $scope);
 }
 
 /**

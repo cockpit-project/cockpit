@@ -51,7 +51,7 @@ function addVmListener (store, $scope, kubeLoader, kubeSelect, namespace, name) 
 
         store.dispatch(setVms(result));
     }, $scope);
-    kubeLoader.watch('VirtualMachine', $scope);
+    kubeLoader.watch('VirtualMachineInstance', $scope);
 }
 
 /**

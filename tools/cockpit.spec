@@ -109,7 +109,9 @@ Requires: cockpit-system = %{version}-%{release}
 
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+%if 0%{?rhel} == 0
 Recommends: cockpit-dashboard = %{version}-%{release}
+%endif
 Recommends: (cockpit-networkmanager = %{version}-%{release} if NetworkManager)
 Recommends: (cockpit-storaged = %{version}-%{release} if udisks2)
 Recommends: (cockpit-packagekit = %{version}-%{release} if PackageKit)

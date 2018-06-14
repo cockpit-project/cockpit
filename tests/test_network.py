@@ -16,7 +16,7 @@ class TestNetwork(libvirttest.BaseTestClass):
     def test_network_properties_type(self):
         """ Ensure correct return type for Network properties
         """
-        _, obj = self.test_network()
+        _, obj = self.get_test_network()
         props = obj.GetAll('org.libvirt.Network', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Active'], dbus.Boolean)
         assert isinstance(props['Autostart'], dbus.Boolean)
@@ -25,7 +25,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         assert isinstance(props['UUID'], dbus.String)
 
     def test_network_autostart(self):
-        _,test_network = self.test_network()
+        _,test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         autostart_expected = True
         interface_obj.Set('org.libvirt.Network', 'Autostart', autostart_expected, dbus_interface=dbus.PROPERTIES_IFACE)
@@ -41,7 +41,7 @@ class TestNetwork(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('NetworkEvent', domain_started)
 
-        _,test_network = self.test_network()
+        _,test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         interface_obj.Destroy()
         interface_obj.Create()
@@ -57,14 +57,14 @@ class TestNetwork(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('NetworkEvent', network_stopped)
 
-        _, test_network = self.test_network()
+        _, test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         interface_obj.Destroy()
 
         self.main_loop()
 
     def test_network_get_xml_description(self):
-        _,test_network = self.test_network()
+        _,test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         assert isinstance(interface_obj.GetXMLDesc(0), dbus.String)
 
@@ -77,7 +77,7 @@ class TestNetwork(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('NetworkEvent', domain_undefined)
 
-        _,test_network = self.test_network()
+        _,test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         interface_obj.Destroy()
         interface_obj.Undefine()
@@ -88,7 +88,7 @@ class TestNetwork(libvirttest.BaseTestClass):
         ('4', '4', 0, ip_dhcp_host_xml, 0),  # add-first, ip-dhcp-host
     ])
     def test_network_update(self, command, section, parentIndex, xml_str, flags):
-        _, test_network = self.test_network()
+        _, test_network = self.get_test_network()
         interface_obj = dbus.Interface(test_network, 'org.libvirt.Network')
         interface_obj.Update(command, section, parentIndex, xml_str, flags)
         updated_netxml = interface_obj.GetXMLDesc(0)

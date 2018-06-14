@@ -46,7 +46,7 @@ class TestConnect(libvirttest.BaseTestClass):
         """Parameterized test for all DomainLookupBy* API calls of Connect interface
         """
         original_path = self.connect.ListDomains(0)[0]
-        obj, _ = self.domain()
+        obj, _ = self.get_test_domain()
         props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
         path = getattr(self.connect, lookup_method_name)(props[lookup_item])
         assert original_path == path
@@ -150,7 +150,7 @@ class TestConnect(libvirttest.BaseTestClass):
     def test_connect_network_lookup_by_property(self, lookup_method_name, lookup_item):
         """Parameterized test for all NetworkLookupBy* API calls of Connect interface
         """
-        original_path, obj = self.test_network()
+        original_path, obj = self.get_test_network()
         prop = obj.Get('org.libvirt.Network', lookup_item, dbus_interface=dbus.PROPERTIES_IFACE)
         path = getattr(self.connect, lookup_method_name)(prop)
         assert original_path == path
@@ -206,7 +206,7 @@ class TestConnect(libvirttest.BaseTestClass):
                                                      lookup_item):
         """Parameterized test for all StoragePoolLookupBy* API calls of Connect interface
         """
-        original_path, obj = self.test_storage_pool()
+        original_path, obj = self.get_test_storage_pool()
         prop = obj.Get('org.libvirt.StoragePool', lookup_item,
                        dbus_interface=dbus.PROPERTIES_IFACE)
         path = getattr(self.connect, lookup_method_name)(prop)

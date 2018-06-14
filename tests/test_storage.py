@@ -5,7 +5,7 @@ import libvirttest
 
 class TestStoragePool(libvirttest.BaseTestClass):
     def test_storage_pool_autostart(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         autostart_expected = True
@@ -18,7 +18,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         assert autostart_current == dbus.Boolean(autostart_expected)
 
     def test_storage_pool_build(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.Destroy()
@@ -33,7 +33,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('StoragePoolEvent', storage_pool_started)
 
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.Destroy()
@@ -42,7 +42,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_storage_pool_delete(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.Destroy()
@@ -58,7 +58,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('StoragePoolEvent',
                                        storage_pool_destroyed)
 
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.Destroy()
@@ -66,21 +66,21 @@ class TestStoragePool(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_storage_pool_get_info(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         info = interface_obj.GetInfo()
         assert isinstance(info, dbus.Struct)
 
     def test_storage_pool_get_xml_description(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         info = interface_obj.GetXMLDesc(0)
         assert isinstance(info, dbus.String)
 
     def test_storage_pool_list_storage_volumes(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         storage_vols = interface_obj.ListStorageVolumes(0)
@@ -88,7 +88,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         assert len(storage_vols) == 0
 
     def test_storage_pool_properties_type(self):
-        _, obj = self.test_storage_pool()
+        _, obj = self.get_test_storage_pool()
 
         props = obj.GetAll('org.libvirt.StoragePool',
                            dbus_interface=dbus.PROPERTIES_IFACE)
@@ -108,7 +108,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         self.connect.connect_to_signal('StoragePoolEvent',
                                        storage_pool_undefined)
 
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.Destroy()
@@ -117,7 +117,7 @@ class TestStoragePool(libvirttest.BaseTestClass):
         self.main_loop()
 
     def test_storage_pool_refresh(self):
-        _, test_storage_pool = self.test_storage_pool()
+        _, test_storage_pool = self.get_test_storage_pool()
         interface_obj = dbus.Interface(test_storage_pool,
                                        'org.libvirt.StoragePool')
         interface_obj.connect_to_signal('Refresh',

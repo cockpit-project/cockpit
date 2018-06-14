@@ -70,12 +70,12 @@ class BaseTestClass():
         if self.timeout:
             raise TimeoutError()
 
-    def domain(self):
+    def get_test_domain(self):
         path = self.connect.ListDomains(0)[0]
         obj = self.bus.get_object('org.libvirt', path)
         return obj, dbus.Interface(obj, 'org.libvirt.Domain')
 
-    def test_network(self):
+    def get_test_network(self):
         """Fetch information for the test network from test driver
 
         Returns:
@@ -87,7 +87,7 @@ class BaseTestClass():
         obj = self.bus.get_object('org.libvirt', path)
         return path, obj
 
-    def test_storage_pool(self):
+    def get_test_storage_pool(self):
         """Fetch information for the test storage pool from test driver
 
         Returns:

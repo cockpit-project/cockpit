@@ -7,7 +7,7 @@ DBUS_EXCEPTION_MISSING_FUNCTION = 'this function is not supported by the connect
 
 class TestDomain(libvirttest.BaseTestClass):
     def test_api(self):
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
 
         props = obj.GetAll('org.libvirt.Domain', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Active'], dbus.Boolean)
@@ -39,7 +39,7 @@ class TestDomain(libvirttest.BaseTestClass):
         domain.Undefine(0)
 
     def test_domain_autostart(self):
-        _, domain = self.domain()
+        _, domain = self.get_test_domain()
         autostart_expected = True
         domain.Set('org.libvirt.Domain', 'Autostart', autostart_expected, dbus_interface=dbus.PROPERTIES_IFACE)
         autostart_current = domain.Get('org.libvirt.Domain', 'Autostart', dbus_interface=dbus.PROPERTIES_IFACE)
@@ -55,7 +55,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_stopped)
 
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         domain.ManagedSave(0)
         assert domain.HasManagedSaveImage(0) == dbus.Boolean(True)
         state, _ = domain.GetState(0)
@@ -67,7 +67,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
     def test_domain_metadata(self):
         metadata_description = 0
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         description_expected = "This is the Test domain"
         domain.SetMetadata(metadata_description,
                            description_expected, "", "", 0)
@@ -83,7 +83,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_resumed)
 
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         domain.Suspend()
         domain.Resume()
 
@@ -102,7 +102,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_stopped)
 
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         domain.Shutdown(0)
 
         state, _ = domain.GetState(0)
@@ -120,7 +120,7 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_suspended)
 
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         domain.Suspend()
 
         state, _ = domain.GetState(0)
@@ -138,20 +138,20 @@ class TestDomain(libvirttest.BaseTestClass):
 
         self.connect.connect_to_signal('DomainEvent', domain_undefined)
 
-        _, domain = self.domain()
+        _, domain = self.get_test_domain()
         domain.Shutdown(0)
         domain.Undefine(0)
 
         self.main_loop()
 
     def test_domain_vcpus(self):
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         vcpus_expected = 2
         domain.SetVcpus(vcpus_expected, 0)
         assert domain.GetVcpus(0) == dbus.Int32(vcpus_expected)
 
     def test_domain_vcpu_pin_info(self):
-        obj, domain = self.domain()
+        obj, domain = self.get_test_domain()
         pinInfo_expected = [
                 [ True, True, True, True, True, True, True, True ],
                 [ True, True, True, True, True, True, True, True ]

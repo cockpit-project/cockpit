@@ -126,26 +126,28 @@ var CryptoTab = React.createClass({
         function render_clevis_keys(keys) {
             return (
                 <table className="network-keys-table">
-                    {
-                        keys.map(function (key) {
-                            return (
-                                <tr>
-                                    <td>{key.type} {key.url}</td>
-                                    <td>
-                                        <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
-                                            Remove
-                                        </StorageButton>
-                                        <StorageButton onClick={() => ClevisDialogs.check(client, block, key)}>
-                                            Check
-                                        </StorageButton>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    }
-                    <tr>
-                        <td><StorageButton onClick={() => ClevisDialogs.add(client, block)}>Add</StorageButton></td>
-                    </tr>
+                    <tbody>
+                        {
+                            keys.map(function (key) {
+                                return (
+                                    <tr key={key.slot}>
+                                        <td>{key.type} {key.url}</td>
+                                        <td>
+                                            <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
+                                                Remove
+                                            </StorageButton>
+                                            <StorageButton onClick={() => ClevisDialogs.check(client, block, key)}>
+                                                Check
+                                            </StorageButton>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        }
+                        <tr>
+                            <td><StorageButton onClick={() => ClevisDialogs.add(client, block)}>Add</StorageButton></td>
+                        </tr>
+                    </tbody>
                 </table>
             );
         }
@@ -159,24 +161,26 @@ var CryptoTab = React.createClass({
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
-                    { !self.props.client.is_old_udisks2
-                        ? <tr>
-                            <td>{_("Stored passphrase")}</td>
-                            <td><StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton></td>
-                        </tr> : null
-                    }
-                    { !self.props.client.is_old_udisks2
-                        ? <tr>
-                            <td>{_("Options")}</td>
-                            <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
-                        </tr> : null
-                    }
-                    { self.props.client.features.clevis
-                        ? <tr>
-                            <td>{_("Network keys")}</td>
-                            <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
-                        </tr> : null
-                    }
+                    <tbody>
+                        { !self.props.client.is_old_udisks2
+                            ? <tr>
+                                <td>{_("Stored passphrase")}</td>
+                                <td><StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton></td>
+                            </tr> : null
+                        }
+                        { !self.props.client.is_old_udisks2
+                            ? <tr>
+                                <td>{_("Options")}</td>
+                                <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
+                            </tr> : null
+                        }
+                        { self.props.client.features.clevis
+                            ? <tr>
+                                <td>{_("Network keys")}</td>
+                                <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
+                            </tr> : null
+                        }
+                    </tbody>
                 </table>
             </div>
         );

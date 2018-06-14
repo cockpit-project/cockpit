@@ -172,7 +172,7 @@ export class JobsPanel extends React.Component {
                 <div className="panel-heading">{_("Jobs")}</div>
                 <table className="table">
                     <tbody>
-                        { jobs.map((p) => <JobRow client={client} job={client.jobs[p]} now={server_now} />) }
+                        { jobs.map((p) => <JobRow key={p} client={client} job={client.jobs[p]} now={server_now} />) }
                     </tbody>
                 </table>
             </div>

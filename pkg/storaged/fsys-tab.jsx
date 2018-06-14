@@ -147,67 +147,69 @@ var FilesystemTab = React.createClass({
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Name")}</td>
-                        <td>
-                            <StorageLink onClick={rename_dialog}>
-                                {this.props.block.IdLabel || "-"}
-                            </StorageLink>
-                        </td>
-                    </tr>
-                    { (!self.props.client.is_old_udisks2)
-                        ? (
-                            <tr>
-                                <td>{_("Mount Point")}</td>
-                                <td>
-                                    <StorageLink onClick={mounting_dialog}>
-                                        {old_dir || _("(default)")}
-                                    </StorageLink>
-                                    <div className="tab-row-actions">
-                                        { (!is_filesystem_mounted)
-                                            ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                            : null
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        )
-                        : null
-                    }
-                    { (old_opts)
-                        ? (
-                            <tr>
-                                <td>{_("Mount Options")}</td>
-                                <td>
-                                    <StorageLink onClick={mounting_dialog}>
-                                        {old_opts}
-                                    </StorageLink>
-                                </td>
-                            </tr>
-                        )
-                        : null
-                    }
-                    { (mounted_at.length > 0 || self.props.client.is_old_udisks2)
-                        ? (
-                            <tr>
-                                <td>{_("Mounted At")}</td>
-                                <td>
-                                    {mounted_at.join(", ")}
-                                    <div className="tab-row-actions">
-                                        { (mounted_at.length > 0)
-                                            ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                                            : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        )
-                        : null
-                    }
-                    <tr>
-                        <td>{_("Used")}</td>
-                        <td>{used}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Name")}</td>
+                            <td>
+                                <StorageLink onClick={rename_dialog}>
+                                    {this.props.block.IdLabel || "-"}
+                                </StorageLink>
+                            </td>
+                        </tr>
+                        { (!self.props.client.is_old_udisks2)
+                            ? (
+                                <tr>
+                                    <td>{_("Mount Point")}</td>
+                                    <td>
+                                        <StorageLink onClick={mounting_dialog}>
+                                            {old_dir || _("(default)")}
+                                        </StorageLink>
+                                        <div className="tab-row-actions">
+                                            { (!is_filesystem_mounted)
+                                                ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                                : null
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            )
+                            : null
+                        }
+                        { (old_opts)
+                            ? (
+                                <tr>
+                                    <td>{_("Mount Options")}</td>
+                                    <td>
+                                        <StorageLink onClick={mounting_dialog}>
+                                            {old_opts}
+                                        </StorageLink>
+                                    </td>
+                                </tr>
+                            )
+                            : null
+                        }
+                        { (mounted_at.length > 0 || self.props.client.is_old_udisks2)
+                            ? (
+                                <tr>
+                                    <td>{_("Mounted At")}</td>
+                                    <td>
+                                        {mounted_at.join(", ")}
+                                        <div className="tab-row-actions">
+                                            { (mounted_at.length > 0)
+                                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            )
+                            : null
+                        }
+                        <tr>
+                            <td>{_("Used")}</td>
+                            <td>{used}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

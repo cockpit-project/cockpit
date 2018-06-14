@@ -36,14 +36,16 @@ var UnrecognizedTab = React.createClass({
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Usage")}</td>
-                        <td>{this.props.block.IdUsage || "-"}</td>
-                    </tr>
-                    <tr>
-                        <td>{_("Type")}</td>
-                        <td>{this.props.block.IdType || "-"}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Usage")}</td>
+                            <td>{this.props.block.IdUsage || "-"}</td>
+                        </tr>
+                        <tr>
+                            <td>{_("Type")}</td>
+                            <td>{this.props.block.IdType || "-"}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

@@ -159,7 +159,7 @@ function create_tabs(client, target, is_partition) {
     var tab_actions = [ ];
 
     function add_action(title, func, excuse) {
-        tab_actions.push(<StorageButton onClick={func} excuse={excuse}>{title}</StorageButton>);
+        tab_actions.push(<StorageButton key={title} onClick={func} excuse={excuse}>{title}</StorageButton>);
     }
 
     function lock() {
@@ -304,7 +304,7 @@ function create_tabs(client, target, is_partition) {
 
     return {
         renderers: tabs,
-        actions: [ <div>{tab_actions}</div> ],
+        actions: [ <div key="actions" >{tab_actions}</div> ],
         row_action: row_action,
     };
 }
@@ -372,6 +372,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         { name: name, 'header': true },
         { name: last_column, tight: true },
     ];
+
     rows.push(
         <CockpitListing.ListingRow key={key}
                                    columns={cols}
@@ -422,7 +423,7 @@ function append_partitions(client, rows, level, block) {
         ];
 
         rows.push(
-            <CockpitListing.ListingRow columns={cols} />
+            <CockpitListing.ListingRow columns={cols} key={"free-space-" + rows.length.toString()} />
         );
     }
 
@@ -459,13 +460,17 @@ function append_device(client, rows, level, block) {
         append_non_partitioned_block(client, rows, level, block, null);
 }
 
+// TODO: this should be refactored to React component
+// The render method should collect _just_ data via more-or-less recent append_device() flow and
+// then return proper React component hierarchy based on this collected data.
+// Benefit: much easier debugging, better manipulation with "key" props and relying on well-tested React's functionality
 function block_rows(client, block) {
     var rows = [ ];
     append_device(client, rows, 0, block);
     return rows;
 }
 
-function block_content(client, block, allow_partitions) {
+const BlockContent = ({ client, block, allow_partitions }) => {
     if (!block)
         return null;
 
@@ -526,7 +531,7 @@ function block_content(client, block, allow_partitions) {
     var format_disk_btn = null;
     if (allow_partitions)
         format_disk_btn = (
-            <div className="pull-right">
+            <div className="pull-right" key="create-partition-table">
                 <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
                     {_("Create partition table")}
                 </StorageButton>
@@ -534,17 +539,20 @@ function block_content(client, block, allow_partitions) {
 
     return (
         <CockpitListing.Listing title={_("Content")}
-                                actions={format_disk_btn}>
+                                actions={[ format_disk_btn ]}
+                                emptyCaption="">
             { block_rows(client, block) }
         </CockpitListing.Listing>
     );
-}
+};
 
-var Block = React.createClass({
-    render: function () {
-        return block_content(this.props.client, this.props.block, this.props.allow_partitions !== false);
-    }
-});
+const Block = ({client, block, allow_partitions}) => {
+    return (
+        <BlockContent client={client}
+                      block={block}
+                      allow_partitions={allow_partitions !== false} />
+    );
+};
 
 function append_logical_volume_block(client, rows, level, block, lvol) {
     var tabs, desc;
@@ -681,7 +689,7 @@ var VGroup = React.createClass({
         var excuse = vgroup.FreeSize == 0 && _("No free space");
 
         var new_volume_link = (
-            <div className="pull-right">
+            <div className="pull-right" key="new-logical-volume">
                 <StorageLink onClick={create_logical_volume}
                              excuse={excuse}>
                     <span className="pficon pficon-add-circle-o" />
@@ -692,7 +700,7 @@ var VGroup = React.createClass({
 
         return (
             <CockpitListing.Listing title="Logical Volumes"
-                                    actions={new_volume_link}
+                                    actions={[ new_volume_link ]}
                                     emptyCaption={_("No Logical Volumes")}>
                 { vgroup_rows(self.props.client, vgroup) }
             </CockpitListing.Listing>

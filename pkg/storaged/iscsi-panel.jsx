@@ -256,7 +256,8 @@ export class IscsiPanel extends React.Component {
                                       name={session.data["target_name"] || ""}
                                       detail={session.data["persistent_address"] + ":" +
                                               session.data["persistent_port"]}
-                                      actions={actions} />
+                                      actions={actions}
+                                      key={path} />
             );
         }
 
@@ -271,14 +272,14 @@ export class IscsiPanel extends React.Component {
 
         var actions = [
             sessions.length > 0
-                ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
+                ? <button key="armed" className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
                     onClick={toggle_armed} /> : null,
             "\n",
-            <StorageButton onClick={iscsi_change_name} id="edit-iscsi">
+            <StorageButton key="edit-iscsi" onClick={iscsi_change_name} id="edit-iscsi">
                 <span className="pficon pficon-edit" />
             </StorageButton>,
             "\n",
-            <StorageButton kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
+            <StorageButton key="add-iscsi-portal" kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
                 <span className="fa fa-plus" />
             </StorageButton>
         ];

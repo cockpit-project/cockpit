@@ -161,28 +161,19 @@ class AtomicCockpitInstaller:
             return None
 
     def update_container(self):
-        """ Install the latest cockpit-ws and cockpit-dashboard in our container"""
-        ws = None
-        dashboard = None
+        """ Install the latest cockpit RPMs in our container"""
+        rpm_args = []
         for package in self.rpms:
-            if 'cockpit-ws' in package:
-                ws = package
-            if 'cockpit-dashboard' in package:
-                dashboard = package
+            if 'cockpit-ws' in package or 'cockpit-dashboard' in package or 'cockpit-bridge' in package:
+                rpm_args.append("/host" + package)
 
-        if ws or dashboard:
+        if rpm_args:
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])
-            rpm_args = []
-            if ws:
-                rpm_args.append("/host" + ws)
-            if dashboard:
-                rpm_args.append("/host" + dashboard)
-
             if rpm_args:
                 rpm_args = ["docker", "exec", "build-cockpit",
-                            "rpm", "-U", "--force"] + rpm_args
+                            "rpm", "--freshen", "--verbose", "--force"] + rpm_args
                 if self.verbose:
                     print("updating cockpit-ws container")
                 subprocess.check_call(rpm_args)

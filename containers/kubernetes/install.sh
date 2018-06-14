@@ -11,13 +11,13 @@ if [ -z "$OFFLINE" ]; then
 fi
 
 # Install packages without dependencies
-/container/scripts/install-rpms.sh cockpit-ws cockpit-dashboard
+/container/scripts/install-rpms.sh cockpit-ws
 /container/scripts/install-rpms.sh --nodeps cockpit-bridge
 /container/scripts/install-rpms.sh -a noarch --nodeps cockpit-system
 /container/scripts/install-rpms.sh --nodeps cockpit-kubernetes
 
 # Remove unwanted packages
-rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/ /usr/share/cockpit/dashboard/
+rm -rf /usr/share/cockpit/realmd/ /usr/share/cockpit/systemd/ /usr/share/cockpit/tuned/ /usr/share/cockpit/users/
 
 # Remove unwanted cockpit-bridge binaries
 rm -rf /usr/bin/cockpit-bridge

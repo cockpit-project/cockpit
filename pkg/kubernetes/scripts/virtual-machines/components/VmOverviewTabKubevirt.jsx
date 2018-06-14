@@ -24,13 +24,10 @@ import { gettext as _ } from 'cockpit';
 import VmOverviewTab, { commonTitles } from '../../../../machines/components/vmOverviewTab.jsx';
 
 import type { Vm, VmMessages, Pod } from '../types.jsx';
-import { getPairs, NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
+import { getPairs, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
+import { getNodeName } from '../selectors.jsx';
 
 import VmMessage from './VmMessage.jsx';
-
-function getNodeName(vm: Vm) {
-    return (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || null
-}
 
 const getLabels = (vm: Vm) => {
     let labels = null;
@@ -83,6 +80,7 @@ const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: Vm
         {title: _("Labels:"), value: getLabels(vm), idPostfix: 'labels'},
         {title: _("Pod:"), value: podLink, idPostfix: 'pod'},
     ];
+
     return (<VmOverviewTab message={message}
                            idPrefix={idPrefix}
                            items={items} />);

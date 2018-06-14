@@ -25,17 +25,26 @@ import { gettext as _ } from 'cockpit';
 
 import { Listing } from '../../../../lib/cockpit-components-listing.jsx';
 import VmsListingRow from './VmsListingRow.jsx';
-import { getPod } from '../selectors.jsx';
+import { getPod, getPodMetrics } from '../selectors.jsx';
 import CreateVmButton from './createVmButton.jsx';
 
-const VmsListing = ({ vms, pvs, pods, settings, vmsMessages }) => {
+const VmsListing = ({ vms, pvs, pods, settings, vmsMessages, nodeMetrics }) => {
     const isOpenshift = settings.flavor === 'openshift';
     const namespaceLabel = isOpenshift ? _("Project") : _("Namespace");
-    const rows = vms.map(vm => (<VmsListingRow vm={vm}
-                                               vmMessages={vmsMessages[vm.metadata.uid]}
-                                               pod={getPod(vm, pods)}
-                                               pvs={pvs}
-                                               key={vm.metadata.uid} />));
+
+    const rows = vms.map(vm => {
+        const pod = getPod(vm, pods);
+
+        return (
+            <VmsListingRow vm={vm}
+                vmMessages={vmsMessages[vm.metadata.uid]}
+                pod={pod}
+                podMetrics={getPodMetrics(pod, nodeMetrics)}
+                pvs={pvs}
+                key={vm.metadata.uid} />
+        );
+    });
+
     let actions = [(
         <CreateVmButton key='create-vm' />
     )];
@@ -55,14 +64,16 @@ VmsListing.propTypes = {
     pvs: PropTypes.array.isRequired,
     pods: PropTypes.array.isRequired,
     vmsMessages: PropTypes.object.isRequired,
+    nodeMetrics: PropTypes.object.isRequired,
 };
 
 export default connect(
-    ({ vms, pods, pvs, settings, vmsMessages }) => ({
+    ({ vms, pods, pvs, settings, vmsMessages, nodeMetrics }) => ({
         vms, // VirtualMachines
         pods,
         pvs, // PersistentVolumes
         settings,
         vmsMessages,
+        nodeMetrics,
     })
 )(VmsListing);

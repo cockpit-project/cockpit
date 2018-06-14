@@ -96,12 +96,19 @@ const uiReducer = createReducer({}, {
     }
 });
 
+const nodeMetricsReducer = createReducer({}, {
+    [actionTypes.SET_NODE_METRICS]: (state = {}, { payload }) => {
+        return payload.node ? Object.assign({}, state, { [payload.node.nodeName]: payload }) : state;
+    },
+});
+
 const rootReducer = combineReducers({
     vms: vmsReducer, // VirtualMachines from API
     pvs: pvsReducer, // PersistenVolumes from API
     pods: podsReducer, // Pods from API
     settings: settingsReducer, // settings gathered at run-time
     vmsMessages: vmsMessagesReducer, // messages related to a VM
+    nodeMetrics: nodeMetricsReducer, // metrics of all VM's nodes
     ui: uiReducer, // various UI-state descriptions (i.e. to restore UI after back-button)
 });
 

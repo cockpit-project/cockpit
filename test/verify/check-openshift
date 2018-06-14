@@ -25,6 +25,7 @@ import os
 import unittest
 import time
 import sys
+import re
 
 from kubelib import *
 
@@ -402,8 +403,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z kubevirt-admin")
         o.execute("oc adm policy add-scc-to-user privileged -n kube-system -z default")
 
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2) # is it deployed and up?
-        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2) # No VM created/started yet
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-controller"), delay=2, tries=150) # is it deployed and up?
+        wait(lambda: "No resources found." in o.execute("oc get vm 2>&1"), delay=2, tries=150) # No VM created/started yet
 
     def testUndeployKubevirt(self):
         # The kubevirt is deployed by default in the openshift image.
@@ -443,9 +444,10 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
         # The "fedoravm" VirtualMachine is created from OfflineVirtualMachine
         o.execute("oc patch offlinevirtualmachine fedoravm --type=merge -p '{\"spec\":{\"running\": true}}'")  # let's start the VM
-        wait(lambda: "fedoravm" in o.execute("oc get vm"), msg='Start of the "fedoravm" virtual machine failed.')
-        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods"))
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm")) # Example: virt-launcher-fedoravm-----rx59t
+        print("starting vm, might take a while")
+        wait(lambda: "fedoravm" in o.execute("oc get vm"), msg='Start of the "fedoravm" virtual machine failed.', delay=2)
+        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods"), delay=2)
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150) # Example: virt-launcher-fedoravm-----rx59t
 
         b = self.browser
         self.login_and_go("/kubernetes")
@@ -463,6 +465,24 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_in_text("#vm-fedoravm-memory", "256M")
         b.wait_in_text("#vm-fedoravm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
         b.wait_present("#vm-fedoravm-pod")
+
+        # switch to the Usage subtab
+        b.wait_present("#vm-fedoravm-usage-tab")
+        b.click("#vm-fedoravm-usage-tab")
+        b.wait_present("#cpu-metric div svg")  # cannot check cpu component because it is an external dependency
+        b.wait_present("#memory-metric")
+        b.wait_present("#network-metric")
+
+        def get_units_value(selector, per_second=False):
+            units_regex = "([0-9]+\.?[0-9]*) .?i?B"
+            if per_second:
+                units_regex += "/s"
+            m = re.match(units_regex, b.text(selector))
+            return m.group(1) if m else None
+
+        wait(lambda: get_units_value("#memory-metric-title") > 0)
+        self.assertGreaterEqual(get_units_value("#download-metric", True), 0)
+        self.assertGreaterEqual(get_units_value("#upload-metric", True), 0)
 
         # switch to the Disks subtab
         b.wait_present("#vm-fedoravm-disks-tab")
@@ -485,17 +505,32 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # return back to the virtual-machines
         b.wait_present("#vms-menu-link") # left-side menu
         b.click("#vms-menu-link")
-        b.wait_present("tr[data-row-id='vm-fedoravm']") # the row is already expanded if saving of UI state works
 
         # delete the VM (not the OVM), the VM pod should be recreated automatically
+        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods | grep Running"), delay=2, tries=150)
+        b.wait_present("tr[data-row-id='vm-fedoravm']") # the row is already expanded if saving of UI state works
         b.wait_present("#vm-fedoravm-delete")
-        wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods | grep Running"))
         b.click("#vm-fedoravm-delete")
-        b.wait_present("#kubernetes-virtual-machines-root tr > td:contains(No virtual machines)")
+        print("restarting vm, might take a while")
+        with self.browser.wait_timeout(300):
+            b.wait_present("#kubernetes-virtual-machines-root tr > td:contains(No virtual machines)")
+            # Since the VM is created from OVM, it will be automatically restarted (spec.running: true)
+            b.wait_present("tr[data-row-id='vm-fedoravm']")
 
-        # Since the VM is created from OVM, it will be automatically restarted (spec.running: true)
-        b.wait_present("tr[data-row-id='vm-fedoravm']")
-        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"))
+        if not b.is_present("#vm-fedoravm-usage-tab"):  # if not expanded
+            b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+
+        # check usage still not present because vm is not running yet)
+        b.wait_present("#vm-fedoravm-usage-tab")
+        b.click("#vm-fedoravm-usage-tab")
+        b.wait_present("#usage-metrics")
+        b.wait_in_text("#usage-metrics", "Usage metrics are available after the pod starts")
+        self.assertFalse(b.is_present("#cpu-metric"))
+        self.assertFalse(b.is_present("#memory-metric"))
+        self.assertFalse(b.is_present("#network-metric"))
+        b.click("#vm-fedoravm-overview-tab")
+        b.click("tr[data-row-id='vm-fedoravm']")  # hide row
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150)
 
         # link to node
         b.wait_present("tr[data-row-id='vm-fedoravm']") # the just-started VM is listed
@@ -510,8 +545,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # link to pod
         b.click("#vms-menu-link")
         b.wait_present("tr[data-row-id='vm-fedoravm']") # the row is already expanded if saving of UI state works
-        b.wait_present("#vm-fedoravm-pod")
-        wait(lambda: b.text("#vm-fedoravm-pod > a").strip() != "")
+        wait(lambda: b.is_present("#vm-fedoravm-pod > a") and b.text("#vm-fedoravm-pod > a").strip() != "")
         b.wait_in_text("#vm-fedoravm-pod", "virt-launcher-fedoravm")
         pod_name = b.text("#vm-fedoravm-pod > a").strip()
         b.click("#vm-fedoravm-pod > a")
@@ -538,7 +572,9 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                     .create()
                 row_selector = "tr[data-row-id='vm-{0}']".format(name)
 
-                b.wait_present(row_selector)
+                print("creating vm, might take a while")
+                with self.browser.wait_timeout(300):
+                    b.wait_present(row_selector)
                 self.assertEqual(b.text("{0} th".format(row_selector)), name)
                 self.assertEqual(b.text("{0} td:nth-of-type(2)".format(row_selector)), dialog.getNamespace())
 
@@ -610,6 +646,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
             def create(self):
                 b = self.browser
+                # wait for a file to load into the text area
+                b.wait(lambda: b.val("#resource-text"))
                 b.click(".modal-footer button:contains(Create)")
                 b.wait_not_present("#cockpit_modal_dialog")
 

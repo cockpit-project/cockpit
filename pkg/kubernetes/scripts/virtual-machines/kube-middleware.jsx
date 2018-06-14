@@ -21,10 +21,12 @@ import cockpit from 'cockpit';
 
 let kubeMethods = null;
 let kubeLoader = null;
+let KubeRequest = null;
 
-export function initMiddleware(_kubeMethods, _kubeLoader) {
+export function initMiddleware(_kubeMethods, _kubeLoader, _KubeRequest) {
     kubeMethods = _kubeMethods;
     kubeLoader = _kubeLoader;
+    KubeRequest = _KubeRequest;
 }
 
 function vmCreate(resource) {
@@ -49,4 +51,10 @@ async function vmDelete({ vm }) {
     return kubeMethods.delete(selfLink); // no value is returned (empty promise). An exception is thrown in case of failure
 }
 
-export { vmDelete, vmCreate };
+async function fetchStatSummary(nodeName) {
+    const path = "/api/v1/nodes/" + encodeURIComponent(nodeName) + "/proxy/stats/summary/";
+
+    return KubeRequest("GET", path);
+}
+
+export { vmDelete, vmCreate, fetchStatSummary };

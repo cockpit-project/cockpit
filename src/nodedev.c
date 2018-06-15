@@ -137,6 +137,42 @@ virtDBusNodeDeviceGetXMLDesc(GVariant *inArgs,
     *outArgs = g_variant_new("(s)", xml);
 }
 
+static void
+virtDBusNodeDeviceListCaps(GVariant *inArgs G_GNUC_UNUSED,
+                           GUnixFDList *inFDs G_GNUC_UNUSED,
+                           const gchar *objectPath,
+                           gpointer userData,
+                           GVariant **outArgs,
+                           GUnixFDList **outFDs G_GNUC_UNUSED,
+                           GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+    g_autoptr(virtDBusCharArray) caps = NULL;
+    gint ncaps;
+    GVariant *gret;
+    GVariantBuilder builder;
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    if ((ncaps = virNodeDeviceNumOfCaps(dev)) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    caps = g_new0(char *, ncaps + 1);
+
+    if ((ncaps = virNodeDeviceListCaps(dev, caps, ncaps)) < 0)
+        return virtDBusUtilSetLastVirtError(error);
+
+    g_variant_builder_init(&builder, G_VARIANT_TYPE("as"));
+    for (gint i = 0; i < ncaps; i++)
+        g_variant_builder_add(&builder, "s", caps[i]);
+    gret = g_variant_builder_end(&builder);
+
+    *outArgs = g_variant_new_tuple(&gret, 1);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { "Name", virtDBusNodeDeviceGetName, NULL },
     { "Parent", virtDBusNodeDeviceGetParent, NULL },
@@ -147,6 +183,7 @@ static virtDBusGDBusMethodTable virtDBusNodeDeviceMethodTable[] = {
     { "Destroy", virtDBusNodeDeviceDestroy },
     { "Detach", virtDBusNodeDeviceDetach },
     { "GetXMLDesc", virtDBusNodeDeviceGetXMLDesc },
+    { "ListCaps", virtDBusNodeDeviceListCaps },
     { 0 }
 };
 

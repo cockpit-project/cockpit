@@ -29,5 +29,10 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="xml" type="s" direction="out"/>
     </method>
+    <method name="ListCaps">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceListCaps"/>
+      <arg name="names" type="as" direction="out"/>
+    </method>
   </interface>
 </node>

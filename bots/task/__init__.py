@@ -297,16 +297,20 @@ def stale(days, pathspec, ref="HEAD"):
 
     return timestamp < due
 
-def issue(title, body, name, context=None, state="open", since=None):
-    item = "{0} {1}".format(name, context or "").strip()
+def issue(title, body, item, context=None, items=[], state="open", since=None):
+    if context:
+        item = "{0} {1}".format(item, context).strip()
 
     for issue in api.issues(state=state, since=since):
         checklist = github.Checklist(issue["body"])
         if item in checklist.items:
             return issue
 
+    if not items:
+        items = [ item ]
     checklist = github.Checklist(body)
-    checklist.add(item)
+    for x in items:
+        checklist.add(x)
     data = {
         "title": title,
         "body": checklist.body,

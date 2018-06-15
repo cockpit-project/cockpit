@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import gzip
 import json
 import os
@@ -38,52 +37,45 @@ sys.dont_write_bytecode = True
 
 import task
 
+# The number of days of previous closed pull requests to learn from
+SINCE_DAYS = 120
+
 BOTS = os.path.abspath(os.path.dirname(__file__))
+DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 SEEDED = set()
 SINKS = { }
 
-def main():
-    parser = argparse.ArgumentParser(description="Pull out test data for pull requests")
-    parser.add_argument("--seed", action="store", help="Seed with existing data and update")
-    parser.add_argument("--since", help="Since a given ISO-8601 date")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose progress")
-    opts = parser.parse_args()
-
-    # Parse the input date
-    since = opts.since
-    try:
-        if since is not None:
-            since = time.mktime(time.strptime(opts.since, "%Y-%m-%d"))
-    except ValueError:
-        sys.stderr.write("tests-data: invalid since date: {0}\n".format(since))
-        return 2
-
+def run(filename, verbose=False, dry=False, **kwargs):
+    since = time.time() - 60 * 60 * 24 * SINCE_DAYS
     pulls = Pulls(since)
 
     # Seed with our input data
-    if opts.seed:
-        (outfd, outname) = tempfile.mkstemp(prefix=os.path.basename(opts.seed), dir=os.path.dirname(opts.seed))
+    if filename:
+        if "/" not in filename and not os.path.exists(filename):
+            if not dry:
+                subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", filename ])
+            filename = os.path.join(DATA, filename)
+        (outfd, outname) = tempfile.mkstemp(prefix=os.path.basename(filename), dir=os.path.dirname(filename))
         os.close(outfd)
         output = gzip.open(outname, 'wb')
-        if os.path.exists(opts.seed):
-            with gzip.open(opts.seed, 'rb') as fp:
+        if os.path.exists(filename):
+            with gzip.open(filename, 'rb') as fp:
                 seed(since, fp, pulls, output)
     else:
-        output = outname = None
+        output = sys.stdout
+        outname = None
 
     def write(**kwargs):
         line = json.dumps(kwargs).encode('utf-8') + b"\n"
-        os.write(1, line)
-        if output:
-            output.write(line)
+        output.write(line)
 
     # Iterate through all revisions, pull requests on this branch
-    for (commit, merged, created, pull) in commits("master", pulls, since, opts.verbose):
+    for (commit, merged, created, pull) in commits("master", pulls, since, verbose):
         logged = False
-        if opts.verbose:
+        if verbose:
             sys.stderr.write("- {0}\n".format(commit))
         for (context, created, url, log) in logs(commit):
-            if opts.verbose:
+            if verbose:
                 sys.stderr.write("  - {0} {1}\n".format(created, context))
             for (status, name, body, tracker) in tap(log):
                 write(pull=pull, revision=commit, status=status,
@@ -105,7 +97,12 @@ def main():
     sys.stdout.flush()
     if output:
         output.close()
-        os.rename(outname, opts.seed)
+    if outname:
+        os.rename(outname, filename)
+
+    if not dry and outname and filename:
+        upload = [ os.path.join(BOTS, "image-upload"), "--state", filename ]
+        subprocess.check_call(upload)
 
 # An HTML parser that just pulls out all the <a href="...">
 # link hrefs in a given page of content. We also qualify these
@@ -278,7 +275,6 @@ def seed(since, fp, pulls, output):
                 item["tracker"] = qualify("issues/{0}".format(match.group(1)))
 
         line = json.dumps(item).encode('utf-8') + b"\n"
-        os.write(1, line)
         output.write(line)
 
 # Generate a list of (revision, merged, url) for the given branch
@@ -475,4 +471,4 @@ def qualify(path):
     return "https://api.github.com" + task.api.qualify(path)
 
 if __name__ == '__main__':
-    sys.exit(main())
+    task.main(function=run, title="Pull out test data for pull requests", verbose=True)

@@ -18,9 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# The number of days of previous closed pull requests to learn from
-SINCE_DAYS = 120
-
 # The name and version of the training data
 TRAINING_DATA = "tests-train-1.jsonl.gz"
 
@@ -54,10 +51,7 @@ def run(training_data, verbose=False, dry=False, **kwargs):
         if not dry:
             subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", training_data ])
         training_data = os.path.join(DATA, training_data)
-    items = loader(training_data, verbose, dry)
-
-    if not dry:
-        subprocess.check_call(upload + [ training_data ])
+    items = loader(training_data, verbose)
 
     # Train for the second model
     path = train(items, verbose)
@@ -69,34 +63,19 @@ def run(training_data, verbose=False, dry=False, **kwargs):
 
 # Load jsonl style data into items, or if no file specified
 # then just run tests-data to retrieve live data
-def loader(training_data, verbose, dry):
+def loader(training_data, verbose):
     items = [ ]
 
     # The input file exists
     exists = training_data and os.path.exists(training_data)
 
     # Dry mode just read a file
-    if dry:
-        proc = None
-        if not exists:
-            raise RuntimeError("learn-tests: the input file doesn't exist: {0}".format(training_data))
-        inp = gzip.open(training_data, 'rb')
-        if verbose:
-            sys.stderr.write("Loading tests data\n")
-
-    # Launch the test-data command directly, and save the output
-    else:
-        cmd = [ os.path.join(BOTS, "tests-data"), "--since" ]
-        when = time.time() - 60 * 60 * 24 * SINCE_DAYS
-        cmd.append(time.strftime("%Y-%m-%d", time.gmtime(when)))
-        if exists:
-            cmd += [ "--seed", training_data ]
-        if verbose:
-            if exists:
-                sys.stderr.write("Loading existing tests data\n")
-            cmd.append("--verbose")
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        inp = proc.stdout
+    proc = None
+    if not exists:
+        raise RuntimeError("learn-tests: the input file doesn't exist: {0}".format(training_data))
+    inp = gzip.open(training_data, 'rb')
+    if verbose:
+        sys.stderr.write("Loading tests data\n")
 
     since = time.strftime("%Y-%m-%d", time.gmtime(time.time() - (86400 * SINCE)))
 

@@ -72,6 +72,16 @@ class BaseTestClass():
             raise TimeoutError()
 
     @pytest.fixture
+    def node_device_create(self):
+        """ Fixture to create dummy node device on the test driver
+
+        This fixture should be used in the setup of every test manipulating
+        with node devices.
+        """
+        path = self.connect.NodeDeviceCreateXML(xmldata.minimal_node_device_xml, 0)
+        return path
+
+    @pytest.fixture
     def storage_volume_create(self):
         """ Fixture to create dummy storage volume on the test driver
 

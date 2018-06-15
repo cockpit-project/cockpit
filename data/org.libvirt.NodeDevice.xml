@@ -3,5 +3,9 @@
 
 <node name="/org/libvirt/nodedev">
   <interface name="org.libvirt.NodeDevice">
+    <method name="Destroy">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceDestroy"/>
+    </method>
   </interface>
 </node>

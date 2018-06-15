@@ -3,11 +3,53 @@
 
 #include <libvirt/libvirt.h>
 
+static virNodeDevicePtr
+virtDBusNodeDeviceGetVirNodeDevice(virtDBusConnect *connect,
+                                   const gchar *objectPath,
+                                   GError **error)
+{
+    virNodeDevicePtr dev;
+
+    if (virtDBusConnectOpen(connect, error) < 0)
+        return NULL;
+
+    dev = virtDBusUtilVirNodeDeviceFromBusPath(connect->connection,
+                                               objectPath,
+                                               connect->nodeDevPath);
+    if (!dev) {
+        virtDBusUtilSetLastVirtError(error);
+        return NULL;
+    }
+
+    return dev;
+}
+
+static void
+virtDBusNodeDeviceDestroy(GVariant *inArgs G_GNUC_UNUSED,
+                          GUnixFDList *inFDs G_GNUC_UNUSED,
+                          const gchar *objectPath,
+                          gpointer userData,
+                          GVariant **outArgs G_GNUC_UNUSED,
+                          GUnixFDList **outFDs G_GNUC_UNUSED,
+                          GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    if (virNodeDeviceDestroy(dev) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { 0 }
 };
 
 static virtDBusGDBusMethodTable virtDBusNodeDeviceMethodTable[] = {
+    { "Destroy", virtDBusNodeDeviceDestroy },
     { 0 }
 };
 

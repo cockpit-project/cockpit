@@ -72,14 +72,14 @@ class StorageCase(MachineCase):
 
     def content_row_expand(self, index):
         b = self.browser
-        tbody = "#detail-content tbody:nth-of-type(%d)" % index
+        tbody = "#detail-content > table > tbody:nth-of-type(%d)" % index  # consider nested tables
         b.wait_present(tbody)
         if not "open" in (b.attr(tbody, "class") or ""):
             b.click(tbody + " tr.listing-ct-item")
             b.wait_present(tbody + ".open")
 
     def content_row_action(self, index, title):
-        btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-item .listing-ct-actions button:contains(%s)" % (index, title)
+        btn = "#detail-content > table > tbody:nth-of-type(%d) .listing-ct-item .listing-ct-actions button:contains(%s)" % (index, title)
         self.browser.wait_present(btn)
         self.browser.click(btn)
 
@@ -88,18 +88,18 @@ class StorageCase(MachineCase):
     # temporarily disappearing element, so we use self.retry.
 
     def content_row_wait_in_col(self, row_index, col_index, val):
-        col = "#detail-content tbody:nth-of-type(%d) .listing-ct-item :nth-child(%d)" % (row_index, col_index+1)
+        col = "#detail-content > table > tbody:nth-of-type(%d) .listing-ct-item :nth-child(%d)" % (row_index, col_index+1)
         self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
 
     def content_head_action(self, index, title):
         self.content_row_expand(index)
-        btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-head .listing-ct-actions button:contains(%s)" % (index, title)
+        btn = "#detail-content > table > tbody:nth-of-type(%d) .listing-ct-head .listing-ct-actions button:contains(%s)" % (index, title)
         self.browser.wait_present(btn)
         self.browser.click(btn)
 
     def content_tab_expand(self, row_index, tab_index):
         tab_btn = "#detail-content tbody:nth-of-type(%d) .listing-ct-head li:nth-child(%d) a" % (row_index, tab_index)
-        tab = "#detail-content tbody:nth-of-type(%d) .listing-ct-body:nth-child(%d)" % (row_index, tab_index + 1)
+        tab = "#detail-content > table > tbody:nth-of-type(%d) .listing-ct-body:nth-child(%d)" % (row_index, tab_index + 1)
         self.content_row_expand(row_index)
         self.browser.wait_present(tab_btn)
         self.browser.click(tab_btn)
@@ -216,6 +216,28 @@ class StorageCase(MachineCase):
                 self.browser.click(sel + " li[data-data=%s] a" % val)
             else:
                 self.browser.set_val(self.dialog_field(field), val)
+
+    # Workaround: React does not fire onChange event when setting input.value attribute directly
+    # https://github.com/facebook/react/issues/8971
+    # potential fix: https://codepen.io/pudgereyem/live/OWBrdv
+    def dialog_type_val(self, field, val):
+        val = str(val)
+        selector = self.dialog_field(field)
+
+        self.browser.wait_present(selector)
+        self.browser.wait_visible(selector)
+        self.browser.click(selector)
+        self.browser.focus(selector)
+        self.browser.set_val(selector, '')  # clear value
+        self.browser.key_press(val)
+        self.browser.wait_val(selector, val)
+
+    # Workaround as the dialog_type_val()
+    def dialog_click_checkbox(self, field):
+        selector = self.dialog_field(field)
+        self.browser.wait_present(selector)
+        self.browser.wait_visible(selector)
+        self.browser.click(selector)
 
     def dialog_set_expander(self, field, val):
         self.browser.call_js_func(

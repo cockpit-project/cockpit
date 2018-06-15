@@ -53,6 +53,7 @@ class TestStorage(StorageCase):
                       "mounting": "custom",
                       "mount_point": mount_point_secret,
                       "crypto_extra_options": CheckBoxText("crypto,options") })
+
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
@@ -69,7 +70,6 @@ class TestStorage(StorageCase):
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
         if not self.storaged_is_old_udisks:
-
             # Unlock, this uses the stored passphrase
             self.content_head_action(1, "Unlock")
             self.content_row_wait_in_col(2, 1, "ext4 File System")
@@ -190,8 +190,8 @@ class TestStorage(StorageCase):
         self.content_tab_action(1, 1, "Add")
         self.dialog_wait_open()
         self.dialog_set_val("method", "tang")
-        self.dialog_set_val("tang_url", "127.0.0.1")
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_type_val("tang_url", "127.0.0.1")
+        self.dialog_type_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         b.wait_in_text("#dialog", "The output should match this text")
         b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
@@ -309,11 +309,11 @@ class TestStorage(StorageCase):
         self.content_tab_action(1, 1, "Add")
         self.dialog_wait_open()
         self.dialog_set_val("method", "http")
-        self.dialog_set_val("http_url", "http://127.0.0.1:88")
-        self.dialog_set_val("allow_plain_http", True)
+        self.dialog_type_val("http_url", "http://127.0.0.1:88")
+        self.dialog_click_checkbox("allow_plain_http")
         self.dialog_set_val("http_method", "PUT")
         self.dialog_set_val("key_type", "octet-stream")
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_type_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1:88")

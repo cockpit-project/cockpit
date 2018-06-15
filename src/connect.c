@@ -2,6 +2,7 @@
 #include "domain.h"
 #include "events.h"
 #include "network.h"
+#include "nodedev.h"
 #include "nwfilter.h"
 #include "secret.h"
 #include "storagepool.h"
@@ -1668,6 +1669,7 @@ virtDBusConnectFree(virtDBusConnect *connect)
     if (connect->connection)
         virtDBusConnectClose(connect, TRUE);
 
+    g_free(connect->nodeDevPath);
     g_free(connect->domainPath);
     g_free(connect->networkPath);
     g_free(connect->nwfilterPath);
@@ -1726,6 +1728,10 @@ virtDBusConnectNew(virtDBusConnect **connectp,
         return;
 
     virtDBusNetworkRegister(connect, error);
+    if (error && *error)
+        return;
+
+    virtDBusNodeDeviceRegister(connect, error);
     if (error && *error)
         return;
 

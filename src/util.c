@@ -311,6 +311,41 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks)
     g_free(networks);
 }
 
+virNodeDevicePtr
+virtDBusUtilVirNodeDeviceFromBusPath(virConnectPtr connection,
+                                     const gchar *path,
+                                     const gchar *nodeDevPath)
+{
+    g_autofree gchar *name = NULL;
+    gsize prefixLen = strlen(nodeDevPath) + 1;
+
+    name = virtDBusUtilDecodeStr(path + prefixLen);
+
+    return virNodeDeviceLookupByName(connection, name);
+}
+
+gchar *
+virtDBusUtilBusPathForVirNodeDevice(virNodeDevicePtr dev,
+                                    const gchar *nodeDevPath)
+{
+    const gchar *name = NULL;
+    g_autofree const gchar *encodedName = NULL;
+
+    name = virNodeDeviceGetName(dev);
+    encodedName = virtDBusUtilEncodeStr(name);
+
+    return g_strdup_printf("%s/%s", nodeDevPath, encodedName);
+}
+
+void
+virtDBusUtilVirNodeDeviceListFree(virNodeDevicePtr *devs)
+{
+    for (gint i = 0; devs[i] != NULL; i++)
+        virNodeDeviceFree(devs[i]);
+
+    g_free(devs);
+}
+
 virNWFilterPtr
 virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
                                   const gchar *path,

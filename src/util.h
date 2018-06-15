@@ -80,6 +80,21 @@ virtDBusUtilVirNetworkListFree(virNetworkPtr *networks);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetwork, virNetworkFree);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNetworkPtr, virtDBusUtilVirNetworkListFree);
 
+virNodeDevicePtr
+virtDBusUtilVirNodeDeviceFromBusPath(virConnectPtr connection,
+                                     const gchar *path,
+                                     const gchar *nodeDevPath);
+
+gchar *
+virtDBusUtilBusPathForVirNodeDevice(virNodeDevicePtr NodeDevice,
+                                    const gchar *nodeDevPath);
+
+void
+virtDBusUtilVirNodeDeviceListFree(virNodeDevicePtr *devs);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNodeDevice, virNodeDeviceFree);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(virNodeDevicePtr, virtDBusUtilVirNodeDeviceListFree);
+
 virNWFilterPtr
 virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
                                    const gchar *path,

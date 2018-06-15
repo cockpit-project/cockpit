@@ -155,6 +155,20 @@ class TestConnect(libvirttest.BaseTestClass):
         path = getattr(self.connect, lookup_method_name)(prop)
         assert original_path == path
 
+    def test_connect_node_device_create_xml(self):
+        def node_device_created(path, event, _detail):
+            if event != libvirttest.NodeDeviceEvent.CREATED:
+                return
+            assert isinstance(path, dbus.ObjectPath)
+            self.loop.quit()
+
+        self.connect.connect_to_signal('NodeDeviceEvent', node_device_created)
+
+        path = self.connect.NodeDeviceCreateXML(xmldata.minimal_node_device_xml, 0)
+        assert isinstance(path, dbus.ObjectPath)
+
+        self.main_loop()
+
     def test_connect_node_get_cpu_stats(self):
         stats = self.connect.NodeGetCPUStats(0, 0)
         assert isinstance(stats, dbus.Dictionary)

@@ -26,6 +26,22 @@ minimal_network_xml = '''
 </network>
 '''
 
+minimal_node_device_xml = '''
+<device>
+  <name>scsi_host22</name>
+  <parent>scsi_host2</parent>
+  <capability type='scsi_host'>
+    <host>22</host>
+    <unique_id>22</unique_id>
+    <capability type='fc_host'>
+      <wwnn>2000000098765432</wwnn>
+      <wwpn>1000000098765432</wwpn>
+      <fabric_wwn>2000000098769876</fabric_wwn>
+    </capability>
+  </capability>
+</device>
+'''
+
 minimal_storage_pool_xml = '''
 <pool type='dir'>
   <name>foo</name>

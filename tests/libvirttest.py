@@ -217,6 +217,9 @@ class NetworkEvent(IntEnum):
     STARTED = 2
     STOPPED = 3
 
+class NodeDeviceEvent(IntEnum):
+    CREATED = 0
+    DELETED = 1
 
 class StoragePoolBuildFlags(IntEnum):
     NEW = 0

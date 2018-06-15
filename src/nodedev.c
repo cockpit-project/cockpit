@@ -110,6 +110,33 @@ virtDBusNodeDeviceDetach(GVariant *inArgs,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusNodeDeviceGetXMLDesc(GVariant *inArgs,
+                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                             const gchar *objectPath,
+                             gpointer userData,
+                             GVariant **outArgs,
+                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+    g_autofree gchar *xml = NULL;
+    guint flags;
+
+    g_variant_get(inArgs, "(u)", &flags);
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    xml = virNodeDeviceGetXMLDesc(dev, flags);
+    if (!xml)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *outArgs = g_variant_new("(s)", xml);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { "Name", virtDBusNodeDeviceGetName, NULL },
     { "Parent", virtDBusNodeDeviceGetParent, NULL },
@@ -119,6 +146,7 @@ static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
 static virtDBusGDBusMethodTable virtDBusNodeDeviceMethodTable[] = {
     { "Destroy", virtDBusNodeDeviceDestroy },
     { "Detach", virtDBusNodeDeviceDetach },
+    { "GetXMLDesc", virtDBusNodeDeviceGetXMLDesc },
     { 0 }
 };
 

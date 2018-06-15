@@ -26,6 +26,12 @@ class TestNodeDevice(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    def test_node_device_get_xml_description(self):
+        test_node_device_path = self.node_device_create()
+        obj = self.bus.get_object('org.libvirt', test_node_device_path)
+        interface_obj = dbus.Interface(obj, 'org.libvirt.NodeDevice')
+        assert isinstance(interface_obj.GetXMLDesc(0), dbus.String)
+
     def test_node_device_properties_type(self):
         """ Ensure correct return type for NodeDevice properties
         """

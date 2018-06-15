@@ -193,6 +193,26 @@ virtDBusNodeDeviceReAttach(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusNodeDeviceReset(GVariant *inArgs G_GNUC_UNUSED,
+                        GUnixFDList *inFDs G_GNUC_UNUSED,
+                        const gchar *objectPath,
+                        gpointer userData,
+                        GVariant **outArgs G_GNUC_UNUSED,
+                        GUnixFDList **outFDs G_GNUC_UNUSED,
+                        GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    if (virNodeDeviceReset(dev) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { "Name", virtDBusNodeDeviceGetName, NULL },
     { "Parent", virtDBusNodeDeviceGetParent, NULL },
@@ -205,6 +225,7 @@ static virtDBusGDBusMethodTable virtDBusNodeDeviceMethodTable[] = {
     { "GetXMLDesc", virtDBusNodeDeviceGetXMLDesc },
     { "ListCaps", virtDBusNodeDeviceListCaps },
     { "ReAttach", virtDBusNodeDeviceReAttach },
+    { "Reset", virtDBusNodeDeviceReset },
     { 0 }
 };
 

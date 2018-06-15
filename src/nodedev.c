@@ -46,6 +46,27 @@ virtDBusNodeDeviceGetName(const gchar *objectPath,
 }
 
 static void
+virtDBusNodeDeviceGetParent(const gchar *objectPath,
+                            gpointer userData,
+                            GVariant **value,
+                            GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+    const gchar *parent;
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    parent = virNodeDeviceGetParent(dev);
+    if (!parent)
+        return virtDBusUtilSetLastVirtError(error);
+
+    *value = g_variant_new("s", parent);
+}
+
+static void
 virtDBusNodeDeviceDestroy(GVariant *inArgs G_GNUC_UNUSED,
                           GUnixFDList *inFDs G_GNUC_UNUSED,
                           const gchar *objectPath,
@@ -91,6 +112,7 @@ virtDBusNodeDeviceDetach(GVariant *inArgs,
 
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { "Name", virtDBusNodeDeviceGetName, NULL },
+    { "Parent", virtDBusNodeDeviceGetParent, NULL },
     { 0 }
 };
 

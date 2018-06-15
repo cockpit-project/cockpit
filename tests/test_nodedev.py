@@ -33,6 +33,7 @@ class TestNodeDevice(libvirttest.BaseTestClass):
         obj = self.bus.get_object('org.libvirt', test_node_device_path)
         props = obj.GetAll('org.libvirt.NodeDevice', dbus_interface=dbus.PROPERTIES_IFACE)
         assert isinstance(props['Name'], dbus.String)
+        assert isinstance(props['Parent'], dbus.String)
 
 
 if __name__ == '__main__':

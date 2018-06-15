@@ -8,6 +8,11 @@
         value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceGetName"/>
       <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
     </property>
+    <property name="Parent" type="s" access="read">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceGetParent"/>
+      <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+    </property>
     <method name="Destroy">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceDestroy"/>

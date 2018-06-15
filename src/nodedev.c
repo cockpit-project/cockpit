@@ -44,12 +44,37 @@ virtDBusNodeDeviceDestroy(GVariant *inArgs G_GNUC_UNUSED,
         virtDBusUtilSetLastVirtError(error);
 }
 
+static void
+virtDBusNodeDeviceDetach(GVariant *inArgs,
+                         GUnixFDList *inFDs G_GNUC_UNUSED,
+                         const gchar *objectPath,
+                         gpointer userData,
+                         GVariant **outArgs G_GNUC_UNUSED,
+                         GUnixFDList **outFDs G_GNUC_UNUSED,
+                         GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+    const gchar *driverName;
+    guint flags;
+
+    g_variant_get(inArgs, "(&su)", &driverName, &flags);
+
+    dev = virtDBusNodeDeviceGetVirNodeDevice(connect, objectPath, error);
+    if (!dev)
+        return;
+
+    if (virNodeDeviceDetachFlags(dev, driverName, flags) < 0)
+        virtDBusUtilSetLastVirtError(error);
+}
+
 static virtDBusGDBusPropertyTable virtDBusNodeDevicePropertyTable[] = {
     { 0 }
 };
 
 static virtDBusGDBusMethodTable virtDBusNodeDeviceMethodTable[] = {
     { "Destroy", virtDBusNodeDeviceDestroy },
+    { "Detach", virtDBusNodeDeviceDetach },
     { 0 }
 };
 

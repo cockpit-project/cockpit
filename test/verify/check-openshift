@@ -35,6 +35,10 @@ from kubelib import *
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 
+def wait_healthz(openshift):
+    # Openshift prints "ok" on /healthz/ready when it's ready
+    healthz = "curl -sk --stderr - https://localhost:8443/healthz/ready || true"
+    wait(lambda: "ok" == openshift.execute(healthz), delay=5, tries=150)
 
 def wait_project(machine, project):
     i = 0
@@ -75,6 +79,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.upload([self.kubeconfig], "/home/admin/.kube/config")
         m.execute("chown -R admin:admin /home/admin/.kube")
 
+        wait_healthz(self.openshift)
         wait_project(self.openshift, "marmalade")
 
         self.openshift.execute("oc project default")
@@ -843,6 +848,7 @@ class TestRegistry(MachineCase, RegistryTests):
         self.openshift.download("/root/.kube/config", tmpfile)
         with open(tmpfile, "r") as f:
             self.machine.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
+        wait_healthz(self.openshift)
         wait_project(self.openshift, "marmalade")
         self.openshift.execute("oc project default")
 

@@ -215,6 +215,12 @@
       <arg name="flags" type="u" direction="in"/>
       <arg name="dev" type="o" direction="out"/>
     </method>
+    <method name="NodeDeviceLookupByName">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virNodeDeviceLookupByName"/>
+      <arg name="name" type="s" direction="in"/>
+      <arg name="dev" type="o" direction="out"/>
+    </method>
     <method name="NWFilterDefineXML">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-nwfilter.html#virNWFilterDefineXML"/>

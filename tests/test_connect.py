@@ -143,6 +143,19 @@ class TestConnect(libvirttest.BaseTestClass):
 
         self.main_loop()
 
+    @pytest.mark.usefixtures("node_device_create")
+    @pytest.mark.parametrize("lookup_method_name,lookup_item", [
+        ("NodeDeviceLookupByName", 'Name'),
+    ])
+    def test_connect_node_device_lookup_by_property(self, lookup_method_name, lookup_item):
+        """Parameterized test for all NodeDeviceLookupBy* API calls of Connect interface
+        """
+        original_path = self.node_device_create()
+        obj = self.bus.get_object('org.libvirt', original_path)
+        prop = obj.Get('org.libvirt.NodeDevice', lookup_item, dbus_interface=dbus.PROPERTIES_IFACE)
+        path = getattr(self.connect, lookup_method_name)(prop)
+        assert original_path == path
+
     @pytest.mark.parametrize("lookup_method_name,lookup_item", [
         ("NetworkLookupByName", 'Name'),
         ("NetworkLookupByUUID", 'UUID'),

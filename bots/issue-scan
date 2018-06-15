@@ -123,7 +123,7 @@ def output_task(command, issue, verbose):
 
     context = context.strip()
     checkout = "PRIORITY={priority:04d} "
-    cmd = "bots/{name} --issue='{issue}' {context}"
+    cmd = "bots/{name} --verbose --issue='{issue}' {context}"
 
     if "pull_request" in issue:
         checkout += "bots/make-checkout --verbose pull/{issue}/head && "

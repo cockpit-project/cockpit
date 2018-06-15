@@ -213,10 +213,12 @@ class StorageCase(MachineCase):
                 self.browser.set_val(sel + " input[type=text]", val.val)
         else:
             sel = self.dialog_field(field)
-            ftype = self.browser.attr(sel, "data-field-type")
-            if ftype == "select":
+            dropdown_sel = sel + ".dropdown"
+            if self.browser.is_present(dropdown_sel):
                 self.browser.click(sel + " button.dropdown-toggle")
-                self.browser.click(sel + " li[data-data=%s] a" % val)
+                item_sel = sel + ' li[value="%s"] a' % val
+                self.browser.wait_present(item_sel) # wait to expand
+                self.browser.click(item_sel)
             else:
                 self.browser.set_val(self.dialog_field(field), val)
 

@@ -107,10 +107,20 @@ def tasks_for_issues():
         login = issue.get("user", { }).get("login", { })
         if login not in whitelist:
             continue
+
+        #
+        # We only consider the first unchecked item per issue
+        #
+        # The bots think the list needs to be done in order.
+        # If the first item in the checklist is not something
+        # the bots can do, then the bots will ignore this issue
+        # (below in output_task)
+        #
         checklist = github.Checklist(issue["body"])
         for item, checked in checklist.items.items():
             if not checked:
                 results.append((item, issue))
+                break
     return results
 
 def output_task(command, issue, verbose):

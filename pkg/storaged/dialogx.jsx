@@ -312,7 +312,7 @@ export const CheckBox = (tag, title, options) => {
         tag: tag,
         title: "", // sic
         options: options,
-        initial_value: (options.value !== undefined)? options.value : false,
+        initial_value: (options.value !== undefined) ? options.value : false,
 
         render: (val, change) => {
             return (

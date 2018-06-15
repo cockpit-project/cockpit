@@ -339,6 +339,13 @@
       <arg name="network" type="o"/>
       <arg name="event" type="i"/>
     </signal>
+    <signal name="NodeDeviceEvent">
+      <annotation name="org.gtk.GDBus.DocString"
+        value="See https://libvirt.org/html/libvirt-libvirt-nodedev.html#virConnectNodeDeviceEventLifecycleCallback"/>
+      <arg name="dev" type="o"/>
+      <arg name="event" type="i"/>
+      <arg name="detail" type="i"/>
+    </signal>
     <signal name="SecretEvent">
       <annotation name="org.gtk.GDBus.DocString"
         value="See https://libvirt.org/html/libvirt-libvirt-secret.html#virConnectSecretEventLifecycleCallback"/>

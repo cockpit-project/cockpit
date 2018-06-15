@@ -43,19 +43,6 @@ IGNORE_THRESHHOLD = 0.07
 # some cluster seeds
 TRACKER_SPARSE = 100
 
-# TODO: We should be able to detect these automatically and ignore them
-# But for now this is a pragmatic hack to reduce noise and processing time
-NOISE = {
-    "Wrote file": re.compile("Wrote.*\.(png|html|log)"),
-    "Journal extracted": re.compile("Journal extracted to.*\.log"),
-    "Core dumps downloaded": re.compile("Core dumps downloaded to.*\.core"),
-    "not ok": re.compile("^not ok.*"),
-    "ok": re.compile("^ok.*"),
-    "# Flake": re.compile("# Flake.*"),
-    'File "\\1"': re.compile('File "/[^"]+/([^/]+)"'),
-    "### ": re.compile('#{3,80}\s+'),
-}
-
 DIGITS = re.compile('\d+')
 
 # Various features extracted
@@ -104,11 +91,7 @@ class Extractor():
         result = [ ]
         value = item["log"] or ""
         for line in value.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
-            line = line.strip()
-            for substitute, pattern in NOISE.items():
-                line = pattern.sub(substitute, line)
-            else:
-                result.append(DIGITS.sub('000', line))
+            result.append(DIGITS.sub('000', line.strip()))
         return result
 
     def fit(self, items, tokenized=None):

@@ -1127,6 +1127,37 @@ virtDBusConnectNodeDeviceLookupByName(GVariant *inArgs,
 }
 
 static void
+virtDBusConnectNodeDeviceLookupSCSIHostByWWN(GVariant *inArgs,
+                                             GUnixFDList *inFDs G_GNUC_UNUSED,
+                                             const gchar *objectPath G_GNUC_UNUSED,
+                                             gpointer userData,
+                                             GVariant **outArgs,
+                                             GUnixFDList **outFDs G_GNUC_UNUSED,
+                                             GError **error)
+{
+    virtDBusConnect *connect = userData;
+    g_autoptr(virNodeDevice) dev = NULL;
+    g_autofree gchar *path = NULL;
+    const gchar *wwnn;
+    const gchar *wwpn;
+    guint flags;
+
+    g_variant_get(inArgs, "(&s&su)", &wwnn, &wwpn, &flags);
+
+    if (!virtDBusConnectOpen(connect, error))
+        return;
+
+    dev = virNodeDeviceLookupSCSIHostByWWN(connect->connection, wwnn, wwpn,
+                                           flags);
+    if (!dev)
+        return virtDBusUtilSetLastVirtError(error);
+
+    path = virtDBusUtilBusPathForVirNodeDevice(dev, connect->nodeDevPath);
+
+    *outArgs = g_variant_new("(o)", path);
+}
+
+static void
 virtDBusConnectNWFilterDefineXML(GVariant *inArgs,
                                  GUnixFDList *inFDs G_GNUC_UNUSED,
                                  const gchar *objectPath G_GNUC_UNUSED,
@@ -1746,6 +1777,7 @@ static virtDBusGDBusMethodTable virtDBusConnectMethodTable[] = {
     { "NetworkLookupByUUID", virtDBusConnectNetworkLookupByUUID },
     { "NodeDeviceCreateXML", virtDBusConnectNodeDeviceCreateXML },
     { "NodeDeviceLookupByName", virtDBusConnectNodeDeviceLookupByName },
+    { "NodeDeviceLookupSCSIHostByWWN", virtDBusConnectNodeDeviceLookupSCSIHostByWWN },
     { "NWFilterDefineXML", virtDBusConnectNWFilterDefineXML },
     { "NWFilterLookupByName", virtDBusConnectNWFilterLookupByName },
     { "NWFilterLookupByUUID", virtDBusConnectNWFilterLookupByUUID },

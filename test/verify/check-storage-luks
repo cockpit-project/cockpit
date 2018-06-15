@@ -205,6 +205,21 @@ class TestStorage(StorageCase):
             self.content_head_action(1, "Unlock")
             self.content_row_wait_in_col(2, 1, "ext4 File System")
 
+        # Edit the key.
+        #
+        b.click(self.content_tab_info_row(1, 1, "Network keys") + " button:contains(Edit)")
+        self.dialog_wait_open()
+        self.dialog_wait_val("tang_url", "127.0.0.1")
+        self.dialog_set_val("tang_url", "http://127.0.0.1/")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "The output should match this text")
+        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
+
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1/")
+
         # Remove key on client
 
         b.wait_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")

@@ -177,9 +177,12 @@ var CryptoTab = React.createClass({
                             slots.map(decode_clevis_slot).map(key => {
                                 if (key) {
                                     return (
-                                        <tr key={key.slot}>
+                                        <tr>
                                             <td>{key.url}</td>
                                             <td>
+                                                <StorageButton onClick={() => ClevisDialogs.edit(client, block, key)}>
+                                                    Edit
+                                                </StorageButton>
                                                 <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
                                                     Remove
                                                 </StorageButton>

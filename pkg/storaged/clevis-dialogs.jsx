@@ -95,34 +95,46 @@ function clevis_remove(block, key) {
  */
 
 export function add(client, block) {
-    dialog_open({ Title: _("Add network key"),
+    edit(client, block, null);
+}
+
+export function edit(client, block, key) {
+    console.log(key);
+    dialog_open({ Title: key ? _("Edit network key") : _("Add network key"),
                   Fields: [
                       TextInput("tang_url", _("Tang URL"),
-                                { validate: val => !val.length && _("Tang URL cannot be empty")
+                                { validate: val => !val.length && _("Tang URL cannot be empty"),
+                                  value: key ? key.url : ""
                                 }),
                       PassInput("passphrase", _("Existing passphrase"),
                                 { validate: val => !val.length && _("Passphrase cannot be empty"),
                                 })
                   ],
                   Action: {
-                      Title: _("Add"),
+                      Title: key ? _("Apply") : _("Add"),
                       action: function (vals) {
                           return get_tang_adv(vals.tang_url).then(function (adv) {
-                              add_tang_adv(client, block, vals.tang_url, adv, vals.passphrase);
+                              edit_tang_adv(client, block, key, vals.tang_url, adv, vals.passphrase);
                           });
                       }
                   }
     });
 }
 
-function add_tang_adv(client, block, url, adv, passphrase) {
+function edit_tang_adv(client, block, key, url, adv, passphrase) {
+    function action () {
+        return clevis_add(block, "tang", { url: url, adv: adv }, passphrase)
+                .then(() => {
+                    if (key)
+                        return clevis_remove(block, key);
+                });
+    }
+
     verify_tang_adv(url, adv,
                     _("Verify Key"),
                     null,
                     _("Trust Key"),
-                    function () {
-                        return clevis_add(block, "tang", { url: url, adv: adv }, passphrase);
-                    });
+                    action);
 }
 
 function verify_tang_adv(url, adv, title, extra, action_title, action) {

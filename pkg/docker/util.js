@@ -360,7 +360,7 @@
             if (data !== undefined)
                 $(slider).prop("value", (Math.log(data) - minv) / scale);
             $(slider)
-                .attr("disabled", data === undefined)
+                .attr("disabled", !check.checked)
                 .trigger("change");
             updating = false;
         }

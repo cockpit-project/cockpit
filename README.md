@@ -18,9 +18,6 @@ The latest official releases can be found at:
 
   * [https://libvirt.org/sources/dbus/](https://libvirt.org/sources/dbus/)
 
-NB: at this time, libvirt-dbus is *NOT* considered API/ABI stable. Future
-releases may still include API/ABI incompatible changes.
-
 
 Dependencies / supported platforms
 ----------------------------------

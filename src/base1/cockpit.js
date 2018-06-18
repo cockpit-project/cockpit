@@ -1468,19 +1468,20 @@ function factory() {
          * non-localised conversions (and in both cases, show no
          * fractional part).
          */
+	var lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
 
         if (!number && number !== 0)
             return "";
         else if (number % 1 === 0)
             return number.toString();
         else if (number > 0 && number <= 0.001)
-            return (0.001).toLocaleString(cockpit.language);
+            return (0.001).toLocaleString(lang);
         else if (number < 0 && number >= -0.001)
-            return (-0.001).toLocaleString(cockpit.language);
+            return (-0.001).toLocaleString(lang);
         else if (number > 999 || number < -999)
             return number.toFixed(0);
         else
-            return number.toLocaleString(cockpit.language, {
+            return number.toLocaleString(lang, {
                 maximumSignificantDigits: 3,
                 minimumSignificantDigits: 3
             });

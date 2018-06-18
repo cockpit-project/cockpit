@@ -46,7 +46,7 @@ QUnit.test("format_number", function () {
     var saved_language = cockpit.language;
     var i;
 
-    assert.expect(checks.length * 2);
+    assert.expect(checks.length * 3);
 
     cockpit.language = 'en';
     for (i = 0; i < checks.length; i++) {
@@ -58,6 +58,12 @@ QUnit.test("format_number", function () {
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
                     "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
+    }
+
+    cockpit.language = 'pt_BR';
+    for (i = 0; i < checks.length; i++) {
+        assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
+                    "format_number@pt_BR(" + checks[i][0] + ") = " + checks[i][2]);
     }
 
   /* restore this as not to break the other tests */

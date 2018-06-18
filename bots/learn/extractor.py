@@ -43,7 +43,30 @@ IGNORE_THRESHHOLD = 0.07
 # some cluster seeds
 TRACKER_SPARSE = 100
 
-DIGITS = re.compile('\d+')
+NUMBERS = (
+    # 512 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{128}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{128}')),
+
+    # 256 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('/[0-9a-f]{64}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('/[0-9A-F]{64}')),
+
+    # 160 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{40}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{40}')),
+
+    # 128 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{32}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{32}')),
+
+    # GUIDs
+    ('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        re.compile('[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}')),
+
+    # Digits
+    ('000', re.compile('\d+'))
+)
 
 # Various features extracted
 FEATURE_LOG = 0                # string: The normalized and collapsed log extracted
@@ -91,7 +114,10 @@ class Extractor():
         result = [ ]
         value = item["log"] or ""
         for line in value.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
-            result.append(DIGITS.sub('000', line.strip()))
+            line = line.strip()
+            for (substitute, pattern) in NUMBERS:
+                line = pattern.sub(substitute, line)
+            result.append(line)
         return result
 
     def fit(self, items, tokenized=None):

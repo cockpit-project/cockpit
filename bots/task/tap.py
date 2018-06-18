@@ -28,13 +28,20 @@ import re
 #
 # When the right hand side matches, we replace with left
 NOISE = {
+    # Status lines about downloading artifacts
     "Wrote file": re.compile("^Wrote.*\.(png|html|log)"),
     "Journal extracted": re.compile("^Journal extracted to.*\.log"),
     "Core dumps downloaded": re.compile("^Core dumps downloaded to.*\.core"),
+    'File "\\1"': re.compile('^File "/[^"]+/([^/]+)"'),
+
+    # Flakes
+    "": re.compile("^# Flake.*"),
+
+    # Tap output
     "not ok": re.compile("^not ok.*"),
     "ok": re.compile("^ok.*"),
-    "": re.compile("^# Flake.*"),
-    'File "\\1"': re.compile('^File "/[^"]+/([^/]+)"'),
+
+    # Progress from Curl
     "### ": re.compile('^#{3,80}\s+'),
 }
 

@@ -350,15 +350,23 @@
         <input type="text" name="host" class="form-control" placeholder="{{placeholder}}">
       </div>
       <div class="form-group">
-        <div class="btn-group dropdown mount-mode">
+        <div class="btn-group dropdown mount-mode" id="mount-mode-select" data-value="">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
             <span translatable="yes">Default</span>
             <div class="caret"></div>
           </button>
           <ul class="dropdown-menu">
-            <li><a translatable="yes">Default</a></li>
-            <li><a translatable="yes">ReadWrite</a></li>
-            <li><a translatable="yes">ReadOnly</a></li>
+            <li><a translatable="yes" data-value="">Default</a></li>
+            <li><a translatable="yes" data-value="rw">Read Write</a></li>
+            {{#selinux}}
+            <li><a translatable="yes" data-value="rw,Z">Read Write (private)</a></li>
+            <li><a translatable="yes" data-value="rw,z">Read Write (shared)</a></li>
+            {{/selinux}}
+            <li><a translatable="yes" data-value="ro">Read Only</a></li>
+            {{#selinux}}
+            <li><a translatable="yes" data-value="ro,Z">Read Only (private)</a></li>
+            <li><a translatable="yes" data-value="ro,z">Read Only (shared)</a></li>
+            {{/selinux}}
           </ul>
         </div>
       </div>

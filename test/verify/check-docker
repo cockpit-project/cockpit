@@ -389,13 +389,20 @@ CMD ["/bin/sh"]
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
 
-        # And a mount point
+        # And a mount point fixing selinux flags if possible
         b.click("#mount-volumes")
         b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
+        b.click("#mount-mode-select button");
         if m.image not in [ "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable" ]:
-            m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
+            b.click("#mount-mode-select a[data-value='rw,Z']");
+            b.wait_in_text("#mount-mode-select button", "Read Write (private)");
+        else:
+            if (b.is_present("#mount-mode-select a[data-value='rw,Z']")):
+                raise Exception("SELinux mount options should not be available on this image")
+            b.click("#mount-mode-select a[data-value=rw]");
+            b.wait_in_text("#mount-mode-select button", "Read Write");
         m.execute("touch /mnt/dripping.txt")
 
         b.click("#containers-run-image-run");

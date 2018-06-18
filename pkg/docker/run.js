@@ -469,9 +469,11 @@ $(function() {
             if (volume_internal_editable === undefined)
                 volume_internal_editable = true;
 
+            var docker = client.instance();
             var row = $(Mustache.render(template, {
                 host_volume_label: _("to host path"),
-                placeholder: _("none")
+                placeholder: _("none"),
+                selinux: docker.selinux
             }));
             row.children("button.fa-plus").on('click', add_row);
             if (volume_internal_editable) {
@@ -584,6 +586,11 @@ $(function() {
         return render;
     }
 
+    /* Copy dropdown-menu values onto their parent dropdown when selected */
+    $("#containers_run_image_dialog").on('click', '.dropdown-menu li a', function() {
+        $(this).closest(".dropdown").attr('data-value', $(this).attr('data-value'));
+    });
+
     $("#containers-run-image-run").on('click', function() {
         var exs = validate();
         if (exs) {
@@ -596,7 +603,6 @@ $(function() {
         var port_bindings = { };
         var volume_bindings = [ ];
         var map_from, map_to, map_protocol;
-        var mount_from, mount_to, mount_mode;
         var links = [];
         var exposed_ports = { };
         var claimed_envvars = [ ];
@@ -621,20 +627,9 @@ $(function() {
                 var input_volumes = $(this).find('input').map(function(idx, elem) {
                     return $(elem).val();
                 }).get();
-                mount_from = input_volumes[0];
-                mount_to = input_volumes[1];
-                var mount_mode_text = $(this).find('button span').text();
-                switch (mount_mode_text) {
-                    case 'ReadOnly':
-                        mount_mode = 'ro';
-                        break;
-                    case 'ReadWrite':
-                        mount_mode = 'rw';
-                        break;
-                    default:
-                        mount_mode = '';
-                        break;
-                }
+                var mount_from = input_volumes[0];
+                var mount_to = input_volumes[1];
+                var mount_mode = $(this).find('.dropdown').attr('data-value');
 
                 if (mount_from === '' || mount_to === '')
                     return;

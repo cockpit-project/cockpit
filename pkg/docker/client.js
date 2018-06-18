@@ -94,6 +94,18 @@
         /* images we're currently pulling */
         this.pulling = [];
 
+        /* Identify if selinux is enabled on the system */
+        cockpit.spawn(["getenforce"], { err: "message" }).then(
+            function(output) {
+                this.selinux = false;
+                if (output.includes("Enforcing") || output.includes("Permissive"))
+                    this.selinux = true;
+            }.bind(this),
+            function(error) {
+                this.selinux = false;
+            }.bind(this)
+        );
+
         var containers_meta = { };
         var containers_by_name = { };
 

@@ -885,12 +885,12 @@ $(function() {
                 var uptime = parseFloat(contents.split(' ')[0]);
                 clock_monotonic_now = parseInt(uptime * 1000000, 10);
             });
-        cockpit.spawn(["date", "-R"]).
+        cockpit.spawn(["date", "+%s"]).
             fail(function (err) {
                 console.log(err);
             }).
             done(function (time) {
-                clock_realtime_now = moment(time, "ddd, DD MMM YYYY HH:mm:ss ZZ"); // rfc822 date
+                clock_realtime_now = moment.unix(parseInt(time));
             });
     }
     update_time();

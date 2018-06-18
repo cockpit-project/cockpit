@@ -44,24 +44,35 @@ QUnit.test("format_number", function () {
     ];
 
     var saved_language = cockpit.language;
+    var saved_js_lang = cockpit.js_lang;
     var i;
 
-    assert.expect(checks.length * 2);
+    assert.expect(checks.length * 3);
 
     cockpit.language = 'en';
+    cockpit.js_lang = 'en';
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
                     "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
     }
 
     cockpit.language = 'de';
+    cockpit.js_lang = 'de';
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
                     "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
     }
 
+    cockpit.language = 'pt_BR';
+    cockpit.js_lang = 'pt-br';
+    for (i = 0; i < checks.length; i++) {
+        assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
+                    "format_number@pr_BR(" + checks[i][0] + ") = " + checks[i][2]);
+    }
+
   /* restore this as not to break the other tests */
   cockpit.language = saved_language;
+  cockpit.js_lang = saved_js_lang;
 });
 
 QUnit.test("format_bytes", function() {

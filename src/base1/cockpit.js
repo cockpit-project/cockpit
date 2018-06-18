@@ -1474,13 +1474,13 @@ function factory() {
         else if (number % 1 === 0)
             return number.toString();
         else if (number > 0 && number <= 0.001)
-            return (0.001).toLocaleString(cockpit.language);
+            return (0.001).toLocaleString(cockpit.js_lang);
         else if (number < 0 && number >= -0.001)
-            return (-0.001).toLocaleString(cockpit.language);
+            return (-0.001).toLocaleString(cockpit.js_lang);
         else if (number > 999 || number < -999)
             return number.toFixed(0);
         else
-            return number.toLocaleString(cockpit.language, {
+            return number.toLocaleString(cockpit.js_lang, {
                 maximumSignificantDigits: 3,
                 minimumSignificantDigits: 3
             });
@@ -3845,6 +3845,7 @@ function factory() {
     var po_plural;
 
     cockpit.language = undefined;
+    cockpit.js_lang = undefined;
 
     cockpit.locale = function locale(po) {
         var lang = cockpit.language || "en";
@@ -3865,6 +3866,7 @@ function factory() {
         }
 
         cockpit.language = lang;
+        cockpit.js_lang = lang.replace('_', '-')
     };
 
     cockpit.translate = function translate(/* ... */) {

@@ -9,7 +9,7 @@ cd "${srcdir:-.}"
 fail=0
 
 # we don't dist bots, so only check it when running in git
-[ -d bots ] &&  BOTS=$(grep -l '#!.*python' `find bots/ -type f ! -name '.*'` 2>/dev/null || true) || BOTS=
+[ -d bots ] &&  BOTS=$(grep -lI '#!.*python' `find bots/ -type f ! -name '.*'` 2>/dev/null || true) || BOTS=
 
 #
 # pyflakes

@@ -203,6 +203,9 @@ dist/%/Makefile.deps: $(WEBPACK_CONFIG)
 dist/%/manifest.json: pkg/%/manifest.json
 	$(COPY_RULE)
 
+dist/base1/cockpit.js: src/base1/cockpit.js
+	$(COPY_RULE)
+
 -include $(WEBPACK_DEPS)
 
 distclean-local::

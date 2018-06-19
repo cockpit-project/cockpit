@@ -25,6 +25,7 @@ from testlib import *
 @skipImage("tuned currently uninstallable (bz#1537205)", "rhel-x")
 class TestTuned(MachineCase):
     def testBasic(self):
+        self.allow_authorize_journal_messages()
         b = self.browser
         m = self.machine
 
@@ -54,6 +55,7 @@ class TestTuned(MachineCase):
             b.mouse("#system-info-performance .action-trigger", "mouseout")
             b.wait_not_present("#system-info-performance .tooltip-inner")
 
+        b.wait_present('#system-info-performance a.action-trigger')
         b.wait_text('#system-info-performance a.action-trigger', "none")
         check_status_tooltip("Tuned is not running")
 
@@ -64,6 +66,18 @@ class TestTuned(MachineCase):
             b.click('#system-info-performance [data-toggle="popover"]')
         b.wait_text('#system-info-performance a.action-trigger', recommended_profile)
         check_status_tooltip("This system is using the recommended profile")
+
+        # Informative message when not authorized
+        b.relogin('/system', authorized=False)
+        b.wait_present('#system-info-performance a.action-trigger.disabled')
+        if m.image == 'rhel-7-5':
+            b.wait_text('#system-info-performance a.action-trigger.disabled', 'error')
+        else:
+            b.wait_text('#system-info-performance a.action-trigger.disabled', recommended_profile)
+            check_status_tooltip('The user admin is not permitted to change profiles');
+        b.relogin('/system', authorized=True)
+        b.wait_present('#system-info-performance a.action-trigger')
+        b.wait_visible('#system-info-performance a.action-trigger')
 
         # Switch the profile
 

@@ -121,13 +121,13 @@ if args.commandlist or args.packagelist or args.scriptlist or args.uploadlist:
     machine.start()
     machine.wait_boot()
     try:
+        if args.uploadlist:
+            upload_files(machine, args.uploadlist)
         if args.commandlist:
             run_command(machine, args.commandlist)
         if args.packagelist:
             install_packages(machine, args.packagelist, args.installcommand)
         if args.scriptlist:
             run_script(machine, args.scriptlist)
-        if args.uploadlist:
-            upload_files(machine, args.uploadlist)
     finally:
         machine.stop()

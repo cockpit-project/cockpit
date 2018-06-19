@@ -84,6 +84,17 @@ class TestImageCustomize(unittest.TestCase):
         self.assertTrue(os.path.exists(img))
         self.checkBoot(img)
 
+    def testUpload(self):
+        img = os.environ["TEST_OS"]
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--upload", "/etc/passwd:/tmp/passwd",
+                                   "--run-command", "echo hello > /var/custom-test",
+                                   "--run-command", "grep ^root: /tmp/passwd", img])
+
+        self.checkBoot(img)
+
+
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
 class TestBotsVM(unittest.TestCase):

@@ -21,6 +21,7 @@ var cockpit = require("cockpit");
 var _ = cockpit.gettext;
 
 var moment = require("moment");
+moment.locale(cockpit.language);
 
 var client = {};
 

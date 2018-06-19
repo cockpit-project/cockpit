@@ -25,6 +25,7 @@
     var mustache = require("mustache");
     var service = require("service");
     var moment = require("moment");
+    moment.locale(cockpit.language);
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

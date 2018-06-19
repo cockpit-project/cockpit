@@ -168,6 +168,7 @@
             $('#container-details-ports-row').hide();
             $('#container-details-links-row').hide();
             $('#container-details-resource-row').hide();
+            $('#container-details-volumes-row').hide();
 
             var info = this.client.containers[this.container_id];
             util.docker_debug("container-details", this.container_id, info);
@@ -225,6 +226,10 @@
             $('#container-details .cpu-shares').text(util.format_cpu_shares(info.CpuPriority));
 
             this.maybe_show_terminal(info);
+
+            var volume_bindings = info.HostConfig.Binds;
+            $('#container-details-volumes-row').toggle(volume_bindings.length > 0);
+            $('#container-details-volumes').html(util.multi_line(volume_bindings));
         },
 
         update_links: function(info) {

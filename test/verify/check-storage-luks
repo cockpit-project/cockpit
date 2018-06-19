@@ -184,10 +184,15 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
+        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        tab = self.content_tab_expand(1, 1)
+        panel = tab + " .panel:contains(Network keyservers) "
+        b.wait_present(panel)
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "No network keyservers added")
+
         # Add a key
         #
-        self.content_tab_wait_in_info(1, 1, "Network keys", "")
-        self.content_tab_action(1, 1, "Add")
+        b.click(panel + ".fa-plus")
         self.dialog_wait_open()
         self.dialog_set_val("tang_url", "127.0.0.1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -197,7 +202,7 @@ class TestStorage(StorageCase):
 
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "127.0.0.1")
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "127.0.0.1")
 
         if can_unlock:
             # Unlock it.  This should succeed without prompting.
@@ -207,7 +212,7 @@ class TestStorage(StorageCase):
 
         # Edit the key.
         #
-        b.click(self.content_tab_info_row(1, 1, "Network keys") + " button:contains(Edit)")
+        b.click(panel + ".table tr:nth-child(1) .pficon-edit")
         self.dialog_wait_open()
         self.dialog_wait_val("tang_url", "127.0.0.1")
         self.dialog_set_val("tang_url", "http://127.0.0.1/")
@@ -218,14 +223,13 @@ class TestStorage(StorageCase):
 
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1/")
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "http://127.0.0.1/")
 
         # Remove key on client
 
-        b.wait_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
-        self.content_tab_action(1, 1, "Remove")
+        b.click(panel + ".table tr:nth-child(1) .fa-minus")
         self.confirm()
-        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "No network keyservers added")
 
 if __name__ == '__main__':
     test_main()

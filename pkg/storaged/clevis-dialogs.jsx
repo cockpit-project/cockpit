@@ -19,12 +19,15 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import sha1 from "js-sha1";
+import stable_stringify from "json-stable-stringify";
 
 import { dialog_open, TextInput, PassInput } from "./dialogx.jsx";
 import { decode_filename } from "./utils.js";
+import { StorageButton } from "./storage-controls.jsx";
 
-import sha1 from "js-sha1";
-import stable_stringify from "json-stable-stringify";
+import * as python from "python.jsx";
+import luksmeta_monitor_hack_py from "raw!./luksmeta-monitor-hack.py";
 
 const _ = cockpit.gettext;
 
@@ -94,14 +97,14 @@ function clevis_remove(block, key) {
 /* Dialogs
  */
 
-export function add(client, block) {
+function add(client, block) {
     edit(client, block, null);
 }
 
-export function edit(client, block, key) {
-    dialog_open({ Title: key ? _("Edit network key") : _("Add network key"),
+function edit(client, block, key) {
+    dialog_open({ Title: key ? _("Edit keyserver") : _("Add keyserver"),
                   Fields: [
-                      TextInput("tang_url", _("Tang URL"),
+                      TextInput("tang_url", _("Tang keyserver URL"),
                                 { validate: val => !val.length && _("Tang URL cannot be empty"),
                                   value: key ? key.url : ""
                                 }),
@@ -165,20 +168,122 @@ function verify_tang_adv(url, adv, title, extra, action_title, action) {
     });
 }
 
-export function remove(client, block, key) {
-    dialog_open({ Title: _("Please confirm network key removal"),
+function remove(client, block, key) {
+    dialog_open({ Title: _("Please confirm network keyserver removal"),
                   Body: (
                       <div>
-                          <p>{cockpit.format(_("The key of $0 will be removed."), key.url)}</p>
-                          <p>{_("Removing network keys might prevent unattended booting.")}</p>
+                          <p>{cockpit.format(_("The keyserver $0 will be removed."), key.url)}</p>
+                          <p>{_("Removing keyservers might prevent unattended booting.")}</p>
                       </div>
                   ),
                   Action: {
                       DangerButton: true,
-                      Title: _("Remove key"),
+                      Title: _("Remove keyserver"),
                       action: function () {
                           return clevis_remove(block, key);
                       }
                   }
     });
+}
+
+export class ClevisSlots extends React.Component {
+    constructor() {
+        super();
+        this.state = { slots: null };
+    }
+
+    monitor_slots(block) {
+        // HACK - we only need this until UDisks2 has a Encrypted.Slots property or similar.
+        if (block != this.monitored_block) {
+            if (this.monitored_block)
+                this.monitor_channel.close();
+            this.monitored_block = block;
+            if (block) {
+                var dev = decode_filename(block.Device);
+                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ],
+                                                    { superuser: "try" });
+                var buf = "";
+                this.monitor_channel.stream(output => {
+                    var lines;
+                    buf += output;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length - 1];
+                    if (lines.length >= 2) {
+                        this.setState({ slots: JSON.parse(lines[lines.length - 2]) });
+                    }
+                });
+            }
+        }
+    }
+
+    componentDidUmount() {
+        this.monitor_slots(null);
+    }
+
+    render() {
+        var client = this.props.client;
+        var block = this.props.block;
+
+        if (!client.features.clevis)
+            return null;
+
+        this.monitor_slots(block);
+
+        if (this.state.slots == null)
+            return null;
+
+        function decode_clevis_slot(slot) {
+            if (slot.ClevisConfig) {
+                var clevis = JSON.parse(slot.ClevisConfig.v);
+                if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
+                    return { slot: slot.Index.v,
+                             url: clevis.tang.url
+                    };
+                }
+            }
+        }
+
+        var keys = this.state.slots.map(decode_clevis_slot).filter(k => !!k)
+                .sort((a, b) => a.url.localeCompare(b.url));
+
+        var rows;
+        if (keys.length == 0) {
+            rows = <tr><td className="text-center">{_("No network keyservers added")}</td></tr>;
+        } else {
+            rows = keys.map(key => {
+                if (key) {
+                    return (
+                        <tr>
+                            <td>{key.url}</td>
+                            <td className="text-right">
+                                <StorageButton onClick={() => edit(client, block, key)}>
+                                    <span className="pficon pficon-edit" />
+                                </StorageButton>
+                                { "\n" }
+                                <StorageButton onClick={() => remove(client, block, key)}>
+                                    <span className="fa fa-minus" />
+                                </StorageButton>
+                            </td>
+                        </tr>
+                    );
+                }
+            })
+        }
+
+        return (
+            <div className="panel panel-default">
+                <div className="panel-heading">
+                    <div className="pull-right">
+                        <StorageButton onClick={() => add(client, block)}>
+                            <span className="fa fa-plus" />
+                        </StorageButton>
+                    </div>
+                    {_("Network keyservers")}
+                </div>
+                <table className="table">
+                    <tbody> { rows } </tbody>
+                </table>
+            </div>
+        );
+    }
 }

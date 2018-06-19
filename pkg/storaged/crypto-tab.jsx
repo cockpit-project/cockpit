@@ -33,49 +33,15 @@ var StorageLink = StorageControls.StorageLink;
 var FormatButton = FormatDialog.FormatButton;
 
 var ClevisDialogs = require("./clevis-dialogs.jsx");
-
-var python = require("python.jsx");
-var luksmeta_monitor_hack_py = require("raw!./luksmeta-monitor-hack.py");
+var ClevisSlots = ClevisDialogs.ClevisSlots;
 
 var _ = cockpit.gettext;
 
 var CryptoTab = React.createClass({
-    monitor_slots: function (block) {
-        // HACK - we only need this until UDisks2 has a Encrypted.Slot property or similar.
-        if (block != this.monitored_block) {
-            if (this.monitored_block)
-                this.monitor_channel.close();
-            this.monitored_block = block;
-            if (block) {
-                var dev = utils.decode_filename(block.Device);
-                console.log("Explicitly monitoring luksmeta slots on " + dev);
-                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ],
-                                                    { superuser: "try" });
-
-                var buf = "";
-                this.monitor_channel.stream(output => {
-                    var lines;
-                    buf += output;
-                    lines = buf.split("\n");
-                    buf = lines[lines.length - 1];
-                    if (lines.length >= 2) {
-                        this.setState({ slots: JSON.parse(lines[lines.length - 2]) });
-                    }
-                });
-            }
-        }
-    },
-
-    componentDidUnmount: function () {
-        this.monitor_slots(null);
-    },
-
     render: function () {
         var self = this;
         var client = self.props.client;
         var block = self.props.block;
-
-        this.monitor_slots(block);
 
         function edit_config(modify) {
             var old_config, new_config;
@@ -158,48 +124,6 @@ var CryptoTab = React.createClass({
             });
         }
 
-        function decode_clevis_slot(slot) {
-            if (slot.ClevisConfig) {
-                var clevis = JSON.parse(slot.ClevisConfig.v);
-                if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
-                    return { slot: slot.Index.v,
-                             url: clevis.tang.url
-                    };
-                }
-            }
-        }
-
-        function render_clevis_keys(slots) {
-            return (
-                <table className="network-keys-table">
-                    <tbody>
-                        {
-                            slots.map(decode_clevis_slot).map(key => {
-                                if (key) {
-                                    return (
-                                        <tr>
-                                            <td>{key.url}</td>
-                                            <td>
-                                                <StorageButton onClick={() => ClevisDialogs.edit(client, block, key)}>
-                                                    Edit
-                                                </StorageButton>
-                                                <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
-                                                    Remove
-                                                </StorageButton>
-                                            </td>
-                                        </tr>
-                                    );
-                                }
-                            })
-                        }
-                        <tr>
-                            <td><StorageButton onClick={() => ClevisDialogs.add(client, block)}>Add</StorageButton></td>
-                        </tr>
-                    </tbody>
-                </table>
-            );
-        }
-
         // See format-dialog.jsx above for why we don't offer editing
         // crypttab for the old UDisks2
 
@@ -222,14 +146,10 @@ var CryptoTab = React.createClass({
                                 <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
                             </tr> : null
                         }
-                        { self.props.client.features.clevis
-                            ? <tr>
-                                <td>{_("Network keys")}</td>
-                                <td>{ render_clevis_keys(this.state.slots || [ ]) }</td>
-                            </tr> : null
-                        }
                     </tbody>
                 </table>
+                <br />
+                <ClevisSlots client={client} block={block} />
             </div>
         );
     },

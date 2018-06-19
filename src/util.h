@@ -67,8 +67,8 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(virDomainStatsRecordPtr, virDomainStatsRecordListF
 
 virNetworkPtr
 virtDBusUtilVirNetworkFromBusPath(virConnectPtr connection,
-                                 const gchar *path,
-                                 const gchar *networkPath);
+                                  const gchar *path,
+                                  const gchar *networkPath);
 
 gchar *
 virtDBusUtilBusPathForVirNetwork(virNetworkPtr network,

@@ -1187,12 +1187,12 @@ virtDBusConnectNWFilterDefineXML(GVariant *inArgs,
 
 static void
 virtDBusConnectNWFilterLookupByName(GVariant *inArgs,
-                                   GUnixFDList *inFDs G_GNUC_UNUSED,
-                                   const gchar *objectPath G_GNUC_UNUSED,
-                                   gpointer userData,
-                                   GVariant **outArgs,
-                                   GUnixFDList **outFDs G_GNUC_UNUSED,
-                                   GError **error)
+                                    GUnixFDList *inFDs G_GNUC_UNUSED,
+                                    const gchar *objectPath G_GNUC_UNUSED,
+                                    gpointer userData,
+                                    GVariant **outArgs,
+                                    GUnixFDList **outFDs G_GNUC_UNUSED,
+                                    GError **error)
 {
     virtDBusConnect *connect = userData;
     g_autoptr(virNWFilter) nwfilter = NULL;

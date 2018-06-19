@@ -2189,7 +2189,7 @@ virtDBusDomainMigrateToURI3(GVariant *inArgs,
     virtDBusConnect *connect = userData;
     g_autoptr(virDomain) domain = NULL;
     g_autoptr(GVariantIter) iter = NULL;
-    const gchar* dconuri;
+    const gchar *dconuri;
     g_auto(virtDBusUtilTypedParams) params = { 0 };
     guint flags;
 

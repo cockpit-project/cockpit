@@ -546,10 +546,10 @@ virtDBusEventsDomainDiskChange(virConnectPtr connection G_GNUC_UNUSED,
 
 static gint
 virtDBusEventsNetworkEvent(virConnectPtr connection G_GNUC_UNUSED,
-                               virNetworkPtr network,
-                               gint event,
-                               gint detail G_GNUC_UNUSED,
-                               gpointer opaque)
+                           virNetworkPtr network,
+                           gint event,
+                           gint detail G_GNUC_UNUSED,
+                           gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
@@ -592,10 +592,10 @@ virtDBusEventsNodeDeviceEvent(virConnectPtr connection G_GNUC_UNUSED,
 
 static gint
 virtDBusEventsSecretEvent(virConnectPtr connection G_GNUC_UNUSED,
-                              virSecretPtr secret,
-                              gint event,
-                              gint detail,
-                              gpointer opaque)
+                          virSecretPtr secret,
+                          gint event,
+                          gint detail,
+                          gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;
@@ -615,10 +615,10 @@ virtDBusEventsSecretEvent(virConnectPtr connection G_GNUC_UNUSED,
 
 static gint
 virtDBusEventsStoragePoolEvent(virConnectPtr connection G_GNUC_UNUSED,
-                                   virStoragePoolPtr storagePool,
-                                   gint event,
-                                   gint detail,
-                                   gpointer opaque)
+                               virStoragePoolPtr storagePool,
+                               gint event,
+                               gint detail,
+                               gpointer opaque)
 {
     virtDBusConnect *connect = opaque;
     g_autofree gchar *path = NULL;

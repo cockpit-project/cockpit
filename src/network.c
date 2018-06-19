@@ -235,7 +235,7 @@ virtDBusNetworkGetDHCPLeases(GVariant *inArgs,
         g_variant_builder_add(&builder, "(sxisssuss)",
                               lease->iface, lease->expirytime,
                               lease->type, lease->mac,
-                              lease->iaid ? lease->iaid : "" ,
+                              lease->iaid ? lease->iaid : "",
                               lease->ipaddr, lease->prefix,
                               lease->hostname ? lease->hostname : "",
                               lease->clientid ? lease->clientid : "");

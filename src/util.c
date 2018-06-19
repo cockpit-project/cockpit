@@ -348,8 +348,8 @@ virtDBusUtilVirNodeDeviceListFree(virNodeDevicePtr *devs)
 
 virNWFilterPtr
 virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
-                                  const gchar *path,
-                                  const gchar *nwfilterPath)
+                                   const gchar *path,
+                                   const gchar *nwfilterPath)
 {
     g_autofree gchar *name = NULL;
     gsize prefixLen = strlen(nwfilterPath) + 1;
@@ -361,7 +361,7 @@ virtDBusUtilVirNWFilterFromBusPath(virConnectPtr connection,
 
 gchar *
 virtDBusUtilBusPathForVirNWFilter(virNWFilterPtr nwfilter,
-                                 const gchar *nwfilterPath)
+                                  const gchar *nwfilterPath)
 {
     gchar uuid[VIR_UUID_STRING_BUFLEN] = "";
     g_autofree gchar *newUuid = NULL;

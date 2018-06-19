@@ -14,6 +14,7 @@ $(function() {
 
     cockpit.translate();
     var _ = cockpit.gettext;
+    moment.locale(cockpit.language);
 
     /* Notes about the systemd D-Bus API
      *

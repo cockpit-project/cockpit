@@ -19,6 +19,7 @@
 
 var cockpit = require("cockpit");
 var moment = require("moment");
+moment.locale(cockpit.language);
 
 var atomic = {};
 cockpit.event_target(atomic);

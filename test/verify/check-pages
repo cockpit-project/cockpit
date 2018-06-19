@@ -36,6 +36,15 @@ ExecStart=/bin/true
 [Install]
 WantedBy=default.target
 """)
+        m.write("/etc/systemd/system/test.timer",
+"""
+[Unit]
+Description=Test timer
+
+[Timer]
+OnCalendar=daily
+""")
+        m.execute("systemctl start test.timer")
 
         self.allow_restart_journal_messages()
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
@@ -140,6 +149,12 @@ WantedBy=default.target
         b.enter_page("/system")
         b.wait_present("#server")
         b.wait_in_text("#server", "Neustarten")
+
+        # Systemd timer localization
+        b.go("/system/services")
+        b.enter_page("/system/services")
+        b.click("#services-filter button[data-pattern='\\\.timer\$']")
+        b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
         # Check the playground page
         b.switch_to_top()

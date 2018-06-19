@@ -33,7 +33,7 @@
 #include <sys/prctl.h>
 #include <sys/socket.h>
 
-#define TIMEOUT 30
+#define TIMEOUT 120
 
 #define WAIT_UNTIL(cond) \
   G_STMT_START \

@@ -233,7 +233,7 @@ export class ClevisSlots extends React.Component {
             return null;
 
         function decode_clevis_slot(slot) {
-            if (slot.Active.v && slot.ClevisConfig) {
+            if (slot.ClevisConfig) {
                 var clevis = JSON.parse(slot.ClevisConfig.v);
                 if (clevis.pin && clevis.pin == "tang" && clevis.tang) {
                     return { slot: slot.Index.v,

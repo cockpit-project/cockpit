@@ -15,6 +15,28 @@ def b64_decode(data):
     # anything?  Not even base64?
     return base64.urlsafe_b64decode(data + '=' * ((4 - len(data) % 4) % 4))
 
+def get_clevis_config(jwe):
+    header = b64_decode(jwe.split(".")[0]).decode("utf-8")
+    header_object = json.loads(header)
+    clevis = header_object.get("clevis", None)
+    if clevis:
+        pin = clevis.get("pin", None)
+        if pin == "tang":
+            return clevis
+        elif pin == "sss":
+            subpins = { }
+            jwes = clevis["sss"]["jwe"]
+            for jwe in jwes:
+                subconf = get_clevis_config(jwe)
+                subpin = subconf["pin"]
+                if subpin not in subpins:
+                    subpins[subpin] = [ subconf[subpin] ]
+                else:
+                    subpins[subpin].append(subconf[subpin])
+            return { "pin": "sss", "sss": { "t": clevis["sss"]["t"], "pins": subpins } }
+        else:
+            return { "pin": pin, pin: { } }
+
 def info(dev):
     result = subprocess.run([ "luksmeta", "show", "-d", dev ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     slots = [ ]
@@ -22,16 +44,15 @@ def info(dev):
         return slots
     for line in result.stdout.splitlines():
         fields = re.split(b" +", line)
-        info = { "Index": { "v": int(fields[0]) },
-                 "Active": { "v": fields[1] == b"active" } }
-        if fields[2] == b"cb6e8904-81ff-40da-a84a-07ab9ab5715e":
-            raw = subprocess.check_output([ "luksmeta", "load", "-d", dev, "-s", fields[0] ]).decode("utf-8")
-            header = b64_decode(raw.split(".")[0]).decode("utf-8")
-            header_object = json.loads(header)
-            if "clevis" in header_object and header_object["clevis"]["pin"] == "tang":
-                info["ClevisConfig"] = { "v": json.dumps(header_object["clevis"]) }
-        if fields[1] == b"active" or "ClevisConfig" in info:
-            slots.append(info)
+        if fields[1] == b"active":
+            if fields[2] == b"cb6e8904-81ff-40da-a84a-07ab9ab5715e":
+                jwe = subprocess.check_output([ "luksmeta", "load", "-d", dev, "-s", fields[0] ]).decode("utf-8")
+                config = get_clevis_config(jwe)
+                if config:
+                    slots.append({ "Index": { "v": int(fields[0]) },
+                                   "ClevisConfig": { "v": json.dumps(config) } })
+            else:
+                slots.append({ "Index": { "v": int(fields[0]) } })
     return slots
 
 def monitor(dev):

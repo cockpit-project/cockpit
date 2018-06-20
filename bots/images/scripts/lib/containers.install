@@ -30,4 +30,6 @@ do
     rm -r "/var/tmp/containers/$NAME/rpms"
 done
 
+journalctl --flush || true
+journalctl --sync || killall systemd-journald || true
 rm -rf /var/log/journal/* || true

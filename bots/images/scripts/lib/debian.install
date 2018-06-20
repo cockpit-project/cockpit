@@ -86,5 +86,7 @@ if [ -n "$do_install" ]; then
 
     # firewall-cmd --add-service=cockpit --permanent
 
+    journalctl --flush
+    journalctl --sync || killall systemd-journald
     rm -rf /var/log/journal/*
 fi

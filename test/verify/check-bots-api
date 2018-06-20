@@ -94,6 +94,16 @@ class TestImageCustomize(unittest.TestCase):
 
         self.checkBoot(img)
 
+    def testFailurePropagation(self):
+        img = os.environ["TEST_OS"]
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--run-command", "true", img])
+
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(["bots/image-customize", "--verbose",
+                                       "--run-command", "false", img])
+
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")

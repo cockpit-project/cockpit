@@ -305,7 +305,7 @@ html.index-page body {
 }
 
 .navbar-header .navbar-brand {
-    padding: 13px 0 13px 10px;
+    padding: 15px 0 15px 10px;
 }
 
 @media (max-width: 767px) {
@@ -471,15 +471,6 @@ thead.credential-lock.credential-locked > *:first-child {
 
 thead.credential-lock.credential-unlocked > *:last-child {
     display: table-row !important;
-}
-
-li.credential-lock {
-    span { padding-left: 1em; }
-}
-
-/* For now this is not clickable */
-li.credential-lock > a:first-child {
-    cursor: default;
 }
 
 
@@ -840,7 +831,54 @@ iframe.container-frame {
     font-size: 13px;
 }
 
-.navbar-pf .pficon,
-.navbar-pf .navbar-nav > li > a {
-    line-height: 34px;
+/***
+Disclaimer: Fixing the navbar dropdown requires consideration of CSS
+specificity. As PatternFly is super-specific, we either had to use
+!important everywhere or include IDs.
+
+What follows is not best-practice, but a necessary fix.
+It is less bad than using !important, at least.
+***/
+
+#topnav {
+    .fa,
+    .pficon {
+        /* Normalize the icons in the navbar */
+        line-height: inherit;
+        margin-right: 5px;
+        position: static;
+    }
+}
+@media (min-width: 768px) {
+    /* Override navbar utility menu for desktop */
+    #topnav {
+        .navbar-utility > li > a,
+        .navbar-utility > li > span {
+            line-height: 50px;
+            margin: 0;
+            padding: 0 10px;
+        }
+    }
+
+    #machine-spinner {
+        /* Vertical alignment is a hack here. (50px - 24px) / 2 = 13px */
+        margin-top: 13px;
+    }
+}
+@media (max-width: 767px) {
+    /* Override navbar utility menu for mobile */
+    #topnav {
+        .navbar-utility > li > a,
+        .navbar-utility > li > span {
+            margin: 0;
+            padding: 0 20px;
+            line-height: 54px;
+        }
+        .dropdown-menu > li > a,
+        .dropdown-menu > li > span {
+            /* Make menu items a consistent, touch-friendly size */
+            padding: 0 40px;
+            line-height: 54px;
+        }
+    }
 }

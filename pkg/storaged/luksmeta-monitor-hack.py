@@ -19,7 +19,7 @@ def info(dev):
     result = subprocess.run([ "luksmeta", "show", "-d", dev ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     slots = [ ]
     if result.returncode != 0:
-        return None
+        return slots
     for line in result.stdout.splitlines():
         fields = re.split(b" +", line)
         info = { "Index": { "v": int(fields[0]) },

@@ -102,7 +102,6 @@ function add(client, block) {
 }
 
 function edit(client, block, key) {
-    console.log(key);
     dialog_open({ Title: key ? _("Edit keyserver") : _("Add keyserver"),
                   Fields: [
                       TextInput("tang_url", _("Tang keyserver URL"),
@@ -203,7 +202,6 @@ export class ClevisSlots extends React.Component {
                 var dev = decode_filename(block.Device);
                 this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ],
                                                     { superuser: "try" });
-
                 var buf = "";
                 this.monitor_channel.stream(output => {
                     var lines;

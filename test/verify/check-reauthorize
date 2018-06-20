@@ -39,13 +39,12 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: authorized')
 
-        # Deauthorize from the top bar
+        # Deauthorize user
         b.leave_page()
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
-        b.wait_visible("a.credential-clear")
-        b.click("a.credential-clear")
-        b.wait_not_visible("a.credential-clear")
+        b.click("button.credential-clear")
+        b.wait_not_visible("button.credential-clear")
         b.click("#credentials-dialog [data-dismiss]")
 
         b.enter_page("/playground/test")

@@ -473,35 +473,6 @@ thead.credential-lock.credential-unlocked > *:last-child {
     display: table-row !important;
 }
 
-@-webkit-keyframes blink {
-    0% {
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes blink {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-.credential-blink {
-    -webkit-animation: blink 1.2s 1 linear;
-    animation: blink 1.2s 1 linear;
-}
-
 li.credential-lock {
     span { padding-left: 1em; }
 }

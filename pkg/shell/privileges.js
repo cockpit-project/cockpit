@@ -22,17 +22,16 @@ var cockpit = require("cockpit");
 function Privileges() {
     var self = this;
     var locked = null;
-    var lock;
 
     function clicked(ev) {
         cockpit.drop_privileges(false);
         ev.preventDefault();
     }
 
-    function display(blink) {
+    function display() {
         var i, locks = document.querySelectorAll(".credential-lock");
         for (i = 0; i < locks.length; i++) {
-            lock = locks[i];
+            var lock = locks[i];
             if (locked !== true)
                 lock.classList.remove("credential-locked");
             else if (locked === true)
@@ -41,11 +40,6 @@ function Privileges() {
                 lock.classList.remove("credential-unlocked");
             else if (locked === false)
                 lock.classList.add("credential-unlocked");
-
-            if (lock.tagName == "LI" && blink)
-                lock.classList.add("credential-blink");
-            else
-                lock.classList.remove("credential-blink");
         }
 
         var clear = document.querySelectorAll(".credential-clear");
@@ -54,17 +48,15 @@ function Privileges() {
     }
 
     self.update = function update(hint) {
-        var blink = false;
         if (hint.credential == "password") {
             locked = false;
         } else if (hint.credential == "request") {
             if (locked === null)
                 locked = true;
-            blink = true;
         } else if (hint.credential == "none") {
             locked = null;
         }
-        display(blink);
+        display();
     };
 
     /* No op authorize command to poke about state */

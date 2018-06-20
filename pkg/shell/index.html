@@ -30,16 +30,14 @@
                 </div>
               </li>
               <li class="credential-lock">
-                <a data-toggle="tooltip" data-placement="bottom" translate="title"
-                    title="Privileged tasks not available">
-                  <i class="fa fa-lock"></i>
-                  <span translate>Locked</span>
-                </a>
-                <a data-toggle="tooltip" data-placement="bottom" translate="title"
-                    title="Lock to prevent privileged tasks" class="credential-clear">
+                <span>
+                  <!-- Display nothing when unprivileged -->
+                </span>
+                <span data-toggle="tooltip" data-placement="bottom" translate="title"
+-                    title="Login has escalated admin privileges" class="navbar-text">
                   <i class="fa fa-unlock-alt"></i>
-                  <span translate>Unlocked</span>
-                </a>
+                  <span translate>Privileged</span>
+                </span>
               </li>
               <li id="navbar-oops" hidden>
                 <a><span class="oops-status" translatable="yes">Ooops!</span></a>

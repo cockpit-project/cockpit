@@ -19,6 +19,25 @@
 import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.es6";
 import { logDebug } from './helpers.es6';
+import {
+    ADD_NOTIFICATION,
+    ADD_UI_VM,
+    CLEAR_NOTIFICATION,
+    CLEAR_NOTIFICATIONS,
+    DELETE_UI_VM,
+    DELETE_UNLISTED_VMS,
+    SET_PROVIDER,
+    SET_REFRESH_INTERVAL,
+    UNDEFINE_VM,
+    UPDATE_ADD_VM,
+    UPDATE_LIBVIRT_STATE,
+    UPDATE_OS_INFO_LIST,
+    UPDATE_STORAGE_POOLS,
+    UPDATE_STORAGE_VOLUMES,
+    UPDATE_UI_VM,
+    UPDATE_VM,
+    VM_ACTION_FAILED,
+} from './constants/store-action-types.es6';
 
 // --- helpers -------------------
 function getFirstIndexOfVm(state, field, value, connectionName) {
@@ -36,9 +55,9 @@ function config(state, action) {
     };
 
     switch (action.type) {
-    case 'SET_PROVIDER':
+    case SET_PROVIDER:
         return Object.assign({}, state, { provider: action.provider });
-    case 'SET_REFRESH_INTERVAL': {
+    case SET_REFRESH_INTERVAL: {
         const newState = Object.assign({}, state);
         newState.refreshInterval = action.refreshInterval;
         return newState;
@@ -98,7 +117,7 @@ function vms(state, action) {
     }
 
     switch (action.type) {
-    case 'UPDATE_ADD_VM': {
+    case UPDATE_ADD_VM: {
         const connectionName = action.vm.connectionName;
         const index = action.vm.id ? getFirstIndexOfVm(state, 'id', action.vm.id, connectionName)
             : getFirstIndexOfVm(state, 'name', action.vm.name, connectionName);
@@ -109,7 +128,7 @@ function vms(state, action) {
         const updatedVm = Object.assign({}, state[index], action.vm);
         return replaceVm({ state, updatedVm, index });
     }
-    case 'UPDATE_VM': {
+    case UPDATE_VM: {
         const indexedVm = findVmToUpdate(state, action.vm);
         if (!indexedVm) {
             return state;
@@ -128,7 +147,7 @@ function vms(state, action) {
         // replace whole object
         return replaceVm({ state, updatedVm, index: indexedVm.index });
     }
-    case 'VM_ACTION_FAILED': {
+    case VM_ACTION_FAILED: {
         const indexedVm = findVmToUpdate(state, action.payload);
         if (!indexedVm) { // already logged
             return state;
@@ -140,12 +159,12 @@ function vms(state, action) {
 
         return replaceVm({ state, updatedVm, index: indexedVm.index });
     }
-    case 'UNDEFINE_VM': {
+    case UNDEFINE_VM: {
         return state
                 .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
                     (action.transientOnly && vm.persistent)));
     }
-    case 'DELETE_UNLISTED_VMS': {
+    case DELETE_UNLISTED_VMS: {
         return state
                 .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0));
     }
@@ -165,13 +184,13 @@ function systemInfo(state, action) {
     };
 
     switch (action.type) {
-    case 'UPDATE_OS_INFO_LIST': {
+    case UPDATE_OS_INFO_LIST: {
         if (action.osInfoList instanceof Array) {
             state.osInfoList = [...action.osInfoList];
         }
         return state;
     }
-    case 'UPDATE_LIBVIRT_STATE': {
+    case UPDATE_LIBVIRT_STATE: {
         state.libvirtService = Object.assign({}, state.libvirtService, action.state);
         return state;
     }
@@ -194,7 +213,7 @@ function storagePools(state, action) {
        }
     */
     switch (action.type) {
-    case 'UPDATE_STORAGE_POOLS': {
+    case UPDATE_STORAGE_POOLS: {
         const { connectionName, pools } = action.payload;
 
         const newState = Object.assign({}, state);
@@ -207,7 +226,7 @@ function storagePools(state, action) {
 
         return newState;
     }
-    case 'UPDATE_STORAGE_VOLUMES': {
+    case UPDATE_STORAGE_VOLUMES: {
         const { connectionName, poolName, volumes } = action.payload;
 
         const newState = Object.assign({}, state);
@@ -236,20 +255,20 @@ function ui(state, action) {
     };
 
     switch (action.type) {
-    case 'ADD_UI_VM': {
+    case ADD_UI_VM: {
         addVm();
         return state;
     }
-    case 'UPDATE_UI_VM': {
+    case UPDATE_UI_VM: {
         if (state.vms[action.vm.name]) {
             addVm();
         }
         return state;
     }
-    case 'DELETE_UI_VM':
+    case DELETE_UI_VM:
         delete state.vms[action.vm.name];
         return state;
-    case 'ADD_NOTIFICATION': {
+    case ADD_NOTIFICATION: {
         const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
         const notifs = state.notifications;
         notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
@@ -261,11 +280,11 @@ function ui(state, action) {
         state.notifications = [...notifs, notification];
         return state;
     }
-    case 'CLEAR_NOTIFICATION': {
+    case CLEAR_NOTIFICATION: {
         state.notifications = state.notifications.filter(error => error.id !== action.id);
         return state;
     }
-    case 'CLEAR_NOTIFICATIONS': {
+    case CLEAR_NOTIFICATIONS: {
         state.notifications = [];
         return state;
     }

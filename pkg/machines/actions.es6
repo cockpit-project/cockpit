@@ -21,6 +21,54 @@ import { getRefreshInterval } from './selectors.es6';
 import VMS_CONFIG from "./config.es6";
 import { logDebug } from './helpers.es6';
 import { virt } from './provider.es6';
+import {
+    ADD_NOTIFICATION,
+    ADD_UI_VM,
+    CLEAR_NOTIFICATION,
+    CLEAR_NOTIFICATIONS,
+    DELETE_UI_VM,
+    DELETE_UNLISTED_VMS,
+    SET_HYPERVISOR_MAX_VCPU,
+    SET_PROVIDER,
+    SET_REFRESH_INTERVAL,
+    UNDEFINE_VM,
+    UPDATE_ADD_VM,
+    UPDATE_LIBVIRT_STATE,
+    UPDATE_OS_INFO_LIST,
+    UPDATE_STORAGE_POOLS,
+    UPDATE_STORAGE_VOLUMES,
+    UPDATE_UI_VM,
+    UPDATE_VM,
+    VM_ACTION_FAILED,
+} from './constants/store-action-types.es6';
+import {
+    ATTACH_DISK,
+    CHANGE_NETWORK_STATE,
+    CHECK_LIBVIRT_STATUS,
+    CONSOLE_VM,
+    CREATE_AND_ATTACH_VOLUME,
+    CREATE_VM,
+    DELETE_VM,
+    ENABLE_LIBVIRT,
+    FORCEOFF_VM,
+    FORCEREBOOT_VM,
+    GET_ALL_VMS,
+    GET_HYPERVISOR_MAX_VCPU,
+    GET_OS_INFO_LIST,
+    GET_STORAGE_POOLS,
+    GET_STORAGE_VOLUMES,
+    GET_VM,
+    INIT_DATA_RETRIEVAL,
+    INSTALL_VM,
+    REBOOT_VM,
+    SENDNMI_VM,
+    SET_VCPU_SETTINGS,
+    SHUTDOWN_VM,
+    START_LIBVIRT,
+    START_VM,
+    USAGE_START_POLLING,
+    USAGE_STOP_POLLING,
+} from './constants/provider-action-types.es6';
 
 /**
  * All actions dispatchable by in the application
@@ -28,7 +76,7 @@ import { virt } from './provider.es6';
 
 // --- Provider actions -----------------------------------------
 export function initDataRetrieval() {
-    return virt('INIT_DATA_RETRIEVAL');
+    return virt(INIT_DATA_RETRIEVAL);
 }
 
 /**
@@ -37,94 +85,94 @@ export function initDataRetrieval() {
  * @param libvirtServiceName
  */
 export function getAllVms(connectionName, libvirtServiceName) {
-    return virt('GET_ALL_VMS', { connectionName, libvirtServiceName });
+    return virt(GET_ALL_VMS, { connectionName, libvirtServiceName });
 }
 
 export function getVm(connectionName, lookupId) {
-    return virt('GET_VM', {
+    return virt(GET_VM, {
         lookupId, // provider-specific (i.e. libvirt uses vm_name)
         connectionName,
     });
 }
 
 export function getOsInfoList() {
-    return virt('GET_OS_INFO_LIST');
+    return virt(GET_OS_INFO_LIST);
 }
 
 export function getStoragePools(connectionName) {
-    return virt('GET_STORAGE_POOLS', { connectionName });
+    return virt(GET_STORAGE_POOLS, { connectionName });
 }
 
 export function getStorageVolumes(connectionName, poolName) {
-    return virt('GET_STORAGE_VOLUMES', { connectionName, poolName });
+    return virt(GET_STORAGE_VOLUMES, { connectionName, poolName });
 }
 
 export function shutdownVm(vm) {
-    return virt('SHUTDOWN_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(SHUTDOWN_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function forceVmOff(vm) {
-    return virt('FORCEOFF_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(FORCEOFF_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function rebootVm(vm) {
-    return virt('REBOOT_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(REBOOT_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function forceRebootVm(vm) {
-    return virt('FORCEREBOOT_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(FORCEREBOOT_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function startVm(vm) {
-    return virt('START_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(START_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function deleteVm(vm, options) {
-    return virt('DELETE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+    return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
 }
 
 export function installVm(vm) {
-    return virt('INSTALL_VM', vm);
+    return virt(INSTALL_VM, vm);
 }
 
 export function createVm(vmParams) {
-    return virt('CREATE_VM', vmParams);
+    return virt(CREATE_VM, vmParams);
 }
 
 export function vmDesktopConsole(vm, consoleDetail) {
-    return virt('CONSOLE_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
+    return virt(CONSOLE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, consoleDetail });
 }
 
 export function usageStartPolling(vm) {
-    return virt('USAGE_START_POLLING', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(USAGE_START_POLLING, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function usageStopPolling(vm) {
-    return virt('USAGE_STOP_POLLING', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(USAGE_STOP_POLLING, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function sendNMI(vm) {
-    return virt('SENDNMI_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+    return virt(SENDNMI_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function changeNetworkState(vm, networkMac, state) {
-    return virt('CHANGE_NETWORK_STATE', { name: vm.name, id: vm.id, networkMac, state, connectionName: vm.connectionName });
+    return virt(CHANGE_NETWORK_STATE, { name: vm.name, id: vm.id, networkMac, state, connectionName: vm.connectionName });
 }
 
 export function checkLibvirtStatus(serviceName) {
-    return virt('CHECK_LIBVIRT_STATUS', { serviceName });
+    return virt(CHECK_LIBVIRT_STATUS, { serviceName });
 }
 
 export function startLibvirt(serviceName) {
-    return virt('START_LIBVIRT', { serviceName });
+    return virt(START_LIBVIRT, { serviceName });
 }
 
 export function enableLibvirt(enable, serviceName) {
-    return virt('ENABLE_LIBVIRT', { enable, serviceName });
+    return virt(ENABLE_LIBVIRT, { enable, serviceName });
 }
 
 export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
-    return virt('SET_VCPU_SETTINGS', {
+    return virt(SET_VCPU_SETTINGS, {
         id: vm.id,
         name: vm.name,
         connectionName: vm.connectionName,
@@ -138,15 +186,15 @@ export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
 }
 
 export function getHypervisorMaxVCPU(connectionName) {
-    return virt('GET_HYPERVISOR_MAX_VCPU', {connectionName});
+    return virt(GET_HYPERVISOR_MAX_VCPU, {connectionName});
 }
 
 export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, vmName }) {
-    return virt('CREATE_AND_ATTACH_VOLUME', { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, vmName });
+    return virt(CREATE_AND_ATTACH_VOLUME, { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, vmName });
 }
 
 export function attachDisk({ connectionName, diskFileName, target, permanent, hotplug, vmName }) {
-    return virt('ATTACH_DISK', { connectionName, diskFileName, target, permanent, hotplug, vmName });
+    return virt(ATTACH_DISK, { connectionName, diskFileName, target, permanent, hotplug, vmName });
 }
 
 /**
@@ -183,35 +231,35 @@ export function delayPolling(action, timeout) {
 // --- Store actions --------------------------------------------
 export function setProvider(provider) {
     return {
-        type: 'SET_PROVIDER',
+        type: SET_PROVIDER,
         provider,
     };
 }
 
 export function setRefreshInterval(refreshInterval) {
     return {
-        type: 'SET_REFRESH_INTERVAL',
+        type: SET_REFRESH_INTERVAL,
         refreshInterval,
     };
 }
 
 export function updateOrAddVm(props) {
     return {
-        type: 'UPDATE_ADD_VM',
+        type: UPDATE_ADD_VM,
         vm: props,
     };
 }
 
 export function updateVm(props) {
     return {
-        type: 'UPDATE_VM',
+        type: UPDATE_VM,
         vm: props,
     };
 }
 
 export function updateStoragePools({ connectionName, pools }) {
     return {
-        type: 'UPDATE_STORAGE_POOLS',
+        type: UPDATE_STORAGE_POOLS,
         payload: {
             connectionName,
             pools,
@@ -221,7 +269,7 @@ export function updateStoragePools({ connectionName, pools }) {
 
 export function updateStorageVolumes({ connectionName, poolName, volumes }) {
     return {
-        type: 'UPDATE_STORAGE_VOLUMES',
+        type: UPDATE_STORAGE_VOLUMES,
         payload: {
             connectionName,
             poolName,
@@ -232,28 +280,28 @@ export function updateStorageVolumes({ connectionName, poolName, volumes }) {
 
 export function updateOsInfoList(osInfoList) {
     return {
-        type: 'UPDATE_OS_INFO_LIST',
+        type: UPDATE_OS_INFO_LIST,
         osInfoList,
     };
 }
 
 export function addUiVm(vm) {
     return {
-        type: 'ADD_UI_VM',
+        type: ADD_UI_VM,
         vm,
     };
 }
 
 export function updateUiVm(vm) {
     return {
-        type: 'UPDATE_UI_VM',
+        type: UPDATE_UI_VM,
         vm,
     };
 }
 
 export function deleteUiVm(vm) {
     return {
-        type: 'DELETE_UI_VM',
+        type: DELETE_UI_VM,
         vm,
     };
 }
@@ -265,21 +313,21 @@ export function addErrorNotification(notification) {
     notification.type = 'error';
 
     return {
-        type: 'ADD_NOTIFICATION',
+        type: ADD_NOTIFICATION,
         notification,
     };
 }
 
 export function addNotification(notification) {
     return {
-        type: 'ADD_NOTIFICATION',
+        type: ADD_NOTIFICATION,
         notification,
     };
 }
 
 export function clearNotification(id) {
     return {
-        type: 'CLEAR_NOTIFICATION',
+        type: CLEAR_NOTIFICATION,
         id,
 
     };
@@ -287,20 +335,20 @@ export function clearNotification(id) {
 
 export function clearNotifications() {
     return {
-        type: 'CLEAR_NOTIFICATIONS',
+        type: CLEAR_NOTIFICATIONS,
     };
 }
 
 export function updateLibvirtState(state) {
     return {
-        type: 'UPDATE_LIBVIRT_STATE',
+        type: UPDATE_LIBVIRT_STATE,
         state,
     };
 }
 
 export function setHypervisorMaxVCPU({ count, connectionName }) {
     return {
-        type: 'SET_HYPERVISOR_MAX_VCPU',
+        type: SET_HYPERVISOR_MAX_VCPU,
         payload: {
             count,
             connectionName,
@@ -310,7 +358,7 @@ export function setHypervisorMaxVCPU({ count, connectionName }) {
 
 export function vmActionFailed({ name, connectionName, message, detail, extraPayload }) {
     return {
-        type: 'VM_ACTION_FAILED',
+        type: VM_ACTION_FAILED,
         payload: {
             name,
             connectionName,
@@ -328,7 +376,7 @@ export function deleteVmMessage({ name, connectionName }) {
 
 export function undefineVm(connectionName, name, transientOnly) {
     return {
-        type: 'UNDEFINE_VM',
+        type: UNDEFINE_VM,
         name,
         connectionName,
         transientOnly,
@@ -337,7 +385,7 @@ export function undefineVm(connectionName, name, transientOnly) {
 
 export function deleteUnlistedVMs(connectionName, vmNames) {
     return {
-        type: 'DELETE_UNLISTED_VMS',
+        type: DELETE_UNLISTED_VMS,
         vmNames,
         connectionName,
     };

@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import moment from 'moment';
 import '../lib/polyfills.js'; // once per application
 import React from "react";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
@@ -53,7 +54,7 @@ const SystemInfo = ({ info }) => (
             </tr>
             <tr>
                 <th>{ _("BIOS date") }</th>
-                <td>{ info.bios_date }</td>
+                <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
             </tr>
             <tr>
                 <th>{ _("CPU") }</th>
@@ -103,6 +104,7 @@ class HardwareInfo extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
+    moment.locale(cockpit.language)
     detect().then(info => {
         console.debug("hardware info collection data:", JSON.stringify(info));
         React.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));

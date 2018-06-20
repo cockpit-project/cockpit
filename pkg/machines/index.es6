@@ -21,7 +21,7 @@ import '../lib/polyfills.js'; // once per application
 import React from 'react';
 import store from './store.es6';
 import App from './app.jsx';
-import { initDataRetrieval } from './actions.es6';
+import { initDataRetrieval } from './actions/provider-actions.es6';
 import { logDebug } from './helpers.es6';
 
 import Libvirt from './libvirt.es6';

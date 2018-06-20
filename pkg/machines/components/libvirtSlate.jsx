@@ -22,7 +22,7 @@ import { mouseClick } from "../helpers.es6";
 import {
     startLibvirt,
     enableLibvirt,
-} from "../actions.es6";
+} from "../actions/provider-actions.es6";
 
 import './libvirtSlate.css';
 

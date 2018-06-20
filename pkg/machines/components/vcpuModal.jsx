@@ -5,7 +5,7 @@ import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 import SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
 import { Alert } from './notification/inlineNotification.jsx';
-import { setVCPUSettings } from "../actions.es6";
+import { setVCPUSettings } from "../actions/provider-actions.es6";
 
 const _ = cockpit.gettext;
 

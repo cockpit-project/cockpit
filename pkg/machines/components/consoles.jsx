@@ -25,7 +25,7 @@ import Vnc, { VncActions } from './vnc.jsx';
 import DesktopConsole from './desktopConsole.jsx';
 
 import { logDebug } from '../helpers.es6';
-import { vmDesktopConsole } from '../actions.es6';
+import { vmDesktopConsole } from '../actions/provider-actions.es6';
 
 import './consoles.css';
 

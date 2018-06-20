@@ -108,7 +108,7 @@
 
     function brand(_id, def) {
         var style, elt = id(_id);
-        if (elt)
+        if (elt && window.getComputedStyle)
             style = window.getComputedStyle(elt, ":before");
 
         if (!style)
@@ -232,15 +232,15 @@
             brand("brand", "Cockpit");
         }
 
+        if (!requisites())
+            return;
+
         id("option-group").addEventListener("click", toggle_options);
         id("server-clear").addEventListener("click", function () {
             var el = id("server-field");
             el.value = "";
             el.focus();
         });
-
-        if (!requisites())
-            return;
 
         /* Setup the user's last choice about the authorized button */
         var authorized = localStorage.getItem('authorized-default') || "";
@@ -509,8 +509,8 @@
 
         var ei = id("conversation-input");
         ei.value = "";
-        if (prompt_data.default)
-            ei.value = prompt_data.default;
+        if (prompt_data["default"])
+            ei.value = prompt_data["default"];
         ei.setAttribute('type', type);
         ei.focus();
 

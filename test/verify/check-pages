@@ -157,6 +157,13 @@ OnCalendar=daily
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
+        # BIOS date parsing using moment
+        if m.image != 'rhel-7-5':
+            b.go("/system/hwinfo")
+            b.enter_page("/system/hwinfo")
+            b.wait_present("#hwinfo .info-table-ct")
+            b.wait_in_text("#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td", ".20")
+
         # Check the playground page
         b.switch_to_top()
         b.go("/playground/translate")

@@ -103,6 +103,9 @@ if [ -n "$do_install" ]; then
         firewall-cmd --add-service=cockpit --permanent
     fi
 
+    # Make sure we clean out the journal
+    journalctl --flush
+    journalctl --sync || killall systemd-journald
     rm -rf /var/log/journal/*
     rm -rf /var/lib/NetworkManager/dhclient-*.lease
 fi

@@ -33,7 +33,7 @@ const DetailPage = ({children}) => {
             {children}
         </div>
     );
-}
+};
 
 const DetailPageRow = ({title, idPrefix, children}) => {
     // TODO use React.Fragment instead and remove 'className="detail-row"' once React 16 is merged
@@ -45,12 +45,12 @@ const DetailPageRow = ({title, idPrefix, children}) => {
             </div>
         </div>
     );
-}
+};
 
 DetailPageRow.propTypes = {
     title: React.PropTypes.string,
     idPrefix: React.PropTypes.string, // row will have no elements with id if not specified
-}
+};
 
 const DetailPageHeader = ({title, iconClass, navigateUpTitle, onNavigateUp, actions, idPrefix}) => {
     const icon = iconClass ? (<i className={iconClass} />) : null;
@@ -72,7 +72,7 @@ const DetailPageHeader = ({title, iconClass, navigateUpTitle, onNavigateUp, acti
             {navigateUp}
         </div>
     );
-}
+};
 
 DetailPageHeader.propTypes = {
     title: React.PropTypes.string,
@@ -81,10 +81,10 @@ DetailPageHeader.propTypes = {
     onNavigateUp: React.PropTypes.func,
     actions: React.PropTypes.object,
     idPrefix: React.PropTypes.string, // header will have no elements with id if not specified
-}
+};
 
 module.exports = {
     DetailPage,
     DetailPageHeader,
     DetailPageRow,
-}
+};

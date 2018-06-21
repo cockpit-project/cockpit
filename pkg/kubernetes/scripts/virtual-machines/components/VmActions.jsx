@@ -30,17 +30,18 @@ import { vmActionFailed } from '../action-creators.jsx';
 
 // import DropdownButtons from '../../../../machines/components/dropdownButtons.jsx';
 
-const VmActions = ({ vm, onFailure }: { vm: Vm, onFailure: Function }) => {
+const VmActions = ({ vm, onDeleteSuccess, onDeleteFailure }: { vm: Vm, onDeleteSuccess: Function, onDeleteFailure: Function }) => {
     const id = vmIdPrefx(vm);
 
     const onDelete = () => {
-        vmDelete({ vm }).catch((error) => {
-            console.info('VmActions: delete failed: ', error);
-            onFailure({
-                message: _("VM DELETE failed."),
-                detail: error,
-            });
-        });
+        vmDelete({ vm }).then(onDeleteSuccess)
+                .catch((error) => {
+                    console.info('VmActions: delete failed: ', error);
+                    onDeleteFailure({
+                        message: _("VM DELETE failed."),
+                        detail: error,
+                    });
+                });
     };
 
     const buttonDelete = (
@@ -56,12 +57,13 @@ const VmActions = ({ vm, onFailure }: { vm: Vm, onFailure: Function }) => {
 
 VmActions.propTypes = {
     vm: PropTypes.object.isRequired,
-    onFailure: PropTypes.func.isRequired,
+    onDeleteSuccess: PropTypes.func.isRequired,
+    onDeleteFailure: PropTypes.func.isRequired,
 };
 
 export default connect(
     () => ({}),
     (dispatch, { vm }) => ({
-        onFailure: ({ message, detail }) => dispatch(vmActionFailed({ vm, message, detail })),
+        onDeleteFailure: ({ message, detail }) => dispatch(vmActionFailed({ vm, message, detail })),
     }),
 )(VmActions);

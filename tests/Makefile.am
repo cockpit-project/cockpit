@@ -37,6 +37,6 @@ EXTRA_DIST = \
 
 TESTS = $(test_programs)
 
-TESTS_ENVIRONMENT = \
-	abs_top_builddir=$(abs_top_builddir) \
-	VIRT_DBUS_INTERFACES_DIR=$(abs_top_srcdir)/data
+AM_TESTS_ENVIRONMENT = \
+	export abs_top_builddir="$(abs_top_builddir)"; \
+	export VIRT_DBUS_INTERFACES_DIR="$(abs_top_srcdir)/data";

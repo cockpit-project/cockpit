@@ -14,9 +14,6 @@
 #   ./run gdb --args ./src/libvirt-dbus [args ...]
 #
 
-# Find this script
-b=@abs_top_builddir@
-
-export VIRT_DBUS_INTERFACES_DIR="$b/data"
+export VIRT_DBUS_INTERFACES_DIR="@abs_top_srcdir@/data"
 
 exec "$@"

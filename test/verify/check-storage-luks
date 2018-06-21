@@ -184,12 +184,16 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Lock")
         b.wait_not_in_text("#detail-content", "ext4 File System")
 
+        self.content_tab_wait_in_info(1, 1, "Options", "(none)")
+        tab = self.content_tab_expand(1, 1)
+        panel = tab + " .panel:contains(Network keyservers) "
+        b.wait_present(panel)
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "No network keyservers added")
+
         # Add a key
         #
-        self.content_tab_wait_in_info(1, 1, "Network keys", "")
-        self.content_tab_action(1, 1, "Add")
+        b.click(panel + ".fa-plus")
         self.dialog_wait_open()
-        self.dialog_set_val("method", "tang")
         self.dialog_set_val("tang_url", "127.0.0.1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
@@ -198,7 +202,7 @@ class TestStorage(StorageCase):
 
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "127.0.0.1")
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "127.0.0.1")
 
         if can_unlock:
             # Unlock it.  This should succeed without prompting.
@@ -206,155 +210,26 @@ class TestStorage(StorageCase):
             self.content_head_action(1, "Unlock")
             self.content_row_wait_in_col(2, 1, "ext4 File System")
 
-        # Rotate the encryption key on the server, and rebind
-
-        m.execute("mv /var/db/tang/enc1.jwk /var/db/tang/.enc1.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc2.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is obsolete.")
-        b.wait_in_text("#dialog", "A new key has been securely retrieved from the server.")
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        # Remove obsolete key, disk should still unlock
-
-        m.execute("rm /var/db/tang/.enc1.jwk")
-        m.execute("systemctl restart tangd-update")
-        if can_unlock:
-            self.content_head_action(1, "Lock")
-            b.wait_not_in_text("#detail-content", "ext4 File System")
-            self.content_head_action(1, "Unlock")
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Rotate both the encryption key and the signing key on the server, and rebind
-
-        m.execute("mv /var/db/tang/enc2.jwk /var/db/tang/.enc2.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ECMR\"}' >/var/db/tang/enc3.jwk")
-        m.execute("mv /var/db/tang/sig1.jwk /var/db/tang/.sig1.jwk")
-        m.execute("jose jwk gen -i '{\"alg\":\"ES512\"}' >/var/db/tang/sig2.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is obsolete.")
-        b.wait_in_text("#dialog", "The output should match this text")
-        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig2.jwk").strip())
-        self.dialog_apply()
-        self.dialog_wait_close()
-
-        # Remove the key on the server
-
-        m.execute("rm /var/db/tang/enc3.jwk")
-        m.execute("systemctl reset-failed tangd-update; systemctl restart tangd-update")
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key is not recognized anymore by the server.")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-
-        # Remove key on client
-
-        b.wait_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
-        self.content_tab_action(1, 1, "Remove")
-        self.confirm()
-        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
-
-    def testClevisHttp(self):
-        m = self.machine
-        b = self.browser
-
-        if m.execute("which clevis || true") == "":
-            self.skipTest("No clevis/tang here")
-
-        # HACK - clevis in rhel devel is too old
-        can_unlock = m.image not in [ "rhel-x" ]
-
-        # Start our escrow server
-        m.upload([ "verify/files/mock-escrow-server" ], "/usr/local/bin/")
-        escrow_pid = m.spawn("/usr/local/bin/mock-escrow-server /tmp/SECRET 88", "mock-escrow-server.log")
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with luks
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('tr:contains("MYDISK")')
-        b.wait_visible("#storage-detail")
-
-        self.content_tab_action(1, 1, "Format")
-        self.dialog({ "type": "luks+ext4",
-                      "name": "ENCRYPTED",
-                      "passphrase": "vainu-reku-toma-rolle-kaja",
-                      "passphrase2": "vainu-reku-toma-rolle-kaja" })
-        self.content_row_wait_in_col(1, 1, "Encrypted data")
-        self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Set the flag and reload the page to make the Clevis stuff appear
+        # Edit the key.
         #
-        b.eval_js('window.localStorage["clevis-feature"] = "on"')
-        b.reload()
-        b.enter_page("/storage")
-
-        # Lock the disk
-        #
-        self.content_head_action(1, "Lock")
-        b.wait_not_in_text("#detail-content", "ext4 File System")
-
-        # Add a key
-        #
-        self.content_tab_wait_in_info(1, 1, "Network keys", "")
-        self.content_tab_action(1, 1, "Add")
+        b.click(panel + ".table tr:nth-child(1) .pficon-edit")
         self.dialog_wait_open()
-        self.dialog_set_val("method", "http")
-        self.dialog_set_val("http_url", "http://127.0.0.1:88")
-        self.dialog_set_val("allow_plain_http", True)
-        self.dialog_set_val("http_method", "PUT")
-        self.dialog_set_val("key_type", "octet-stream")
+        self.dialog_wait_val("tang_url", "127.0.0.1")
+        self.dialog_set_val("tang_url", "http://127.0.0.1/")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
-        self.dialog_wait_close()
-        self.content_tab_wait_in_info(1, 1, "Network keys", "http://127.0.0.1:88")
+        b.wait_in_text("#dialog", "The output should match this text")
+        b.wait_in_text("#dialog", m.execute("jose jwk thp -i /var/db/tang/sig1.jwk").strip())
 
-        # Unlock it.  This should succeed without prompting.
-        #
-        if can_unlock:
-            self.content_head_action(1, "Unlock")
-            self.content_row_wait_in_col(2, 1, "ext4 File System")
-
-        # Check the key, should be working right now
-        #
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "This network key works fine right now")
-        self.dialog_cancel()
+        self.dialog_apply()
         self.dialog_wait_close()
-
-        # Break the key in the server and check again
-        #
-        m.execute("echo foo >/tmp/SECRET")
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "The server has returned a key that doesn't work.")
-        self.dialog_cancel()
-        self.dialog_wait_close()
-
-        # Kill the server and check
-        #
-        m.execute("kill %s" % escrow_pid)
-        self.content_tab_action(1, 1, "Check")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Retrieving the key from http://127.0.0.1:88 has failed: Connection refused.")
-        self.dialog_cancel()
-        self.dialog_wait_close()
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "http://127.0.0.1/")
 
         # Remove key on client
-        #
-        self.content_tab_action(1, 1, "Remove")
+
+        b.click(panel + ".table tr:nth-child(1) .fa-minus")
         self.confirm()
-        b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "http://127.0.0.1:88")
+        b.wait_in_text(panel + ".table tr:nth-child(1)", "No network keyservers added")
 
 if __name__ == '__main__':
     test_main()

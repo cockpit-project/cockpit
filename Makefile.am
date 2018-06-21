@@ -175,12 +175,10 @@ WEBPACK_PACKAGES = \
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/Makefile.deps=%)";
+V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/stamp=%)";
 
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(builddir) \
 	       $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
-
-WEBPACK_RULE = $(V_WEBPACK) $(WEBPACK_MAKE)
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
@@ -188,18 +186,32 @@ WEBPACK_PO =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL = $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=dist/%/Makefile.deps)
+WEBPACK_STAMPS = $(WEBPACK_PACKAGES:%=dist/%/stamp)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
-noinst_SCRIPTS += $(WEBPACK_DEPS) $(WEBPACK_INSTALL)
-CLEANFILES += $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
-EXTRA_DIST += $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
+noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
+CLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
+EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 
-# Run webpack if we don't have the include file or if its out of date
-# If we have distributed a copy in a tarball, copy that into place
-dist/%/Makefile.deps: $(WEBPACK_CONFIG)
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && if test $(srcdir)/dist/$*/Makefile.deps -nt $(WEBPACK_CONFIG); \
-	then cp -p $(srcdir)/dist/$*/Makefile.deps $@.tmp && $(MV) $@.tmp $@; \
-	else $(WEBPACK_MAKE) -d $@ $<; fi
+PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
+PRINT_COPY_MSG_ = $(PRINT_COPY_MSG_$(AM_DEFAULT_VERBOSITY))
+
+# Copy an original copy of each Makefile.deps from the srcdir, in case
+# of an out-of-tree build from a tarball.  This is needed because the
+# 'include' below won't find the file in srcdir.
+# This rule needs to have a successful exit, or make will become unhappy.
+dist/%/Makefile.deps:
+	$(AM_V_at)test "$(srcdir)" == "$(builddir)" -o ! $(srcdir)/$@ -nt $@ || ( \
+	  $(PRINT_COPY_MSG_$(V))$(MKDIR_P) $(dir $@) && \
+	  cp -p $(srcdir)/$@ $@.tmp && \
+	  mv $@.tmp $@)
+
+# This is the primary rule for running webpack
+dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
+	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
+	  $(WEBPACK_MAKE) -d dist/$*/Makefile.deps $(WEBPACK_CONFIG) && \
+	  touch $@
+
 dist/%/manifest.json: pkg/%/manifest.json
 	$(COPY_RULE)
 

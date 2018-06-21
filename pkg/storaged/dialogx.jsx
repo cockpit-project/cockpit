@@ -187,7 +187,7 @@ const Body = ({body, fields, values, errors, onChange}) => {
                         { fields.map(f => {
                             if (is_visible(f, values))
                                 return (
-                                    <Row key={f.title} tag={f.tag} title={f.title} errors={errors}>
+                                    <Row key={f.tag} tag={f.tag} title={f.title} errors={errors}>
                                         { f.render(values[f.tag], val => { values[f.tag] = val; onChange() }) }
                                     </Row>
                                 );

@@ -170,9 +170,10 @@ def prioritize(status, title, labels, priority, context):
         update = None
 
     if priority > 0:
-        if "priority" in labels():
+        values = list(labels())
+        if "priority" in values:
             priority += 2
-        if "blocked" in labels():
+        if "blocked" in values:
             priority -= 1
 
         # Pull requests where the title starts with WIP get penalized
@@ -239,11 +240,8 @@ def cockpit_tasks (api, update, policy):
 
         def labels():
             if "labels" not in pull:
-                result = [ ]
-                for label in api.get("issues/{0}/labels".format(number)):
-                    result.append(label["name"])
-                pull["labels"] = result
-            return pull["labels"]
+                pull["labels"] = api.get("issues/{0}/labels".format(number))
+            return map(lambda label: label["name"], pull["labels"])
 
         # Do we have any statuses for this commit?
         have = len(statuses.keys()) > 0

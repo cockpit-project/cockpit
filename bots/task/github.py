@@ -188,7 +188,7 @@ class GitHub(object):
             return json.loads(cached['data'] or "null")
         elif response['status'] < 200 or response['status'] >= 300:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise Exception("GitHub API problem: {0}".format(response['reason'] or response['status']))
+            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or response['status']))
         else:
             self.cache.write(qualified, response)
             return json.loads(response['data'] or "null")
@@ -198,7 +198,7 @@ class GitHub(object):
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
+            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
         self.cache.mark()
         return json.loads(response['data'])
 
@@ -207,7 +207,7 @@ class GitHub(object):
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
             sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise Exception("GitHub API problem: {0}".format(response['reason'] or status))
+            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
         self.cache.mark()
         return json.loads(response['data'])
 

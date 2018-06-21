@@ -88,6 +88,7 @@ function generateDeps(makefile, stats) {
     var debugs = { };
 
     var pkgdir = path.dirname(makefile);
+    var stampfile = pkgdir + '/stamp';
 
     stats.compilation.modules.forEach(function(module) {
         var parts = module.identifier().split("!");
@@ -193,12 +194,11 @@ function generateDeps(makefile, stats) {
     lines.push("\t$(MSGGREP) " + filters.join(" ") + " $< > $@.tmp && mv $@.tmp $@");
     lines.push("");
 
-    lines.push(makefile + ": $(WEBPACK_CONFIG) $(" + prefix + "_INPUTS)");
-    lines.push("\t$(WEBPACK_RULE) -d " + makefile + " $(WEBPACK_CONFIG)");
+    lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
     lines.push("");
 
     outputs.forEach(function(name) {
-        lines.push(name + ": " + makefile);
+        lines.push(name + ": " + stampfile);
         lines.push("")
     });
 
@@ -215,14 +215,10 @@ function generateDeps(makefile, stats) {
     lines.push("TESTS += $(" + prefix + "_TESTS)");
     lines.push("");
 
-    lines.push(prefix + ": " + makefile + " $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL)");
-    lines.push("\t@true");
+    lines.push(prefix + ": " + stampfile);
     lines.push("clean-" + prefix + ": ");
-    lines.push("\trm -rf $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL) " + makefile);
-    lines.push("all-local:: " + prefix);
-    lines.push("\t@true");
+    lines.push("\trm -rf $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL) " + stampfile);
     lines.push("clean-local:: clean-" + prefix);
-    lines.push("\t@true");
 
     data = lines.join("\n") + "\n";
     fs.writeFileSync(makefile, data);

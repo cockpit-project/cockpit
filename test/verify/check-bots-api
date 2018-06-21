@@ -85,7 +85,10 @@ class TestImageCustomize(unittest.TestCase):
         self.checkBoot(img)
 
     def testUpload(self):
-        img = os.environ["TEST_OS"]
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
             subprocess.check_call(["bots/image-customize", "--verbose",
                                    "--upload", "/etc/passwd:/tmp/passwd",
@@ -95,7 +98,10 @@ class TestImageCustomize(unittest.TestCase):
         self.checkBoot(img)
 
     def testFailurePropagation(self):
-        img = os.environ["TEST_OS"]
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
             subprocess.check_call(["bots/image-customize", "--verbose",
                                    "--run-command", "true", img])

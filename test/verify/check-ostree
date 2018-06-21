@@ -365,7 +365,7 @@ class OstreeRestartCase(MachineCase):
         # Add a new branch to the default repo
         m.execute(["ostree", "commit", "--repo={}".format(REPO_LOCATION),
                    "-b", "znew-branch", "--tree=ref={}".format(branch),
-                   "--add-metadata-string", "version=branch-version"])
+                   "--add-metadata-string", "version=branch-version"], timeout=600)
         m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
         rhsmcertd_hack(m)
@@ -537,16 +537,16 @@ class OstreeCase(MachineCase):
         m.execute(["ostree", "init", "--repo", zrepo, "--mode", "archive-z2"])
         m.execute(["ostree", "commit", "--repo={}".format(zrepo),
                    "-b", "zremote-branch1", "--orphan", "--tree=dir=/tmp/rpm-data",
-                   "--add-metadata-string", "version=zremote-branch1.1"])
+                   "--add-metadata-string", "version=zremote-branch1.1"], timeout=600)
         m.execute(["ostree", "commit", "--repo={}".format(zrepo),
                    "-b", "zremote-branch2", "--orphan", "--tree=dir=/tmp/rpm-data",
-                   "--add-metadata-string", "version=zremote-branch2.1"])
+                   "--add-metadata-string", "version=zremote-branch2.1"], timeout=600)
         start_trivial_httpd(m, remote="zremote-test1", location=zrepo)
 
         # Add a new branch to the default repo
         m.execute(["ostree", "commit", "--repo={}".format(REPO_LOCATION),
                    "-b", branch, "--tree=ref={}".format(branch),
-                   "--add-metadata-string", "version=bad-version"])
+                   "--add-metadata-string", "version=bad-version"], timeout=600)
         m.execute(["ostree", "summary", "--repo={}".format(REPO_LOCATION), "-u"])
 
         # Edit

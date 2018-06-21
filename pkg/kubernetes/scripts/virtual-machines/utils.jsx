@@ -31,6 +31,10 @@ export function getPairs(object) {
     }));
 }
 
+export function prefixedId(idPrefix, id) {
+    return idPrefix ? `${idPrefix}-${id}` : null;
+}
+
 export function vmIdPrefx(vm) {
     return `vm-${vm.metadata.name}`;
 }

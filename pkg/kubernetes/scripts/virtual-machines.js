@@ -25,9 +25,11 @@
     require('angular-dialog.js');
     require('./kube-client');
     require('./listing');
-    var vmsReact = require('./virtual-machines/index.jsx');
+    var vmsReact = require('./virtual-machines/entry-points/virtual-machines.jsx');
+    var vmReact = require('./virtual-machines/entry-points/virtual-machine.jsx');
 
     require('../views/virtual-machines-page.html');
+    require('../views/virtual-machine-page.html');
 
     angular.module('kubernetes.virtualMachines', [
         'ngRoute',
@@ -45,6 +47,13 @@
                 .when('/vms', {
                     templateUrl: 'views/virtual-machines-page.html',
                     controller: 'VirtualMachinesCtrl'
+                })
+                .when('/vms/:namespace/:name', {
+                  templateUrl: 'views/virtual-machine-page.html',
+                  controller: 'VirtualMachineCtrl'
+                })
+                .when('/vms/:namespace', {
+                    redirectTo: '/vms'
                 });
             /*
             Links rewriting is enabled by default. It does two things:
@@ -75,6 +84,18 @@
         'KubeRequest',
         function($scope, loader, select, methods, request) {
             vmsReact.init($scope, loader, select, methods, request);
+        }]
+    )
+
+    .controller('VirtualMachineCtrl', [
+        '$scope',
+        '$routeParams',
+        'kubeLoader',
+        'kubeSelect',
+        'kubeMethods',
+        'KubeRequest',
+        function($scope, $routeParams, loader, select, methods, request) {
+            vmReact.init($scope, $routeParams, loader, select, methods, request);
         }]
     );
 

@@ -17,11 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { createStore, applyMiddleware, compose } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import reducer from './reducers.es6';
-import { thunk } from './middlewares.es6';
+import thunkMiddleware from 'redux-thunk'
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(reducer, /* preloadedState, */ composeEnhancers(applyMiddleware(thunk)));
+const store = createStore(
+    reducer,
+    applyMiddleware(
+        thunkMiddleware, // lets us dispatch() functions
+    )
+);
 
 export default store;

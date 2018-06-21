@@ -32,6 +32,8 @@ var Listing = require('cockpit-components-listing.jsx');
 var Select = require('cockpit-components-select.jsx');
 var moment = require('moment');
 
+moment.locale(cockpit.language);
+
 var Dropdown = React.createClass({
     getDefaultProps: function () {
         return {
@@ -119,7 +121,8 @@ var ContainerDetails = React.createClass({
             <div className='listing-ct-body'>
                 <dl>
                     <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
-                    <dt>{_("Created")} </dt> <dd>{ container.Created }</dd>
+                    <dt>{_("Created")} </dt>
+                    <dd>{ moment(container.Created).isValid() ? moment(container.Created).calendar() : container.Created }</dd>
                     <dt>{_("Image")}   </dt> <dd>{ container.Image }</dd>
                     <dt>{_("Command")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
                     <dt>{_("State")}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
@@ -389,7 +392,7 @@ var ImageDetails = React.createClass({
                     <dt>{_("Tags")}</dt>       <dd>{ image.RepoTags.join(" ") }</dd>
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
                     <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
-                    <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.fromNow() }</dd>
+                    <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.calendar() }</dd>
                     <dt>{_("Author")}</dt>     <dd>{ image.Author}</dd>
                     <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ') }</dd>
                 </dl>
@@ -607,7 +610,7 @@ var ImageList = React.createClass({
         var columns = [
             { name: image.RepoTags[0], header: true },
             vulnerabilityColumn,
-            moment.unix(image.Created).fromNow(),
+            moment.unix(image.Created).calendar(),
             cockpit.format_bytes(image.VirtualSize),
             {
                 element: element,

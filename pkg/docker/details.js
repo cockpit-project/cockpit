@@ -22,6 +22,8 @@
 
     var $ = require("jquery");
     var cockpit = require("cockpit");
+    var moment = require("moment");
+    moment.locale(cockpit.language);
 
     require("patterns");
 
@@ -200,7 +202,8 @@
 
             $('#container-details-id').text(info.Id);
             $('#container-details-names').text(util.render_container_name(info.Name));
-            $('#container-details-created').text(info.Created);
+            $('#container-details-created').text(moment(info.Created).isValid() ?
+                                                 moment(info.Created).calendar() : info.Created);
 
             $('#container-details-image').text(info.Image);
             $('#container-details-image-id').text(info.ImageID);

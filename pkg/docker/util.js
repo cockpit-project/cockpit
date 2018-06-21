@@ -29,6 +29,8 @@
     var docker = require("./docker");
     var bar = require("./bar");
     var journal = require("journal");
+    var moment = require("moment");
+    moment.locale(cockpit.language);
 
     var _ = cockpit.gettext;
 
@@ -90,10 +92,12 @@
     };
 
     util.render_container_state = function render_container_state (state) {
-        if (state.Running)
-            return cockpit.format(_("Up since $StartedAt"), state);
-        else
-            return cockpit.format(_("Exited $ExitCode"), state);
+        if (state.Running) {
+            var momentDate = moment(state.StartedAt);
+            return cockpit.format(_("Up since $0"), momentDate.isValid() ?
+                                  momentDate.calendar() : state.startedAt);
+        }
+        return cockpit.format(_("Exited $ExitCode"), state);
     };
 
     util.render_container_restart_policy = function render_restart_policy(policy) {

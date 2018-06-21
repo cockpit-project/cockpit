@@ -69,7 +69,7 @@ def main():
         if number and api and api.available:
             try:
                 post_github(api, number, output, image)
-            except socket.error:
+            except (socket.error, RuntimeError):
                 traceback.print_exc()
                 sys.stderr.write("{0}: posting update to GitHub failed\n".format(script))
                 # Fall through

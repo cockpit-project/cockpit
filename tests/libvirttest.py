@@ -10,7 +10,7 @@ import time
 import xmldata
 
 
-root = os.environ.get('abs_top_builddir', os.path.dirname(os.path.dirname(__file__)))
+root = os.environ.get('abs_top_builddir')
 exe = os.path.join(root, 'src', 'libvirt-dbus')
 
 DBusGMainLoop(set_as_default=True)

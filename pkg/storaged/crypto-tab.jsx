@@ -33,6 +33,7 @@ var StorageLink = StorageControls.StorageLink;
 var FormatButton = FormatDialog.FormatButton;
 
 var ClevisDialogs = require("./clevis-dialogs.jsx");
+var ClevisSlots = ClevisDialogs.ClevisSlots;
 
 var _ = cockpit.gettext;
 
@@ -123,35 +124,6 @@ var CryptoTab = React.createClass({
             });
         }
 
-        function render_clevis_keys(keys) {
-            return (
-                <table className="network-keys-table">
-                    <tbody>
-                        {
-                            keys.map(function (key) {
-                                return (
-                                    <tr key={key.slot}>
-                                        <td>{key.type} {key.url}</td>
-                                        <td>
-                                            <StorageButton onClick={() => ClevisDialogs.remove(client, block, key)}>
-                                                Remove
-                                            </StorageButton>
-                                            <StorageButton onClick={() => ClevisDialogs.check(client, block, key)}>
-                                                Check
-                                            </StorageButton>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        }
-                        <tr>
-                            <td><StorageButton onClick={() => ClevisDialogs.add(client, block)}>Add</StorageButton></td>
-                        </tr>
-                    </tbody>
-                </table>
-            );
-        }
-
         // See format-dialog.jsx above for why we don't offer editing
         // crypttab for the old UDisks2
 
@@ -174,14 +146,10 @@ var CryptoTab = React.createClass({
                                 <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
                             </tr> : null
                         }
-                        { self.props.client.features.clevis
-                            ? <tr>
-                                <td>{_("Network keys")}</td>
-                                <td>{ render_clevis_keys(client.clevis_overlay.find_by_block(block) || [ ]) }</td>
-                            </tr> : null
-                        }
                     </tbody>
                 </table>
+                <br />
+                <ClevisSlots client={client} block={block} />
             </div>
         );
     },

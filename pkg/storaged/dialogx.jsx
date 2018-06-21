@@ -265,7 +265,7 @@ export const TextInput = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: "",
+        initial_value: options.value || "",
 
         render: (val, change) =>
             <input data-field={tag}
@@ -279,7 +279,7 @@ export const PassInput = (tag, title, options) => {
         tag: tag,
         title: title,
         options: options,
-        initial_value: "",
+        initial_value: options.value || "",
 
         render: (val, change) =>
             <input data-field={tag}
@@ -312,7 +312,7 @@ export const CheckBox = (tag, title, options) => {
         tag: tag,
         title: "", // sic
         options: options,
-        initial_value: false,
+        initial_value: (options.value !== undefined) ? options.value : false,
 
         render: (val, change) => {
             return (

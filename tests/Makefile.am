@@ -1,4 +1,5 @@
 test_helpers = \
+	xmldata.py \
 	libvirttest.py \
 	conftest.py
 

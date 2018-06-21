@@ -75,7 +75,11 @@ def prepare_install_image(base_image, install_image):
 def run_command(machine_instance, commandlist):
     """Run command inside image"""
     for foo in commandlist:
-        machine_instance.execute(foo, timeout=1800)
+        try:
+            machine_instance.execute(foo, timeout=1800)
+        except subprocess.CalledProcessError as e:
+            sys.stderr.write("%s\n" % e)
+            sys.exit(e.returncode)
 
 def run_script(machine_instance, scriptlist):
     """Run script inside image"""
@@ -85,7 +89,11 @@ def run_script(machine_instance, scriptlist):
             uploadpath = "/var/tmp/" + pname
             machine_instance.upload([os.path.abspath(foo)], uploadpath)
             machine_instance.execute("chmod a+x %s" % uploadpath)
-            machine_instance.execute(uploadpath, timeout=1800)
+            try:
+                machine_instance.execute(uploadpath, timeout=1800)
+            except subprocess.CalledProcessError as e:
+                sys.stderr.write("%s\n" % e)
+                sys.exit(e.returncode)
         else:
             sys.stderr.write("Bad path to script: %s\n" % foo)
 

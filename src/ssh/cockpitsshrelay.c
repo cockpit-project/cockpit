@@ -2083,6 +2083,7 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
                          gint outfd)
 {
   const gchar *problem;
+  int in;
   int rc;
 
   static struct ssh_channel_callbacks_struct channel_cbs = {
@@ -2110,8 +2111,11 @@ cockpit_ssh_relay_start (CockpitSshRelay *self,
   ssh_set_blocking (self->session, 0);
   ssh_event_add_session (self->event, self->session);
 
+  in = dup (0);
+  g_assert (in >= 0);
+
   self->pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                             "in-fd", 0,
+                             "in-fd", in,
                              "out-fd", outfd,
                              "name", self->logname,
                              NULL);

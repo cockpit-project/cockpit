@@ -268,7 +268,7 @@ export const TextInput = (tag, title, options) => {
         initial_value: "",
 
         render: (val, change) =>
-            <input data-field={tag}
+            <input data-field={tag} data-field-type="text-input"
                    className="form-control" type="text" value={val}
                    onChange={event => change(event.target.value)} />
     }
@@ -282,7 +282,7 @@ export const PassInput = (tag, title, options) => {
         initial_value: "",
 
         render: (val, change) =>
-            <input data-field={tag}
+            <input data-field={tag} data-field-type="text-input"
                    className="form-control" type="password" value={val}
                    onChange={event => change(event.target.value)} />
     }

@@ -708,7 +708,8 @@ PageAccount.prototype = {
         var role_groups = {
             "wheel":   _("Server Administrator"),
             "sudo":    _("Server Administrator"),
-            "docker":  _("Container Administrator")
+            "docker":  _("Container Administrator"),
+            "weldr":   _("Image Builder")
         };
 
         function parse_groups(content) {

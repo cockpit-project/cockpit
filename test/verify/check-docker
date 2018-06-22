@@ -251,6 +251,12 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
 
+        # Add a mount point
+        b.click("#mount-volumes")
+        b.wait_present("#select-mounted-volumes form:eq(0)")
+        b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
+        b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
+
         b.click("#containers-run-image-run");
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
@@ -262,6 +268,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_visible("#container-details")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
+        b.wait_in_text("#container-details-volumes", "/mnt:/blah")
         self.wait_for_message(message)
 
         # Check connection on first port, remove trailing whitespace

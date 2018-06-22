@@ -1362,9 +1362,16 @@ test_parse_external (void)
 static void
 test_host_checksums (void)
 {
-  CockpitTransport *transport = cockpit_pipe_transport_new_fds ("unused", 0, 0);
-  CockpitCreds *creds = cockpit_creds_new ("cockpit", NULL);
-  CockpitWebService *service = cockpit_web_service_new (creds, transport);
+  CockpitTransport *transport;
+  CockpitWebService *service;
+  CockpitCreds *creds;
+  int fds[2];
+
+  if (pipe(fds) < 0)
+    g_assert_not_reached();
+  transport = cockpit_pipe_transport_new_fds ("unused", fds[0], fds[1]);
+  creds = cockpit_creds_new ("cockpit", NULL);
+  service = cockpit_web_service_new (creds, transport);
   cockpit_web_service_set_host_checksum(service, "localhost", "checksum1");
   cockpit_web_service_set_host_checksum(service, "host1", "checksum1");
   cockpit_web_service_set_host_checksum(service, "host2", "checksum2");

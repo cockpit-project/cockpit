@@ -71,7 +71,7 @@ gpgcheck=0
 
 [RHEL-8-NIGHTLY-AppStream]
 name=appstream
-baseurl=http://download.eng.bos.redhat.com/nightly/latest-AppStream-8/compose/AppStream/x86_64/os/
+baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/AppStream/x86_64/os/
 enabled=1
 gpgcheck=0
 EOF
@@ -82,13 +82,15 @@ EOF
         yum-config-manager --enable rhel-7-server-extras-rpms
     fi
 
-    # needed for atomic-openshift-clients
-    yum-config-manager --enable rhel-7-server-ose-3.9-rpms
+    if [ "$IMAGE" != "rhel-x" ]; then
+        # needed for atomic-openshift-clients
+        yum-config-manager --enable rhel-7-server-ose-3.9-rpms
 
-    # the following don't necessarily need to work
-    yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
-    yum-config-manager --disable rhel-7-server-htb-rpms || true
-    yum-config-manager --disable rhel-7-server-rt-beta-rpms || true
+        # the following don't necessarily need to work
+        yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
+        yum-config-manager --disable rhel-7-server-htb-rpms || true
+        yum-config-manager --disable rhel-7-server-rt-beta-rpms || true
+    fi
 fi
 
 yum --nogpgcheck -y update
@@ -111,6 +113,7 @@ libssh \
 libvirt \
 libvirt-client \
 NetworkManager-team \
+openssl \
 PackageKit \
 pcp-libs \
 pcp \

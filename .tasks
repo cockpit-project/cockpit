@@ -19,6 +19,11 @@ bots/tests-scan --repo cockpit-project/starter-kit \
                 -c cockpit/centos-7 \
                 -c cockpit/fedora-28
 
+bots/tests-scan --repo cockpit-project/cockpit-ostree \
+                -c cockpit/fedora-atomic \
+                -c cockpit/rhel-atomic \
+                -c cockpit/continuous-atomic
+
 # When run automated, randomize to minimize stampeding herd
 if [ -t 0 ]; then
     chance=10

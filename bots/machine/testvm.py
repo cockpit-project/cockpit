@@ -349,6 +349,7 @@ class Machine:
         if self.ssh_process:
             self.message("killing ssh master process", str(self.ssh_process.pid))
             self.ssh_process.stdin.close()
+            self.ssh_process.terminate()
             self.ssh_process.stdout.close()
             with Timeout(seconds=90, error_message="Timeout while waiting for ssh master to shut down"):
                 self.ssh_process.wait()

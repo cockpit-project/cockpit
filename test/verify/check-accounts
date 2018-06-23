@@ -114,6 +114,9 @@ class TestAccounts(MachineCase):
         b.set_checked(admin_role_sel, True)
         b.wait_present(admin_role_sel + ":checked")
         b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        # An alert which shows up once we've changed things
+        if m.image != 'rhel-7-5':
+            b.wait_present("#account-roles .alert-info")
         b.set_checked(admin_role_sel, False)
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))

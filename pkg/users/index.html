@@ -480,6 +480,12 @@
       </label>
     </div>
     {{/roles}}
+    {{#changed}}
+    <div class="alert alert-info">
+      <span class="pficon pficon-info"></span>
+      <span translatable>The user must log out and log back in to fully change roles.</span>
+    </div>
+    {{/changed}}
   </script>
 
 </body>

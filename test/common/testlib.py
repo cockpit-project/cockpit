@@ -675,6 +675,8 @@ class MachineCase(unittest.TestCase):
         self.machine.start_cockpit(host)
         self.browser.login_and_go(path, user=user, host=host, authorized=authorized)
 
+    allow_core_dumps = False
+
     allowed_messages = [
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
@@ -786,6 +788,8 @@ class MachineCase(unittest.TestCase):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
         syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
+        if not self.allow_core_dumps:
+            syslog_ids += [ "systemd-coredump" ]
         messages = machine.journal_messages(syslog_ids, 5)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14") # 14xx is selinux
@@ -817,10 +821,11 @@ class MachineCase(unittest.TestCase):
                     found = True
                     break
             if not found:
-                print("Unexpected journal message '%s'" % m)
                 all_found = False
                 if not first:
+                    print("Unexpected journal messages:")
                     first = m
+                print(m)
         if not all_found:
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")

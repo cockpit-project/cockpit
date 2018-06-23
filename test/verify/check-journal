@@ -310,6 +310,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-5")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtSegv(self):
+        self.allow_core_dumps = True
         b = self.browser
         m = self.machine
 
@@ -345,6 +346,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-5")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtDelete(self):
+        self.allow_core_dumps = True
         b = self.browser
         m = self.machine
 
@@ -382,6 +384,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7", "fedora-i386", "rhel-7-5")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtReport(self):
+        self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems
         b = self.browser

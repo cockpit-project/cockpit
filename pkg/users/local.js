@@ -674,13 +674,17 @@ PageAccount.prototype = {
             var accounts = parse_passwd_content(content);
 
             for (var i = 0; i < accounts.length; i++) {
-               if (accounts[i]["name"] !== self.account_id)
-                  continue;
+                if (accounts[i]["name"] !== self.account_id)
+                    continue;
 
-               self.account = accounts[i];
-               self.setup_keys(self.account.name, self.account.home);
-               self.update();
+                self.account = accounts[i];
+                self.setup_keys(self.account.name, self.account.home);
+                self.update();
+                return;
             }
+
+           /* no such account find, clear it */
+           self.account = null;
         }
 
         this.handle_passwd = cockpit.file('/etc/passwd');
@@ -695,6 +699,8 @@ PageAccount.prototype = {
             parse_user(content);
             if (!saw_shadow)
                 self.get_expire();
+            if (self.account)
+                self.get_locked();
         });
         self.handle_shadow.watch(function() {
             saw_shadow = true;

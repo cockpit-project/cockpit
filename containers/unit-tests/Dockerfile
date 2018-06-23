@@ -24,6 +24,11 @@ RUN dpkg --add-architecture ${arch} && echo ${arch} > /arch && apt-get update &&
 RUN npm install -g n && n stable && \
     adduser --system --gecos "Builder" builder
 
+# HACK: Working around Node.js screwing around with stdio
+ENV NODE_PATH /usr/local/bin/nodejs
+RUN mv /usr/local/bin/node /usr/local/bin/nodejs
+ADD turd-polish /usr/local/bin/node
+
 USER builder
 
 VOLUME /source

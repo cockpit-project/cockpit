@@ -95,7 +95,8 @@ class TestNetworking(NetworkCase):
             b.wait_not_visible("#networking-nm-disabled")
             b.wait_visible("#networking-graphs")
             b.wait_visible("#networking-interfaces")
-            b.wait_present("#networking-interfaces tr[data-interface='eth1']")
+            b.wait_js_cond("ph_in_text('#networking-interfaces', 'eth1') ||"
+                           "ph_in_text('#networking-interfaces', 'ens')")
 
         def assert_stopped(enabled):
             # should hide graphs and actions and show the appropriate notification

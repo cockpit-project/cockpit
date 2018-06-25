@@ -117,8 +117,8 @@
                 </tr>
                 <tr>
                     <td translatable="yes">Host Name</td>
-                    <td><a class="hostname-privileged"
-                            id="system_information_hostname_button"></a></td>
+                    <td><span id="hostname-tooltip"><a class="hostname-privileged"
+                            id="system_information_hostname_button"></a></span></td>
                 </tr>
                 <tr id="system-info-domain" hidden>
                     <td translatable="yes">Domain</td>
@@ -127,8 +127,9 @@
                 </tr>
                 <tr>
                     <td translatable="yes">System Time</td>
-                    <td><a class="systime-privileged"
-                                id="system_information_systime_button"></a>
+                    <td><span id="systime-tooltip">
+                        <a class="systime-privileged"
+                           id="system_information_systime_button"></a></span>
                       <a hidden id="system_information_systime_ntp_status"
                          tabindex="0" role="button" data-toggle="tooltip"
                          data-placement="bottom" data-html="true" >

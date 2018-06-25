@@ -48,7 +48,7 @@ function update_hostname_privileged() {
     $(".hostname-privileged").update_privileged(
         permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to modify hostnames"),
-            permission.user ? permission.user.name : '')
+            permission.user ? permission.user.name : ''), null, $('#hostname-tooltip')
     );
 }
 
@@ -64,7 +64,7 @@ function update_systime_privileged() {
     $(".systime-privileged").update_privileged(
         permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to change the system time"),
-            permission.user ? permission.user.name : '')
+            permission.user ? permission.user.name : ''), null, $('#systime-tooltip')
     );
 }
 

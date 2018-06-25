@@ -68,8 +68,8 @@ virtDBusConnectClose(virtDBusConnect *connect,
     for (gint i = 0; i < VIR_NODE_DEVICE_EVENT_ID_LAST; i++) {
         if (connect->nodeDevCallbackIds[i] >= 0) {
             if (deregisterEvents) {
-                virConnectNetworkEventDeregisterAny(connect->connection,
-                                                    connect->nodeDevCallbackIds[i]);
+                virConnectNodeDeviceEventDeregisterAny(connect->connection,
+                                                       connect->nodeDevCallbackIds[i]);
             }
             connect->nodeDevCallbackIds[i] = -1;
         }

@@ -66,9 +66,11 @@ class TestAccounts(MachineCase):
         b.wait_present("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
-        # now lock account
-        b.set_checked("#account-locked", True)
-        b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
+        # (un)locking root account introduced in version 161
+        if m.image != 'rhel-7-5':
+            # now lock account
+            b.set_checked("#account-locked", True)
+            b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
         # go back to accounts overview, check breadcrumb
         b.click("#account .breadcrumb a")

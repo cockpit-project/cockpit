@@ -36,6 +36,7 @@ import struct
 import subprocess
 import sys
 import termios
+import errno
 
 def out(data, stream=None, flush=False):
     if not stream:
@@ -49,8 +50,8 @@ def out(data, stream=None, flush=False):
                 stream.flush()
             flush = False
             break
-        except IOError, (errno, strerror):
-            if errno == 11: # EAGAIN 
+        except IOError as e:
+            if e.errno == errno.EAGAIN:
                 continue
             raise
 
@@ -60,10 +61,10 @@ def terminal_width():
             fcntl.ioctl(1, termios.TIOCGWINSZ,
             struct.pack('HHHH', 0, 0, 0, 0)))
         return w
-    except IOError, (errno, strerror):
-        if errno != 25: # ENOTTY
-            sys.stderr.write("%i %s %s\n" % (errno, strerror, sys.exc_info()))
-        return sys.maxint;
+    except IOError as e:
+        if e.errno != errno.ENOTTY:
+            sys.stderr.write("%i %s %s\n" % (e.errno, e.strerror, sys.exc_info()))
+        return sys.maxsize
 
 class Driver:
     def __init__(self, args):

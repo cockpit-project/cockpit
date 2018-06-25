@@ -1,12 +1,13 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # generate debian/copyright from debian/copyright.template and node_modules
 # Author: Martin Pitt <mpitt@debian.org>
 #
-# bower.json/package.json license: format uses https://spdx.org/licenses/ identifiers, which
+# package.json license: format uses https://spdx.org/licenses/ identifiers, which
 # are mostly compatible with
 # https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/#license-specification
 
 import os
+import sys
 import json
 import re
 import subprocess
@@ -40,7 +41,7 @@ def module_license(moddir):
 
     # First check if package.json has a "license" field
     try:
-        with open(os.path.join(moddir, 'package.json')) as f:
+        with open(os.path.join(moddir, 'package.json'), encoding='UTF-8') as f:
             l = json.load(f)['license']
             if l.startswith('(MIT OR'):
                 return 'MIT'
@@ -85,7 +86,7 @@ def module_copyright(moddir):
     copyrights = set()
     try:
         out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*[1-9][0-9]\+'],
-                                      cwd=moddir, universal_newlines=True)
+                                      cwd=moddir).decode('UTF-8')
         for l in out.splitlines():
             # ignore compiled .css.map files
             if l.startswith('{"version":') or '*//*!' in l:
@@ -110,7 +111,7 @@ def module_copyright(moddir):
             if mod == 'patternfly':
                 l = re.sub(' and licensed.*', '', l)
 
-            copyrights.add((' ' + l).decode('UTF-8'))  # space prefix for debian/copyright RFC822 format
+            copyrights.add(' ' + l)  # space prefix for debian/copyright RFC822 format
     except subprocess.CalledProcessError:
         pass
 
@@ -132,7 +133,7 @@ def module_copyright(moddir):
 
 args = parse_args()
 
-with open(template_file) as f:
+with open(template_file, encoding='UTF-8') as f:
     template = f.read()
 
 license_ids = template_licenses(template)
@@ -145,12 +146,14 @@ for module in sorted(os.listdir(args.node_modules)):
     if license.lower() not in license_ids:
         raise KeyError('%s has license %s which is not in %s' % (module, license, template_file))
     copyrights = module_copyright(moddir)
-    paragraphs.append(u'''Files: node_modules/%s/*
+    paragraphs.append('''Files: node_modules/%s/*
 Copyright:%s
 License: %s''' % (module, '\n'.join(sorted(copyrights)), license))
 
+# force UTF-8 output, even when running in C locale
 for l in template.splitlines():
     if '#NPM' in l:
-        print('\n\n'.join(paragraphs).encode('UTF-8'))
+        sys.stdout.buffer.write('\n\n'.join(paragraphs).encode('UTF-8'))
     else:
-        print(l)
+        sys.stdout.buffer.write(l.encode('UTF-8'))
+    sys.stdout.buffer.write(b'\n')

@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+# This can also be run with Python 3.
 
 # Copyright (C) 2013 Red Hat, Inc.
 #
@@ -38,10 +39,15 @@ import sys
 import termios
 import errno
 
+_PY3 = sys.version[0] >= '3'
+_str = _PY3 and str or unicode
+
 def out(data, stream=None, flush=False):
+    if not isinstance(data, bytes):
+        data = data.encode("UTF-8")
     if not stream:
-        stream = sys.stdout
-    while True: 
+        stream = _PY3 and sys.stdout.buffer or sys.stdout
+    while True:
         try:
             if data:
                 stream.write(data)
@@ -70,8 +76,8 @@ class Driver:
     def __init__(self, args):
         self.argv = args.command
         self.test_name = args.test_name
-        self.log = open(args.log_file, "w")
-        self.log.write("# %s\n" % " ".join(sys.argv))
+        self.log = open(args.log_file, "wb")
+        self.log.write(("# %s\n" % " ".join(sys.argv)).encode("UTF-8"))
         self.trs = open(args.trs_file, "w")
         self.color_tests = args.color_tests
         self.expect_failure = args.expect_failure
@@ -95,7 +101,7 @@ class Driver:
         if self.color_tests:
             out('\x1b[m')
         out(": ")
-        msg = "".join([ self.test_name + " " ] + map(str, args))
+        msg = "".join([ self.test_name + " " ] + list(map(_str, args)))
         if code == "PASS" and len(msg) > self.width:
             out(msg[:self.width])
             out("...")
@@ -149,16 +155,17 @@ class Driver:
             ret = select.select(rset, [], [], 10)
             if outf in ret[0]:
                 data = os.read(outf, 1024)
-                if data == "":
+                if data == b"":
                     rset.remove(outf)
                 self.log.write(data)
                 self.process(data)
             if errf in ret[0]:
                 data = os.read(errf, 1024)
-                if data == "":
+                if data == b"":
                     rset.remove(errf)
                 self.log.write(data)
-                out(data, stream=sys.stderr, flush=True)
+                stream = _PY3 and sys.stderr.buffer or sys.stderr
+                out(data, stream=stream, flush=True)
 
         proc.wait()
 
@@ -241,7 +248,7 @@ class TapDriver(Driver):
 
     def process(self, output):
         if output:
-            self.output += output
+            self.output += output.decode("UTF-8")
         elif self.output:
             self.output += "\n"
         (ready, unused, self.output) = self.output.rpartition("\n")

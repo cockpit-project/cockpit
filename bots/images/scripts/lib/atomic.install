@@ -1,5 +1,4 @@
 #!/usr/bin/python2
-# -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
 #
@@ -22,7 +21,10 @@ import subprocess
 import os
 import sys
 import shutil
-import urllib
+try:
+    from urllib.request import URLopener
+except ImportError:
+    from urllib import URLopener  # Python 2
 import argparse
 import json
 
@@ -101,7 +103,7 @@ class AtomicCockpitInstaller:
         subprocess.call(["systemctl", "stop", "rhsmcertd"])
 
         status = subprocess.check_output(["rpm-ostree", "status"])
-        if "local:" in status:
+        if b"local:" in status:
             subprocess.check_call(["rpm-ostree", "upgrade"])
         else:
             try:
@@ -189,11 +191,11 @@ class AtomicCockpitInstaller:
 
     def package_basenames(self, package_names):
         """ convert a list of package names to a list of their basenames """
-        return filter(lambda s: not s is None, map(lambda s: self.package_basename(s), package_names))
+        return list(filter(lambda s: s is not None, map(self.package_basename, package_names)))
 
     def get_installed_cockpit_packages(self):
         """ get list installed cockpit packages """
-        packages = subprocess.check_output("rpm -qa | grep cockpit", shell=True)
+        packages = subprocess.check_output("rpm -qa | grep cockpit", shell=True, universal_newlines=True)
 
         if self.verbose:
             print("installed packages: {0}".format(packages))
@@ -210,7 +212,7 @@ class AtomicCockpitInstaller:
     def run(self):
         # Delete previous deployment if it's present
         output = subprocess.check_output(["ostree", "admin", "status"])
-        if output.count("origin refspec") != 1:
+        if output.count(b"origin refspec") != 1:
             subprocess.check_call(["ostree", "admin", "undeploy", "1"])
 
         self.setup_dirs()
@@ -225,7 +227,7 @@ class AtomicCockpitInstaller:
                     print("adding package %s (forced)" % (p))
                 packages_to_install.append(p)
 
-        packages_to_install = filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in packages_to_install), self.rpms)
+        packages_to_install = list(filter(lambda p: any(os.path.split(p)[1].startswith(base) for base in packages_to_install), self.rpms))
 
         if self.verbose:
             print("packages to install:")
@@ -235,9 +237,9 @@ class AtomicCockpitInstaller:
             names = self.external_packages.keys()
             if self.verbose:
                 print("external packages to install:")
-                print(names)
+                print(list(names))
 
-            downloader = urllib.URLopener()
+            downloader = URLopener()
             for name, url in self.external_packages.items():
                 downloader.retrieve(url, name)
 
@@ -278,10 +280,10 @@ if args.install:
         skip = []
     skip.append("cockpit-dashboard")
 
-    rpms = map(os.path.abspath,
-               filter(lambda f: (f.endswith(".rpm")
-                                 and not f.endswith(".src.rpm")
-                                 and not any(f.startswith(s) for s in args.skip)),
-                      os.listdir(".")))
+    rpms = [os.path.abspath(f) for f in os.listdir(".")
+            if (f.endswith(".rpm") and not f.endswith(".src.rpm")
+                and not any(f.startswith(s) for s in args.skip))]
     cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
     cockpit_installer.run()
+
+# vim: ft=python

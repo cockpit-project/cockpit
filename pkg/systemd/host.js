@@ -42,6 +42,7 @@ var C_ = cockpit.gettext;
 var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_hostname_privileged);
 $(permission).on("changed", update_shutdown_privileged);
+$(permission).on("changed", update_systime_privileged);
 
 function update_hostname_privileged() {
     $(".hostname-privileged").update_privileged(
@@ -55,6 +56,14 @@ function update_shutdown_privileged() {
     $(".shutdown-privileged").update_privileged(
         permission, cockpit.format(
             _("The user <b>$0</b> is not permitted to shutdown or restart this server"),
+            permission.user ? permission.user.name : '')
+    );
+}
+
+function update_systime_privileged() {
+    $(".systime-privileged").update_privileged(
+        permission, cockpit.format(
+            _("The user <b>$0</b> is not permitted to change the system time"),
             permission.user ? permission.user.name : '')
     );
 }

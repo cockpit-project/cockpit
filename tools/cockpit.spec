@@ -77,7 +77,11 @@ BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
 BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
+%if 0%{?fedora} || 0%{?rhel} >= 8
+BuildRequires: /usr/bin/python3
+%else
 BuildRequires: /usr/bin/python2
+%endif
 BuildRequires: intltool
 %if %{defined build_dashboard}
 BuildRequires: libssh-devel >= %{libssh_version}

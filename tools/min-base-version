@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # Compute the maximum required "cockpit" version from all pkg/*/manifest.json
 # for computing rpm/deb package dependencies. This is a bit stricter than
 # absolutely required, as only some subpackages might require a newer cockpit
@@ -27,7 +27,7 @@ from glob import glob
 
 proj_dir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
-max_version = 0
+max_version = ''
 
 for manifest in glob('dist/*/manifest.json'):
     # if pkg names are given on the command line, then only look at those,
@@ -36,7 +36,7 @@ for manifest in glob('dist/*/manifest.json'):
         pkg = os.path.basename(os.path.dirname(manifest))
         if pkg not in sys.argv[1:]:
             continue
-    with open(manifest) as f:
+    with open(manifest, encoding='UTF-8') as f:
         requires = json.load(f).get('requires', {})
     try:
         v = requires['cockpit']
@@ -45,7 +45,7 @@ for manifest in glob('dist/*/manifest.json'):
     except KeyError:
         sys.stderr.write('WARNING: %s lacks cockpit dependency\n' % manifest)
 
-if max_version == 0:
+if not max_version:
     sys.stderr.write('ERROR: Could not determine version\n')
     sys.exit(1)
 

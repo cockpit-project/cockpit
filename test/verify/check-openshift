@@ -430,8 +430,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o.execute("oc login -u system:admin")
         o.execute("oc adm policy add-cluster-role-to-user cluster-admin admin")
         o.execute("oc adm policy add-cluster-role-to-user cluster-admin system:admin")
-        o.execute("oc delete -f /kubevirt/kubevirt.yaml || true")
-        o.execute("oc delete project kubevirt")
+        o.execute("oc delete -f /kubevirt/kubevirt.yaml || true 2> /dev/null")
+        o.execute("oc delete --force --grace-period=0 project kubevirt")
 
         wait(lambda: "virt-api" not in o.execute("oc get pods --all-namespaces"))
         wait(lambda: "virt-controller" not in o.execute("oc get pods --all-namespaces"))

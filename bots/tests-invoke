@@ -126,9 +126,6 @@ class PullTask(object):
                 }]
             },
             "revision": self.github_revision,
-            "link": "log.html",
-            "extras": [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision) ],
-
             "onaborted": {
                 "github": {
                     "token": api.token,
@@ -147,6 +144,15 @@ class PullTask(object):
                 },
             }
         }
+
+        if self.context.startswith("cockpit/"):
+            # third-party project, link directly to text log
+            status["link"] = "log"
+        else:
+            # testing cockpit itself, use HTML log
+            status["link"] = "log.html"
+            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision) ]
+
 
         # Include information about which base we're testing against
         if self.base:

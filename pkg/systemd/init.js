@@ -517,6 +517,9 @@ $(function() {
         { title: _("Reload"),                action: 'ReloadUnit' }
     ];
 
+    var permission = cockpit.permission({ admin: true });
+    $(permission).on('changed', unit_action_update_privilege);
+
     function unit_action() {
         /* jshint validthis:true */
         var parsed_action = $(this).attr("data-action").split(":");
@@ -564,6 +567,17 @@ $(function() {
                     $('#service-error-dialog').modal('show');
                 });
         }
+    }
+
+    function unit_action_update_privilege() {
+        $('#service-unit-action>button').update_privileged(
+            permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to start or stop services"),
+                permission.user ? permission.user.name : ''));
+        $('#service-file-action>button').update_privileged(
+            permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to enable or disable services"),
+                permission.user ? permission.user.name : ''));
     }
 
     function show_unit(unit_id) {
@@ -679,6 +693,7 @@ $(function() {
             $('#service-unit').html(text);
             $('#service-unit-action').on('click', "[data-action]", unit_action);
             $('#service-file-action').on('click', "[data-action]", unit_file_action);
+            unit_action_update_privilege();
         }
 
         function render_template() {
@@ -851,7 +866,6 @@ $(function() {
     /* Timer Creation
      * timer_unit contains all the user's valid inputs from create-timer modal.
      */
-    var permission = cockpit.permission({ admin: true });
     $(permission).on("changed", function() {
         if (permission.allowed === false) {
             $("#create-timer").addClass("accounts-privileged");

@@ -510,9 +510,11 @@ $(function() {
     var template_template = $("#service-template-tmpl").html();
     mustache.parse(template_template);
 
-    var unit_actions = [                          // <method>:<mode>
+    var unit_primary_actions = [                          // <method>:<mode>
         { title: _("Start"),                 action: 'StartUnit' },
         { title: _("Stop"),                  action: 'StopUnit' },
+    ];
+    var unit_secondary_actions = [
         { title: _("Restart"),               action: 'RestartUnit' },
         { title: _("Reload"),                action: 'ReloadUnit' }
     ];
@@ -570,6 +572,10 @@ $(function() {
     }
 
     function unit_action_update_privilege() {
+        $('#service-unit-primary-action>button').update_privileged(
+            permission, cockpit.format(
+                _("The user <b>$0</b> is not permitted to start or stop services"),
+                permission.user ? permission.user.name : ''));
         $('#service-unit-action>button').update_privileged(
             permission, cockpit.format(
                 _("The user <b>$0</b> is not permitted to start or stop services"),
@@ -595,13 +601,13 @@ $(function() {
             if (!cur_unit.valid)
                 return;
 
-            var unit_def;
+            var primary_action;
             var active_state = cur_unit.ActiveState;
             if (active_state == 'active' || active_state == 'reloading' ||
                 active_state == 'activating')
-                unit_def = 1; // Stop
+                primary_action = 1; // Stop
             else
-                unit_def = 0; // Start
+                primary_action = 0; // Start
 
             var file_def;
             var load_state = cur_unit.LoadState;
@@ -632,8 +638,10 @@ $(function() {
             var unit_action_btn = mustache.render(action_btn_template,
                                                   {
                                                       id: "service-unit-action",
-                                                      def: unit_actions[unit_def],
-                                                      actions: unit_actions
+                                                      'primary-id': 'service-unit-primary-action',
+                                                      'primary-action': unit_primary_actions[primary_action],
+                                                      def: unit_secondary_actions[0],
+                                                      actions: unit_secondary_actions
                                                   });
             var file_action_btn = mustache.render(action_btn_template,
                                                   {
@@ -692,6 +700,7 @@ $(function() {
                                        });
             $('#service-unit').html(text);
             $('#service-unit-action').on('click', "[data-action]", unit_action);
+            $('#service-unit-primary-action').on('click', '[data-action]', unit_action);
             $('#service-file-action').on('click', "[data-action]", unit_file_action);
             unit_action_update_privilege();
         }

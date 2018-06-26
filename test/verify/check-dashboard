@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -427,7 +427,7 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
                 d[n] = {"visible":True,"address":n}
 
             m.execute("echo '{0}' > /etc/cockpit/machines.d/99-webui.json".format(json.dumps(d)))
-            return d.keys()
+            return list(d.keys())
 
         def check_limit(limit):
             b.click('#dashboard-add')

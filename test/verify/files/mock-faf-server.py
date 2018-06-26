@@ -1,12 +1,13 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # export uReport_URL="http://localhost:12345"
 
 import cgi
 import json
-import BaseHTTPServer
 import sys
 
-class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         form = cgi.FieldStorage(
             fp=self.rfile,
@@ -45,11 +46,11 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                     'reporter': 'Bugzilla'
                 }
             ],
-            'result': Handler.known.next()
+            'result': next(Handler.known)
         }
-        json.dump(response, self.wfile, indent=2)
+        self.wfile.write(json.dumps(response, indent=2).encode('UTF-8'))
 
 PORT = 12345
 Handler.known = [True, False].__iter__()
-httpd = BaseHTTPServer.HTTPServer(("", PORT), Handler)
+httpd = HTTPServer(("", PORT), Handler)
 httpd.serve_forever()

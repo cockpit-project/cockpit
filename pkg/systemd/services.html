@@ -67,6 +67,11 @@
   </div>
 
   <script id="action-btn-tmpl"  type="x-template/mustache">
+    {{#primary-id}}
+    <div class="btn-group service-action-btn" id="{{primary-id}}">
+        <button data-action="{{primary-action.action}}" data-container="body" class="btn btn-default">{{primary-action.title}}</button>
+    </div>
+    {{/primary-id}}
     <div class="btn-group service-action-btn" id="{{id}}">
       <button data-action="{{def.action}}" data-container="body" class="btn btn-default">{{def.title}}</button>
       <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">

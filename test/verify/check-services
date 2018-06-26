@@ -119,8 +119,14 @@ Unit=test.service
         wait_service_state("test.service", "inactive")
         wait_service_state("test.service", "inactive")
 
-        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
-        file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+        if m.image == 'rhel-7-5':
+            unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
+            file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+            unit_primary_action_btn = unit_action_btn
+        else:
+            unit_primary_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(1)'
+            unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(2)'
+            file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
 
         # Selects Timer tab
         b.click('#services-filter :nth-child(4)')
@@ -146,10 +152,14 @@ Unit=test.service
         b.click(svc_sel("test.service"))
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
-        b.wait_action_btn(unit_action_btn, "Start")
+        b.wait_action_btn(unit_primary_action_btn, "Start")
+        if m.image != 'rhel-7-5':
+            b.wait_action_btn(unit_action_btn, "Restart")
         b.click_action_btn(unit_action_btn)
         b.wait_in_text('#service-valid', "active")
-        b.wait_action_btn(unit_action_btn, "Stop")
+        b.wait_action_btn(unit_primary_action_btn, "Stop")
+        if m.image != 'rhel-7-5':
+            b.wait_action_btn(unit_action_btn, "Restart")
         b.wait_in_text('#service-log', "START")
         b.wait_in_text('#service-log', "WORKING")
 
@@ -163,6 +173,7 @@ Unit=test.service
             b.wait_present('#service-file-action>button:nth-of-type(1):not(disabled)')
             b.wait_present('#service-file-action>button:nth-of-type(2):not(disabled)')
         else:
+            b.wait_present('#service-unit-primary-action>button.disabled')
             b.wait_present('#service-unit-action>button:nth-of-type(1).disabled')
             b.wait_present('#service-unit-action>button:nth-of-type(2).disabled')
             b.wait_present('#service-file-action>button:nth-of-type(1).disabled')
@@ -182,8 +193,8 @@ Unit=test.service
         b.click(svc_sel("test-fail.service"))
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
-        b.wait_action_btn(unit_action_btn, "Start")
-        b.click_action_btn(unit_action_btn)
+        b.wait_action_btn(unit_primary_action_btn, "Start")
+        b.click_action_btn(unit_primary_action_btn)
         b.wait_in_text('#service-valid', "failed")
 
         b.go("#/")
@@ -540,7 +551,7 @@ WantedBy=multi-user.target
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
 
-        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group'
+        unit_primary_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(1)'
 
         # Selects Services tab
         b.click('#services-filter :nth-child(2)')
@@ -548,8 +559,8 @@ WantedBy=multi-user.target
         b.click(svc_sel("condtest.service"))
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
-        b.wait_action_btn(unit_action_btn, "Start")
-        b.click_action_btn(unit_action_btn)
+        b.wait_action_btn(unit_primary_action_btn, "Start")
+        b.click_action_btn(unit_primary_action_btn)
 
         b.wait_present("#service-unit div.cond-fail")
         b.wait_in_text("#service-unit div.cond-fail", "ConditionDirectoryNotEmpty")
@@ -559,8 +570,8 @@ WantedBy=multi-user.target
 
         b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
-        b.wait_action_btn(unit_action_btn, "Start")
-        b.click_action_btn(unit_action_btn)
+        b.wait_action_btn(unit_primary_action_btn, "Start")
+        b.click_action_btn(unit_primary_action_btn)
         b.wait_in_text('#service-valid', "active")
 
         b.wait_not_present("#service-unit div.cond-fail")

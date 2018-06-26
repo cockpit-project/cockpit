@@ -539,6 +539,127 @@ class TestMachines(MachineCase):
 
         b.wait_in_text("#vm-subVmTest1-network-2-state span", "up")
 
+    def testVCPU(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.click("tbody tr th") # click on the row header
+
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        b.wait_present("#vm-subVmTest1-vcpus-count") # wait for the tab
+        b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
+
+        b.wait_present(".vcpu-detail-modal-table")
+        b.is_present(".machines-vcpu-caution")
+
+        # Test basic vCPU properties
+        b.wait_val("#machines-vcpu-count-field", "1")
+        b.wait_val("#machines-vcpu-max-field", "1")
+
+        # Set new values
+        b.set_val("#machines-vcpu-max-field", "4")
+        b.set_val("#machines-vcpu-count-field", "3")
+
+        # Set new socket value
+        b.wait_present("#socketsSelect li[data-value=2] a")
+        b.click("#socketsSelect button");
+        b.click("#socketsSelect li[data-value=2] a")
+        b.wait_in_text("#socketsSelect button", "2")
+        b.wait_in_text("#coresSelect button", "1")
+        b.wait_in_text("#threadsSelect button", "2")
+
+        # Save
+        b.click(".apply")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # Shut off VM for applying changes after save
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Check changes
+        b.wait_visible("#vm-subVmTest1-vcpus-count")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
+        # Check after boot
+        # Run VM
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # Check VCPU count
+        b.wait_visible("#vm-subVmTest1-vcpus-count")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
+
+        # Open dialog window
+        b.click("#vm-subVmTest1-vcpus-count")
+        b.wait_present(".vcpu-detail-modal-table")
+
+        # Check basic values
+        b.wait_val("#machines-vcpu-count-field", "3")
+        b.wait_val("#machines-vcpu-max-field", "4")
+
+        # Check sockets, cores and threads
+        b.wait_in_text("#socketsSelect button", "2")
+        b.wait_in_text("#coresSelect button", "1")
+        b.wait_in_text("#threadsSelect button", "2")
+
+        b.click(".cancel")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # Shut off VM
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+
+        # Open dialog
+        b.wait_present("#vm-subVmTest1-vcpus-count")
+        b.click("#vm-subVmTest1-vcpus-count")
+
+        b.wait_present(".vcpu-detail-modal-table")
+
+        b.set_val("#machines-vcpu-count-field", "2")
+
+        # Set new socket value
+        b.wait_present("#coresSelect li[data-value=2] a")
+        b.click("#coresSelect button");
+        b.click("#coresSelect li[data-value=2] a")
+        b.wait_in_text("#coresSelect button", "2")
+        b.wait_in_text("#socketsSelect button", "2")
+        b.wait_in_text("#threadsSelect button", "1")
+
+        # Save
+        b.click(".apply")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        b.wait(lambda: m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
+
+        # Open dialog
+        b.wait_present("#vm-subVmTest1-vcpus-count")
+        b.click("#vm-subVmTest1-vcpus-count")
+
+        b.wait_present(".vcpu-detail-modal-table")
+        b.wait_not_present(".machines-vcpu-caution")
+
+        # Set new socket value
+        b.wait_in_text("#coresSelect button", "2")
+        b.wait_in_text("#socketsSelect button", "2")
+        b.wait_in_text("#threadsSelect button", "1")
+
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
+
+        # Check value of sockets, threads and cores from VM dumpxml
+        m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
+
     # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
     @unittest.skip("Broken with current chromium, see PR #9229")
     def testExternalConsole(self):

@@ -43,6 +43,11 @@ function config(state, action) {
         newState.refreshInterval = action.refreshInterval;
         return newState;
     }
+    case 'SET_HYPERVISOR_MAX_VCPU': {
+        const newState = Object.assign({}, state);
+        newState.hypervisorMaxVCPU = Object.assign({}, newState.hypervisorMaxVCPU, { [action.payload.connectionName]: action.payload.count });
+        return newState;
+    }
     default:
         return state;
     }

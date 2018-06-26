@@ -18,8 +18,9 @@
  */
 
 import React, { PropTypes } from "react";
+import { Tooltip } from "cockpit-components-tooltip.jsx";
 
-const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
+const InfoRecord = ({id, descr, value, descrClass, valueClass, tooltip}) => {
     return (<tr>
         <td className={descrClass || 'top'}>
             <label className='control-label'>
@@ -29,6 +30,9 @@ const InfoRecord = ({id, descr, value, descrClass, valueClass}) => {
         <td id={id} className={valueClass}>
             {value}
         </td>
+        {tooltip && (<td><Tooltip tip={tooltip} pos="top">
+            <span className="fa fa-lg fa-info-circle" />
+        </Tooltip></td>)}
     </tr>);
 };
 
@@ -41,6 +45,7 @@ InfoRecord.propTypes = {
         PropTypes.string,
         PropTypes.element
     ]).isRequired,
+    tooltip: PropTypes.string,
 }
 
 export default InfoRecord;

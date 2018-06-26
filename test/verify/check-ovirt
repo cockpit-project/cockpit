@@ -320,9 +320,8 @@ class TestOVirtMachines(MachineCase):
         #
         # For this reason the test checks just for rendered error which is produced by oVirt API to verify proper action
         # calling and processing on pkg/ovirt side.
-        b.wait_in_text(
-            ".modal-footer",
-            "The following Hosts have running VMs and cannot be switched to maintenance mode: host.Please ensure that the following Clusters have at least one Host in UP state: Default.")
+        b.wait_in_text(".modal-footer", "The following Hosts have running VMs and cannot be switched to maintenance mode: host")
+        b.wait_in_text(".modal-footer", "Please ensure that the following Clusters have at least one Host in UP state: Default")
         b.click("#cockpit_modal_dialog button:contains(Cancel)")
         b.wait_not_present("#cockpit_modal_dialog")
 

@@ -12,13 +12,13 @@ FQDN=ovirt.cockpit.lan
 hostnamectl set-hostname ${FQDN}
 
 # Latest stable repos
-rpm -ivh http://resources.ovirt.org/pub/yum-repo/ovirt-release41.rpm
+rpm -ivh http://resources.ovirt.org/pub/yum-repo/ovirt-release42.rpm
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 rpm --import /etc/pki/rpm-gpg/RPM-GPG-ovirt-*
 rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 
 # Install ovirt-engine
-yum install -y ovirt-engine-setup
+yum install -y /usr/bin/psql ovirt-engine-setup
 echo "SSO_CALLBACK_PREFIX_CHECK=false" >> /etc/ovirt-engine/engine.conf.d/999-ovirt-engine.conf
 cat << EOF > /answers.conf
 [environment:default]
@@ -112,7 +112,8 @@ ${CURL} -X PUT -d "<vm><os><boot><devices><device>network</device></devices></bo
 
 # WA for sanlock holding the NFS mounted lockspace on SPM host
 sanlock client status
-systemctl stop ovirt-engine postgresql vdsmd
+systemctl stop ovirt-engine vdsmd
+systemctl stop postgresql || true
 umount -l ovirt.cockpit.lan:/nfsexport
 LS=""
 for (( i = 0; i < 30;  i++ )); do

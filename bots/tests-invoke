@@ -290,7 +290,10 @@ class PullTask(object):
         sink.status["message"] = message
         if "github" in sink.status:
             self.github_status_data["description"] = message
-        del sink.status["extras"]
+        try:
+            del sink.status["extras"]
+        except KeyError:
+            pass
         sink.flush()
 
         return ret

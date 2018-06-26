@@ -31,7 +31,8 @@ def browser_path(headless=True):
         if g:
             return g[0]
 
-    p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true", shell=True).strip()
+    p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
+                                shell=True, universal_newlines=True).strip()
     if p:
         return p
 
@@ -96,6 +97,7 @@ class CDP:
         if not self._driver:
             self.start()
         self._driver.stdin.write(cmd + "\n")
+        self._driver.stdin.flush()
         line = self._driver.stdout.readline()
         if not line:
             self.kill()
@@ -206,6 +208,7 @@ class CDP:
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
+                                        universal_newlines=True,
                                         close_fds=True)
         self.valid = True
 

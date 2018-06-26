@@ -491,10 +491,10 @@ class Browser:
     def copy_js_log(self, title, label=None):
         """Copy the current javascript log"""
 
-        logs = self.get_js_log()
+        logs = list(self.get_js_log())
         if logs:
             filename = "{0}-{1}.js.log".format(label or self.label, title)
-            with open(filename, 'w') as f:
+            with open(filename, 'wb') as f:
                 f.write('\n'.join(logs).encode('UTF-8'))
             attach(filename)
             print("Wrote JS log to " + filename)
@@ -881,7 +881,7 @@ class MachineCase(unittest.TestCase):
             suffix = "-" + suffix
         filename = "{0}{1}-axe.json.gz".format(label or self.label(), suffix)
         with gzip.open(filename, "wb") as f:
-            f.write(json.dumps(report))
+            f.write(json.dumps(report).encode('UTF-8'))
         print("Wrote accessibility report to " + filename)
         attach(filename)
 
@@ -903,7 +903,7 @@ class MachineCase(unittest.TestCase):
             self.browser.copy_js_log(title, label)
 
     def copy_journal(self, title, label=None):
-        for name, m in self.machines.iteritems():
+        for name, m in self.machines.items():
             if m.ssh_reachable:
                 log = "%s-%s-%s.log" % (label or self.label(), m.label, title)
                 with open(log, "w") as fp:
@@ -912,7 +912,7 @@ class MachineCase(unittest.TestCase):
                     attach(log)
 
     def copy_cores(self, title, label=None):
-        for name, m in self.machines.iteritems():
+        for name, m in self.machines.items():
             if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)
                 dest = os.path.abspath(directory)
@@ -983,7 +983,7 @@ class OutputBuffer(object):
         while self.fds:
             for p in self.poll.poll(1000):
                 data = os.read(p[0], 1024)
-                if data == "":
+                if data == b"":
                     self.poll.unregister(p[0])
                 else:
                     self.buffers[p[0]] += data
@@ -993,7 +993,7 @@ class OutputBuffer(object):
     def push(self, pid, fd):
         self.poll.register(fd, select.POLLIN)
         self.fds[pid] = fd
-        self.buffers[fd] = ""
+        self.buffers[fd] = b""
 
     def pop(self, pid):
         fd = self.fds.pop(pid)
@@ -1004,7 +1004,7 @@ class OutputBuffer(object):
             pass
         while True:
             data = os.read(fd, 1024)
-            if data == "":
+            if data == b"":
                 break
             buffer += data
         os.close(fd)
@@ -1078,7 +1078,7 @@ class TapRunner(object):
                     failed = (code >> 8) & 0xff
                 if pid:
                     if buffer:
-                        output = buffer.pop(pid)
+                        output = buffer.pop(pid).decode("UTF-8")
                         test = pids[pid]
                         failed, retry = self.filterOutput(test, failed, output)
                         if retry:
@@ -1148,7 +1148,7 @@ class TapRunner(object):
         # Otherwise pass through this command if it exists
         cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
         try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
             (changed, unused) = proc.communicate(output)
             if proc.returncode == 0:
                 output = changed
@@ -1198,8 +1198,12 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
     global opts
 
     # Turn off python stdout buffering
+    buf_arg = 0
+    if sys.version_info[0] >= 3:
+        os.environ['PYTHONUNBUFFERED'] = '1'
+        buf_arg = 1
     sys.stdout.flush()
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buf_arg)
 
     standalone = options is None
     parser = arg_parser()
@@ -1296,8 +1300,5 @@ def sit(machines={ }):
     """
     for (name, machine) in machines.items():
         sys.stderr.write(machine.diagnose())
-    try:
-        input = raw_input
-    except NameError:
-        pass
-    input ("Press RET to continue... ")
+    print("Press RET to continue...")
+    sys.stdin.readline()

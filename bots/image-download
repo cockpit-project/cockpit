@@ -59,6 +59,66 @@ DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 DEVNULL = open("/dev/null", "r+")
 EPOCH = "Thu, 1 Jan 1970 00:00:00 GMT"
 
+def find(name, stores, quiet):
+    found = [ ]
+    ca = os.path.join(BOTS, "images", "files", "ca.pem")
+
+    for store in stores:
+        url = urllib.parse.urlparse(store)
+
+        defport = url.scheme == 'http' and 80 or 443
+
+        try:
+            ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
+        except socket.gaierror:
+            ai = [ ]
+            message = store
+
+        for (family, socktype, proto, canonname, sockaddr) in ai:
+            message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
+
+            def curl(*args):
+                try:
+                    cmd = ["curl"] + list(args) + ["--head", "--silent", "--fail", "--cacert", ca, source]
+                    found.append((cmd, subprocess.check_output(cmd, universal_newlines=True), message))
+                    if not quiet:
+                        sys.stderr.write(" > {0}\n".format(message))
+                    return True
+                except subprocess.CalledProcessError:
+                    return False
+
+            # first try with stores that accept the "cockpit-tests" host name
+            resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
+            source = urllib.parse.urljoin("{0}://cockpit-tests:{1}{2}".format(url.scheme, sockaddr[1], url.path), name)
+            if curl("--resolve", "resolve"):
+                continue
+
+            # fall back for OpenShift proxied stores which send their own SSL cert initially; host name has to match that
+            source = urllib.parse.urljoin(store, name)
+            if curl():
+                continue
+
+            if not quiet:
+                sys.stderr.write(" x {0}\n".format(message))
+
+    # If we couldn't find the file, but it exists, we're good
+    if not found:
+        return None, None
+
+    # Find the most recent version of this file
+    def header_date(args):
+        cmd, output, message = args
+        try:
+            reply_line, headers_alone = output.split('\n', 1)
+            last_modified = email.message_from_file(io.StringIO(headers_alone)).get("Last-Modified", "")
+            return time.mktime(time.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z'))
+        except ValueError:
+            return ""
+    found.sort(reverse=True, key=header_date)
+
+    # Return the command and message
+    return found[0][0], found[0][2]
+
 def download(dest, force, quiet, stores):
     if not stores:
         config = os.path.expanduser(CONFIG)
@@ -76,71 +136,18 @@ def download(dest, force, quiet, stores):
     else:
         since = EPOCH
 
-    found = [ ]
-
     name = os.path.basename(dest)
-    ca = os.path.join(BOTS, "images", "files", "ca.pem")
-    for store in stores:
-        url = urllib.parse.urlparse(store)
-
-        defport = url.scheme == 'http' and 80 or 443
-
-        try:
-            ai = socket.getaddrinfo(url.hostname, url.port or defport, socket.AF_INET, 0, socket.IPPROTO_TCP)
-        except socket.gaierror:
-            ai = [ ]
-            message = store
-
-        for (family, socktype, proto, canonname, sockaddr) in ai:
-            resolve = "cockpit-tests:{1}:{0}".format(*sockaddr)
-            source = urllib.parse.urljoin("{0}://cockpit-tests:{1}{2}".format(url.scheme, sockaddr[1], url.path), name)
-            message = "{scheme}://{0}:{1}{path}".format(*sockaddr, scheme=url.scheme, path=url.path)
-
-            # first try with stores that accept the "cockpit-tests" host name
-            try:
-                cmd = ["curl", "--head", "--silent", "--resolve", resolve, "--fail", "--cacert", ca, source]
-                found.append((cmd, subprocess.check_output(cmd, universal_newlines=True), message))
-                if not quiet:
-                    sys.stderr.write(" > {0}\n".format(message))
-                continue
-            except subprocess.CalledProcessError:
-                pass
-
-            # fall back for OpenShift proxied stores which send their own SSL cert initially; host name has to match that
-            source = urllib.parse.urljoin(store, name)
-            try:
-                cmd = ["curl", "--head", "--silent", "--fail", "--cacert", ca, source]
-                found.append((cmd, subprocess.check_output(cmd, universal_newlines=True), message))
-                if not quiet:
-                    sys.stderr.write(" > {0}\n".format(message))
-                continue
-            except subprocess.CalledProcessError:
-                pass
-
-            if not quiet:
-                sys.stderr.write(" x {0}\n".format(message))
+    cmd, message = find(name, stores, quiet)
 
     # If we couldn't find the file, but it exists, we're good
-    if not found:
+    if not cmd:
         if exists:
             return
         raise RuntimeError("image-download: couldn't find file anywhere: {0}".format(name))
 
-    # Find the most recent version of this file
-    def header_date(args):
-        cmd, output, message = args
-        try:
-            reply_line, headers_alone = output.split('\n', 1)
-            last_modified = email.message_from_file(io.StringIO(headers_alone)).get("Last-Modified", "")
-            return time.mktime(time.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z'))
-        except ValueError:
-            return ""
-    found.sort(reverse=True, key=header_date)
-
     # Choose the first found item after sorting by date
     if not quiet:
-        sys.stderr.write(" > {0}\n".format(urllib.parse.urljoin(found[0][2], name)))
-    cmd = found[0][0]
+        sys.stderr.write(" > {0}\n".format(urllib.parse.urljoin(message, name)))
 
     (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=os.path.dirname(dest))
 
@@ -161,8 +168,7 @@ def download(dest, force, quiet, stores):
         curl = subprocess.Popen(cmd)
         ret = curl.wait()
         if ret != 0:
-            real_url = urllib.parse.urljoin("{0}://{1}:{2}{3}".format(url.scheme, sockaddr[0], sockaddr[1], url.path), name)
-            raise RuntimeError("curl: unable to download %s (returned: %s)" % (real_url, ret))
+            raise RuntimeError("curl: unable to download %s (returned: %s)" % (message, ret))
 
         os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 

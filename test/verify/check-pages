@@ -212,6 +212,97 @@ OnCalendar=daily
         b.wait_visible('#password-group')
         b.wait_text("#password-group > label", "Passwort")
 
+    def testPtBRLocale(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute('useradd scruffy -s /bin/bash -c \'Scruffy\' || true')
+        m.execute('echo scruffy:foobar | chpasswd')
+
+        if m.image in ['debian-stable', 'debian-testing' ]:
+            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
+        elif m.image in [ 'ubuntu-1604', 'ubuntu-stable' ]:
+            m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
+
+        # On Atomic no locales other than en_US are supported on the host itself
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
+        elif m.image in [ 'continuous-atomic', 'fedora-atomic', 'rhel-atomic' ]:
+            self.allow_journal_messages('invalid or unusable locale: pt_BR.UTF-8')
+
+        self.login_and_go('/system')
+        b.wait_present('#server')
+        b.switch_to_top()
+        b.click('#content-user-name')
+        b.click('.display-language-menu a')
+        b.wait_popup('display-language')
+        b.set_val('#display-language select', 'pt-br')
+        b.click('#display-language-select-button')
+        b.expect_load()
+        # HACK: work around language switching in Chrome not working in current session (issue #8160)
+        b.reload(ignore_cache=True)
+        b.wait_present('#content')
+
+        # Check that the system page is translated
+        b.go('/system')
+        b.enter_page('/system')
+        b.wait_present('#server')
+        b.wait_in_text('#server', 'Reiniciar')
+
+        # Systemd timer localization
+        b.go('/system/services')
+        b.enter_page('/system/services')
+        b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
+        # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
+        # b.wait_in_text('tr[data-goto-unit=\'test\.timer\'] td:nth-child(3)', 'morgen um')
+
+        # Check the playground page
+        b.switch_to_top()
+        b.go('/playground/translate')
+        b.enter_page('/playground/translate')
+
+        # HTML section
+        self.assertEqual(b.text('#translate-html'), 'Pronto')
+        self.assertEqual(b.text('#translate-html-context'), 'Pronto')
+        self.assertEqual(b.text('#translate-html-yes'), u'Não está pronto')
+        self.assertEqual(b.attr('#translate-html-title', 'title'), u'Indisponível')
+        self.assertEqual(b.text('#translate-html-title'), 'Cancel')
+        self.assertEqual(b.attr('#translate-html-yes-title', 'title'), u'Indisponível')
+        self.assertEqual(b.text('#translate-html-yes-title'), 'Cancelar')
+
+        # Glade section
+        self.assertEqual(b.text('#translatable-glade'), 'Vazio')
+        self.assertEqual(b.text('#translatable-glade-context'), 'Vazio')
+
+        # Mustache section
+        self.assertEqual(b.text('#translatable-mustache'), u'Usuário')
+        self.assertEqual(b.text('#translate-mustache'), u'Memória')
+        self.assertEqual(b.text('#translate-mustache-yes'), 'Rede')
+        self.assertEqual(b.attr('#translate-mustache-title', 'title'), 'Erro')
+        self.assertEqual(b.text('#translate-mustache-title'), 'User')
+        self.assertEqual(b.attr('#translate-mustache-yes-title', 'title'), 'Erro')
+        self.assertEqual(b.text('#translate-mustache-yes-title'), u'Usuário')
+
+        # Javascript
+        self.assertEqual(b.text('#underscore-empty'), 'Vazio')
+        self.assertEqual(b.text('#underscore-context-empty'), 'Vazio')
+        self.assertEqual(b.text('#cunderscore-context-empty'), 'Vazio')
+        self.assertEqual(b.text('#gettext-control'), 'Controle')
+        self.assertEqual(b.text('#gettext-context-control'), 'Controle')
+        self.assertEqual(b.text('#ngettext-disks-1'), u'$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-disks-2'), u'$0 discos não encontrados')
+        self.assertEqual(b.text('#ngettext-context-disks-1'), u'$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-context-disks-2'), u'$0 discos não encontrados')
+
+        # Angular
+        self.assertEqual(b.text('#angular-translate'), 'Pronto')
+        self.assertEqual(b.text('#angular-context'), 'Pronto')
+        self.assertEqual(b.text('#angular-interpolate'), 'Deletar \'Marmalade\'')
+
+        # Log out and check that login page is translated now
+        b.logout()
+        b.wait_visible('#password-group')
+        b.wait_text('#password-group > label', 'Senha')
+
     def testFrameReload(self):
         b = self.browser
         frame = "cockpit1:localhost/playground/test"

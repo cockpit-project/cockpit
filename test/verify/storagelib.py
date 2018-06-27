@@ -41,7 +41,7 @@ class StorageCase(MachineCase):
             ver = self.machine.execute("busctl --system get-property org.storaged.Storaged /org/storaged/Storaged/Manager org.storaged.Storaged.Manager Version || true")
         m = re.match('s "(.*)"', ver)
         if m:
-            self.storaged_version = map(int, m.group(1).split("."))
+            self.storaged_version = list(map(int, m.group(1).split(".")))
         else:
             self.storaged_version = [ 0 ]
 

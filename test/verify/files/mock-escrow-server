@@ -1,9 +1,9 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 import sys
-import BaseHTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-class handler(BaseHTTPServer.BaseHTTPRequestHandler):
+class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
@@ -12,14 +12,14 @@ class handler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_PUT(self):
         global secret
-        len = int(self.headers.getheader('content-length', 0))
+        len = int(self.headers.get('content-length', 0))
         secret = self.rfile.read(len)
         with open(store, "wb") as f: f.write(secret)
         self.send_response(200)
         self.end_headers()
 
 def escrow_server(port):
-    BaseHTTPServer.HTTPServer(('', port), handler).serve_forever()
+    HTTPServer(('', port), handler).serve_forever()
 
 store = sys.argv[1]
 

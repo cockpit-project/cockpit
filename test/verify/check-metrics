@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -98,12 +98,13 @@ class TestMetrics(MachineCase):
         # we only get as much as the qemu process itself gets.
 
         m.upload([ "verify/files/measure-cpu" ], "/var/lib/testvm/")
+        cmd = "$(which python3 || which python2) /var/lib/testvm/measure-cpu"
 
-        cpu_start = m.execute("/var/lib/testvm/measure-cpu start")
+        cpu_start = m.execute(cmd + " start")
         cpu_pid = m.spawn("while true; do true; done", "cpu-load.log")
         wait_for_plot("#server_cpu_graph", 20)
         m.execute("kill %d" % cpu_pid)
-        cpu_percentage = float(m.execute("/var/lib/testvm/measure-cpu stop '%s'" % cpu_start))
+        cpu_percentage = float(m.execute("%s stop '%s'" % (cmd, cpu_start)))
 
         print("Measured CPU", cpu_percentage)
         self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",

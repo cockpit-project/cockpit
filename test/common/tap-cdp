@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #
 # Copyright (C) 2017 Red Hat, Inc.
@@ -63,6 +63,7 @@ if not cdp.get_browser_path():
 server = subprocess.Popen(opts.server,
                           stdout=subprocess.PIPE,
                           stdin=subprocess.PIPE,
+                          universal_newlines=True,
                           close_fds=True)
 
 address = server.stdout.readline()
@@ -95,9 +96,9 @@ for t, message in cdp.read_log():
 
     # TAP lines go to stdout, everything else to stderr
     if tap_line_re.match(message):
-        print(message.encode('utf-8'))
+        print(message)
     else:
-        print(message.encode('utf-8'), file=sys.stderr)
+        print(message, file=sys.stderr)
 
 
 server.terminate()

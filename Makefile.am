@@ -261,15 +261,15 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = -Wl,--as-needed
 
-LOG_DRIVER = $(top_srcdir)/tools/tap-driver
-LOG_COMPILER = $(top_srcdir)/tools/tap-gtester
+LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
+LOG_COMPILER = $(PYTHON) $(top_srcdir)/tools/tap-gtester
 
 TEST_EXTENSIONS = .html .sh
-SH_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
-HTML_LOG_DRIVER = $(top_srcdir)/tools/tap-driver
+SH_LOG_DRIVER = $(LOG_DRIVER)
+HTML_LOG_DRIVER = $(LOG_DRIVER)
 HTML_TEST_SERVER = $(builddir)/test-server
 
-HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(top_srcdir)/ -- $(HTML_TEST_SERVER)
+HTML_LOG_COMPILER = $(PYTHON) $(top_srcdir)/test/common/tap-cdp --strip=$(top_srcdir)/ -- $(HTML_TEST_SERVER)
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
 	--suppressions=valgrind-suppressions --gen-suppressions=all \

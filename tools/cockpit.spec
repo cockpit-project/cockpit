@@ -79,9 +79,9 @@ BuildRequires: pam-devel
 BuildRequires: autoconf automake
 %if 0%{?fedora} || 0%{?rhel} >= 8
 BuildRequires: /usr/bin/python3
-%else
-BuildRequires: /usr/bin/python2
 %endif
+# FIXME: tools/ is not completely ported to Python 3 yet
+BuildRequires: /usr/bin/python2
 BuildRequires: intltool
 %if %{defined build_dashboard}
 BuildRequires: libssh-devel >= %{libssh_version}

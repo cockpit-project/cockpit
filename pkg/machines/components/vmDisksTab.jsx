@@ -53,36 +53,36 @@ const VmDiskCell = ({ value, id }) => {
 };
 
 const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText }) => {
-    if (!disks || disks.length === 0) {
-        return (<div>{_("No disks defined for this VM")}</div>);
-    }
-
-    const renderCapacityUsed = !!disks.find(disk => (!!disk.used));
-    const renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
-
-    const columnTitles = [_("Device"), _("Target")];
-    if (renderCapacity) {
-        if (renderCapacityUsed) {
-            columnTitles.push(_("Used"));
-        }
-        columnTitles.push(_("Capacity"));
-    }
-    columnTitles.push(_("Bus"));
-    if (renderReadOnly) {
-        columnTitles.push(_("Readonly"));
-    }
-    columnTitles.push(_("Source"));
-
     let notification = null;
-    if (notificationText) {
-        notification = (<Info text={notificationText}
-                              textId={`${idPrefix}-notification`} />);
+    const columnTitles = [_("Device"), _("Target")];
+    let renderCapacityUsed, renderReadOnly;
+
+    if (disks && disks.length > 0) {
+        renderCapacityUsed = !!disks.find(disk => (!!disk.used));
+        renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
+
+        if (renderCapacity) {
+            if (renderCapacityUsed) {
+                columnTitles.push(_("Used"));
+            }
+            columnTitles.push(_("Capacity"));
+        }
+        columnTitles.push(_("Bus"));
+        if (renderReadOnly) {
+            columnTitles.push(_("Readonly"));
+        }
+        columnTitles.push(_("Source"));
+
+        if (notificationText) {
+            notification = (<Info text={notificationText}
+                                  textId={`${idPrefix}-notification`} />);
+        }
     }
 
     return (
         <div>
             {notification}
-            <Listing columnTitles={columnTitles} actions={actions}>
+            <Listing columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [

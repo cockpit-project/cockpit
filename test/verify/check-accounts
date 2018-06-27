@@ -98,18 +98,20 @@ class TestAccounts(MachineCase):
         b.set_val('#accounts-create-real-name', "Jussi Junior")
         b.set_val('#accounts-create-pw1', good_password)
         b.set_val('#accounts-create-pw2', good_password)
-        b.set_val('#accounts-create-locked', "yes")
+        b.set_checked('#accounts-create-locked', True)
         b.click('#accounts-create-create')
         b.wait_popdown('accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
         admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+        b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
+        b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
 
         # Unlock it and make it an admin
         b.go("#/jussi")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
-        b.set_val('#accounts-create-locked', "no")
+        b.set_checked('#account-locked', False)
         b.wait_present(admin_role_sel + ":not(:checked)")
         b.set_checked(admin_role_sel, True)
         b.wait_present(admin_role_sel + ":checked")

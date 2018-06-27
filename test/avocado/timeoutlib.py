@@ -237,7 +237,7 @@ if __name__ == '__main__':
         do_something6()
 
     except IndexError as e:
-        retry = do_something3.func_closure[1].cell_contents
+        retry = do_something6.func_closure[1].cell_contents
 
         assert retry.failed_attempts == 1
         assert retry.timeouts_triggered == 0

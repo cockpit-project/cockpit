@@ -535,6 +535,10 @@ else
 fi
 AC_MSG_RESULT($enable_strict)
 
+# Python version; prefer python3
+m4_define_default([_AM_PYTHON_INTERPRETER_LIST], [python3 python2 python])
+AM_PATH_PYTHON([2.7])
+
 # Generate
 #
 

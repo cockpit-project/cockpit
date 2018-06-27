@@ -990,7 +990,8 @@ PageAccount.prototype = {
             return;
 
         var proc;
-        if ($(ev.target).prop('checked')) {
+        var checked = $(ev.target).prop('checked');
+        if (checked) {
             proc = cockpit.spawn(["/usr/sbin/usermod", this.account["name"], "-G", id, "-a"],
                                  { "superuser": "require", err: "message" });
         } else {
@@ -998,7 +999,12 @@ PageAccount.prototype = {
                                  { "superuser": "require", err: "message" });
         }
 
-        proc.then(function() {
+        proc.then(function(data) {
+            if(!data && checked)
+                data = "Added " + self.account["name"] + " to group " + name;
+            else if (!data && !checked)
+                data = "Removed " + self.account["name"] + " from group " + name;
+            console.log(data);
             self.roles_changed = true;
             self.update();
         }, show_unexpected_error);

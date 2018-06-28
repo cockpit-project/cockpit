@@ -433,9 +433,9 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         o.execute("oc delete -f /kubevirt/kubevirt.yaml || true 2> /dev/null")
         o.execute("oc delete --force --grace-period=0 project kubevirt")
 
-        wait(lambda: "virt-api" not in o.execute("oc get pods --all-namespaces"))
-        wait(lambda: "virt-controller" not in o.execute("oc get pods --all-namespaces"))
-        wait(lambda: "virt-handler" not in o.execute("oc get pods --all-namespaces"))
+        wait(lambda: "virt-api" not in o.execute("oc get pods --all-namespaces"), delay=5)
+        wait(lambda: "virt-controller" not in o.execute("oc get pods --all-namespaces"), delay=5)
+        wait(lambda: "virt-handler" not in o.execute("oc get pods --all-namespaces"), delay=5)
 
         self.login_and_go("/kubernetes")
 

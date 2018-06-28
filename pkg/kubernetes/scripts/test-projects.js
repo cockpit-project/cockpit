@@ -65,7 +65,7 @@ function suite(fixtures) {
             var user = select().kind("User").name("amanda");
             assert.equal(user.length, 1, "number of users");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
-                         "finance,", "number of groups");
+                         "finance", "number of groups");
             user = select().kind("User").name("jay");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
                          "4 Groups", "number of groups");

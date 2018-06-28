@@ -23,10 +23,10 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-left">
-                                <li ng-repeat="member in selected.members track by itemTracker(member)" ng-class="{active: member.name == selected.member}">
-                                    <a ng-click="selected.member = member.name; selected.memberName = member.name; selected.memberObj = member"
-                                        value="{{ member.name }}">
-                                        {{ member.name }}
+                                <li ng-repeat="member in selected.getMembers() track by itemTracker(member)" ng-class="{active: member.metadata.name == selected.member}">
+                                    <a ng-click="selected.member = member.metadata.name; selected.memberName = member.metadata.name; selected.memberObj = member"
+                                        value="{{ member.metadata.name }}">
+                                        {{ member.metadata.name }}
                                     </a>
                                 </li>
                             </ul>

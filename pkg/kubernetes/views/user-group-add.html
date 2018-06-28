@@ -15,7 +15,7 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li ng-repeat="member in select.members" ng-class="{active: member.metadata.name == select.member}">
+                            <li ng-repeat="member in select.getMembers()" ng-class="{active: member.metadata.name == select.member}">
                                 <a ng-click="select.member = member.metadata.name; select.kind = member.kind"
                                     value="{{ member.metadata.name }}">{{ member.metadata.name }}</a>
                             </li>

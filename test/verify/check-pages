@@ -299,6 +299,7 @@ OnCalendar=daily
         self.assertEqual(b.text('#angular-interpolate'), 'Deletar \'Marmalade\'')
 
         # Log out and check that login page is translated now
+        self.allow_journal_messages("Error receiving data: Connection reset by peer")
         b.logout()
         b.wait_visible('#password-group')
         b.wait_text('#password-group > label', 'Senha')

@@ -153,6 +153,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
+            ".*invalid base64 data in Basic header",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
         # check the Debian smoke test

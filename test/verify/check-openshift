@@ -854,7 +854,7 @@ class TestRegistry(MachineCase, RegistryTests):
 
         # This happens with docker restarts and during startup polling
         self.allow_journal_messages('.*received truncated HTTP response.*')
-        self.allow_journal_messages(".*api/.*couldn't connect.*")
+        self.allow_journal_messages(".*/api.*couldn't connect.*")
 
 
 class TestRegistryPrerelease(TestRegistry):

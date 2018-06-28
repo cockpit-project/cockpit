@@ -155,6 +155,10 @@ class TestConnection(MachineCase):
             ".*Peer failed to perform TLS handshake",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
+        # check the Debian smoke test
+        m.upload([ "../tools/debian/tests/smoke" ], "/tmp")
+        m.execute("/tmp/smoke")
+
     def testConfigOrigins(self):
         m = self.machine
         m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')

@@ -13,7 +13,7 @@ OUT=$(cockpit-bridge --packages)
 echo "$OUT"
 check_out "^base1: /usr/share/cockpit/base1"
 check_out "^system:"
-check_out "^dashboard:"
+check_out "^users:"
 
 echo " * socket unit is set up correctly, login page available"
 OUT=$(curl --silent --insecure https://localhost:9090)

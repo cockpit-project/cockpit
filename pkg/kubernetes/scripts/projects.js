@@ -879,10 +879,13 @@
         'projectPolicy',
         'kubeSelect',
         'fields',
-        function($q, $scope, projectData, projectPolicy, kselect, fields) {
-            var selectMember = 'Select Member';
+        'gettextCatalog',
+        function($q, $scope, projectData, projectPolicy, kselect, fields, gettextCatalog) {
+            var _ = gettextCatalog.getString.bind(gettextCatalog);
+            var selectMember = _("Select Member");
             var NAME_RE = /^[a-z0-9_.]([-a-z0-9@._:]*[a-z0-9._:])?$/;
-            var selectRole = 'Select Role';
+            var selectRole = _("Select Role");
+
             $scope.selected = {
                 member: selectMember,
                 members: getAllMembers(),
@@ -1155,7 +1158,10 @@
         '$location',
         'memberActions',
         "fields",
-        function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields) {
+        "gettextCatalog",
+        function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields, gettextCatalog) {
+            var _ = gettextCatalog.getString.bind(gettextCatalog);
+
             function getMembers() {
                 var members = [];
                 var groups = getGroups();
@@ -1178,10 +1184,10 @@
               return item.kind + "/" + item.metadata.name;
             };
             $scope.selected = {
-                member: 'Select Member',
+                member: _("Select Member"),
                 members: getMembers,
                 roles: projectData.getRegistryRolesMap,
-                role: 'Select Role',
+                role: _("Select Role"),
             };
             angular.extend($scope, projectData);
             $scope.fields = fields;

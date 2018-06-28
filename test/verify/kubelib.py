@@ -1167,7 +1167,7 @@ class RegistryTests(object):
         b.set_val("#identities", "anypassword:abc1234")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_in_text(".user-body dd", "anypassword:abc1234")
+        b.wait_in_text("dl.listing-ct-body dd", "anypassword:abc1234")
 
         #add project member
         b.click("a i.pficon-add-circle-o")

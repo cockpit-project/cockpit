@@ -16,14 +16,14 @@
     <a ng-href="#/projects"
         translate class="hidden-xs">Show all Projects</a>
 </div>
-<div class="listing-ct-body user-body" ng-if="user()">
-    <p>
-    </p>
-    <dl>
+<div class="listing-ct-inline" ng-if="user()">
+    <h3 translate>User</h3>
+    <dl class="listing-ct-body">
         <dt translate>Identities</dt>
-        <dd>{{ user().identities }}</dd>
+        <dd ng-repeat="identity in user().identities">{{ identity }}</dd>
     </dl>
-    <div user-body></div>
+    <h3 translate>Membership</h3>
+    <div class="listing-ct-body" user-body></div>
 </div>
 <div class="listing-ct-inline" ng-if="!user()">
     <h3 translate>The user '{{ userName }}' does not exist.</h3>

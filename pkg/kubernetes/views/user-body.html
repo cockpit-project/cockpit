@@ -1,9 +1,9 @@
     <table listing-table class="listing-ct projects-listing">
         <thead>
             <tr>
-                <th translate>Membership</th>
-                <th translate></th>
-                <th translate></th>
+                <th translate>Member of</th>
+                <th translate>Role</th>
+                <th></th>
             </tr>
         </thead>
         <tbody ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name"

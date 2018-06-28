@@ -395,7 +395,9 @@
                     return mlist;
                 if (members.length <= 3) {
                     for (i = members.length - 1; i >= 0; i--) {
-                        mlist += members[i] + ",";
+                        if (i > 0)
+                            mlist += ",";
+                        mlist += members[i];
                     }
                 } else {
                     if (kind === "Groups") {

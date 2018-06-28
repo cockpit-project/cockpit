@@ -16,7 +16,7 @@
     <div class="user-body">
     <dl>
         <dt translate>Identities</dt>
-        <dd>{{ user().identities }}</dd>
+        <dd ng-repeat="identity in user().identities">{{ identity }}</dd>
     </dl>
     </div>
 </div>
@@ -24,9 +24,9 @@
     <table listing-table class="listing-ct project-body">
         <thead >
             <tr >
-                <th translate>Membership</th>
-                <th translate></th>
-                <th translate></th>
+                <th translate>Member of</th>
+                <th translate>Role</th>
+                <th></th>
             </tr>
         </thead>
         <tbody colspan="3" ng-repeat="member in getProjectsWithMember(projects(), user().metadata.name) track by member.metadata.name">

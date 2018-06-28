@@ -11,15 +11,23 @@
     }
     &--heading {
         margin: 0;
+        padding-right: 15px;
     }
     &--actions {
-        .btn {
+        > .btn,
+        > .btn-group {
             margin: 5px 5px 0 0;
 
             &:last-child {
                 margin-right: 0;
             }
         }
+    }
+}
+
+@media screen and (min-width: 640px) {
+    .pk-updates--header--auto {
+        justify-content: start;
     }
 }
 
@@ -295,18 +303,27 @@ table.header-buttons {
     }
 }
 
-table.auto-conf {
-    margin-bottom: 2em;
-    td {
-        padding-right: 1ex !important;
-    }
+.auto-conf {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1em 0 2em;
+    width: 100%;
+
     /* bootstrap sets widths to 100%, way too wide for Select widgets */
     .dropdown-toggle {
         width: auto;
     }
     .dropdown {
         width: auto !important;
+        padding: 0.5ch;
     }
+}
+.auto-conf-text {
+    padding: 0 1ch;
+}
+.auto-conf-group:first-child > .dropdown {
+    padding-left: 0;
 }
 
 /* three columns for auto update hour picker */

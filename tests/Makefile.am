@@ -1,3 +1,7 @@
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/src \
+	$(NULL)
+
 test_helpers = \
 	xmldata.py \
 	libvirttest.py \
@@ -16,7 +20,6 @@ check_PROGRAMS = \
 test_util_SOURCES = \
 	test_util.c $(top_srcdir)/src/util.c
 test_util_CFLAGS = \
-	-I$(top_srcdir)/src \
 	$(GIO2_CFLAGS) \
 	$(GLIB2_CFLAGS) \
 	$(LIBVIRT_CFLAGS)

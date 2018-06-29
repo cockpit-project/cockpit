@@ -183,8 +183,8 @@ class CDP:
             self._browser = subprocess.Popen(
                 argv + ["--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
-                    "--disable-sandbox-denial-logging", "--window-size=1280x1200",
-                    "--remote-debugging-port=%i" % cdp_port, "about:blank"],
+                    "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
+                    "--window-size=1280x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
                 env=environ, close_fds=True)
             if self.verbose:
                 sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))

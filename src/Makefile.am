@@ -1,6 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
-	-DVIRT_DBUS_INTERFACES_DIR=\"$(DBUS_INTERFACES_DIR)\"
+	-DVIRT_DBUS_INTERFACES_DIR=\"$(DBUS_INTERFACES_DIR)\" \
+	$(NULL)
 AM_CFLAGS = \
 	$(GIO2_CFLAGS) \
 	$(GLIB2_CFLAGS) \
@@ -27,24 +28,37 @@ libutil_la_SOURCES = \
 	util.h \
 	$(NULL)
 
-bin_PROGRAMS = libvirt-dbus
+bin_PROGRAMS = \
+	libvirt-dbus \
+	$(NULL)
 
 libvirt_dbus_SOURCES = \
+	connect.c \
+	connect.h \
+	domain.c \
+	domain.h \
+	events.c \
+	events.h \
+	gdbus.c \
+	gdbus.h \
 	main.c \
-	connect.c connect.h \
-	domain.c domain.h \
-	events.c events.h \
-	gdbus.c gdbus.h \
-	network.c network.h \
-	nodedev.c nodedev.h \
-	nwfilter.c nwfilter.h \
-	secret.c secret.h \
-	storagepool.c storagepool.h \
-	storagevol.c storagevol.h \
+	network.c \
+	network.h \
+	nodedev.c \
+	nodedev.h \
+	nwfilter.c \
+	nwfilter.h \
+	secret.c \
+	secret.h \
+	storagepool.c \
+	storagepool.h \
+	storagevol.c \
+	storagevol.h \
 	$(NULL)
 libvirt_dbus_LDADD = \
 	libutil.la \
 	$(GIO2_LIBS) \
 	$(GLIB2_LIBS) \
 	$(LIBVIRT_LIBS) \
-	$(LIBVIRT_GLIB_LIBS)
+	$(LIBVIRT_GLIB_LIBS) \
+	$(NULL)

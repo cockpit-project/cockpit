@@ -1,5 +1,9 @@
-
-SUBDIRS = data docs src tests
+SUBDIRS = \
+	data \
+	docs \
+	src \
+	tests \
+	$(NULL)
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -11,7 +15,9 @@ EXTRA_DIST = \
 	README.md \
 	$(NULL)
 
-DISTCLEAN_FILES = $(PACKAGE).spec
+DISTCLEAN_FILES = \
+	$(PACKAGE).spec \
+	$(NULL)
 
 rpm: clean
 	@(unset CDPATH ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.gz)

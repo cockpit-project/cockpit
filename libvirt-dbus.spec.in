@@ -50,12 +50,12 @@ exit 0
 %files
 %doc README.md HACKING.md AUTHORS NEWS
 %license COPYING
-%{_sysconfdir}/polkit-1/rules.d/libvirt-dbus.rules
 %{_bindir}/libvirt-dbus
 %{_datadir}/dbus-1/services/org.libvirt.service
 %{_datadir}/dbus-1/system-services/org.libvirt.service
 %{_datadir}/dbus-1/system.d/org.libvirt.conf
 %{_datadir}/dbus-1/interfaces/org.libvirt.*.xml
+%{_datadir}/polkit-1/rules.d/libvirt-dbus.rules
 %{_mandir}/man8/libvirt-dbus.8*
 
 %changelog

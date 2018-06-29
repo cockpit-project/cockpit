@@ -66,7 +66,7 @@ DBUS_INTERFACES_DIR="$with_dbus_interfaces"
 AC_SUBST([DBUS_INTERFACES_DIR])
 
 LIBVIRT_ARG_WITH([POLKIT_RULES], [directory for polkit rules],
-                 ['$(sysconfdir)/polkit-1/rules.d'])
+                 ['$(datadir)/polkit-1/rules.d'])
 POLKIT_RULES_DIR="$with_polkit_rules"
 AC_SUBST(POLKIT_RULES_DIR)
 

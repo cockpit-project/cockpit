@@ -733,6 +733,9 @@ class MachineCase(unittest.TestCase):
 
         # Various operating systems see this from time to time
         "Journal file.*truncated, ignoring file.",
+
+        # our core dump retrieval is not entirely reliable
+        "Failed to send coredump datagram:.*",
     ]
 
     def allow_journal_messages(self, *patterns):

@@ -21,7 +21,6 @@
 
 #include <gio/gio.h>
 
-#include "common/cockpitpipetransport.h"
 #include "common/cockpitlog.h"
 #include "common/cockpittest.h"
 

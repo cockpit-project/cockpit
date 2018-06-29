@@ -40,7 +40,7 @@ libvirt_dbus_LDFLAGS = \
 	$(LIBVIRT_LDFLAGS) \
 	$(LIBVIRT_GLIB_LDFLAGS) \
 	$(RELRO_LDFLAGS) \
-	$(PID_LDFLAGS) \
+	$(PIE_LDFLAGS) \
 	$(NULL)
 
 libvirt_dbus_LDADD = \

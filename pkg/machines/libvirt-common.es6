@@ -86,6 +86,24 @@ export function canLoggedUserConnectSession (connectionName, loggedUser) {
     return connectionName !== 'session' || loggedUser.name !== 'root';
 }
 
+export function createTempFile(content) {
+    const dfd = cockpit.defer();
+    cockpit.spawn(["mktemp", "/tmp/abc-script.XXXXXX"]).then(tempFilename => {
+        cockpit.file(tempFilename.trim())
+                .replace(content)
+                .done(() => {
+                    dfd.resolve(tempFilename);
+                })
+                .fail((ex, data) => {
+                    dfd.reject(ex, data, "Can't write to temporary file");
+                });
+    })
+            .fail((ex, data) => {
+                dfd.reject(ex, data, "Can't create temporary file");
+            });
+    return dfd.promise;
+}
+
 function getBootableDeviceType(device) {
     const tagName = device.tagName;
     let type = _("other");
@@ -484,6 +502,40 @@ export function unknownConnectionName(action, libvirtServiceName) {
             return cockpit.all(promises);
         });
     };
+}
+
+export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) {
+    const domainElem = getDomainElem(domXml);
+
+    let cpuElem = domainElem.getElementsByTagName("cpu")[0];
+    if (!cpuElem) {
+        cpuElem = document.createElement("cpu");
+        domainElem.appendChild(cpuElem);
+    }
+    let topologyElem = cpuElem.getElementsByTagName("topology")[0];
+    if (!topologyElem) {
+        topologyElem = document.createElement("topology");
+        cpuElem.appendChild(topologyElem);
+    }
+    topologyElem.setAttribute("sockets", sockets);
+    topologyElem.setAttribute("threads", threads);
+    topologyElem.setAttribute("cores", cores);
+
+    let vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
+    if (!vcpuElem) {
+        vcpuElem = document.createElement("vcpu");
+        domainElem.appendChild(vcpuElem);
+        vcpuElem.setAttribute("placement", "static");
+    }
+
+    vcpuElem.setAttribute("current", count);
+    vcpuElem.textContent = max;
+
+    const tmp = document.createElement("div");
+
+    tmp.appendChild(domainElem);
+
+    return tmp.innerHTML;
 }
 
 /*

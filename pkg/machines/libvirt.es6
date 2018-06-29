@@ -57,11 +57,12 @@ import {
     canRun,
     canSendNMI,
     canShutdown,
-    getDomainElem,
+    createTempFile,
     isRunning,
     parseDumpxml,
     serialConsoleCommand,
     unknownConnectionName,
+    updateVCPUSettings,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -296,42 +297,16 @@ LIBVIRT_PROVIDER = {
 
     SET_VCPU_SETTINGS ({ name, connectionName, count, max, sockets, cores, threads, isRunning }) {
         logDebug(`${this.name}.SET_VCPU_SETTINGS(${name}):`);
+
         return dispatch => spawnVirshReadOnly({
             connectionName,
             method: 'dumpxml',
             name
-        }).then((domXml) => {
-            const domainElem = getDomainElem(domXml);
-
-            let cpuElem = domainElem.getElementsByTagName("cpu")[0];
-            if (!cpuElem) {
-                cpuElem = document.createElement("cpu");
-                domainElem.appendChild(cpuElem);
-            }
-            let topologyElem = cpuElem.getElementsByTagName("topology")[0];
-            if (!topologyElem) {
-                topologyElem = document.createElement("topology");
-                cpuElem.appendChild(topologyElem);
-            }
-            topologyElem.setAttribute("sockets", sockets);
-            topologyElem.setAttribute("threads", threads);
-            topologyElem.setAttribute("cores", cores);
-
-            let vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
-            if (!vcpuElem) {
-                vcpuElem = document.createElement("vcpu");
-                domainElem.appendChild(vcpuElem);
-                vcpuElem.setAttribute("placement", "static");
-            }
-
-            vcpuElem.setAttribute("current", count);
-            vcpuElem.textContent = max;
-
-            const tmp = document.createElement("div");
-            tmp.appendChild(domainElem);
-
-            return createTempFile(tmp.innerHTML);
         })
+                .then((domXml) => {
+                    let domXML = updateVCPUSettings(domXml, count, max, sockets, cores, threads);
+                    return createTempFile(domXML);
+                })
                 .then((tempFilename) => {
                     return spawnVirsh({connectionName,
                                        method: 'SET_VCPU_SETTINGS',
@@ -420,24 +395,6 @@ LIBVIRT_PROVIDER = {
         return unknownConnectionName(getHypervisorMaxVCPU);
     }
 };
-
-function createTempFile (content) {
-    const dfd = cockpit.defer();
-    cockpit.spawn(["mktemp", "/tmp/abc-script.XXXXXX"]).then(tempFilename => {
-        cockpit.file(tempFilename.trim())
-                .replace(content)
-                .done(() => {
-                    dfd.resolve(tempFilename);
-                })
-                .fail((ex, data) => {
-                    dfd.reject(ex, data, "Can't write to temporary file");
-                });
-    })
-            .fail((ex, data) => {
-                dfd.reject(ex, data, "Can't create temporary file");
-            });
-    return dfd.promise;
-}
 
 function doGetAllVms (dispatch, connectionName) {
     const connection = VMS_CONFIG.Virsh.connections[connectionName];

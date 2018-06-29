@@ -8,15 +8,15 @@ system_service_in_files = \
 system_servicedir = $(DBUS_SYSTEM_SERVICES_DIR)
 system_service_DATA = $(system_service_in_files:.service.in=.service)
 
-system_policy_files = \
+system_policy_in_files = \
 	system/org.libvirt.conf.in
 system_policydir = $(DBUS_SYSTEM_POLICIES_DIR)
-system_policy_DATA = $(system_policy_files:.conf.in=.conf)
+system_policy_DATA = $(system_policy_in_files:.conf.in=.conf)
 
-polkit_files = \
+polkit_in_files = \
 	system/libvirt-dbus.rules.in
 polkitdir = $(POLKIT_RULES_DIR)
-polkit_DATA = $(polkit_files:.rules.in=.rules)
+polkit_DATA = $(polkit_in_files:.rules.in=.rules)
 
 interfaces_files = \
 	org.libvirt.Connect.xml \
@@ -34,8 +34,8 @@ interfaces_DATA = $(interfaces_files)
 EXTRA_DIST = \
 	$(service_in_files) \
 	$(system_service_in_files) \
-	$(system_policy_files) \
-	$(polkit_files) \
+	$(system_policy_in_files) \
+	$(polkit_in_files) \
 	$(interfaces_files) \
 	$(NULL)
 

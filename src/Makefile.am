@@ -2,7 +2,9 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-DVIRT_DBUS_INTERFACES_DIR=\"$(DBUS_INTERFACES_DIR)\"
 
-DAEMON_SOURCES = \
+bin_PROGRAMS = libvirt-dbus
+
+libvirt_dbus_SOURCES = \
 	main.c \
 	connect.c connect.h \
 	util.c util.h \
@@ -16,13 +18,6 @@ DAEMON_SOURCES = \
 	storagepool.c storagepool.h \
 	storagevol.c storagevol.h \
 	$(NULL)
-
-EXTRA_DIST = \
-	$(DAEMON_SOURCES)
-
-bin_PROGRAMS = libvirt-dbus
-
-libvirt_dbus_SOURCES = $(DAEMON_SOURCES)
 
 libvirt_dbus_CFLAGS = \
 	$(GIO2_CFLAGS) \

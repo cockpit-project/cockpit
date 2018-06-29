@@ -19,7 +19,6 @@ DAEMON_SOURCES = \
 
 EXTRA_DIST = \
 	$(DAEMON_SOURCES)
-CLEANFILES =
 
 bin_PROGRAMS = libvirt-dbus
 

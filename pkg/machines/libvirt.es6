@@ -57,11 +57,11 @@ import {
     canRun,
     canSendNMI,
     canShutdown,
-    canLoggedUserConnectSession,
     getDomainElem,
     isRunning,
     parseDumpxml,
     serialConsoleCommand,
+    unknownConnectionName,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -420,21 +420,6 @@ LIBVIRT_PROVIDER = {
         return unknownConnectionName(getHypervisorMaxVCPU);
     }
 };
-
-function unknownConnectionName (action, libvirtServiceName) {
-    return dispatch => {
-        return cockpit.user().done(loggedUser => {
-            const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
-                    .filter(
-                        // The 'root' user does not have its own qemu:///session just qemu:///system
-                        // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
-                        connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
-                    .map(connectionName => dispatch(action(connectionName, libvirtServiceName)));
-
-            return cockpit.all(promises);
-        });
-    };
-}
 
 function createTempFile (content) {
     const dfd = cockpit.defer();

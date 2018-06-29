@@ -15,7 +15,7 @@ system_policy_DATA = $(system_policy_files:.conf.in=.conf)
 
 polkit_files = \
 	system/libvirt-dbus.rules.in
-polkitdir = $(sysconfdir)/polkit-1/rules.d
+polkitdir = $(POLKIT_RULES_DIR)
 polkit_DATA = $(polkit_files:.rules.in=.rules)
 
 interfaces_files = \

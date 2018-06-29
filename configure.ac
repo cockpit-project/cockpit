@@ -65,6 +65,11 @@ LIBVIRT_ARG_WITH([DBUS_INTERFACES], [where D-Bus interfaces directory is],
 DBUS_INTERFACES_DIR="$with_dbus_interfaces"
 AC_SUBST([DBUS_INTERFACES_DIR])
 
+LIBVIRT_ARG_WITH([POLKIT_RULES], [directory for polkit rules],
+                 ['$(sysconfdir)/polkit-1/rules.d'])
+POLKIT_RULES_DIR="$with_polkit_rules"
+AC_SUBST(POLKIT_RULES_DIR)
+
 LIBVIRT_ARG_WITH([SYSTEM_USER], [username to run system instance as],
                  ['libvirtdbus'])
 SYSTEM_USER=$with_system_user

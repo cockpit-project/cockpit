@@ -23,7 +23,7 @@ interfaces_files = \
 	org.libvirt.Domain.xml \
 	org.libvirt.Network.xml \
 	org.libvirt.NodeDevice.xml \
-        org.libvirt.NWFilter.xml \
+	org.libvirt.NWFilter.xml \
 	org.libvirt.Secret.xml \
 	org.libvirt.StoragePool.xml \
 	org.libvirt.StorageVol.xml \

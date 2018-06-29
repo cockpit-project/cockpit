@@ -4,7 +4,6 @@ test_helpers = \
 	conftest.py
 
 test_programs = \
-	$(check_PROGRAMS) \
 	test_connect.py \
 	test_domain.py \
 	test_network.py \
@@ -35,7 +34,10 @@ EXTRA_DIST = \
 	$(test_programs) \
 	travis-run
 
-TESTS = $(test_programs)
+TESTS = \
+	$(check_PROGRAMS) \
+	$(test_programs) \
+	$(NULL)
 
 AM_TESTS_ENVIRONMENT = \
 	export abs_top_builddir="$(abs_top_builddir)"; \

@@ -475,6 +475,21 @@ run_bridge (const gchar *interactive,
   uid_t uid;
   struct CallUpdateRouterData call_update_router_data;
 
+  /*
+   * This process talks on stdin/stdout. However lots of stuff wants to write
+   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
+   * it goes to stderr, and use another fd for stdout.
+   */
+
+  outfd = dup (1);
+  if (outfd < 0 || dup2 (2, 1) < 1)
+    {
+      g_printerr ("bridge couldn't redirect stdout to stderr");
+      if (outfd > -1)
+        close (outfd);
+      outfd = 1;
+    }
+
   cockpit_set_journal_logging (G_LOG_DOMAIN, !isatty (2));
 
   /* Always set environment variables early */
@@ -509,21 +524,6 @@ run_bridge (const gchar *interactive,
 
   /* Reset the umask, typically this is done in .bashrc for a login shell */
   umask (022);
-
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_warning ("bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
-    }
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);

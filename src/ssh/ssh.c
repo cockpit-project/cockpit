@@ -39,6 +39,20 @@ main (int argc,
   GError *error = NULL;
   GMainLoop *loop = NULL;
 
+  /*
+   * This process talks on stdin/stdout. However lots of stuff wants to write
+   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
+   * it goes to stderr, and use another fd for stdout.
+   */
+  outfd = dup (1);
+  if (outfd < 0 || dup2 (2, 1) < 1)
+    {
+      g_printerr ("cockpit-ssh: bridge couldn't redirect stdout to stderr");
+      if (outfd > -1)
+        close (outfd);
+      outfd = 1;
+    }
+
   signal (SIGALRM, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
   signal (SIGTSTP, SIG_IGN);
@@ -73,20 +87,6 @@ main (int argc,
     }
 
   cockpit_set_journal_logging (NULL, FALSE);
-
-  /*
-   * This process talks on stdin/stdout. However lots of stuff wants to write
-   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
-   * it goes to stderr, and use another fd for stdout.
-   */
-  outfd = dup (1);
-  if (outfd < 0 || dup2 (2, 1) < 1)
-    {
-      g_warning ("bridge couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
-      outfd = 1;
-    }
 
   loop = g_main_loop_new (NULL, FALSE);
 

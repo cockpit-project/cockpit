@@ -18,12 +18,20 @@ AM_LDFLAGS = \
 	$(PIE_LDFLAGS) \
 	$(NULL)
 
+noinst_LTLIBRARIES = \
+	libutil.la \
+	$(NULL)
+
+libutil_la_SOURCES = \
+	util.c \
+	util.h \
+	$(NULL)
+
 bin_PROGRAMS = libvirt-dbus
 
 libvirt_dbus_SOURCES = \
 	main.c \
 	connect.c connect.h \
-	util.c util.h \
 	domain.c domain.h \
 	events.c events.h \
 	gdbus.c gdbus.h \
@@ -35,6 +43,7 @@ libvirt_dbus_SOURCES = \
 	storagevol.c storagevol.h \
 	$(NULL)
 libvirt_dbus_LDADD = \
+	libutil.la \
 	$(GIO2_LIBS) \
 	$(GLIB2_LIBS) \
 	$(LIBVIRT_LIBS) \

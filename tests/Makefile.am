@@ -18,7 +18,8 @@ check_PROGRAMS = \
 	test_util
 
 test_util_SOURCES = \
-	test_util.c $(top_srcdir)/src/util.c
+	test_util.c \
+	$(NULL)
 test_util_CFLAGS = \
 	$(GIO2_CFLAGS) \
 	$(GLIB2_CFLAGS) \
@@ -28,6 +29,7 @@ test_util_LDFLAGS = \
 	$(GLIB2_LDFLAGS) \
 	$(LIBVIRT_LDFLAGS)
 test_util_LDADD = \
+	$(top_builddir)/src/libutil.la \
 	$(GIO2_LIBS) \
 	$(GLIB2_LIBS) \
 	$(LIBVIRT_LIBS)

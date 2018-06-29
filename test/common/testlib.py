@@ -85,7 +85,7 @@ def attach(filename):
         shutil.move(filename, dest)
 
 class Browser:
-    def __init__(self, address, label, port=None, headless=True):
+    def __init__(self, address, label, port=None):
         if ":" in address:
             (self.address, unused, self.port) = address.rpartition(":")
         else:
@@ -96,7 +96,7 @@ class Browser:
         self.default_user = "admin"
         self.label = label
         path = os.path.dirname(__file__)
-        self.cdp = cdp.CDP("C.utf8", headless, verbose=opts.trace, trace=opts.trace,
+        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
 
@@ -1193,7 +1193,6 @@ def arg_parser():
 
     parser.set_defaults(verbosity=1, fetch=True)
     return parser
-
 
 def test_main(options=None, suite=None, attachments=None, **kwargs):
     """

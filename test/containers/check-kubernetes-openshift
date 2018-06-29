@@ -124,9 +124,7 @@ class OCCase(kubelib.KubernetesCase):
         path = os.path.join(test_dir, "verify", "files", "mock-app-openshift.json")
         self.machine.upload([path], "/tmp")
 
-        # HACK: Headless Chromium breaks with client SSL cert requests from OAuth; work around by using "full" chrome
-        # with xvfb (https://bugs.chromium.org/p/chromium/issues/detail?id=757181)
-        self.browser = OCBrowser(self.machine.forward["30000"], self.label(), headless=False)
+        self.browser = OCBrowser(self.machine.forward["30000"], self.label())
         self.addCleanup(lambda: self.browser.kill())
         # our OAuth provider uses a self-signed SSL certificate
         self.browser.ignore_ssl_certificate_errors(True)

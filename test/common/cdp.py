@@ -15,21 +15,19 @@ import time
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
 
-def browser_path(headless=True):
+def browser_path():
     """Return path to CDP browser.
 
     Support the following locations:
-     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM), if
-       headless is true
+     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
      - "chromium-browser", "chromium", or "google-chrome"  in $PATH (distro package)
      - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
 
     Exit with an error if none is found.
     """
-    if headless:
-        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-        if g:
-            return g[0]
+    g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+    if g:
+        return g[0]
 
     p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
                                 shell=True, universal_newlines=True).strip()
@@ -47,11 +45,10 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, headless=True, verbose=False, trace=False, inject_helpers=[]):
+    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[]):
         self.lang = lang
         self.timeout = 60
         self.valid = False
-        self.headless = headless
         self.verbose = verbose
         self.trace = trace
         self.inject_helpers = inject_helpers
@@ -139,7 +136,7 @@ class CDP:
 
     def get_browser_path(self):
         if self._browser_path is None:
-            self._browser_path = browser_path(self.headless)
+            self._browser_path = browser_path()
 
         return self._browser_path
 
@@ -174,14 +171,9 @@ class CDP:
             if not exe:
                 raise SystemError("chromium not installed")
 
-            if self.headless:
-                argv = [exe,  "--headless"]
-            else:
-                argv = [os.path.join(TEST_DIR, "common/xvfb-wrapper"), exe]
-
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(
-                argv + ["--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+                [exe, "--headless", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                     "--window-size=1280x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"],

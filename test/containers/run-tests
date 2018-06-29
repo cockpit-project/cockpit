@@ -58,12 +58,6 @@ def run(opts):
     return testlib.test_main(options=opts, suite=suite)
 
 def main():
-    # HACK: Full chromium under Xvfb is very brittle; disable default parallelism
-    try:
-        del os.environ["TEST_JOBS"]
-    except KeyError:
-        pass
-
     parser = testlib.arg_parser()
     parser.add_argument('-c', '--container', dest="container", action='store',
                         help='container to test')

@@ -21,6 +21,8 @@
 import parent
 from testlib import *
 
+import time
+
 class TestMenu(MachineCase):
     @enableAxe
     def testBasic(self):
@@ -49,6 +51,23 @@ class TestMenu(MachineCase):
             b.click("a[href='/system/#/memory']")
             b.enter_page("/system")
             b.wait_visible("#memory_status")
+
+        # Ensure that our tests pick up unhandled JS exceptions
+        b.switch_to_top()
+        b.click("a[href='/playground/exception']")
+        b.enter_page("/playground/exception")
+        b.wait_visible("button")
+        with self.assertRaisesRegex(RuntimeError, "TypeError:.*value.*undefined"):
+            b.click("button")
+            # Some round trips, one of which should update the deferred exception
+            for i in range(0, 5):
+                b.wait_visible("button")
+                time.sleep(2)
+
+        # UI should also show the crash
+        b.switch_to_top()
+        b.wait_present("#navbar-oops")
+        b.wait_visible("#navbar-oops")
 
 if __name__ == '__main__':
     test_main()

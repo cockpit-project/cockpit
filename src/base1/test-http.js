@@ -31,6 +31,9 @@ QUnit.asyncTest("simple request", function() {
                     "cockpit": "122"
                 },
                 tools: {
+                    'exception': {
+                        'label': 'Exceptions'
+                    },
                     'patterns': {
                         label: "Design Patterns",
                         path: "jquery-patterns.html"

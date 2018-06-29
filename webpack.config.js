@@ -65,6 +65,9 @@ var info = {
             "ovirt/ovirt.less",
         ],
 
+        "playground/exception": [
+            "playground/exception.js",
+        ],
         "playground/jquery-patterns": [
             "playground/jquery-patterns.js",
         ],
@@ -223,6 +226,7 @@ var info = {
 
         "packagekit/index.html",
 
+        "playground/exception.html",
         "playground/hammer.gif",
         "playground/jquery-patterns.html",
         "playground/metrics.html",

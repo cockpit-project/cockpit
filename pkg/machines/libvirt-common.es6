@@ -471,6 +471,21 @@ export function resolveUiState(dispatch, name) {
     return result;
 }
 
+export function unknownConnectionName(action, libvirtServiceName) {
+    return dispatch => {
+        return cockpit.user().done(loggedUser => {
+            const promises = Object.getOwnPropertyNames(VMS_CONFIG.Virsh.connections)
+                    .filter(
+                        // The 'root' user does not have its own qemu:///session just qemu:///system
+                        // https://bugzilla.redhat.com/show_bug.cgi?id=1045069
+                        connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
+                    .map(connectionName => dispatch(action(connectionName, libvirtServiceName)));
+
+            return cockpit.all(promises);
+        });
+    };
+}
+
 /*
  * Start of Common Provider function declarations.
  * The order should be kept alphabetical in this section.

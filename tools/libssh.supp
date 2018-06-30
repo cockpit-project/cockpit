@@ -16,3 +16,14 @@
    fun:calloc
    fun:ssh_userauth_agent
 }
+{
+   ssh_disconnect_hmac_leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:CRYPTO_zalloc
+   fun:HMAC_CTX_reset
+   fun:HMAC_CTX_new
+   fun:hmac_init
+   ...
+}

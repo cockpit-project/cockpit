@@ -22,6 +22,8 @@
 #include "websocket.h"
 #include "websocketprivate.h"
 
+#include "common/cockpitflow.h"
+
 #include <string.h>
 
 /*
@@ -137,16 +139,27 @@ struct _WebSocketConnectionPrivate
 
   GPollableOutputStream *output;
   GSource *output_source;
+  gsize output_queued;
   GQueue outgoing;
 
   /* Current message being assembled */
   guint8 message_opcode;
   GByteArray *message_data;
+
+  /* Pressure which throttles input on this web socket */
+  CockpitFlow *pressure;
+  gulong pressure_sig;
 };
 
 #define MAX_PAYLOAD   128 * 1024
 
-G_DEFINE_ABSTRACT_TYPE (WebSocketConnection, web_socket_connection, G_TYPE_OBJECT);
+/* The queue size above which we consider applying back pressure */
+#define QUEUE_PRESSURE       1UL * 1024UL * 1024UL /* 1 megabyte */
+
+static void    web_socket_connection_flow_iface_init        (CockpitFlowIface *iface);
+
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (WebSocketConnection, web_socket_connection, G_TYPE_OBJECT,
+                                  G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, web_socket_connection_flow_iface_init));
 
 static void
 frame_free (gpointer data)
@@ -997,9 +1010,6 @@ start_input (WebSocketConnection *self)
 {
   WebSocketConnectionPrivate *pv = self->pv;
 
-  if (pv->input_source)
-    return;
-
   g_debug ("starting input source");
   pv->input_source = g_pollable_input_stream_create_source (pv->input, NULL);
   g_source_set_callback (pv->input_source, (GSourceFunc)on_web_socket_input, self, NULL);
@@ -1014,6 +1024,7 @@ on_web_socket_output (GObject *pollable_stream,
   WebSocketConnectionPrivate *pv = self->pv;
   const guint8 *data;
   GError *error = NULL;
+  gsize before;
   Frame *frame;
   gssize count;
   gsize len;
@@ -1050,11 +1061,15 @@ on_web_socket_output (GObject *pollable_stream,
         }
     }
 
+  before = pv->output_queued;
+
   frame->sent += count;
   if (frame->sent >= len)
     {
       g_debug ("sent frame");
       g_queue_pop_head (&pv->outgoing);
+      g_assert (len <= pv->output_queued);
+      pv->output_queued -= len;
 
       if (frame->last)
         {
@@ -1070,6 +1085,13 @@ on_web_socket_output (GObject *pollable_stream,
         }
       frame_free (frame);
     }
+
+  /*
+   * If we're controlling another flow, turn off back pressure when
+   * our output buffer size becomes less than the low mark.
+   */
+  if (before >= QUEUE_PRESSURE && self->pv->output_queued < QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
 
   return TRUE;
 }
@@ -1096,6 +1118,7 @@ _web_socket_connection_queue (WebSocketConnection *self,
                               gsize amount)
 {
   WebSocketConnectionPrivate *pv = self->pv;
+  gsize before;
   Frame *frame;
   Frame *prev;
 
@@ -1133,6 +1156,17 @@ _web_socket_connection_queue (WebSocketConnection *self,
     {
       g_queue_push_tail (&pv->outgoing, frame);
     }
+
+  before = pv->output_queued;
+  g_return_if_fail (G_MAXSIZE - len > pv->output_queued);
+  pv->output_queued += len;
+
+  /*
+   * If we have two much data queued, and are controlling another flow
+   * tell it to stop sending data, each time we cross over the high bound.
+   */
+  if (before < QUEUE_PRESSURE && self->pv->output_queued >= QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 
   start_output (self);
 }
@@ -1312,6 +1346,9 @@ web_socket_connection_dispose (GObject *object)
   self->pv->dirty_close = TRUE;
   close_io_stream (self);
 
+  cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
+  g_assert (self->pv->pressure == NULL);
+
   G_OBJECT_CLASS (web_socket_connection_parent_class)->dispose (object);
 }
 
@@ -1331,6 +1368,7 @@ web_socket_connection_finalize (GObject *object)
     g_byte_array_free (pv->incoming, TRUE);
   while (!g_queue_is_empty (&pv->outgoing))
     frame_free (g_queue_pop_head (&pv->outgoing));
+  pv->output_queued = 0;
 
   g_clear_object (&pv->io_stream);
   g_assert (!pv->input_source);
@@ -1766,6 +1804,51 @@ web_socket_connection_close (WebSocketConnection *self,
     }
 }
 
+static void
+on_throttle_pressure (GObject *object,
+                      gboolean throttle,
+                      gpointer user_data)
+{
+  WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
+  if (throttle)
+    {
+      if (self->pv->io_open && self->pv->input_source != NULL)
+        {
+          g_debug ("applying back pressure in web socket");
+          stop_input (self);
+        }
+    }
+  else
+    {
+      if (self->pv->io_open && self->pv->input_source == NULL)
+        {
+          g_debug ("relieving back pressure in web socket");
+          start_input (self);
+        }
+    }
+}
+
+static void
+web_socket_connection_throttle (CockpitFlow *flow,
+                                CockpitFlow *controlling)
+{
+  WebSocketConnection *self = WEB_SOCKET_CONNECTION (flow);
+
+  if (self->pv->pressure)
+    {
+      g_signal_handler_disconnect (self->pv->pressure, self->pv->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (self->pv->pressure), (gpointer *)&self->pv->pressure);
+      self->pv->pressure = NULL;
+    }
+
+  if (controlling)
+    {
+      self->pv->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (self->pv->pressure), (gpointer *)&self->pv->pressure);
+      self->pv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+    }
+}
+
 gboolean
 _web_socket_connection_choose_protocol (WebSocketConnection *self,
                                         const gchar **protocols,
@@ -1830,3 +1913,10 @@ _web_socket_connection_get_main_context (WebSocketConnection *self)
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
   return self->pv->main_context;
 }
+
+static void
+web_socket_connection_flow_iface_init (CockpitFlowIface *iface)
+{
+  iface->throttle = web_socket_connection_throttle;
+}
+

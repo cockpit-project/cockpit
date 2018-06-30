@@ -22,6 +22,9 @@
 #include "websocket.h"
 #include "websocketprivate.h"
 
+#include "common/cockpitflow.h"
+#include "common/mock-pressure.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -500,6 +503,16 @@ teardown (Test *test,
   g_clear_object (&test->server);
 }
 
+static gboolean
+on_timeout_set_flag (gpointer user_data)
+{
+  gboolean *data = user_data;
+  g_assert (user_data);
+  g_assert (*data == FALSE);
+  *data = TRUE;
+  return FALSE;
+}
+
 static void
 on_text_message (WebSocketConnection *ws,
                  WebSocketDataType type,
@@ -511,6 +524,17 @@ on_text_message (WebSocketConnection *ws,
   g_assert (*receive == NULL);
   g_assert (message != NULL);
   *receive = g_bytes_ref (message);
+}
+
+static void
+on_message_append (WebSocketConnection *ws,
+                   WebSocketDataType type,
+                   GBytes *message,
+                   gpointer user_data)
+{
+  GByteArray *received = user_data;
+  g_assert (received != NULL);
+  g_byte_array_append (received, g_bytes_get_data (message, NULL), g_bytes_get_size (message));
 }
 
 static void
@@ -647,6 +671,112 @@ test_send_big_packets (Test *test,
   g_assert (g_bytes_equal (sent, received));
   g_bytes_unref (sent);
   g_bytes_unref (received);
+}
+
+static void
+on_pressure_set_throttle (WebSocketConnection *socket,
+                          gboolean throttle,
+                          gpointer user_data)
+{
+  gint *data = user_data;
+  g_assert (user_data != NULL);
+  *data = throttle ? 1 : 0;
+}
+
+static void
+test_pressure_queue (Test *test,
+                     gconstpointer data)
+{
+  GBytes *sent = NULL;
+  gint throttle = -1;
+  gint i;
+
+  g_signal_connect (test->server, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+
+  WAIT_UNTIL (web_socket_connection_get_ready_state (test->server) != WEB_SOCKET_STATE_CONNECTING);
+  g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
+
+  sent = g_bytes_new_take (g_strnfill (10 * 1000, '!'), 10 * 1000);
+  for (i = 0; i < 1000; i++)
+    web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  g_bytes_unref (sent);
+
+  /*
+   * This should have put way too much in the queue, and thus
+   * emitted the back-pressure signal. This signal would normally
+   * be used by others to slow down their queueing, but in this
+   * case we just check that it was fired.
+   */
+  g_assert_cmpint (throttle, ==, 1);
+  throttle = -1;
+
+  /*
+   * Now the queue is getting drained. At some point, it will be
+   * signaled that back pressure has been turned off
+   */
+  while (throttle == -1)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (throttle, ==, 0);
+}
+
+static void
+test_pressure_throttle (Test *test,
+                        gconstpointer data)
+{
+  CockpitFlow *pressure = mock_pressure_new ();
+  GBytes *sent = NULL;
+  GByteArray *received = NULL;
+  gboolean timeout = FALSE;
+  gsize length;
+  gint i;
+
+  received = g_byte_array_new ();
+  cockpit_flow_throttle (COCKPIT_FLOW (test->client), pressure);
+  g_signal_connect (test->client, "message", G_CALLBACK (on_message_append), received);
+
+  while (web_socket_connection_get_ready_state (test->server) == WEB_SOCKET_STATE_CONNECTING)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (web_socket_connection_get_ready_state (test->server), ==, WEB_SOCKET_STATE_OPEN);
+
+  /* Send this a thousand times over the socket */
+  sent = g_bytes_new_take (g_strnfill (10 * 1000, '?'), 10 * 1000);
+  for (i = 0; i < 1000; i++)
+    web_socket_connection_send (test->server, WEB_SOCKET_DATA_TEXT, NULL, sent);
+  g_bytes_unref (sent);
+
+  /*
+   * So we should start receiving the echoed data. But we apply
+   * the throttle pressure after receiving some data, and the rest
+   * just waits.
+   */
+  while (received->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_emit_by_name (pressure, "pressure", TRUE);
+
+  length = received->len;
+  g_assert_cmpint (length, <, 10 * 1000 * 1000);
+
+  /* Now remaining data input should wait, no further data received*/
+  g_timeout_add_seconds (2, on_timeout_set_flag, &timeout);
+  while (timeout == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (length, ==, received->len);
+
+  /* Remove the pressure, and we should get more data */
+  g_signal_emit_by_name (pressure, "pressure", FALSE);
+  while (length < received->len)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Clearing the throttle should work too. This pressure signal has no effect */
+  cockpit_flow_throttle (COCKPIT_FLOW (test->client), NULL);
+  g_signal_emit_by_name (pressure, "pressure", TRUE);
+
+  /* Now wait for the remaining data */
+  while (received->len < 10 * 1000 * 1000)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (pressure);
 }
 
 static void
@@ -1151,6 +1281,8 @@ main (int argc,
       { test_send_big_packets, "send-big-packets" },
       { test_send_prefixed, "send-prefixed" },
       { test_send_bad_data, "send-bad-data" },
+      { test_pressure_queue, "pressure-queue" },
+      { test_pressure_throttle, "pressure-throttle" },
       { test_protocol_negotiate, "protocol-negotiate" },
       { test_protocol_mismatch, "protocol-mismatch" },
       { test_protocol_server_any, "protocol-server-any" },

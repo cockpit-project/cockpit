@@ -35,16 +35,23 @@ libwebsocket_a_SOURCES = \
 
 libwebsocket_a_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"WebSocket\" \
+	-I$(srcdir)/src \
 	$(GIO_CFLAGS) \
+	$(NULL)
+
+libwebsocket_a_LIBS = \
+	libcockpit-common.a \
+	$(GIO_LIBS) \
 	$(NULL)
 
 frob_websocket_SOURCES = src/websocket/frob-websocket.c
 frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
-frob_websocket_LDADD = libwebsocket.a $(GIO_LIBS)
+frob_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
 
-test_websocket_SOURCES = src/websocket/test-websocket.c
+test_websocket_SOURCES = src/websocket/test-websocket.c \
+	src/common/mock-pressure.c src/common/mock-pressure.h
 test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
-test_websocket_LDADD = libwebsocket.a $(GIO_LIBS)
+test_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
 
 TESTS += \
 	test-websocket \

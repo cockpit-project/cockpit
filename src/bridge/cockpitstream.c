@@ -21,6 +21,7 @@
 
 #include "cockpitstream.h"
 
+#include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
 
 #include <errno.h>
@@ -30,6 +31,13 @@
  * CockpitStream:
  *
  * A stream with queued input and output based on top of a GIOStream
+ *
+ * This stream can do flow control in two ways:
+ *
+ *  - Its input can be throttled, it can listen to a "pressure" signal
+ *    from another object passed into cockpit_stream_throttle()
+ *  - It can optionally control another flow, by emitting a "pressure" signal
+ *    when its output queue is too large
  */
 
 enum {
@@ -52,14 +60,23 @@ struct _CockpitStreamPrivate {
 
   GSource *out_source;
   GQueue *out_queue;
+  gsize out_queued;
   gsize out_partial;
   gboolean out_closed;
 
+  gboolean in_done;
   GSource *in_source;
   GByteArray *in_buffer;
   gboolean received;
   gulong sig_accept_cert;
+
+  /* Throttle this flow based on back pressure from another object */
+  CockpitFlow *pressure;
+  gulong pressure_sig;
 };
+
+/* A megabyte is when we start to consider queue full enough */
+#define QUEUE_PRESSURE 1024UL * 1024UL
 
 static guint cockpit_stream_sig_open;
 static guint cockpit_stream_sig_read;
@@ -68,7 +85,10 @@ static guint cockpit_stream_sig_rejected_cert;
 
 static void  cockpit_close_later (CockpitStream *self);
 
-G_DEFINE_TYPE (CockpitStream, cockpit_stream, G_TYPE_OBJECT);
+static void  cockpit_stream_flow_iface_init (CockpitFlowIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CockpitStream, cockpit_stream, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_stream_flow_iface_init));
 
 static void
 cockpit_stream_init (CockpitStream *self)
@@ -160,7 +180,7 @@ close_maybe (CockpitStream *self)
 {
   if (!self->priv->closed)
     {
-      if (!self->priv->in_source && !self->priv->out_source)
+      if (self->priv->in_done && self->priv->out_closed)
         {
           g_debug ("%s: input and output done", self->priv->name);
           close_immediately (self, NULL);
@@ -175,6 +195,8 @@ on_output_closed (GObject *object,
 {
   CockpitStream *self = COCKPIT_STREAM (user_data);
   GError *error = NULL;
+
+  self->priv->out_closed = TRUE;
 
   g_output_stream_close_finish (G_OUTPUT_STREAM (object), result, &error);
   if (error)
@@ -195,7 +217,6 @@ close_output (CockpitStream *self)
 
   g_debug ("%s: end of output", self->priv->name);
 
-  self->priv->out_closed = TRUE;
   if (!self->priv->io)
     {
       close_maybe (self);
@@ -374,7 +395,6 @@ dispatch_input (GPollableInputStream *is,
   gboolean read = FALSE;
   gssize ret = 0;
   gsize len;
-  gboolean eof;
 
   for (;;)
     {
@@ -407,6 +427,7 @@ dispatch_input (GPollableInputStream *is,
       if (ret == 0)
         {
           g_debug ("%s: end of input", self->priv->name);
+          self->priv->in_done = TRUE;
           stop_input (self);
           break;
         }
@@ -420,11 +441,10 @@ dispatch_input (GPollableInputStream *is,
 
   g_object_ref (self);
 
-  eof = (self->priv->in_source == NULL);
-  if (eof || read)
-    g_signal_emit (self, cockpit_stream_sig_read, 0, self->priv->in_buffer, eof);
+  if (self->priv->in_done || read)
+    g_signal_emit (self, cockpit_stream_sig_read, 0, self->priv->in_buffer, self->priv->in_done);
 
-  if (eof)
+  if (self->priv->in_done)
     close_maybe (self);
 
   g_object_unref (self);
@@ -438,7 +458,8 @@ dispatch_output (GPollableOutputStream *os,
   CockpitStream *self = (CockpitStream *)user_data;
   GError *error = NULL;
   const gint8 *data;
-  gsize len;
+  gsize len, size, before;
+  GBytes *popped;
   gssize ret;
 
   g_return_val_if_fail (self->priv->out_source, FALSE);
@@ -470,9 +491,18 @@ dispatch_output (GPollableOutputStream *os,
       self->priv->out_partial += ret;
       if (self->priv->out_partial >= len)
         {
+          before = self->priv->out_queued;
+
           g_debug ("%s: wrote %d bytes", self->priv->name, (int)len);
-          g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
+          popped = g_queue_pop_head (self->priv->out_queue);
+          size = g_bytes_get_size (popped);
+          g_assert (size <= self->priv->out_queued);
+          self->priv->out_queued -= size;
+          g_bytes_unref (popped);
           self->priv->out_partial = 0;
+
+          if (before >= QUEUE_PRESSURE && self->priv->out_queued < QUEUE_PRESSURE)
+            cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
         }
       else
         {
@@ -515,6 +545,22 @@ start_output (CockpitStream *self)
 }
 
 static void
+start_input (CockpitStream *self)
+{
+  GInputStream *is;
+
+  g_assert (self->priv->in_source == NULL);
+  g_assert (!self->priv->connecting);
+  g_assert (self->priv->io != NULL);
+
+  is = g_io_stream_get_input_stream (self->priv->io);
+  self->priv->in_source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (is), NULL);
+  g_source_set_name (self->priv->in_source, "stream-input");
+  g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
+  g_source_attach (self->priv->in_source, self->priv->context);
+}
+
+static void
 initialize_io (CockpitStream *self)
 {
   GInputStream *is;
@@ -541,10 +587,7 @@ initialize_io (CockpitStream *self)
       self->priv->connecting = NULL;
     }
 
-  self->priv->in_source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (is), NULL);
-  g_source_set_name (self->priv->in_source, "stream-input");
-  g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
-  g_source_attach (self->priv->in_source, self->priv->context);
+  start_input (self);
 
   if (G_IS_TLS_CONNECTION (self->priv->io))
     {
@@ -634,8 +677,12 @@ cockpit_stream_dispose (GObject *object)
   if (!self->priv->closed)
     close_immediately (self, "terminated");
 
+  cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
+  g_assert (self->priv->pressure == NULL);
+
   while (self->priv->out_queue->head)
     g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
+  self->priv->out_queued = 0;
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->dispose (object);
 }
@@ -780,18 +827,28 @@ void
 cockpit_stream_write (CockpitStream *self,
                       GBytes *data)
 {
+  gsize size, before;
+
   g_return_if_fail (COCKPIT_IS_STREAM (self));
   g_return_if_fail (!self->priv->closing);
 
   g_return_if_fail (!self->priv->closed);
 
-  if (g_bytes_get_size (data) == 0)
+  size = g_bytes_get_size (data);
+  if (size == 0)
     {
       g_debug ("%s: ignoring zero byte data block", self->priv->name);
       return;
     }
 
+  before = self->priv->out_queued;
+  g_return_if_fail (G_MAXSIZE - size > self->priv->out_queued);
+  self->priv->out_queued += size;
   g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
+
+  /* No longer have pressure in the queue? */
+  if (before < QUEUE_PRESSURE && self->priv->out_queued >= QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 
   if (!self->priv->out_source && !self->priv->out_closed)
     {
@@ -946,4 +1003,55 @@ cockpit_stream_new (const gchar *name,
                        "name", name,
                        "io-stream", io_stream,
                        NULL);
+}
+
+static void
+on_throttle_pressure (GObject *object,
+                      gboolean throttle,
+                      gpointer user_data)
+{
+  CockpitStream *self = COCKPIT_STREAM (user_data);
+  if (throttle)
+    {
+      if (self->priv->in_source != NULL)
+        {
+          g_debug ("%s: applying back pressure in stream", self->priv->name);
+          stop_input (self);
+        }
+    }
+  else
+    {
+      if (self->priv->in_source == NULL && self->priv->io && !self->priv->connecting)
+        {
+          g_debug ("%s: relieving back pressure in stream", self->priv->name);
+          start_input (self);
+        }
+    }
+}
+
+static void
+cockpit_stream_throttle (CockpitFlow *flow,
+                         CockpitFlow *controlling)
+{
+  CockpitStream *self = COCKPIT_STREAM (flow);
+
+  if (self->priv->pressure)
+    {
+      g_signal_handler_disconnect (self->priv->pressure, self->priv->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure = NULL;
+    }
+
+  if (controlling)
+    {
+      self->priv->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+    }
+}
+
+static void
+cockpit_stream_flow_iface_init (CockpitFlowIface *iface)
+{
+  iface->throttle = cockpit_stream_throttle;
 }

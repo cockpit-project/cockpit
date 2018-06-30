@@ -21,7 +21,8 @@
 
 #include "cockpitpipe.h"
 
-#include "common/cockpittest.h"
+#include "cockpittest.h"
+#include "mock-pressure.h"
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -188,6 +189,16 @@ teardown (TestCase *tc,
     g_source_remove (tc->timeout);
 }
 
+static gboolean
+on_timeout_set_flag (gpointer user_data)
+{
+  gboolean *data = user_data;
+  g_assert (user_data);
+  g_assert (*data == FALSE);
+  *data = TRUE;
+  return FALSE;
+}
+
 static void
 test_echo_and_close (TestCase *tc,
                      gconstpointer data)
@@ -319,6 +330,107 @@ test_pid (TestCase *tc,
   g_assert_cmpuint (pid, ==, check);
 }
 
+static void
+on_pressure_set_throttle (CockpitPipe *pipe,
+                          gboolean throttle,
+                          gpointer user_data)
+{
+  gint *data = user_data;
+  g_assert (user_data != NULL);
+  *data = throttle ? 1 : 0;
+}
+
+static void
+test_pressure_queue (TestCase *tc,
+                     gconstpointer data)
+{
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  gint throttle = -1;
+  GBytes *sent;
+  gint i;
+
+  g_signal_connect (tc->pipe, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+  sent = g_bytes_new_take (g_strnfill (10 * 1000, '?'), 10 * 1000);
+
+  /* Sent this a thousand times */
+  for (i = 0; i < 1000; i++)
+    cockpit_pipe_write (tc->pipe, sent);
+
+  g_bytes_unref (sent);
+
+  /*
+   * This should have put way too much in the queue, and thus
+   * emitted the back-pressure signal. This signal would normally
+   * be used by others to slow down their queueing, but in this
+   * case we just check that it was fired.
+   */
+  g_assert_cmpint (throttle, ==, 1);
+  throttle = -1;
+
+  /*
+   * Now the queue is getting drained. At some point, it will be
+   * signaled that back pressure has been turned off
+   */
+  while (throttle == -1)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (throttle, ==, 0);
+  g_assert_cmpint (echo_pipe->received->len, >, 10 * 1000);
+}
+
+static void
+test_pressure_throttle (TestCase *tc,
+                        gconstpointer data)
+{
+  CockpitFlow *pressure = mock_pressure_new ();
+  MockEchoPipe *echo_pipe = (MockEchoPipe *)tc->pipe;
+  gboolean timeout = FALSE;
+  gsize received;
+  GBytes *sent;
+  gint i;
+
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->pipe), pressure);
+  sent = g_bytes_new_take (g_strnfill (1024, '?'), 1024);
+
+  /* Send 2MB over the echo pipe */
+  for (i = 0; i < 2048; i++)
+    cockpit_pipe_write (tc->pipe, sent);
+
+  g_bytes_unref (sent);
+
+  /*
+   * So we should start receiving the echoed data. But we apply
+   * the throttle pressure after receiving some data, and the rest
+   * just waits.
+   */
+  while (echo_pipe->received->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_flow_emit_pressure (pressure, TRUE);
+
+  received = echo_pipe->received->len;
+  g_assert_cmpint (received, <, 2048 * 1024);
+
+  /* Now remaining data input should wait, no further data received*/
+  g_timeout_add_seconds (2, on_timeout_set_flag, &timeout);
+  while (timeout == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (received, ==, echo_pipe->received->len);
+
+  /* Remove the pressure, and we should get more data */
+  cockpit_flow_emit_pressure (pressure, FALSE);
+  while (received < echo_pipe->received->len)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Clearing the throttle should work too. This pressure signal has no effect */
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->pipe), NULL);
+  cockpit_flow_emit_pressure (pressure, TRUE);
+
+  /* Now wait for the remaining data */
+  while (echo_pipe->received->len < 2048 * 1024)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (pressure);
+}
 
 static const TestFixture fixture_buffer = {
     .pipe_type_name = "CockpitPipe"
@@ -1199,6 +1311,11 @@ main (int argc,
               setup_simple, test_skip_zero, teardown);
   g_test_add ("/pipe/pid", TestCase, &fixture_pid,
               setup_simple, test_pid, teardown);
+
+  g_test_add ("/pipe/pressure/queue", TestCase, NULL,
+              setup_simple, test_pressure_queue, teardown);
+  g_test_add ("/pipe/pressure/throttle", TestCase, NULL,
+              setup_simple, test_pressure_throttle, teardown);
 
   g_test_add ("/pipe/exit-success", TestCase, &fixture_exit_success,
               setup_simple, test_exit_success, teardown);

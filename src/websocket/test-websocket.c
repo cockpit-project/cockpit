@@ -776,6 +776,7 @@ test_pressure_throttle (Test *test,
   while (received->len < 10 * 1000 * 1000)
     g_main_context_iteration (NULL, TRUE);
 
+  g_byte_array_free (received, TRUE);
   g_object_unref (pressure);
 }
 

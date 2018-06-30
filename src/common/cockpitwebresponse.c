@@ -30,6 +30,7 @@
 
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
+#include "common/cockpitflow.h"
 #include "common/cockpitlocale.h"
 #include "common/cockpittemplate.h"
 
@@ -73,6 +74,7 @@ struct _CockpitWebResponse {
   /* The output queue */
   GPollableOutputStream *out;
   GQueue *queue;
+  gsize out_queued;
   gsize partial_offset;
   GSource *source;
 
@@ -91,9 +93,15 @@ typedef struct {
   GObjectClass parent;
 } CockpitWebResponseClass;
 
+/* A megabyte is when we start to consider queue full enough */
+#define QUEUE_PRESSURE 1024UL * 1024UL
+
 static guint signal__done;
 
-G_DEFINE_TYPE (CockpitWebResponse, cockpit_web_response, G_TYPE_OBJECT);
+static void      cockpit_web_response_flow_iface_init      (CockpitFlowIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CockpitWebResponse, cockpit_web_response, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_web_response_flow_iface_init));
 
 static void
 cockpit_web_response_init (CockpitWebResponse *self)
@@ -165,6 +173,7 @@ cockpit_web_response_finalize (GObject *object)
   g_assert (self->io == NULL);
   g_assert (self->out == NULL);
   g_queue_free_full (self->queue, (GDestroyNotify)g_bytes_unref);
+  self->out_queued = 0;
 
   G_OBJECT_CLASS (cockpit_web_response_parent_class)->finalize (object);
 }
@@ -383,7 +392,7 @@ on_response_output (GObject *pollable,
   const guint8 *data;
   GBytes *block;
   gssize count;
-  gsize len;
+  gsize before, size, len;
 
   block = g_queue_peek_head (self->queue);
   if (block)
@@ -392,6 +401,8 @@ on_response_output (GObject *pollable,
       g_assert (len == 0 || self->partial_offset < len);
       data += self->partial_offset;
       len -= self->partial_offset;
+
+      before = self->out_queued;
 
       if (len > 0)
         {
@@ -425,7 +436,10 @@ on_response_output (GObject *pollable,
         {
           g_debug ("%s: sent %d bytes", self->logname, (int)len);
           self->partial_offset = 0;
-          g_queue_pop_head (self->queue);
+          block = g_queue_pop_head (self->queue);
+          size = g_bytes_get_size (block);
+          g_assert (size <= self->out_queued);
+          self->out_queued -= size;
           g_bytes_unref (block);
         }
       else
@@ -434,6 +448,14 @@ on_response_output (GObject *pollable,
           g_assert (count < len);
           self->partial_offset += count;
         }
+
+      /*
+       * If we're controlling another flow, turn it on again when our output
+       * buffer size becomes less than the low mark.
+       */
+      if (before >= QUEUE_PRESSURE && self->out_queued < QUEUE_PRESSURE)
+        cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+
       return TRUE;
     }
   else
@@ -457,6 +479,13 @@ static void
 queue_bytes (CockpitWebResponse *self,
              GBytes *block)
 {
+  gsize size, before;
+
+  size = g_bytes_get_size (block);
+  before = self->out_queued;
+  g_return_if_fail (G_MAXSIZE - size > self->out_queued);
+  self->out_queued += size;
+
   g_queue_push_tail (self->queue, g_bytes_ref (block));
 
   self->count++;
@@ -467,6 +496,9 @@ queue_bytes (CockpitWebResponse *self,
       g_source_set_callback (self->source, (GSourceFunc)on_response_output, self, NULL);
       g_source_attach (self->source, NULL);
     }
+
+  if (before < QUEUE_PRESSURE && self->out_queued >= QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 }
 
 static void
@@ -1892,4 +1924,10 @@ cockpit_web_response_get_protocol (GIOStream *connection,
     }
 
   return protocol ? protocol : "http";
+}
+
+static void
+cockpit_web_response_flow_iface_init (CockpitFlowIface *iface)
+{
+  /* No implementation */
 }

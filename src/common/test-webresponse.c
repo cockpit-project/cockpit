@@ -492,6 +492,67 @@ test_stream (TestCase *tc,
 }
 
 static void
+on_pressure_set_throttle (CockpitWebResponse *response,
+                          gboolean throttle,
+                          gpointer user_data)
+{
+  gint *data = user_data;
+  g_assert (user_data != NULL);
+  *data = throttle ? 1 : 0;
+}
+
+static void
+test_pressure (TestCase *tc,
+               gconstpointer data)
+{
+  GBytes *sent;
+  gint throttle = -1;
+  gint i;
+
+  g_signal_connect (tc->response, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
+
+  cockpit_web_response_headers (tc->response, 200, "OK", 11, NULL);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  while (g_main_context_iteration (NULL, FALSE));
+
+  /* Sent this a thousand times */
+  sent = g_bytes_new_take (g_strnfill (10 * 1000, '?'), 10 * 1000);
+  for (i = 0; i < 1000; i++)
+    cockpit_web_response_queue (tc->response, sent);
+  g_bytes_unref (sent);
+
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
+
+  /*
+   * This should have put way too much in the queue, and thus
+   * emitted the back-pressure signal. This signal would normally
+   * be used by others to slow down their queueing, but in this
+   * case we just check that it was fired.
+   */
+  g_assert_cmpint (throttle, ==, 1);
+  throttle = -1;
+
+  cockpit_web_response_complete (tc->response);
+  g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_COMPLETE);
+
+  /*
+   * Now the queue is getting drained. At some point, it will be
+   * signaled that back pressure has been turned off
+   */
+  while (throttle == -1)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (throttle, ==, 0);
+
+  while (!tc->response_done)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (tc->output)), >, 10 * 1000 * 1000);
+}
+
+static void
 test_head (TestCase *tc,
            gconstpointer data)
 {
@@ -1371,6 +1432,8 @@ main (int argc,
               setup, test_content_encoding, teardown);
   g_test_add ("/web-response/stream", TestCase, NULL,
               setup, test_stream, teardown);
+  g_test_add ("/web-response/pressure", TestCase, NULL,
+              setup, test_pressure, teardown);
   g_test_add ("/web-response/head", TestCase, NULL,
               setup, test_head, teardown);
   g_test_add ("/web-response/chunked-transfer-encoding", TestCase, NULL,

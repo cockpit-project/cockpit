@@ -175,7 +175,12 @@ process_control (CockpitChannel *self,
       return;
     }
 
-  if (g_str_equal (command, "done"))
+  if (g_str_equal (command, "ping"))
+    {
+      cockpit_channel_control (self, "pong", options);
+      return;
+    }
+  else if (g_str_equal (command, "done"))
     {
       if (self->priv->received_done)
         cockpit_channel_fail (self, "protocol-error", "channel received second done");

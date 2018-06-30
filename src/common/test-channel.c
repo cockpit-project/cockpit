@@ -469,6 +469,87 @@ test_capable (void)
   g_object_unref (transport);
 }
 
+static void
+test_ping_channel (void)
+{
+  JsonObject *reply = NULL;
+  JsonObject *options;
+  MockTransport *mock;
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  GBytes *sent;
+
+  mock = mock_transport_new ();
+  transport = COCKPIT_TRANSPORT (mock);
+
+  options = json_object_new ();
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+  cockpit_channel_ready (channel, NULL);
+  json_object_unref (options);
+
+  sent = cockpit_transport_build_control ("command", "ping", "channel", "55", "other", "marmalade", NULL);
+  cockpit_transport_emit_recv (transport, NULL, sent);
+  g_bytes_unref (sent);
+
+  reply = mock_transport_pop_control (mock);
+  g_assert (reply != NULL);
+  cockpit_assert_json_eq (reply, "{ \"command\": \"ready\", \"channel\": \"55\" }");
+
+  reply = mock_transport_pop_control (mock);
+  g_assert (reply != NULL);
+  cockpit_assert_json_eq (reply, "{ \"command\": \"pong\", \"channel\": \"55\", \"other\": \"marmalade\" }");
+
+  g_object_unref (channel);
+  g_object_unref (mock);
+}
+
+static void
+test_ping_no_channel (void)
+{
+  JsonObject *reply = NULL;
+  JsonObject *options;
+  MockTransport *mock;
+  CockpitTransport *transport;
+  CockpitChannel *channel;
+  GBytes *sent;
+
+  mock = mock_transport_new ();
+  transport = COCKPIT_TRANSPORT (mock);
+
+  options = json_object_new ();
+  channel = g_object_new (mock_echo_channel_get_type (),
+                          "transport", transport,
+                          "id", "55",
+                          "options", options,
+                          NULL);
+  json_object_unref (options);
+
+  /*
+   * Sending a "ping" on an unknown channel. There should be nothing that
+   * responds to this and returns a "pong" message.
+   */
+  sent = cockpit_transport_build_control ("command", "ping", "channel", "unknown", "other", "marmalade", NULL);
+  cockpit_transport_emit_recv (transport, NULL, sent);
+  g_bytes_unref (sent);
+
+  cockpit_channel_ready (channel, NULL);
+
+  /* Should just get a ready message back */
+  reply = mock_transport_pop_control (mock);
+  g_assert (reply != NULL);
+  cockpit_assert_json_eq (reply, "{ \"command\": \"ready\", \"channel\": \"55\" }");
+
+  reply = mock_transport_pop_control (mock);
+  g_assert (reply == NULL);
+
+  g_object_unref (channel);
+  g_object_unref (mock);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -495,6 +576,9 @@ main (int argc,
               setup, test_close_json_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,
               setup, test_close_transport, teardown);
+
+  g_test_add_func ("/channel/ping/normal", test_ping_channel);
+  g_test_add_func ("/channel/ping/no-channel", test_ping_no_channel);
 
   return g_test_run ();
 }

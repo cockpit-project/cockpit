@@ -361,6 +361,22 @@ process_kill (CockpitWebService *self,
   return TRUE;
 }
 
+static gboolean
+process_ping (CockpitWebService *self,
+              CockpitSocket *socket,
+              JsonObject *options)
+{
+  GBytes *payload;
+
+  /* Respond to a ping without a channel, by saying "pong" */
+  json_object_set_string_member (options, "command", "pong");
+  payload = cockpit_json_write_bytes (options);
+  web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
+  g_bytes_unref (payload);
+
+  return TRUE;
+}
+
 static void
 send_socket_hints (CockpitWebService *self,
                    const gchar *name,
@@ -663,10 +679,6 @@ on_transport_control (CockpitTransport *transport,
       else if (g_strcmp0 (command, "authorize") == 0)
         {
           valid = process_transport_authorize (self, transport, options);
-        }
-      else if (g_strcmp0 (command, "ping") == 0)
-        {
-          valid = TRUE;
         }
       else
         {
@@ -1034,6 +1046,10 @@ dispatch_inbound_command (CockpitWebService *self,
   else if (g_strcmp0 (command, "kill") == 0)
     {
       valid = process_kill (self, socket, options, payload);
+    }
+  else if (!channel && g_strcmp0 (command, "ping") == 0)
+    {
+      valid = process_ping (self, socket, options);
     }
   else if (channel)
     {

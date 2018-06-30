@@ -1895,6 +1895,9 @@ on_pipe_read (CockpitPipe *pipe,
       g_debug ("%s: dropping %d bytes", self->logname, buf->len);
       g_byte_array_free (buf, TRUE);
     }
+
+  if (end_of_data)
+    cockpit_pipe_close (pipe, NULL);
 }
 
 static void

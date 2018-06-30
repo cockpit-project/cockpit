@@ -42,6 +42,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitchannel.c \
 	src/common/cockpitchannel.h \
 	src/common/cockpiterror.h src/common/cockpiterror.c \
+	src/common/cockpitflow.c \
+	src/common/cockpitflow.h \
 	src/common/cockpitframe.c \
 	src/common/cockpitframe.h \
 	src/common/cockpithash.c \
@@ -190,7 +192,8 @@ test_knownhosts_SOURCES = src/common/test-knownhosts.c
 test_knownhosts_LDADD = $(libcockpit_common_a_LIBS)
 
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_pipe_SOURCES = src/common/test-pipe.c
+test_pipe_SOURCES = src/common/test-pipe.c \
+	src/common/mock-pressure.c src/common/mock-pressure.h
 test_pipe_LDADD = $(libcockpit_common_a_LIBS)
 
 test_system_CFLAGS = $(libcockpit_common_a_CFLAGS)

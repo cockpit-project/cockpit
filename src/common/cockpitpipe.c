@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "cockpitpipe.h"
+
+#include "cockpitflow.h"
 #include "cockpitunixfd.h"
 
 #include <glib-unix.h>
@@ -49,7 +51,14 @@
  * When talking to a process the CockpitPipe:pid property
  * will be non-zero. In that case the transport waits for the child
  * process to exit before it closes.
-*/
+ *
+ * This pipe can do flow control in two ways:
+ *
+ *  - Its input can be throttled, it can listen to a "pressure" signal
+ *    from another object passed into cockpit_flow_throttle()
+ *  - It can optionally control another flow, by emitting a "pressure" signal
+ *    when its output queue is too large
+ */
 
 enum {
   PROP_0,
@@ -78,19 +87,27 @@ struct _CockpitPipePrivate {
   gboolean is_process;
 
   int out_fd;
+  gboolean out_done;
   GSource *out_source;
   GQueue *out_queue;
+  gsize out_queued;
   gsize out_partial;
 
   int in_fd;
+  gboolean in_done;
   GSource *in_source;
   GByteArray *in_buffer;
 
   int err_fd;
+  gboolean err_done;
   GSource *err_source;
   GByteArray *err_buffer;
 
   gboolean is_user_fd;
+
+  /* Pressure which throttles input on this pipe */
+  CockpitFlow *pressure;
+  gulong pressure_sig;
 };
 
 typedef struct {
@@ -98,8 +115,17 @@ typedef struct {
   CockpitPipe *pipe;
 } CockpitPipeSource;
 
+/* A megabyte is when we start to consider queue full enough */
+#define QUEUE_PRESSURE 1024UL * 1024UL
+
 static guint cockpit_pipe_sig_read;
 static guint cockpit_pipe_sig_close;
+
+static void  start_input         (CockpitPipe *self);
+
+static void  start_output        (CockpitPipe *self);
+
+static void  close_output        (CockpitPipe *self);
 
 static void  cockpit_close_later (CockpitPipe *self);
 
@@ -107,7 +133,13 @@ static void  set_problem_from_errno (CockpitPipe *self,
                                      const gchar *message,
                                      int errn);
 
-G_DEFINE_TYPE (CockpitPipe, cockpit_pipe, G_TYPE_OBJECT);
+static void  cockpit_pipe_throttle  (CockpitFlow *flow,
+                                     CockpitFlow *controlling);
+
+static void  cockpit_pipe_flow_iface_init (CockpitFlowIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CockpitPipe, cockpit_pipe, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_pipe_flow_iface_init));
 
 static void
 cockpit_pipe_init (CockpitPipe *self)
@@ -171,10 +203,13 @@ close_immediately (CockpitPipe *self,
 
   if (self->priv->in_source)
     stop_input (self);
+  self->priv->in_done = TRUE;
   if (self->priv->out_source)
     stop_output (self);
+  self->priv->out_done = TRUE;
   if (self->priv->err_source)
     stop_error (self);
+  self->priv->err_done = TRUE;
 
   if (self->priv->in_fd != -1)
     {
@@ -212,7 +247,7 @@ close_maybe (CockpitPipe *self)
 {
   if (!self->priv->closed)
     {
-      if (!self->priv->in_source && !self->priv->out_source && !self->priv->err_source)
+      if (self->priv->in_done && self->priv->out_done && self->priv->err_done)
         {
           g_debug ("%s: input and output done", self->priv->name);
           close_immediately (self, NULL);
@@ -247,7 +282,11 @@ on_child_reap (GPid pid,
 
   g_debug ("%s: child process quit:%s  %d %d", self->priv->name,
            self->priv->closed ? " closed:" : "", (int)pid, status);
-  if (self->priv->closed)
+
+  /* Start input and output to get to completion */
+  if (!self->priv->out_done)
+    close_output (self);
+  else if (self->priv->closed)
     g_signal_emit (self, cockpit_pipe_sig_close, 0, self->priv->problem);
 }
 
@@ -259,7 +298,6 @@ dispatch_input (gint fd,
   CockpitPipe *self = (CockpitPipe *)user_data;
   gssize ret = 0;
   gsize len;
-  gboolean eof;
   int errn;
 
   g_return_val_if_fail (self->priv->in_source, FALSE);
@@ -303,15 +341,15 @@ dispatch_input (gint fd,
   if (ret == 0)
     {
       g_debug ("%s: end of input", self->priv->name);
+      self->priv->in_done = TRUE;
       stop_input (self);
     }
 
   g_object_ref (self);
 
-  eof = (self->priv->in_source == NULL);
-  g_signal_emit (self, cockpit_pipe_sig_read, 0, self->priv->in_buffer, eof);
+  g_signal_emit (self, cockpit_pipe_sig_read, 0, self->priv->in_buffer, self->priv->in_done);
 
-  if (eof)
+  if (self->priv->in_done)
     close_maybe (self);
 
   g_object_unref (self);
@@ -326,7 +364,6 @@ dispatch_error (gint fd,
   CockpitPipe *self = (CockpitPipe *)user_data;
   gssize ret = 0;
   gsize len;
-  gboolean eof;
 
   g_return_val_if_fail (self->priv->err_source, FALSE);
   len = self->priv->err_buffer->len;
@@ -360,14 +397,13 @@ dispatch_error (gint fd,
   if (ret == 0)
     {
       g_debug ("%s: end of error", self->priv->name);
+      self->priv->err_done = TRUE;
       stop_error (self);
     }
 
   g_object_ref (self);
 
-  eof = (self->priv->err_source == NULL);
-
-  if (eof)
+  if (self->priv->err_done)
     close_maybe (self);
 
   g_object_unref (self);
@@ -377,6 +413,8 @@ dispatch_error (gint fd,
 static void
 close_output (CockpitPipe *self)
 {
+  self->priv->out_done = TRUE;
+
   if (self->priv->out_fd != -1)
     {
       g_debug ("%s: end of output", self->priv->name);
@@ -391,6 +429,7 @@ close_output (CockpitPipe *self)
 
               if (self->priv->in_fd == self->priv->out_fd)
                 {
+                  self->priv->in_done = TRUE;
                   self->priv->in_fd = -1;
                   if (self->priv->in_source)
                     {
@@ -480,7 +519,8 @@ dispatch_output (gint fd,
 {
   CockpitPipe *self = (CockpitPipe *)user_data;
   struct iovec iov[4];
-  gsize partial;
+  gsize partial, size, before;
+  GBytes *popped;
   gssize ret;
   gint i, count;
   GList *l;
@@ -490,6 +530,8 @@ dispatch_output (gint fd,
     return TRUE;
 
   g_return_val_if_fail (self->priv->out_source, FALSE);
+
+  before = self->priv->out_queued;
 
   /* Note we fall through when nothing to write */
   partial = self->priv->out_partial;
@@ -537,7 +579,11 @@ dispatch_output (gint fd,
       if (ret >= iov[i].iov_len)
         {
           g_debug ("%s: wrote %d bytes", self->priv->name, (int)iov[i].iov_len);
-          g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
+          popped = g_queue_pop_head (self->priv->out_queue);
+          size = g_bytes_get_size (popped);
+          g_assert (size <= self->priv->out_queued);
+          self->priv->out_queued -= size;
+          g_bytes_unref (popped);
           self->priv->out_partial = 0;
           ret -= iov[i].iov_len;
         }
@@ -549,6 +595,13 @@ dispatch_output (gint fd,
           ret = 0;
         }
     }
+
+  /*
+   * If we're controlling another flow, turn it on again when our output
+   * buffer size becomes less than the low mark.
+   */
+  if (before >= QUEUE_PRESSURE && self->priv->out_queued < QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
 
   if (self->priv->out_queue->head)
     return TRUE;
@@ -577,6 +630,16 @@ start_output (CockpitPipe *self)
 }
 
 static void
+start_input (CockpitPipe *self)
+{
+  g_assert (self->priv->in_source == NULL);
+  self->priv->in_source = cockpit_unix_fd_source_new (self->priv->in_fd, G_IO_IN);
+  g_source_set_name (self->priv->in_source, "pipe-input");
+  g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
+  g_source_attach (self->priv->in_source, self->priv->context);
+}
+
+static void
 cockpit_pipe_constructed (GObject *object)
 {
   CockpitPipe *self = COCKPIT_PIPE (object);
@@ -596,10 +659,11 @@ cockpit_pipe_constructed (GObject *object)
           g_clear_error (&error);
         }
 
-      self->priv->in_source = cockpit_unix_fd_source_new (self->priv->in_fd, G_IO_IN);
-      g_source_set_name (self->priv->in_source, "pipe-input");
-      g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
-      g_source_attach (self->priv->in_source, self->priv->context);
+      start_input (self);
+    }
+  else
+    {
+      self->priv->in_done = TRUE;
     }
 
   if (self->priv->out_fd >= 0)
@@ -611,6 +675,10 @@ cockpit_pipe_constructed (GObject *object)
           g_clear_error (&error);
         }
       start_output (self);
+    }
+  else
+    {
+      self->priv->out_done = TRUE;
     }
 
   if (self->priv->err_fd >= 0)
@@ -627,6 +695,10 @@ cockpit_pipe_constructed (GObject *object)
       g_source_set_name (self->priv->err_source, "pipe-error");
       g_source_set_callback (self->priv->err_source, (GSourceFunc)dispatch_error, self, NULL);
       g_source_attach (self->priv->err_source, self->priv->context);
+    }
+  else
+    {
+      self->priv->err_done = TRUE;
     }
 
   if (self->priv->pid)
@@ -728,8 +800,12 @@ cockpit_pipe_dispose (GObject *object)
   if (!self->priv->closed)
     close_immediately (self, "terminated");
 
+  cockpit_pipe_throttle (COCKPIT_FLOW (self), NULL);
+  g_assert (self->priv->pressure == NULL);
+
   while (self->priv->out_queue->head)
     g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
+  self->priv->out_queued = 0;
 
   G_OBJECT_CLASS (cockpit_pipe_parent_class)->dispose (object);
 }
@@ -901,6 +977,8 @@ _cockpit_pipe_write (CockpitPipe *self,
                     const gchar *caller,
                     int line)
 {
+  gsize size, before;
+
   g_return_if_fail (COCKPIT_IS_PIPE (self));
 
   /* If self->priv->io is already gone but we are still waiting for the
@@ -925,13 +1003,24 @@ _cockpit_pipe_write (CockpitPipe *self,
       return;
     }
 
-  if (g_bytes_get_size (data) == 0)
+  size = g_bytes_get_size (data);
+  if (size == 0)
     {
       g_debug ("%s: ignoring zero byte data block", self->priv->name);
       return;
     }
 
+  before = self->priv->out_queued;
+  g_return_if_fail (G_MAXSIZE - size > self->priv->out_queued);
+  self->priv->out_queued += size;
   g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
+
+  /*
+   * If we have too much data queued, and are controlling another flow
+   * tell it to stop sending data, each time we cross over the high bound.
+   */
+  if (before < QUEUE_PRESSURE && self->priv->out_queued >= QUEUE_PRESSURE)
+    cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 
   if (!self->priv->out_source && self->priv->out_fd >= 0)
     {
@@ -969,6 +1058,8 @@ cockpit_pipe_close (CockpitPipe *self,
       close_immediately (self, problem);
   else if (g_queue_is_empty (self->priv->out_queue))
     close_output (self);
+  else
+    g_debug ("%s: pipe closing when output queue empty", self->priv->name);
 }
 
 static gboolean
@@ -1553,4 +1644,55 @@ cockpit_pipe_get_environ (const gchar **input,
     env = g_environ_setenv (env, "PWD", directory, TRUE);
 
   return env;
+}
+
+static void
+on_throttle_pressure (GObject *object,
+                      gboolean throttle,
+                      gpointer user_data)
+{
+  CockpitPipe *self = COCKPIT_PIPE (user_data);
+  if (throttle)
+    {
+      if (self->priv->in_source != NULL)
+        {
+          g_debug ("%s: applying back pressure in pipe", self->priv->name);
+          stop_input (self);
+        }
+    }
+  else
+    {
+      if (self->priv->in_source == NULL && !self->priv->in_done)
+        {
+          g_debug ("%s: relieving back pressure in pipe", self->priv->name);
+          start_input (self);
+        }
+    }
+}
+
+static void
+cockpit_pipe_throttle (CockpitFlow *flow,
+                       CockpitFlow *controlling)
+{
+  CockpitPipe *self = COCKPIT_PIPE (flow);
+
+  if (self->priv->pressure)
+    {
+      g_signal_handler_disconnect (self->priv->pressure, self->priv->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure = NULL;
+    }
+
+  if (controlling)
+    {
+      self->priv->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+    }
+}
+
+static void
+cockpit_pipe_flow_iface_init (CockpitFlowIface *iface)
+{
+  iface->throttle = cockpit_pipe_throttle;
 }

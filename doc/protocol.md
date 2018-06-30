@@ -65,7 +65,7 @@ containing the id of the channel. It is invalid to have a present but empty
 
 Unknown control messages are ignored. Control messages that have a channel are
 forwarded to the correct endpoint. Control messages without a channel are not
-forwarded automatically.
+forwarded, but only travel a single hop.
 
 
 Command: init
@@ -282,7 +282,8 @@ Command: ping
 
 The "ping" command is simply a keep alive.
 
-No additional fields are defined.
+No additional fields are defined, but any are allowed. If a "channel"
+is set this "ping" will be forwarded. Otherwise it be limited to a single hop.
 
 An example of a ping:
 
@@ -290,7 +291,10 @@ An example of a ping:
         "command": "ping",
     }
 
-Any protocol participant can send this message, but it is not responded to.
+Any protocol participant can send a "ping". It is responded to by sending
+a "pong" with identical options as a reply. If a "ping" is sent with a
+"channel" field set to a channel that is not currently open, the "ping"
+will be ignored as expected, and no "pong" will be sent.
 
 Command: authorize
 ------------------

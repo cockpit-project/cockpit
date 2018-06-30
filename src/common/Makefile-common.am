@@ -202,7 +202,8 @@ test_template_SOURCES = src/common/test-template.c
 test_template_LDADD = $(libcockpit_common_a_LIBS)
 
 test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
-test_transport_SOURCES = src/common/test-transport.c
+test_transport_SOURCES = src/common/test-transport.c \
+	src/common/mock-transport.c src/common/mock-transport.h
 test_transport_LDADD = $(libcockpit_common_a_LIBS)
 
 test_unicode_CFLAGS = $(libcockpit_common_a_CFLAGS)

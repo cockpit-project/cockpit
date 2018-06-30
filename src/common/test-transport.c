@@ -24,6 +24,7 @@
 #include "cockpitpipetransport.h"
 
 #include "common/cockpittest.h"
+#include "common/mock-transport.h"
 
 #include "websocket/websocket.h"
 
@@ -192,6 +193,60 @@ test_echo_and_close (TestCase *tc,
   cockpit_transport_close (tc->transport, NULL);
 
   WAIT_UNTIL (closed == TRUE);
+}
+
+static void
+test_ping_pong (void)
+{
+  JsonObject *reply = NULL;
+  MockTransport *mock;
+  CockpitTransport *transport;
+  GBytes *sent;
+
+  mock = mock_transport_new ();
+  transport = COCKPIT_TRANSPORT (mock);
+
+  /*
+   * A "ping" without a channel is not forwarded, but responded to directly
+   * by the peer transport. Here we test that CockpitTransport does
+   * that response properly.
+   */
+  sent = cockpit_transport_build_control ("command", "ping", "value", "blah", "other", "marmalade", NULL);
+  cockpit_transport_emit_recv (transport, NULL, sent);
+  g_bytes_unref (sent);
+
+  reply = mock_transport_pop_control (mock);
+
+  cockpit_assert_json_eq (reply, "{ \"command\": \"pong\", \"value\": \"blah\", \"other\": \"marmalade\" }");
+  g_object_unref (mock);
+}
+
+static void
+test_ping_channel (void)
+{
+  JsonObject *reply = NULL;
+  MockTransport *mock;
+  CockpitTransport *transport;
+  GBytes *sent;
+
+  mock = mock_transport_new ();
+  transport = COCKPIT_TRANSPORT (mock);
+
+  /* This is a "ping" in a channel. But that channel is not open, so its ignored */
+  sent = cockpit_transport_build_control ("command", "ping", "channel", "444", NULL);
+  cockpit_transport_emit_recv (transport, NULL, sent);
+  g_bytes_unref (sent);
+
+  /* This is a single hop, non-forwarded ping, responded to by CockpitTransport */
+  sent = cockpit_transport_build_control ("command", "ping", "value", "blah", "other", "marmalade", NULL);
+  cockpit_transport_emit_recv (transport, NULL, sent);
+  g_bytes_unref (sent);
+
+  reply = mock_transport_pop_control (mock);
+
+  /* Note that we don't get a pong for the first one, since it's for a channel, and no such channel exists */
+  cockpit_assert_json_eq (reply, "{ \"command\": \"pong\", \"value\": \"blah\", \"other\": \"marmalade\" }");
+  g_object_unref (mock);
 }
 
 static void
@@ -696,6 +751,9 @@ main (int argc,
   g_test_add ("/transport/terminate-problem", TestCase,
               BUILDDIR "/mock-echo", setup_with_child,
               test_terminate_problem, teardown_transport);
+
+  g_test_add_func ("/transport/ping/pong", test_ping_pong);
+  g_test_add_func ("/transport/ping/channel", test_ping_channel);
 
   g_test_add_func ("/transport/read-error", test_read_error);
   g_test_add_func ("/transport/write-error", test_write_error);

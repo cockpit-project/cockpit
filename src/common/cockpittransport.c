@@ -132,6 +132,29 @@ cockpit_transport_default_recv (CockpitTransport *transport,
   return TRUE;
 }
 
+static gboolean
+cockpit_transport_default_control (CockpitTransport *transport,
+                                   const gchar *command,
+                                   const gchar *channel,
+                                   JsonObject *options,
+                                   GBytes *payload)
+{
+  GBytes *message;
+
+  /* A single hop ping. Respond to it right here, immediately */
+  if (g_str_equal (command, "ping") && channel == NULL)
+    {
+      json_object_set_string_member (options, "command", "pong");
+      message = cockpit_json_write_bytes (options);
+      cockpit_transport_send (transport, NULL, message);
+      g_bytes_unref (message);
+      return TRUE;
+    }
+
+  /* Not handled */
+  return FALSE;
+}
+
 static void
 cockpit_transport_finalize (GObject *object)
 {
@@ -151,6 +174,7 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   klass->recv = cockpit_transport_default_recv;
+  klass->control = cockpit_transport_default_control;
 
   object_class->get_property = cockpit_transport_get_property;
   object_class->finalize = cockpit_transport_finalize;

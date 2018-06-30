@@ -220,7 +220,8 @@ test_setup_LDADD = $(libcockpit_bridge_LIBS)
 
 test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_stream_SOURCES = src/bridge/test-stream.c \
-	src/common/mock-io-stream.c src/common/mock-io-stream.h
+	src/common/mock-io-stream.c src/common/mock-io-stream.h \
+	src/common/mock-pressure.c src/common/mock-pressure.h
 test_stream_LDADD = $(libcockpit_bridge_LIBS)
 
 test_process_SOURCES = src/bridge/test-process.c

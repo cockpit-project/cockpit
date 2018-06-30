@@ -24,6 +24,7 @@
 #include "common/cockpitloopback.h"
 #include "common/cockpittest.h"
 #include "common/mock-io-stream.h"
+#include "common/mock-pressure.h"
 
 #include <glib.h>
 #include <glib-unix.h>
@@ -128,7 +129,7 @@ setup_timeout (TestCase *tc,
 {
   const TestFixture *fixture = data;
   if (!fixture || !fixture->no_timeout)
-    tc->timeout = g_timeout_add_seconds (10, on_timeout_abort, tc);
+    tc->timeout = g_timeout_add_seconds (30, on_timeout_abort, tc);
 }
 
 static GIOStream *
@@ -197,6 +198,16 @@ teardown (TestCase *tc,
 
   if (tc->timeout)
     g_source_remove (tc->timeout);
+}
+
+static gboolean
+on_timeout_set_flag (gpointer user_data)
+{
+  gboolean *data = user_data;
+  g_assert (user_data);
+  g_assert (*data == FALSE);
+  *data = TRUE;
+  return FALSE;
 }
 
 static void
@@ -355,6 +366,108 @@ test_skip_zero (TestCase *tc,
   g_assert_cmpint (echo_stream->received->len, ==, 8);
   g_byte_array_append (echo_stream->received, (guint8 *)"", 1);
   g_assert_cmpstr ((gchar *)echo_stream->received->data, ==, "blahblah");
+}
+
+static void
+on_pressure_set_throttle (CockpitStream *stream,
+                          gboolean throttle,
+                          gpointer user_data)
+{
+  gint *data = user_data;
+  g_assert (user_data != NULL);
+  *data = throttle ? 1 : 0;
+}
+
+static void
+test_pressure_queue (TestCase *tc,
+                     gconstpointer data)
+{
+  MockEchoStream *echo_stream = (MockEchoStream *)tc->stream;
+  gint throttle = -1;
+  GBytes *sent;
+  gint i;
+
+  g_signal_connect (tc->stream, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+  sent = g_bytes_new_take (g_strnfill (10 * 1000, '?'), 10 * 1000);
+
+  /* Sent this a thousand times */
+  for (i = 0; i < 1000; i++)
+    cockpit_stream_write (tc->stream, sent);
+
+  g_bytes_unref (sent);
+
+  /*
+   * This should have put way too much in the queue, and thus
+   * emitted the back-pressure signal. This signal would normally
+   * be used by others to slow down their queueing, but in this
+   * case we just check that it was fired.
+   */
+  g_assert_cmpint (throttle, ==, 1);
+  throttle = -1;
+
+  /*
+   * Now the queue is getting drained. At some point, it will be
+   * signaled that back pressure has been turned off
+   */
+  while (throttle == -1)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (throttle, ==, 0);
+  g_assert_cmpint (echo_stream->received->len, >, 10 * 1000);
+}
+
+static void
+test_pressure_throttle (TestCase *tc,
+                        gconstpointer data)
+{
+  CockpitFlow *pressure = mock_pressure_new ();
+  MockEchoStream *echo_stream = (MockEchoStream *)tc->stream;
+  gboolean timeout = FALSE;
+  gsize received;
+  GBytes *sent;
+  gint i;
+
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->stream), pressure);
+  sent = g_bytes_new_take (g_strnfill (1024, '?'), 1024);
+
+  /* Send this a 2048 (2MB total) times */
+  for (i = 0; i < 2048; i++)
+    cockpit_stream_write (tc->stream, sent);
+
+  g_bytes_unref (sent);
+
+  /*
+   * So we should start receiving the echoed data. But we apply
+   * the throttle pressure after receiving some data, and the rest
+   * just waits.
+   */
+  while (echo_stream->received->len == 0)
+    g_main_context_iteration (NULL, TRUE);
+  cockpit_flow_emit_pressure (pressure, TRUE);
+
+  received = echo_stream->received->len;
+  g_assert_cmpint (received, <, 2048 * 1024);
+
+  /* Now remaining data input should wait, no further data received*/
+  g_timeout_add_seconds (2, on_timeout_set_flag, &timeout);
+  while (timeout == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpint (received, ==, echo_stream->received->len);
+
+  /* Remove the pressure, and we should get more data */
+  cockpit_flow_emit_pressure (pressure, FALSE);
+  while (received < echo_stream->received->len)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Clearing the throttle should work too. This pressure signal has no effect */
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->stream), NULL);
+  cockpit_flow_emit_pressure (pressure, TRUE);
+
+  /* Now wait for the remaining data */
+  while (echo_stream->received->len < 2048 * 1024)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (pressure);
 }
 
 static void
@@ -928,6 +1041,11 @@ main (int argc,
               setup_simple, test_buffer, teardown);
   g_test_add ("/stream/skip-zero", TestCase, NULL,
               setup_simple, test_skip_zero, teardown);
+
+  g_test_add ("/stream/pressure/queue", TestCase, NULL,
+              setup_simple, test_pressure_queue, teardown);
+  g_test_add ("/stream/pressure/throttle", TestCase, NULL,
+              setup_simple, test_pressure_throttle, teardown);
 
   g_test_add_func ("/stream/read-error", test_read_error);
   g_test_add_func ("/stream/write-error", test_write_error);

@@ -412,6 +412,7 @@
    Memcheck:Leak
    match-leak-kinds: definite
    fun:malloc
+   ...
    fun:__res_vinit
    ...
    fun:getaddrinfo
@@ -424,3 +425,13 @@
    ...
    fun:exit
 }
+{
+   do_crypt_bzero_chk
+   Memcheck:Addr8
+   fun:memset
+   fun:__explicit_bzero_chk
+   fun:UnknownInlinedFun
+   fun:do_crypt
+   ...
+}
+

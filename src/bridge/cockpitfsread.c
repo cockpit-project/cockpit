@@ -22,6 +22,7 @@
 #include "cockpitfsread.h"
 
 #include "common/cockpitjson.h"
+#include "common/cockpitpipe.h"
 
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -45,10 +46,14 @@
 typedef struct {
   CockpitChannel parent;
   const gchar *path;
-  int fd;
   gchar *start_tag;
-  GQueue *queue;
-  guint idler;
+  int fd;
+
+  CockpitPipe *pipe;
+  gboolean open;
+  gboolean closing;
+  guint sig_read;
+  guint sig_close;
 } CockpitFsread;
 
 typedef struct {
@@ -56,49 +61,6 @@ typedef struct {
 } CockpitFsreadClass;
 
 G_DEFINE_TYPE (CockpitFsread, cockpit_fsread, COCKPIT_TYPE_CHANNEL);
-
-static gboolean
-on_idle_send_block (gpointer data)
-{
-  CockpitChannel *channel = data;
-  CockpitFsread *self = data;
-  const gchar *problem;
-  JsonObject *options;
-  GBytes *payload;
-  gchar *tag;
-
-  payload = g_queue_pop_head (self->queue);
-  if (payload == NULL)
-    {
-      self->idler = 0;
-      cockpit_channel_control (channel, "done", NULL);
-
-      problem = NULL;
-      if (self->fd >= 0 && self->start_tag)
-        {
-          tag = cockpit_get_file_tag_from_fd (self->fd);
-          if (g_strcmp0 (tag, self->start_tag) == 0)
-            {
-              options = cockpit_channel_close_options (channel);
-              json_object_set_string_member (options, "tag", tag);
-            }
-          else
-            {
-              problem = "change-conflict";
-            }
-          g_free (tag);
-        }
-
-      cockpit_channel_close (channel, problem);
-      return FALSE;
-    }
-  else
-    {
-      cockpit_channel_send (channel, payload, FALSE);
-      g_bytes_unref (payload);
-      return TRUE;
-    }
-}
 
 static void
 cockpit_fsread_recv (CockpitChannel *channel,
@@ -149,16 +111,16 @@ cockpit_fsread_close (CockpitChannel *channel,
 {
   CockpitFsread *self = COCKPIT_FSREAD (channel);
 
-  if (self->idler)
-    {
-      g_source_remove (self->idler);
-      self->idler = 0;
-    }
+  self->closing = TRUE;
 
-  if (self->fd >= 0)
-    close (self->fd);
-
-  COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->close (channel, problem);
+  /*
+   * If closed, call base class handler directly. Otherwise ask
+   * our pipe to close first, which will come back here.
+  */
+  if (self->open)
+    cockpit_pipe_close (self->pipe, problem);
+  else
+    COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->close (channel, problem);
 }
 
 static void
@@ -168,27 +130,61 @@ cockpit_fsread_init (CockpitFsread *self)
 }
 
 static void
-push_bytes (GQueue *queue,
-            GBytes *bytes)
+on_pipe_read (CockpitPipe *pipe,
+              GByteArray *data,
+              gboolean end_of_data,
+              gpointer user_data)
 {
-  gsize size;
-  gsize length;
-  gsize offset;
+  CockpitFsread *self = user_data;
+  CockpitChannel *channel = user_data;
+  const gchar *problem;
+  JsonObject *options;
+  GBytes *message;
+  gchar *tag;
 
-  size = g_bytes_get_size (bytes);
-  if (size < 8192)
+  if (data->len)
     {
-      g_queue_push_tail (queue, bytes);
+      /* When array is reffed, this just clears byte array */
+      g_byte_array_ref (data);
+      message = g_byte_array_free_to_bytes (data);
+      cockpit_channel_send (channel, message, FALSE);
+      g_bytes_unref (message);
     }
-  else
+
+  if (end_of_data)
     {
-      for (offset = 0; offset < size; offset += 4096)
+      cockpit_channel_control (channel, "done", NULL);
+
+      problem = NULL;
+      if (self->fd >= 0 && self->start_tag)
         {
-          length = MIN (4096, size - offset);
-          g_queue_push_tail (queue, g_bytes_new_from_bytes (bytes, offset, length));
+          tag = cockpit_get_file_tag_from_fd (self->fd);
+          if (g_strcmp0 (tag, self->start_tag) == 0)
+            {
+              options = cockpit_channel_close_options (channel);
+              json_object_set_string_member (options, "tag", tag);
+            }
+          else
+            {
+              problem = "change-conflict";
+            }
+          g_free (tag);
         }
-      g_bytes_unref (bytes);
+
+      cockpit_channel_close (channel, problem);
     }
+}
+
+static void
+on_pipe_close (CockpitPipe *pipe,
+               const gchar *problem,
+               gpointer user_data)
+{
+  CockpitFsread *self = COCKPIT_FSREAD (user_data);
+  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
+
+  self->open = FALSE;
+  cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -197,10 +193,9 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   CockpitFsread *self = COCKPIT_FSREAD (channel);
   JsonObject *options;
   gint64 max_read_size;
-  GMappedFile *mapped;
-  GBytes *bytes = NULL;
-  GError *error = NULL;
   struct stat statbuf;
+  mode_t ifmt;
+  int fd;
 
   COCKPIT_CHANNEL_CLASS (cockpit_fsread_parent_class)->prepare (channel);
 
@@ -223,8 +218,11 @@ cockpit_fsread_prepare (CockpitChannel *channel)
       return;
     }
 
-  self->fd = open (self->path, O_RDONLY);
-  if (self->fd < 0)
+  if (self->closing)
+    return;
+
+  fd = open (self->path, O_RDONLY);
+  if (fd < 0)
     {
       int err = errno;
       if (err == ENOENT)
@@ -246,56 +244,61 @@ cockpit_fsread_prepare (CockpitChannel *channel)
                                     "%s: couldn't open: %s", self->path, strerror (err));
             }
         }
-      return;
+      goto out;
     }
 
-  if (fstat (self->fd, &statbuf) < 0)
+  if (fstat (fd, &statbuf) < 0)
     {
       cockpit_channel_fail (channel, "internal-error", "%s: couldn't stat: %s", self->path, strerror (errno));
-      return;
+      goto out;
     }
 
-  if ((statbuf.st_mode & S_IFMT) != S_IFREG)
+  ifmt = (statbuf.st_mode & S_IFMT);
+  if (ifmt != S_IFREG && ifmt != S_IFBLK)
     {
-      cockpit_channel_fail (channel, "internal-error", "%s: not a regular file", self->path);
-      return;
+      cockpit_channel_fail (channel, "internal-error", "%s: not a readable file", self->path);
+      goto out;
     }
-
-  if (statbuf.st_size > max_read_size)
+  if (ifmt == S_IFREG && statbuf.st_size > max_read_size)
     {
       cockpit_channel_close (channel, "too-large");
-      return;
+      goto out;
     }
 
-  mapped = g_mapped_file_new_from_fd (self->fd, FALSE, &error);
-  if (mapped)
-    {
-      bytes = g_mapped_file_get_bytes (mapped);
-    }
-  else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NODEV))
-    {
-      gchar *contents;
-      gsize length;
-
-      g_clear_error (&error);
-      if (g_file_get_contents (self->path, &contents, &length, &error))
-        bytes = g_bytes_new_take (contents, length);
-    }
-
-  if (error)
-    {
-      cockpit_channel_fail (channel, "internal-error", "couldn't read: %s", error->message);
-      g_error_free (error);
-      return;
-    }
+  /* This owns the file descriptor */
+  self->pipe = cockpit_pipe_new (self->path, fd, -1);
+  self->fd = fd;
+  fd = -1;
 
   self->start_tag = cockpit_get_file_tag_from_fd (self->fd);
-  self->queue = g_queue_new ();
-  push_bytes (self->queue, bytes);
-  self->idler = g_idle_add (on_idle_send_block, self);
+
+  self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
+  self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);
+
   cockpit_channel_ready (channel, NULL);
-  if (mapped)
-    g_mapped_file_unref (mapped);
+
+out:
+  if (fd >= 0)
+    close (fd);
+}
+
+static void
+cockpit_fsread_dispose (GObject *object)
+{
+  CockpitFsread *self = COCKPIT_FSREAD (object);
+
+  if (self->pipe)
+    {
+      if (self->open)
+        cockpit_pipe_close (self->pipe, "terminated");
+      if (self->sig_read)
+        g_signal_handler_disconnect (self->pipe, self->sig_read);
+      if (self->sig_close)
+        g_signal_handler_disconnect (self->pipe, self->sig_close);
+      self->sig_read = self->sig_close = 0;
+    }
+
+  G_OBJECT_CLASS (cockpit_fsread_parent_class)->dispose (object);
 }
 
 static void
@@ -304,13 +307,7 @@ cockpit_fsread_finalize (GObject *object)
   CockpitFsread *self = COCKPIT_FSREAD (object);
 
   g_free (self->start_tag);
-  if (self->queue)
-    {
-      while (!g_queue_is_empty (self->queue))
-        g_bytes_unref (g_queue_pop_head (self->queue));
-      g_queue_free (self->queue);
-    }
-  g_assert (self->idler == 0);
+  g_clear_object (&self->pipe);
 
   G_OBJECT_CLASS (cockpit_fsread_parent_class)->finalize (object);
 }
@@ -321,6 +318,7 @@ cockpit_fsread_class_init (CockpitFsreadClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
 
+  gobject_class->dispose = cockpit_fsread_dispose;
   gobject_class->finalize = cockpit_fsread_finalize;
 
   channel_class->prepare = cockpit_fsread_prepare;

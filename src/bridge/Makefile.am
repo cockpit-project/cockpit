@@ -190,7 +190,8 @@ test_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_bridge_LIBS)
 
 test_connect_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_connect_SOURCES = src/bridge/test-connect.c
+test_connect_SOURCES = src/bridge/test-connect.c \
+	src/bridge/mock-transport.c src/bridge/mock-transport.h
 test_connect_LDADD = $(libcockpit_bridge_LIBS)
 
 test_dbus_meta_CFLAGS = $(libcockpit_bridge_a_CFLAGS)

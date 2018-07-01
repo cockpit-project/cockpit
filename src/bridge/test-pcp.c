@@ -301,7 +301,8 @@ static void
 test_metrics_units_noconv (TestCase *tc,
                            gconstpointer unused)
 {
-  cockpit_expect_message ("1234: direct: can't convert metric mock.seconds to units byte");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE,
+                      "1234: direct: can't convert metric mock.seconds to units byte");
 
   JsonObject *options = json_obj("{ 'source': 'direct',"
                                  "  'metrics': [ { 'name': 'mock.seconds', 'units': 'byte' } ],"

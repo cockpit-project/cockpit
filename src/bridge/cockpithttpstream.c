@@ -1028,7 +1028,7 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
       json_object_has_member (options, "tls") ||
       json_object_has_member (options, "address"))
     {
-      connectable = cockpit_channel_parse_stream (channel);
+      connectable = cockpit_connect_parse_stream (channel);
       if (!connectable)
         goto out;
 

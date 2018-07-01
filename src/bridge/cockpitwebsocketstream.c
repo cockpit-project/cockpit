@@ -21,10 +21,10 @@
 
 #include "cockpitwebsocketstream.h"
 
-#include "cockpitchannel.h"
 #include "cockpitconnect.h"
 #include "cockpitstream.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 
 #include "websocket/websocket.h"

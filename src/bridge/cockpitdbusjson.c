@@ -21,13 +21,13 @@
 
 #include "cockpitdbusjson.h"
 
-#include "cockpitchannel.h"
 #include "cockpitpipechannel.h"
 #include "cockpitdbuscache.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusmeta.h"
 #include "cockpitdbusrules.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 
 #include <json-glib/json-glib.h>

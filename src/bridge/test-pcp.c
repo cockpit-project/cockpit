@@ -21,10 +21,10 @@
 
 #include "cockpitmetrics.h"
 #include "cockpitpcpmetrics.h"
-#include "mock-transport.h"
 
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
+#include "common/mock-transport.h"
 
 #include <string.h>
 #include <stdio.h>

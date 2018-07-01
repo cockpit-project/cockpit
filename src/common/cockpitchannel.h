@@ -81,6 +81,8 @@ void                cockpit_channel_fail              (CockpitChannel *self,
 
 const gchar *       cockpit_channel_get_id            (CockpitChannel *self);
 
+CockpitTransport *  cockpit_channel_get_transport     (CockpitChannel *self);
+
 /* Used by implementations */
 
 void                cockpit_channel_control           (CockpitChannel *self,

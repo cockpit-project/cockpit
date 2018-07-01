@@ -23,10 +23,10 @@
 
 #include "cockpitpackages.h"
 
-#include "cockpitchannel.h"
 #include "cockpitconnect.h"
 #include "cockpitdbusinternal.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlocale.h"

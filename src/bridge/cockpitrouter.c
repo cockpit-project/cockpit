@@ -21,10 +21,10 @@
 
 #include "cockpitrouter.h"
 
-#include "cockpitchannel.h"
 #include "cockpitconnect.h"
 #include "cockpitpeer.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"

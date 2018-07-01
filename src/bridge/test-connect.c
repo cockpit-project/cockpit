@@ -20,11 +20,11 @@
 #include "config.h"
 
 #include "cockpitconnect.h"
-#include "mock-transport.h"
 
 #include "common/cockpitloopback.h"
 #include "common/cockpittest.h"
 #include "common/mock-io-stream.h"
+#include "common/mock-transport.h"
 
 #include <glib.h>
 #include <glib-unix.h>
@@ -356,7 +356,7 @@ test_internal_not_registered (void)
   CockpitChannel *channel;
   JsonObject *sent;
 
-  cockpit_expect_message ("55: couldn't find internal address: test");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "55: couldn't find internal address: test");
   cockpit_connect_add_internal_address ("other", NULL);
 
   options = json_object_new ();

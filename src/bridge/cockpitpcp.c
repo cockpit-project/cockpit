@@ -19,11 +19,11 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
 #include "cockpitinternalmetrics.h"
 #include "cockpitpcpmetrics.h"
 #include "cockpitrouter.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitpipetransport.h"

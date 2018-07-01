@@ -23,10 +23,10 @@
 #include "cockpitfsreplace.h"
 #include "cockpitfswatch.h"
 #include "cockpitfslist.h"
-#include "mock-transport.h"
 
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
+#include "common/mock-transport.h"
 
 #include <string.h>
 #include <stdio.h>

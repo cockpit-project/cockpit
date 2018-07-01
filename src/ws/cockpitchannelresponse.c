@@ -21,6 +21,7 @@
 
 #include "cockpitchannelresponse.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebresponse.h"
@@ -125,36 +126,65 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   g_free (prefixed_application);
 }
 
-typedef struct {
-  const gchar *logname;
-  gchar *channel;
-  JsonObject *open;
+#define COCKPIT_TYPE_CHANNEL_RESPONSE  (cockpit_channel_response_get_type ())
+#define COCKPIT_CHANNEL_RESPONSE(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_CHANNEL_RESPONSE, CockpitChannelResponse))
+#define COCKPIT_IS_CHANNEL_RESPONSE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_CHANNEL_RESPONSE))
 
+typedef struct {
+  CockpitChannel parent;
+
+  const gchar *logname;
   CockpitWebResponse *response;
   GHashTable *headers;
 
-  CockpitTransport *transport;
-  gulong transport_recv;
-  gulong transport_control;
-  gulong transport_closed;
+  /* We can handle http-stream1 and http-stream2 */
+  gboolean http_stream1_prefix;
+  gboolean http_stream2;
 
   /* Set when injecting data into response */
   CockpitChannelInject *inject;
 } CockpitChannelResponse;
 
+typedef struct {
+  CockpitChannelClass parent;
+} CockpitChannelResponseClass;
+
+GType              cockpit_channel_response_get_type         (void);
+
+G_DEFINE_TYPE (CockpitChannelResponse, cockpit_channel_response, COCKPIT_TYPE_CHANNEL);
+
+static void
+cockpit_channel_response_init (CockpitChannelResponse *self)
+{
+  
+}
+
+static void
+cockpit_channel_response_finalize (GObject *object)
+{
+  CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (object);
+
+  g_object_unref (self->response);
+  g_hash_table_unref (self->headers);
+  cockpit_channel_inject_free (self->inject);
+
+  G_OBJECT_CLASS (cockpit_channel_response_parent_class)->finalize (object);
+}
+
 static gboolean
-ensure_headers (CockpitChannelResponse *chesp,
+ensure_headers (CockpitChannelResponse *self,
                 guint status,
                 const gchar *reason)
 {
-  if (cockpit_web_response_get_state (chesp->response) == COCKPIT_WEB_RESPONSE_READY)
+  if (cockpit_web_response_get_state (self->response) == COCKPIT_WEB_RESPONSE_READY)
     {
-      if (chesp->inject && chesp->inject->service)
+      if (self->inject && self->inject->service)
         {
-          cockpit_channel_inject_update_checksum (chesp->inject, chesp->headers);
-          cockpit_channel_inject_perform (chesp->inject, chesp->response, chesp->transport);
+          cockpit_channel_inject_update_checksum (self->inject, self->headers);
+          cockpit_channel_inject_perform (self->inject, self->response,
+                                          cockpit_channel_get_transport (COCKPIT_CHANNEL (self)));
         }
-      cockpit_web_response_headers_full (chesp->response, status, reason, -1, chesp->headers);
+      cockpit_web_response_headers_full (self->response, status, reason, -1, self->headers);
       return TRUE;
     }
 
@@ -162,44 +192,40 @@ ensure_headers (CockpitChannelResponse *chesp,
 }
 
 static void
-cockpit_channel_response_close (CockpitChannelResponse *chesp,
+cockpit_channel_response_close (CockpitChannel *channel,
                                 const gchar *problem)
 {
+  CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
   CockpitWebResponding state;
 
-  /* Ensure no more signals arrive about our response */
-  g_signal_handler_disconnect (chesp->transport, chesp->transport_recv);
-  g_signal_handler_disconnect (chesp->transport, chesp->transport_control);
-  g_signal_handler_disconnect (chesp->transport, chesp->transport_closed);
-
   /* The web response should not yet be complete */
-  state = cockpit_web_response_get_state (chesp->response);
+  state = cockpit_web_response_get_state (self->response);
 
   if (problem == NULL)
     {
       /* Closed without any data */
       if (state == COCKPIT_WEB_RESPONSE_READY)
         {
-          ensure_headers (chesp, 204, "OK");
-          cockpit_web_response_complete (chesp->response);
-          g_debug ("%s: no content in external channel", chesp->logname);
+          ensure_headers (self, 204, "OK");
+          cockpit_web_response_complete (self->response);
+          g_debug ("%s: no content in external channel", self->logname);
         }
       else if (state < COCKPIT_WEB_RESPONSE_COMPLETE)
         {
-          g_message ("%s: truncated data in external channel", chesp->logname);
-          cockpit_web_response_abort (chesp->response);
+          g_message ("%s: truncated data in external channel", self->logname);
+          cockpit_web_response_abort (self->response);
         }
       else
         {
-          g_debug ("%s: completed serving external channel", chesp->logname);
+          g_debug ("%s: completed serving external channel", self->logname);
         }
     }
   else if (state == COCKPIT_WEB_RESPONSE_READY)
     {
       if (g_str_equal (problem, "not-found"))
         {
-          g_debug ("%s: not found", chesp->logname);
-          cockpit_web_response_error (chesp->response, 404, NULL, NULL);
+          g_debug ("%s: not found", self->logname);
+          cockpit_web_response_error (self->response, 404, NULL, NULL);
         }
       else if (g_str_equal (problem, "no-host") ||
                g_str_equal (problem, "no-cockpit") ||
@@ -207,47 +233,24 @@ cockpit_channel_response_close (CockpitChannelResponse *chesp,
                g_str_equal (problem, "authentication-failed") ||
                g_str_equal (problem, "disconnected"))
         {
-          g_debug ("%s: remote server unavailable: %s", chesp->logname, problem);
-          cockpit_web_response_error (chesp->response, 502, NULL, NULL);
+          g_debug ("%s: remote server unavailable: %s", self->logname, problem);
+          cockpit_web_response_error (self->response, 502, NULL, NULL);
         }
       else
         {
-          g_message ("%s: external channel failed: %s", chesp->logname, problem);
-          cockpit_web_response_error (chesp->response, 500, NULL, NULL);
+          g_message ("%s: external channel failed: %s", self->logname, problem);
+          cockpit_web_response_error (self->response, 500, NULL, NULL);
         }
     }
   else
     {
       if (g_str_equal (problem, "disconnected") || g_str_equal (problem, "terminated"))
-        g_debug ("%s: failure while serving external channel: %s", chesp->logname, problem);
+        g_debug ("%s: failure while serving external channel: %s", self->logname, problem);
       else
-        g_message ("%s: failure while serving external channel: %s", chesp->logname, problem);
-      cockpit_web_response_abort (chesp->response);
+        g_message ("%s: failure while serving external channel: %s", self->logname, problem);
+      if (state < COCKPIT_WEB_RESPONSE_COMPLETE)
+        cockpit_web_response_abort (self->response);
     }
-
-  g_object_unref (chesp->response);
-  g_object_unref (chesp->transport);
-  g_hash_table_unref (chesp->headers);
-  cockpit_channel_inject_free (chesp->inject);
-  json_object_unref (chesp->open);
-  g_free (chesp->channel);
-  g_free (chesp);
-}
-
-static gboolean
-on_transport_recv (CockpitTransport *transport,
-                   const gchar *channel,
-                   GBytes *payload,
-                   CockpitChannelResponse *chesp)
-{
-  if (channel && g_str_equal (channel, chesp->channel))
-    {
-      ensure_headers (chesp, 200, "OK");
-      cockpit_web_response_queue (chesp->response, payload);
-      return TRUE;
-    }
-
-  return FALSE;
 }
 
 static void
@@ -269,7 +272,7 @@ object_to_headers (JsonObject *object,
 }
 
 static gboolean
-parse_httpstream_response (CockpitChannelResponse *chesp,
+parse_httpstream_response (CockpitChannelResponse *self,
                            JsonObject *object,
                            gint64 *status,
                            const gchar **reason)
@@ -279,7 +282,7 @@ parse_httpstream_response (CockpitChannelResponse *chesp,
   if (!cockpit_json_get_int (object, "status", 200, status) ||
       !cockpit_json_get_string (object, "reason", NULL, reason))
     {
-      g_warning ("%s: received invalid httpstream response", chesp->logname);
+      g_warning ("%s: received invalid httpstream response", self->logname);
       return FALSE;
     }
 
@@ -288,187 +291,170 @@ parse_httpstream_response (CockpitChannelResponse *chesp,
     {
       if (!JSON_NODE_HOLDS_OBJECT (node))
         {
-          g_warning ("%s: received invalid httpstream headers", chesp->logname);
+          g_warning ("%s: received invalid httpstream headers", self->logname);
           return FALSE;
         }
-      json_object_foreach_member (json_node_get_object (node), object_to_headers, chesp->headers);
+      json_object_foreach_member (json_node_get_object (node), object_to_headers, self->headers);
     }
 
   return TRUE;
 }
 
-static gboolean
-on_httpstream_recv (CockpitTransport *transport,
-                    const gchar *channel,
-                    GBytes *payload,
-                    CockpitChannelResponse *chesp)
+static void
+process_httpstream1_recv (CockpitChannelResponse *self,
+                          GBytes *payload)
 {
   GError *error = NULL;
   JsonObject *object;
   gint64 status;
   const gchar *reason;
 
-  if (!channel || !g_str_equal (channel, chesp->channel))
-    return FALSE;
-
-  g_return_val_if_fail (cockpit_web_response_get_state (chesp->response) == COCKPIT_WEB_RESPONSE_READY, FALSE);
-
-  /* First response payload message is meta data, then switch to actual data */
-  g_signal_handler_disconnect (chesp->transport, chesp->transport_recv);
-  chesp->transport_recv = g_signal_connect (chesp->transport, "recv", G_CALLBACK (on_transport_recv), chesp);
+  g_return_if_fail (cockpit_web_response_get_state (self->response) == COCKPIT_WEB_RESPONSE_READY);
 
   object = cockpit_json_parse_bytes (payload, &error);
   if (error)
     {
-      g_warning ("%s: couldn't parse http-stream1 header payload: %s", chesp->logname, error->message);
-      cockpit_web_response_error (chesp->response, 500, NULL, NULL);
+      g_warning ("%s: couldn't parse http-stream1 header payload: %s", self->logname, error->message);
+      cockpit_web_response_error (self->response, 500, NULL, NULL);
       g_error_free (error);
-      return TRUE;
+      return;
     }
 
-  if (parse_httpstream_response (chesp, object, &status, &reason))
+  if (parse_httpstream_response (self, object, &status, &reason))
     {
-      if (!ensure_headers (chesp, status, reason))
-        g_return_val_if_reached (FALSE);
+      if (!ensure_headers (self, status, reason))
+        g_return_if_reached ();
     }
   else
     {
-      cockpit_web_response_error (chesp->response, 500, NULL, NULL);
+      cockpit_web_response_error (self->response, 500, NULL, NULL);
     }
 
   json_object_unref (object);
-  return TRUE;
+}
+
+static void
+cockpit_channel_response_recv (CockpitChannel *channel,
+                               GBytes *payload)
+{
+  CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
+
+  /* First response payload message is meta data, then switch to actual data */
+  if (self->http_stream1_prefix)
+    {
+      process_httpstream1_recv (self, payload);
+      self->http_stream1_prefix = FALSE;
+      return;
+    }
+
+  ensure_headers (self, 200, "OK");
+  cockpit_web_response_queue (self->response, payload);
 }
 
 static gboolean
-on_transport_control (CockpitTransport *transport,
-                      const gchar *command,
-                      const gchar *channel,
-                      JsonObject *options,
-                      GBytes *message,
-                      CockpitChannelResponse *chesp)
+cockpit_channel_response_control (CockpitChannel *channel,
+                                  const gchar *command,
+                                  JsonObject *options)
 {
-  const gchar *problem = NULL;
-
-  if (!channel || !g_str_equal (channel, chesp->channel))
-    return FALSE; /* not handled */
-
-  if (g_str_equal (command, "done"))
-    {
-      ensure_headers (chesp, 200, "OK");
-      cockpit_web_response_complete (chesp->response);
-      return TRUE;
-    }
-  else if (g_str_equal (command, "close"))
-    {
-      if (!cockpit_json_get_string (options, "problem", NULL, &problem))
-        {
-          g_message ("%s: received close command with invalid problem", chesp->logname);
-          problem = "disconnected";
-        }
-      cockpit_channel_response_close (chesp, problem);
-    }
-  else
-    {
-      /* Ignore other control messages */
-    }
-
-  return TRUE; /* handled */
-}
-
-static gboolean
-on_httpstream_control (CockpitTransport *transport,
-                       const gchar *command,
-                       const gchar *channel,
-                       JsonObject *options,
-                       GBytes *message,
-                       CockpitChannelResponse *chesp)
-{
+  CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
   gint64 status;
   const gchar *reason;
 
-  if (!channel || !g_str_equal (channel, chesp->channel))
-    return FALSE; /* not handled */
-
-  if (g_str_equal (command, "response"))
+  if (self->http_stream2)
     {
-      if (parse_httpstream_response (chesp, options, &status, &reason))
+      if (g_str_equal (command, "response"))
         {
-          if (!ensure_headers (chesp, status, reason))
-            g_return_val_if_reached (FALSE);
+          if (parse_httpstream_response (self, options, &status, &reason))
+            {
+              if (!ensure_headers (self, status, reason))
+                g_return_val_if_reached (FALSE);
+            }
+          else
+            {
+              cockpit_web_response_error (self->response, 500, NULL, NULL);
+            }
+          return TRUE;
         }
-      else
-        {
-          cockpit_web_response_error (chesp->response, 500, NULL, NULL);
-        }
+    }
+
+  if (g_str_equal (command, "done"))
+    {
+      ensure_headers (self, 200, "OK");
+      cockpit_web_response_complete (self->response);
       return TRUE;
     }
 
-  return on_transport_control (transport, command, channel, options, message, chesp);
+  return FALSE;
 }
-
 
 static void
-on_transport_closed (CockpitTransport *transport,
-                     const gchar *problem,
-                     CockpitChannelResponse *chesp)
+cockpit_channel_response_prepare (CockpitChannel *channel)
 {
-  cockpit_channel_response_close (chesp, problem ? problem : "disconnected");
-}
-
-static CockpitChannelResponse *
-cockpit_channel_response_create (CockpitWebService *service,
-                                 CockpitWebResponse *response,
-                                 CockpitTransport *transport,
-                                 const gchar *logname,
-                                 GHashTable *headers,
-                                 JsonObject *open)
-{
-  CockpitChannelResponse *chesp;
+  CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
   const gchar *payload;
-  JsonObject *done;
-  GBytes *bytes;
+  JsonObject *open;
+
+  open = cockpit_channel_get_options (channel);
+  cockpit_json_get_string (open, "path", NULL, &self->logname);
+  if (!self->logname)
+    self->logname = cockpit_channel_get_id (channel);
 
   payload = json_object_get_string_member (open, "payload");
 
-  chesp = g_new0 (CockpitChannelResponse, 1);
-  chesp->response = g_object_ref (response);
-  chesp->transport = g_object_ref (transport);
-  chesp->headers = g_hash_table_ref (headers);
-  chesp->channel = cockpit_web_service_unique_channel (service);
-  chesp->open = json_object_ref (open);
-
-  if (!cockpit_json_get_string (open, "path", chesp->channel, &chesp->logname))
-    chesp->logname = chesp->channel;
-
-  json_object_set_string_member (open, "command", "open");
-  json_object_set_string_member (open, "channel", chesp->channel);
-
   /* Special handling for http-stream1, splice in headers, handle injection */
   if (g_strcmp0 (payload, "http-stream1") == 0)
-    chesp->transport_recv = g_signal_connect (transport, "recv", G_CALLBACK (on_httpstream_recv), chesp);
-  else
-    chesp->transport_recv = g_signal_connect (transport, "recv", G_CALLBACK (on_transport_recv), chesp);
+    self->http_stream1_prefix = TRUE;
 
   /* Special handling for http-stream2, splice in headers, handle injection */
   if (g_strcmp0 (payload, "http-stream2") == 0)
-    chesp->transport_control = g_signal_connect (transport, "control", G_CALLBACK (on_httpstream_control), chesp);
-  else
-    chesp->transport_control = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), chesp);
+    self->http_stream2 = TRUE;
 
-  chesp->transport_closed = g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), chesp);
+  /* Send the open message across the transport */
+  cockpit_channel_control (channel, "open", open);
 
-  bytes = cockpit_json_write_bytes (chesp->open);
-  cockpit_transport_send (transport, NULL, bytes);
-  g_bytes_unref (bytes);
+  /* Tell the channel we're ready */
+  cockpit_channel_ready (channel, NULL);
 
-  done = cockpit_transport_build_json ("command", "done", "channel", chesp->channel, NULL);
-  bytes = cockpit_json_write_bytes (done);
-  json_object_unref (done);
-  cockpit_transport_send (transport, NULL, bytes);
-  g_bytes_unref (bytes);
+  /* Indicate we are done sending input, we support no POST or PUT */
+  cockpit_channel_control (channel, "done", NULL);
+}
 
-  return chesp;
+static void
+cockpit_channel_response_class_init (CockpitChannelResponseClass *klass)
+{
+  CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = cockpit_channel_response_finalize;
+
+  channel_class->prepare = cockpit_channel_response_prepare;
+  channel_class->recv = cockpit_channel_response_recv;
+  channel_class->control = cockpit_channel_response_control;
+  channel_class->close = cockpit_channel_response_close;
+}
+
+static CockpitChannelResponse *
+cockpit_channel_response_new (CockpitWebService *service,
+                              CockpitWebResponse *response,
+                              CockpitTransport *transport,
+                              GHashTable *headers,
+                              JsonObject *options)
+{
+  CockpitChannelResponse *self;
+  gchar *id;
+
+  id = cockpit_web_service_unique_channel (service);
+  self = g_object_new (COCKPIT_TYPE_CHANNEL_RESPONSE,
+                       "transport", transport,
+                       "options", options,
+                       "id", id,
+                       NULL);
+
+  self->response = g_object_ref (response);
+  self->headers = g_hash_table_ref (headers);
+
+  g_free (id);
+  return self;
 }
 
 static gboolean
@@ -539,7 +525,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
                                 const gchar *where,
                                 const gchar *path)
 {
-  CockpitChannelResponse *chesp = NULL;
+  CockpitChannelResponse *self = NULL;
   CockpitTransport *transport = NULL;
   CockpitCacheType cache_type = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE;
   const gchar *host = NULL;
@@ -660,14 +646,14 @@ cockpit_channel_response_serve (CockpitWebService *service,
 
   json_object_set_object_member (object, "headers", heads);
 
-  chesp = cockpit_channel_response_create (service, response, transport,
-                                           cockpit_web_response_get_path (response),
-                                           out_headers, object);
+  self = cockpit_channel_response_new (service, response, transport,
+                                       out_headers, object);
 
-  chesp->inject = cockpit_channel_inject_new (service,
-                                              where ? NULL : path,
-                                              host);
+  self->inject = cockpit_channel_inject_new (service, where ? NULL : path, host);
   handled = TRUE;
+
+  /* Unref when the channel closes */
+  g_signal_connect_after (self, "closed", G_CALLBACK (g_object_unref), NULL);
 
 out:
   if (object)
@@ -687,6 +673,7 @@ cockpit_channel_response_open (CockpitWebService *service,
                                CockpitWebResponse *response,
                                JsonObject *open)
 {
+  CockpitChannelResponse *self;
   CockpitTransport *transport;
   WebSocketDataType data_type;
   GHashTable *headers;
@@ -733,6 +720,9 @@ cockpit_channel_response_open (CockpitWebService *service,
   /* We shouldn't need to send this part further */
   json_object_remove_member (open, "external");
 
-  cockpit_channel_response_create (service, response, transport, NULL, headers, open);
+  self = cockpit_channel_response_new (service, response, transport, headers, open);
   g_hash_table_unref (headers);
+
+  /* Unref when the channel closes */
+  g_signal_connect_after (self, "closed", G_CALLBACK (g_object_unref), NULL);
 }

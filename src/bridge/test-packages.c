@@ -21,15 +21,14 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
 #include "cockpithttpstream.h"
 #include "cockpitpackages.h"
 
-#include "mock-transport.h"
-
+#include "common/cockpitchannel.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
+#include "common/mock-transport.h"
 
 #include <stdlib.h>
 #include <string.h>

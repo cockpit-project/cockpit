@@ -32,9 +32,18 @@
 /**
  * CockpitChannel:
  *
- * A base class for the server (ie: bridge) side of a channel. Derived
- * classes implement the actual payload contents, opening the channel
- * etc...
+ * A base class for channels. Derived classes implement the actual payload
+ * contents, opening the channel etc...
+ *
+ * A CockpitChannel is the base class for C code where messages on
+ * the internal protocol are translated to IO of another type, be
+ * that HTTP, stdio, DBus, WebSocket, file access, or whatever. Another
+ * similar analogue to this code is the javascript cockpit.channel code
+ * in cockpit.js.
+ *
+ * Most uses of this code are in the bridges, but cockpit-ws also (rarely)
+ * uses CockpitChannel to translate the frontend side of channels to HTTP
+ * or WebSocket responses.
  *
  * The channel queues messages received until unfrozen. The caller can
  * start off a channel as frozen, and then the implementation later
@@ -776,6 +785,21 @@ cockpit_channel_get_options (CockpitChannel *self)
 {
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
   return self->priv->open_options;
+}
+
+/**
+ * cockpit_channel_get_transport:
+ * @self: a channel
+ *
+ * Called by implementations to get the channel's transtport.
+ *
+ * Returns: (transfer none): the transport, should not be NULL
+ */
+CockpitTransport *
+cockpit_channel_get_transport (CockpitChannel *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
+  return self->priv->transport;
 }
 
 /**

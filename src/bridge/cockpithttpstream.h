@@ -22,7 +22,7 @@
 
 #include <gio/gio.h>
 
-#include "cockpitchannel.h"
+#include "common/cockpitchannel.h"
 
 G_BEGIN_DECLS
 

@@ -26,8 +26,7 @@
 #include "common/cockpittest.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
-
-#include "mock-transport.h"
+#include "common/mock-transport.h"
 
 #include <string.h>
 

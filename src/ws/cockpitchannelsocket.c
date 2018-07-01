@@ -21,12 +21,19 @@
 
 #include "cockpitchannelsocket.h"
 
+#include "common/cockpitchannel.h"
+
 #include "websocket/websocket.h"
 
 #include <string.h>
 
+#define COCKPIT_TYPE_CHANNEL_SOCKET  (cockpit_channel_socket_get_type ())
+#define COCKPIT_CHANNEL_SOCKET(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_CHANNEL_SOCKET, CockpitChannelSocket))
+#define COCKPIT_IS_CHANNEL_SOCKET(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_CHANNEL_SOCKET))
+
 typedef struct {
-  gchar *channel;
+  CockpitChannel parent;
+  gboolean closed;
 
   /* The WebSocket side of things */
   WebSocketConnection *socket;
@@ -34,103 +41,70 @@ typedef struct {
   gulong socket_open;
   gulong socket_message;
   gulong socket_close;
-
-  /* The bridge side of things */
-  CockpitTransport *transport;
-  JsonObject *open;
-  gulong transport_recv;
-  gulong transport_control;
-  gulong transport_closed;
 } CockpitChannelSocket;
 
-static void     cockpit_channel_socket_close     (CockpitChannelSocket *socket,
-                                                  const gchar *problem);
+typedef struct {
+  CockpitChannelClass parent;
+} CockpitChannelSocketClass;
 
-static gboolean
-on_transport_recv (CockpitTransport *transport,
-                   const gchar *channel,
-                   GBytes *payload,
-                   CockpitChannelSocket *chock)
+GType              cockpit_channel_socket_get_type    (void);
+
+G_DEFINE_TYPE (CockpitChannelSocket, cockpit_channel_socket, COCKPIT_TYPE_CHANNEL);
+
+static void
+cockpit_channel_socket_init (CockpitChannelSocket *self)
 {
-  if (channel && g_str_equal (channel, chock->channel))
-    {
-      if (web_socket_connection_get_ready_state (chock->socket) == WEB_SOCKET_STATE_OPEN)
-          web_socket_connection_send (chock->socket, chock->data_type, NULL, payload);
-      return TRUE;
-    }
 
-  return FALSE;
-}
-
-static gboolean
-on_transport_control (CockpitTransport *transport,
-                      const char *command,
-                      const gchar *channel,
-                      JsonObject *options,
-                      GBytes *payload,
-                      CockpitChannelSocket *chock)
-{
-  const gchar *problem;
-
-  if (channel && g_str_equal (channel, chock->channel))
-    {
-      if (g_str_equal (command, "close"))
-        {
-          if (!cockpit_json_get_string (options, "problem", NULL, &problem))
-            problem = NULL;
-          cockpit_channel_socket_close (chock, problem);
-        }
-
-      /* Any other control message for this channel is discarded */
-      return TRUE;
-    }
-
-  return FALSE;
 }
 
 static void
-on_transport_closed (CockpitTransport *transport,
-                     const gchar *problem,
-                     CockpitChannelSocket *chock)
+cockpit_channel_socket_recv (CockpitChannel *channel,
+                             GBytes *payload)
 {
-  cockpit_channel_socket_close (chock, problem);
+  CockpitChannelSocket *self = COCKPIT_CHANNEL_SOCKET (channel);
+
+  if (web_socket_connection_get_ready_state (self->socket) == WEB_SOCKET_STATE_OPEN)
+    web_socket_connection_send (self->socket, self->data_type, NULL, payload);
 }
 
 static void
-cockpit_channel_socket_close (CockpitChannelSocket *chock,
+cockpit_channel_socket_finalize (GObject *object)
+{
+  CockpitChannelSocket *self = COCKPIT_CHANNEL_SOCKET (object);
+
+  g_signal_handler_disconnect (self->socket, self->socket_open);
+  g_signal_handler_disconnect (self->socket, self->socket_message);
+  g_signal_handler_disconnect (self->socket, self->socket_close);
+  g_object_unref (self->socket);
+
+  G_OBJECT_CLASS (cockpit_channel_socket_parent_class)->finalize (object);
+}
+
+static void
+cockpit_channel_socket_close (CockpitChannel *channel,
                               const gchar *problem)
 {
+  CockpitChannelSocket *self = COCKPIT_CHANNEL_SOCKET (channel);
   gushort code;
 
-  g_free (chock->channel);
+  self->closed = TRUE;
 
-  g_signal_handler_disconnect (chock->transport, chock->transport_recv);
-  g_signal_handler_disconnect (chock->transport, chock->transport_control);
-  g_signal_handler_disconnect (chock->transport, chock->transport_closed);
-  json_object_unref (chock->open);
-  g_object_unref (chock->transport);
-
-  g_signal_handler_disconnect (chock->socket, chock->socket_open);
-  g_signal_handler_disconnect (chock->socket, chock->socket_message);
-  g_signal_handler_disconnect (chock->socket, chock->socket_close);
-  if (web_socket_connection_get_ready_state (chock->socket) < WEB_SOCKET_STATE_CLOSING)
+  if (web_socket_connection_get_ready_state (self->socket) < WEB_SOCKET_STATE_CLOSING)
     {
       if (problem)
         code = WEB_SOCKET_CLOSE_GOING_AWAY;
       else
         code = WEB_SOCKET_CLOSE_NORMAL;
-      web_socket_connection_close (chock->socket, code, problem);
+      web_socket_connection_close (self->socket, code, problem);
     }
-  g_object_unref (chock->socket);
-
-  g_free (chock);
 }
 
 static void
 on_socket_open (WebSocketConnection *connection,
-                CockpitChannelSocket *chock)
+                gpointer user_data)
 {
-  GBytes *payload;
+  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
+  JsonObject *open;
 
   /*
    * Actually open the channel. We wait until the WebSocket is open
@@ -138,47 +112,48 @@ on_socket_open (WebSocketConnection *connection,
    * before the websocket is open.
    */
 
-  payload = cockpit_json_write_bytes (chock->open);
-  cockpit_transport_send (chock->transport, NULL, payload);
-  g_bytes_unref (payload);
+  open = cockpit_channel_get_options (channel);
+  cockpit_channel_control (channel, "open", open);
+
+  /* Tell the channel we're ready */
+  cockpit_channel_ready (channel, NULL);
 }
 
 static void
 on_socket_message (WebSocketConnection *connection,
-                   WebSocketDataType type,
+                   WebSocketDataType data_type,
                    GBytes *payload,
-                   CockpitChannelSocket *chock)
+                   gpointer user_data)
 {
-  cockpit_transport_send (chock->transport, chock->channel, payload);
+  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
+  cockpit_channel_send (channel, payload, data_type == WEB_SOCKET_DATA_TEXT);
 }
 
 static void
-on_socket_close (WebSocketConnection *connection,
-                 CockpitChannelSocket *chock)
+on_socket_close (WebSocketConnection *socket,
+                 gpointer user_data)
 {
+  CockpitChannelSocket *self = COCKPIT_CHANNEL_SOCKET (user_data);
+  CockpitChannel *channel = COCKPIT_CHANNEL (user_data);
   const gchar *problem = NULL;
-  GBytes *payload;
   gushort code;
 
-  code = web_socket_connection_get_close_code (chock->socket);
+  if (self->closed)
+    return;
+
+  code = web_socket_connection_get_close_code (socket);
   if (code == WEB_SOCKET_CLOSE_NORMAL)
     {
-      payload = cockpit_transport_build_control ("command", "done", "channel", chock->channel, NULL);
-      cockpit_transport_send (chock->transport, NULL, payload);
-      g_bytes_unref (payload);
+      cockpit_channel_control (channel, "done", NULL);
     }
   else
     {
-      problem = web_socket_connection_get_close_data (chock->socket);
+      problem = web_socket_connection_get_close_data (socket);
       if (problem == NULL)
         problem = "disconnected";
     }
 
-  payload = cockpit_transport_build_control ("command", "close", "channel", chock->channel, "problem", problem, NULL);
-  cockpit_transport_send (chock->transport, NULL, payload);
-  g_bytes_unref (payload);
-
-  cockpit_channel_socket_close (chock, problem);
+  cockpit_channel_close (channel, problem);
 }
 
 static void
@@ -196,6 +171,18 @@ respond_with_error (const gchar *original_path,
   g_object_unref (response);
 }
 
+static void
+cockpit_channel_socket_class_init (CockpitChannelSocketClass *klass)
+{
+  CockpitChannelClass *channel_class = COCKPIT_CHANNEL_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = cockpit_channel_socket_finalize;
+
+  channel_class->recv = cockpit_channel_socket_recv;
+  channel_class->close = cockpit_channel_socket_close;
+}
+
 void
 cockpit_channel_socket_open (CockpitWebService *service,
                              JsonObject *open,
@@ -205,10 +192,11 @@ cockpit_channel_socket_open (CockpitWebService *service,
                              GHashTable *headers,
                              GByteArray *input_buffer)
 {
-  CockpitChannelSocket *chock = NULL;
+  CockpitChannelSocket *self = NULL;
   WebSocketDataType data_type;
   CockpitTransport *transport;
   gchar **protocols = NULL;
+  gchar *id = NULL;
 
   if (!cockpit_web_service_parse_external (open, NULL, NULL, NULL, &protocols) ||
       !cockpit_web_service_parse_binary (open, &data_type))
@@ -224,25 +212,25 @@ cockpit_channel_socket_open (CockpitWebService *service,
       goto out;
     }
 
-  chock = g_new0 (CockpitChannelSocket, 1);
-  chock->channel = cockpit_web_service_unique_channel (service);
-  chock->open = json_object_ref (open);
-  chock->data_type = data_type;
+  id = cockpit_web_service_unique_channel (service);
+  self = g_object_new (COCKPIT_TYPE_CHANNEL_SOCKET,
+                       "transport", transport,
+                       "options", open,
+                       "id", id,
+                       NULL);
 
-  json_object_set_string_member (open, "command", "open");
-  json_object_set_string_member (open, "channel", chock->channel);
+  self->data_type = data_type;
 
-  chock->socket = cockpit_web_service_create_socket ((const gchar **)protocols, original_path,
+  self->socket = cockpit_web_service_create_socket ((const gchar **)protocols, original_path,
                                                      io_stream, headers, input_buffer);
-  chock->socket_open = g_signal_connect (chock->socket, "open", G_CALLBACK (on_socket_open), chock);
-  chock->socket_message = g_signal_connect (chock->socket, "message", G_CALLBACK (on_socket_message), chock);
-  chock->socket_close = g_signal_connect (chock->socket, "close", G_CALLBACK (on_socket_close), chock);
+  self->socket_open = g_signal_connect (self->socket, "open", G_CALLBACK (on_socket_open), self);
+  self->socket_message = g_signal_connect (self->socket, "message", G_CALLBACK (on_socket_message), self);
+  self->socket_close = g_signal_connect (self->socket, "close", G_CALLBACK (on_socket_close), self);
 
-  chock->transport = g_object_ref (transport);
-  chock->transport_recv = g_signal_connect (chock->transport, "recv", G_CALLBACK (on_transport_recv), chock);
-  chock->transport_control = g_signal_connect (chock->transport, "control", G_CALLBACK (on_transport_control), chock);
-  chock->transport_closed = g_signal_connect (chock->transport, "closed", G_CALLBACK (on_transport_closed), chock);
+  /* Unref when the channel closes */
+  g_signal_connect_after (self, "closed", G_CALLBACK (g_object_unref), NULL);
 
 out:
+  g_free (id);
   g_free (protocols);
 }

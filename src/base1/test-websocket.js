@@ -66,7 +66,7 @@ QUnit.asyncTest("bad channel options websocket", function() {
         };
         ws.onclose = function(ev) {
             console.log(ev);
-            assert.ok(!ev.wasClean, url + "websocket unclean shutdown");
+            assert.ok(ev.wasClean, url + "websocket unclean shutdown");
             assert.notEqual(ev.code, 0, url + "websocket error code");
             ws = null;
             if (payloads.length === 0)

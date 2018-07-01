@@ -21,12 +21,12 @@
 #include <math.h>
 
 #include "cockpitmetrics.h"
-#include "mock-transport.h"
 
 #include "cockpitinternalmetrics.h"
 
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
+#include "common/mock-transport.h"
 
 typedef struct {
   MockTransport *transport;

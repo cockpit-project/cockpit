@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include "cockpitchannel.h"
+#include "cockpitconnect.h"
 #include "cockpitdbusinternal.h"
 #include "cockpitdbusjson.h"
 #include "cockpitechochannel.h"

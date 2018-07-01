@@ -23,8 +23,6 @@
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
 
-#include "cockpitconnect.h"
-
 #include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
@@ -99,16 +97,6 @@ void                cockpit_channel_send              (CockpitChannel *self,
 JsonObject *        cockpit_channel_get_options       (CockpitChannel *self);
 
 JsonObject *        cockpit_channel_close_options     (CockpitChannel *self);
-
-GSocketAddress *    cockpit_channel_parse_address     (CockpitChannel *self,
-                                                       gchar **possible_name);
-
-void                cockpit_channel_internal_address  (const gchar *name,
-                                                       GSocketAddress *address);
-
-gboolean            cockpit_channel_remove_internal_address (const gchar *name);
-
-CockpitConnectable * cockpit_channel_parse_stream     (CockpitChannel *self);
 
 G_END_DECLS
 

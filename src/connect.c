@@ -1808,9 +1808,9 @@ virtDBusConnectFree(virtDBusConnect *connect)
     if (connect->connection)
         virtDBusConnectClose(connect, TRUE);
 
-    g_free(connect->nodeDevPath);
     g_free(connect->domainPath);
     g_free(connect->networkPath);
+    g_free(connect->nodeDevPath);
     g_free(connect->nwfilterPath);
     g_free(connect->secretPath);
     g_free(connect->storagePoolPath);

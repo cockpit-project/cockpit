@@ -22,6 +22,7 @@
 #include "cockpitchannelsocket.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitflow.h"
 
 #include "websocket/websocket.h"
 
@@ -229,6 +230,12 @@ cockpit_channel_socket_open (CockpitWebService *service,
 
   /* Unref when the channel closes */
   g_signal_connect_after (self, "closed", G_CALLBACK (g_object_unref), NULL);
+
+  /* Tell the channel to throttle based on back pressure from socket */
+  cockpit_flow_throttle (COCKPIT_FLOW (self), COCKPIT_FLOW (self->socket));
+
+  /* Tell the socket peer's output to throttle based on back pressure */
+  cockpit_flow_throttle (COCKPIT_FLOW (self->socket), COCKPIT_FLOW (self));
 
 out:
   g_free (id);

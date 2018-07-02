@@ -23,6 +23,7 @@
 
 #include "cockpitconnect.h"
 
+#include "common/cockpitflow.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitunicode.h"
@@ -500,6 +501,12 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
       self->pipe = cockpit_pipe_connect (self->name, address);
       g_object_unref (address);
     }
+
+  /* Let the channel throttle the pipe's input flow*/
+  cockpit_flow_throttle (COCKPIT_FLOW (self->pipe), COCKPIT_FLOW (self));
+
+  /* Let the pipe throttle the channel peer's output flow */
+  cockpit_flow_throttle (COCKPIT_FLOW (channel), COCKPIT_FLOW (self->pipe));
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);

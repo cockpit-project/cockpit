@@ -21,6 +21,7 @@
 
 #include "cockpitfsread.h"
 
+#include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 
@@ -271,6 +272,12 @@ cockpit_fsread_prepare (CockpitChannel *channel)
   fd = -1;
 
   self->start_tag = cockpit_get_file_tag_from_fd (self->fd);
+
+  /* Let the channel throttle the pipe's input flow*/
+  cockpit_flow_throttle (COCKPIT_FLOW (self->pipe), COCKPIT_FLOW (self));
+
+  /* Let the pipe input the channel peer's output flow */
+  cockpit_flow_throttle (COCKPIT_FLOW (channel), COCKPIT_FLOW (self->pipe));
 
   self->sig_read = g_signal_connect (self->pipe, "read", G_CALLBACK (on_pipe_read), self);
   self->sig_close = g_signal_connect (self->pipe, "close", G_CALLBACK (on_pipe_close), self);

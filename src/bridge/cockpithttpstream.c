@@ -24,6 +24,7 @@
 #include "cockpitconnect.h"
 #include "cockpitstream.h"
 
+#include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitwebresponse.h"
@@ -956,6 +957,8 @@ cockpit_http_stream_close (CockpitChannel *channel,
           g_signal_handler_disconnect (self->stream, self->sig_close);
           g_signal_handler_disconnect (self->stream, self->sig_rejected_cert);
           cockpit_http_client_checkin (self->client, self->stream);
+          cockpit_flow_throttle (COCKPIT_FLOW (self->stream), NULL);
+          cockpit_flow_throttle (COCKPIT_FLOW (channel), NULL);
           g_object_unref (self->stream);
           self->stream = NULL;
         }
@@ -1055,6 +1058,12 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   self->sig_close = g_signal_connect (self->stream, "close", G_CALLBACK (on_stream_close), self);
   self->sig_rejected_cert = g_signal_connect (self->stream, "rejected-cert",
                                               G_CALLBACK (on_rejected_cert), self);
+
+  /* Let the channel throttle the stream's input flow*/
+  cockpit_flow_throttle (COCKPIT_FLOW (self->stream), COCKPIT_FLOW (self));
+
+  /* Let the stream throtlte the channel peer's output flow */
+  cockpit_flow_throttle (COCKPIT_FLOW (channel), COCKPIT_FLOW (self->stream));
 
   /* If not waiting for open */
   if (!self->sig_open)

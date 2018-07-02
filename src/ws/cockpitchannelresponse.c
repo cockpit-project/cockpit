@@ -22,6 +22,7 @@
 #include "cockpitchannelresponse.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitflow.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebresponse.h"
@@ -393,6 +394,12 @@ cockpit_channel_response_prepare (CockpitChannel *channel)
   CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
   const gchar *payload;
   JsonObject *open;
+
+  /*
+   * Tell the transport to throttle incoming flow on the given channel based on
+   * output pressure in the web response.
+   */
+  cockpit_flow_throttle (COCKPIT_FLOW (channel), COCKPIT_FLOW (self->response));
 
   open = cockpit_channel_get_options (channel);
   cockpit_json_get_string (open, "path", NULL, &self->logname);

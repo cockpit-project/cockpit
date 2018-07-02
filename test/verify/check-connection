@@ -20,7 +20,9 @@
 
 import parent
 from testlib import *
+
 import base64
+import time
 
 class TestConnection(MachineCase):
     def testBasic(self):
@@ -272,6 +274,31 @@ class TestConnection(MachineCase):
         # external channel handler; unauthenticated, thus 404
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
+
+    def testFlowControl(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/playground/speed", user="root")
+
+        # Check the speed playground page
+        b.switch_to_top()
+        b.go("/playground/speed")
+        b.enter_page("/playground/speed")
+
+        b.wait_text_not("#pid", "")
+        pid = b.text("#pid")
+
+        b.set_val("#read-path", "/dev/vda")
+        b.click("#read-sideband")
+
+        b.wait_text_not("#speed", "")
+        time.sleep(20)
+        output = m.execute("cat /proc/{}/statm".format(pid))
+        rss = int(output.split(" ")[0])
+
+        # This fails when flow control is not present
+        self.assertLess(rss, 200000)
 
 if __name__ == '__main__':
     test_main()

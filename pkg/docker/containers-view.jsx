@@ -530,15 +530,14 @@ var ImageList = React.createClass({
     deleteImage: function (image, event) {
         if (event.button !== 0)
             return;
-
-        util.confirm(cockpit.format(_("Delete $0"), image.RepoTags[0]),
-                     _("Are you sure you want to delete this image?"), _("Delete"))
-                .done(function () {
-                    this.props.client.rmi(image.Id)
-                            .fail(function(ex) {
-                                util.show_unexpected_error(ex);
-                            });
-                }.bind(this));
+        util.delete_image_confirm(this.props.client, image).done(
+            (runningContainers, force) => {
+                var stopPromises = runningContainers.map(id => this.props.client.stop(id));
+                cockpit.all(stopPromises).done(() =>
+                    this.props.client.rmi(image.Id, force).fail((ex) => {
+                        util.show_unexpected_error(ex);
+                    }));
+            });
     },
 
     showRunImageDialog: function (event) {

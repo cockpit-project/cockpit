@@ -3,6 +3,8 @@
 set -o pipefail
 set -eux
 
+export LANG=C.UTF-8
+
 # HACK: Something invoked by our build system is setting stdio to non-blocking.
 # Validate that this isn't the surrounding context. See more below.
 python -c "import fcntl, os; assert fcntl.fcntl(0, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(1, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(2, fcntl.F_GETFL) & os.O_NONBLOCK == 0"

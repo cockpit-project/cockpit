@@ -52,6 +52,19 @@ REDHAT_VERIFY = {
     'selenium/edge': [ ],
 }
 
+# Test contexts for projects that use Cockpit's bots and/or images
+EXTERNAL_PROJECTS = {
+    'cockpit-project/starter-kit': [
+        'cockpit/centos-7',
+        'cockpit/fedora-28'
+    ],
+    'cockpit-project/cockpit-ostree': [
+        'cockpit/fedora-atomic',
+        'cockpit/rhel-atomic',
+        'cockpit/continuous-atomic'
+    ],
+}
+
 import argparse
 import os
 import json
@@ -84,6 +97,10 @@ def main():
         else:
             policy = default_policy()
         results = scan_for_pull_tasks(api, policy, opts)
+
+        # for the default (Cockpit) repo, also check external project PRs
+        if not opts.repo:
+            results += scan_external_projects(opts)
     except RuntimeError as ex:
         sys.stderr.write("tests-scan: " + str(ex) + "\n")
         return 1
@@ -289,6 +306,15 @@ def scan_for_pull_tasks(api, policy, opts):
     else:
         func = lambda x: tests_invoke(*x, options=opts)
     return list(map(func, results))
+
+def scan_external_projects(opts):
+    tests = []
+    for repo, contexts in EXTERNAL_PROJECTS.items():
+        policy = { c: [ "master" ] for c in contexts }
+        opts_with_repo = opts
+        opts_with_repo.repo = repo
+        tests += scan_for_pull_tasks(github.GitHub(repo=repo), policy, opts_with_repo)
+    return tests
 
 if __name__ == '__main__':
     sys.exit(main())

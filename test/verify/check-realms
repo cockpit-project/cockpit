@@ -302,6 +302,7 @@ class TestRealms(MachineCase):
         m.wait_reboot()
 
         self.allow_authorize_journal_messages()
+        self.allow_restart_journal_messages()
 
     def testNotSupported(self):
         m = self.machine

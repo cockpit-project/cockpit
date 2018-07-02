@@ -136,18 +136,20 @@
         delete_image: function () {
             var self = this;
             var location = cockpit.location;
-            util.confirm(cockpit.format(_("Please confirm deletion of $0"), self.name),
-                          _("Deleting an image will delete it, but you can probably download it again if you need it later.  Unless this image has never been pushed to a repository, that is, in which case you probably can't download it again."),
-                          _("Delete")).
-                done(function () {
-                    self.client.rmi(self.image_id).
-                        fail(function(ex) {
-                            util.show_unexpected_error(ex);
-                        }).
-                        done(function() {
-                            location.go("/");
-                        });
+            util.delete_image_confirm(this.client, this).done(function(runningContainers, force) {
+                var stop_promises = [];
+                if (runningContainers.length > 0)
+                    $(runningContainers).each(function(index, value) {
+                        stop_promises.push(self.client.stop(value));
+                    });
+                cockpit.all(stop_promises).done(function() {
+                    self.client.rmi(self.image_id, force).fail(function(ex) {
+                        util.show_unexpected_error(ex);
+                    }).done(function() {
+                        location.go("/");
+                    });
                 });
+            });
         }
 
     };

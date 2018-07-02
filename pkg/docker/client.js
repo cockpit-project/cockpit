@@ -616,12 +616,14 @@
                 });
         };
 
-        this.rmi = function rmi(id) {
+        this.rmi = function rmi(id, forced) {
+            forced = forced || false;
             waiting(id);
             util.docker_debug("deleting:", id);
             return http.request({
                 method: "DELETE",
                 path: "/v1.12/images/" + encodeURIComponent(id),
+                params: { "force": forced },
                 body: ""
             })
                 .fail(function(ex) {
@@ -724,6 +726,17 @@
                 perform_connect();
             }
             return connected.promise();
+        };
+
+        this.containers_for_image = function containers_for_image(id) {
+            util.docker_debug('containers search on image id: ', id);
+            return http.get('/v1.12/containers/json', { all: 1 , filters: JSON.stringify({ ancestor: [ id ] }) })
+                .fail(function(ex) {
+                    util.docker_debug('containers search on image id failed:', id, ex);
+                })
+                .done(function(data) {
+                    util.docker_debug('containers search on image id succeeded:', id);
+                }).then(JSON.parse);
         };
 
         /* Initially empty info data */

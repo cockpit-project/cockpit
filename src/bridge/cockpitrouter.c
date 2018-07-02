@@ -19,16 +19,19 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
-#include "cockpitpeer.h"
 #include "cockpitrouter.h"
 
+#include "cockpitconnect.h"
+#include "cockpitpeer.h"
+
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpittemplate.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 struct _CockpitRouter {
@@ -960,6 +963,9 @@ static void
 cockpit_router_class_init (CockpitRouterClass *class)
 {
   GObjectClass *object_class;
+  GSocketAddress *address;
+  GInetAddress *inet;
+  const gchar *port;
 
   object_class = G_OBJECT_CLASS (class);
   object_class->set_property = cockpit_router_set_property;
@@ -973,6 +979,21 @@ cockpit_router_class_init (CockpitRouterClass *class)
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+
+  /*
+   * If we're running under a test server, register that server's HTTP address
+   * as an internal address, available for use in cockpit channels.
+   */
+
+  port = g_getenv ("COCKPIT_TEST_SERVER_PORT");
+  if (port)
+    {
+      inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+      address = g_inet_socket_address_new (inet, atoi (port));
+      cockpit_connect_add_internal_address ("/test-server", address);
+      g_object_unref (address);
+      g_object_unref (inet);
+    }
 }
 
 /**

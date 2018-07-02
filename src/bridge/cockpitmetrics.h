@@ -20,7 +20,7 @@
 #ifndef COCKPIT_METRICS_H__
 #define COCKPIT_METRICS_H__
 
-#include "cockpitchannel.h"
+#include "common/cockpitchannel.h"
 
 G_BEGIN_DECLS
 

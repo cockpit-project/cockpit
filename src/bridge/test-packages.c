@@ -21,15 +21,14 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
 #include "cockpithttpstream.h"
 #include "cockpitpackages.h"
 
-#include "mock-transport.h"
-
+#include "common/cockpitchannel.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
+#include "common/mock-transport.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -595,7 +594,7 @@ test_bad_receive (TestCase *tc,
 {
   GBytes *bad;
 
-  cockpit_expect_message ("444: channel received message after done");
+  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "444: channel received message after done");
 
   /* A resource2 channel should never have payload sent to it */
   bad = g_bytes_new_static ("bad", 3);

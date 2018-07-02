@@ -21,6 +21,8 @@
 
 #include "cockpitpipechannel.h"
 
+#include "cockpitconnect.h"
+
 #include "common/cockpitpipe.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitunicode.h"
@@ -492,7 +494,7 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
     }
   else
     {
-      address = cockpit_channel_parse_address (channel, &self->name);
+      address = cockpit_connect_parse_address (channel, &self->name);
       if (!address)
         goto out;
       self->pipe = cockpit_pipe_connect (self->name, address);

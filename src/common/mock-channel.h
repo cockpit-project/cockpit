@@ -20,7 +20,7 @@
 #ifndef MOCK_CHANNEL_H
 #define MOCK_CHANNEL_H
 
-#include "cockpitchannel.h"
+#include "common/cockpitchannel.h"
 
 #define MOCK_TYPE_ECHO_CHANNEL         (mock_echo_channel_get_type ())
 #define MOCK_ECHO_CHANNEL(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), MOCK_TYPE_ECHO_CHANNEL, MockEchoChannel))

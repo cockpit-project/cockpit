@@ -19,8 +19,7 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
-
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 

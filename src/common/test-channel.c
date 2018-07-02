@@ -19,20 +19,17 @@
 
 #include "config.h"
 
-#include "cockpitchannel.h"
-#include "cockpitstream.h"
 #include "mock-transport.h"
 
-#include "common/cockpitjson.h"
-#include "common/cockpittest.h"
+#include "cockpitchannel.h"
+#include "cockpitjson.h"
+#include "cockpittest.h"
 
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
 
 #include <string.h>
-
-extern const gchar *cockpit_bridge_local_address;
 
 /* ----------------------------------------------------------------------------
  * Mock
@@ -472,180 +469,10 @@ test_capable (void)
   g_object_unref (transport);
 }
 
-static void
-test_internal_not_registered (void)
-{
-  CockpitConnectable *connectable;
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  JsonObject *sent;
-
-  cockpit_expect_message ("55: couldn't find internal address: test");
-  cockpit_channel_internal_address ("other", NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "internal", "test");
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_channel_parse_stream (channel);
-  g_assert (connectable == NULL);
-  while (g_main_context_iteration (NULL, FALSE));
-
-  sent = mock_transport_pop_control (transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\", \"message\":\"couldn't find internal address: test\"}");
-  g_object_unref (channel);
-  g_object_unref (transport);
-  cockpit_assert_expected ();
-
-  cockpit_channel_remove_internal_address ("other");
-}
-
-static void
-test_internal_null_registered (void)
-{
-  CockpitConnectable *connectable;
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  JsonObject *sent;
-
-  cockpit_channel_internal_address ("test", NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "internal", "test");
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_channel_parse_stream (channel);
-  g_assert (connectable == NULL);
-  while (g_main_context_iteration (NULL, FALSE));
-
-  sent = mock_transport_pop_control (transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\"}");
-  g_object_unref (channel);
-  g_object_unref (transport);
-  cockpit_assert_expected ();
-
-  cockpit_channel_remove_internal_address ("test");
-}
-
-static void
-test_parse_port (void)
-{
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  CockpitConnectable *connectable;
-  GSocketAddress *address;
-  GInetAddress *expected_ip;
-  GInetAddress *got_ip; // owned by address
-  gchar *name = NULL;
-
-  expected_ip = g_inet_address_new_from_string (cockpit_bridge_local_address);
-
-  options = json_object_new ();
-  json_object_set_int_member (options, "port", 8090);
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_channel_parse_stream (channel);
-  g_assert (connectable != NULL);
-
-  address = cockpit_channel_parse_address (channel, &name);
-
-  g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
-  g_assert_cmpint (g_inet_socket_address_get_port ((GInetSocketAddress *)address),
-                   ==, 8090);
-  got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
-  g_assert (g_inet_address_equal (got_ip, expected_ip));
-
-  g_assert_cmpint (connectable->local, ==, TRUE);
-
-  g_object_unref (channel);
-  cockpit_connectable_unref (connectable);
-  g_object_unref (transport);
-  g_object_unref (address);
-  g_object_unref (expected_ip);
-  g_free (name);
-  cockpit_assert_expected ();
-}
-
-static void
-test_parse_address (void)
-{
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  CockpitConnectable *connectable;
-  GSocketAddress *address;
-  GInetAddress *expected_ip;
-  GInetAddress *got_ip; // owned by address
-  gchar *name = NULL;
-
-  expected_ip = g_inet_address_new_from_string ("10.1.1.1");
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "address", "10.1.1.1");
-  json_object_set_int_member (options, "port", 8090);
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_channel_parse_stream (channel);
-  g_assert (connectable != NULL);
-
-  address = cockpit_channel_parse_address (channel, &name);
-
-  g_assert (g_socket_address_get_family (address) == G_SOCKET_FAMILY_IPV4);
-  g_assert_cmpint (g_inet_socket_address_get_port ((GInetSocketAddress *)address),
-                   ==, 8090);
-  got_ip = g_inet_socket_address_get_address ((GInetSocketAddress *)address);
-  g_assert (g_inet_address_equal (got_ip, expected_ip));
-
-  g_assert_cmpint (connectable->local, ==, FALSE);
-
-  g_object_unref (channel);
-  cockpit_connectable_unref (connectable);
-  g_object_unref (transport);
-  g_object_unref (address);
-  g_object_unref (expected_ip);
-  g_free (name);
-  cockpit_assert_expected ();
-}
-
 int
 main (int argc,
       char *argv[])
 {
-  cockpit_bridge_local_address = "127.0.0.1";
-
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/channel/get-option", test_get_option);
@@ -654,14 +481,6 @@ main (int argc,
                    test_close_not_capable);
   g_test_add_func ("/channel/test_capable",
                    test_capable);
-  g_test_add_func ("/channel/internal-null-registered",
-                   test_internal_null_registered);
-  g_test_add_func ("/channel/internal-not-registered",
-                   test_internal_not_registered);
-
-  g_test_add_func ("/channel/parse-port", test_parse_port);
-  g_test_add_func ("/channel/parse-address", test_parse_address);
-
   g_test_add ("/channel/recv-send", TestCase, NULL,
               setup, test_recv_and_send, teardown);
   g_test_add ("/channel/recv-queue", TestCase, NULL,

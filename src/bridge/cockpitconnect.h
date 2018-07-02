@@ -22,6 +22,8 @@
 
 #include <gio/gio.h>
 
+#include "common/cockpitchannel.h"
+
 G_BEGIN_DECLS
 
 typedef struct {
@@ -56,6 +58,16 @@ void                    cockpit_connect_stream_full   (CockpitConnectable *conne
 
 GIOStream *             cockpit_connect_stream_finish (GAsyncResult *result,
                                                        GError **error);
+
+CockpitConnectable *    cockpit_connect_parse_stream  (CockpitChannel *self);
+
+GSocketAddress *        cockpit_connect_parse_address (CockpitChannel *self,
+                                                       gchar **possible_name);
+
+void                    cockpit_connect_add_internal_address        (const gchar *name,
+                                                                     GSocketAddress *address);
+
+gboolean                cockpit_connect_remove_internal_address     (const gchar *name);
 
 G_END_DECLS
 

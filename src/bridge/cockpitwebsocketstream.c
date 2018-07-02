@@ -21,10 +21,10 @@
 
 #include "cockpitwebsocketstream.h"
 
-#include "cockpitchannel.h"
 #include "cockpitconnect.h"
 #include "cockpitstream.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
 
 #include "websocket/websocket.h"
@@ -362,7 +362,7 @@ cockpit_web_socket_stream_prepare (CockpitChannel *channel)
   if (self->closed)
     goto out;
 
-  connectable = cockpit_channel_parse_stream (channel);
+  connectable = cockpit_connect_parse_stream (channel);
   if (!connectable)
     goto out;
 

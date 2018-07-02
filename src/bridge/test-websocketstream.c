@@ -21,15 +21,15 @@
 #include "config.h"
 
 #include "cockpitwebsocketstream.h"
-#include "cockpitchannel.h"
 
+#include "common/cockpitchannel.h"
 #include "common/cockpittest.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
-#include "websocket/websocketclient.h"
+#include "common/mock-transport.h"
 
-#include "mock-transport.h"
+#include "websocket/websocketclient.h"
 
 #include <string.h>
 

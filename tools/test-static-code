@@ -2,7 +2,7 @@
 # run static code checks like pyflakes and pep8
 set -eu
 
-echo "1..5"
+echo "1..6"
 
 builddir=$(pwd)
 cd "${srcdir:-.}"
@@ -92,6 +92,20 @@ if grep "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" `ls dist/*/*.css $builddir/
     fail=1
 else
     echo "ok 5 patternfly-font-paths"
+fi
+
+# Valid JSON files
+if [ -d .git ]; then
+    for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.json$'); do
+        if ! python3 -m json.tool $f /dev/null; then
+            echo "ERROR: $f is invalid JSON" >&2
+            echo "not ok 6 json-verify"
+            fail=1
+        fi
+    done
+    echo "ok 6 json-verify"
+else
+    echo "ok 6 json-verify # SKIP not a git tree"
 fi
 
 exit $fail

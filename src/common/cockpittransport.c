@@ -141,13 +141,21 @@ cockpit_transport_default_control (CockpitTransport *transport,
 {
   GBytes *message;
 
+  if (channel != NULL)
+    return FALSE;
+
   /* A single hop ping. Respond to it right here, immediately */
-  if (g_str_equal (command, "ping") && channel == NULL)
+  if (g_str_equal (command, "ping"))
     {
       json_object_set_string_member (options, "command", "pong");
       message = cockpit_json_write_bytes (options);
       cockpit_transport_send (transport, NULL, message);
       g_bytes_unref (message);
+      return TRUE;
+    }
+  else if (g_str_equal (command, "pong"))
+    {
+      /* Ignore pong commands */
       return TRUE;
     }
 

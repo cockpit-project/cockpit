@@ -23,12 +23,17 @@
 
 #include "cockpitchannel.h"
 #include "cockpitjson.h"
+#include "cockpitpipe.h"
+#include "cockpitpipetransport.h"
 #include "cockpittest.h"
+#include "mock-pressure.h"
 
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <string.h>
 
 /* ----------------------------------------------------------------------------
@@ -104,6 +109,25 @@ mock_echo_channel_open (CockpitTransport *transport,
 
   json_object_unref (options);
   return channel;
+}
+
+static GType mock_null_channel_get_type (void) G_GNUC_CONST;
+
+typedef CockpitChannel MockNullChannel;
+typedef CockpitChannelClass MockNullChannelClass;
+
+G_DEFINE_TYPE (MockNullChannel, mock_null_channel, COCKPIT_TYPE_CHANNEL);
+
+static void
+mock_null_channel_init (MockNullChannel *self)
+{
+
+}
+
+static void
+mock_null_channel_class_init (MockNullChannelClass *klass)
+{
+
 }
 
 /* ----------------------------------------------------------------------------
@@ -517,6 +541,8 @@ test_ping_no_channel (void)
   CockpitChannel *channel;
   GBytes *sent;
 
+  cockpit_expect_message ("received unknown control command: ping");
+
   mock = mock_transport_new ();
   transport = COCKPIT_TRANSPORT (mock);
 
@@ -550,6 +576,172 @@ test_ping_no_channel (void)
   g_object_unref (mock);
 }
 
+typedef struct {
+  CockpitTransport *transport_a;
+  CockpitChannel *channel_a;
+  CockpitTransport *transport_b;
+  CockpitChannel *channel_b;
+} TestPairCase;
+
+static void
+setup_pair (TestPairCase *tc,
+            gconstpointer data)
+{
+  CockpitPipe *pipe;
+  JsonObject *options;
+  int sv[2];
+
+  if (socketpair (PF_LOCAL, SOCK_STREAM, 0, sv) < 0)
+    g_assert_not_reached ();
+
+  pipe = cockpit_pipe_new ("a", sv[0], sv[0]);
+  tc->transport_a = cockpit_pipe_transport_new (pipe);
+  g_object_unref (pipe);
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "command", "open");
+  json_object_set_string_member (options, "channel", "999");
+  tc->channel_a = g_object_new (mock_null_channel_get_type (),
+                                "id", "999",
+                                "options", options,
+                                "transport", tc->transport_a,
+                                NULL);
+  json_object_unref (options);
+
+  pipe = cockpit_pipe_new ("b", sv[1], sv[1]);
+  tc->transport_b = cockpit_pipe_transport_new (pipe);
+  g_object_unref (pipe);
+
+  options = json_object_new ();
+  json_object_set_string_member (options, "channel", "999");
+  tc->channel_b = g_object_new (mock_null_channel_get_type (),
+                                "id", "999",
+                                "options", options,
+                                "transport", tc->transport_b,
+                                NULL);
+  json_object_unref (options);
+}
+
+static void
+teardown_pair (TestPairCase *tc,
+               gconstpointer data)
+{
+  g_object_add_weak_pointer (G_OBJECT (tc->channel_a), (gpointer *)&tc->channel_a);
+  g_object_add_weak_pointer (G_OBJECT (tc->transport_a), (gpointer *)&tc->transport_a);
+  g_object_add_weak_pointer (G_OBJECT (tc->channel_b), (gpointer *)&tc->channel_b);
+  g_object_add_weak_pointer (G_OBJECT (tc->transport_b), (gpointer *)&tc->transport_b);
+  g_object_unref (tc->channel_a);
+  g_object_unref (tc->channel_b);
+  g_object_unref (tc->transport_a);
+  g_object_unref (tc->transport_b);
+  g_assert (tc->channel_a == NULL);
+  g_assert (tc->transport_a == NULL);
+  g_assert (tc->channel_b == NULL);
+  g_assert (tc->transport_b == NULL);
+}
+
+static gboolean
+on_timeout_set_flag (gpointer user_data)
+{
+  gboolean *data = user_data;
+  g_assert (user_data);
+  g_assert (*data == FALSE);
+  *data = TRUE;
+  return FALSE;
+}
+
+static void
+on_pressure_set_throttle (CockpitChannel *channel,
+                          gboolean throttle,
+                          gpointer user_data)
+{
+  gint *data = user_data;
+  g_assert (user_data != NULL);
+  *data = throttle ? 1 : 0;
+}
+
+static void
+test_pressure_window (TestPairCase *tc,
+                      gconstpointer data)
+{
+  gint throttle = -1;
+  GBytes *sent;
+  gint i;
+
+  /* Ready to go */
+  cockpit_channel_ready (tc->channel_a, NULL);
+  cockpit_channel_ready (tc->channel_b, NULL);
+  g_signal_connect (tc->channel_a, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+
+  /* Sent this a thousand times */
+  sent = g_bytes_new_take (g_strnfill (1000 * 1000, '?'), 1000 * 1000);
+  for (i = 0; i < 10; i++)
+    cockpit_channel_send (tc->channel_a, sent, TRUE);
+  g_bytes_unref (sent);
+
+  /*
+   * This should have put way too much in the queue, and thus
+   * emitted the back-pressure signal. This signal would normally
+   * be used by others to slow down their queueing, but in this
+   * case we just check that it was fired.
+   */
+  g_assert_cmpint (throttle, ==, 1);
+
+  /*
+   * Now the queue is getting drained. At some point, it will be
+   * signaled that back pressure has been turned off
+   */
+  while (throttle != 0)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
+test_pressure_throttle (TestPairCase *tc,
+                        gconstpointer data)
+{
+  CockpitFlow *pressure = mock_pressure_new ();
+  gboolean timeout = FALSE;
+  gboolean throttle = 0;
+  GBytes *sent;
+
+  cockpit_channel_ready (tc->channel_a, NULL);
+  cockpit_channel_ready (tc->channel_b, NULL);
+
+  g_signal_connect (tc->channel_a, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
+
+  /* Send this a thousand times over the echo pipe */
+  sent = g_bytes_new_take (g_strnfill (400 * 1000, '?'), 400 * 1000);
+
+  /* Turn on pressure on the remote side */
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->channel_b), pressure);
+  cockpit_flow_emit_pressure (pressure, TRUE);
+
+  /* In spite of us running the main loop, no we should have pressure */
+  g_timeout_add_seconds (2, on_timeout_set_flag, &timeout);
+  while (timeout == FALSE)
+    {
+      if (throttle != 1)
+        cockpit_channel_send (tc->channel_a, sent, TRUE);
+      g_main_context_iteration (NULL, throttle == 1);
+    }
+
+  g_assert_cmpint (throttle, ==, 1);
+
+  /* Now lets turn off the pressure on the remote side */
+  cockpit_flow_emit_pressure (pressure, FALSE);
+
+  /* And we should see the pressure here go down too */
+  while (throttle == 1)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_cmpint (throttle, ==, 0);
+
+  cockpit_flow_throttle (COCKPIT_FLOW (tc->channel_b), NULL);
+  g_object_unref (pressure);
+  g_bytes_unref (sent);
+}
+
+
 int
 main (int argc,
       char *argv[])
@@ -576,6 +768,11 @@ main (int argc,
               setup, test_close_json_option, teardown);
   g_test_add ("/channel/close-transport", TestCase, NULL,
               setup, test_close_transport, teardown);
+
+  g_test_add ("/channel/pressure/window", TestPairCase, NULL,
+              setup_pair, test_pressure_window, teardown_pair);
+  g_test_add ("/channel/pressure/throttle", TestPairCase, NULL,
+              setup_pair, test_pressure_throttle, teardown_pair);
 
   g_test_add_func ("/channel/ping/normal", test_ping_channel);
   g_test_add_func ("/channel/ping/no-channel", test_ping_no_channel);

@@ -21,6 +21,7 @@
 
 #include "cockpitchannel.h"
 
+#include "common/cockpitflow.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitunicode.h"
 
@@ -54,7 +55,21 @@
  * individually either for failure reasons, or with an orderly shutdown.
  *
  * See doc/protocol.md for information about channels.
+ *
+ * A channel can do flow control in two ways:
+ *
+ *  - It can throttle its peer sending data, by delaying responding to "ping"
+ *    messages. It can listen to a "pressure" signal to control this.
+ *  - It can optionally control another flow, by emitting a "pressure" signal
+ *    when its peer receiving data does not respond to "ping" messages within
+ *    a given window.
  */
+
+/* Every 16K Send a ping */
+#define  CHANNEL_FLOW_PING        (16L * 1024L)
+
+/* Allow up to 1MB of data to be sent without ack */
+#define  CHANNEL_FLOW_WINDOW       (2L * 1024L * 1024L)
 
 struct _CockpitChannelPrivate {
     gulong recv_sig;
@@ -93,6 +108,15 @@ struct _CockpitChannelPrivate {
     /* Buffer for incomplete unicode bytes */
     GBytes *out_buffer;
     gint buffer_timeout;
+
+    /* The number of bytes sent, and current flow control window */
+    gint64 out_sequence;
+    gint64 out_window;
+
+    /* Another object giving back-pressure on received data */
+    CockpitFlow *pressure;
+    gulong pressure_sig;
+    GQueue *throttled;
 };
 
 enum {
@@ -105,7 +129,10 @@ enum {
 
 static guint cockpit_channel_sig_closed;
 
-G_DEFINE_TYPE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT);
+static void    cockpit_channel_flow_iface_init     (CockpitFlowIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_channel_flow_iface_init));
 
 static gboolean
 on_idle_prepare (gpointer data)
@@ -123,6 +150,9 @@ cockpit_channel_init (CockpitChannel *self)
 {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_CHANNEL,
                                             CockpitChannelPrivate);
+
+  self->priv->out_sequence = 0;
+  self->priv->out_window = CHANNEL_FLOW_WINDOW;
 }
 
 static void
@@ -138,8 +168,8 @@ process_recv (CockpitChannel *self,
   else
     {
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
-      g_assert (klass->recv);
-      (klass->recv) (self, payload);
+      if (klass->recv)
+        (klass->recv) (self, payload);
     }
 }
 
@@ -156,6 +186,61 @@ on_transport_recv (CockpitTransport *transport,
 
   process_recv (self, data);
   return TRUE;
+}
+
+static gboolean
+process_ping (CockpitChannel *self,
+              JsonObject *ping)
+{
+  GBytes *payload;
+
+  if (self->priv->throttled)
+    {
+      g_debug ("%s: received ping while throttled", self->priv->id);
+      g_queue_push_tail (self->priv->throttled, json_object_ref (ping));
+      return FALSE;
+    }
+  else
+    {
+      g_debug ("%s: replying to ping with pong", self->priv->id);
+      json_object_set_string_member (ping, "command", "pong");
+      payload = cockpit_json_write_bytes (ping);
+      cockpit_transport_send (self->priv->transport, NULL, payload);
+      g_bytes_unref (payload);
+      return TRUE;
+    }
+}
+
+static gboolean
+process_pong (CockpitChannel *self,
+              JsonObject *pong)
+{
+  gint64 sequence;
+
+  if (!cockpit_json_get_int (pong, "sequence", -1, &sequence))
+    {
+      g_message ("%s: received invalid \"pong\" \"sequence\" field", self->priv->id);
+      sequence = -1;
+    }
+
+  g_debug ("%s: received pong with sequence: %" G_GINT64_FORMAT, self->priv->id, sequence);
+  if (sequence > self->priv->out_window + (CHANNEL_FLOW_WINDOW * 10))
+    {
+      g_message ("%s: received a flow control ack with a suspiciously large sequence: %" G_GINT64_FORMAT,
+                 self->priv->id, sequence);
+    }
+
+  if (sequence > self->priv->out_window)
+    {
+      /* Up to this point has been confirmed received */
+      self->priv->out_window = sequence + CHANNEL_FLOW_WINDOW;
+
+      /* If our sent bytes are within the window, no longer under pressure */
+      if (self->priv->out_sequence <= self->priv->out_window)
+        cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
+    }
+
+    return FALSE;
 }
 
 static void
@@ -177,7 +262,12 @@ process_control (CockpitChannel *self,
 
   if (g_str_equal (command, "ping"))
     {
-      cockpit_channel_control (self, "pong", options);
+      process_ping (self, options);
+      return;
+    }
+  else if (g_str_equal (command, "pong"))
+    {
+      process_pong (self, options);
       return;
     }
   else if (g_str_equal (command, "done"))
@@ -230,6 +320,9 @@ cockpit_channel_actual_send (CockpitChannel *self,
                              gboolean trust_is_utf8)
 {
   GBytes *validated = NULL;
+  guint64 out_sequence;
+  JsonObject *ping;
+  gsize size;
 
   g_return_if_fail (self->priv->out_buffer == NULL);
   g_return_if_fail (self->priv->buffer_timeout == 0);
@@ -241,6 +334,35 @@ cockpit_channel_actual_send (CockpitChannel *self,
     }
 
   cockpit_transport_send (self->priv->transport, self->priv->id, payload);
+
+  /* A wraparound of our gint64 size */
+  size = g_bytes_get_size (payload);
+  if (G_MAXINT64 - size < self->priv->out_sequence)
+    {
+      self->priv->out_sequence = 0;
+      self->priv->out_window = CHANNEL_FLOW_WINDOW;
+    }
+
+  /* How many bytes have been sent (queued) */
+  out_sequence = self->priv->out_sequence + size;
+
+  /* Every CHANNEL_FLOW_PING bytes we send a ping */
+  if (out_sequence / CHANNEL_FLOW_PING != self->priv->out_sequence / CHANNEL_FLOW_PING)
+    {
+      ping = json_object_new ();
+      json_object_set_int_member (ping, "sequence", out_sequence);
+      cockpit_channel_control (self, "ping", ping);
+      g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, out_sequence);
+      json_object_unref (ping);
+    }
+
+  /* If we've sent more than the window, apply back pressure */
+  self->priv->out_sequence = out_sequence;
+  if (self->priv->out_sequence > self->priv->out_window)
+    {
+      g_debug ("%s: sent too much data without acknowledgement, emitting back pressure", self->priv->id);
+      cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
+    }
 
   if (validated)
     g_bytes_unref (validated);
@@ -274,6 +396,7 @@ cockpit_channel_constructed (GObject *object)
   G_OBJECT_CLASS (cockpit_channel_parent_class)->constructed (object);
 
   g_return_if_fail (self->priv->id != NULL);
+  g_return_if_fail (self->priv->transport != NULL);
 
   self->priv->capabilities = NULL;
   self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
@@ -482,6 +605,12 @@ cockpit_channel_dispose (GObject *object)
   if (self->priv->out_buffer)
     g_bytes_unref (self->priv->out_buffer);
   self->priv->out_buffer = NULL;
+
+  cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
+  g_assert (self->priv->pressure == NULL);
+  if (self->priv->throttled)
+    g_queue_free_full (self->priv->throttled, (GDestroyNotify)json_object_unref);
+  self->priv->throttled = NULL;
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->dispose (object);
 }
@@ -942,4 +1071,67 @@ cockpit_channel_control (CockpitChannel *self,
 
 out:
   g_free (problem_copy);
+}
+
+static void
+on_throttle_pressure (GObject *object,
+                      gboolean throttle,
+                      gpointer user_data)
+{
+  CockpitChannel *self = COCKPIT_CHANNEL (user_data);
+  GQueue *throttled;
+  JsonObject *ping;
+
+  if (throttle)
+    {
+      if (!self->priv->throttled)
+        self->priv->throttled = g_queue_new ();
+    }
+  else
+    {
+      throttled = self->priv->throttled;
+      self->priv->throttled = NULL;
+      while (throttled)
+        {
+          ping = g_queue_pop_head (throttled);
+          if (!ping)
+            {
+              g_queue_free (throttled);
+              throttled = NULL;
+            }
+          else
+            {
+              if (!process_ping (self, ping))
+                g_assert_not_reached (); /* Because throttle is FALSE */
+              json_object_unref (ping);
+            }
+        }
+    }
+}
+
+static void
+cockpit_channel_throttle (CockpitFlow *flow,
+                          CockpitFlow *controlling)
+{
+  CockpitChannel *self = COCKPIT_CHANNEL (flow);
+
+  if (self->priv->pressure)
+    {
+      g_signal_handler_disconnect (self->priv->pressure, self->priv->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure = NULL;
+    }
+
+  if (controlling)
+    {
+      self->priv->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
+      self->priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+    }
+}
+
+static void
+cockpit_channel_flow_iface_init (CockpitFlowIface *iface)
+{
+  iface->throttle = cockpit_channel_throttle;
 }

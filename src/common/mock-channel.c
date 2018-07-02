@@ -21,7 +21,7 @@
 
 #include "mock-channel.h"
 
-typedef CockpitTransportClass MockEchoChannelClass;
+typedef CockpitChannelClass MockEchoChannelClass;
 
 G_DEFINE_TYPE (MockEchoChannel, mock_echo_channel, COCKPIT_TYPE_CHANNEL);
 

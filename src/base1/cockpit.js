@@ -623,9 +623,13 @@ function Transport() {
             }
             self.close(data);
 
-        /* Any pings get sent back */
+        /* Any pings get sent back as pongs */
         } else if (data.command == "ping") {
+            data["command"] = "pong";
             self.send_control(data);
+
+        } else if (data.command == "pong") {
+            /* Any pong commands are ignored */
 
         } else if (data.command == "hint") {
             if (process_hints)

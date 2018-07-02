@@ -20,7 +20,7 @@ DISTCLEAN_FILES = \
 	$(NULL)
 
 rpm: clean
-	@(unset CDPATH ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.gz)
+	@(unset CDPATH ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.xz)
 
 dist-hook: gen-AUTHORS
 

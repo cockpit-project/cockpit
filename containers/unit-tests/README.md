@@ -37,9 +37,9 @@ For interactive debugging, run a shell in the container:
 
     $ make unit-tests-container-shell
 
-or start the container with `bash` as the entry point. `./run.sh` will start
-the builds and test run, then you can investigate in the build tree at
-`/tmp/source/`.
+or start the container with `bash` as the entry point.
+`/source/containers/unit-tests/run.sh` will start the builds and test run, then
+you can investigate in the build tree at `/tmp/source/`.
 
 ## More Info
 

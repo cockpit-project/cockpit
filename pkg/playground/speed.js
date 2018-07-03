@@ -1,136 +1,179 @@
 (function() {
-    var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    function speed(bytes, start, suffix) {
-        var done = Date.now();
-        suffix = suffix || "";
-        $("#speed").text(cockpit.format_bytes_per_sec((bytes * 1000) / (done - start)) + suffix);
+    var channel = null;
+    var websocket = null;
+    var timer = null;
+    var start = null;
+    var total = 0;
+    var proc = null;
+
+    function update() {
+        var element = document.getElementById("speed");
+        if (channel || websocket) {
+            element.innerHTML = cockpit.format_bytes_per_sec((total * 1000) / (Date.now() - start));
+            console.log(total);
+        } else {
+            element.innerHTML = "";
+        }
+
+        var memory = document.getElementById("memory");
+        var pid = document.getElementById("pid");
+        if (!proc) {
+            proc = cockpit.script("echo $PPID && cat /proc/$PPID/statm");
+            proc.then(function(data) {
+                var parts = data.split("\n");
+                pid.innerHTML = parts[0];
+                memory.innerHTML = parts[1];
+                proc = null;
+            }, function(ex) {
+                memory.innerHTML = String(ex);
+                proc = null;
+            });
+        }
     }
 
-    function generate(length, binary) {
-        if (binary)
-            return new window.ArrayBuffer(length);
-        else
-            return (new Array(length)).join("x");
-    }
+    function echo(ev) {
+        stop();
 
-    function normal() {
-        $("#speed").empty();
+        var sideband = ev.target.id == "echo-sideband";
 
-        var length = parseInt($("#message").val(), 10);
-        var batch = parseInt($("#batch").val(), 10);
-        var interval = parseInt($("#interval").val(), 10);
+        function generate(length, binary) {
+            if (binary)
+                return new window.ArrayBuffer(length);
+            else
+                return (new Array(length)).join("x");
+        }
+
+        var length = parseInt(document.getElementById("message").value, 10);
+        var batch = parseInt(document.getElementById("batch").value, 10);
+        var interval = parseInt(document.getElementById("interval").value, 10);
 
         if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
             window.alert("Bad value");
             return;
         }
 
-        var binary = $("#binary").prop('checked');
+        var binary = document.getElementById.checked;
         var options = { payload: "echo" };
-        if (binary)
-            options.binary = true;
-        var channel = cockpit.channel(options);
-
-        var total = 0;
-        $(channel).on("message", function(event, data) {
-            total += data.length;
-        });
-
-        $(channel).on("close", function(event, options) {
-            if (options.problem)
-                window.alert(options.problem);
-        });
-
         var input = generate(length, binary);
-        var start = Date.now();
-        for (var i = 0; i < batch; i++)
-            channel.send(input);
+        start = new Date();
+        total = 0;
 
-        var update = window.setInterval(function() {
-            speed(total, start, "...");
-        }, 500);
+        if (sideband) {
+            if (binary)
+                options.binary = "raw";
 
-        var timer = window.setInterval(function() {
+            websocket = new window.WebSocket(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token) +
+                "?" + window.btoa(JSON.stringify(options)));
+            websocket.binaryType = 'arraybuffer';
+
+            websocket.onopen = function() {
+                for (var i = 0; i < batch; i++)
+                    websocket.send(input);
+                timer = window.setInterval(function() {
+                    for (var i = 0; i < batch; i++)
+                        websocket.send(input);
+                }, interval);
+            };
+
+            websocket.onmessage = function(event) {
+                if (binary)
+                    total += event.data.byteLength;
+                else
+                    total += event.data.length;
+            };
+
+            websocket.onclose = function(event) {
+                if (websocket)
+                    window.alert("channel closed");
+            };
+
+        } else {
+
+            if (binary)
+                options.binary = true;
+
+            channel = cockpit.channel(options);
+
+            channel.addEventListener("message", function(event, data) {
+                total += data.length;
+            });
+            channel.addEventListener("close", function(event, options) {
+                if (options.problem)
+                    window.alert(options.problem);
+            });
+
             for (var i = 0; i < batch; i++)
                 channel.send(input);
-        }, interval);
 
-        window.setTimeout(function() {
-            window.clearInterval(timer);
-            window.clearInterval(update);
-            channel.close();
-            speed(total, start);
-        }, 10000);
-    }
-
-    function sideband() {
-        $("#speed").empty();
-
-        var length = parseInt($("#message").val(), 10);
-        var batch = parseInt($("#batch").val(), 10);
-        var interval = parseInt($("#interval").val(), 10);
-
-        if (isNaN(length) || isNaN(interval) || isNaN(batch)) {
-            window.alert("Bad value");
-            return;
-        }
-
-        var binary = $("#binary").prop('checked');
-        var params = { payload: "echo" };
-        if (binary)
-            params.binary = "raw";
-
-        var url = cockpit.transport.uri("channel/" + cockpit.transport.csrf_token);
-        var ws = new window.WebSocket(url + "?" + window.btoa(JSON.stringify(params)));
-
-        ws.binaryType = 'arraybuffer';
-
-        var input = generate(length, binary);
-        var done = false;
-        var start;
-        var total = 0;
-        var timer;
-
-        ws.onopen = function() {
-            start = new Date();
-            for (var i = 0; i < batch; i++)
-                ws.send(input);
             timer = window.setInterval(function() {
                 for (var i = 0; i < batch; i++)
-                    ws.send(input);
+                    channel.send(input);
             }, interval);
+        }
+    }
+
+    function read(ev) {
+        stop();
+
+        var sideband = ev.target.id == "read-sideband";
+        var path = document.getElementById("read-path");
+
+        var options = {
+            payload: "fsread1",
+            path: path.value,
+            binary: sideband ? "raw" : true,
         };
 
-        ws.onmessage = function(event) {
-            if (binary)
+        start = Date.now();
+        total = 0;
+
+        if (sideband) {
+            websocket = new window.WebSocket(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token) +
+                "?" + window.btoa(JSON.stringify(options)));
+            websocket.binaryType = 'arraybuffer';
+            websocket.onmessage = function(event) {
                 total += event.data.byteLength;
-            else
-                total += event.data.length;
-        };
+            };
+            websocket.onclose = function(event) {
+                if (websocket)
+                    window.alert("channel closed");
+            };
+        } else {
+            channel = cockpit.channel(options);
+            channel.addEventListener("message", function(event, data) {
+                total += data.length;
+            });
+            channel.addEventListener("close", function(event, options) {
+                if (options.problem)
+                    window.alert(options.problem);
+            });
+        }
+    }
 
-        var update = window.setInterval(function() {
-            speed(total, start, "...");
-        }, 500);
+    function stop() {
+        update();
 
-        ws.onclose = function(event) {
-            if (!done)
-                window.alert("channel closed");
-        };
-
-        window.setTimeout(function() {
-            done = true;
-            window.clearInterval(timer);
-            window.clearInterval(update);
+        if (channel)
+            channel.close();
+        channel = null;
+        var ws = websocket;
+        websocket = null;
+        if (ws)
             ws.close();
-            speed(total, start);
-        }, 10000);
+
+        window.clearInterval(timer);
+        timer = null;
     }
 
     cockpit.transport.wait(function() {
-        $("#normal").on("click", normal);
-        $("#sideband").on("click", sideband);
-        $("body").show();
+        document.getElementById("echo-normal").addEventListener("click", echo);
+        document.getElementById("echo-sideband").addEventListener("click", echo);
+        document.getElementById("read-normal").addEventListener("click", read);
+        document.getElementById("read-sideband").addEventListener("click", read);
+        document.getElementById("stop").addEventListener("click", stop);
+        window.setInterval(update, 500);
+        document.body.style.display = "block";
     });
 }());

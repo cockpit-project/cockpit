@@ -5,13 +5,29 @@
     <title>Cockpit Speed Tests</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../base1/patternfly.css" type="text/css" rel="stylesheet">
-    <script src="../base1/jquery.js"></script>
     <script src="../base1/cockpit.js"></script>
     <script src="speed.js"></script>
 </head>
 <body hidden>
     <div class="container-fluid">
         <h1>Speed Tests</h1>
+        <table>
+            <tr>
+                <td><label class="control-label">Speed: </label></td>
+                <td>&nbsp;&nbsp;<label id="speed"></label></td>
+            </tr>
+            <tr>
+                <td><label class="control-label">Process ID: </label></td>
+                <td>&nbsp;&nbsp;<label id="pid"></label></td>
+            </tr>
+            <tr>
+                <td><label class="control-label">Bridge Memory: </label></td>
+                <td>&nbsp;&nbsp;<label id="memory"></label></td>
+            </tr>
+        </table>
+        <p><button class="btn btn-default btn-primary" id="stop">Stop</button></p>
+
+        <h2>Echo Tests</h2>
         <table>
             <tr>
                 <td><label class="control-label" for="message">Message</label></td>
@@ -30,12 +46,21 @@
                 <td><input type="checkbox" id="binary"></td>
             </tr>
             <tr>
-                <td><button class="btn btn-default btn-primary" id="normal">Normal Channel</button></td>
-                <td><button class="btn btn-default btn-primary" id="sideband">Sideband Channel</button></td>
+                <td><button class="btn btn-default btn-primary" id="echo-normal">Normal Channel</button></td>
+                <td><button class="btn btn-default btn-primary" id="echo-sideband">Sideband Channel</button></td>
+            </tr>
+        </table>
+    </div>
+    <div class="container-fluid">
+        <h1>Read Test</h1>
+        <table>
+            <tr>
+                <td><label class="control-label" for="message">Path</label></td>
+                <td><input class="form-control" id="read-path" value="/dev/sda"></td>
             </tr>
             <tr>
-                <td><label class="control-label">Round Trip</label></td>
-                <td><span id="speed"></span></td>
+                <td><button class="btn btn-default btn-primary" id="read-normal">Normal Channel</button></td>
+                <td><button class="btn btn-default btn-primary" id="read-sideband">Sideband Channel</button></td>
             </tr>
         </table>
     </div>

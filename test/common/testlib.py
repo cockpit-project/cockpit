@@ -554,6 +554,7 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
+        print(self.currentResult)
         if not self.currentResult:
             return False
         for error in self.currentResult.errors:
@@ -658,6 +659,7 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
         def intercept():
+            print("INTERCEPT", self.checkSuccess())
             if not self.checkSuccess():
                 self.snapshot("FAIL")
                 self.copy_js_log("FAIL")

@@ -35,7 +35,7 @@ class TestMenu(MachineCase):
 
         b.switch_to_top()
         b.click('#navbar-dropdown')
-        b.wait_visible('a[data-target="#about"]')
+        b.wait_visible('a[data-target="#abut"]')
         b.click('a[data-target="#about"]')
         b.wait_popup('about')
         b.click('#about button[data-dismiss="modal"]')

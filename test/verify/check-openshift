@@ -463,7 +463,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         self.assertEqual(b.text("tr[data-row-id='vm-fedoravm'] th"), "fedoravm")
 
         # expand row and check the Overview subtab
-        b.click("tr[data-row-id='vm-fedoravm']")
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")
         b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
         b.wait_in_text("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel", "Node")
         b.wait_present("#vm-fedoravm-memory")
@@ -474,20 +474,20 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # switch to the Usage subtab
         b.wait_present("#vm-fedoravm-usage-tab")
         b.click("#vm-fedoravm-usage-tab")
-        b.wait_present("#cpu-metric div svg")  # cannot check cpu component because it is an external dependency
-        b.wait_present("#memory-metric")
-        b.wait_present("#network-metric")
+        b.wait_present("#vm-fedoravm-cpu-metric div svg")  # cannot check cpu component because it is an external dependency
+        b.wait_present("#vm-fedoravm-memory-metric")
+        b.wait_present("#vm-fedoravm-network-metric")
 
-        def get_units_value(selector, per_second=False):
+        def get_units_number(selector, per_second=False):
             units_regex = "([0-9]+\.?[0-9]*) .?i?B"
             if per_second:
                 units_regex += "/s"
             m = re.match(units_regex, b.text(selector))
             return float(m.group(1)) if m else None
 
-        wait(lambda: get_units_value("#memory-metric-title") > 0)
-        self.assertGreaterEqual(get_units_value("#download-metric", True), 0)
-        self.assertGreaterEqual(get_units_value("#upload-metric", True), 0)
+        wait(lambda: get_units_number("#vm-fedoravm-memory-metric-title") > 0)
+        self.assertGreaterEqual(get_units_number("#vm-fedoravm-download-metric", True), 0)
+        self.assertGreaterEqual(get_units_number("#vm-fedoravm-upload-metric", True), 0)
 
         # switch to the Disks subtab
         b.wait_present("#vm-fedoravm-disks-tab")
@@ -521,23 +521,23 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
             b.wait_present("tr[data-row-id='vm-fedoravm']")
 
         if not b.is_present("#vm-fedoravm-usage-tab"):  # if not expanded
-            b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+            b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # expand row
 
         # check usage still not present because vm is not running yet)
         b.wait_present("#vm-fedoravm-usage-tab")
         b.click("#vm-fedoravm-usage-tab")
-        b.wait_present("#usage-metrics")
-        b.wait_in_text("#usage-metrics", "Usage metrics are available after the pod starts")
-        self.assertFalse(b.is_present("#cpu-metric"))
-        self.assertFalse(b.is_present("#memory-metric"))
-        self.assertFalse(b.is_present("#network-metric"))
+        b.wait_present("#vm-fedoravm-usage-metrics")
+        b.wait_in_text("#vm-fedoravm-usage-metrics", "Usage metrics are available after the pod starts")
+        self.assertFalse(b.is_present("#vm-fedoravm-cpu-metric"))
+        self.assertFalse(b.is_present("#vm-fedoravm-memory-metric"))
+        self.assertFalse(b.is_present("#vm-fedoravm-network-metric"))
         b.click("#vm-fedoravm-overview-tab")
-        b.click("tr[data-row-id='vm-fedoravm']")  # hide row
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # hide row
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150)
 
         # link to node
         b.wait_present("tr[data-row-id='vm-fedoravm']") # the just-started VM is listed
-        b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # expand row
         b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
         b.wait_present("#vm-fedoravm-node")
         wait(lambda: b.text("#vm-fedoravm-node > a").strip() != "-") # `-` ==  unassigned ; so wait for a change
@@ -582,7 +582,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                 self.assertEqual(b.text("{0} td:nth-of-type(2)".format(row_selector)), dialog.getNamespace())
 
                 # expand row
-                b.click(row_selector)
+                b.click("{0} td.listing-ct-toggle".format(row_selector))
                 b.wait_present("{0} + tr.listing-ct-panel".format(row_selector))
                 b.wait_in_text("{0} + tr.listing-ct-panel".format(row_selector), "Node")
 

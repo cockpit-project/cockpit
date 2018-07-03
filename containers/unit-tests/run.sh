@@ -7,7 +7,7 @@ export LANG=C.UTF-8
 
 # HACK: Something invoked by our build system is setting stdio to non-blocking.
 # Validate that this isn't the surrounding context. See more below.
-python -c "import fcntl, os; assert fcntl.fcntl(0, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(1, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(2, fcntl.F_GETFL) & os.O_NONBLOCK == 0"
+python3 -c "import fcntl, os; assert fcntl.fcntl(0, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(1, fcntl.F_GETFL) & os.O_NONBLOCK == 0; assert fcntl.fcntl(2, fcntl.F_GETFL) & os.O_NONBLOCK == 0"
 
 # copy host's source tree to avoid changing that, and make sure we have a clean tree
 if [ ! -e /source/.git ]; then
@@ -39,7 +39,7 @@ make V=1 all
 
 # HACK: Before running the tests we need to make sure stdio is in blocking mode. We have
 # not yet been able to figure out what is putting it non-blocknig.
-python -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) &~ os.O_NONBLOCK), [0, 1, 2])"
+python3 -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) &~ os.O_NONBLOCK), [0, 1, 2])"
 
 # only run distcheck on main arch
 if [ "$ARCH" = amd64 ]; then

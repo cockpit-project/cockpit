@@ -286,9 +286,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
     def curl_auth(self, url, userpass):
-        header = "Authorization: Basic " + base64.b64encode(userpass)
+        header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-', '--header', header,
-               'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url) ])
+               'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url) ],
+               universal_newlines=True)
 
     def curl_auth_code(self, url, userpass):
         lines = self.curl_auth(url, userpass).splitlines()

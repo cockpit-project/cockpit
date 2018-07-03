@@ -49,7 +49,7 @@ class NetworkCase(MachineCase):
         ver = self.machine.execute("busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
         m = re.match('s "(.*)"', ver)
         if m:
-            self.networkmanager_version = map(int, m.group(1).split("."))
+            self.networkmanager_version = [int(x) for x in m.group(1).split(".")]
         else:
             self.networkmanager_version = [ 0 ]
 

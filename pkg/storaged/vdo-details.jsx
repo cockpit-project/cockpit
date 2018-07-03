@@ -54,7 +54,7 @@ export class VDODetails extends React.Component {
         this.state = { stats: null };
     }
 
-    ensure_polling(path) {
+    ensure_polling(client, path) {
         var buf = "";
 
         if (this.poll_path === path)
@@ -66,7 +66,7 @@ export class VDODetails extends React.Component {
         }
 
         if (path)
-            this.poll_process = cockpit.spawn([ "python", "--", "-", path ], { superuser: true })
+            this.poll_process = cockpit.spawn([ client.vdo_overlay.python, "--", "-", path ], { superuser: true })
                     .input(inotify_py + vdo_monitor_py)
                     .stream((data) => {
                         buf += data;
@@ -80,7 +80,7 @@ export class VDODetails extends React.Component {
     }
 
     componentWillUnmount() {
-        this.ensure_polling(null);
+        this.ensure_polling(null, null);
     }
 
     render() {
@@ -109,7 +109,7 @@ export class VDODetails extends React.Component {
             return <StdDetailsLayout client={this.props.client} alert={broken} />;
         }
 
-        this.ensure_polling(block ? vdo.dev : null);
+        this.ensure_polling(client, block ? vdo.dev : null);
 
         var alert = null;
         if (backing_block && backing_block.Size > vdo.physical_size)

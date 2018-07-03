@@ -400,13 +400,12 @@
         }
 
         function enable_vdo_features() {
-            return cockpit.spawn([ "which", "vdo" ], { err: "ignore" }).then(
-                function () {
-                    client.features.vdo = true;
-                    client.vdo_overlay.start();
+            return client.vdo_overlay.start()
+                .then(function (success) {
+                    client.features.vdo = success;
                     return cockpit.resolve();
-                },
-                function () {
+                })
+                .fail(function () {
                     return cockpit.resolve();
                 });
         }
@@ -750,24 +749,35 @@
 
         function start() {
             var buf = "";
-            cockpit.spawn([ "python", "--", "-" ], { superuser: "try", err: "message" })
-                .input(inotify_py + vdo_monitor_py)
-                .stream(function (output) {
-                    var lines;
 
-                    buf += output;
-                    lines = buf.split("\n");
-                    buf = lines[lines.length-1];
-                    if (lines.length >= 2) {
-                        self.entries = JSON.parse(lines[lines.length-2]);
-                        self.fsys_sizes = { };
-                        $(self).triggerHandler('changed');
-                        update(JSON.parse(lines[lines.length-2]));
-                    }
-                }).
-                fail(function (error) {
-                    if (error != "closed") {
-                        console.warn(error);
+            return cockpit.spawn([ "/bin/sh", "-c", "head -1 $(which vdo || echo /dev/null)" ],
+                                 { err: "ignore" })
+                .then(function (shebang) {
+                    if (shebang != "") {
+                        self.python = shebang.replace(/#! */, "").trim("\n");
+                        cockpit.spawn([ self.python, "--", "-" ], { superuser: "try", err: "message" })
+                            .input(inotify_py + vdo_monitor_py)
+                            .stream(function (output) {
+                                var lines;
+
+                                buf += output;
+                                lines = buf.split("\n");
+                                buf = lines[lines.length-1];
+                                if (lines.length >= 2) {
+                                    self.entries = JSON.parse(lines[lines.length-2]);
+                                    self.fsys_sizes = { };
+                                    $(self).triggerHandler('changed');
+                                    update(JSON.parse(lines[lines.length-2]));
+                                }
+                            }).
+                            fail(function (error) {
+                                if (error != "closed") {
+                                    console.warn(error);
+                                }
+                            });
+                        return true;
+                    } else {
+                        return false;
                     }
                 });
         }

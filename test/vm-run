@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # This file is part of Cockpit.
 #
 # Copyright (C) 2013 Red Hat, Inc.
@@ -26,7 +26,7 @@ import re
 from verify import parent
 import testvm
 
-NETWORK_SCRIPT="""
+NETWORK_SCRIPT=b"""
     set -ex
     /bin/virsh net-destroy cockpit1 || true
     /bin/virsh net-undefine cockpit1 || true

@@ -18,8 +18,7 @@ nodist_noinst_SCRIPTS =
 dist_systemdunit_DATA   =
 nodist_systemdunit_DATA =
 
-TESTS = \
-	tools/test-bots
+TESTS = $(NULL)
 
 CLEANFILES = \
 	$(man_MANS) \

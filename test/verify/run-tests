@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 import glob
 import imp
@@ -53,7 +53,8 @@ def main():
 
     revision = os.environ.get("TEST_REVISION")
     if not revision:
-        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ]).strip()
+        revision = subprocess.check_output([ "git", "rev-parse", "HEAD" ],
+                                           universal_newlines=True).strip()
 
     # Tell any subprocesses what we are testing
     os.environ["TEST_REVISION"] = revision

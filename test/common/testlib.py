@@ -555,6 +555,11 @@ class MachineCase(unittest.TestCase):
         return browser
 
     def checkSuccess(self):
+        if _PY3 and self._outcome:
+            # errors is a list of (method, exception) calls (usually multiple
+            # per method); None exception means success
+            return not any(e[1] for e in self._outcome.errors)
+
         if not self.currentResult:
             return False
         for error in self.currentResult.errors:
@@ -638,7 +643,10 @@ class MachineCase(unittest.TestCase):
 
         def sitter():
             if opts.sit and not self.checkSuccess():
-                self.currentResult.printErrors()
+                if _PY3 and self._outcome:
+                    [traceback.print_exception(*e[1]) for e in self._outcome.errors if e[1]]
+                else:
+                    self.currentResult.printErrors()
                 sit(self.machines)
         self.addCleanup(sitter)
 

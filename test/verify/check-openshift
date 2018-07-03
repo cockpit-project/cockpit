@@ -483,7 +483,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
             if per_second:
                 units_regex += "/s"
             m = re.match(units_regex, b.text(selector))
-            return m.group(1) if m else None
+            return float(m.group(1)) if m else None
 
         wait(lambda: get_units_value("#memory-metric-title") > 0)
         self.assertGreaterEqual(get_units_value("#download-metric", True), 0)

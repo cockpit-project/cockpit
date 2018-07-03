@@ -143,7 +143,7 @@ class TestConnection(MachineCase):
         self.assertIn("1 s:/OU=Intermediate", output)
 
         # login handler: correct password
-        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode(b"admin:foobar"), ))
+        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode(b"admin:foobar").decode(), ))
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
         if m.image in ["rhel-7-5"]:
             self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 ws: wss", headers)
@@ -255,13 +255,13 @@ class TestConnection(MachineCase):
 
         # login handler: wrong password
         headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://172.27.0.15:9090/cockpit/login".format(
-            base64.b64encode(b"admin:hahawrong")))
+            base64.b64encode(b"admin:hahawrong").decode()))
         self.assertIn("HTTP/1.1 401 Authentication failed\r\n", headers)
         self.assertNotIn("Set-Cookie:", headers)
 
         # login handler: correct password
         headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://172.27.0.15:9090/cockpit/login".format(
-            base64.b64encode(b"admin:foobar")))
+            base64.b64encode(b"admin:foobar").decode()))
         self.assertIn("HTTP/1.1 200 OK\r\n", headers)
         self.assertIn("Set-Cookie: cockpit", headers)
 

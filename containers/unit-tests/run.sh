@@ -29,6 +29,8 @@ case $ARCH in
         exit 1
 esac
 
+bots/test-bots
+
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 
 make V=1 all

@@ -30,12 +30,12 @@ sys.dont_write_bytecode = True
 
 import tap
 
-BASE = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+BOTS_DIR = os.path.dirname(__file__)
 
 def main():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for filename in glob.glob(os.path.join(BASE, "bots", "task", "test-*")):
+    for filename in glob.glob(os.path.join(BOTS_DIR, "task", "test-*")):
         name = os.path.basename(filename)
         sys.path[0] = os.path.dirname(filename)
         module = imp.load_source(name.replace("-", "_"), filename)

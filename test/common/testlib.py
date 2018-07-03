@@ -572,14 +572,15 @@ class MachineCase(unittest.TestCase):
         return True
 
     def run(self, result=None):
-        orig_result = result
+        if not _PY3:
+            orig_result = result
 
-        # We need a result to intercept, so create one here
-        if result is None:
-            result = self.defaultTestResult()
-            startTestRun = getattr(result, 'startTestRun', None)
-            if startTestRun is not None:
-                startTestRun()
+            # We need a result to intercept, so create one here
+            if result is None:
+                result = self.defaultTestResult()
+                startTestRun = getattr(result, 'startTestRun', None)
+                if startTestRun is not None:
+                    startTestRun()
 
         self.currentResult = result
 
@@ -602,11 +603,12 @@ class MachineCase(unittest.TestCase):
 
         self.currentResult = None
 
-        # Standard book keeping that we have to do
-        if orig_result is None:
-            stopTestRun = getattr(result, 'stopTestRun', None)
-            if stopTestRun is not None:
-                stopTestRun()
+        if not _PY3:
+            # Standard book keeping that we have to do
+            if orig_result is None:
+                stopTestRun = getattr(result, 'stopTestRun', None)
+                if stopTestRun is not None:
+                    stopTestRun()
 
     def setUp(self):
         if opts.address and self.provision is not None:

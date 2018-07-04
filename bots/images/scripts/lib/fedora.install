@@ -111,5 +111,5 @@ if [ -n "$do_install" ]; then
 fi
 
 if [ -n "$do_build" ]; then
-    su builder -c "mock --clean"
+    su builder -c "/usr/bin/mock --clean"
 fi

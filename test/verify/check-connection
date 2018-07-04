@@ -155,6 +155,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(
             ".*Peer failed to perform TLS handshake",
+            ".*Peer sent fatal TLS alert: Handshake failed",
             ".*invalid base64 data in Basic header",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 

@@ -48,7 +48,7 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [EXTRAS-7.6-LATEST]
 name=rhel-extras-compose
-baseurl=http://download.eng.bos.redhat.com/devel/candidate-trees/latest-EXTRAS-7-RHEL-7/compose/Server/x86_64/os
+baseurl=http://download.eng.bos.redhat.com/devel/candidate-trees/EXTRAS-RHEL-7.6/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
 enabled=1
 gpgcheck=0
 
@@ -80,8 +80,10 @@ EOF
         yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
         yum-config-manager --enable rhel-7-server-optional-rpms
         yum-config-manager --enable rhel-7-server-extras-rpms
-        yum-config-manager --enable rhel-7-server-ose-3.9-rpms
     fi
+
+    # needed for atomic-openshift-clients
+    yum-config-manager --enable rhel-7-server-ose-3.9-rpms
 
     # the following don't necessarily need to work
     yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true

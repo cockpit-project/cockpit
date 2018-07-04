@@ -1156,10 +1156,10 @@ class TapRunner(object):
         # Otherwise pass through this command if it exists
         cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
         try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-            (changed, unused) = proc.communicate(output)
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            (changed, unused) = proc.communicate(output.encode("UTF-8"))
             if proc.returncode == 0:
-                output = changed
+                output = changed.decode("UTF-8")
         except OSError as ex:
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))

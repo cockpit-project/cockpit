@@ -221,6 +221,9 @@ def normalize_traceback(trace):
     # replace noise in SELinux violations
     trace = re.sub('audit\([0-9.:]+\)', 'audit(0)', trace)
     trace = re.sub(r'\b(pid|ino)=[0-9]+ ', r'\1=0 ', trace)
+
+    # in Python 3, testlib.Error is shown with namespace
+    trace = re.sub('testlib\.Error', 'Error', trace)
     return trace
 
 def check_known_issue(api, trace, image):

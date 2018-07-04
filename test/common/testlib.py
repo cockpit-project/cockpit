@@ -47,6 +47,7 @@ import cdp
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
+_PY3 = sys.version_info[0] >= 3
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)
 
@@ -1086,7 +1087,7 @@ class TapRunner(object):
                     failed = (code >> 8) & 0xff
                 if pid:
                     if buffer:
-                        output = buffer.pop(pid).decode("UTF-8")
+                        output = buffer.pop(pid)
                         test = pids[pid]
                         failed, retry = self.filterOutput(test, failed, output)
                         if retry:
@@ -1147,16 +1148,18 @@ class TapRunner(object):
         tries = getattr(test, "retryCount", 0)
         tries += 1
         setattr(test, "retryCount", tries)
+        # "output" is bytes, grab corresponding stream
+        out = _PY3 and sys.stdout.buffer or sys.stdout
 
         # Didn't fail, just print output and continue
         if tries >= 3 or not failed:
-            sys.stdout.write(output)
+            out.write(output)
             return failed, False
 
         # Otherwise pass through this command if it exists
         cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
         try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             (changed, unused) = proc.communicate(output)
             if proc.returncode == 0:
                 output = changed
@@ -1164,14 +1167,14 @@ class TapRunner(object):
             if ex.errno != errno.ENOENT:
                 sys.stderr.write("Couldn't run tests-policy: {0}\n".format(str(ex)))
 
-        # Write the output
-        sys.stdout.write(output)
+        # Write the output bytes
+        out.write(output)
 
-        if "# SKIP " in output or "# RETRY" in output:
+        if b"# SKIP " in output or b"# RETRY" in output:
             failed = 0
 
         # Whether we should retry the test or not
-        return failed, "# RETRY " in output
+        return failed, b"# RETRY " in output
 
 def arg_parser():
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
@@ -1206,7 +1209,7 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
 
     # Turn off python stdout buffering
     buf_arg = 0
-    if sys.version_info[0] >= 3:
+    if _PY3:
         os.environ['PYTHONUNBUFFERED'] = '1'
         buf_arg = 1
     sys.stdout.flush()

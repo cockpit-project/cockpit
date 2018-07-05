@@ -93,9 +93,10 @@ class CDP:
     def command(self, cmd):
         if not self._driver:
             self.start()
-        self._driver.stdin.write(cmd + "\n")
+        self._driver.stdin.write(cmd.encode("UTF-8"))
+        self._driver.stdin.write(b"\n")
         self._driver.stdin.flush()
-        line = self._driver.stdout.readline()
+        line = self._driver.stdout.readline().decode("UTF-8")
         if not line:
             self.kill()
             raise RuntimeError("CDP broken")
@@ -200,7 +201,6 @@ class CDP:
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
-                                        universal_newlines=True,
                                         close_fds=True)
         self.valid = True
 

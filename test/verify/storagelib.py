@@ -279,6 +279,9 @@ class StorageCase(MachineCase):
     def dialog_wait_not_visible(self, field):
         self.browser.wait_not_visible(self.dialog_field(field))
 
+    def dialog_wait_apply_enabled(self):
+        self.browser.wait_attr('#dialog button.apply', "disabled", None)
+
     def dialog_apply(self):
         self.browser.click('#dialog button.apply')
 

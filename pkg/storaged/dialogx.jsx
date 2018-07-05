@@ -241,6 +241,38 @@ export const dialog_open = (def) => {
         };
     };
 
+    const update_footer = (running_title, running_promise) => {
+        dlg.setFooterProps(footer_props(running_title, running_promise));
+    };
+
+    const footer_props = (running_title, running_promise) => {
+        let actions = [ ];
+        if (def.Action) {
+            actions = [
+                { caption: def.Action.Title,
+                  style: def.Action.DangerButton ? "danger" : "primary",
+                  disabled: running_promise != null,
+                  clicked: function () {
+                      return validate().then(errors => {
+                          if (errors) {
+                              update(errors);
+                              return Promise.reject();
+                          } else {
+                              return def.Action.action(values);
+                          }
+                      });
+                  }
+                }
+            ];
+        }
+
+        return {
+            idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
+            actions: actions,
+            cancel_caption: def.Action ? _("Cancel") : _("Close")
+        };
+    };
+
     const validate = () => {
         return Promise.all(fields.map(f => {
             if (is_visible(f, values) && f.options && f.options.validate)
@@ -254,29 +286,28 @@ export const dialog_open = (def) => {
         });
     };
 
-    let actions = [ ];
-    if (def.Action) {
-        actions = [
-            { caption: def.Action.Title,
-              style: def.Action.DangerButton ? "danger" : "primary",
-              clicked: function () {
-                  return validate().then(errors => {
-                      if (errors) {
-                          update(errors);
-                          return Promise.reject();
-                      } else {
-                          return def.Action.action(values);
-                      }
-                  });
-              }
-            }
-        ];
-    }
+    let dlg = show_modal_dialog(props(null), footer_props(null, null));
 
-    let dlg = show_modal_dialog(props(null),
-                                { actions: actions,
-                                  cancel_caption: def.Action ? _("Cancel") : _("Close")
-                                });
+    return {
+        run: (title, promise) => {
+            update_footer(title, promise);
+            promise.then(
+                () => {
+                    update_footer(null, null);
+                },
+                (errors) => {
+                    if (errors)
+                        update(errors);
+                    update_footer(null, null);
+                });
+        },
+
+        set_values: (new_vals) => {
+            Object.assign(values, new_vals);
+            update(null);
+        }
+
+    };
 };
 
 /* GENERIC FIELD TYPES

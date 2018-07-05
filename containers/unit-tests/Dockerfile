@@ -30,6 +30,7 @@ RUN mv /usr/local/bin/node /usr/local/bin/nodejs
 ADD turd-polish /usr/local/bin/node
 
 USER builder
+ENV LANG=C.UTF-8
 
 VOLUME /source
 CMD ["/source/containers/unit-tests/run.sh"]

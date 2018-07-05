@@ -315,6 +315,28 @@ export const SelectOne = (tag, title, options, choices) => {
     };
 };
 
+export const SelectOneRadio = (tag, title, options, choices) => {
+    return {
+        tag: tag,
+        title: title,
+        options: options,
+        initial_value: options.value || choices[0].value,
+
+        render: (val, change) => {
+            return (
+                <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio" >
+                    { choices.map(c => (
+                        <label>
+                            <input type="radio" checked={val == c.value} data-data={c.value}
+                                     onChange={event => change(c.value)} />{c.title}
+                        </label>))
+                    }
+                </span>
+            );
+        }
+    };
+};
+
 export const CheckBox = (tag, title, options) => {
     return {
         tag: tag,

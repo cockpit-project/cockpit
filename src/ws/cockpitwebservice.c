@@ -371,7 +371,8 @@ process_ping (CockpitWebService *self,
   /* Respond to a ping without a channel, by saying "pong" */
   json_object_set_string_member (options, "command", "pong");
   payload = cockpit_json_write_bytes (options);
-  web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
+  if (web_socket_connection_get_ready_state (socket->connection) == WEB_SOCKET_STATE_OPEN)
+    web_socket_connection_send (socket->connection, WEB_SOCKET_DATA_TEXT, self->control_prefix, payload);
   g_bytes_unref (payload);
 
   return TRUE;

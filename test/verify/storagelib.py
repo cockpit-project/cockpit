@@ -225,6 +225,8 @@ class StorageCase(MachineCase):
             if ftype == "select":
                 self.browser.click(sel + " button.dropdown-toggle")
                 self.browser.click(sel + " li[data-data=%s] a" % val)
+            elif ftype == "select-radio":
+                self.browser.click(sel + " input[data-data=%s]" % val)
             elif ftype == "text-input":
                 self.browser.set_input_text(sel, val)
             elif ftype == "TextInputChecked":

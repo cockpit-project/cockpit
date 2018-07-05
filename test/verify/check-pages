@@ -219,6 +219,8 @@ OnCalendar=daily
         m.execute('useradd scruffy -s /bin/bash -c \'Scruffy\' || true')
         m.execute('echo scruffy:foobar | chpasswd')
 
+        self.allow_restart_journal_messages()
+
         if m.image in ['debian-stable', 'debian-testing' ]:
             m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
         elif m.image in [ 'ubuntu-1604', 'ubuntu-stable' ]:

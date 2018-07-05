@@ -84,6 +84,18 @@
    The validate function will only be called for currently visible
    fields.
 
+   - widest_title
+
+   This is a hack to force the column of titles to be a certain
+   minimum width, namely the width of the widest_title.  This matters
+   when there are rows that are only sometimes visible and the layout
+   would jump around when they change visibility.
+
+   Technically, the first column of a row shows the "title" but is as
+   wide as its "widest_title".  The idea is that you put the widest
+   title of all fields in the widest_title option of one of the rows
+   that are always visible.
+
    DEFINING NEW FIELD TYPES
 
    To define a new field type, just define a new function that follows
@@ -156,8 +168,10 @@ const Validated = ({ errors, error_key, children }) => {
     );
 };
 
-const Row = ({ tag, title, errors, children }) => {
+const Row = ({ tag, title, errors, options, children }) => {
     if (tag) {
+        if (options.widest_title)
+            title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
         return (
             <tr>
                 <td className="top">{title}</td>
@@ -187,7 +201,7 @@ const Body = ({body, fields, values, errors, onChange}) => {
                         { fields.map(f => {
                             if (is_visible(f, values))
                                 return (
-                                    <Row key={f.tag} tag={f.tag} title={f.title} errors={errors}>
+                                    <Row key={f.tag} tag={f.tag} title={f.title} errors={errors} options={f.options}>
                                         { f.render(values[f.tag], val => { values[f.tag] = val; onChange() }) }
                                     </Row>
                                 );

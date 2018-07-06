@@ -76,9 +76,9 @@ class Driver:
     def __init__(self, args):
         self.argv = args.command
         self.test_name = args.test_name
-        self.log = open(args.log_file, "wb")
+        self.log = open(args.log_file, "wb", 0)
         self.log.write(("# %s\n" % " ".join(sys.argv)).encode("UTF-8"))
-        self.trs = open(args.trs_file, "w")
+        self.trs = open(args.trs_file, "w", 1)
         self.color_tests = args.color_tests
         self.expect_failure = args.expect_failure
         self.width = terminal_width() - 9

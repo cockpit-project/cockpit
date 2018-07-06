@@ -37,10 +37,11 @@ def main():
     parser.add_argument("--base", nargs='?', help="Base branch that revision is for")
     parser.add_argument("--repo", nargs='?', help="Repository to check out")
     parser.add_argument("ref", help="The git ref to fetch")
-    parser.add_argument("revision", default="FETCH_HEAD", nargs='?',
-            help="Actual commit to check out, defaults to ref")
+    parser.add_argument("revision", nargs='?', help="Actual commit to check out, defaults to ref")
 
     opts = parser.parse_args()
+    if not opts.revision:
+        opts.revision = "FETCH_HEAD"
 
     def execute(*args):
         if opts.verbose:

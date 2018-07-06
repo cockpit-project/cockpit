@@ -131,17 +131,17 @@ def tests_invoke(priority, name, revision, ref, context, base, options):
     current = time.strftime('%Y%m%d-%H%M%M')
 
     checkout = "PRIORITY={priority:04d} bots/make-checkout --verbose"
-    cmd = "TEST_NAME='{name}-{current}' TEST_REVISION='{revision}' bots/tests-invoke"
+    cmd = "TEST_NAME={name}-{current} TEST_REVISION={revision} bots/tests-invoke"
     if base:
-        cmd += " --rebase='{base}'"
-        checkout += " --base='{base}'"
+        cmd += " --rebase={base}"
+        checkout += " --base={base}"
 
     if options.repo:
-        checkout += " --repo='{repo}'"
-        cmd = "GITHUB_BASE='{repo}' " + cmd + " --remote='test'"
+        checkout += " --repo={repo}"
+        cmd = "GITHUB_BASE={repo} " + cmd + " --remote=test"
 
-    cmd += " '{context}' '{ref}'"
-    checkout += " '{ref}' '{revision}' && "
+    cmd += " {context} {ref}"
+    checkout += " {ref} {revision} && "
 
     return (checkout + cmd).format(
         priority=priority,

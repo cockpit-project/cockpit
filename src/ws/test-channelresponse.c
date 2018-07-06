@@ -412,7 +412,8 @@ test_resource_failure (TestResourceCase *tc,
   GBytes *bytes;
   GPid pid;
 
-  cockpit_expect_message ("*: external channel failed: terminated");
+  cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*: bridge program failed:*");
+  cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*: external channel failed: *");
 
   /* Now kill the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));

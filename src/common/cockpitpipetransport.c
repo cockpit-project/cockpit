@@ -86,6 +86,9 @@ on_pipe_read (CockpitPipe *pipe,
   CockpitPipeTransport *self = COCKPIT_PIPE_TRANSPORT (user_data);
   cockpit_transport_read_from_pipe (COCKPIT_TRANSPORT (self), self->name,
                                     pipe, &self->closed, input, end_of_data);
+
+  if (end_of_data)
+    cockpit_pipe_close (self->pipe, NULL);
 }
 
 static void

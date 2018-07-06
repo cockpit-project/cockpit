@@ -281,42 +281,40 @@ export default class AutoUpdates extends React.Component {
             let hours = Array.from(Array(24).keys());
 
             autoConfig = (
-                <table className="auto-conf">
-                    <tr>
-                        <td>
-                            <Select.Select id="auto-update-type" enabled={!this.state.pending} initial={backend.type}
-                                           onChange={ t => this.handleChange(null, t, null, null) }>
-                                <Select.SelectEntry data="all">{_("Apply all updates")}</Select.SelectEntry>
-                                <Select.SelectEntry data="security">{_("Apply security updates")}</Select.SelectEntry>
-                            </Select.Select>
-                        </td>
+                <div className="auto-conf">
+                    <span className="auto-conf-group">
+                        <Select.Select id="auto-update-type" enabled={!this.state.pending} initial={backend.type}
+                                       onChange={ t => this.handleChange(null, t, null, null) }>
+                            <Select.SelectEntry data="all">{_("Apply all updates")}</Select.SelectEntry>
+                            <Select.SelectEntry data="security">{_("Apply security updates")}</Select.SelectEntry>
+                        </Select.Select>
+                    </span>
 
-                        <td>
-                            <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
-                                           onChange={ d => this.handleChange(null, null, d, null) }>
-                                <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
-                                <Select.SelectEntry data="mon">{_("on Mondays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="tue">{_("on Tuesdays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="wed">{_("on Wednesdays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="thu">{_("on Thursdays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="fri">{_("on Fridays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="sat">{_("on Saturdays")}</Select.SelectEntry>
-                                <Select.SelectEntry data="sun">{_("on Sundays")}</Select.SelectEntry>
-                            </Select.Select>
-                        </td>
+                    <span className="auto-conf-group">
+                        <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
+                                       onChange={ d => this.handleChange(null, null, d, null) }>
+                            <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
+                            <Select.SelectEntry data="mon">{_("on Mondays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="tue">{_("on Tuesdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="wed">{_("on Wednesdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="thu">{_("on Thursdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="fri">{_("on Fridays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="sat">{_("on Saturdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="sun">{_("on Sundays")}</Select.SelectEntry>
+                        </Select.Select>
+                    </span>
 
-                        <td>{_("at")}</td>
+                    <span className="auto-conf-group">
+                        <span className="auto-conf-text">{_("at")}</span>
 
-                        <td>
-                            <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
-                                           onChange={ t => this.handleChange(null, null, null, t) }>
-                                { hours.map(h => <Select.SelectEntry data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
-                            </Select.Select>
-                        </td>
+                        <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
+                                       onChange={ t => this.handleChange(null, null, null, t) }>
+                            { hours.map(h => <Select.SelectEntry data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
+                        </Select.Select>
+                    </span>
 
-                        <td>{_("and restart the machine automatically.")}</td>
-                    </tr>
-                </table>
+                    <span className="auto-conf-group auto-conf-text">{_("and restart the machine automatically.")}</span>
+                </div>
             );
         }
 
@@ -324,14 +322,10 @@ export default class AutoUpdates extends React.Component {
         let onOffState = this.state.pendingEnable == null ? backend.enabled : this.state.pendingEnable;
 
         return (
-            <div>
-                <table className="header-buttons" id="automatic">
-                    <tr>
-                        <td><h2>{_("Automatic Updates")}</h2></td>
-                        <td><OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
-                                                     onChange={e => this.handleChange(e, null, null, null) } /></td>
-                    </tr>
-                </table>
+            <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
+                <h2 className="pk-updates--header--heading">{_("Automatic Updates")}</h2>
+                <div className="pk-updates--header--actions"><OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
+                                                     onChange={e => this.handleChange(e, null, null, null) } /></div>
 
                 {autoConfig}
             </div>);

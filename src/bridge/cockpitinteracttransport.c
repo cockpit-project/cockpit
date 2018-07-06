@@ -102,6 +102,9 @@ on_pipe_read (CockpitPipe *pipe,
         }
       g_bytes_unref (message);
     }
+
+  if (end_of_data)
+    cockpit_pipe_close (self->pipe, NULL);
 }
 
 static void

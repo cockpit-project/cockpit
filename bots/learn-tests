@@ -24,6 +24,11 @@ SINCE_DAYS = 120
 # The name and version of the training data
 TRAINING_DATA = "tests-train-1.jsonl.gz"
 
+# The number of days in history to learn from. This is different from
+# the amount of  data we gather in tests-data, and can be adjusted
+# independently.
+SINCE = 21
+
 import gzip
 import os
 import subprocess
@@ -93,8 +98,16 @@ def loader(training_data, verbose, dry):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         inp = proc.stdout
 
+    since = time.strftime("%Y-%m-%d", time.gmtime(time.time() - (86400 * SINCE)))
+
+    def only(item):
+        if not learn.data.failures(item):
+            return False
+        date = item.get("date", "")
+        return date > since
+
     try:
-        items = list(learn.data.load(inp, only=learn.data.failures, verbose=verbose))
+        items = list(learn.data.load(inp, only=only, verbose=verbose))
     finally:
         if proc:
             proc.wait()

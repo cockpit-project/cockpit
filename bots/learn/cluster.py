@@ -181,12 +181,12 @@ class Model():
 
         items = list(items)
 
-        if self.verbose:
-            sys.stderr.write("{0}: Items to train\n".format(len(items)))
-
         # Extract the features we want to use for clustering from the items
         self.extractor = extractor.Extractor()
         self.features = self.extractor.fit_transform(items)
+
+        if self.verbose:
+            sys.stderr.write("{0}: Items to train\n".format(len(self.features)))
 
         jobs = os.cpu_count() or -1
         start = time.perf_counter()

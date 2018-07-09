@@ -152,7 +152,10 @@ class Driver:
         errf = proc.stderr.fileno()
         rset = [outf, errf]
         while len(rset) > 0:
-            ret = select.select(rset, [], [], 10)
+            ret = select.select(rset, [], [], 60)
+            # HACK: Debugging hang in unit tests
+            if not ret[0] and not ret[1] and not ret[2]:
+                out("tap-driver: TIMEOUT in select {} {} {}\n".format(repr(rset), outf, errf), stream=sys.stderr, flush=True)
             if outf in ret[0]:
                 data = os.read(outf, 1024)
                 if data == b"":

@@ -14,8 +14,10 @@ openssl \
 
 yum -y install $CANDLEPIN_DEPS
 
-# Check out candlepin
-git clone https://github.com/candlepin/candlepin.git /root/candlepin
+# Check out candlepin; HACK: newer releases split out Ansible roles to
+# https://github.com/candlepin/ansible-role-candlepin, but these playbooks are
+# completely broken with Ansible 2.6.
+git clone --depth=1 -b candlepin-2.5.1-1 https://github.com/candlepin/candlepin.git /root/candlepin
 
 # Insert our variables and change parameters
 cp /var/lib/testvm/candlepin-defaults.yml /root/candlepin/vagrant/roles/candlepin-user/defaults/main.yml

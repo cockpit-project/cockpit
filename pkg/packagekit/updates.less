@@ -46,13 +46,17 @@ table.listing-ct thead th {
 }
 
 tr.listing-ct-item {
-    vertical-align: baseline;
-
-    .listing-ct-toggle {
-        vertical-align: middle;
-    }
     td {
+        vertical-align: baseline;
         padding-left: 0;
+
+        &.listing-ct-toggle {
+            position: relative;
+            top: 2px;
+        }
+        &:last-child {
+            text-align: left;
+        }
     }
 
     @media screen and (min-width: 641px) {
@@ -81,6 +85,8 @@ tr.listing-ct-item {
         /* Mobile: force wrap version strings */
         td.version {
             word-break: break-all;
+            width: 16ch;
+            max-width: 30vw;
         }
     }
 
@@ -158,24 +164,33 @@ tr.security.listing-ct-item {
 }
 
 
-/* Reformat table for narrow widths */
-@media screen and (max-width: 640px) {
+/* Hide changelog summaries in narrow widths */
+@media screen and (max-width: 80ch) {
+    .container-fluid {
+        overflow-x: hidden;
+    }
     table.listing-ct {
-        /* counteract .container-fluid */
-        margin: 0 -20px;
-        overflow: hidden;
-
-        /* Setting the width is bad for mobile, when undoing .container-fluid */
-        width: auto;
-
-        /* Don't shift size of cells, even when info is expanded */
-        table-layout: fixed;
-
         /* Hide changelog header (there's no class) & data */
         thead th:last-child,
         td.changelog {
             display: none;
         }
+    }
+}
+/* Remove listing table margins in cramped space (mobile) */
+@media screen and (max-width: 640px) {
+    table.listing-ct {
+        /* counteract .container-fluid */
+        margin-left: -20px;
+        margin-right: -20px;
+
+        /* Mobile mode table should be full width */
+        width: 100vw;
+    }
+    tbody.open > tr.listing-ct-item,
+    tbody.open > tr.listing-ct-panel {
+        border-left: none;
+        border-right: none;
     }
 }
 

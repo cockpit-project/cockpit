@@ -42,6 +42,7 @@ __all__ = (
     "run",
     "pull",
     "comment",
+    "label",
     "issue",
     "verbose",
     "stale",

@@ -282,7 +282,7 @@ touch kubernetes.list
 
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
-for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static storaged systemd tuned users; do
+for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 for data in applications doc locale man metainfo pixmaps; do
@@ -301,7 +301,7 @@ rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard docker kubernetes machines ostree ovirt packagekit pcp playground; do
+for pkg in apps dashboard docker kubernetes machines ostree ovirt packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
@@ -403,44 +403,6 @@ embed or extend Cockpit.
 %exclude %{_docdir}/cockpit/COPYING
 %exclude %{_docdir}/cockpit/README.md
 %{_docdir}/cockpit
-
-# storaged on Fedora < 27, udisks on newer ones
-# Recommends: not supported in RHEL <= 7
-%package storaged
-Summary: Cockpit user interface for storage, using udisks
-Requires: cockpit-shell >= %{required_base}
-%if 0%{?rhel} == 7 || 0%{?centos} == 7
-Requires: udisks2 >= 2.6
-Requires: udisks2-lvm2 >= 2.6
-Requires: udisks2-iscsi >= 2.6
-Requires: device-mapper-multipath
-%else
-%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
-Requires: udisks2 >= 2.6
-Recommends: udisks2-lvm2 >= 2.6
-Recommends: udisks2-iscsi >= 2.6
-Recommends: device-mapper-multipath
-%else
-# Fedora < 27
-Requires: storaged >= 2.1.1
-Recommends: storaged-lvm2 >= 2.1.1
-Recommends: storaged-iscsi >= 2.1.1
-Recommends: device-mapper-multipath
-%endif
-%endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
-Requires: python3
-Requires: python3-dbus
-%else
-Requires: python
-Requires: python-dbus
-%endif
-BuildArch: noarch
-
-%description storaged
-The Cockpit component for managing storage.  This package uses udisks.
-
-%files storaged -f storaged.list
 
 %package system
 Summary: Cockpit admin interface package for configuring and troubleshooting a system
@@ -619,6 +581,45 @@ Dummy package from building optional packages only; never install or publish me.
 # Sub-packages that are optional extensions
 
 %if 0%{?build_optional}
+
+# storaged on Fedora < 27, udisks on newer ones
+# Recommends: not supported in RHEL <= 7
+%package storaged
+Summary: Cockpit user interface for storage, using udisks
+Requires: cockpit-shell >= %{required_base}
+%if 0%{?rhel} == 7 || 0%{?centos} == 7
+Requires: udisks2 >= 2.6
+Requires: udisks2-lvm2 >= 2.6
+Requires: udisks2-iscsi >= 2.6
+Requires: device-mapper-multipath
+%else
+%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+Requires: udisks2 >= 2.6
+Recommends: udisks2-lvm2 >= 2.6
+Recommends: udisks2-iscsi >= 2.6
+Recommends: device-mapper-multipath
+%else
+# Fedora < 27
+Requires: storaged >= 2.1.1
+Recommends: storaged-lvm2 >= 2.1.1
+Recommends: storaged-iscsi >= 2.1.1
+Recommends: device-mapper-multipath
+%endif
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8
+Requires: python3
+Requires: python3-dbus
+%else
+Requires: python
+Requires: python-dbus
+%endif
+BuildArch: noarch
+
+%description storaged
+The Cockpit component for managing storage.  This package uses udisks.
+
+%files storaged -f storaged.list
+
 
 %package -n cockpit-tests
 Summary: Tests for Cockpit

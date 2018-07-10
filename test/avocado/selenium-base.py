@@ -158,7 +158,9 @@ class BasicTestSuite(SeleniumTest):
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable))
         self.wait_id('account')
         self.wait_text("Full Name")
+        self.mainframe()
         self.click(self.wait_link('Accounts', cond=clickable))
+        self.wait_frame('users')
         self.click(self.wait_id("accounts-create", cond=clickable))
         self.wait_id("accounts-create-dialog")
         self.wait_id('accounts-create-create', cond=clickable)
@@ -175,6 +177,11 @@ class BasicTestSuite(SeleniumTest):
         self.wait_xpath(
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable)
         self.mainframe()
+
+        # TODO edge support for terminal test
+        if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
+            self.error=False
+            return
 
         self.click(self.wait_link('Terminal', cond=clickable))
         self.wait_frame("terminal")

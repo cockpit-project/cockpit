@@ -170,6 +170,8 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     if use_selenium:
         if "explorer" in browser:
             windows = testvm.VirtMachine(image="windows-8", verbose=verbose, networking=network.host())
+        elif 'edge' in browser:
+            windows = testvm.VirtMachine(image='windows-10', verbose=verbose, networking=network.host())
         else:
             selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
 
@@ -194,6 +196,8 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         machine.wait_boot()
         machine.set_address("10.111.113.1/20")
         machine.start_cockpit()
+        if selenium and 'edge' in browser:
+            machine.dhcp_server(range=['10.111.112.10', '10.111.112.10']);
 
         machine.execute("adduser test")
         machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
@@ -236,7 +240,7 @@ def main():
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'explorer'],
+    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'explorer', 'edge'],
                     default='none',
                     help="selenium browser choice - in case of none, selenium isn't started")
     parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',

@@ -714,9 +714,9 @@ class Machine:
     def set_dns(self, nameserver=None, domain=None):
         self.execute(RESOLV_SCRIPT.format(nameserver=nameserver or "127.0.0.1", domain=domain or "cockpit.lan"))
 
-    def dhcp_server(self, mac='52:54:01'):
+    def dhcp_server(self, mac='52:54:01', range=['10.111.112.2', '10.111.127.254']):
         """Sets up a DHCP server on the interface"""
-        cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic --dhcp-range=10.111.112.2,10.111.127.254 && firewall-cmd --add-service=dhcp"
+        cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic --dhcp-range=" + ','.join(range) + " && firewall-cmd --add-service=dhcp"
         self.execute(cmd.format(mac=mac))
 
     def dns_server(self, mac='52:54:01'):
@@ -732,9 +732,9 @@ TEST_CONSOLE_XML="""
 
 TEST_GRAPHICS_XML="""
     <video>
-      <model type='vga' heads='1' primary='yes'/>
+      <model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1' primary='yes'/>
       <alias name='video0'/>
-      <address type='pci' bus='0x00' slot='0x07'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
     </video>
     <graphics type='vnc' autoport='yes' listen='127.0.0.1'>
       <listen type='address' address='127.0.0.1'/>
@@ -748,6 +748,7 @@ TEST_DOMAIN_XML="""
   <os>
     <type arch='{arch}'>hvm</type>
     <boot dev='hd'/>
+    {loader}
   </os>
   <memory unit='MiB'>{memory_in_mib}</memory>
   <currentMemory unit='MiB'>{memory_in_mib}</currentMemory>
@@ -1036,6 +1037,10 @@ class VirtMachine(Machine):
         else:
             keys["disk"] = "virtio"
             keys["console"] = TEST_CONSOLE_XML.format(**keys)
+        if "windows-10" in self.image:
+            keys["loader"] = "<loader readonly='yes' type='pflash'>/usr/share/edk2/ovmf/OVMF_CODE.fd</loader>"
+        else:
+            keys["loader"] = ""
         test_domain_desc = TEST_DOMAIN_XML.format(**keys)
 
         # add the virtual machine

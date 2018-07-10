@@ -68,6 +68,8 @@ class SeleniumTest(Test):
             browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
             if browser == "explorer":
                 browser = "internet explorer"
+            elif browser == 'edge':
+                browser = 'MicrosoftEdge'
             guest_machine = os.environ["GUEST"]
             @Retry(attempts = 3, timeout = 30,
                    exceptions = (WebDriverException,),

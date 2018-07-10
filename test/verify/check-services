@@ -265,7 +265,9 @@ WantedBy=default.target
                 m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
         m.execute("timedatectl set-timezone UTC")
-        m.execute("timedatectl set-ntp off; timedatectl set-time '2020-01-01 15:30:00'")
+        m.execute("timedatectl set-ntp off")
+        wait(lambda: "false" in m.execute("busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
+        m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
         b.click('#services-filter :nth-child(4)')
         b.wait_visible("#create-timer")

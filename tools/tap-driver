@@ -208,7 +208,7 @@ class TapDriver(Driver):
         try:
             num = int(num)
         except ValueError:
-            self.report_error("Invalid test number: %s" % data)
+            self.report_error("Invalid test number: %s" % num)
             return
         description = description.lstrip()
 

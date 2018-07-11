@@ -184,6 +184,12 @@ function ph_focus(sel)
     ph_find(sel).focus();
 }
 
+class PhWaitCondTimeout extends Error {
+    constructor() {
+        super("condition did not become true");
+    }
+}
+
 function ph_wait_cond(cond, timeout) {
     return new Promise((resolve, reject) => {
         // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
@@ -192,7 +198,7 @@ function ph_wait_cond(cond, timeout) {
         let tm = window.setTimeout( () => {
                 if (stepTimer)
                     window.clearTimeout(stepTimer);
-                reject("condition did not become true");
+                reject(new PhWaitCondTimeout());
             }, timeout);
         function step() {
             try {

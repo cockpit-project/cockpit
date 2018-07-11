@@ -211,7 +211,7 @@ process_ping (CockpitChannel *self,
     }
 }
 
-static gboolean
+static void
 process_pong (CockpitChannel *self,
               JsonObject *pong)
 {
@@ -239,8 +239,6 @@ process_pong (CockpitChannel *self,
       if (self->priv->out_sequence <= self->priv->out_window)
         cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
     }
-
-    return FALSE;
 }
 
 static void
@@ -335,13 +333,9 @@ cockpit_channel_actual_send (CockpitChannel *self,
 
   cockpit_transport_send (self->priv->transport, self->priv->id, payload);
 
-  /* A wraparound of our gint64 size */
+  /* A wraparound of our gint64 size? */
   size = g_bytes_get_size (payload);
-  if (G_MAXINT64 - size < self->priv->out_sequence)
-    {
-      self->priv->out_sequence = 0;
-      self->priv->out_window = CHANNEL_FLOW_WINDOW;
-    }
+  g_return_if_fail (G_MAXINT64 - size > self->priv->out_sequence);
 
   /* How many bytes have been sent (queued) */
   out_sequence = self->priv->out_sequence + size;

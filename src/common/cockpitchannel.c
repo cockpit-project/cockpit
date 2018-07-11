@@ -117,6 +117,7 @@ struct _CockpitChannelPrivate {
     CockpitFlow *pressure;
     gulong pressure_sig;
     GQueue *throttled;
+    gboolean saw_ping;
 };
 
 enum {
@@ -193,6 +194,14 @@ process_ping (CockpitChannel *self,
               JsonObject *ping)
 {
   GBytes *payload;
+
+  /*
+   * COMPAT: Keep track of whether we've seen any "ping" messages. In cases where
+   * certain parts of the Cockpit network are older (such as an older cockpit-ws)
+   * we may not receive all the "pong" messages we expect. Don't turn on throttling
+   * pressure until we see at least one "ping".
+   */
+  self->priv->saw_ping = TRUE;
 
   if (self->priv->throttled)
     {
@@ -311,6 +320,18 @@ on_transport_closed (CockpitTransport *transport,
     cockpit_channel_close (self, problem);
 }
 
+static void
+send_ping (CockpitChannel *self,
+           gint64 sequence)
+{
+  JsonObject *ping;
+
+  ping = json_object_new ();
+  json_object_set_int_member (ping, "sequence", sequence);
+  cockpit_channel_control (self, "ping", ping);
+  g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, sequence);
+  json_object_unref (ping);
+}
 
 static void
 cockpit_channel_actual_send (CockpitChannel *self,
@@ -319,7 +340,6 @@ cockpit_channel_actual_send (CockpitChannel *self,
 {
   GBytes *validated = NULL;
   guint64 out_sequence;
-  JsonObject *ping;
   gsize size;
 
   g_return_if_fail (self->priv->out_buffer == NULL);
@@ -342,17 +362,11 @@ cockpit_channel_actual_send (CockpitChannel *self,
 
   /* Every CHANNEL_FLOW_PING bytes we send a ping */
   if (out_sequence / CHANNEL_FLOW_PING != self->priv->out_sequence / CHANNEL_FLOW_PING)
-    {
-      ping = json_object_new ();
-      json_object_set_int_member (ping, "sequence", out_sequence);
-      cockpit_channel_control (self, "ping", ping);
-      g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, out_sequence);
-      json_object_unref (ping);
-    }
+    send_ping (self, out_sequence);
 
   /* If we've sent more than the window, apply back pressure */
   self->priv->out_sequence = out_sequence;
-  if (self->priv->out_sequence > self->priv->out_window)
+  if (self->priv->saw_ping && self->priv->out_sequence > self->priv->out_window)
     {
       g_debug ("%s: sent too much data without acknowledgement, emitting back pressure", self->priv->id);
       cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
@@ -843,6 +857,9 @@ cockpit_channel_ready (CockpitChannel *self,
 
   cockpit_transport_thaw (self->priv->transport, self->priv->id);
   cockpit_channel_control (self, "ready", message);
+
+  /* Send a "ping" early for feature detection */
+  send_ping (self, 0);
 
   g_object_unref (self);
 }

@@ -163,7 +163,7 @@ test_basic (TestCase *test,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), "444", bytes);
   g_bytes_unref (bytes);
 
-  while (mock_transport_count_sent (test->transport) < 3)
+  while (mock_transport_count_sent (test->transport) < 4)
     g_main_context_iteration (NULL, TRUE);
 
   recv = mock_transport_pop_channel (test->transport, "444");
@@ -292,7 +292,7 @@ test_tls_authority_good (TestTls *test,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), "444", bytes);
   g_bytes_unref (bytes);
 
-  while (mock_transport_count_sent (test->transport) < 3)
+  while (mock_transport_count_sent (test->transport) < 4)
     g_main_context_iteration (NULL, TRUE);
 
   recv = mock_transport_pop_channel (test->transport, "444");

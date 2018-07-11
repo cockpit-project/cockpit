@@ -237,7 +237,8 @@ test_echo (TestCase *tc,
   payload = g_bytes_new ("Marmalaade!", 11);
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", payload);
 
-  while (mock_transport_count_sent (tc->transport) < 2)
+  /* A ready message, a ping, and the expected message */
+  while (mock_transport_count_sent (tc->transport) < 3)
     g_main_context_iteration (NULL, TRUE);
 
   sent = mock_transport_pop_channel (tc->transport, "548");
@@ -269,6 +270,8 @@ test_shutdown (TestCase *tc,
   g_assert_cmpstr (tc->channel_problem, ==, "");
   sent = mock_transport_pop_control (tc->transport);
   expect_control_message (sent, "ready", "548", NULL);
+  sent = mock_transport_pop_control (tc->transport);
+  expect_control_message (sent, "ping", "548", NULL);
   sent = mock_transport_pop_control (tc->transport);
   expect_control_message (sent, "done", "548", NULL);
 
@@ -306,6 +309,8 @@ test_close_normal (TestCase *tc,
   control = mock_transport_pop_control (tc->transport);
   expect_control_message (control, "ready", "548", NULL);
   control = mock_transport_pop_control (tc->transport);
+  expect_control_message (control, "ping", "548", NULL);
+  control = mock_transport_pop_control (tc->transport);
   expect_control_message (control, "done", "548", NULL);
 
   control = mock_transport_pop_control (tc->transport);
@@ -335,6 +340,7 @@ test_close_problem (TestCase *tc,
   g_assert_cmpstr (tc->channel_problem, ==, "boooyah");
   g_assert (mock_transport_pop_channel (tc->transport, "548") == NULL);
   expect_control_message (mock_transport_pop_control (tc->transport), "ready", "548", NULL);
+  expect_control_message (mock_transport_pop_control (tc->transport), "ping", "548", NULL);
   expect_control_message (mock_transport_pop_control (tc->transport),
                           "close", "548", "problem", "boooyah", NULL);
 }
@@ -370,7 +376,8 @@ test_spawn_simple (void)
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   cockpit_channel_close (channel, NULL);
 
-  while (mock_transport_count_sent (transport) < 2)
+  /* A ready message, a ping, and the expected message */
+  while (mock_transport_count_sent (transport) < 3)
     g_main_context_iteration (NULL, TRUE);
   g_assert (g_bytes_equal (sent, mock_transport_pop_channel (transport, "548")));
   g_bytes_unref (sent);
@@ -480,6 +487,8 @@ test_spawn_status (void)
   control = mock_transport_pop_control (transport);
   expect_control_message (control, "ready", "548", NULL);
   control = mock_transport_pop_control (transport);
+  expect_control_message (control, "ping", "548", NULL);
+  control = mock_transport_pop_control (transport);
   expect_control_message (control, "done", "548", NULL);
 
   control = mock_transport_pop_control (transport);
@@ -527,6 +536,8 @@ test_spawn_signal (void)
 
   control = mock_transport_pop_control (transport);
   expect_control_message (control, "ready", "548", NULL);
+  control = mock_transport_pop_control (transport);
+  expect_control_message (control, "ping", "548", NULL);
   control = mock_transport_pop_control (transport);
   expect_control_message (control, "done", "548", NULL);
 
@@ -710,7 +721,8 @@ test_send_invalid (TestCase *tc,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (tc->transport), "548", sent);
   g_bytes_unref (sent);
 
-  while (mock_transport_count_sent (tc->transport) < 2)
+  /* A ready message, ping message, and data message */
+  while (mock_transport_count_sent (tc->transport) < 3)
     g_main_context_iteration (NULL, TRUE);
 
   converted = g_bytes_new ("Oh \xef\xbf\xbd""Marma""\xef\xbf\xbd""laade!", 20);
@@ -732,7 +744,8 @@ test_recv_invalid (TestCase *tc,
   g_assert_cmpint (g_socket_send (tc->conn_sock, "\x00Marmalaade!\x00", 13, NULL, &error), ==, 13);
   g_assert_no_error (error);
 
-  while (mock_transport_count_sent (tc->transport) < 2)
+  /* A ready message, ping message, and data message */
+  while (mock_transport_count_sent (tc->transport) < 3)
     g_main_context_iteration (NULL, TRUE);
 
   converted = g_bytes_new ("\xef\xbf\xbd""Marmalaade!""\xef\xbf\xbd", 17);
@@ -768,7 +781,8 @@ test_recv_valid_batched (TestCase *tc,
 
   g_timeout_add (100, add_remainder, tc->conn_sock);
 
-  while (mock_transport_count_sent (tc->transport) < 2)
+  /* A ready message, ping message, and data message */
+  while (mock_transport_count_sent (tc->transport) < 3)
     g_main_context_iteration (NULL, TRUE);
 
   converted = g_bytes_new ("Marmalaade!\xe2\x94\x80", 14);

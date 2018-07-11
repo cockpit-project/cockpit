@@ -955,7 +955,7 @@ test_kill_group (TestCase *test,
       g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
       g_bytes_unref (payload);
 
-      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready"))
+      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready") && !g_str_equal (command, "ping"))
         {
           g_assert_cmpstr (command, ==, "close");
           g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");
@@ -1040,7 +1040,7 @@ test_kill_host (TestCase *test,
       g_assert (cockpit_transport_parse_command (payload, &command, &channel, &options));
       g_bytes_unref (payload);
 
-      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready"))
+      if (!g_str_equal (command, "open") && !g_str_equal (command, "ready") && !g_str_equal (command, "ping"))
         {
           g_assert_cmpstr (command, ==, "close");
           g_assert_cmpstr (json_object_get_string_member (options, "problem"), ==, "terminated");

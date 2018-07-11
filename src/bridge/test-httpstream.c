@@ -221,6 +221,8 @@ test_http_stream2 (TestGeneral *tt,
   object = mock_transport_pop_control (tt->transport);
   cockpit_assert_json_eq (object, "{\"command\":\"ready\",\"channel\":\"444\"}");
   object = mock_transport_pop_control (tt->transport);
+  cockpit_assert_json_eq (object, "{\"command\":\"ping\",\"channel\":\"444\",\"sequence\":0}");
+  object = mock_transport_pop_control (tt->transport);
   cockpit_assert_json_eq (object, "{\"command\":\"response\",\"channel\":\"444\",\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\"}}");
 
   data = mock_transport_combine_output (tt->transport, "444", &count);
@@ -823,11 +825,13 @@ test_tls_authority_bad (TestTls *test,
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (test->transport), NULL, bytes);
   g_bytes_unref (bytes);
 
-  while (mock_transport_count_sent (test->transport) < 2)
+  while (mock_transport_count_sent (test->transport) < 3)
     g_main_context_iteration (NULL, TRUE);
 
   resp = mock_transport_pop_control (test->transport);
   cockpit_assert_json_eq (resp, "{\"command\":\"ready\",\"channel\":\"444\"}");
+  resp = mock_transport_pop_control (test->transport);
+  cockpit_assert_json_eq (resp, "{\"command\":\"ping\",\"channel\":\"444\",\"sequence\":0}");
 
   resp = mock_transport_pop_control (test->transport);
   expected_json = g_strdup_printf ("{\"command\":\"close\",\"channel\":\"444\",\"problem\":\"unknown-hostkey\", "

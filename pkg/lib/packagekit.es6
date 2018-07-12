@@ -172,7 +172,7 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
  */
 export function transaction(method, arglist, signalHandlers, notifyHandler) {
     return new Promise((resolve, reject) => {
-        call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [], {timeout: 5000})
+        call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
                 .done(result => {
                     let transactionPath = result[0];
                     let watchPromise;

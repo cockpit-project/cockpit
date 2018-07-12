@@ -584,7 +584,7 @@ Dummy package from building optional packages only; never install or publish me.
 
 # storaged on Fedora < 27, udisks on newer ones
 # Recommends: not supported in RHEL <= 7
-%package storaged
+%package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
 %if 0%{?rhel} == 7 || 0%{?centos} == 7
@@ -615,10 +615,10 @@ Requires: python-dbus
 %endif
 BuildArch: noarch
 
-%description storaged
+%description -n cockpit-storaged
 The Cockpit component for managing storage.  This package uses udisks.
 
-%files storaged -f storaged.list
+%files -n cockpit-storaged -f storaged.list
 
 
 %package -n cockpit-tests

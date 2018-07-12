@@ -44,6 +44,8 @@ fi
 # Development dependencies: See node_modules/README
 npm prune
 npm install # see package.json
+# HACK: apply crash fix from https://github.com/patternfly/patternfly-react/pull/471
+sed -i 's/if (this.childTerminal)/if (this.childTerminal \&\& this.state.terminal.renderer)/' node_modules/@patternfly/react-console/dist/*/SerialConsole/XTerm.js
 
 find node_modules -name test | xargs rm -rf
 

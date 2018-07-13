@@ -217,3 +217,14 @@ Still, within a long test, try to have independent sections, where
 each section returns the machine to more or less the state that it was
 in before the section.  This makes it easier to run these sections
 ad-hoc when doing incremental development.
+
+## Running Selenium / Avocado tests locally
+
+  $ bots/image-download selenium
+  $ bots/image-prepare fedora-26
+  $ TEST_OS=fedora-26 test/avocado/run-tests --selenium-tests --browser chrome
+
+Currently, Selenium / Avocado run on Fedora 26. Other images don't have selenium and
+avocado installed.
+
+

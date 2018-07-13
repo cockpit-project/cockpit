@@ -81,7 +81,8 @@ export class OptionalPanel extends React.Component {
                 self.setState({ just_installed: "just-installed" });
                 window.setTimeout(() => { self.setState({ just_installed: "just-installed faded" }); },
                                   4000);
-            });
+            },
+                                                  () => null /* ignore cancel */);
         }
 
         var heading_right = null;

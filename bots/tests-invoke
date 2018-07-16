@@ -21,7 +21,6 @@
 import argparse
 import errno
 import os
-import shutil
 import socket
 import subprocess
 import sys
@@ -218,37 +217,6 @@ class PullTask(object):
         except subprocess.CalledProcessError:
             sys.stderr.write("Downloading of additional state failed")
 
-
-        # The images not yet prepared are symlinked from the bots/images
-        # directory into the test/images directory. This allows for other branches to
-        # run without modification, and allows tests to load images that they didn't
-        # install or need to install cockpit on (above).
-        bots_images = os.path.join(BOTS, "images")
-        test_images = os.path.join(BASE, "test", "images")
-        if not os.path.exists(test_images):
-            os.makedirs(test_images)
-        for name in os.listdir(bots_images):
-            if "." in name:
-                continue
-            target = os.path.join(bots_images, name)
-            if os.path.isdir(target):
-                continue
-            dest = os.path.join(test_images, name)
-            if not os.path.isfile(dest):
-                if os.path.lexists(dest):
-                    os.unlink(dest)
-                os.symlink(os.path.realpath(target), dest)
-
-        # COMPAT: Older branches require naughty files linked into specific places
-        # and do not use the image-pepare tooling
-        naughty_files = os.path.join(BOTS, "naughty")
-        for name in os.listdir(naughty_files):
-            dest = os.path.join(BASE, "test", "verify", "naughty-{0}".format(name))
-            if not os.path.islink(dest) and os.path.isdir(dest):
-                shutil.rmtree(dest)
-            elif os.path.lexists(dest):
-                os.unlink(dest)
-            os.symlink(os.path.join("..", "..", "bots", "naughty", name), dest)
 
         # COMPAT: Create a legacy tmp/run directory to prevent races during testing
         try:

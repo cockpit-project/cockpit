@@ -117,9 +117,6 @@ def get_image_names(quiet=False, open_pull_requests=True, offline=False):
         for name, ref in refs.items():
             if not quiet:
                 sys.stderr.write("Considering images from {0} ({1})\n".format(name, ref))
-            # DEPRECATED old branches may still have images in test/images
-            for link in get_image_links(ref, "test/images"):
-                images.add(link)
             for link in get_image_links(ref, "bots/images"):
                 images.add(link)
 

@@ -291,9 +291,6 @@ test_read_simple (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
@@ -363,9 +360,6 @@ test_read_changed (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
@@ -400,9 +394,6 @@ test_read_replaced (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
@@ -433,9 +424,6 @@ test_read_removed (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
@@ -469,9 +457,6 @@ test_read_non_mmappable (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "done");
 
   control = mock_transport_pop_control (tc->transport);
@@ -500,9 +485,6 @@ test_write_simple (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
@@ -528,9 +510,6 @@ test_write_multiple (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
@@ -561,9 +540,6 @@ test_write_remove (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, "-");
 }
@@ -586,9 +562,6 @@ test_write_remove_nonexistent (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   control = mock_transport_pop_control (tc->transport);
   g_assert (json_object_get_member (control, "problem") == NULL);
@@ -616,9 +589,6 @@ test_write_empty (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
@@ -672,9 +642,6 @@ test_write_expect_non_existent (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
@@ -725,9 +692,6 @@ test_write_expect_tag (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
   control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
-  control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
   g_assert (json_object_get_member (control, "problem") == NULL);
   g_assert_cmpstr (json_object_get_string_member (control, "tag"), ==, tag);
@@ -756,9 +720,6 @@ test_write_expect_tag_fail (TestCase *tc,
 
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   control = mock_transport_pop_control (tc->transport);
   tag = cockpit_get_file_tag (tc->test_path);
@@ -878,9 +839,6 @@ test_dir_simple (TestCase *tc,
   control = recv_control (tc);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
 
-  control = recv_control(tc);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-
   g_free (base);
 
   close_channel (tc, NULL);
@@ -909,9 +867,6 @@ test_dir_simple_no_watch (TestCase *tc,
 
   control = recv_control (tc);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = recv_control (tc);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   g_free (base);
 
@@ -949,9 +904,6 @@ test_dir_watch (TestCase *tc,
 
   control = recv_control (tc);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-
-  control = recv_control (tc);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
 
   set_contents (tc->test_path, "Hello!");
 

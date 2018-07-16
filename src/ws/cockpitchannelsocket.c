@@ -213,6 +213,8 @@ cockpit_channel_socket_open (CockpitWebService *service,
       goto out;
     }
 
+  json_object_set_boolean_member (open, "flow-control", TRUE);
+
   id = cockpit_web_service_unique_channel (service);
   self = g_object_new (COCKPIT_TYPE_CHANNEL_SOCKET,
                        "transport", transport,

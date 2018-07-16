@@ -467,11 +467,6 @@ test_reopen (TestCase *tc,
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"a\",\"sequence\":0}");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
   cockpit_assert_json_eq (control, "{\"command\":\"close\",\"channel\":\"a\",\"problem\":\"terminated\"}");
   control = NULL;
 
@@ -520,11 +515,6 @@ test_timeout (TestCase *tc,
   other = g_object_ref (cockpit_peer_ensure (tc->peer));
   g_signal_connect (other, "closed", G_CALLBACK (on_other_closed), &closed);
   emit_string (tc, NULL, "{\"command\": \"close\", \"channel\": \"a\"}");
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"a\",\"sequence\":0}");
-  control = NULL;
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);

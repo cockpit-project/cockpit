@@ -341,8 +341,6 @@ test_close_transport (TestCase *tc,
   g_assert_cmpstr (problem, ==, "boooo");
   control = mock_transport_pop_control (tc->transport);
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-  control = mock_transport_pop_control (tc->transport);
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
   g_assert (mock_transport_pop_control (tc->transport) == NULL);
 
   g_free (problem);
@@ -527,10 +525,6 @@ test_ping_channel (void)
 
   reply = mock_transport_pop_control (mock);
   g_assert (reply != NULL);
-  cockpit_assert_json_eq (reply, "{ \"command\": \"ping\", \"channel\": \"55\", \"sequence\": 0 }");
-
-  reply = mock_transport_pop_control (mock);
-  g_assert (reply != NULL);
   cockpit_assert_json_eq (reply, "{ \"command\": \"pong\", \"channel\": \"55\", \"other\": \"marmalade\" }");
 
   g_object_unref (channel);
@@ -575,12 +569,6 @@ test_ping_no_channel (void)
   g_assert (reply != NULL);
   cockpit_assert_json_eq (reply, "{ \"command\": \"ready\", \"channel\": \"55\" }");
 
-  /* Should just get a ping message */
-  reply = mock_transport_pop_control (mock);
-  g_assert (reply != NULL);
-  cockpit_assert_json_eq (reply, "{ \"command\": \"ping\", \"channel\": \"55\", \"sequence\": 0 }");
-
-  /* But there should be no pong message */
   reply = mock_transport_pop_control (mock);
   g_assert (reply == NULL);
 
@@ -613,11 +601,13 @@ setup_pair (TestPairCase *tc,
   options = json_object_new ();
   json_object_set_string_member (options, "command", "open");
   json_object_set_string_member (options, "channel", "999");
+  json_object_set_boolean_member (options, "flow-control", TRUE);
   tc->channel_a = g_object_new (mock_null_channel_get_type (),
                                 "id", "999",
                                 "options", options,
                                 "transport", tc->transport_a,
                                 NULL);
+  cockpit_channel_prepare (tc->channel_a);
   json_object_unref (options);
 
   pipe = cockpit_pipe_new ("b", sv[1], sv[1]);
@@ -626,11 +616,13 @@ setup_pair (TestPairCase *tc,
 
   options = json_object_new ();
   json_object_set_string_member (options, "channel", "999");
+  json_object_set_boolean_member (options, "flow-control", TRUE);
   tc->channel_b = g_object_new (mock_null_channel_get_type (),
                                 "id", "999",
                                 "options", options,
                                 "transport", tc->transport_b,
                                 NULL);
+  cockpit_channel_prepare (tc->channel_b);
   json_object_unref (options);
 }
 
@@ -684,9 +676,6 @@ test_pressure_window (TestPairCase *tc,
   cockpit_channel_ready (tc->channel_a, NULL);
   cockpit_channel_ready (tc->channel_b, NULL);
   g_signal_connect (tc->channel_a, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
-
-  /* Exchange all the initial messages */
-  while (g_main_context_iteration (NULL, FALSE));
 
   /* Sent this a thousand times */
   sent = g_bytes_new_take (g_strnfill (1000 * 1000, '?'), 1000 * 1000);

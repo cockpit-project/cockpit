@@ -206,29 +206,14 @@ test_external_bridge (TestCase *tc,
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"a\",\"sequence\":0}");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
 
   cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"b\"}");
   control = NULL;
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"b\",\"sequence\":0}");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
 
   cockpit_assert_json_eq (control, "{\"command\":\"ready\",\"channel\":\"c\"}");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"c\",\"sequence\":0}");
   control = NULL;
 
   emit_string (tc, "a", "oh marmalade a");
@@ -369,18 +354,8 @@ test_dynamic_bridge (TestCase *tc,
 
   while ((control = mock_transport_pop_control (tc->transport)) == NULL)
     g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"a\",\"sequence\":0}");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
 
   check_ready (control, "b", "upper", 1, fixture ? fixture->with_env : FALSE);
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"b\",\"sequence\":0}");
   control = NULL;
 
   emit_string (tc, NULL, "{\"command\": \"open\", \"channel\": \"c\", \"payload\": \"lower\"}");
@@ -389,11 +364,6 @@ test_dynamic_bridge (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   check_ready (control, "c", "lower", 0, fixture ? fixture->with_env : FALSE);
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  cockpit_assert_json_eq (control, "{\"command\":\"ping\",\"channel\":\"c\",\"sequence\":0}");
   control = NULL;
 
   emit_string (tc, "a", "oh marmalade a");
@@ -631,12 +601,6 @@ test_reload_add (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
   control = NULL;
 
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
-  control = NULL;
-
   // And check that it works
   emit_string (tc, "a", "before reload");
   while ((sent = mock_transport_pop_channel (tc->transport, "a")) == NULL)
@@ -709,12 +673,6 @@ test_reload_remove (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
   g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ready");
-  control = NULL;
-
-  while ((control = mock_transport_pop_control (tc->transport)) == NULL)
-    g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpstr (json_object_get_string_member (control, "channel"), ==, "a");
-  g_assert_cmpstr (json_object_get_string_member (control, "command"), ==, "ping");
   control = NULL;
 
   // And check that it works

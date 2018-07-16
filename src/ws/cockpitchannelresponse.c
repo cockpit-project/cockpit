@@ -395,6 +395,8 @@ cockpit_channel_response_prepare (CockpitChannel *channel)
   const gchar *payload;
   JsonObject *open;
 
+  COCKPIT_CHANNEL_CLASS (cockpit_channel_response_parent_class)->prepare (channel);
+
   /*
    * Tell the transport to throttle incoming flow on the given channel based on
    * output pressure in the web response.

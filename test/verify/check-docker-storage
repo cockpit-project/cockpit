@@ -40,19 +40,6 @@ def can_manage(machine):
     return (machine.image not in non_manageable_images and
             machine.image not in rootfs_not_in_volume_group_images)
 
-# The Atomic variants can't build their own packages, so we build in
-# their non-Atomic siblings.  For example, fedora-atomic is built
-# in fedora-28
-def get_build_image(test_os):
-    build_os = test_os
-    if test_os == "fedora-atomic":
-        build_os = "fedora-28"
-    elif test_os == "rhel-atomic":
-        build_os = "rhel-7"
-    elif test_os == "continuous-atomic":
-        build_os = "centos-7"
-    return build_os
-
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 @skipPackage("cockpit-docker")
 class TestDockerStorageDirect(MachineCase):
@@ -87,7 +74,7 @@ class TestDockerStorage(MachineCase):
             # since we can use the same set of built packages
             self.provision["login"] = {
                 "address": "10.111.113.2/20",
-                "image": get_build_image(testvm.DEFAULT_IMAGE)
+                "image": testvm.get_build_image(testvm.DEFAULT_IMAGE)
             }
 
         self.allow_journal_messages('.*refusing to connect to unknown host.*')

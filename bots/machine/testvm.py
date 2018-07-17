@@ -45,6 +45,22 @@ ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 BOTS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 TEST_DIR = os.path.join(os.path.dirname(BOTS_DIR), "test")
 
+# The Atomic variants can't build their own packages, so we build in
+# their non-Atomic siblings.  For example, fedora-atomic is built
+# in fedora-28
+def get_build_image(image):
+    (test_os, unused) = os.path.splitext(os.path.basename(image))
+    if test_os == "fedora-atomic":
+        image = "fedora-28"
+    elif test_os == "rhel-atomic":
+        image = "rhel-7-5"
+    elif test_os == "continuous-atomic":
+        image = "centos-7"
+    elif test_os == "rhel-x":
+        image = "fedora-27"
+    return image
+
+
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
 @contextlib.contextmanager

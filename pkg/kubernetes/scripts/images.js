@@ -632,20 +632,24 @@
 
             function performModify() {
                 var data = {
-                    spec: { dockerImageRepository: null, tags: null },
+                    apiVersion: "v1",
+                    kind: "ImageStream",
                     metadata: { annotations:  { "openshift.io/image.dockerRepositoryCheck" : null }}
                 };
 
-                if (fields.populate != "none")
-                    data.spec.dockerImageRepository = fields.pull.trim();
-                if (fields.populate == "tags")
-                    tagData.buildSpec(fields.tags, data.spec, fields.insecure);
+                if (fields.populate == "pull")
+                    data.spec = { dockerImageRepository: fields.pull.trim(), };
+                else if (fields.populate == "tags")
+                    data.spec = tagData.buildSpec(fields.tags, data.spec, fields.insecure, fields.pull.trim());
+                else
+                    data.spec = { dockerImageRepository: null, tags: null };
 
                 return methods.patch(stream, data);
             }
 
             function performCreate() {
                 var data = {
+                    apiVersion: "v1",
                     kind: "ImageStream",
                     metadata: {
                         name: fields.name.trim(),
@@ -653,10 +657,10 @@
                     }
                 };
 
-                if (fields.populate != "none")
+                if (fields.populate == "pull")
                     data.spec = { dockerImageRepository: fields.pull.trim(), };
-                if (fields.populate == "tags")
-                    data.spec = tagData.buildSpec(fields.tags, data.spec, fields.insecure);
+                else if (fields.populate == "tags")
+                    data.spec = tagData.buildSpec(fields.tags, data.spec, fields.insecure, fields.pull.trim());
 
                 return methods.check(data, {
                     "metadata.name": "#imagestream-modify-name",

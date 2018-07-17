@@ -1646,6 +1646,7 @@ class RegistryTests(object):
         b.click("#imagestream-modify-tags")
         b.focus("#imagestream-modify-tags")
         b.key_press(['2', '.', '1', '1'])
+        b.focus("modal-dialog div.modal-footer button.btn-primary")
         b.click("modal-dialog div.modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
@@ -1653,13 +1654,10 @@ class RegistryTests(object):
         b.wait_present('tbody[data-id="marmalade/sometags"]')
         b.wait_present("tr.imagestream-item th:contains('marmalade/sometags')")
         b.wait_in_text('tbody[data-id="marmalade/sometags"] tr', '2.11')
-        # EXFAIL: https://bugzilla.redhat.com/show_bug.cgi?id=1373332
-        # b.wait_not_in_text('tbody[data-id="marmalade/sometags"] tr', 'latest')
+        b.wait_not_in_text('tbody[data-id="marmalade/sometags"] tr', 'latest')
 
         # also check with CLI
-        output = self.openshift.execute("oc get imagestream --namespace=marmalade sometags")
-        self.assertIn("localhost:5555/juggs", output)
-        self.assertIn("2.11", output)
-        # EXFAIL: https://bugzilla.redhat.com/show_bug.cgi?id=1373332
-        # self.assertNotIn("latest", output)
+        testlib.wait(lambda: '2.11' in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
+        testlib.wait(lambda: 'latest' not in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
+
 

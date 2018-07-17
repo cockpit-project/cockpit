@@ -55,14 +55,16 @@ function suite() {
         "imageTagData",
         function(data) {
             var spec = angular.extend({ }, specData);
-            spec = data.buildSpec(["2.5", "latest", "second"], spec, true);
+            spec = data.buildSpec(["2.5", "latest", "second"], spec, true, 'docker.io/busybox');
             assert.deepEqual(spec, {
                 "dockerImageRepository": "busybox",
                 "tags": [
-                    { "name": "2.5", "importPolicy": { "insecure": true } },
-                    { "annotations": null, "from": { "kind": "DockerImage", "name": "busybox:latest" },
+                    { "name": "2.5", "importPolicy": { "insecure": true },
+                        "from": { "kind": "DockerImage", "name": "docker.io/busybox:2.5"}},
+                    { "annotations": null, "from": { "kind": "DockerImage", "name": "docker.io/busybox:latest" },
                         "generation": 2, "importPolicy": { "insecure": true }, "name": "latest" },
-                    { "name": "second", "importPolicy": { "insecure": true } }
+                    { "name": "second", "importPolicy": { "insecure": true },
+                        "from": { "kind": "DockerImage", "name": "docker.io/busybox:second"}}
                 ]
             }, "build spec correctly");
         }
@@ -96,7 +98,7 @@ specData = {
             "annotations": null,
             "from": {
                 "kind": "DockerImage",
-                "name": "busybox:1"
+                "name": "docker.io/busybox:1"
             },
             "generation": 2,
             "importPolicy": {}
@@ -106,7 +108,7 @@ specData = {
             "annotations": null,
             "from": {
                 "kind": "DockerImage",
-                "name": "busybox:1.23"
+                "name": "docker.io/busybox:1.23"
             },
             "generation": 2,
             "importPolicy": {}
@@ -116,7 +118,7 @@ specData = {
             "annotations": null,
             "from": {
                 "kind": "DockerImage",
-                "name": "busybox:1.24.0"
+                "name": "docker.io/busybox:1.24.0"
             },
             "generation": 2,
             "importPolicy": {}
@@ -126,7 +128,7 @@ specData = {
             "annotations": null,
             "from": {
                 "kind": "DockerImage",
-                "name": "busybox:1.24.2"
+                "name": "docker.io/busybox:1.24.2"
             },
             "generation": 2,
             "importPolicy": {}
@@ -136,7 +138,7 @@ specData = {
             "annotations": null,
             "from": {
                 "kind": "DockerImage",
-                "name": "busybox:latest"
+                "name": "docker.io/busybox:latest"
             },
             "generation": 2,
             "importPolicy": {

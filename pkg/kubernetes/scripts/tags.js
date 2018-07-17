@@ -65,7 +65,7 @@
         return names;
     }
 
-    function buildSpec(names, spec, insecure) {
+    function buildSpec(names, spec, insecure, pull) {
         var already = { };
         if (!spec)
             spec = { };
@@ -78,7 +78,14 @@
                 already[name].importPolicy = { "insecure": insecure };
                 tags.push(already[name]);
             } else {
-                tags.push({ name: name, "importPolicy": { "insecure": insecure } });
+                tags.push({
+                    name: name,
+                    "importPolicy": { "insecure": insecure },
+                    from: {
+                        kind: "DockerImage",
+                        name: pull + ":" + name,
+                    },
+                });
             }
         });
         spec.tags = tags;

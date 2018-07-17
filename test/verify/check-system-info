@@ -256,7 +256,7 @@ class TestSystemInfo(MachineCase):
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-        if m.image != 'rhel-7-5':
+        if m.image != 'rhel-7-5-distropkg':
             self.allow_authorize_journal_messages()
             b.relogin('/system', authorized=False)
             b.wait_present('.systime-privileged.disabled')
@@ -265,7 +265,7 @@ class TestSystemInfo(MachineCase):
             b.mouse('#systime-tooltip', 'mouseout')
             b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7", "rhel-7-5", "rhel-7-6", "rhel-atomic")
+    @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -347,7 +347,7 @@ class TestSystemInfo(MachineCase):
         # because of the reload
         self.allow_restart_journal_messages()
 
-    @skipImage("Introduced in Cockpit 161", "rhel-7-5")
+    @skipImage("Introduced in Cockpit 161", "rhel-7-5-distropkg")
     def testHardwareInfo(self):
         b = self.browser
 
@@ -392,7 +392,7 @@ class TestSystemInfo(MachineCase):
 
 class TestPcp(packagelib.PackageCase):
 
-    @skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5")
+    @skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5-distropkg")
     @skipImage("doesn't have pcp", "debian-stable")
     @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
     def testEnablePcpLink(self):

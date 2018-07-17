@@ -32,6 +32,11 @@ import warnings
 sys.dont_write_bytecode = True
 
 from task import github
+try:
+    from machine.testvm import get_test_image
+except ImportError:
+    # fallback for unit tests where libvirt is not available
+    get_test_image = lambda i: i
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
@@ -227,7 +232,7 @@ def normalize_traceback(trace):
     return trace
 
 def check_known_issue(api, trace, image):
-    image_naughty = os.path.join(BOTS, "naughty", image)
+    image_naughty = os.path.join(BOTS, "naughty", get_test_image(image))
     if not os.path.exists(image_naughty):
         return None
 

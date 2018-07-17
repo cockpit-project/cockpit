@@ -50,6 +50,8 @@ args = parser.parse_args()
 if not args.base_image:
     args.base_image = os.path.basename(args.image)
 
+args.base_image = testvm.get_test_image(args.base_image)
+
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image, install_image):
     if "/" not in base_image:

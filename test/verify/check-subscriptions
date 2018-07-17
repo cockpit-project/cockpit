@@ -252,7 +252,7 @@ class TestSubscriptions(MachineCase):
         b.click(product_selector)
 
         # now verify with an unprivileged user
-        if self.machine.image != "rhel-7-5":
+        if self.machine.image != "rhel-7-5-distropkg":
             b.logout()
             self.machine.execute("useradd junior; echo junior:foobar | chpasswd")
             self.login_and_go("/subscriptions", user="junior")

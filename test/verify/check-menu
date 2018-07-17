@@ -44,7 +44,7 @@ class TestMenu(MachineCase):
         self.check_axe("Test-navigation")
 
         # Check that we can use a link with a hash in it (fixed in Cockpit 170)
-        if m.image != 'rhel-7-5':
+        if m.image != 'rhel-7-5-distropkg':
             b.switch_to_top()
             b.click("a[href='/system/#/memory']")
             b.enter_page("/system")

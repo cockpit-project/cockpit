@@ -51,6 +51,8 @@ import time
 import fcntl
 import urllib.parse
 
+from machine import testvm
+
 BOTS = os.path.dirname(os.path.realpath(__file__))
 IMAGES = os.path.join(BOTS, "..", "bots", "images")
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
@@ -263,6 +265,7 @@ def download_images(image_list, force, quiet, state, store):
     success = True
 
     for image in image_list:
+        image = testvm.get_test_image(image)
         try:
             if state:
                 target = state_target(image)

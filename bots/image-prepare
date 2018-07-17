@@ -54,7 +54,7 @@ def main():
     # The image we're going to build in. This image is never written to
     build_image = None
     if not args.install_only:
-        build_image = get_build_image(args.build_image or base_image)
+        build_image = testvm.get_build_image(args.build_image or base_image)
 
     # Depending on the operating system ignore some things
     skips = []
@@ -196,21 +196,6 @@ def only_install(image, build_results, skips, args, address):
             input("Press RET to continue... ")
         if started:
             machine.stop()
-
-# The Atomic variants can't build their own packages, so we build in
-# their non-Atomic siblings.  For example, fedora-atomic is built
-# in fedora-28
-def get_build_image(image):
-    (test_os, unused) = os.path.splitext(os.path.basename(image))
-    if test_os == "fedora-atomic":
-        image = "fedora-28"
-    elif test_os == "rhel-atomic":
-        image = "rhel-7-5"
-    elif test_os == "continuous-atomic":
-        image = "centos-7"
-    elif test_os == "rhel-x":
-        image = "fedora-27"
-    return image
 
 if __name__ == "__main__":
     sys.exit(main())

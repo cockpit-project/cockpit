@@ -126,7 +126,7 @@ class TestRealms(MachineCase):
             self.machine.execute("authselect enable-feature with-sudo")
 
         # the following requires the "ipa" tool and fixed "admin" permission check (PR #9127)
-        if m.image not in ["rhel-7-5", "ubuntu-1604"]:
+        if m.image not in ["rhel-7-5-distropkg", "ubuntu-1604"]:
             # validate Kerberos setup for ws
             m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
             m.execute(script=WAIT_KRB_SCRIPT, timeout=300)
@@ -180,7 +180,7 @@ class TestRealms(MachineCase):
 
             self.allow_authorize_journal_messages()
 
-        elif m.image != "rhel-7-5":  # on 7.5 with older ws curl succeeds
+        elif m.image != "rhel-7-5-distropkg":  # on 7.5 with older ws curl succeeds
             # curl negotiation should fail without a proper ws keytab; this provides a hint
             # when FreeIPA becomes new enough on the images above to start working
             self.assertRaisesRegexp(subprocess.CalledProcessError, "returned non-zero exit status 6", m.execute,
@@ -241,7 +241,7 @@ class TestRealms(MachineCase):
 
         self.allow_restart_journal_messages()
 
-    @skipImage("Requires fixed admin permission check (PR #9127)", "rhel-7-5")
+    @skipImage("Requires fixed admin permission check (PR #9127)", "rhel-7-5-distropkg")
     def testIpaUnqualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -311,7 +311,7 @@ class TestRealms(MachineCase):
         # Disable sssd support in realmd
 
         realmd_distro_conf = "/usr/lib/realmd/realmd-distro.conf"
-        if m.image.startswith("rhel-7") or m.image.startswith("centos-7"):
+        if m.image.startswith("rhel-7-5") or m.image.startswith("centos-7"):
             realmd_distro_conf = "/usr/lib64/realmd/realmd-distro.conf"
 
         m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
@@ -420,7 +420,7 @@ class TestKerberos(MachineCase):
 
         keytab = "/etc/cockpit/krb5.keytab"
         # This only supports the default keytab location
-        if self.machine.image == "rhel-7-5":
+        if self.machine.image == "rhel-7-5-distropkg":
             keytab = "/etc/krb5.keytab"
 
         self.configure_kerberos(keytab)
@@ -493,7 +493,7 @@ class TestKerberos(MachineCase):
         self.assertIn("admin@cockpit.lan", self.machine.execute("ps -xa | grep sshd"))
         b.kill()
 
-        if self.machine.image not in ["rhel-7-5"]:
+        if self.machine.image not in ["rhel-7-5-distropkg"]:
             # Remove cockpit keytab
             self.machine.execute("mv /etc/cockpit/krb5.keytab /etc/cockpit/bk.keytab")
             output = self.machine.execute(['/usr/bin/curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",

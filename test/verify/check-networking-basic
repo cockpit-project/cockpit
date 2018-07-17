@@ -85,7 +85,7 @@ class TestNetworking(NetworkCase):
 
         wait(lambda: "yes" in m.execute("nmcli -f ipv4.ignore-auto-dns connection show '%s'" % con_id))
 
-    @skipImage("cockpit-system too old", "rhel-7-5")
+    @skipImage("cockpit-system too old", "rhel-7-5-distropkg")
     def testNoService(self):
         b = self.browser
         m = self.machine

@@ -61,6 +61,12 @@ def get_build_image(image):
     return image
 
 
+# some tests have suffixes that run the same image in different modes; map a
+# test context image to an actual physical image name
+def get_test_image(image):
+    return image.replace("-distropkg", "")
+
+
 # based on http://stackoverflow.com/a/17753573
 # we use this to quieten down calls
 @contextlib.contextmanager

@@ -61,7 +61,7 @@ class TestShutdownRestart(MachineCase):
 
         b.logout()
 
-        if m.image != "rhel-7-5":
+        if m.image != "rhel-7-5-distropkg":
             # now give user direct sudo access
             m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
             self.login_and_go("/system", user="user")

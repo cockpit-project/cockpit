@@ -497,7 +497,7 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/cockpit-new/');
         self.allow_hostkey_messages()
 
-    @skipImage("cockpit-ws too old", "rhel-7-5")
+    @skipImage("cockpit-ws too old", "rhel-7-5-distropkg")
     def testUrlRootWithQuery(self):
         b = self.browser
         m = self.machine

@@ -67,7 +67,7 @@ class TestAccounts(MachineCase):
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
         # (un)locking root account introduced in version 161
-        if m.image != 'rhel-7-5':
+        if m.image != 'rhel-7-5-distropkg':
             # now lock account
             b.set_checked("#account-locked", True)
             b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
@@ -117,7 +117,7 @@ class TestAccounts(MachineCase):
         b.wait_present(admin_role_sel + ":checked")
         b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
         # An alert which shows up once we've changed things
-        if m.image != 'rhel-7-5':
+        if m.image != 'rhel-7-5-distropkg':
             b.wait_present("#account-roles .alert-info")
         b.set_checked(admin_role_sel, False)
         b.wait_present(admin_role_sel + ":not(:checked)")

@@ -1273,11 +1273,11 @@
                 });
             }
 
-            function patchResource(resource, patch) {
+            function patchResource(resource, patch, mergeType) {
                 var path = resourcePath([resource]);
                 path += "?timeout=" + REQ_TIMEOUT;
                 var body = JSON.stringify(patch);
-                var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
+                var config = { headers: { "Content-Type": "application/" + (mergeType || "strategic-merge") + "-patch+json" } };
                 var promise = new KubeRequest("PATCH", path, body, config);
                 return promise.then(function(response) {
                     debug("patched resource:", path, response.data);

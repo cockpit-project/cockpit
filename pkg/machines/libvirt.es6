@@ -397,7 +397,7 @@ LIBVIRT_PROVIDER = {
                 metadata.installSource,
                 metadata.osVariant,
                 convertToUnit(currentMemory, units.KiB, units.MiB),
-                vcpus,
+                vcpus.count,
                 prepareDisksParam(disks),
                 prepareDisplaysParam(displays),
             ], { err: "message", environ: ['LC_ALL=C'] })

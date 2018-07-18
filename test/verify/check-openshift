@@ -492,8 +492,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # switch to the Disks subtab
         b.wait_present("#vm-fedoravm-disks-tab")
         b.click("#vm-fedoravm-disks-tab")
-        b.wait_present("#vm-fedoravm-disks-total-value") # wait for the "Count" value
-        b.wait_in_text("#vm-fedoravm-disks-total-value", "2")
         b.wait_present("#vm-fedoravm-disks-disk0-device") # check disk properties
         b.wait_present("#vm-fedoravm-disks-disk1-device")
         b.wait_in_text("#vm-fedoravm-disks-disk0-device", "disk0")

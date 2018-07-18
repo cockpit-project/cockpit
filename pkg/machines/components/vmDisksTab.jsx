@@ -24,17 +24,6 @@ import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
 
 const _ = cockpit.gettext;
 
-const DiskTotal = ({ disks, idPrefix }) => {
-    return (
-        <span className='machines-disks-total'>
-            {_("Count:")}&nbsp;
-            <span id={`${idPrefix}-total-value`} className='machines-disks-total-value'>
-                {disks.length}
-            </span>
-        </span>
-    );
-};
-
 const StorageUnit = ({ value, id }) => {
     if (!value) {
         return null;
@@ -63,38 +52,37 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
-    if (!disks || disks.length === 0) {
-        return (<div>{_("No disks defined for this VM")}</div>);
-    }
-
-    const renderCapacityUsed = !!disks.find(disk => (!!disk.used));
-    const renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
-
-    const columnTitles = [_("Device"), _("Target")];
-    if (renderCapacity) {
-        if (renderCapacityUsed) {
-            columnTitles.push(_("Used"));
-        }
-        columnTitles.push(_("Capacity"));
-    }
-    columnTitles.push(_("Bus"));
-    if (renderReadOnly) {
-        columnTitles.push(_("Readonly"));
-    }
-    columnTitles.push(_("Source"));
-
+const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText }) => {
     let notification = null;
-    if (notificationText) {
-        notification = (<Info text={notificationText}
-                              textId={`${idPrefix}-notification`} />);
+    const columnTitles = [_("Device"), _("Target")];
+    let renderCapacityUsed, renderReadOnly;
+
+    if (disks && disks.length > 0) {
+        renderCapacityUsed = !!disks.find(disk => (!!disk.used));
+        renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
+
+        if (renderCapacity) {
+            if (renderCapacityUsed) {
+                columnTitles.push(_("Used"));
+            }
+            columnTitles.push(_("Capacity"));
+        }
+        columnTitles.push(_("Bus"));
+        if (renderReadOnly) {
+            columnTitles.push(_("Readonly"));
+        }
+        columnTitles.push(_("Source"));
+
+        if (notificationText) {
+            notification = (<Info text={notificationText}
+                                  textId={`${idPrefix}-notification`} />);
+        }
     }
 
     return (
         <div>
             {notification}
-            <DiskTotal disks={disks} idPrefix={idPrefix} />
-            <Listing columnTitles={columnTitles}>
+            <Listing columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
@@ -125,6 +113,7 @@ const VmDisksTab = ({ idPrefix, disks, renderCapacity, notificationText }) => {
 
 VmDisksTab.propTypes = {
     idPrefix: PropTypes.string.isRequired,
+    actions: PropTypes.arrayOf(React.PropTypes.node),
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     notificationText: PropTypes.string,

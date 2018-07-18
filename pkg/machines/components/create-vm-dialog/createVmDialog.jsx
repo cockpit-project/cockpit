@@ -24,8 +24,6 @@ import Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
 import { createVm, addErrorNotification } from '../../actions.es6';
 import {
-    digitFilter,
-    toFixedPrecision,
     isEmpty,
     convertToUnit,
     timeoutedPromise,
@@ -40,6 +38,7 @@ import {
     prepareVendors,
     getOSStringRepresentation,
 } from "./createVmDialogUtils.es6";
+import MemorySelectRow from '../memorySelectRow.jsx';
 
 import './createVmDialog.less';
 import VMS_CONFIG from '../../config.es6';
@@ -48,47 +47,6 @@ const _ = cockpit.gettext;
 
 const URL_SOURCE = 'url';
 const COCKPIT_FILESYSTEM_SOURCE = 'file';
-
-const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitChange }) => {
-    return (
-        <tr>
-            <td className="top">
-                <label className="control-label" htmlFor={id}>
-                    {label}
-                </label>
-            </td>
-            <td>
-                <div className="thirty-five-spaced-table">
-                    <span className="evenly-spaced-cell">
-                        <div className="evenly-spaced-table">
-                            <span className="evenly-spaced-cell">
-                                <input id={id} className="form-control"
-                                       type="number"
-                                       value={toFixedPrecision(value)}
-                                       onKeyPress={digitFilter}
-                                       step={1}
-                                       min={0}
-                                       onChange={onValueChange} />
-                            </span>
-                            <span className="thirty-five-spaced-cell padding-left">
-                                <Select.Select id={id + "-unit-select"}
-                                               initial={initialUnit}
-                                               onChange={onUnitChange}>
-                                    <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                                        {_("MiB")}
-                                    </Select.SelectEntry>
-                                    <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                                        {_("GiB")}
-                                    </Select.SelectEntry>
-                                </Select.Select>
-                            </span>
-                        </div>
-                    </span>
-                </div>
-            </td>
-        </tr>
-    );
-};
 
 /* Create a virtual machine
  * props:

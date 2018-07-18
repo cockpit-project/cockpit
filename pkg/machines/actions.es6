@@ -51,6 +51,14 @@ export function getOsInfoList() {
     return virt('GET_OS_INFO_LIST');
 }
 
+export function getStoragePools(connectionName) {
+    return virt('GET_STORAGE_POOLS', { connectionName });
+}
+
+export function getStorageVolumes(connectionName, poolName) {
+    return virt('GET_STORAGE_VOLUMES', { connectionName, poolName });
+}
+
 export function shutdownVm(vm) {
     return virt('SHUTDOWN_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
@@ -130,7 +138,15 @@ export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
 }
 
 export function getHypervisorMaxVCPU(connectionName) {
-    return virt('GET_HYPERVISOR_MAX_VCPU', { connectionName });
+    return virt('GET_HYPERVISOR_MAX_VCPU', {connectionName});
+}
+
+export function volumeCreateAndAttach({ connectionName, poolName, volumeName, size, format, target, permanent, hotplug, vmName }) {
+    return virt('CREATE_AND_ATTACH_VOLUME', { connectionName, poolName, volumeName, size, format, target, permanent, hotplug, vmName });
+}
+
+export function attachDisk({ connectionName, diskFileName, target, permanent, hotplug, vmName }) {
+    return virt('ATTACH_DISK', { connectionName, diskFileName, target, permanent, hotplug, vmName });
 }
 
 /**
@@ -190,6 +206,27 @@ export function updateVm(props) {
     return {
         type: 'UPDATE_VM',
         vm: props,
+    };
+}
+
+export function updateStoragePools({ connectionName, pools }) {
+    return {
+        type: 'UPDATE_STORAGE_POOLS',
+        payload: {
+            connectionName,
+            pools,
+        }
+    };
+}
+
+export function updateStorageVolumes({ connectionName, poolName, volumes }) {
+    return {
+        type: 'UPDATE_STORAGE_VOLUMES',
+        payload: {
+            connectionName,
+            poolName,
+            volumes,
+        },
     };
 }
 

@@ -403,7 +403,7 @@ var aliases = {
     "moment": "moment/moment.js",
     "react": "react-lite/dist/react-lite.js",
     "react-dom": "react-lite/dist/react-lite.js",
-    "term": "term.js-cockpit/src/term.js",
+    "term": "term.js-cockpit/src/term.js"
 };
 
 /* HACK: To get around redux warning about reminimizing code */

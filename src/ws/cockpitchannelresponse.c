@@ -395,6 +395,8 @@ cockpit_channel_response_prepare (CockpitChannel *channel)
   const gchar *payload;
   JsonObject *open;
 
+  COCKPIT_CHANNEL_CLASS (cockpit_channel_response_parent_class)->prepare (channel);
+
   /*
    * Tell the transport to throttle incoming flow on the given channel based on
    * output pressure in the web response.
@@ -596,6 +598,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
 
   channel = cockpit_web_service_unique_channel (service);
   json_object_set_string_member (object, "channel", channel);
+  json_object_set_boolean_member (object, "flow-control", TRUE);
 
   if (quoted_etag)
     {
@@ -709,6 +712,8 @@ cockpit_channel_response_open (CockpitWebService *service,
 
   if (!json_object_has_member (open, "binary"))
     json_object_set_string_member (open, "binary", "raw");
+
+  json_object_set_boolean_member (open, "flow-control", TRUE);
 
   if (!content_type)
     {

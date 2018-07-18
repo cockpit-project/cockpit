@@ -841,6 +841,7 @@ function Channel(options) {
         else
             delete command.binary;
 
+        command["flow-control"] = true;
         transport.send_control(command);
 
         /* Now drain the queue */

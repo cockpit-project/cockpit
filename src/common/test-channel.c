@@ -601,11 +601,13 @@ setup_pair (TestPairCase *tc,
   options = json_object_new ();
   json_object_set_string_member (options, "command", "open");
   json_object_set_string_member (options, "channel", "999");
+  json_object_set_boolean_member (options, "flow-control", TRUE);
   tc->channel_a = g_object_new (mock_null_channel_get_type (),
                                 "id", "999",
                                 "options", options,
                                 "transport", tc->transport_a,
                                 NULL);
+  cockpit_channel_prepare (tc->channel_a);
   json_object_unref (options);
 
   pipe = cockpit_pipe_new ("b", sv[1], sv[1]);
@@ -614,11 +616,13 @@ setup_pair (TestPairCase *tc,
 
   options = json_object_new ();
   json_object_set_string_member (options, "channel", "999");
+  json_object_set_boolean_member (options, "flow-control", TRUE);
   tc->channel_b = g_object_new (mock_null_channel_get_type (),
                                 "id", "999",
                                 "options", options,
                                 "transport", tc->transport_b,
                                 NULL);
+  cockpit_channel_prepare (tc->channel_b);
   json_object_unref (options);
 }
 

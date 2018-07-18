@@ -114,6 +114,7 @@ struct _CockpitChannelPrivate {
     gint64 out_window;
 
     /* Another object giving back-pressure on received data */
+    gboolean flow_control;
     CockpitFlow *pressure;
     gulong pressure_sig;
     GQueue *throttled;
@@ -217,6 +218,9 @@ process_pong (CockpitChannel *self,
 {
   gint64 sequence;
 
+  if (!self->priv->flow_control)
+    return;
+
   if (!cockpit_json_get_int (pong, "sequence", -1, &sequence))
     {
       g_message ("%s: received invalid \"pong\" \"sequence\" field", self->priv->id);
@@ -311,7 +315,6 @@ on_transport_closed (CockpitTransport *transport,
     cockpit_channel_close (self, problem);
 }
 
-
 static void
 cockpit_channel_actual_send (CockpitChannel *self,
                              GBytes *payload,
@@ -334,28 +337,31 @@ cockpit_channel_actual_send (CockpitChannel *self,
   cockpit_transport_send (self->priv->transport, self->priv->id, payload);
 
   /* A wraparound of our gint64 size? */
-  size = g_bytes_get_size (payload);
-  g_return_if_fail (G_MAXINT64 - size > self->priv->out_sequence);
-
-  /* How many bytes have been sent (queued) */
-  out_sequence = self->priv->out_sequence + size;
-
-  /* Every CHANNEL_FLOW_PING bytes we send a ping */
-  if (out_sequence / CHANNEL_FLOW_PING != self->priv->out_sequence / CHANNEL_FLOW_PING)
+  if (self->priv->flow_control)
     {
-      ping = json_object_new ();
-      json_object_set_int_member (ping, "sequence", out_sequence);
-      cockpit_channel_control (self, "ping", ping);
-      g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, out_sequence);
-      json_object_unref (ping);
-    }
+      size = g_bytes_get_size (payload);
+      g_return_if_fail (G_MAXINT64 - size > self->priv->out_sequence);
 
-  /* If we've sent more than the window, apply back pressure */
-  self->priv->out_sequence = out_sequence;
-  if (self->priv->out_sequence > self->priv->out_window)
-    {
-      g_debug ("%s: sent too much data without acknowledgement, emitting back pressure", self->priv->id);
-      cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
+      /* How many bytes have been sent (queued) */
+      out_sequence = self->priv->out_sequence + size;
+
+      /* Every CHANNEL_FLOW_PING bytes we send a ping */
+      if (out_sequence / CHANNEL_FLOW_PING != self->priv->out_sequence / CHANNEL_FLOW_PING)
+        {
+          ping = json_object_new ();
+          json_object_set_int_member (ping, "sequence", out_sequence);
+          cockpit_channel_control (self, "ping", ping);
+          g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, out_sequence);
+          json_object_unref (ping);
+        }
+
+      /* If we've sent more than the window, apply back pressure */
+      self->priv->out_sequence = out_sequence;
+      if (self->priv->out_sequence > self->priv->out_window)
+        {
+          g_debug ("%s: sent too much data without acknowledgement, emitting back pressure", self->priv->id);
+          cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
+        }
     }
 
   if (validated)
@@ -508,6 +514,16 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
           cockpit_channel_fail (self, "protocol-error",
                                 "channel has invalid \"binary\" option: %s", binary);
         }
+    }
+
+  /*
+   * The default here, can change from FALSE to TRUE over time once we assume that all
+   * cockpit-ws participants have been upgraded sufficiently. The default when we're
+   * on the channel creation side is to handle flow control.
+   */
+  if (!cockpit_json_get_bool (options, "flow-control", FALSE, &self->priv->flow_control))
+    {
+      cockpit_channel_fail (self, "protocol-error", "channel has invalid \"flow-control\" option");
     }
 }
 

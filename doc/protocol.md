@@ -108,6 +108,7 @@ The following fields are defined:
  * "group": An optional channel group
  * "capabilities": Optional, array of capability strings required from the bridge
  * "session": Optional, set to "private" or "shared". Defaults to "shared"
+ * "flow-control": Optional boolean whether the channel should throttle itself via flow control.
 
 If "binary" is set to "raw" then this channel transfers binary messages.
 
@@ -154,6 +155,11 @@ were opened without specifying a group.
 Another one is the "fence" group. While any channels are open in the "fence"
 group, any channels opened after that point will be blocked and wait until all
 channels in the "fence" group are closed before resuming.
+
+The "flow-control" option controls whether a channel should attempt to throttle
+itself via flow control when sending or receiving large amounts of data. The
+current default (when this option is not provided) is to not do flow control.
+However, this default will likely change in the future.
 
 **Host values**
 

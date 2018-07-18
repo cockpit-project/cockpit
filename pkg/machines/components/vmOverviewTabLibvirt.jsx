@@ -57,7 +57,7 @@ const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
         { title: _("Emulated Machine:"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
         { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
         { title: _("Boot Order:"), value: getBootOrder(vm), idPostfix: 'bootorder' },
-        { title: _("CPU Type:"), value: vm.cpuModel, idPostfix: 'cputype' },
+        { title: _("CPU Type:"), value: vm.cpu.model, idPostfix: 'cputype' },
         { title: _("Autostart:"), value: rephraseUI('autostart', vm.autostart), idPostfix: 'autostart' },
     ];
 

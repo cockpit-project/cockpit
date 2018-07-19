@@ -20,19 +20,20 @@
 import { combineReducers } from 'redux';
 
 import * as actionTypes from './action-types.jsx';
+import { createReducer } from './reducers/utils.es6';
 
-const createReducer = (initialState, actionHandlerMap) => (state = initialState, action) => {
-    if (actionHandlerMap[action.type]) {
-        return actionHandlerMap[action.type](state, action);
-    }
-    return state;
-};
+import vmsUiReducer from './reducers/vmsUi.es6';
+import vmisUiReducer from './reducers/vmisUi.es6';
 
 /**
  * state = [
- *  { ... } : Vm
+ *  { ... } : Vmi
  * ]
  */
+const vmisReducer = createReducer([], {
+    [actionTypes.SET_VMIS]: (state = [], { payload }) => payload || []
+});
+
 const vmsReducer = createReducer([], {
     [actionTypes.SET_VMS]: (state = [], { payload }) => payload || []
 });
@@ -54,48 +55,6 @@ const settingsReducer = createReducer([], {
     [actionTypes.SET_SETTINGS]: (state = [], { payload }) => payload || {}
 });
 
-/**
- * state = {
- *  vmUID: {
- *      message,
- *      detail
- *    }
- * }
- */
-const vmsMessagesReducer = createReducer({}, {
-    [actionTypes.VM_ACTION_FAILED]: (state = {}, { payload: { vm, message, detail } }) => {
-        const newState = Object.assign({}, state);
-        newState[vm.metadata.uid] = { // So far the last message is kept only
-            message, // textual information
-            detail, // i.e. exception
-        };
-        return newState;
-    },
-
-    [actionTypes.REMOVE_VM_MESSAGE]: (state = {}, { payload: { vm } }) => {
-        if (!state[vm.metadata.uid]) {
-            return state;
-        }
-
-        const newState = Object.assign({}, state);
-        delete newState[vm.metadata.uid];
-        return newState;
-    },
-});
-
-/**
- * state = {
- *  vmUID: {
- *      isExpanded: boolean
- *    }
- * }
- */
-const uiReducer = createReducer({}, {
-    [actionTypes.VM_EXPANDED]: (state = {}, { payload: { vm, isExpanded } }) => {
-        return Object.assign({}, state, { [vm.metadata.uid]: { isExpanded } });
-    }
-});
-
 const nodeMetricsReducer = createReducer({}, {
     [actionTypes.SET_NODE_METRICS]: (state = {}, { payload }) => {
         return payload.node ? Object.assign({}, state, { [payload.node.nodeName]: payload }) : state;
@@ -103,13 +62,14 @@ const nodeMetricsReducer = createReducer({}, {
 });
 
 const rootReducer = combineReducers({
+    vmis: vmisReducer, // VirtualMachineInstances from API
     vms: vmsReducer, // VirtualMachines from API
     pvs: pvsReducer, // PersistenVolumes from API
     pods: podsReducer, // Pods from API
-    settings: settingsReducer, // settings gathered at run-time
-    vmsMessages: vmsMessagesReducer, // messages related to a VM
     nodeMetrics: nodeMetricsReducer, // metrics of all VM's nodes
-    ui: uiReducer, // various UI-state descriptions (i.e. to restore UI after back-button)
+    vmsUi: vmsUiReducer, // various VM UI-state descriptions (i.e. to restore UI after back-button, messages related to a VM)
+    vmisUi: vmisUiReducer, // also
+    settings: settingsReducer, // settings gathered at run-time
 });
 
 export default rootReducer;

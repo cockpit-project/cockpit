@@ -26,6 +26,13 @@ export function setVms(vms) {
     };
 }
 
+export function setVmis(vmis) {
+    return {
+        type: actionConstants.SET_VMIS,
+        payload: vmis
+    };
+}
+
 export function setPVs(pvs) {
     return {
         type: actionConstants.SET_PVS,
@@ -60,6 +67,26 @@ export function removeVmMessage({ vm }) {
     };
 }
 
+export function vmiActionFailed({ vmi, message, detail }) {
+    return {
+        type: actionConstants.VMI_ACTION_FAILED,
+        payload: {
+            vmi,
+            message,
+            detail,
+        }
+    };
+}
+
+export function removeVmiMessage({ vmi }) {
+    return {
+        type: actionConstants.REMOVE_VMI_MESSAGE,
+        payload: {
+            vmi,
+        }
+    };
+}
+
 export function setPods(pods) {
     return {
         type: actionConstants.SET_PODS,
@@ -74,12 +101,22 @@ export function setNodeMetrics(metrics) {
     };
 }
 
-export function vmExpanded({ vm, isExpanded }) {
+export function showVm({ vm, isVisible }) {
     return {
-        type: actionConstants.VM_EXPANDED,
+        type: actionConstants.SHOW_VM,
         payload: {
             vm,
-            isExpanded
+            isVisible
+        }
+    };
+}
+
+export function showVmi({ vmi, isVisible }) {
+    return {
+        type: actionConstants.SHOW_VMI,
+        payload: {
+            vmi,
+            isVisible
         }
     };
 }

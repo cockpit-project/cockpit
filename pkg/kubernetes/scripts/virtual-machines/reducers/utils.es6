@@ -17,18 +17,26 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-export const SET_VMIS = 'SET_VMIS';
-export const SET_VMS = 'SET_VMS';
+export const createReducer = (initialState, actionHandlerMap) => (state = initialState, action) => {
+    if (actionHandlerMap[action.type]) {
+        return actionHandlerMap[action.type](state, action);
+    }
+    return state;
+};
 
-export const SET_PVS = 'SET_PVS';
-export const SET_SETTINGS = 'SET_SETTINGS';
-export const SET_PODS = 'SET_PODS';
-export const SET_NODE_METRICS = 'SET_NODE_METRICS';
+export const updateUidContent = (state, uid, content) => {
+    const newState = Object.assign({}, state);
+    if (content) {
+        newState[uid] = Object.assign({}, newState[uid], content);
+    }
+    return newState;
+};
 
-export const VM_ACTION_FAILED = 'VM_ACTION_FAILED';
-export const VMI_ACTION_FAILED = 'VMI_ACTION_FAILED';
-export const REMOVE_VM_MESSAGE = 'REMOVE_VM_MESSAGE';
-export const REMOVE_VMI_MESSAGE = 'REMOVE_VMI_MESSAGE';
+export const deleteUidContent = (state, uid, key) => {
+    const newState = Object.assign({}, state);
+    const newUidContent = Object.assign({}, state[uid]);
 
-export const SHOW_VM = 'SHOW_VM';
-export const SHOW_VMI = 'SHOW_VMI';
+    delete newUidContent[key];
+    newState[uid] = newUidContent;
+    return newState;
+};

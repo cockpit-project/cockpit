@@ -18,45 +18,74 @@
  */
 
 // @flow
-
-export type Labels = {[string]: string};
+import {VM_KIND, VMI_KIND} from './constants.es6';
+export type Labels = { [string]: string };
 export type Annotations = Object;
+
+// https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
+
+export type VmEntityMetadata = {
+    clusterName: string,
+    creationTimestamp: string,
+    generation: number,
+    labels: Labels,
+    name: string,
+    namespace: string,
+    resourceVersion: string,
+    selfLink: string,
+    uid: string,
+}
+
+export type VmiSpec = {
+    domain: {
+        devices: {
+            console: Array<Object>,
+            disks: Array<Object>,
+            graphics: Array<Object>,
+            interfaces: Array<Object>,
+            video: Array<Object>,
+            [string]: any
+        },
+        memory: {
+            unit: string,
+            value: number
+        },
+        os: {
+            bootOrder?: mixed,
+            type: Object
+        },
+        type: string
+    },
+    volumes: ?Array<Object>,
+}
 
 export type Vm = {
     apiVersion: string,
-    kind: 'VirtualMachineInstance',
-    metadata: {
-        clusterName: string,
-        creationTimestamp: string,
-        generation: number,
-        labels: Labels,
-        name: string,
-        namespace: string,
-        resourceVersion: string,
-        selfLink: string,
-        uid: string
-    },
+    kind: VM_KIND,
+    metadata: VmEntityMetadata,
     spec: {
-        domain: {
-            devices: {
-                console: Array<Object>,
-                disks: Array<Object>,
-                graphics: Array<Object>,
-                interfaces: Array<Object>,
-                video: Array<Object>,
-                [string]: any
-            },
-            memory: {
-                unit: string,
-                value: number
-            },
-            os: {
-                bootOrder?: mixed,
-                type: Object
-            },
-            type: string
+        // Running controls whether the associatied VirtualMachineInstance is created or not
+        running: boolean,
+        template: {
+            metadata: Object,
+            spec: VmiSpec,
         }
     },
+    status: {
+        // Created indicates if the virtual machine is created in the cluster
+        created: boolean,
+        // Ready indicates if the virtual machine is running and ready
+        ready: boolean,
+        // Hold the state information of the VirtualMachine and its VirtualMachineInstance
+        conditions: Array<Object>,
+    }
+}
+
+export type Vmi = {
+    apiVersion: string,
+    kind: VMI_KIND,
+    metadata: VmEntityMetadata,
+    spec: VmiSpec,
     status: ?{
         graphics?: mixed,
         nodeName: string,
@@ -64,73 +93,93 @@ export type Vm = {
     }
 }
 
-export type VmMessages = {
-  message: string,
-  detail: Object,
+export type Message = {
+    message: string,
+    detail: Object,
+}
+
+export type VmUi = {
+    isVisible: boolean,
+    message: Message,
 }
 
 export type PersistenVolume = {
-    "kind": "PersistentVolume",
-    "apiVersion": string,
-    "metadata": {
-        "name": string,
-        "selfLink": string,
-        "uid": string,
-        "resourceVersion": string,
-        "creationTimestamp": string,
-        "labels": Labels,
-        "annotations": Annotations,
+    'kind': 'PersistentVolume',
+    'apiVersion': string,
+    'metadata': {
+        'name': string,
+        'selfLink': string,
+        'uid': string,
+        'resourceVersion': string,
+        'creationTimestamp': string,
+        'labels': Labels,
+        'annotations': Annotations,
     },
-    "spec": {
-        "capacity": {
-            "storage": string
+    'spec': {
+        'capacity': {
+            'storage': string
         },
-        "iscsi": {
-            "targetPortal": string,
-            "iqn": string,
-            "lun": number,
-            "iscsiInterface": string
+        'iscsi': {
+            'targetPortal': string,
+            'iqn': string,
+            'lun': number,
+            'iscsiInterface': string
         },
-        "accessModes": Array<Object>,
-        "claimRef": {
-            "kind": "PersistentVolumeClaim",
-            "namespace": string,
-            "name": string,
-            "uid": string,
-            "apiVersion": string,
-            "resourceVersion": string
+        'accessModes': Array<Object>,
+        'claimRef': {
+            'kind': 'PersistentVolumeClaim',
+            'namespace': string,
+            'name': string,
+            'uid': string,
+            'apiVersion': string,
+            'resourceVersion': string
         },
-        "persistentVolumeReclaimPolicy": string
+        'persistentVolumeReclaimPolicy': string
     },
-    "status": ?{
-        "phase": ?string
+    'status': ?{
+        'phase': ?string
     }
 }
 
 export type PersistenVolumes = Array<PersistenVolume>;
 
 export type PodMetadata = {
-    "name": string,
-    "generateName": ?string,
-    "namespace": string,
-    "selfLink": string,
-    "uid": string,
-    "resourceVersion": string,
-    "creationTimestamp": string,
-    "labels": Labels,
-    "annotations": Annotations
+    'name': string,
+    'generateName': ?string,
+    'namespace': string,
+    'selfLink': string,
+    'uid': string,
+    'resourceVersion': string,
+    'creationTimestamp': string,
+    'labels': Labels,
+    'annotations': Annotations
 };
 
 export type PodSpec = Object; // TODO: define when needed
 
 export type Pod = {
-    "kind": "Pod",
-    "apiVersion": string,
-    "metadata": PodMetadata,
-    "spec": PodSpec,
-    "status": ?{
-        "phase": ?string
+    'kind': 'Pod',
+    'apiVersion': string,
+    'metadata': PodMetadata,
+    'spec': PodSpec,
+    'status': ?{
+        'phase': ?string
     }
 };
 
 export type Pods = Array<Pod>;
+
+export type PodMetrics = {
+    'cpu': {
+        usageNanoCores: number,
+    },
+    'network': {
+        rxBytes: number,
+        txBytes: number,
+    },
+    'memory': {
+        usageBytes: number,
+    },
+};
+
+export type PodMetricsList = Array<PodMetrics>;

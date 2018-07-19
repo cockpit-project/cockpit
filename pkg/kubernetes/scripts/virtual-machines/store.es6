@@ -30,7 +30,8 @@ export function initStore () {
     }
     logDebug('initStore(): initializing empty store');
     const initialState = {
-        vms: []
+        vms: [],
+        vmis: [],
     };
 
     const storeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();

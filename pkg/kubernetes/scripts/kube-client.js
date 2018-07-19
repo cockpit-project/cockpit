@@ -64,6 +64,7 @@
         { kind: "SubjectAccessReview", type: "subjectaccessreviews", api: OPENSHIFT },
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
         { kind: "VirtualMachineInstance", type: "virtualmachineinstances", api: KUBEVIRT },
+        { kind: "VirtualMachine", type: "virtualmachines", api: KUBEVIRT },
     ]);
 
     var NAME_RE = /^[a-z0-9]([-a-z0-9_.]*[a-z0-9])?$/;

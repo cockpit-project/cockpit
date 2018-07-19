@@ -22,9 +22,10 @@
 import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 
-import type { Vm, PersistenVolume } from '../types.jsx';
-import { vmIdPrefx, getValueOrDefault } from '../utils.jsx';
-import VmDisksTab from '../../../../machines/components/vmDisksTab.jsx';
+import type { Vm, Vmi, PersistenVolume } from '../../types.jsx';
+import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.jsx';
+import { VM_KIND } from '../../constants.es6';
+import VmDisksTab from '../../../../../machines/components/vmDisksTab.jsx';
 
 const _ = cockpit.gettext;
 /**
@@ -52,8 +53,7 @@ const getPersistentVolume = (volume, pvs) => {
     });
 };
 
-const prepareDiskData = (disk, vm, pvs, idPrefix) => {
-    const volumes = vm.spec.volumes;
+const prepareDiskData = (disk, volumes, pvs, idPrefix) => {
     let volume;
     if (volumes) {
         volume = volumes.find(item => item.name === disk.volumeName);
@@ -96,14 +96,16 @@ const prepareDiskData = (disk, vm, pvs, idPrefix) => {
     };
 };
 
-const VmDisksTabKubevirt = ({ vm, pvs }: { vm: Vm, pvs: Array<PersistenVolume> }) => {
-    const idPrefix = `${vmIdPrefx(vm)}-disks`;
+const DisksTabKubevirt = ({ vm, pvs }: { vm: Vm | Vmi, pvs: Array<PersistenVolume> }) => {
+    const idPrefix = prefixedId(kindIdPrefx(vm), 'disks');
 
-    const vmDisks = vm.spec.domain.devices.disks;
+    const vmSpec = vm.kind === VM_KIND ? vm.spec.template.spec : vm.spec;
+    const vmDisks = vmSpec.domain.devices ? vmSpec.domain.devices.disks : null;
+    const volumes = vmSpec.volumes;
 
     let disks = [];
     if (vmDisks) {
-        disks = vmDisks.map(disk => prepareDiskData(disk, vm, pvs, idPrefix));
+        disks = vmDisks.map(disk => prepareDiskData(disk, volumes, pvs, idPrefix));
     }
 
     return (
@@ -113,9 +115,9 @@ const VmDisksTabKubevirt = ({ vm, pvs }: { vm: Vm, pvs: Array<PersistenVolume> }
     );
 };
 
-VmDisksTabKubevirt.propTypes = {
+DisksTabKubevirt.propTypes = {
     vm: PropTypes.object.isRequired,
     pvs: PropTypes.array.isRequired,
 };
 
-export default VmDisksTabKubevirt;
+export default DisksTabKubevirt;

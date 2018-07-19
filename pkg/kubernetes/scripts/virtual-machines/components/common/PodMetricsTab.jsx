@@ -21,9 +21,10 @@
 import React, { PropTypes } from 'react';
 import { DonutChart } from 'patternfly-react';
 import cockpit, { gettext as _ } from 'cockpit';
-import { prefixedId } from '../utils.jsx';
+import { prefixedId } from '../../utils.jsx';
 
-import './VmMetricsTab.less';
+import './PodMetricsTab.less';
+import type { PodMetrics as PodMetricsType } from '../../types.jsx';
 
 const MetricColumn = ({ type, children, className }) => {
     return (
@@ -129,7 +130,7 @@ const PodMetrics = ({ idPrefix, podMetrics }) => {
     );
 };
 
-const VmMetricsTab = ({idPrefix, podMetrics}) => {
+const PodMetricsTab = ({idPrefix, podMetrics}: { idPrefix: string, podMetrics: PodMetricsType }) => {
     const content = podMetrics ? (<PodMetrics idPrefix={idPrefix} podMetrics={podMetrics} />)
         : _("Usage metrics are available after the pod starts");
 
@@ -140,8 +141,9 @@ const VmMetricsTab = ({idPrefix, podMetrics}) => {
     );
 };
 
-VmMetricsTab.propTypes = {
+PodMetricsTab.propTypes = {
+    idPrefix: PropTypes.string,
     podMetrics: PropTypes.object.isRequired,
 };
 
-export default VmMetricsTab;
+export default PodMetricsTab;

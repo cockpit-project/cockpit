@@ -24,81 +24,77 @@ import cockpit, { gettext as _ } from 'cockpit';
 import { connect } from "react-redux";
 
 import { DetailPage, DetailPageRow, DetailPageHeader } from 'cockpit-components-detail-page.jsx';
-import { getPod, getPodMetrics } from '../selectors.jsx';
-import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
-import VmActions from './VmActions.jsx';
-import VmMetricsTab from './VmMetricsTab.jsx';
-import VmDisksTab from './VmDisksTabKubevirt.jsx';
+import { getPod, getPodMetrics, getEntityTitle } from '../../selectors.jsx';
+import VmiOverviewTab from './VmiOverviewTab.jsx';
+import VmiActions from './VmiActions.jsx';
+import PodMetricsTab from '../common/PodMetricsTab.jsx';
+import VmDisksTab from '../common/DisksTabKubevirt.jsx';
+import { navigateToVms } from '../../entry-points/util/paths.es6';
 
-import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
-import { vmIdPrefx, prefixedId } from '../utils.jsx';
+import type { Vmi, VmUi, PersistenVolumes, Pod, PodMetrics } from '../../types.jsx';
+import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.jsx';
 
-const navigateToVms = () => {
-    cockpit.location.go([ 'vms' ]);
-};
-
-const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
-                      { vm: Vm, vmMessages: VmMessages, pageParams: Object, pvs: PersistenVolumes, pod: Pod}) => {
-    const mainTitle = vm ? `${vm.metadata.namespace}:${vm.metadata.name}` : null;
-    const actions = vm ? <VmActions vm={vm} onDeleteSuccess={navigateToVms} /> : null;
-    const header = (<DetailPageHeader title={mainTitle}
+const VmiDetail = ({ vmi, vmiUi, pageParams, pvs, pod, podMetrics }:
+                      { vmi: Vmi, vmiUi?: VmUi, pageParams: Object, pvs: PersistenVolumes, pod: Pod, podMetrics: PodMetrics}) => {
+    const actions = vmi ? <VmiActions vmi={vmi} onDeleteSuccess={navigateToVms} /> : null;
+    const header = (<DetailPageHeader title={getEntityTitle(vmi)}
                                       navigateUpTitle={_("Show all VMs")}
                                       onNavigateUp={navigateToVms}
                                       actions={actions}
-                                      idPrefix={'vm-header'}
+                                      idPrefix={'vmi-header'}
                                       iconClass='fa pficon-virtual-machine fa-fw' />);
 
-    if (!vm) {
+    if (!vmi) {
         return (
             <div>
                 <DetailPage>
                     {header}
-                    <DetailPageRow title={cockpit.format(_("VM $0:$1 does not exist."), pageParams.namespace, pageParams.name)}
-                                   idPrefix={'vm-not-found'} />
+                    <DetailPageRow title={cockpit.format(_("VM Instance $0:$1 does not exist."), pageParams.namespace, pageParams.name)}
+                                   idPrefix={'vmi-not-found'} />
                 </DetailPage>
             </div>
         );
     }
-    const idPrefix = vmIdPrefx(vm);
+    const idPrefix = kindIdPrefx(vmi);
 
     return (
         <div>
             <DetailPage>
                 {header}
-                <DetailPageRow title={_("VM")} idPrefix={prefixedId(idPrefix, 'vm')} >
-                    <VmOverviewTab vm={vm} vmMessages={vmMessages} pod={pod} showState />
+                <DetailPageRow title={_("VMI")} idPrefix={prefixedId(idPrefix, 'vmi')} >
+                    <VmiOverviewTab vmi={vmi} message={getValueOrDefault(() => vmiUi.message, false)} pod={pod} showState />
                 </DetailPageRow>
                 <DetailPageRow title={_("Usage")} idPrefix={prefixedId(idPrefix, 'usage')} >
-                    <VmMetricsTab idPrefix={idPrefix} podMetrics={podMetrics} />
+                    <PodMetricsTab idPrefix={idPrefix} podMetrics={podMetrics} />
                 </DetailPageRow>
                 <DetailPageRow title={_("Disks")} idPrefix={prefixedId(idPrefix, 'disks')} >
-                    <VmDisksTab vm={vm} pvs={pvs} />
+                    <VmDisksTab vm={vmi} pvs={pvs} />
                 </DetailPageRow>
             </DetailPage>
         </div>
     );
 };
 
-VmDetail.propTypes = {
-    vm: PropTypes.object.isRequired,
+VmiDetail.propTypes = {
+    vmi: PropTypes.object,
+    vmiUi: PropTypes.object,
     pageParams: PropTypes.object,
-    vmMessages: PropTypes.object,
     pvs: PropTypes.array.isRequired,
     pod: PropTypes.object.isRequired,
     podMetrics: PropTypes.object,
 };
 
 export default connect(
-    ({vms, pvs, pods, vmsMessages, nodeMetrics}) => {
-        const vm = vms.length > 0 ? vms[0] : null;
-        const pod = getPod(vm, pods);
+    ({vmis, pvs, pods, vmisUi, nodeMetrics}) => {
+        const vmi = vmis.length > 0 ? vmis[0] : null;
+        const pod = getPod(vmi, pods);
         const podMetrics = getPodMetrics(pod, nodeMetrics);
         return {
-            vm,
-            vmMessages: vm ? vmsMessages[vm.metadata.uid] : null,
+            vmi,
+            vmiUi: vmi ? vmisUi[vmi.metadata.uid] : null,
             pvs,
             pod,
             podMetrics,
         };
     },
-)(VmDetail);
+)(VmiDetail);

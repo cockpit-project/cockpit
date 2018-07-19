@@ -17,18 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-export const SET_VMIS = 'SET_VMIS';
-export const SET_VMS = 'SET_VMS';
+import React, { PropTypes } from 'react';
+import { EMPTY_LABEL } from '../../constants.es6';
 
-export const SET_PVS = 'SET_PVS';
-export const SET_SETTINGS = 'SET_SETTINGS';
-export const SET_PODS = 'SET_PODS';
-export const SET_NODE_METRICS = 'SET_NODE_METRICS';
+const NodeLink = ({name}) => {
+    return name ? (<a href={`#/nodes/${name}`}>{name}</a>) : (<div>{EMPTY_LABEL}</div>);
+};
 
-export const VM_ACTION_FAILED = 'VM_ACTION_FAILED';
-export const VMI_ACTION_FAILED = 'VMI_ACTION_FAILED';
-export const REMOVE_VM_MESSAGE = 'REMOVE_VM_MESSAGE';
-export const REMOVE_VMI_MESSAGE = 'REMOVE_VMI_MESSAGE';
+NodeLink.propTypes = {
+    name: PropTypes.string.isRequired,
+};
 
-export const SHOW_VM = 'SHOW_VM';
-export const SHOW_VMI = 'SHOW_VMI';
+export default NodeLink;

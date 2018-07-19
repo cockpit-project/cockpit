@@ -17,30 +17,77 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getValueOrDefault, VM_UID_LABEL, VM_CREATED_BY_LABEL, NODE_LABEL } from './utils.jsx';
-import type { Vm } from './types.jsx';
+import { gettext as _ } from 'cockpit';
+import moment from 'moment';
+
+import { getValueOrDefault } from './utils.jsx';
+import { EMPTY_LABEL, NODE_LABEL, VMI_CREATED_BY_LABEL, VM_KIND } from './constants.es6';
+import type { Vm, Vmi } from './types.jsx';
 
 /**
- * Returns pod corresponding to the given vm.
+ * Returns pod corresponding to the given vmi.
  */
-export function getPod(vm, pods) {
-    if (!vm || !pods) {
+export function getPod (vmi: Vmi, pods) {
+    if (!vmi || !pods) {
         return null;
     }
 
-    const vmId = vm.metadata.uid;
-    if (!vmId) {
+    const vmiId = vmi.metadata.uid;
+    if (!vmiId) {
         return null;
     }
 
-    return pods.find(pod => getValueOrDefault(() => (pod.metadata.annotations[VM_CREATED_BY_LABEL] /* kubevirt >= 0.5 */ ||
-                                                     pod.metadata.labels[VM_UID_LABEL]), null) === vmId);
+    return pods.find(pod => getValueOrDefault(() => (pod.metadata.annotations[VMI_CREATED_BY_LABEL])) === vmiId);
+}
+
+export function getEntityTitle (entity) {
+    return entity ? `${getValueOrDefault(() => entity.metadata.namespace, '')}:${getValueOrDefault(() => entity.metadata.name, '')}` : null;
+}
+
+export function getMemory (vm: Vm | Vmi) {
+    if (vm.kind === VM_KIND) {
+        vm = vm.spec.template;
+    }
+    const memory = getValueOrDefault(() => vm.spec.domain.resources.requests.memory, null);
+
+    if (memory !== null) {
+        return memory;
+    }
+
+    const memoryValue = getValueOrDefault(() => vm.spec.domain.memory.value, null);
+    if (memoryValue) {
+        const memoryUnit = getValueOrDefault(() => vm.spec.domain.memory.unit, null);
+        return `${memoryValue} ${memoryUnit}`;
+    }
+
+    return _("Not Available");
+}
+
+export function getCPUs (vm: Vm | Vmi) {
+    if (vm.kind === VM_KIND) {
+        vm = vm.spec.template;
+    }
+    return _(getValueOrDefault(() => vm.spec.domain.cpu.cores, 1));
+}
+
+// phases description https://github.com/kubevirt/kubevirt/blob/master/pkg/api/v1/types.go
+export function getPhase (vmi: Vmi) {
+    return getValueOrDefault(() => vmi.status.phase, _("Not Running"));
+}
+
+export function getAge (vmi: Vm | Vmi) {
+    const createTime = getValueOrDefault(() => (vmi.metadata.creationTimestamp));
+    if (!createTime) {
+        return EMPTY_LABEL;
+    }
+
+    return moment(createTime).fromNow();
 }
 
 /**
- * Returns pod metrics corresponding to the given vm.
+ * Returns pod metrics corresponding to the given vmi.
  */
-export function getPodMetrics(pod, nodeMetrics) {
+export function getPodMetrics (pod, nodeMetrics) {
     const node = getValueOrDefault(() => nodeMetrics[pod.spec.nodeName], null);
     if (!node) {
         return null;
@@ -54,6 +101,6 @@ export function getPodMetrics(pod, nodeMetrics) {
     return node.pods.find(pod => pod.podRef.uid === podUid);
 }
 
-export function getNodeName(vm: Vm) {
-    return getValueOrDefault(() => vm.metadata.labels[NODE_LABEL], null);
+export function getNodeName (vmi: Vmi) {
+    return getValueOrDefault(() => vmi.metadata.labels[NODE_LABEL], null);
 }

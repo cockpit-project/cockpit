@@ -20,8 +20,8 @@
 // @flow
 import React, { PropTypes } from 'react';
 
-import type { Message as MessageType } from '../../types.jsx';
-import {prefixedId, getValueOrDefault} from '../../utils.jsx';
+import type { Message as MessageType } from '../../types.es6';
+import {prefixedId, getValueOrDefault} from '../../utils.es6';
 import { Alert } from '../../../../../machines/components/notification/inlineNotification.jsx';
 
 const Message = ({ idPrefix, message, onDismiss }: { idPrefix: string, message: MessageType, onDismiss: Function }) => {

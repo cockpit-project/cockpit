@@ -24,11 +24,11 @@ import { connect } from 'react-redux';
 
 import { commonTitles } from '../../../../../machines/components/vmOverviewTab.jsx';
 
-import type { Vm, Vmi, Message as MessageType, Pod } from '../../types.jsx';
-import { kindIdPrefx } from '../../utils.jsx';
+import type { Vm, Vmi, Message as MessageType, Pod } from '../../types.es6';
+import { kindIdPrefx } from '../../utils.es6';
 import { getLabels } from '../util/utils.jsx';
-import { getNodeName, getMemory, getCPUs, getPhase, getAge } from '../../selectors.jsx';
-import { removeVmMessage } from '../../action-creators.jsx';
+import { getNodeName, getMemory, getCPUs, getPhase, getAge } from '../../selectors.es6';
+import { removeVmMessage } from '../../action-creators.es6';
 import OverviewTab from '../common/OverviewTab.jsx';
 import Message from '../common/Message.jsx';
 import EntityLink from '../common/EntityLink.jsx';

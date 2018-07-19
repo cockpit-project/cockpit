@@ -24,15 +24,15 @@ import cockpit, { gettext as _ } from 'cockpit';
 import { connect } from "react-redux";
 
 import { DetailPage, DetailPageRow, DetailPageHeader } from 'cockpit-components-detail-page.jsx';
-import { getPod, getPodMetrics, getEntityTitle } from '../../selectors.jsx';
+import { getPod, getPodMetrics, getEntityTitle } from '../../selectors.es6';
 import VmiOverviewTab from './VmiOverviewTab.jsx';
 import VmiActions from './VmiActions.jsx';
 import PodMetricsTab from '../common/PodMetricsTab.jsx';
 import VmDisksTab from '../common/DisksTabKubevirt.jsx';
 import { navigateToVms } from '../../entry-points/util/paths.es6';
 
-import type { Vmi, VmUi, PersistenVolumes, Pod, PodMetrics } from '../../types.jsx';
-import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.jsx';
+import type { Vmi, VmUi, PersistenVolumes, Pod, PodMetrics } from '../../types.es6';
+import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.es6';
 
 const VmiDetail = ({ vmi, vmiUi, pageParams, pvs, pod, podMetrics }:
                       { vmi: Vmi, vmiUi?: VmUi, pageParams: Object, pvs: PersistenVolumes, pod: Pod, podMetrics: PodMetrics}) => {

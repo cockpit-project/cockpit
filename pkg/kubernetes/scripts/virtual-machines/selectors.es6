@@ -20,9 +20,9 @@
 import { gettext as _ } from 'cockpit';
 import moment from 'moment';
 
-import { getValueOrDefault } from './utils.jsx';
+import { getValueOrDefault } from './utils.es6';
 import { EMPTY_LABEL, NODE_LABEL, VMI_CREATED_BY_LABEL, VM_KIND } from './constants.es6';
-import type { Vm, Vmi } from './types.jsx';
+import type { Vm, Vmi } from './types.es6';
 
 /**
  * Returns pod corresponding to the given vmi.

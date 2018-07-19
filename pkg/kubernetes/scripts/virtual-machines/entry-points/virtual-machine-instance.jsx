@@ -21,7 +21,7 @@ import 'regenerator-runtime/runtime'; // required for library initialization
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { setVmis, showVmi } from '../action-creators.jsx';
+import { setVmis, showVmi } from '../action-creators.es6';
 import VmiDetail from '../components/vmi/VmiDetail.jsx';
 import { initStore, getStore } from '../store.es6';
 import initialize from './util/initialize.es6';

@@ -24,7 +24,7 @@ import { Provider } from 'react-redux';
 import VmsListing from '../components/vm/VmsListing.jsx';
 import { initStore, getStore } from '../store.es6';
 import initialize from './util/initialize.es6';
-import { setVmis, setVms } from '../action-creators.jsx';
+import { setVmis, setVms } from '../action-creators.es6';
 import { VM_KIND, VMI_KIND } from '../constants.es6';
 
 import '../../../../machines/machines.less'; // once per component hierarchy

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { logDebug } from './utils.jsx';
+import { logDebug } from './utils.es6';
 import cockpit from 'cockpit';
 
 let kubeMethods = null;

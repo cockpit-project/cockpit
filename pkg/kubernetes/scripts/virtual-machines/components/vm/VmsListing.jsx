@@ -25,8 +25,8 @@ import { gettext as _ } from 'cockpit';
 
 import { Listing } from 'cockpit-components-listing.jsx';
 import VmsListingRow from './VmsListingRow.jsx';
-import { getPod, getPodMetrics } from '../../selectors.jsx';
-import { combineVms } from '../../utils.jsx';
+import { getPod, getPodMetrics } from '../../selectors.es6';
+import { combineVms } from '../../utils.es6';
 import CreateVmButton from './createVmButton.jsx';
 
 const VmsListing = ({vmTuples, pods, nodeMetrics, settings}) => {

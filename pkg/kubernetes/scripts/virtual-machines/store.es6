@@ -18,8 +18,8 @@
  */
 
 import { createStore } from 'redux';
-import reducers from './reducers.jsx';
-import { logDebug } from './utils.jsx';
+import reducers from './reducers.es6';
+import { logDebug } from './utils.es6';
 
 let reduxStore;
 

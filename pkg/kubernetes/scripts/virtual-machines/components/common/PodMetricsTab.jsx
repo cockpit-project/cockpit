@@ -21,10 +21,10 @@
 import React, { PropTypes } from 'react';
 import { DonutChart } from 'patternfly-react';
 import cockpit, { gettext as _ } from 'cockpit';
-import { prefixedId } from '../../utils.jsx';
+import { prefixedId } from '../../utils.es6';
 
 import './PodMetricsTab.less';
-import type { PodMetrics as PodMetricsType } from '../../types.jsx';
+import type { PodMetrics as PodMetricsType } from '../../types.es6';
 
 const MetricColumn = ({ type, children, className }) => {
     return (

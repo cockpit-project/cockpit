@@ -25,11 +25,11 @@ import { connect } from 'react-redux';
 
 import DropdownButtons from '../../../../../machines/components/dropdownButtons.jsx';
 
-import type { Vm, Vmi } from '../../types.jsx';
-import { kindIdPrefx, prefixedId } from '../../utils.jsx';
+import type { Vm, Vmi } from '../../types.es6';
+import { kindIdPrefx, prefixedId } from '../../utils.es6';
 import { createFailHandler } from '../util/utils.jsx';
-import { remove, vmPatch } from '../../kube-middleware.jsx';
-import { vmActionFailed, vmiActionFailed } from '../../action-creators.jsx';
+import { remove, vmPatch } from '../../kube-middleware.es6';
+import { vmActionFailed, vmiActionFailed } from '../../action-creators.es6';
 
 const Stop = ({vm, onVmFailure, idPrefix, disabled}) => {
     const onStop = () => vmPatch({

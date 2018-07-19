@@ -22,8 +22,8 @@
 import React, { PropTypes } from 'react';
 import cockpit from 'cockpit';
 
-import type { Vm, Vmi, PersistenVolume } from '../../types.jsx';
-import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.jsx';
+import type { Vm, Vmi, PersistenVolume } from '../../types.es6';
+import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.es6';
 import { VM_KIND } from '../../constants.es6';
 import VmDisksTab from '../../../../../machines/components/vmDisksTab.jsx';
 

@@ -18,7 +18,7 @@
  */
 
 import { createReducer, updateUidContent, deleteUidContent } from './utils.es6';
-import * as actionTypes from '../action-types.jsx';
+import * as actionTypes from '../action-types.es6';
 
 /**
  * state = {

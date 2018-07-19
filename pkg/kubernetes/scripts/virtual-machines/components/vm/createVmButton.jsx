@@ -22,9 +22,9 @@ import cockpit from 'cockpit';
 import React from 'react';
 import DialogPattern from 'cockpit-components-dialog.jsx';
 import CreateVmDialog from './createVmDialog.jsx';
-import { vmCreate } from '../../kube-middleware.jsx';
+import { vmCreate } from '../../kube-middleware.es6';
 
-import { mouseClick } from '../../utils.jsx';
+import { mouseClick } from '../../utils.es6';
 
 const _ = cockpit.gettext;
 

@@ -22,9 +22,9 @@ import React from 'react';
 
 import cockpit, { gettext as _ } from 'cockpit';
 
-import { getPairs } from '../../utils.jsx';
+import { getPairs } from '../../utils.es6';
 import { EMPTY_LABEL } from '../../constants.es6';
-import type { Vm, Vmi } from '../../types.jsx';
+import type { Vm, Vmi } from '../../types.es6';
 
 export const getLabels = (vmi: Vm | Vmi) => {
     let labels = null;

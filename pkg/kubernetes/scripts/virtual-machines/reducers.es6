@@ -19,7 +19,7 @@
 
 import { combineReducers } from 'redux';
 
-import * as actionTypes from './action-types.jsx';
+import * as actionTypes from './action-types.es6';
 import { createReducer } from './reducers/utils.es6';
 
 import vmsUiReducer from './reducers/vmsUi.es6';

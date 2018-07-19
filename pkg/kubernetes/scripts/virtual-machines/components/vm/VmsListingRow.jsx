@@ -29,11 +29,11 @@ import VmActions from './VmActions.jsx';
 import PodMetricsTab from '../common/PodMetricsTab.jsx';
 import VmDisksTab from '../common/DisksTabKubevirt.jsx';
 
-import type { Vm, Vmi, VmUi, PersistenVolumes, Pod, PodMetrics } from '../../types.jsx';
-import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.jsx';
+import type { Vm, Vmi, VmUi, PersistenVolumes, Pod, PodMetrics } from '../../types.es6';
+import { kindIdPrefx, prefixedId, getValueOrDefault } from '../../utils.es6';
 import { EMPTY_LABEL } from '../../constants.es6';
-import { getNodeName, getPhase, getAge } from '../../selectors.jsx';
-import { showVm } from '../../action-creators.jsx';
+import { getNodeName, getPhase, getAge } from '../../selectors.es6';
+import { showVm } from '../../action-creators.es6';
 
 const navigateToVm = (vm) => {
     return cockpit.location.go([ 'vms', vm.metadata.namespace, vm.metadata.name ]);

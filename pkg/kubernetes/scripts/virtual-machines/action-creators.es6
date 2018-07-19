@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as actionConstants from './action-types.jsx';
+import * as actionConstants from './action-types.es6';
 
 export function setVms(vms) {
     return {

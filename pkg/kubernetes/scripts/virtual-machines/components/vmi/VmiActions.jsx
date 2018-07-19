@@ -25,11 +25,11 @@ import { connect } from 'react-redux';
 
 import DropdownButtons from '../../../../../machines/components/dropdownButtons.jsx';
 
-import type { Vmi } from '../../types.jsx';
-import { kindIdPrefx, prefixedId } from '../../utils.jsx';
+import type { Vmi } from '../../types.es6';
+import { kindIdPrefx, prefixedId } from '../../utils.es6';
 import { createFailHandler } from '../util/utils.jsx';
-import { remove } from '../../kube-middleware.jsx';
-import { vmiActionFailed } from '../../action-creators.jsx';
+import { remove } from '../../kube-middleware.es6';
+import { vmiActionFailed } from '../../action-creators.es6';
 
 const Delete = ({vmi, onDeleteSuccess, onDeleteFailure, idPrefix, disabled}) => {
     const onDelete = () => remove(vmi).then(onDeleteSuccess)

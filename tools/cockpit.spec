@@ -119,15 +119,15 @@ Requires: cockpit-system = %{version}-%{release}
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 %if 0%{?rhel} == 0
 Recommends: cockpit-dashboard = %{version}-%{release}
+%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
+Recommends: (cockpit-docker = %{version}-%{release} if /usr/bin/docker)
+%endif
 %endif
 Recommends: (cockpit-networkmanager = %{version}-%{release} if NetworkManager)
 Recommends: (cockpit-storaged = %{version}-%{release} if udisks2)
 Recommends: (cockpit-packagekit = %{version}-%{release} if PackageKit)
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
-%endif
-%ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-Recommends: (cockpit-docker = %{version}-%{release} if /usr/bin/docker)
 %endif
 Suggests: cockpit-pcp = %{version}-%{release}
 Suggests: cockpit-kubernetes = %{version}-%{release}
@@ -263,8 +263,13 @@ find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 %endif
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
+%if 0%{?fedora} || 0%{?rhel} < 8
 echo '%dir %{_datadir}/cockpit/docker' > docker.list
 find %{buildroot}%{_datadir}/cockpit/docker -type f >> docker.list
+%else
+rm -rf %{buildroot}/%{_datadir}/cockpit/docker
+touch docker.list
+%endif
 %else
 rm -rf %{buildroot}/%{_datadir}/cockpit/docker
 touch docker.list
@@ -738,13 +743,14 @@ bastion hosts, and a basic dashboard.
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 
+%if 0%{?fedora} || 0%{?rhel} < 8
 %package -n cockpit-docker
 Summary: Cockpit user interface for Docker containers
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires: /usr/bin/docker
 Requires: /usr/lib/systemd/system/docker.service
-%if 0%{?fedora} || 0%{?rhel} >= 8
+%if 0%{?fedora}
 Requires: python3
 %else
 Requires: python2
@@ -756,6 +762,7 @@ This package is not yet complete.
 
 %files -n cockpit-docker -f docker.list
 
+%endif
 %endif
 
 %ifarch aarch64 x86_64 ppc64le s390x

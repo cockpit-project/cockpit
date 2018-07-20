@@ -74,11 +74,6 @@ case "$RELEASE" in
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
-    testing)
-        # docker.io got removed from testing; use backports-version
-        echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
-        ;;
-
     xenial)
         # these packages are not in Ubuntu 16.04
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"

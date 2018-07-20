@@ -74,6 +74,7 @@ export class KdumpClient {
             this.dispatchEvent("kdumpStatusChanged", this.state);
         });
     }
+
     ensureOn() {
         // we consider the state to be "on" when it's enabled and running
         return cockpit.all(
@@ -81,6 +82,7 @@ export class KdumpClient {
             this.kdumpService.start()
         );
     }
+
     ensureOff() {
         // we consider the state to be "off" when it's disabled and stopped
         return cockpit.all(
@@ -88,10 +90,12 @@ export class KdumpClient {
             this.kdumpService.disable()
         );
     }
+
     crashKernel() {
         // crash the system kernel
         return cockpit.script(crashKernelScript, [], { superuser: "require" });
     }
+
     testWriteLocation(settings) {
         var target = this.targetFromSettings(settings);
         var path;
@@ -112,6 +116,7 @@ export class KdumpClient {
         }
         return dfd.promise();
     }
+
     writeSettings(settings) {
         var dfd = cockpit.defer();
         this.configClient.write(settings)
@@ -124,6 +129,7 @@ export class KdumpClient {
                 .fail(dfd.reject);
         return dfd.promise();
     }
+
     targetFromSettings(settings) {
         // since local target is the default and can be used even without "path", we need to
         // check for the presence of all known targets

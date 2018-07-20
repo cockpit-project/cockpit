@@ -38,16 +38,19 @@ export class ConfigFile {
             this._parseText(rawContent);
         });
     }
+
     close() {
         if (this._fileHandle) {
             this._fileHandle.remove();
             this._fileHandle = undefined;
         }
     }
+
     // wait for data to have been read at least once
     wait() {
         return this._dataAvailable.promise();
     }
+
     /* parse lines of the config file
      * if a line has a valid config key, use that as key
      * and also store original line, line index, value and whether the line contains a comment

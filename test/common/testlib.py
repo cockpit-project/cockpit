@@ -823,6 +823,10 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1573501
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .*comm="nft" .*firewalld_t.*')
 
+        # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
+        if self.image in ["ubuntu-1604", "debian-stable"]:
+            self.allowed_messages.append('com.redhat.tuned: .*org.freedesktop.DBus.Error.ServiceUnknown.*')
+
         all_found = True
         first = None
         for m in messages:

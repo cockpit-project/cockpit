@@ -65,6 +65,7 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+        # keep in sync with allowed messages in test/common/testlib.py
         COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
         echo >> /etc/apt/sources.list
@@ -83,6 +84,7 @@ case "$RELEASE" in
         # these packages are not in Ubuntu 16.04
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+        # keep in sync with allowed messages in test/common/testlib.py
         COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
         # NFS and NetworkManager don't work together

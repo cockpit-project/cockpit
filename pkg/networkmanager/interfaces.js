@@ -1644,7 +1644,8 @@ PageNetworking.prototype = {
         cockpit.script("test -f /usr/bin/teamd && " +
                        "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
                        "  test -f /usr/lib*/NetworkManager/*/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so)",
+                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so || " +
+                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/*/libnm-device-plugin-team.so)",
                        { err: "ignore" }).
             done(function () {
                 $("#networking-add-team").show();

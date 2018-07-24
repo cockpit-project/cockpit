@@ -422,24 +422,29 @@ const addDiskDialog = (dispatch, provider, idPrefix, vm, storagePools) => {
         ],
     };
 
-    // Refresh storage volume list before displaying the dialog.
-    // There are recently no Libvirt events for storage volumes and polling is ugly.
-    // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
-    dispatch(getStoragePools(vm.connectionName))
-            .then(() => {
-                dialogObj = DialogPattern.show_modal_dialog(dialogProps, footerProps)
-            });
+    dialogObj = DialogPattern.show_modal_dialog(dialogProps, footerProps)
 };
 
-const AddDiskAction = ({ dispatch, provider, idPrefix, vm, storagePools }) => {
-    return (
-        <button type="button"
-                className="btn btn-primary pull-right"
-                id={`${idPrefix}-adddisk`}
-                onClick={mouseClick(() => addDiskDialog(dispatch, provider, idPrefix, vm, storagePools))}>
-            {_("Add Disk")}
-        </button>
-    );
-};
+class AddDiskAction extends React.Component {
+    componentWillMount() {
+        // Refresh storagePools prop before opening the Add Disk dialog.
+        // There are recently no Libvirt events for storage volumes and polling is ugly.
+        // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
+        this.props.dispatch(getStoragePools(this.props.vm.connectionName));
+    }
+
+    render() {
+        const { dispatch, provider, idPrefix, vm, storagePools } = this.props;
+
+        return (
+            <button type="button"
+                    className="btn btn-primary pull-right"
+                    id={`${idPrefix}-adddisk`}
+                    onClick={mouseClick(() => addDiskDialog(dispatch, provider, idPrefix, vm, storagePools))}>
+                {_("Add Disk")}
+            </button>
+        );
+    }
+}
 
 export default AddDiskAction;

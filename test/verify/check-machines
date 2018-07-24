@@ -507,7 +507,6 @@ class TestMachines(MachineCase):
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/vm_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/vm_tmp")
         m.execute("virsh pool-create-as default_tmp --type dir --target /mnt/vm_tmp")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
         m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
 
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo --capacity 1G --format qcow2")
@@ -524,6 +523,9 @@ class TestMachines(MachineCase):
         b.click("tbody tr th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        # Add one storagePool here to test correct re-rendering
+        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
 
         b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab

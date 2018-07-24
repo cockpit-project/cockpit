@@ -75,6 +75,7 @@ Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
 
+BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(polkit-agent-1) >= 0.105

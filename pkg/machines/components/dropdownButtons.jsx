@@ -23,28 +23,40 @@ import './dropdownButtons.css';
 /**
  * Render group of buttons as a dropdown
  *
- * @param buttons array of objects [ {title, action, id}, ... ].
+ * @param buttons array of objects [ {title, action, id, disabled}, ... ].
  *        At least one button is required. Button id is optional.
  * @returns {*}
  * @constructor
  */
 const DropdownButtons = ({ buttons }) => {
+    let firstButton;
+    let firstButtonElem;
+
+    if (buttons.length > 0) {
+        firstButton = buttons[0];
+        firstButtonElem = (
+            <button className='btn btn-default btn-danger'
+                    id={firstButton.id}
+                    onClick={mouseClick(firstButton.action)}
+                    disabled={firstButton.disabled}>
+                {firstButton.title}
+            </button>
+        );
+    }
     if (buttons.length > 1) { // do not display caret for single option
         const buttonsHtml = buttons
-                .filter(button => buttons[0].id === undefined || buttons[0].id !== button.id)
+                .filter(button => firstButton.id === undefined || firstButton.id !== button.id)
                 .map(button => {
                     return (<li className='presentation'>
-                        <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id}>
+                        <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id} className={button.disabled ? 'disabled' : null}>
                             {button.title}
                         </a>
                     </li>);
                 });
 
-        const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
+        const caretId = firstButton.id ? `${firstButton.id}-caret` : undefined;
         return (<div className='btn-group dropdown-buttons-container'>
-            <button className='btn btn-default btn-danger' id={buttons[0].id} onClick={mouseClick(buttons[0].action)}>
-                {buttons[0].title}
-            </button>
+            {firstButtonElem}
             <button data-toggle='dropdown' className='btn btn-default dropdown-toggle'>
                 <span className='caret' id={caretId} />
             </button>
@@ -55,9 +67,7 @@ const DropdownButtons = ({ buttons }) => {
     }
 
     return (<div className='btn-group'>
-        <button className='btn btn-default btn-danger' onClick={mouseClick(buttons[0].action)} id={buttons[0]['id']}>
-            {buttons[0].title}
-        </button>
+        {firstButtonElem}
     </div>);
 };
 DropdownButtons.propTypes = {

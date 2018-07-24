@@ -265,6 +265,12 @@ fi
 #
 systemctl disable kdump.service
 
+if [ "$IMAGE" = "rhel-x" ]; then
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600823
+    # dnf-makecache.timer causes dependency loops and excessive boot times
+    systemctl disable dnf-makecache.timer
+fi
+
 # Final tweaks
 
 rm -rf /var/log/journal/*

@@ -40,6 +40,7 @@ def can_manage(machine):
             machine.image not in rootfs_not_in_volume_group_images)
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
+@skipImage("No docker packaged", "rhel-x")
 @skipPackage("cockpit-docker")
 class TestDockerStorageDirect(MachineCase):
 
@@ -57,6 +58,7 @@ class TestDockerStorageDirect(MachineCase):
             b.wait_present("#containers-storage-details a")
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
+@skipImage("No docker packaged", "rhel-x")
 @skipPackage("cockpit-docker")
 class TestDockerStorage(MachineCase):
     provision = { "machine1" : { "address": "10.111.113.1/20" } }

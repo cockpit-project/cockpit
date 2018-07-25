@@ -112,28 +112,28 @@ BuildRequires: xmlto
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
-Requires: cockpit-bridge = %{version}-%{release}
-Requires: cockpit-ws = %{version}-%{release}
-Requires: cockpit-system = %{version}-%{release}
+Requires: cockpit-bridge
+Requires: cockpit-ws
+Requires: cockpit-system
 
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
 %if 0%{?rhel} == 0
-Recommends: cockpit-dashboard = %{version}-%{release}
+Recommends: cockpit-dashboard
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
-Recommends: (cockpit-docker = %{version}-%{release} if /usr/bin/docker)
+Recommends: (cockpit-docker if /usr/bin/docker)
 %endif
 %endif
-Recommends: (cockpit-networkmanager = %{version}-%{release} if NetworkManager)
-Recommends: (cockpit-storaged = %{version}-%{release} if udisks2)
-Recommends: (cockpit-packagekit = %{version}-%{release} if PackageKit)
+Recommends: (cockpit-networkmanager if NetworkManager)
+Recommends: (cockpit-storaged if udisks2)
+Recommends: (cockpit-packagekit if PackageKit)
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
 %endif
-Suggests: cockpit-pcp = %{version}-%{release}
-Suggests: cockpit-kubernetes = %{version}-%{release}
-Suggests: cockpit-selinux = %{version}-%{release}
-Suggests: cockpit-packagekit = %{version}-%{release}
+Suggests: cockpit-pcp
+Suggests: cockpit-kubernetes
+Suggests: cockpit-selinux
+Suggests: cockpit-packagekit
 %endif
 
 %prep

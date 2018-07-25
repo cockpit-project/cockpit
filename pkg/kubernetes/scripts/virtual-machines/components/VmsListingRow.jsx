@@ -35,7 +35,7 @@ import { vmExpanded } from "../action-creators.jsx";
 
 const navigateToVm = (vm) => {
     return cockpit.location.go([ 'vms', vm.metadata.namespace, vm.metadata.name ]);
-}
+};
 
 const VmsListingRow = ({ vm, vmMessages, pvs, pod, podMetrics, vmUi, onExpandChanged }:
                            { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod, onExpandChanged: Function }) => {

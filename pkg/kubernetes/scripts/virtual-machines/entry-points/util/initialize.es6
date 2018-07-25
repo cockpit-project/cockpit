@@ -19,7 +19,7 @@
 
 import { initMiddleware } from '../../kube-middleware.jsx';
 import { watchMetrics, cleanupMetricsWatch } from '../../watch-metrics.es6';
-import * as actionCreators from '../../action-creators.jsx'
+import * as actionCreators from '../../action-creators.jsx';
 
 function addKubeLoaderListener (store, $scope, kubeLoader, kubeSelect) {
     // register load callback( callback, until )

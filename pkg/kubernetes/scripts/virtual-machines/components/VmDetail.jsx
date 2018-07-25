@@ -35,7 +35,7 @@ import { vmIdPrefx, prefixedId } from '../utils.jsx';
 
 const navigateToVms = () => {
     cockpit.location.go([ 'vms' ]);
-}
+};
 
 const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
                       { vm: Vm, vmMessages: VmMessages, pageParams: Object, pvs: PersistenVolumes, pod: Pod}) => {
@@ -57,7 +57,7 @@ const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
                                    idPrefix={'vm-not-found'} />
                 </DetailPage>
             </div>
-        )
+        );
     }
     const idPrefix = vmIdPrefx(vm);
 
@@ -76,7 +76,7 @@ const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
                 </DetailPageRow>
             </DetailPage>
         </div>
-    )
+    );
 };
 
 VmDetail.propTypes = {
@@ -92,7 +92,7 @@ export default connect(
     ({vms, pvs, pods, vmsMessages, nodeMetrics}) => {
         const vm = vms.length > 0 ? vms[0] : null;
         const pod = getPod(vm, pods);
-        const podMetrics = getPodMetrics(pod, nodeMetrics)
+        const podMetrics = getPodMetrics(pod, nodeMetrics);
         return {
             vm,
             vmMessages: vm ? vmsMessages[vm.metadata.uid] : null,
@@ -101,4 +101,4 @@ export default connect(
             podMetrics,
         };
     },
-)(VmDetail)
+)(VmDetail);

@@ -17,29 +17,29 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'regenerator-runtime/runtime' // required for library initialization
-import React from 'react'
-import { Provider } from 'react-redux'
+import 'regenerator-runtime/runtime'; // required for library initialization
+import React from 'react';
+import { Provider } from 'react-redux';
 
-import VmsListing from '../components/VmsListing.jsx'
-import { initStore, getStore } from '../store.es6'
-import initialize from './util/initialize.es6'
-import { setVms } from '../action-creators.jsx'
+import VmsListing from '../components/VmsListing.jsx';
+import { initStore, getStore } from '../store.es6';
+import initialize from './util/initialize.es6';
+import { setVms } from '../action-creators.jsx';
 
-import '../../../../machines/machines.less' // once per component hierarchy
+import '../../../../machines/machines.less'; // once per component hierarchy
 
 const VmsPage = () => (
     <Provider store={getStore()}>
         <VmsListing />
     </Provider>
-)
+);
 
 function addVmsListener (store, $scope, kubeLoader, kubeSelect) {
     kubeLoader.listen(() => {
-        const vms = kubeSelect().kind('VirtualMachine')
-        store.dispatch(setVms(Object.values(vms)))
-    }, $scope)
-    kubeLoader.watch('VirtualMachine', $scope)
+        const vms = kubeSelect().kind('VirtualMachine');
+        store.dispatch(setVms(Object.values(vms)));
+    }, $scope);
+    kubeLoader.watch('VirtualMachine', $scope);
 }
 
 /**
@@ -51,12 +51,12 @@ function addVmsListener (store, $scope, kubeLoader, kubeSelect) {
  * @param {KubeRequest} KubeRequest
  */
 function init ($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest) {
-    const store = initStore()
-    addVmsListener(store, $scope, kubeLoader, kubeSelect)
-    initialize($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest, store)
+    const store = initStore();
+    addVmsListener(store, $scope, kubeLoader, kubeSelect);
+    initialize($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest, store);
 
-    const rootElement = document.querySelector('#kubernetes-virtual-machines-root')
-    React.render(<VmsPage />, rootElement)
+    const rootElement = document.querySelector('#kubernetes-virtual-machines-root');
+    React.render(<VmsPage />, rootElement);
 }
 
-export { init }
+export { init };

@@ -37,18 +37,16 @@ Vcs-Browser: https://salsa.debian.org/utopia-team/cockpit
 Package: cockpit
 Architecture: all
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
-         cockpit-dashboard (>= ${source:Version}),
-         cockpit-dashboard (<< ${source:Version}.1~),
-         cockpit-ws (>= ${source:Version}),
-         cockpit-ws (<< ${source:Version}.1~),
-         cockpit-system (= ${binary:Version}),
-Recommends: cockpit-storaged (= ${binary:Version}),
-            cockpit-networkmanager (= ${binary:Version})
-Suggests: cockpit-doc (= ${binary:Version}),
-          cockpit-pcp (>= ${source:Version}),
-          cockpit-docker (= ${binary:Version}),
-          cockpit-packagekit (>= ${source:Version}),
+         cockpit-bridge,
+         cockpit-dashboard,
+         cockpit-ws,
+         cockpit-system,
+Recommends: cockpit-storaged,
+            cockpit-networkmanager,
+Suggests: cockpit-doc,
+          cockpit-pcp,
+          cockpit-docker,
+          cockpit-packagekit,
           xdg-utils,
 Description: User interface for Linux servers
  Cockpit runs in a browser and can manage your network of GNU/Linux

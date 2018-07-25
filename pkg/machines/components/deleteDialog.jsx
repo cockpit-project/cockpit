@@ -66,7 +66,7 @@ const DeleteDialogBody = ({ values, onChange }) => {
             {disks}
         </div>
     );
-}
+};
 
 export function deleteDialog(vm, dispatch) {
     let values = {

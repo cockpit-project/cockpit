@@ -104,7 +104,7 @@ class HardwareInfo extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
-    moment.locale(cockpit.language)
+    moment.locale(cockpit.language);
     detect().then(info => {
         console.debug("hardware info collection data:", JSON.stringify(info));
         React.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));

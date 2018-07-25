@@ -64,7 +64,7 @@ var StorageControl = React.createClass({
             var markup = {
                 __html: cockpit.format(_("The user <b>$0</b> is not permitted to manage storage"),
                                        permission.user ? permission.user.name : '')
-            }
+            };
             excuse = <span dangerouslySetInnerHTML={markup} />;
         }
 
@@ -184,10 +184,8 @@ class StorageOnOff extends React.Component {
         function onChange(val) {
             var promise = self.props.onChange(val);
             if (promise) {
-                promise.always(function() {
-                    self.setState({ promise: null })
-                });
-                promise.fail(function(error) {
+                promise.always(() => { self.setState({ promise: null }) });
+                promise.fail((error) => {
                     $('#error-popup-title').text(_("Error"));
                     $('#error-popup-message').text(error.toString());
                     $('#error-popup').modal('show');

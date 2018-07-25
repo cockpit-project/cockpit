@@ -43,7 +43,7 @@ const hostToMaintenanceDialog = (dispatch, host) => {
 
     let footerProps = {
         'actions': [
-            { 'clicked': () => { return dispatch(switchHostToMaintenance({ hostId })); },
+            { 'clicked': () => { return dispatch(switchHostToMaintenance({ hostId })) },
               'caption': _("OK"),
               'style': 'primary',
             },
@@ -59,7 +59,7 @@ const showHostToMaintenanceDialog = (dispatch, hosts) => {
             return;
         }
         hostToMaintenanceDialog(dispatch, hosts);
-    }
+    };
 };
 
 const hostToMaintenance = ({ dispatch, host }) => {
@@ -75,7 +75,7 @@ const hostToMaintenance = ({ dispatch, host }) => {
                 <span className='pficon pficon-close' />{_("Host to Maintenance")}
             </div>
         </a>
-    )
+    );
 };
 
 export default hostToMaintenance;

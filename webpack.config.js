@@ -491,5 +491,6 @@ module.exports = {
         undef: true,
         unused: "vars",
         predef: [ "window", "document", "console" ],
+        lastsemic : true,
     },
 };

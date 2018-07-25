@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 
 import './createVmDialog.less';
-import { preventDefault } from '../utils.jsx'
+import { preventDefault } from '../utils.jsx';
 
 const _ = cockpit.gettext;
 

@@ -340,7 +340,7 @@ var Listing = React.createClass({
                 </tr>
             );
         } else {
-            headerRow = <tr />
+            headerRow = <tr />;
         }
         var caption;
         if (this.props.title || (this.props.actions && this.props.actions.length > 0))

@@ -179,9 +179,9 @@
     $(function() {
         dialog.setup();
         $("#containers-search-image-dialog").
-            on('show.bs.modal', function () { dialog.enter(); }).
-            on('shown.bs.modal', function () { dialog.show(); }).
-            on('hidden.bs.modal', function () { dialog.leave(); });
+            on('show.bs.modal', function () { dialog.enter() }).
+            on('shown.bs.modal', function () { dialog.show() }).
+            on('hidden.bs.modal', function () { dialog.leave() });
     });
 
     function search(client) {

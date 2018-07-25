@@ -265,7 +265,7 @@ export class IscsiPanel extends React.Component {
             if (!event || event.button !== 0)
                 return;
             this.setState({ armed: !this.state.armed });
-        }
+        };
 
         var sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)
                 .map(make_session);
@@ -286,7 +286,7 @@ export class IscsiPanel extends React.Component {
 
         var iscsi_feature = {
             is_enabled: () => client.features.iscsi
-        }
+        };
 
         return (
             <OverviewSidePanel id="iscsi-sessions"

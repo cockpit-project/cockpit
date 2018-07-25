@@ -180,7 +180,7 @@ export class VDODetails extends React.Component {
                                         .then(function (block) {
                                             return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
                                         });
-                            })
+                            });
                 }
             }
 

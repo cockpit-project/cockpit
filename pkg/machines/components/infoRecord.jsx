@@ -46,6 +46,6 @@ InfoRecord.propTypes = {
         PropTypes.element
     ]).isRequired,
     tooltip: PropTypes.string,
-}
+};
 
 export default InfoRecord;

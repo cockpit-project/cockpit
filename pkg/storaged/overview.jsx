@@ -65,7 +65,7 @@ export class OverviewSidePanelRow extends React.Component {
             if (!event || event.button !== 0)
                 return;
             return this.props.go();
-        }
+        };
 
         return (
             <tr data-testkey={this.props.testkey}
@@ -110,7 +110,7 @@ class Overview extends React.Component {
     constructor() {
         super();
         this.state = { highlight: false };
-        this.on_client_changed = () => { this.setState({}); };
+        this.on_client_changed = () => { this.setState({}) };
     }
 
     componentDidMount() {

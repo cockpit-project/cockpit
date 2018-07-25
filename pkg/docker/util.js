@@ -119,7 +119,7 @@
     };
 
     util.multi_line = function multi_line(strings) {
-        return strings.map(function (str) { return Mustache.render("{{.}}", str); }).join('<br/>');
+        return strings.map(function (str) { return Mustache.render("{{.}}", str) }).join('<br/>');
     };
 
     util.format_cpu_shares = function format_cpu_shares(priority) {
@@ -244,7 +244,7 @@
                     var self = this;
                     $(self).hide().
                         siblings("div.spinner").show();
-                    util.docker_container_delete(client, id, function() { }, function () { $(self).show().siblings("div.spinner").hide(); });
+                    util.docker_container_delete(client, id, function() { }, function () { $(self).show().siblings("div.spinner").hide() });
                     return false;
                 });
             var btn_play = $('<button class="btn btn-default btn-control-ct fa fa-play">').

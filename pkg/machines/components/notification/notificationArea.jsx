@@ -53,4 +53,4 @@ Notification.propTypes = {
     id: PropTypes.string,
 };
 
-export default NotificationArea
+export default NotificationArea;

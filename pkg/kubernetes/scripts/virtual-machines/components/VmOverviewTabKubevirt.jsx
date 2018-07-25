@@ -34,8 +34,8 @@ const getLabels = (vm: Vm) => {
     if (vm.metadata.labels) {
         labels = getPairs(vm.metadata.labels).map(pair => {
             const printablePair = `${pair.key}=${pair.value}`;
-            return (<div key={printablePair}>{printablePair}</div>)
-        })
+            return (<div key={printablePair}>{printablePair}</div>);
+        });
     }
     return labels;
 };
@@ -44,7 +44,7 @@ function getMemory(vm: Vm) {
     const memory = getValueOrDefault(() => vm.spec.domain.resources.requests.memory, null);
 
     if (memory !== null) {
-        return memory
+        return memory;
     }
 
     const memoryValue = getValueOrDefault(() => vm.spec.domain.memory.value, null);

@@ -595,7 +595,7 @@ function append_logical_volume(client, rows, level, lvol) {
             desc = {
                 size: lvol.Size,
                 text: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
-            }
+            };
             tabs = create_tabs(client, lvol, false);
             append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
         }

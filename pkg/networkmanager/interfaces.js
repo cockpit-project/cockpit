@@ -117,7 +117,7 @@ function connection_settings(c) {
         // each Connection object to have "connection" settings.
         console.warn("Incomplete 'Connection' object accessed", c);
         // HACK - phantomjs console.trace() prints nothing
-        try { throw new Error(); } catch (e) { console.log(e.stack); }
+        try { throw new Error() } catch (e) { console.log(e.stack) }
         return { };
     }
 }
@@ -394,7 +394,7 @@ function NetworkManagerModel() {
 
         if (!export_pending) {
             export_pending = true;
-            window.setTimeout(function () { export_pending = false; doit(); }, 300);
+            window.setTimeout(function () { export_pending = false; doit() }, 300);
         }
     }
 
@@ -1335,7 +1335,7 @@ function NetworkManagerModel() {
             if (priv(obj).type === type_Interface)
                 result.push(obj);
         }
-        return result.sort(function (a, b) { return a.Name.localeCompare(b.Name); });
+        return result.sort(function (a, b) { return a.Name.localeCompare(b.Name) });
     };
 
     self.find_interface = peek_interface;
@@ -1352,7 +1352,7 @@ function NetworkManagerModel() {
 
     function compare_versions(a, b) {
         function to_ints(str) {
-            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0; });
+            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0 });
         }
 
         var a_ints = to_ints(a);
@@ -2371,7 +2371,7 @@ PageNetworkInterface.prototype = {
             if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
                 if (con.Settings.connection.interface_name &&
                     con.Settings.connection.interface_name != dev.Interface) {
-                    return dev.disconnect().then(function () { return con.activate(null, null); }).
+                    return dev.disconnect().then(function () { return con.activate(null, null) }).
                         fail(show_unexpected_error);
                 } else {
                     return con.activate(dev, null).
@@ -2719,7 +2719,7 @@ PageNetworkInterface.prototype = {
                     $('<td>').append(
                         $('<a class="network-privileged">').
                             append(link_text).
-                            syn_click(self.model, function () { configure(); })));
+                            syn_click(self.model, function () { configure() })));
             }
 
             function render_ip_settings_row(topic, title) {
@@ -2727,7 +2727,7 @@ PageNetworkInterface.prototype = {
                     return null;
 
                 return render_settings_row(title, render_ip_settings(topic),
-                                           function () { configure_ip_settings(topic); });
+                                           function () { configure_ip_settings(topic) });
             }
 
             function render_mtu_settings_row() {
@@ -4603,9 +4603,9 @@ function PageNetworkMacSettings() {
 function dialog_setup(d) {
     d.setup();
     $('#' + d.id).
-        on('show.bs.modal', function () { d.enter(); }).
-        on('shown.bs.modal', function () { d.show(); }).
-        on('hidden.bs.modal', function () { d.leave(); });
+        on('show.bs.modal', function () { d.enter() }).
+        on('shown.bs.modal', function () { d.show() }).
+        on('hidden.bs.modal', function () { d.leave() });
 }
 
 function page_show(p, arg) {

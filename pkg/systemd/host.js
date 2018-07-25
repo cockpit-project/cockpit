@@ -417,7 +417,7 @@ PageServer.prototype = {
             if (cockpit.manifests[page]) {
                 var link = document.createElement("a");
                 link.innerHTML = text;
-                link.addEventListener("click", function() { cockpit.jump("/" + page); });
+                link.addEventListener("click", function() { cockpit.jump("/" + page) });
                 $(element_sel).html(link);
             } else {
                 $(element_sel).text(text);
@@ -539,7 +539,7 @@ PageServer.prototype = {
         };
 
         var cpu_options = plot.plot_simple_template();
-        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); },
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
                                       max: 100
                                     });
         self.cpu_plot = plot.plot($("#server_cpu_graph"), 300);
@@ -1235,7 +1235,7 @@ PageSystemInformationChangeSystime.prototype = {
         var ntp_time_custom = self.ntp_type == 'ntp_time_custom';
 
         self.sync_ntp_servers();
-        var servers = self.custom_ntp_servers.filter(function (val) { return val !== ""; });
+        var servers = self.custom_ntp_servers.filter(function (val) { return val !== "" });
 
         function target_error (msg, target) {
             var err = new Error(msg);
@@ -1431,7 +1431,7 @@ PageCpuStatus.prototype = {
                     max: n_cpus * 1000,
                     show: true,
                     ticks: 5,
-                    tickFormatter: function(v) { return (v / 10 / n_cpus) + "%"; }},
+                    tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" }},
             xaxis: {show: true,
                     ticks: [[0.0*60, "5 min"],
                             [1.0*60, "4 min"],

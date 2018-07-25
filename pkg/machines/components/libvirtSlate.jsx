@@ -79,7 +79,7 @@ class LibvirtSlate extends React.Component {
 
     goToServicePage() {
         const name = this.props.libvirtService.name ? this.props.libvirtService.name : 'libvirtd.service'; // fallback
-        cockpit.jump("/system/services#/" + name)
+        cockpit.jump("/system/services#/" + name);
     }
 
     render() {

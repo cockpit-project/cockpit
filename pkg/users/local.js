@@ -388,7 +388,7 @@ PageAccountsCreate.prototype = {
         $('#accounts-create-create').on('click', $.proxy(this, "create"));
         $('#accounts-create-dialog .check-passwords').on('keydown change', $.proxy(this, "validate"));
         $('#accounts-create-real-name').on('input', $.proxy(this, "suggest_username"));
-        $('#accounts-create-user-name').on('input', function() { self.username_dirty = true; });
+        $('#accounts-create-user-name').on('input', function() { self.username_dirty = true });
     },
 
     enter: function() {
@@ -1411,9 +1411,9 @@ function show_unexpected_error(error) {
 function dialog_setup(d) {
     d.setup();
     $('#' + d.id).
-        on('show.bs.modal', function () { d.enter(); }).
-        on('shown.bs.modal', function () { d.show(); }).
-        on('hidden.bs.modal', function () { d.leave(); });
+        on('show.bs.modal', function () { d.enter() }).
+        on('shown.bs.modal', function () { d.show() }).
+        on('hidden.bs.modal', function () { d.leave() });
 }
 
 function page_show(p, arg) {

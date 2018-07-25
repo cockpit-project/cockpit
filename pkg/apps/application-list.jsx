@@ -128,7 +128,7 @@ class ApplicationList extends React.Component {
             refresh_button = <CancelButton data={this.state.progress} />;
         } else {
             refresh_progress = null;
-            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)} />
+            refresh_button = <button className="btn btn-default fa fa-refresh" onClick={left_click(refresh)} />;
         }
 
         table_classes = "table app-list";

@@ -41,7 +41,7 @@ const STATE_HEADINGS = {
     "updateSuccess": null,
     "updateError": _("Applying updates failed"),
     "loadError": _("Loading available updates failed"),
-}
+};
 
 const PK_STATUS_STRINGS = {
     [PK.Enum.STATUS_DOWNLOAD]: _("Downloading"),
@@ -49,7 +49,7 @@ const PK_STATUS_STRINGS = {
     [PK.Enum.STATUS_UPDATE]: _("Updating"),
     [PK.Enum.STATUS_CLEANUP]: _("Setting up"),
     [PK.Enum.STATUS_SIGCHECK]: _("Verifying"),
-}
+};
 
 const PK_STATUS_LOG_STRINGS = {
     [PK.Enum.STATUS_DOWNLOAD]: _("Downloaded"),
@@ -57,7 +57,7 @@ const PK_STATUS_LOG_STRINGS = {
     [PK.Enum.STATUS_UPDATE]: _("Updated"),
     [PK.Enum.STATUS_CLEANUP]: _("Set up"),
     [PK.Enum.STATUS_SIGCHECK]: _("Verified"),
-}
+};
 
 var packageSummaries = {};
 
@@ -74,7 +74,7 @@ function parseCVEs(text) {
 
 function deduplicate(list) {
     var d = { };
-    list.forEach(i => { if (i) d[i] = true });
+    list.forEach(i => { if (i) d[i] = true; });
     var result = Object.keys(d);
     result.sort();
     return result;
@@ -85,7 +85,7 @@ function deduplicate(list) {
 function insertCommas(list) {
     if (list.length <= 1)
         return list;
-    return list.reduce((prev, cur) => [prev, ", ", cur])
+    return list.reduce((prev, cur) => [prev, ", ", cur]);
 }
 
 // Fedora changelogs are a wild mix of enumerations or not, headings, etc.
@@ -688,7 +688,7 @@ class OsUpdates extends React.Component {
             // only update the state once to avoid flicker
             Finished: () => {
                 if (history.length > 0)
-                    this.setState({history: history})
+                    this.setState({history: history});
             }
         })
                 .catch(ex => console.warn("Failed to load old transactions:", ex));
@@ -872,7 +872,7 @@ class OsUpdates extends React.Component {
             return this.state.errorMessages.map(m => <pre>{m}</pre>);
 
         case "applying":
-            return <ApplyUpdates transaction={this.state.applyTransaction} />
+            return <ApplyUpdates transaction={this.state.applyTransaction} />;
 
         case "updateSuccess":
             return <AskRestart onRestart={this.handleRestart} onIgnore={this.loadUpdates} history={this.state.history} />;
@@ -936,7 +936,7 @@ class OsUpdates extends React.Component {
     }
 
     handleRestart() {
-        this.setState({state: "restart"})
+        this.setState({state: "restart"});
         // give the user a chance to actually read the message
         window.setTimeout(() => {
             cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: true, err: "message" })

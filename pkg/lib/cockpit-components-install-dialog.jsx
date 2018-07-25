@@ -57,7 +57,7 @@ export function install_dialog(pkg) {
     var cancel = null;
     var done = null;
 
-    var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); }; });
+    var prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
     var dialog = null;
     function update() {
@@ -120,7 +120,7 @@ export function install_dialog(pkg) {
             ],
             static_error: error_message,
             idle_message: footer_message,
-            dialog_done: f => { if (!f && cancel) cancel(); done(f); }
+            dialog_done: f => { if (!f && cancel) cancel(); done(f) }
         };
 
         if (dialog) {

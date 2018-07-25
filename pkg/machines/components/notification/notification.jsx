@@ -20,7 +20,7 @@
 import React, { PropTypes } from "react";
 import { mouseClick } from "../../helpers.es6";
 
-import './notification.css'
+import './notification.css';
 
 export const NotificationMessage = ({ description, message }) => {
     const messageNode = message ? (

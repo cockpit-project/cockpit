@@ -68,7 +68,7 @@ class VmDisksTabLibvirt extends React.Component {
             return _("Upgrade to a more recent version of libvirt to view disk statistics");
         }
 
-        return _("Start the VM to see disk statistics.")
+        return _("Start the VM to see disk statistics.");
     }
 
     prepareDiskData(disk, diskStats, idPrefix) {

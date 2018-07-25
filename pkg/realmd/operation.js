@@ -454,7 +454,7 @@
                             $(".realms-op-error").show();
                         }
                     } else if (mode == 'leave') {
-                        call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options); });
+                        call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options) });
                     }
 
                     if (!call) {
@@ -564,7 +564,7 @@
             if (!joined || !joined.length)
                 text = _("Join Domain");
             else
-                text = joined.map(function(x) { return x.Name; }).join(", ");
+                text = joined.map(function(x) { return x.Name }).join(", ");
             link.text(text);
         }
 

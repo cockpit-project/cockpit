@@ -37,7 +37,7 @@ function canVmMigrateToHost ({ host }) {
 
 class MigrateTo extends React.Component {
     constructor (props) {
-        super(props)
+        super(props);
 
         this.state = {
             confirmAction: false,
@@ -48,9 +48,9 @@ class MigrateTo extends React.Component {
     render () {
         const { vm, hosts, dispatch } = this.props;
 
-        const onHostChange = e => { this.setState({selectedHostId: e.target.value}); };
-        const onAction = () => { this.setState({ confirmAction: true }); };
-        const onActionCanceled = () => { this.setState({ confirmAction: false }); };
+        const onHostChange = e => { this.setState({selectedHostId: e.target.value}) };
+        const onAction = () => { this.setState({ confirmAction: true }) };
+        const onActionCanceled = () => { this.setState({ confirmAction: false }) };
         const onActionConfirmed = () => {
             this.setState({ confirmAction: false });
             dispatch(migrateVm(vm.id, vm.name, this.state.selectedHostId));

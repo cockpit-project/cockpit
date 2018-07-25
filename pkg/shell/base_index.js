@@ -969,10 +969,10 @@
     function follow(arg) {
         /* A promise of some sort */
         if (arguments.length == 1 && typeof arg.then == "function") {
-            arg.then(function() { console.log.apply(console, arguments); },
-                     function() { console.error.apply(console, arguments); });
+            arg.then(function() { console.log.apply(console, arguments) },
+                     function() { console.error.apply(console, arguments) });
             if (typeof arg.stream == "function")
-                arg.stream(function() { console.log.apply(console,arguments); });
+                arg.stream(function() { console.log.apply(console,arguments) });
         }
     }
 
@@ -982,8 +982,8 @@
     Object.defineProperties(window, {
         cockpit: { value: cockpit },
         zz: {
-            get: function() { return zz_value; },
-            set: function(val) { zz_value = val; follow(val); }
+            get: function() { return zz_value },
+            set: function(val) { zz_value = val; follow(val) }
         }
     });
 

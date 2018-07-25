@@ -38,14 +38,14 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
             }
         }
         return false;
-    }
+    };
 
     const sourceJump = (source) => {
         return () => {
             if (source !== null && checkDeviceAviability(source)) {
                 cockpit.jump(`/network#/${source}`, cockpit.transport.host);
             }
-        }
+        };
     };
 
     const onChangeState = (network) => {
@@ -54,8 +54,8 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
             if (network.mac) {
                 dispatch(changeNetworkState(vm, network.mac, network.state === 'up' ? 'down' : 'up'));
             }
-        }
-    }
+        };
+    };
     const addressPortSource = (source, networkId) => (<table id={`${id}-network-${networkId}-source`}>
         <tr><td className='machines-network-source-descr'>{_("Address")}</td><td className='machines-network-source-value'>{source.address}</td></tr>
         <tr><td className='machines-network-source-descr'>{_("Port")}</td><td className='machines-network-source-value'>{source.port}</td></tr>
@@ -77,9 +77,9 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
                 server: addressPortSource,
                 client: addressPortSource,
                 udp: addressPortSource,
-            }
+            };
             if (mapSource[network.type] !== undefined) {
-                return <div id={`${id}-network-${networkId}-source`}>{mapSource[network.type](network.source, networkId)}</div>
+                return <div id={`${id}-network-${networkId}-source`}>{mapSource[network.type](network.source, networkId)}</div>;
             } else {
                 return null;
             }
@@ -145,7 +145,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
                             column = d.value(target, networkId);
                         }
                         return column;
-                    })
+                    });
                     networkId++;
 
                     return (<ListingRow columns={columns} />);
@@ -153,7 +153,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
             </Listing>
         </div>
     );
-}
+};
 
 VmNetworkTab.propTypes = {
     vm: React.PropTypes.object.isRequired,

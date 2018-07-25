@@ -264,7 +264,7 @@ $(function() {
         function render_now() {
             var pattern = $('#services-filter button.active').attr('data-pattern');
 
-            function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id); }
+            function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
             var enabled = [ ], disabled = [ ], statics = [ ];
             var header = {

@@ -26,7 +26,7 @@ var OnOffDemo = React.createClass({
         return {
             onOffA: true,
             onOffB: false
-        }
+        };
     },
     onChangeA: function(val) {
         this.setState({onOffA: val});

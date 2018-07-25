@@ -19,7 +19,7 @@
 
 // @flow
 import React, { PropTypes } from 'react';
-import { DonutChart } from 'patternfly-react'
+import { DonutChart } from 'patternfly-react';
 import cockpit, { gettext as _ } from 'cockpit';
 
 import './VmMetricsTab.less';

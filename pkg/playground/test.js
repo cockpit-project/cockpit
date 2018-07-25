@@ -5,7 +5,7 @@
     var cockpit = require("cockpit");
 
     $(function() {
-        $("#hammer").on("click", function () { $(this).hide(); });
+        $("#hammer").on("click", function () { $(this).hide() });
 
         $(".cockpit-internal-reauthorize .btn").on("click", function() {
             $(".cockpit-internal-reauthorize span").text("checking...");

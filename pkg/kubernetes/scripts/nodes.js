@@ -713,15 +713,15 @@
                     var tabs = {
                         cpu: {
                             label: _("CPU"),
-                            tooltip: function(r) { return format.format(_("CPU Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
+                            tooltip: function(r) { return format.format(_("CPU Utilization: $0%"), Math.round((r.used / r.total) * 100)) }
                         },
                         memory: {
                             label: _("Memory"),
-                            tooltip: function(r) { return format.format(_("Memory Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
+                            tooltip: function(r) { return format.format(_("Memory Utilization: $0%"), Math.round((r.used / r.total) * 100)) }
                         },
                         fs: {
                             label: _("Disk"),
-                            tooltip: function(r) { return format.format(_("Disk Utilization: $0%"), Math.round((r.used / r.total) * 100)); }
+                            tooltip: function(r) { return format.format(_("Disk Utilization: $0%"), Math.round((r.used / r.total) * 100)) }
                         }
                     };
 
@@ -729,14 +729,14 @@
                         .selectAll("li")
                             .data(Object.keys(tabs))
                           .enter().append("li")
-                            .attr("data-metric", function(d) { return d; })
+                            .attr("data-metric", function(d) { return d })
                           .append("a")
-                            .text(function(d) { return tabs[d].label; });
+                            .text(function(d) { return tabs[d].label });
 
                     function changeTab(tab) {
                         currentTab = tab;
                         outer.selectAll("ul.nav-tabs li")
-                            .attr("class", function(d) { return tab === d ? "active": null; });
+                            .attr("class", function(d) { return tab === d ? "active": null });
                         refreshData();
                     }
 

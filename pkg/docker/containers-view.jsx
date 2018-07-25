@@ -80,7 +80,7 @@ var ContainerHeader = React.createClass({
         return {
             filter: 'running',
             filterText: ''
-        }
+        };
     },
 
     filterChanged: function () {
@@ -144,7 +144,7 @@ var ContainerProblems = React.createClass({
             problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
                 <span className="pficon pficon-warning-triangle-o fa-lg" />
                 {problem[i][1]}
-            </a>)
+            </a>);
         }
 
         return (
@@ -255,7 +255,7 @@ var ContainerList = React.createClass({
         $(this.props.client).off('container.containers', this.containersChanged);
         $(this.props.client).off('container.container-details', this.containersChanged);
         this.service.removeEventListener("Crash", this.newProblemOccurred);
-        this.problems_client.close()
+        this.problems_client.close();
     },
 
     render: function () {
@@ -276,9 +276,9 @@ var ContainerList = React.createClass({
 
             var state;
             if (this.props.client.waiting[container.Id]) {
-                state = { element: <div className="spinner" />, tight: true }
+                state = { element: <div className="spinner" />, tight: true };
             } else {
-                state = util.render_container_status(container.State)
+                state = util.render_container_status(container.State);
             }
 
             var image = container.Image;
@@ -287,7 +287,7 @@ var ContainerList = React.createClass({
 
             if (shortContID in this.state.problems) {
                 hasProblem = true;
-                state = <div><span className="pficon pficon-warning-triangle-o" />{state}</div>
+                state = <div><span className="pficon pficon-warning-triangle-o" />{state}</div>;
             }
 
             var columns = [
@@ -600,11 +600,11 @@ var ImageList = React.createClass({
 
         var element;
         if (this.props.client.waiting[image.Id]) {
-            element = <div className="spinner" />
+            element = <div className="spinner" />;
         } else {
             element = <button className="btn btn-default btn-control-ct fa fa-play"
                 onClick={ this.showRunImageDialog.bind(this) }
-                data-image={image.Id} />
+                data-image={image.Id} />;
         }
 
         var columns = [

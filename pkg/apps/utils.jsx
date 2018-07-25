@@ -43,10 +43,10 @@ export function icon_url(path_or_url) {
         payload: "fsread1",
         binary: "raw",
         path: path_or_url,
-    }
+    };
 
     if (path_or_url.endsWith(".svg")) {
-        queryobj.external = {"content-type": "image/svg+xml"}
+        queryobj.external = {"content-type": "image/svg+xml"};
     }
 
     var query = window.btoa(JSON.stringify(queryobj));
@@ -75,7 +75,7 @@ export const ProgressBar = ({ title, data }) => {
             </div>
         );
     }
-}
+};
 
 export const CancelButton = ({ data }) => {
     return (
@@ -85,7 +85,7 @@ export const CancelButton = ({ data }) => {
             {_("Cancel")}
         </button>
     );
-}
+};
 
 export const show_error = ex => {
     if (ex.code == "cancelled")
@@ -107,7 +107,7 @@ export const show_error = ex => {
             cancel_caption: _("Close"),
             actions: [ ]
         });
-}
+};
 
 export const launch = (comp) => {
     var i;
@@ -117,4 +117,4 @@ export const launch = (comp) => {
             return;
         }
     }
-}
+};

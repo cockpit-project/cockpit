@@ -61,7 +61,7 @@ export function watchMetrics(store) {
                 const node = getNodeName(vm);
                 if (node) {
                     if (!metrics.watchedNodes[node] && !nodes[node]) {
-                        refresh = true
+                        refresh = true;
                     }
                     nodes[node] = node;
                 }

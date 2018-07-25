@@ -44,7 +44,7 @@ function EmptyState(props) {
 
 function ServiceRow(props) {
     if (!props.service.name)
-        return <ListingRow key={props.service.id} columns={["", "", ""]} />
+        return <ListingRow key={props.service.id} columns={["", "", ""]} />;
 
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
@@ -109,7 +109,7 @@ class SearchInput extends React.Component {
     render() {
         return <input id={this.props.id}
                       className={this.props.className}
-                      onChange={this.onValueChanged} />
+                      onChange={this.onValueChanged} />;
     }
 }
 
@@ -144,7 +144,7 @@ class AddServicesDialogBody extends React.Component {
             let selected = new Set(oldState.selected);
 
             if (enabled)
-                selected.add(service)
+                selected.add(service);
             else
                 selected.delete(service);
 
@@ -228,7 +228,7 @@ export class Firewall extends React.Component {
             if (prevState.pendingTarget === firewall.enabled)
                 return { firewall, pendingTarget: null };
 
-            return { firewall }
+            return { firewall };
         });
     }
 

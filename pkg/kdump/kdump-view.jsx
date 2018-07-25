@@ -255,7 +255,7 @@ var KdumpPage = React.createClass({
                     settings["core_collector"].value =
                         settings["core_collector"].value
                                 .split(" ")
-                                .filter((e) => { return (e != "-c"); })
+                                .filter((e) => { return (e != "-c") })
                                 .join(" ");
                 } else {
                     // if we don't have anything on this in the original settings,
@@ -263,7 +263,7 @@ var KdumpPage = React.createClass({
                     delete settings["core_collector"];
                 }
             } else {
-                console.log("not changing compression setting")
+                console.log("not changing compression setting");
                 return;
             }
         } else if (key !== undefined) {
@@ -349,7 +349,7 @@ var KdumpPage = React.createClass({
                 initialTarget: self.props.kdumpStatus.target,
                 compressionEnabled: self.compressionStatus(settings)
             });
-        }
+        };
         updateDialogBody();
         // also test modifying properties in subsequent render calls
         var footerProps = {
@@ -394,7 +394,7 @@ var KdumpPage = React.createClass({
                 } else if (target.target == "mount") {
                     kdumpLocation = _("On a mounted device");
                 } else {
-                    kdumpLocation = _("No configuration found")
+                    kdumpLocation = _("No configuration found");
                     targetCanChange = false;
                 }
             }
@@ -484,7 +484,7 @@ var KdumpPage = React.createClass({
                         {_("Test Configuration")}
                     </button>
                 </Tooltip>
-            )
+            );
         }
         return (
             <div className="container-fluid">

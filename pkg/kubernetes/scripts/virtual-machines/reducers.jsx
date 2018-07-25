@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux';
 
-import * as actionTypes from './action-types.jsx'
+import * as actionTypes from './action-types.jsx';
 
 const createReducer = (initialState, actionHandlerMap) => (state = initialState, action) => {
     if (actionHandlerMap[action.type]) {
@@ -43,7 +43,7 @@ const pvsReducer = createReducer([], {
 
 const podsReducer = createReducer([], {
     [actionTypes.SET_PODS]: (state = [], { payload }) => payload || []
-})
+});
 
 /**
  * state = [

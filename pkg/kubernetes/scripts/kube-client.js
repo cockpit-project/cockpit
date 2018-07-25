@@ -879,7 +879,7 @@
                     length: {
                         enumerable: false,
                         configurable: true,
-                        get: function() { return cached(this).length; }
+                        get: function() { return cached(this).length }
                     }
                 };
                 for (name in filters) {

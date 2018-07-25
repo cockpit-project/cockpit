@@ -37,7 +37,7 @@
 
     utils.compare_versions = function compare_versions(a, b) {
         function to_ints(str) {
-            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0; });
+            return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0 });
         }
 
         var a_ints = to_ints(a);
@@ -672,9 +672,9 @@
                 handle_vg(p);
         }
 
-        return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted"; })),
-                             mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member"; })),
-                             pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol"; }))
+        return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
+                             mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
+                             pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
                            ]);
     };
 

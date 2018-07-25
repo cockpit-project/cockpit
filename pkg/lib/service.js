@@ -294,7 +294,7 @@
             return call_manager(method, args).then(function () {
                 var dfd = cockpit.defer();
                 call_manager("Reload", [ ]).
-                    done(function () { dfd.resolve(); }).
+                    done(function () { dfd.resolve() }).
                     fail(function (error) {
                         // HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1560549
                         // some systemd versions disconnect too fast from the bus

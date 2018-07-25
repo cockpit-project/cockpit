@@ -126,14 +126,13 @@ Recommends: (cockpit-docker if /usr/bin/docker)
 %endif
 Recommends: (cockpit-networkmanager if NetworkManager)
 Recommends: (cockpit-storaged if udisks2)
-Recommends: (cockpit-packagekit if PackageKit)
+Recommends: cockpit-packagekit
 %if 0%{?rhel} >= 8
 Recommends: subscription-manager-cockpit
 %endif
 Suggests: cockpit-pcp
 Suggests: cockpit-kubernetes
 Suggests: cockpit-selinux
-Suggests: cockpit-packagekit
 %endif
 
 %prep

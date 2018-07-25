@@ -196,6 +196,13 @@
     }
 
     function toggle_options(ev, show) {
+        // On keypress, only accept spacebar (enter acts as a click)
+        if (ev && ev.type === 'keypress' && ev.key !== ' ')
+            return;
+        // Stop the <a>'s click handler, otherwise it causes a page reload
+        if (ev && ev.type === 'click')
+            ev.preventDefault();
+
         if (show === undefined)
             show = id("server-group").style.display === "none";
 
@@ -235,7 +242,8 @@
         if (!requisites())
             return;
 
-        id("option-group").addEventListener("click", toggle_options);
+        id("show-other-login-options").addEventListener("click", toggle_options);
+        id("show-other-login-options").addEventListener("keypress", toggle_options);
         id("server-clear").addEventListener("click", function () {
             var el = id("server-field");
             el.value = "";

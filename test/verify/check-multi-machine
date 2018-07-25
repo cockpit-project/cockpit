@@ -379,12 +379,17 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.wait_visible("#login-error-message")
 
+        if m.image in ['rhel-7-5-distropkg', 'rhel-7-6-distropkg']:
+            login_options = '#option-group span'
+        else:
+            login_options = '#show-other-login-options'
+
         # Connect to bad machine
         b.set_val("#login-password-input", "bad-password")
-        b.click('#option-group span')
+        b.click(login_options)
         b.wait_visible("#server-group")
         b.set_val("#server-field", "bad")
-        b.click('#option-group span')
+        b.click(login_options)
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")

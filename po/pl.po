@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-16 11:50+0000\n"
+"POT-Creation-Date: 2018-07-25 05:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Language: pl\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Zanata 4.4.5\n"
+"X-Generator: Zanata 4.5.0\n"
 
 #: pkg/docker/storage.jsx:243
 msgid " (shared with the OS)"
@@ -133,11 +133,11 @@ msgstr[2] "Brak $0 dysków"
 msgid "$0 error"
 msgstr "błąd $0"
 
-#: src/base1/cockpit.js:2738
+#: src/base1/cockpit.js:2739
 msgid "$0 exited with code $1"
 msgstr "$0 zakończyło działanie z kodem $1"
 
-#: src/base1/cockpit.js:2740
+#: src/base1/cockpit.js:2741
 msgid "$0 failed"
 msgstr "$0 się nie powiodło"
 
@@ -169,7 +169,7 @@ msgstr ""
 "należy wyszukać w Menedżerze oprogramowania GNOME lub wykonać polecenie:"
 
 #: pkg/storaged/content-views.jsx:268 pkg/storaged/content-views.jsx:484
-#: pkg/storaged/format-dialog.jsx:255 pkg/storaged/lvol-tabs.jsx:131
+#: pkg/storaged/format-dialog.jsx:280 pkg/storaged/lvol-tabs.jsx:131
 #: pkg/storaged/lvol-tabs.jsx:172 pkg/storaged/mdraid-details.jsx:237
 #: pkg/storaged/mdraid-details.jsx:291 pkg/storaged/vdo-details.jsx:135
 #: pkg/storaged/vdo-details.jsx:166 pkg/storaged/vgroup-details.jsx:202
@@ -184,7 +184,7 @@ msgstr "$0 nie jest dostępne w żadnym repozytorium."
 msgid "$0 key ID"
 msgstr "Identyfikator klucza $0"
 
-#: src/base1/cockpit.js:2736
+#: src/base1/cockpit.js:2737
 msgid "$0 killed with signal $1"
 msgstr "$0 zostało zakończone z sygnałem $1"
 
@@ -285,7 +285,7 @@ msgstr[0] "$1 poprawka zabezpieczeń"
 msgstr[1] "$1 poprawki zabezpieczeń"
 msgstr[2] "$1 poprawek zabezpieczeń"
 
-#: pkg/networkmanager/interfaces.js:2744
+#: pkg/networkmanager/interfaces.js:2745
 msgid "$mtu"
 msgstr "$mtu"
 
@@ -313,7 +313,7 @@ msgstr "„Organization” jest wymagane podczas używania kluczy aktywacji."
 msgid "(default)"
 msgstr "(domyślnie)"
 
-#: pkg/storaged/crypto-tab.jsx:174
+#: pkg/storaged/crypto-tab.jsx:168
 msgid "(none)"
 msgstr "(brak)"
 
@@ -554,11 +554,11 @@ msgstr "7."
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1975
+#: pkg/networkmanager/interfaces.js:1976
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1992
+#: pkg/networkmanager/interfaces.js:1993
 msgid "802.3ad LACP"
 msgstr "LACP 802.3ad"
 
@@ -577,7 +577,7 @@ msgid ""
 msgstr ""
 "Na {{#strong}}{{host}}{{/strong}} nie zainstalowano zgodnej wersji Cockpit."
 
-#: pkg/storaged/vdos-panel.jsx:63
+#: pkg/storaged/vdos-panel.jsx:64
 msgid "A disk is needed."
 msgstr "Wymagany jest dysk."
 
@@ -589,15 +589,15 @@ msgstr "Przed usunięciem tego dysku należy najpierw dodać dysk zapasowy."
 msgid "A user interface for GNU/Linux servers"
 msgstr "Interfejs użytkownika dla serwerów GNU/Linux"
 
-#: pkg/networkmanager/interfaces.js:1983
+#: pkg/networkmanager/interfaces.js:1984
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/interfaces.js:2773
+#: pkg/networkmanager/interfaces.js:2774
 msgid "ARP Monitoring"
 msgstr "Monitorowanie ARP"
 
-#: pkg/networkmanager/interfaces.js:2004
+#: pkg/networkmanager/interfaces.js:2005
 msgid "ARP Ping"
 msgstr "Ping ARP"
 
@@ -666,11 +666,11 @@ msgstr "Aktywowanie $target"
 msgid "Activation Key"
 msgstr "Klucz aktywacji"
 
-#: pkg/networkmanager/interfaces.js:836 pkg/networkmanager/interfaces.js:1998
+#: pkg/networkmanager/interfaces.js:836 pkg/networkmanager/interfaces.js:1999
 msgid "Active"
 msgstr "Aktywne"
 
-#: pkg/networkmanager/interfaces.js:1972 pkg/networkmanager/interfaces.js:1989
+#: pkg/networkmanager/interfaces.js:1973 pkg/networkmanager/interfaces.js:1990
 msgid "Active Backup"
 msgstr "Aktywna kopia zapasowa"
 
@@ -686,29 +686,28 @@ msgstr "Aktywne od"
 msgid "Actual"
 msgstr "Rzeczywisty"
 
-#: pkg/networkmanager/interfaces.js:1977
+#: pkg/networkmanager/interfaces.js:1978
 msgid "Adaptive load balancing"
 msgstr "Adaptacyjne równoważenie obciążenia"
 
-#: pkg/networkmanager/interfaces.js:1976
+#: pkg/networkmanager/interfaces.js:1977
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptacyjne równoważenie obciążenia przesyłu"
 
+#: pkg/kubernetes/views/add-member-role-dialog.html:61
 #: pkg/kubernetes/views/add-role-dialog.html:8
 #: pkg/kubernetes/views/add-user-dialog.html:27
 #: pkg/kubernetes/views/node-add.html:50
 #: pkg/kubernetes/views/user-add-membership.html:49
-#: pkg/kubernetes/views/user-group-add.html:30
-#: pkg/kubernetes/views/add-member-role-dialog.html:61
-#: pkg/lib/machine-add.html:43 pkg/ostree/index.html:90
-#: pkg/shell/index.html:181 pkg/storaged/clevis-dialogs.jsx:71
-#: pkg/storaged/iscsi-panel.jsx:155 pkg/storaged/iscsi-panel.jsx:183
-#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/nfs-details.jsx:177
-#: pkg/storaged/vgroup-details.jsx:65
+#: pkg/kubernetes/views/user-group-add.html:30 pkg/lib/machine-add.html:43
+#: pkg/ostree/index.html:90 pkg/shell/index.html:181
+#: pkg/storaged/clevis-dialogs.jsx:71 pkg/storaged/iscsi-panel.jsx:155
+#: pkg/storaged/iscsi-panel.jsx:183 pkg/storaged/mdraid-details.jsx:61
+#: pkg/storaged/nfs-details.jsx:177 pkg/storaged/vgroup-details.jsx:65
 msgid "Add"
 msgstr "Dodaj"
 
-#: pkg/networkmanager/interfaces.js:3089
+#: pkg/networkmanager/interfaces.js:3090
 msgid "Add $0"
 msgstr "Dodaj $0"
 
@@ -732,6 +731,12 @@ msgstr "Dodaj mostek"
 msgid "Add Cluster Node"
 msgstr "Dodaj węzeł klastra"
 
+#: pkg/machines/components/diskAdd.jsx:364
+#: pkg/machines/components/diskAdd.jsx:419
+#: pkg/machines/components/diskAdd.jsx:440
+msgid "Add Disk"
+msgstr ""
+
 #: pkg/storaged/mdraid-details.jsx:44 pkg/storaged/vgroup-details.jsx:48
 msgid "Add Disks"
 msgstr "Dodaj dyski"
@@ -748,11 +753,11 @@ msgstr "Dodaj węzeł Kubernetes"
 msgid "Add Machine to Dashboard"
 msgstr "Dodaj komputer do panelu kontrolnego"
 
+#: pkg/kubernetes/views/add-member-role-dialog.html:4
 #: pkg/kubernetes/views/group-page.html:38
 #: pkg/kubernetes/views/group-panel.html:29
 #: pkg/kubernetes/views/project-body.html:108
 #: pkg/kubernetes/views/user-group-add.html:3
-#: pkg/kubernetes/views/add-member-role-dialog.html:4
 msgid "Add Member"
 msgstr "Dodaj element"
 
@@ -820,7 +825,7 @@ msgstr "Dodaj klucz sieciowy"
 msgid "Add public key"
 msgstr "Dodaj klucz publiczny"
 
-#: pkg/networkmanager/interfaces.js:3088
+#: pkg/networkmanager/interfaces.js:3089
 msgid ""
 "Adding <b>$0</b> will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -840,11 +845,11 @@ msgstr "Dodawanie woluminu fizycznego do $target"
 msgid "Additional"
 msgstr "Dodatkowe"
 
-#: pkg/networkmanager/interfaces.js:2643
+#: pkg/networkmanager/interfaces.js:2644
 msgid "Additional DNS $val"
 msgstr "Dodatkowy DNS $val"
 
-#: pkg/networkmanager/interfaces.js:2646
+#: pkg/networkmanager/interfaces.js:2647
 msgid "Additional DNS Search Domains $val"
 msgstr "Dodatkowe domeny wyszukiwania DNS $val"
 
@@ -852,7 +857,7 @@ msgstr "Dodatkowe domeny wyszukiwania DNS $val"
 msgid "Additional Storage"
 msgstr "Dodatkowe urządzenia do przechowywania danych"
 
-#: pkg/networkmanager/interfaces.js:2638
+#: pkg/networkmanager/interfaces.js:2639
 msgid "Additional address $val"
 msgstr "Dodatkowy adres $val"
 
@@ -873,7 +878,7 @@ msgstr "Dodane"
 msgid "Address"
 msgstr "Adres"
 
-#: pkg/networkmanager/interfaces.js:2638
+#: pkg/networkmanager/interfaces.js:2639
 msgid "Address $val"
 msgstr "Adres $val"
 
@@ -883,7 +888,7 @@ msgid "Address:"
 msgstr "Adres:"
 
 #: pkg/kubernetes/views/details-page.html:37
-#: pkg/networkmanager/interfaces.js:3282
+#: pkg/networkmanager/interfaces.js:3283
 msgid "Addresses"
 msgstr "Adresy"
 
@@ -996,7 +1001,7 @@ msgstr "Zawsze"
 msgid "Annotations"
 msgstr "Adnotacje"
 
-#: pkg/kubernetes/scripts/projects.js:1023
+#: pkg/kubernetes/scripts/projects.js:1028
 msgid "Anonymous: Allow all unauthenticated users to pull images"
 msgstr ""
 "Anonimowo: umożliwia pobieranie obrazów wszystkim nieuwierzytelnionym "
@@ -1013,8 +1018,8 @@ msgstr "Aplikacje"
 #: pkg/networkmanager/index.html:796 pkg/networkmanager/index.html:820
 #: pkg/networkmanager/index.html:844 pkg/ostree/index.html:39
 #: pkg/kdump/kdump-view.jsx:358 pkg/machines/components/vcpuModal.jsx:223
-#: pkg/ovirt/components/vcpuModal.jsx:97 pkg/storaged/crypto-tab.jsx:84
-#: pkg/storaged/crypto-tab.jsx:113 pkg/storaged/fsys-tab.jsx:76
+#: pkg/ovirt/components/vcpuModal.jsx:97 pkg/storaged/crypto-tab.jsx:78
+#: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/nfs-details.jsx:177
 msgid "Apply"
 msgstr "Zastosuj"
@@ -1077,6 +1082,10 @@ msgstr "Wymagany jest co najmniej jeden dysk."
 msgid "At specific time"
 msgstr "O podanym czasie"
 
+#: pkg/machines/components/diskAdd.jsx:114
+msgid "Attach permanently"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:395
 msgid "Audit log"
 msgstr "Dziennik audytu"
@@ -1117,18 +1126,18 @@ msgstr "Autor"
 msgid "Authorized Public SSH Keys"
 msgstr "Upoważnione publiczne klucze SSH"
 
-#: pkg/networkmanager/index.html:198 pkg/networkmanager/interfaces.js:1962
-#: pkg/networkmanager/interfaces.js:2746 pkg/networkmanager/interfaces.js:3290
-#: pkg/networkmanager/interfaces.js:3294 pkg/networkmanager/interfaces.js:3300
+#: pkg/networkmanager/index.html:198 pkg/networkmanager/interfaces.js:1963
+#: pkg/networkmanager/interfaces.js:2747 pkg/networkmanager/interfaces.js:3291
+#: pkg/networkmanager/interfaces.js:3295 pkg/networkmanager/interfaces.js:3301
 #: pkg/realmd/operation.js:290
 msgid "Automatic"
 msgstr "Automatyczne"
 
-#: pkg/networkmanager/interfaces.js:1963
+#: pkg/networkmanager/interfaces.js:1964
 msgid "Automatic (DHCP only)"
 msgstr "Automatyczne (tylko DHCP)"
 
-#: pkg/networkmanager/interfaces.js:1953
+#: pkg/networkmanager/interfaces.js:1954
 msgid "Automatic (DHCP)"
 msgstr "Automatyczne (DHCP)"
 
@@ -1250,8 +1259,8 @@ msgstr "Urządzenie blokowe dla systemów plików"
 msgid "Blocked"
 msgstr "Zablokowane"
 
-#: pkg/networkmanager/interfaces.js:2502 pkg/networkmanager/interfaces.js:2514
-#: pkg/networkmanager/interfaces.js:2778
+#: pkg/networkmanager/interfaces.js:2503 pkg/networkmanager/interfaces.js:2515
+#: pkg/networkmanager/interfaces.js:2779
 msgid "Bond"
 msgstr "Wiązanie"
 
@@ -1271,8 +1280,8 @@ msgstr "Kolejność uruchamiania:"
 msgid "Bound By"
 msgstr "Dowiązane przez"
 
-#: pkg/networkmanager/interfaces.js:2508 pkg/networkmanager/interfaces.js:2520
-#: pkg/networkmanager/interfaces.js:2855
+#: pkg/networkmanager/interfaces.js:2509 pkg/networkmanager/interfaces.js:2521
+#: pkg/networkmanager/interfaces.js:2856
 msgid "Bridge"
 msgstr "Mostek"
 
@@ -1284,15 +1293,15 @@ msgstr "Ustawienia portu mostku"
 msgid "Bridge Settings"
 msgstr "Ustawienia mostka"
 
-#: pkg/networkmanager/interfaces.js:2876
+#: pkg/networkmanager/interfaces.js:2877
 msgid "Bridge port"
 msgstr "Port mostku"
 
-#: pkg/networkmanager/interfaces.js:1974 pkg/networkmanager/interfaces.js:1991
+#: pkg/networkmanager/interfaces.js:1975 pkg/networkmanager/interfaces.js:1992
 msgid "Broadcast"
 msgstr "Broadcast"
 
-#: pkg/networkmanager/interfaces.js:2791 pkg/networkmanager/interfaces.js:2825
+#: pkg/networkmanager/interfaces.js:2792 pkg/networkmanager/interfaces.js:2826
 msgid "Broken configuration"
 msgstr "Uszkodzona konfiguracja"
 
@@ -1308,7 +1317,7 @@ msgstr "Błędy:"
 msgid "Built"
 msgstr "Zbudowane"
 
-#: pkg/machines/components/vmDisksTab.jsx:81
+#: pkg/machines/components/vmDisksTab.jsx:70
 msgid "Bus"
 msgstr "Magistrala"
 
@@ -1316,15 +1325,15 @@ msgstr "Magistrala"
 msgid "Bus Expansion Chassis"
 msgstr "Obudowa rozszerzenia magistrali"
 
-#: pkg/machines/libvirt.es6:429
+#: pkg/machines/libvirt.es6:355
 msgid "CHANGE NETWORK STATE action failed"
 msgstr "Działanie CHANGE NETWORK STATE się nie powiodło"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:268
-#: pkg/docker/containers-view.jsx:351
+#: pkg/docker/containers-view.jsx:351 pkg/kubernetes/scripts/graphs.js:599
+#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:821
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:84
-#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:715
-#: pkg/kubernetes/scripts/nodes.js:821 pkg/systemd/hwinfo.jsx:60
+#: pkg/systemd/hwinfo.jsx:60
 msgid "CPU"
 msgstr "Procesor"
 
@@ -1349,7 +1358,7 @@ msgstr "Priorytet procesora"
 msgid "CPU usage:"
 msgstr "Użycie procesora:"
 
-#: pkg/ovirt/provider.es6:226
+#: pkg/ovirt/provider.es6:227
 msgid "CREATE VM action failed"
 msgstr "Działanie CREATE VM się nie powiodło"
 
@@ -1372,6 +1381,8 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/dashboard/index.html:173 pkg/docker/index.html:560
 #: pkg/docker/index.html:594 pkg/docker/index.html:656
 #: pkg/docker/index.html:708 pkg/docker/index.html:748
+#: pkg/kubernetes/views/add-group-dialog.html:18
+#: pkg/kubernetes/views/add-member-role-dialog.html:60
 #: pkg/kubernetes/views/add-role-dialog.html:7
 #: pkg/kubernetes/views/add-user-dialog.html:26
 #: pkg/kubernetes/views/auth-form.html:128
@@ -1399,8 +1410,6 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/kubernetes/views/user-group-remove.html:9
 #: pkg/kubernetes/views/user-modify.html:26
 #: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/kubernetes/views/add-group-dialog.html:18
-#: pkg/kubernetes/views/add-member-role-dialog.html:60
 #: pkg/lib/machine-add.html:42 pkg/lib/machine-change-auth.html:80
 #: pkg/lib/machine-change-port.html:40 pkg/lib/machine-sync-users.html:74
 #: pkg/networkmanager/index.html:651 pkg/networkmanager/index.html:675
@@ -1421,7 +1430,7 @@ msgstr "Nie można wczytać obrazu"
 #: pkg/ovirt/components/ClusterTemplates.jsx:75
 #: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:181
-#: pkg/sosreport/index.js:51 pkg/storaged/dialogx.jsx:256
+#: pkg/sosreport/index.js:51 pkg/storaged/dialogx.jsx:260
 #: pkg/storaged/job-views.jsx:43 pkg/storaged/jobs-panel.jsx:123
 msgid "Cancel"
 msgstr "Anuluj"
@@ -1434,7 +1443,7 @@ msgstr "Nie można połączyć z nieznanym komputerem"
 msgid "Cannot decrypt PEM-encoded private key"
 msgstr "Nie można odszyfrować klucza prywatnego zakodowanego jako PEM"
 
-#: src/base1/cockpit.js:4011
+#: src/base1/cockpit.js:4012
 msgid "Cannot forward login credentials"
 msgstr "Nie można przekazać danych uwierzytelniania logowania"
 
@@ -1450,11 +1459,11 @@ msgstr "Nie można planować zdarzeń w przeszłości"
 
 #: pkg/kubernetes/views/node-page.html:17 pkg/kubernetes/views/pv-body.html:13
 #: pkg/kubernetes/views/pv-modify.html:44 pkg/kubernetes/views/pvc-body.html:32
-#: pkg/machines/components/vmDisksTab.jsx:79
+#: pkg/machines/components/vmDisksTab.jsx:68
 msgid "Capacity"
 msgstr "Pojemność"
 
-#: pkg/networkmanager/interfaces.js:2577
+#: pkg/networkmanager/interfaces.js:2578
 msgid "Carrier"
 msgstr "Operator"
 
@@ -1523,11 +1532,11 @@ msgstr "Zmień ograniczenia zasobów"
 msgid "Change resources limits"
 msgstr "Zmień ograniczenia zasobów"
 
-#: pkg/networkmanager/interfaces.js:3128
+#: pkg/networkmanager/interfaces.js:3129
 msgid "Change the settings"
 msgstr "Zmień ustawienia"
 
-#: pkg/networkmanager/interfaces.js:3127
+#: pkg/networkmanager/interfaces.js:3128
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1626,7 +1635,7 @@ msgstr "Certyfikat klienta"
 #: pkg/storaged/index.html:421 pkg/systemd/index.html:307
 #: pkg/systemd/services.html:347 pkg/systemd/services.html:365
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:107 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:256
+#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:260
 msgid "Close"
 msgstr "Zamknij"
 
@@ -1634,7 +1643,7 @@ msgstr "Zamknij"
 msgid "Close Selected Pages"
 msgstr "Zamknij zaznaczone strony"
 
-#: pkg/kubernetes/views/auth-form.html:5 pkg/kubernetes/index.html:37
+#: pkg/kubernetes/index.html:37 pkg/kubernetes/views/auth-form.html:5
 #: pkg/ovirt/components/App.jsx:105
 msgid "Cluster"
 msgstr "Klaster"
@@ -1664,7 +1673,7 @@ msgstr ""
 "upewnić, że ma on uruchomioną usługę ssh na porcie $1 lub podać inny port "
 "w adresie."
 
-#: src/base1/cockpit.js:4017
+#: src/base1/cockpit.js:4018
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit nie może skontaktować się z podanym komputerem."
 
@@ -1697,7 +1706,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit to interaktywny interfejs do administrowania serwerami Linux."
 
-#: src/base1/cockpit.js:4015
+#: src/base1/cockpit.js:4016
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit nie jest zgodny z oprogramowaniem w systemie."
 
@@ -1705,7 +1714,7 @@ msgstr "Cockpit nie jest zgodny z oprogramowaniem w systemie."
 msgid "Cockpit is not installed"
 msgstr "Cockpit nie jest zainstalowany"
 
-#: src/base1/cockpit.js:4009
+#: src/base1/cockpit.js:4010
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit nie jest zainstalowany w systemie."
 
@@ -1829,7 +1838,7 @@ msgid "Compress crash dumps to save space"
 msgstr "Kompresowanie zrzutów awarii, aby oszczędzać miejsce"
 
 #: pkg/kdump/kdump-view.jsx:190 pkg/storaged/vdo-details.jsx:305
-#: pkg/storaged/vdos-panel.jsx:93
+#: pkg/storaged/vdos-panel.jsx:94
 msgid "Compression"
 msgstr "Kompresja"
 
@@ -1849,7 +1858,7 @@ msgstr "Warunek się nie powiódł"
 msgid "Configuration"
 msgstr "Konfiguracja"
 
-#: pkg/networkmanager/interfaces.js:2712
+#: pkg/networkmanager/interfaces.js:2713
 msgid "Configure"
 msgstr "Skonfiguruj"
 
@@ -1889,7 +1898,7 @@ msgstr "Proszę potwierdzić usunięcie $0"
 msgid "Confirm migration"
 msgstr "Potwierdź migrację"
 
-#: pkg/storaged/format-dialog.jsx:303
+#: pkg/storaged/format-dialog.jsx:328
 msgid "Confirm passphrase"
 msgstr "Potwierdź hasło"
 
@@ -1915,7 +1924,7 @@ msgstr "Powoduje konflikt z"
 msgid "Connect"
 msgstr "Połącz"
 
-#: pkg/networkmanager/interfaces.js:2699
+#: pkg/networkmanager/interfaces.js:2700
 msgid "Connect automatically"
 msgstr "Łączenie automatyczne"
 
@@ -1982,7 +1991,7 @@ msgstr "Błąd połączenia: $0"
 msgid "Connection Settings"
 msgstr "Ustawienia połączenia"
 
-#: src/base1/cockpit.js:4007
+#: src/base1/cockpit.js:4008
 msgid "Connection has timed out."
 msgstr "Połączenie przekroczyło czas oczekiwania."
 
@@ -2043,11 +2052,10 @@ msgid "Container:"
 msgstr "Kontener:"
 
 #: pkg/docker/index.html:23 pkg/docker/index.html:285
-#: pkg/kubernetes/views/containers-listing.html:5
+#: pkg/kubernetes/index.html:55 pkg/kubernetes/views/containers-listing.html:5
 #: pkg/kubernetes/views/dashboard-page.html:158
 #: pkg/kubernetes/views/dashboard-page.html:199
-#: pkg/kubernetes/views/pod-page.html:36 pkg/kubernetes/index.html:55
-#: pkg/docker/containers-view.jsx:367
+#: pkg/kubernetes/views/pod-page.html:36 pkg/docker/containers-view.jsx:367
 msgid "Containers"
 msgstr "Kontenery"
 
@@ -2153,10 +2161,6 @@ msgstr "Nie można wczytać ustawień dla „$0”: $1"
 msgid "Couldn't load user data"
 msgstr "Nie można wczytać danych użytkownika"
 
-#: pkg/machines/components/vmDisksTab.jsx:30
-msgid "Count:"
-msgstr "Liczba:"
-
 #: pkg/kdump/kdump-view.jsx:342 pkg/kdump/kdump-view.jsx:511
 msgid "Crash dump location"
 msgstr "Położenie zrzutu awarii"
@@ -2165,15 +2169,15 @@ msgstr "Położenie zrzutu awarii"
 msgid "Crash system"
 msgstr "System awarii"
 
-#: pkg/kubernetes/views/project-modify.html:72
-#: pkg/kubernetes/views/add-group-dialog.html:19 pkg/users/index.html:226
+#: pkg/kubernetes/views/add-group-dialog.html:19
+#: pkg/kubernetes/views/project-modify.html:72 pkg/users/index.html:226
 #: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
 #: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:442
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:400
 #: pkg/ovirt/components/ClusterTemplates.jsx:76
 #: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:678
 #: pkg/storaged/lvol-tabs.jsx:229 pkg/storaged/mdraids-panel.jsx:84
-#: pkg/storaged/vdos-panel.jsx:107 pkg/storaged/vgroups-panel.jsx:71
+#: pkg/storaged/vdos-panel.jsx:108 pkg/storaged/vgroups-panel.jsx:71
 msgid "Create"
 msgstr "Utwórz"
 
@@ -2181,16 +2185,20 @@ msgstr "Utwórz"
 msgid "Create Logical Volume"
 msgstr "Utwórz wolumin logiczny"
 
+#: pkg/machines/components/diskAdd.jsx:322
+msgid "Create New"
+msgstr ""
+
 #: pkg/users/index.html:52 pkg/users/index.html:164
 msgid "Create New Account"
 msgstr "Utwórz nowe konto"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:455
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:413
 #: pkg/ovirt/components/App.jsx:155
 msgid "Create New VM"
 msgstr "Utwórz nową maszynę wirtualną"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:414
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:372
 msgid "Create New Virtual Machine"
 msgstr "Utwórz nową maszynę wirtualną"
 
@@ -2222,7 +2230,7 @@ msgstr "Utwórz licznik"
 msgid "Create Timers"
 msgstr "Utwórz liczniki"
 
-#: pkg/storaged/vdos-panel.jsx:47
+#: pkg/storaged/vdos-panel.jsx:48
 msgid "Create VDO Device"
 msgstr "Utwórz urządzenie VDO"
 
@@ -2250,8 +2258,8 @@ msgstr "Utwórz pusty strumień obrazu"
 msgid "Create image stream"
 msgstr "Utwórz strumień obrazu"
 
-#: pkg/networkmanager/interfaces.js:3792 pkg/networkmanager/interfaces.js:3985
-#: pkg/networkmanager/interfaces.js:4224 pkg/networkmanager/interfaces.js:4430
+#: pkg/networkmanager/interfaces.js:3793 pkg/networkmanager/interfaces.js:3986
+#: pkg/networkmanager/interfaces.js:4225 pkg/networkmanager/interfaces.js:4431
 msgid "Create it"
 msgstr "Utwórz"
 
@@ -2259,11 +2267,11 @@ msgstr "Utwórz"
 msgid "Create new Logical Volume"
 msgstr "Utworzono:"
 
-#: pkg/storaged/format-dialog.jsx:317
+#: pkg/storaged/format-dialog.jsx:342
 msgid "Create partition"
 msgstr "Utwórz partycję"
 
-#: pkg/storaged/format-dialog.jsx:176
+#: pkg/storaged/format-dialog.jsx:201
 msgid "Create partition on $0"
 msgstr "Utwórz partycję w $0"
 
@@ -2304,7 +2312,7 @@ msgstr "Tworzenie partycji $target"
 msgid "Creating snapshot of $target"
 msgstr "Tworzenie migawki $target"
 
-#: pkg/networkmanager/interfaces.js:4429
+#: pkg/networkmanager/interfaces.js:4430
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2312,7 +2320,7 @@ msgstr ""
 "Utworzenie tej sieci VLAN zerwie połączenie z serwerem i uniemożliwi "
 "korzystanie z interfejsu administracji."
 
-#: pkg/networkmanager/interfaces.js:3791
+#: pkg/networkmanager/interfaces.js:3792
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2320,7 +2328,7 @@ msgstr ""
 "Utworzenie tego wiązania zerwie połączenie z serwerem i uniemożliwi "
 "korzystanie z interfejsu administracji."
 
-#: pkg/networkmanager/interfaces.js:4223
+#: pkg/networkmanager/interfaces.js:4224
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2328,7 +2336,7 @@ msgstr ""
 "Utworzenie tego mostka zerwie połączenie z serwerem i uniemożliwi "
 "korzystanie z interfejsu administracji."
 
-#: pkg/networkmanager/interfaces.js:3984
+#: pkg/networkmanager/interfaces.js:3985
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2340,7 +2348,7 @@ msgstr ""
 msgid "Creating volume group $target"
 msgstr "Tworzenie grupy woluminów $target"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:436
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:394
 msgid "Creation of vm $0 failed"
 msgstr "Utworzenie maszyny wirtualnej $0 się nie powiodło"
 
@@ -2356,11 +2364,11 @@ msgstr "Obecne uruchomienie"
 msgid "Currently using:"
 msgstr "Obecnie używane:"
 
-#: pkg/storaged/format-dialog.jsx:68
+#: pkg/storaged/format-dialog.jsx:70
 msgid "Custom"
 msgstr "Niestandardowe"
 
-#: pkg/storaged/format-dialog.jsx:250
+#: pkg/storaged/format-dialog.jsx:275
 msgid "Custom (Enter filesystem type)"
 msgstr "Niestandardowe (podanie typu systemu plików)"
 
@@ -2368,7 +2376,7 @@ msgstr "Niestandardowe (podanie typu systemu plików)"
 msgid "Custom URL"
 msgstr "Niestandardowy adres URL"
 
-#: pkg/storaged/format-dialog.jsx:150
+#: pkg/storaged/format-dialog.jsx:152 pkg/storaged/format-dialog.jsx:175
 msgid "Custom encryption options"
 msgstr "Niestandardowe opcje szyfrowania"
 
@@ -2376,7 +2384,7 @@ msgstr "Niestandardowe opcje szyfrowania"
 msgid "Custom mount option"
 msgstr "Niestandardowa opcja montowania"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:113
 msgid "Custom mount options"
 msgstr "Niestandardowe opcje montowania"
 
@@ -2384,11 +2392,11 @@ msgstr "Niestandardowe opcje montowania"
 msgid "DISK IS FAILING"
 msgstr "NA DYSKU WYSTĘPUJĄ BŁĘDY"
 
-#: pkg/networkmanager/interfaces.js:3289
+#: pkg/networkmanager/interfaces.js:3290
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/interfaces.js:2643
+#: pkg/networkmanager/interfaces.js:2644
 msgid "DNS $val"
 msgstr "DNS $val"
 
@@ -2396,11 +2404,11 @@ msgstr "DNS $val"
 msgid "DNS Policy"
 msgstr "Polityka DNS"
 
-#: pkg/networkmanager/interfaces.js:3293
+#: pkg/networkmanager/interfaces.js:3294
 msgid "DNS Search Domains"
 msgstr "Domeny wyszukiwania DNS"
 
-#: pkg/networkmanager/interfaces.js:2646
+#: pkg/networkmanager/interfaces.js:2647
 msgid "DNS Search Domains $val"
 msgstr "Domeny wyszukiwania DNS $val"
 
@@ -2428,14 +2436,14 @@ msgstr "Dezaktywowanie $target"
 msgid "Debug and above"
 msgstr "Debugowania i powyżej"
 
-#: pkg/storaged/vdo-details.jsx:311 pkg/storaged/vdos-panel.jsx:98
+#: pkg/storaged/vdo-details.jsx:311 pkg/storaged/vdos-panel.jsx:99
 msgid "Deduplication"
 msgstr "Deduplikacja"
 
 #: pkg/docker/index.html:355 pkg/docker/index.html:359
 #: pkg/ostree/index.html:253
 #: node_modules/registry-image-widgets/views/image-config.html:10
-#: pkg/storaged/format-dialog.jsx:67
+#: pkg/storaged/format-dialog.jsx:69
 #: pkg/subscriptions/subscriptions-register.jsx:101
 msgid "Default"
 msgstr "Domyślne"
@@ -2459,8 +2467,8 @@ msgstr "Opóźnienie"
 #: pkg/docker/details.js:286 pkg/docker/image.js:141
 #: pkg/kubernetes/scripts/virtual-machines/components/VmActions.jsx:48
 #: pkg/kubernetes/scripts/volumes.js:218
-#: pkg/machines/components/vm/vmActions.jsx:98
 #: pkg/machines/components/deleteDialog.jsx:92
+#: pkg/machines/components/vm/vmActions.jsx:98
 #: pkg/storaged/content-views.jsx:281 pkg/storaged/content-views.jsx:302
 #: pkg/storaged/mdraid-details.jsx:303 pkg/storaged/mdraid-details.jsx:326
 #: pkg/storaged/vdo-details.jsx:192 pkg/storaged/vdo-details.jsx:256
@@ -2468,7 +2476,7 @@ msgstr "Opóźnienie"
 msgid "Delete"
 msgstr "Usuń"
 
-#: pkg/docker/containers-view.jsx:534 pkg/networkmanager/interfaces.js:2427
+#: pkg/docker/containers-view.jsx:534 pkg/networkmanager/interfaces.js:2428
 #: pkg/users/local.js:1122
 msgid "Delete $0"
 msgstr "Usuń $0"
@@ -2517,7 +2525,7 @@ msgstr "Usuń {{ item.kind }}"
 msgid "Deleting $target"
 msgstr "Usuwanie $target"
 
-#: pkg/networkmanager/interfaces.js:2426
+#: pkg/networkmanager/interfaces.js:2427
 msgid ""
 "Deleting <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -2629,7 +2637,7 @@ msgid "Details"
 msgstr "Szczegóły"
 
 #: pkg/machines/components/vmDiskSourceCell.jsx:36
-#: pkg/machines/components/vmDisksTab.jsx:74
+#: pkg/machines/components/vmDisksTab.jsx:57
 msgid "Device"
 msgstr "Urządzenie"
 
@@ -2637,7 +2645,7 @@ msgstr "Urządzenie"
 msgid "Device File"
 msgstr "Plik urządzenia"
 
-#: pkg/storaged/content-views.jsx:535 pkg/storaged/format-dialog.jsx:401
+#: pkg/storaged/content-views.jsx:535 pkg/storaged/format-dialog.jsx:426
 msgid "Device is read-only"
 msgstr "Urządzenie jest tylko do odczytu"
 
@@ -2655,7 +2663,7 @@ msgstr "Przegląd"
 msgid "Directory"
 msgstr "Katalog"
 
-#: pkg/kdump/kdump-client.es6:111
+#: pkg/kdump/kdump-client.es6:115
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "Katalog $0 nie jest zapisywalny lub nie istnieje."
 
@@ -2667,7 +2675,7 @@ msgstr "Wyłącz"
 msgid "Disable tuned"
 msgstr "Wyłącz tuned"
 
-#: pkg/networkmanager/interfaces.js:1957 pkg/systemd/init.js:304
+#: pkg/networkmanager/interfaces.js:1958 pkg/systemd/init.js:304
 msgid "Disabled"
 msgstr "Wyłączone"
 
@@ -2685,7 +2693,7 @@ msgstr ""
 "Rozłączono z konsoli szeregowej. Proszę kliknąć przycisk „Połącz ponownie”."
 
 #: pkg/kubernetes/scripts/nodes.js:723 pkg/kubernetes/scripts/nodes.js:839
-#: pkg/storaged/vdos-panel.jsx:58
+#: pkg/storaged/vdos-panel.jsx:59
 msgid "Disk"
 msgstr "Dysk"
 
@@ -2696,6 +2704,14 @@ msgstr "Wejście/wyjście dysku"
 #: pkg/kubernetes/scripts/nodes.js:724
 msgid "Disk Utilization: $0%"
 msgstr "Użycie dysku: $0%"
+
+#: pkg/machines/components/diskAdd.jsx:409
+msgid "Disk failed to be attached with following error: "
+msgstr ""
+
+#: pkg/machines/components/diskAdd.jsx:396
+msgid "Disk failed to be created with following error: "
+msgstr ""
 
 #: pkg/storaged/drive-details.jsx:50
 msgid "Disk is OK"
@@ -2803,7 +2819,7 @@ msgstr "Hasło administratora domeny"
 msgid "Don't Repeat"
 msgstr "Bez powtarzania"
 
-#: pkg/storaged/content-views.jsx:497 pkg/storaged/format-dialog.jsx:276
+#: pkg/storaged/content-views.jsx:497 pkg/storaged/format-dialog.jsx:301
 msgid "Don't overwrite existing data"
 msgstr "Nie zastępuj istniejących danych"
 
@@ -2872,7 +2888,7 @@ msgstr "Podwójny alias"
 msgid "Duplicate port"
 msgstr "Podwójny port"
 
-#: pkg/storaged/crypto-tab.jsx:168 pkg/storaged/nfs-details.jsx:288
+#: pkg/storaged/crypto-tab.jsx:162 pkg/storaged/nfs-details.jsx:288
 msgid "Edit"
 msgstr "Modyfikuj"
 
@@ -2943,7 +2959,7 @@ msgstr "Włączone"
 msgid "Encrypted $0"
 msgstr "Zaszyfrowane $0"
 
-#: pkg/storaged/format-dialog.jsx:243
+#: pkg/storaged/format-dialog.jsx:268
 msgid "Encrypted EXT4 (LUKS)"
 msgstr "Szyfrowane EXT4 (LUKS)"
 
@@ -2955,7 +2971,7 @@ msgstr "Zaszyfrowany wolumin logiczny $0"
 msgid "Encrypted Partition of $0"
 msgstr "Zaszyfrowana partycja $0"
 
-#: pkg/storaged/format-dialog.jsx:242
+#: pkg/storaged/format-dialog.jsx:267
 msgid "Encrypted XFS (LUKS)"
 msgstr "Szyfrowane XFS (LUKS)"
 
@@ -2976,7 +2992,8 @@ msgstr "Zaszyfrowane woluminy muszą zostać odblokowane przed zmianą rozmiaru.
 msgid "Encryption"
 msgstr "Szyfrowanie"
 
-#: pkg/storaged/crypto-tab.jsx:110 pkg/storaged/format-dialog.jsx:138
+#: pkg/storaged/crypto-tab.jsx:104 pkg/storaged/format-dialog.jsx:140
+#: pkg/storaged/format-dialog.jsx:167
 msgid "Encryption Options"
 msgstr "Opcje szyfrowania"
 
@@ -3034,7 +3051,7 @@ msgstr "Punkt wejścia"
 msgid "Environment"
 msgstr "Środowisko"
 
-#: pkg/storaged/content-views.jsx:495 pkg/storaged/format-dialog.jsx:274
+#: pkg/storaged/content-views.jsx:495 pkg/storaged/format-dialog.jsx:299
 msgid "Erase"
 msgstr "Wymaż"
 
@@ -3101,7 +3118,7 @@ msgstr "MAC ethernetu"
 msgid "Ethernet MTU"
 msgstr "MTU ethernetu"
 
-#: pkg/networkmanager/interfaces.js:2003
+#: pkg/networkmanager/interfaces.js:2004
 msgid "Ethtool"
 msgstr "ethtool"
 
@@ -3133,7 +3150,7 @@ msgstr "Podpis wygasł"
 msgid "Expose container ports"
 msgstr "Eksponuj porty kontenera"
 
-#: pkg/storaged/content-views.jsx:433 pkg/storaged/format-dialog.jsx:247
+#: pkg/storaged/content-views.jsx:433 pkg/storaged/format-dialog.jsx:272
 msgid "Extended Partition"
 msgstr "Rozszerzona partycja"
 
@@ -3206,7 +3223,7 @@ msgstr "Fibre Channel"
 msgid "File"
 msgstr "Plik"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:256
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:214
 #: pkg/storaged/content-views.jsx:142
 msgid "Filesystem"
 msgstr "System plików"
@@ -3230,7 +3247,7 @@ msgstr "Nazwa systemu plików"
 msgid "Filesystem Type"
 msgstr "Typ systemu plików"
 
-#: pkg/storaged/format-dialog.jsx:289
+#: pkg/storaged/format-dialog.jsx:314
 msgid "Filesystem type"
 msgstr "Typ systemu plików"
 
@@ -3291,12 +3308,12 @@ msgstr "Wymuś wyłączenie"
 msgid "Force password change"
 msgstr "Wymuszenie zmiany hasła"
 
-#: pkg/storaged/content-views.jsx:514 pkg/storaged/format-dialog.jsx:317
-#: pkg/storaged/format-dialog.jsx:402
+#: pkg/storaged/content-views.jsx:514 pkg/storaged/format-dialog.jsx:342
+#: pkg/storaged/format-dialog.jsx:427
 msgid "Format"
 msgstr "Sformatuj"
 
-#: pkg/storaged/format-dialog.jsx:178
+#: pkg/storaged/format-dialog.jsx:203
 msgid "Format $0"
 msgstr "Sformatuj $0"
 
@@ -3304,17 +3321,21 @@ msgstr "Sformatuj $0"
 msgid "Format Disk $0"
 msgstr "Sformatuj dysk $0"
 
+#: pkg/machines/components/diskAdd.jsx:175
+msgid "Format: "
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:515
 msgid "Formatting a disk will erase all data on it."
 msgstr "Sformatowanie dysku usunie wszystkie znajdujące się na nim dane."
 
-#: pkg/storaged/format-dialog.jsx:319
+#: pkg/storaged/format-dialog.jsx:344
 msgid "Formatting a storage device will erase all data on it."
 msgstr ""
 "Sformatowanie urządzenia do przechowywania danych usunie wszystkie "
 "znajdujące się na nim dane."
 
-#: pkg/networkmanager/interfaces.js:2848
+#: pkg/networkmanager/interfaces.js:2849
 msgid "Forward delay $forward_delay"
 msgstr "Opóźnienie w przód $forward_delay"
 
@@ -3345,7 +3366,7 @@ msgstr "Imię i nazwisko"
 msgid "GCE Persistent Disk"
 msgstr "Trwały dysk GCE"
 
-#: pkg/machines/libvirt.es6:526
+#: pkg/machines/libvirt.es6:390
 msgid "GET HYPERVISOR MAX VCPU action failed"
 msgstr "Działanie GET HYPERVISOR MAX VCPU się nie powiodło"
 
@@ -3353,7 +3374,7 @@ msgstr "Działanie GET HYPERVISOR MAX VCPU się nie powiodło"
 msgid "Gateway:"
 msgstr "Brama:"
 
-#: pkg/networkmanager/interfaces.js:2690 pkg/systemd/logs.js:411
+#: pkg/networkmanager/interfaces.js:2691 pkg/systemd/logs.js:411
 msgid "General"
 msgstr "Ogólne"
 
@@ -3365,8 +3386,9 @@ msgstr "Tworzenie raportu"
 msgid "Get new image"
 msgstr "Pobierz nowy obraz"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:81
-#: pkg/machines/components/vmDisksTab.jsx:53
+#: pkg/machines/components/diskAdd.jsx:168
+#: pkg/machines/components/memorySelectRow.jsx:57
+#: pkg/machines/components/vmDisksTab.jsx:42
 msgid "GiB"
 msgstr "GiB"
 
@@ -3464,7 +3486,7 @@ msgstr "Metoda HTTP"
 msgid "Hair Pin mode"
 msgstr "Tryb Hairpin"
 
-#: pkg/networkmanager/interfaces.js:2874
+#: pkg/networkmanager/interfaces.js:2875
 msgid "Hairpin mode"
 msgstr "Tryb Hairpin"
 
@@ -3489,7 +3511,7 @@ msgstr "Sprzęt"
 msgid "Hardware Information"
 msgstr "Informacje o sprzęcie"
 
-#: pkg/networkmanager/interfaces.js:2850
+#: pkg/networkmanager/interfaces.js:2851
 msgid "Hello time $hello_time"
 msgstr "Czas powitania $hello_time"
 
@@ -3510,7 +3532,7 @@ msgstr "Nazwa komputera"
 msgid "Host Path"
 msgstr "Ścieżka gospodarza"
 
-#: src/base1/cockpit.js:4003
+#: src/base1/cockpit.js:4004
 msgid "Host key is incorrect"
 msgstr "Klucz komputera jest niepoprawny"
 
@@ -3534,7 +3556,7 @@ msgstr "Godziny"
 msgid "I/O Wait"
 msgstr "Oczekiwanie wejścia/wyjścia"
 
-#: pkg/machines/libvirt.es6:339
+#: pkg/machines/libvirt-common.es6:697
 msgid "INSTALL VM action failed"
 msgstr "Działanie INSTALL VM się nie powiodło"
 
@@ -3559,19 +3581,19 @@ msgstr "Długość przedrostka IP:"
 msgid "IP Settings"
 msgstr "Ustawienia IP"
 
-#: pkg/networkmanager/interfaces.js:2899
+#: pkg/networkmanager/interfaces.js:2900
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/networkmanager/interfaces.js:3332
+#: pkg/networkmanager/interfaces.js:3333
 msgid "IPv4 Settings"
 msgstr "Ustawienia IPv4"
 
-#: pkg/networkmanager/interfaces.js:2900
+#: pkg/networkmanager/interfaces.js:2901
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/networkmanager/interfaces.js:3332
+#: pkg/networkmanager/interfaces.js:3333
 msgid "IPv6 Settings"
 msgstr "Ustawienia IPv6"
 
@@ -3584,7 +3606,7 @@ msgstr "iSCSI"
 msgid "Id"
 msgstr "Identyfikator"
 
-#: pkg/networkmanager/interfaces.js:2891
+#: pkg/networkmanager/interfaces.js:2892
 msgid "Id $id"
 msgstr "Identyfikator $id"
 
@@ -3597,7 +3619,7 @@ msgstr "Identyfikator:"
 msgid "Identifier"
 msgstr "Identyfikator"
 
-#: pkg/kubernetes/views/user-page.html:23
+#: pkg/kubernetes/views/user-page.html:22
 #: pkg/kubernetes/views/user-panel.html:18
 msgid "Identities"
 msgstr "Tożsamości"
@@ -3608,7 +3630,7 @@ msgstr "Tożsamości"
 msgid "Identity"
 msgstr "Tożsamość"
 
-#: pkg/networkmanager/interfaces.js:1966 pkg/packagekit/updates.jsx:517
+#: pkg/networkmanager/interfaces.js:1967 pkg/packagekit/updates.jsx:517
 msgid "Ignore"
 msgstr "Ignorowanie"
 
@@ -3664,10 +3686,10 @@ msgstr "Strumień obrazu"
 msgid "Image:"
 msgstr "Obraz:"
 
+#: pkg/kubernetes/index.html:87 pkg/kubernetes/registry.html:49
 #: pkg/kubernetes/views/images-page.html:13
 #: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/kubernetes/index.html:87 pkg/kubernetes/registry.html:49
 #: pkg/docker/containers-view.jsx:693
 msgid "Images"
 msgstr "Obrazy"
@@ -3706,7 +3728,7 @@ msgstr "Obrazy mogą być pobierane tylko przez podanych użytkowników i grupy
 msgid "Images pushed recently"
 msgstr "Ostatnio wysłane obrazy"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:314
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:272
 msgid "Immediately Start VM"
 msgstr "Od razu uruchom maszynę wirtualną"
 
@@ -3735,7 +3757,7 @@ msgstr ""
 "w {{#strong}}{{host}}{{/strong}}."
 
 #: pkg/networkmanager/interfaces.js:822 pkg/networkmanager/interfaces.js:1418
-#: pkg/networkmanager/interfaces.js:1425 pkg/networkmanager/interfaces.js:2593
+#: pkg/networkmanager/interfaces.js:1425 pkg/networkmanager/interfaces.js:2594
 msgid "Inactive"
 msgstr "Nieaktywne"
 
@@ -3747,7 +3769,7 @@ msgstr "Nieaktywny wolumin"
 msgid "Incorrect Host Key"
 msgstr "Niepoprawny klucz komputera"
 
-#: pkg/storaged/vdo-details.jsx:301 pkg/storaged/vdos-panel.jsx:83
+#: pkg/storaged/vdo-details.jsx:301 pkg/storaged/vdos-panel.jsx:84
 msgid "Index Memory"
 msgstr "Pamięć indeksu"
 
@@ -3786,21 +3808,25 @@ msgstr "Zainstaluj aktualizacje zabezpieczeń"
 msgid "Install Software"
 msgstr "Zainstaluj oprogramowanie"
 
+#: pkg/storaged/vdos-panel.jsx:174
+msgid "Install VDO support"
+msgstr ""
+
 #: pkg/selinux/setroubleshoot-view.jsx:360
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr ""
 "Należy zainstalować setroubleshoot-server, aby rozwiązywać problemy ze "
 "zdarzeniami SELinuksa."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:264
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:222
 msgid "Installation Source"
 msgstr "Źródło instalacji"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:248
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:206
 msgid "Installation Source Type"
 msgstr "Typ źródła instalacji"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:374
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:332
 msgid "Installation Source should not be empty"
 msgstr "Źródło instalacji nie może być puste"
 
@@ -3838,7 +3864,7 @@ msgstr "Interfejsy"
 msgid "Internal Error: Invalid challenge header"
 msgstr "Wewnętrzny błąd: nieprawidłowy nagłówek wyzwania"
 
-#: src/base1/cockpit.js:4005
+#: src/base1/cockpit.js:4006
 msgid "Internal error"
 msgstr "Wewnętrzny błąd"
 
@@ -3874,7 +3900,7 @@ msgstr "Nieprawidłowa data wygaśnięcia"
 msgid "Invalid file permissions"
 msgstr "Nieprawidłowe uprawnienia pliku"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:356
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:314
 msgid "Invalid filename"
 msgstr "Nieprawidłowa nazwa pliku"
 
@@ -4134,7 +4160,7 @@ msgstr "Obserwacja łącza"
 msgid "Link down delay"
 msgstr "Opóźnienie łącza w dół"
 
-#: pkg/networkmanager/interfaces.js:1954 pkg/networkmanager/interfaces.js:1964
+#: pkg/networkmanager/interfaces.js:1955 pkg/networkmanager/interfaces.js:1965
 msgid "Link local"
 msgstr "Link-local"
 
@@ -4154,7 +4180,7 @@ msgstr "Łącza"
 msgid "Links:"
 msgstr "Odnośniki:"
 
-#: pkg/networkmanager/interfaces.js:1990
+#: pkg/networkmanager/interfaces.js:1991
 msgid "Load Balancing"
 msgstr "Równoważenie obciążenia"
 
@@ -4259,7 +4285,7 @@ msgstr "Zalogowano"
 msgid "Logical"
 msgstr "Logiczny"
 
-#: pkg/storaged/vdo-details.jsx:214 pkg/storaged/vdos-panel.jsx:67
+#: pkg/storaged/vdo-details.jsx:214 pkg/storaged/vdos-panel.jsx:68
 msgid "Logical Size"
 msgstr "Rozmiar logiczny"
 
@@ -4297,7 +4323,7 @@ msgstr "Hasło logowania"
 msgid "Login commands"
 msgstr "Polecenia logowania"
 
-#: src/base1/cockpit.js:3995
+#: src/base1/cockpit.js:3996
 msgid "Login failed"
 msgstr "Logowanie się nie powiodło"
 
@@ -4342,19 +4368,19 @@ msgstr "Adres MAC"
 msgid "MAC Address:"
 msgstr "Adres MAC:"
 
-#: pkg/ovirt/provider.es6:253
+#: pkg/ovirt/provider.es6:254
 msgid "MIGRATE action failed"
 msgstr "Działanie MIGRATE się nie powiodło"
 
-#: pkg/networkmanager/interfaces.js:1982
+#: pkg/networkmanager/interfaces.js:1983
 msgid "MII (Recommended)"
 msgstr "MII (zalecane)"
 
-#: pkg/machines/vmnetworktab.jsx:89 pkg/networkmanager/interfaces.js:2748
+#: pkg/machines/vmnetworktab.jsx:89 pkg/networkmanager/interfaces.js:2749
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:4495
+#: pkg/networkmanager/interfaces.js:4496
 msgid "MTU must be a positive number"
 msgstr "MTU musi być liczbą dodatnią"
 
@@ -4382,7 +4408,7 @@ msgstr "Zarządzane"
 msgid "Manifest"
 msgstr "Manifest"
 
-#: pkg/networkmanager/interfaces.js:1955 pkg/networkmanager/interfaces.js:1965
+#: pkg/networkmanager/interfaces.js:1956 pkg/networkmanager/interfaces.js:1966
 msgid "Manual"
 msgstr "Ręczne"
 
@@ -4410,11 +4436,11 @@ msgstr "Maskuj"
 msgid "Mask Forcefully"
 msgstr "Wymuś maskowanie"
 
-#: pkg/networkmanager/interfaces.js:2754
+#: pkg/networkmanager/interfaces.js:2755
 msgid "Master"
 msgstr "Główne"
 
-#: pkg/networkmanager/interfaces.js:2852
+#: pkg/networkmanager/interfaces.js:2853
 msgid "Maximum message age $max_age"
 msgstr "Maksymalny wiek komunikatu $max_age"
 
@@ -4431,6 +4457,8 @@ msgid "Medium"
 msgstr "Nośnik"
 
 #: pkg/kubernetes/views/project-listing.html:92
+#: pkg/kubernetes/views/user-body.html:4
+#: pkg/kubernetes/views/user-panel.html:27
 msgid "Member of"
 msgstr "Element"
 
@@ -4444,24 +4472,22 @@ msgstr "Element urządzenia RAID $0"
 
 #: pkg/kubernetes/views/project-listing.html:16
 #: pkg/kubernetes/views/project-listing.html:55
-#: pkg/networkmanager/index.html:347 pkg/networkmanager/interfaces.js:2973
+#: pkg/networkmanager/index.html:347 pkg/networkmanager/interfaces.js:2974
 msgid "Members"
 msgstr "Elementy"
 
 #: pkg/kubernetes/views/project-page.html:29
-#: pkg/kubernetes/views/user-body.html:4
+#: pkg/kubernetes/views/user-page.html:25
 #: pkg/kubernetes/views/user-panel.html:11
-#: pkg/kubernetes/views/user-panel.html:27
 msgid "Membership"
 msgstr "Członkostwo"
 
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:269
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:230
-#: pkg/docker/containers-view.jsx:351
+#: pkg/docker/containers-view.jsx:351 pkg/kubernetes/scripts/graphs.js:604
+#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:93
-#: pkg/kubernetes/scripts/graphs.js:604 pkg/kubernetes/scripts/nodes.js:719
-#: pkg/kubernetes/scripts/nodes.js:830
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:299
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:257
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181
 msgid "Memory"
@@ -4480,7 +4506,7 @@ msgstr "Użycie pamięci: $0%"
 msgid "Memory limit"
 msgstr "Ograniczenie pamięci"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:378
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:336
 msgid "Memory should be positive number"
 msgstr "Pamięć musi być liczbą dodatnią"
 
@@ -4517,7 +4543,8 @@ msgid "Method"
 msgstr "Metoda"
 
 #: pkg/docker/index.html:463 pkg/docker/index.html:634
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:78
+#: pkg/machines/components/diskAdd.jsx:165
+#: pkg/machines/components/memorySelectRow.jsx:54
 msgid "MiB"
 msgstr "MiB"
 
@@ -4604,13 +4631,13 @@ msgstr "Położenie punktu montowania"
 msgid "Mount Options"
 msgstr "Opcje montowania"
 
-#: pkg/storaged/format-dialog.jsx:73 pkg/storaged/fsys-panel.jsx:109
+#: pkg/storaged/format-dialog.jsx:75 pkg/storaged/fsys-panel.jsx:109
 #: pkg/storaged/fsys-tab.jsx:162 pkg/storaged/nfs-details.jsx:302
 #: pkg/storaged/nfs-panel.jsx:102
 msgid "Mount Point"
 msgstr "Punkt montowania"
 
-#: pkg/storaged/format-dialog.jsx:85 pkg/storaged/nfs-details.jsx:164
+#: pkg/storaged/format-dialog.jsx:87 pkg/storaged/nfs-details.jsx:164
 msgid "Mount at boot"
 msgstr "Montowanie podczas uruchamiania"
 
@@ -4618,11 +4645,11 @@ msgstr "Montowanie podczas uruchamiania"
 msgid "Mount container volumes"
 msgstr "Zamontuj woluminy kontenera"
 
-#: pkg/storaged/format-dialog.jsx:83
+#: pkg/storaged/format-dialog.jsx:85
 msgid "Mount options"
 msgstr "Opcje montowania"
 
-#: pkg/storaged/format-dialog.jsx:80
+#: pkg/storaged/format-dialog.jsx:82
 msgid "Mount point can not be empty"
 msgstr "Punkt montowania nie może być pusty"
 
@@ -4634,7 +4661,7 @@ msgstr "Punkt montowania nie może być pusty."
 msgid "Mount point must start with \"/\"."
 msgstr "Punkt montowania musi zaczynać się od „/”."
 
-#: pkg/storaged/format-dialog.jsx:98 pkg/storaged/nfs-details.jsx:168
+#: pkg/storaged/format-dialog.jsx:100 pkg/storaged/nfs-details.jsx:168
 msgid "Mount read only"
 msgstr "Montowanie tylko do odczytu"
 
@@ -4642,7 +4669,7 @@ msgstr "Montowanie tylko do odczytu"
 msgid "Mounted At"
 msgstr "Zamontowano w"
 
-#: pkg/storaged/format-dialog.jsx:65
+#: pkg/storaged/format-dialog.jsx:67
 msgid "Mounting"
 msgstr "Montowanie"
 
@@ -4674,11 +4701,11 @@ msgstr "Punkty montowania NFS"
 msgid "NFS Support not installed"
 msgstr "Obsługa NFS nie jest zainstalowana"
 
-#: pkg/networkmanager/interfaces.js:2005
+#: pkg/networkmanager/interfaces.js:2006
 msgid "NSNA Ping"
 msgstr "Ping NSNA"
 
-#: pkg/storaged/format-dialog.jsx:245
+#: pkg/storaged/format-dialog.jsx:270
 msgid "NTFS - Compatible with most systems"
 msgstr "NTFS — zgodne z większością systemów"
 
@@ -4686,7 +4713,8 @@ msgstr "NTFS — zgodne z większością systemów"
 msgid "NTP Server"
 msgstr "Serwer NTP"
 
-#: pkg/docker/index.html:265 pkg/kubernetes/views/add-user-dialog.html:9
+#: pkg/docker/index.html:265 pkg/kubernetes/views/add-group-dialog.html:9
+#: pkg/kubernetes/views/add-user-dialog.html:9
 #: pkg/kubernetes/views/containers-listing.html:11
 #: pkg/kubernetes/views/dashboard-page.html:156
 #: pkg/kubernetes/views/dashboard-page.html:198
@@ -4707,33 +4735,31 @@ msgstr "Serwer NTP"
 #: pkg/kubernetes/views/user-modify.html:9
 #: pkg/kubernetes/views/volume-body.html:31
 #: pkg/kubernetes/views/volumes-page.html:19
-#: pkg/kubernetes/views/volumes-page.html:57
-#: pkg/kubernetes/views/add-group-dialog.html:9
-#: pkg/networkmanager/index.html:127 pkg/networkmanager/index.html:145
-#: pkg/networkmanager/index.html:183 pkg/networkmanager/index.html:239
-#: pkg/networkmanager/index.html:338 pkg/networkmanager/index.html:438
-#: pkg/ostree/index.html:99
+#: pkg/kubernetes/views/volumes-page.html:57 pkg/networkmanager/index.html:127
+#: pkg/networkmanager/index.html:145 pkg/networkmanager/index.html:183
+#: pkg/networkmanager/index.html:239 pkg/networkmanager/index.html:338
+#: pkg/networkmanager/index.html:438 pkg/ostree/index.html:99
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:351 pkg/docker/containers-view.jsx:665
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:56
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:236
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:194
 #: pkg/machines/hostvmslist.jsx:90
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181 pkg/packagekit/updates.jsx:373
 #: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:626
-#: pkg/storaged/format-dialog.jsx:285 pkg/storaged/fsys-panel.jsx:108
+#: pkg/storaged/format-dialog.jsx:310 pkg/storaged/fsys-panel.jsx:108
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:152
 #: pkg/storaged/iscsi-panel.jsx:150 pkg/storaged/iscsi-panel.jsx:211
 #: pkg/storaged/lvol-tabs.jsx:38 pkg/storaged/lvol-tabs.jsx:215
 #: pkg/storaged/lvol-tabs.jsx:318 pkg/storaged/lvol-tabs.jsx:359
 #: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/part-tab.jsx:38
-#: pkg/storaged/vdos-panel.jsx:50 pkg/storaged/vgroup-details.jsx:180
+#: pkg/storaged/vdos-panel.jsx:51 pkg/storaged/vgroup-details.jsx:180
 #: pkg/storaged/vgroups-panel.jsx:56 pkg/systemd/hwinfo.jsx:38
 msgid "Name"
 msgstr "Nazwa"
 
-#: pkg/storaged/vdos-panel.jsx:54
+#: pkg/storaged/vdos-panel.jsx:55
 msgid "Name can not be empty."
 msgstr "Nazwa nie może być pusta."
 
@@ -4753,13 +4779,17 @@ msgstr "Nazwa nie może zawierać znaku „$0”."
 msgid "Name cannot contain whitespace."
 msgstr "Nazwa nie może zawierać spacji."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:339
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:297
 msgid "Name should not be empty"
 msgstr "Nazwa nie może być pusta"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:344
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:302
 msgid "Name should not consist of empty characters only"
 msgstr "Nazwa nie może składać się tylko z pustych znaków"
+
+#: pkg/machines/components/diskAdd.jsx:126
+msgid "Name: "
+msgstr ""
 
 #: pkg/kubernetes/views/containers-listing.html:14
 #: pkg/kubernetes/views/dashboard-page.html:160
@@ -4787,8 +4817,8 @@ msgid "Need at least one NTP server"
 msgstr "Wymagany jest co najmniej jeden serwer NTP"
 
 #: pkg/dashboard/index.html:72 pkg/playground/translate.html:95
-#: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:115
 #: pkg/kubernetes/scripts/graphs.js:609
+#: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:115
 msgid "Network"
 msgstr "Sieć"
 
@@ -4800,7 +4830,7 @@ msgstr "Ruch sieciowy"
 msgid "Network devices and graphs require NetworkManager."
 msgstr "Urządzenia i wykresy sieciowe wymagają usługi NetworkManager."
 
-#: pkg/storaged/crypto-tab.jsx:179
+#: pkg/storaged/crypto-tab.jsx:173
 msgid "Network keys"
 msgstr "Klucze sieciowe"
 
@@ -4813,7 +4843,7 @@ msgstr "Usługa NetworkManager nie jest uruchomiona."
 msgid "Networking"
 msgstr "Sieć"
 
-#: pkg/networkmanager/interfaces.js:1626 pkg/networkmanager/interfaces.js:2199
+#: pkg/networkmanager/interfaces.js:1626 pkg/networkmanager/interfaces.js:2200
 msgctxt "page-title"
 msgid "Networking"
 msgstr "Sieć"
@@ -4854,6 +4884,10 @@ msgstr "Nowe hasło"
 msgid "New Project"
 msgstr "Nowy projekt"
 
+#: pkg/machines/components/diskAdd.jsx:134
+msgid "New Volume Name"
+msgstr ""
+
 #: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
 msgid "New image stream"
@@ -4883,7 +4917,7 @@ msgstr "Nice"
 
 #: pkg/docker/index.html:539 pkg/docker/index.html:543 pkg/docker/run.js:241
 #: pkg/docker/util.js:106 pkg/kubernetes/scripts/volumes.js:990
-#: pkg/networkmanager/interfaces.js:2581
+#: pkg/networkmanager/interfaces.js:2582
 msgid "No"
 msgstr "Nie"
 
@@ -4895,7 +4929,7 @@ msgstr "Brak opóźnienia"
 msgid "No Deployments"
 msgstr "Brak wdrożeń"
 
-#: pkg/storaged/format-dialog.jsx:249
+#: pkg/storaged/format-dialog.jsx:274
 msgid "No Filesystem"
 msgstr "Brak systemu plików"
 
@@ -4995,12 +5029,12 @@ msgid "No description provided."
 msgstr "Nie podano opisu."
 
 #: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/mdraids-panel.jsx:74
-#: pkg/storaged/vdos-panel.jsx:59 pkg/storaged/vgroup-details.jsx:57
+#: pkg/storaged/vdos-panel.jsx:60 pkg/storaged/vgroup-details.jsx:57
 #: pkg/storaged/vgroups-panel.jsx:63
 msgid "No disks are available."
 msgstr "Brak dostępnych dysków."
 
-#: pkg/machines/components/vmDisksTab.jsx:68
+#: pkg/machines/components/vmDisksTab.jsx:85
 msgid "No disks defined for this VM"
 msgstr "Nie określono dysków dla tej maszyny wirtualnej"
 
@@ -5020,7 +5054,7 @@ msgstr "Brak grup."
 msgid "No host keys found."
 msgstr "Nie odnaleziono kluczy komputera."
 
-#: pkg/storaged/iscsi-panel.jsx:290
+#: pkg/storaged/iscsi-panel.jsx:294
 msgid "No iSCSI targets set up"
 msgstr "Nie ustawiono żadnych celów iSCSI"
 
@@ -5137,7 +5171,7 @@ msgstr "Brak dostępnych podpisów"
 msgid "No storage set up as RAID"
 msgstr "Nie ustawiono żadnego urządzenia do przechowywania danych jako RAID"
 
-#: pkg/storaged/vdos-panel.jsx:160
+#: pkg/storaged/vdos-panel.jsx:170
 msgid "No storage set up as VDO"
 msgstr "Nie ustawiono żadnego urządzenia do przechowywania danych jako VDO"
 
@@ -5165,7 +5199,7 @@ msgstr "Brak użytkowników."
 msgid "No virtual machines"
 msgstr "Brak maszyn wirtualnych"
 
-#: pkg/storaged/vgroups-panel.jsx:112
+#: pkg/storaged/vgroups-panel.jsx:116
 msgid "No volume groups created"
 msgstr "Nie utworzono grup woluminów"
 
@@ -5189,9 +5223,9 @@ msgstr "Węzeł"
 msgid "Node:"
 msgstr "Węzeł:"
 
-#: pkg/kubernetes/views/dashboard-page.html:90
+#: pkg/kubernetes/index.html:49 pkg/kubernetes/views/dashboard-page.html:90
 #: pkg/kubernetes/views/dashboard-page.html:192
-#: pkg/kubernetes/views/nodes-page.html:36 pkg/kubernetes/index.html:49
+#: pkg/kubernetes/views/nodes-page.html:36
 msgid "Nodes"
 msgstr "Węzły"
 
@@ -5261,7 +5295,7 @@ msgstr "Nie odnaleziono"
 msgid "Not mounted"
 msgstr "Niezamontowane"
 
-#: src/base1/cockpit.js:3993
+#: src/base1/cockpit.js:3994
 msgid "Not permitted to perform this action."
 msgstr "Brak uprawnień do wykonania tego działania."
 
@@ -5312,7 +5346,7 @@ msgstr "Nie odnaleziono systemu operacyjnego $0"
 msgid "OS Type:"
 msgstr "Typ systemu operacyjnego:"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:274
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:232
 msgid "OS Vendor"
 msgstr "Producent systemu operacyjnego"
 
@@ -5334,8 +5368,8 @@ msgstr "Wystąpiło między $0 a $1"
 
 #: pkg/networkmanager/index.html:105 pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:241
-#: pkg/systemd/index.html:177 pkg/lib/patterns.js:244
-#: pkg/lib/cockpit-components-onoff.jsx:38
+#: pkg/systemd/index.html:177 pkg/lib/cockpit-components-onoff.jsx:38
+#: pkg/lib/patterns.js:244
 msgid "Off"
 msgstr "Wyłączone"
 
@@ -5353,8 +5387,8 @@ msgstr "Nie przyjęto poprzedniego hasła"
 
 #: pkg/networkmanager/index.html:101 pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:237
-#: pkg/systemd/index.html:173 pkg/lib/patterns.js:244
-#: pkg/lib/cockpit-components-onoff.jsx:39
+#: pkg/systemd/index.html:173 pkg/lib/cockpit-components-onoff.jsx:39
+#: pkg/lib/patterns.js:244
 msgid "On"
 msgstr "Włączone"
 
@@ -5403,7 +5437,7 @@ msgstr "Ups!"
 
 #: pkg/kubernetes/views/nodes-page.html:42 pkg/ostree/index.html:301
 #: pkg/systemd/index.html:100
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:288
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:246
 msgid "Operating System"
 msgstr "System operacyjny"
 
@@ -5424,8 +5458,8 @@ msgstr "Napęd optyczny"
 msgid "Optimized for:"
 msgstr "Optymalizacja dla:"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:173
-#: pkg/storaged/vdos-panel.jsx:95
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:167
+#: pkg/storaged/vdos-panel.jsx:96
 msgid "Options"
 msgstr "Opcje"
 
@@ -5461,7 +5495,7 @@ msgstr "Inne opcje"
 msgid "Overview"
 msgstr "Przegląd"
 
-#: pkg/storaged/content-views.jsx:498 pkg/storaged/format-dialog.jsx:277
+#: pkg/storaged/content-views.jsx:498 pkg/storaged/format-dialog.jsx:302
 msgid "Overwrite existing data with zeros"
 msgstr "Zastąp istniejące dane zerami"
 
@@ -5497,7 +5531,7 @@ msgstr "Pakiety"
 msgid "Parent"
 msgstr "Nadrzędne"
 
-#: pkg/networkmanager/interfaces.js:2890
+#: pkg/networkmanager/interfaces.js:2891
 msgid "Parent $parent"
 msgstr "Nadrzędne $parent"
 
@@ -5522,19 +5556,19 @@ msgstr "Partycja $0"
 msgid "Partitioning"
 msgstr "Partycjonowanie"
 
-#: pkg/networkmanager/interfaces.js:1997
+#: pkg/networkmanager/interfaces.js:1998
 msgid "Passive"
 msgstr "Pasywnie"
 
-#: pkg/storaged/content-views.jsx:208 pkg/storaged/format-dialog.jsx:295
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/format-dialog.jsx:320
 msgid "Passphrase"
 msgstr "Hasło"
 
-#: pkg/storaged/clevis-dialogs.jsx:67 pkg/storaged/format-dialog.jsx:298
+#: pkg/storaged/clevis-dialogs.jsx:67 pkg/storaged/format-dialog.jsx:323
 msgid "Passphrase cannot be empty"
 msgstr "Hasło nie może być puste"
 
-#: pkg/storaged/format-dialog.jsx:306
+#: pkg/storaged/format-dialog.jsx:331
 msgid "Passphrases do not match"
 msgstr "Hasła się nie zgadzają"
 
@@ -5594,7 +5628,7 @@ msgstr "Ścieżka"
 msgid "Path cost"
 msgstr "Koszt ścieżki"
 
-#: pkg/networkmanager/interfaces.js:2872
+#: pkg/networkmanager/interfaces.js:2873
 msgid "Path cost $path_cost"
 msgstr "Koszt ścieżki $path_cost"
 
@@ -5610,7 +5644,7 @@ msgstr "Ścieżka na serwerze nie może być pusta."
 msgid "Path on server must start with \"/\"."
 msgstr "Ścieżka na serwerze musi zaczynać się od „/”."
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:212
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:170
 msgid "Path to ISO file on host's file system"
 msgstr "Ścieżka do pliku ISO w systemie plików gospodarza"
 
@@ -5634,7 +5668,7 @@ msgstr "Profil wydajności"
 msgid "Peripheral Chassis"
 msgstr "Obudowa peryferyjna"
 
-#: pkg/networkmanager/interfaces.js:3604
+#: pkg/networkmanager/interfaces.js:3605
 msgid "Permanent"
 msgstr "Trwałe"
 
@@ -5709,6 +5743,14 @@ msgstr ""
 #: pkg/kubernetes/scripts/dashboard.js:440
 msgid "Please create another namespace for $0 \"$1\""
 msgstr "Proszę dodać następną przestrzeń nazw dla $0 „$1”"
+
+#: pkg/machines/components/diskAdd.jsx:380
+msgid "Please enter new volume name"
+msgstr ""
+
+#: pkg/machines/components/diskAdd.jsx:383
+msgid "Please enter new volume size"
+msgstr ""
 
 #: pkg/networkmanager/firewall.jsx:290
 msgid "Please install the {0} package"
@@ -5903,6 +5945,10 @@ msgstr "Pula dla cienkich woluminów"
 msgid "Pool for thinly provisioned volumes"
 msgstr "Pula dla cienko nadzorowanych woluminów"
 
+#: pkg/machines/components/diskAdd.jsx:200
+msgid "Pool: "
+msgstr ""
+
 #: pkg/kubernetes/views/imagestream-modify.html:45
 msgid "Populate"
 msgstr "Wypełnij"
@@ -5927,7 +5973,7 @@ msgstr "Grupa portów"
 #: pkg/kubernetes/views/service-body.html:13 pkg/networkmanager/index.html:248
 #: pkg/networkmanager/index.html:447
 #: node_modules/registry-image-widgets/views/image-config.html:27
-#: pkg/docker/containers-view.jsx:397 pkg/networkmanager/interfaces.js:2973
+#: pkg/docker/containers-view.jsx:397 pkg/networkmanager/interfaces.js:2974
 msgid "Ports"
 msgstr "Porty"
 
@@ -5944,11 +5990,11 @@ msgstr "Opcje zasilania"
 msgid "Preferred number of sockets to expose to the guest."
 msgstr "Preferowana liczba gniazd eksponowanych gościowi."
 
-#: pkg/networkmanager/interfaces.js:3279
+#: pkg/networkmanager/interfaces.js:3280
 msgid "Prefix length"
 msgstr "Długość przedrostka"
 
-#: pkg/networkmanager/interfaces.js:3279
+#: pkg/networkmanager/interfaces.js:3280
 msgid "Prefix length or Netmask"
 msgstr "Długość przedrostka lub maska sieci"
 
@@ -5960,7 +6006,7 @@ msgstr "Przygotowywanie"
 msgid "Preparing for Maintenance"
 msgstr "Przygotowywanie do konserwacji"
 
-#: pkg/networkmanager/interfaces.js:3605
+#: pkg/networkmanager/interfaces.js:3606
 msgid "Preserve"
 msgstr "Zachowaj"
 
@@ -5985,11 +6031,11 @@ msgstr "Główne"
 msgid "Priority"
 msgstr "Priorytet"
 
-#: pkg/networkmanager/interfaces.js:2846 pkg/networkmanager/interfaces.js:2870
+#: pkg/networkmanager/interfaces.js:2847 pkg/networkmanager/interfaces.js:2871
 msgid "Priority $priority"
 msgstr "Priorytet $priority"
 
-#: pkg/kubernetes/scripts/projects.js:1021
+#: pkg/kubernetes/scripts/projects.js:1026
 msgid "Private: Allow only specific users or groups to pull images"
 msgstr "Prywatne: tylko podani użytkownicy lub grupy mogą pobierać obrazy"
 
@@ -6069,10 +6115,10 @@ msgstr "Strona projektu"
 msgid "Project:"
 msgstr "Projekt:"
 
+#: pkg/kubernetes/index.html:94 pkg/kubernetes/registry.html:55
 #: pkg/kubernetes/views/group-delete.html:10
 #: pkg/kubernetes/views/project-listing.html:9
-#: pkg/kubernetes/views/user-delete.html:10 pkg/kubernetes/index.html:94
-#: pkg/kubernetes/registry.html:55
+#: pkg/kubernetes/views/user-delete.html:10
 msgid "Projects"
 msgstr "Projekty"
 
@@ -6213,7 +6259,7 @@ msgstr "Poziom macierzy RAID"
 msgid "RAID Member"
 msgstr "Element macierzy RAID"
 
-#: pkg/ovirt/provider.es6:159
+#: pkg/ovirt/provider.es6:160
 msgid "REBOOT action failed"
 msgstr "Działanie REBOOT się nie powiodło"
 
@@ -6225,7 +6271,7 @@ msgstr "Obudowa do montowania w szafie"
 msgid "Rados Block Device"
 msgstr "Urządzenie blokowe Rados"
 
-#: pkg/networkmanager/interfaces.js:3606
+#: pkg/networkmanager/interfaces.js:3607
 msgid "Random"
 msgstr "Losowo"
 
@@ -6276,7 +6322,7 @@ msgstr "Odczytywanie"
 msgid "Reading..."
 msgstr "Odczytywanie…"
 
-#: pkg/machines/components/vmDisksTab.jsx:83
+#: pkg/machines/components/vmDisksTab.jsx:72
 msgid "Readonly"
 msgstr "Tylko do odczytu"
 
@@ -6315,7 +6361,7 @@ msgstr "Przyczyna"
 msgid "Rebase and Reboot"
 msgstr "Zaktualizuj i uruchom ponownie"
 
-#: pkg/lib/journal.js:242 pkg/lib/cockpit-components-logs-panel.jsx:81
+#: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:242
 msgid "Reboot"
 msgstr "Uruchom ponownie"
 
@@ -6425,7 +6471,7 @@ msgstr "Wczytaj ponownie"
 msgid "Reload Propagated From"
 msgstr "Odebrano ponowne wczytanie z"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:223
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:181
 msgid "Remote URL"
 msgstr "Zdalny adres URL"
 
@@ -6467,7 +6513,7 @@ msgstr "Usuwane:"
 msgid "Remove"
 msgstr "Usuń"
 
-#: pkg/networkmanager/interfaces.js:3042
+#: pkg/networkmanager/interfaces.js:3043
 msgid "Remove $0"
 msgstr "Usuń $0"
 
@@ -6515,7 +6561,7 @@ msgstr "Usuwanie $0"
 msgid "Removing $target from RAID Device"
 msgstr "Usuwanie $target z urządzenia RAID"
 
-#: pkg/networkmanager/interfaces.js:3041
+#: pkg/networkmanager/interfaces.js:3042
 msgid ""
 "Removing <b>$0</b> will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -6757,11 +6803,13 @@ msgid "Revision"
 msgstr "Wersja"
 
 #: pkg/kubernetes/views/user-add-membership.html:28
+#: pkg/kubernetes/views/user-body.html:5
+#: pkg/kubernetes/views/user-panel.html:28
 msgid "Role"
 msgstr "Rola"
 
-#: pkg/kubernetes/views/project-body.html:21
-#: pkg/kubernetes/views/add-member-role-dialog.html:39 pkg/users/index.html:94
+#: pkg/kubernetes/views/add-member-role-dialog.html:39
+#: pkg/kubernetes/views/project-body.html:21 pkg/users/index.html:94
 msgid "Roles"
 msgstr "Role"
 
@@ -6769,7 +6817,7 @@ msgstr "Role"
 msgid "Roll Back and Reboot"
 msgstr "Przywróć i uruchom ponownie"
 
-#: pkg/networkmanager/interfaces.js:1971 pkg/networkmanager/interfaces.js:1988
+#: pkg/networkmanager/interfaces.js:1972 pkg/networkmanager/interfaces.js:1989
 msgid "Round Robin"
 msgstr "Round Robin"
 
@@ -6779,7 +6827,7 @@ msgid "Route"
 msgstr "Trasa"
 
 #: pkg/kubernetes/views/details-page.html:65
-#: pkg/kubernetes/scripts/details.js:218 pkg/networkmanager/interfaces.js:3298
+#: pkg/kubernetes/scripts/details.js:218 pkg/networkmanager/interfaces.js:3299
 msgid "Routes"
 msgstr "Trasy"
 
@@ -6837,11 +6885,11 @@ msgstr "SELinux jest wyłączony w systemie."
 msgid "SELinux system status is unknown."
 msgstr "Stan SELinuksa systemu jest nieznany."
 
-#: pkg/machines/libvirt.es6:387 pkg/ovirt/provider.es6:410
+#: pkg/machines/libvirt.es6:313 pkg/ovirt/provider.es6:411
 msgid "SET VCPU SETTINGS action failed"
 msgstr "Działanie SET VCPU SETTINGS się nie powiodło"
 
-#: pkg/ovirt/provider.es6:111 pkg/ovirt/provider.es6:135
+#: pkg/ovirt/provider.es6:112 pkg/ovirt/provider.es6:136
 msgid "SHUTDOWN action failed"
 msgstr "Działanie SHUTDOWN się nie powiodło"
 
@@ -6865,7 +6913,7 @@ msgstr "Port SPICE:"
 msgid "SPICE TLS Port:"
 msgstr "Port TLS SPICE:"
 
-#: pkg/ovirt/provider.es6:195
+#: pkg/ovirt/provider.es6:196
 msgid "START action failed"
 msgstr "Działanie START się nie powiodło"
 
@@ -6885,7 +6933,7 @@ msgstr "Maksymalny wiek komunikatu STP"
 msgid "STP Priority"
 msgstr "Priorytet STP"
 
-#: pkg/ovirt/provider.es6:273
+#: pkg/ovirt/provider.es6:274
 msgid "SUSPEND action failed"
 msgstr "Działanie SUSPEND się nie powiodło"
 
@@ -6960,6 +7008,16 @@ msgstr "Wybierz"
 msgid "Select Manifest File..."
 msgstr "Wybierz plik manifestu…"
 
+#: pkg/kubernetes/scripts/projects.js:885
+#: pkg/kubernetes/scripts/projects.js:1187
+msgid "Select Member"
+msgstr ""
+
+#: pkg/kubernetes/scripts/projects.js:887
+#: pkg/kubernetes/scripts/projects.js:1190
+msgid "Select Role"
+msgstr ""
+
 #: pkg/kubernetes/views/topology-page.html:7
 msgid "Select an object to see more details."
 msgstr "Wybranie obiektu wyświetli więcej informacji."
@@ -7022,7 +7080,7 @@ msgstr "Nie można połączyć z serwerem"
 msgid "Server cannot be empty."
 msgstr "Serwer nie może być pusty."
 
-#: src/base1/cockpit.js:4013
+#: src/base1/cockpit.js:4014
 msgid "Server has closed the connection."
 msgstr "Serwer zamknął połączenie."
 
@@ -7146,11 +7204,11 @@ msgstr "Ważność:"
 msgid "Share Name"
 msgstr "Nazwa udziału"
 
-#: pkg/networkmanager/interfaces.js:1956
+#: pkg/networkmanager/interfaces.js:1957
 msgid "Shared"
 msgstr "Współdzielone"
 
-#: pkg/kubernetes/scripts/projects.js:1022
+#: pkg/kubernetes/scripts/projects.js:1027
 msgid "Shared: Allow any authenticated user to pull images"
 msgstr ""
 "Współdzielone: umożliwia pobieranie obrazów wszystkim uwierzytelnionym "
@@ -7250,7 +7308,7 @@ msgstr "Od $0"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/docker/containers-view.jsx:665
 #: pkg/storaged/content-views.jsx:112 pkg/storaged/content-views.jsx:672
-#: pkg/storaged/format-dialog.jsx:266 pkg/storaged/fsys-panel.jsx:110
+#: pkg/storaged/format-dialog.jsx:291 pkg/storaged/fsys-panel.jsx:110
 #: pkg/storaged/lvol-tabs.jsx:142 pkg/storaged/lvol-tabs.jsx:183
 #: pkg/storaged/lvol-tabs.jsx:219 pkg/storaged/lvol-tabs.jsx:324
 #: pkg/storaged/lvol-tabs.jsx:365 pkg/storaged/nfs-details.jsx:306
@@ -7277,6 +7335,10 @@ msgstr "Rozmiar musi być liczbą"
 #: pkg/storaged/dialog.js:453
 msgid "Size must be at least $0"
 msgstr "Rozmiar musi wynosić co najmniej $0"
+
+#: pkg/machines/components/diskAdd.jsx:148
+msgid "Size: "
+msgstr ""
 
 #: pkg/kubernetes/views/auth-form.html:43
 #: pkg/kubernetes/views/auth-rejected-cert.html:11
@@ -7326,7 +7388,7 @@ msgstr "Inny program obecnie używa menedżera pakietów, proszę czekać…"
 msgid "Sorry, I don't know how to modify this volume"
 msgstr "Nie wiadomo, jak zmodyfikować ten wolumin"
 
-#: pkg/machines/components/vmDisksTab.jsx:85 pkg/machines/vmnetworktab.jsx:70
+#: pkg/machines/components/vmDisksTab.jsx:74 pkg/machines/vmnetworktab.jsx:70
 msgid "Source"
 msgstr "Źródło"
 
@@ -7334,7 +7396,7 @@ msgstr "Źródło"
 msgid "Source URL"
 msgstr "Źródłowy adres URL"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:364
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:322
 msgid "Source should start with http, ftp or nfs protocol"
 msgstr "Źródło musi zaczynać się od protokołu http, ftp lub nfs"
 
@@ -7342,7 +7404,7 @@ msgstr "Źródło musi zaczynać się od protokołu http, ftp lub nfs"
 msgid "Space-saving Computer"
 msgstr "Komputer oszczędzający miejsce"
 
-#: pkg/networkmanager/interfaces.js:2844
+#: pkg/networkmanager/interfaces.js:2845
 msgid "Spanning Tree Protocol"
 msgstr "Protokół STP"
 
@@ -7358,7 +7420,7 @@ msgstr "Zapasowe"
 msgid "Specific Time"
 msgstr "Podany czas"
 
-#: pkg/networkmanager/interfaces.js:3607
+#: pkg/networkmanager/interfaces.js:3608
 msgid "Stable"
 msgstr "Stabilna"
 
@@ -7384,7 +7446,7 @@ msgstr "Uruchom usługę"
 msgid "Start libvirt"
 msgstr "Uruchom usługę libvirt"
 
-#: pkg/machines/components/vmDisksTabLibvirt.jsx:70
+#: pkg/machines/components/vmDisksTabLibvirt.jsx:71
 msgid "Start the VM to see disk statistics."
 msgstr "Należy uruchomić maszynę wirtualną, aby wyświetlić statystyki dysku."
 
@@ -7432,7 +7494,7 @@ msgstr "Statyczne"
 #: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
 #: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
 #: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
-#: pkg/networkmanager/interfaces.js:2600
+#: pkg/networkmanager/interfaces.js:2601
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
 msgstr "Stan"
@@ -7497,11 +7559,11 @@ msgstr "Przechowywanie danych"
 msgid "Storage Logs"
 msgstr "Dzienniki urządzeń do przechowywania danych"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:305
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:263
 msgid "Storage Size"
 msgstr "Rozmiar urządzenia do przechowywania danych"
 
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:382
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:340
 msgid "Storage Size should not be negative number"
 msgstr ""
 "Rozmiar urządzenia do przechowywania danych nie może być liczbą ujemną"
@@ -7514,15 +7576,15 @@ msgstr "Pula urządzeń do przechowywania danych"
 msgid "Store Performance Data"
 msgstr "Przechowywanie danych wydajności"
 
-#: pkg/storaged/format-dialog.jsx:311
+#: pkg/storaged/format-dialog.jsx:336
 msgid "Store passphrase"
 msgstr "Przechowaj hasło"
 
-#: pkg/storaged/crypto-tab.jsx:74 pkg/storaged/crypto-tab.jsx:77
+#: pkg/storaged/crypto-tab.jsx:69 pkg/storaged/crypto-tab.jsx:71
 msgid "Stored Passphrase"
 msgstr "Zachowane hasło"
 
-#: pkg/storaged/crypto-tab.jsx:167
+#: pkg/storaged/crypto-tab.jsx:161
 msgid "Stored passphrase"
 msgstr "Zachowane hasło"
 
@@ -7575,25 +7637,25 @@ msgstr "Używana przestrzeń wymiany"
 msgid "Switch Host to Maintenance"
 msgstr "Przełącz gospodarza do konserwacji"
 
-#: pkg/networkmanager/interfaces.js:2484 pkg/networkmanager/interfaces.js:3026
+#: pkg/networkmanager/interfaces.js:2485 pkg/networkmanager/interfaces.js:3027
 msgid "Switch off $0"
 msgstr "Wyłącz $0"
 
-#: pkg/networkmanager/interfaces.js:2459 pkg/networkmanager/interfaces.js:3014
+#: pkg/networkmanager/interfaces.js:2460 pkg/networkmanager/interfaces.js:3015
 msgid "Switch on $0"
 msgstr "Włącz $0"
 
-#: pkg/ovirt/provider.es6:384
+#: pkg/ovirt/provider.es6:385
 msgid "Switching host to maintenance mode failed. Received error: "
 msgstr ""
 "Przełączenie gospodarza do trybu konserwacji się nie powiodło. Otrzymany "
 "błąd:"
 
-#: pkg/ovirt/provider.es6:378
+#: pkg/ovirt/provider.es6:379
 msgid "Switching host to maintenance mode in progress ..."
 msgstr "Trwa przełączanie gospodarza do trybu konserwacji…"
 
-#: pkg/networkmanager/interfaces.js:2483
+#: pkg/networkmanager/interfaces.js:2484
 msgid ""
 "Switching off <b>$0</b>  will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7601,7 +7663,7 @@ msgstr ""
 "Wyłączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
 "z interfejsu administracji."
 
-#: pkg/networkmanager/interfaces.js:3025
+#: pkg/networkmanager/interfaces.js:3026
 msgid ""
 "Switching off <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7609,7 +7671,7 @@ msgstr ""
 "Wyłączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
 "z interfejsu administracji."
 
-#: pkg/networkmanager/interfaces.js:2458 pkg/networkmanager/interfaces.js:3013
+#: pkg/networkmanager/interfaces.js:2459 pkg/networkmanager/interfaces.js:3014
 msgid ""
 "Switching on <b>$0</b> will break the connection to the server, and will "
 "make the administration UI unavailable."
@@ -7697,7 +7759,7 @@ msgid "Tags"
 msgstr "Etykiety"
 
 #: pkg/kubernetes/views/pv-modify.html:137
-#: pkg/machines/components/vmDisksTab.jsx:74 pkg/machines/vmnetworktab.jsx:69
+#: pkg/machines/components/vmDisksTab.jsx:57 pkg/machines/vmnetworktab.jsx:69
 msgid "Target"
 msgstr "Cel"
 
@@ -7709,16 +7771,20 @@ msgstr "Portal docelowy"
 msgid "Target World Wide Names"
 msgstr "Docelowe WWN"
 
+#: pkg/machines/components/diskAdd.jsx:222
+msgid "Target: "
+msgstr ""
+
 #: pkg/systemd/services.html:53 pkg/storaged/iscsi-panel.jsx:149
 msgid "Targets"
 msgstr "Cele"
 
-#: pkg/networkmanager/interfaces.js:2504 pkg/networkmanager/interfaces.js:2516
-#: pkg/networkmanager/interfaces.js:2801
+#: pkg/networkmanager/interfaces.js:2505 pkg/networkmanager/interfaces.js:2517
+#: pkg/networkmanager/interfaces.js:2802
 msgid "Team"
 msgstr "Zespół"
 
-#: pkg/networkmanager/interfaces.js:2829
+#: pkg/networkmanager/interfaces.js:2830
 msgid "Team Port"
 msgstr "Port zespołu"
 
@@ -8008,6 +8074,10 @@ msgstr "Trwały wolumin „{{ target }}” nie istnieje."
 msgid "The pod '{{ target }}' does not exist."
 msgstr "Pojemnik „{{ target }}” nie istnieje."
 
+#: pkg/machines/components/diskAdd.jsx:72
+msgid "The pool is empty"
+msgstr ""
+
 #: pkg/kubernetes/views/project-page.html:34
 msgid "The project '{{ projName }}' does not exist."
 msgstr "Projekt „{{ projName }}” nie istnieje."
@@ -8044,7 +8114,7 @@ msgstr ""
 "Serwer odmówił uwierzytelnienia „$0” za pomocą hasła, a żadne inne "
 "obsługiwane metody uwierzytelniania nie są dostępne."
 
-#: src/base1/cockpit.js:3997
+#: src/base1/cockpit.js:3998
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Serwer odmówił uwierzytelnienia za pomocą wszystkich obsługiwanych metod."
@@ -8199,7 +8269,7 @@ msgid ""
 msgstr ""
 "To wdrożenie zawiera takie same pakiety, co obecnie uruchomiony system"
 
-#: pkg/networkmanager/interfaces.js:2611
+#: pkg/networkmanager/interfaces.js:2612
 msgid "This device cannot be managed here."
 msgstr "Tutaj nie można zarządzać tym urządzeniem."
 
@@ -8454,7 +8524,7 @@ msgstr "Token"
 msgid "Too many files found"
 msgstr "Odnaleziono za dużo plików"
 
-#: src/base1/cockpit.js:4019
+#: src/base1/cockpit.js:4020
 msgid "Too much data"
 msgstr "Za dużo danych"
 
@@ -8544,7 +8614,7 @@ msgstr "tuned jest wyłączone"
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:285
 #: pkg/machines/vmnetworktab.jsx:66 pkg/storaged/clevis-dialogs.jsx:57
-#: pkg/storaged/format-dialog.jsx:281 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/format-dialog.jsx:306 pkg/storaged/part-tab.jsx:50
 #: pkg/storaged/unrecognized-tab.jsx:45 pkg/systemd/hwinfo.jsx:34
 msgid "Type"
 msgstr "Typ"
@@ -8566,7 +8636,7 @@ msgid "UDP"
 msgstr "UDP"
 
 #: pkg/ostree/index.html:48 pkg/ostree/index.html:109
-#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:257
+#: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:215
 #: pkg/storaged/clevis-dialogs.jsx:36
 #: pkg/subscriptions/subscriptions-register.jsx:110
 msgid "URL"
@@ -8677,13 +8747,13 @@ msgstr "Jednostka"
 #: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:664
 #: pkg/kubernetes/scripts/nodes.js:757 pkg/kubernetes/scripts/volumes.js:266
 #: pkg/lib/machine-info.es6:61 pkg/networkmanager/interfaces.js:592
-#: pkg/networkmanager/interfaces.js:1066 pkg/networkmanager/interfaces.js:2524
-#: pkg/networkmanager/interfaces.js:2526 pkg/storaged/fsys-tab.jsx:62
+#: pkg/networkmanager/interfaces.js:1066 pkg/networkmanager/interfaces.js:2525
+#: pkg/networkmanager/interfaces.js:2527 pkg/storaged/fsys-tab.jsx:62
 #: pkg/storaged/swap-tab.jsx:56
 msgid "Unknown"
 msgstr "Nieznane"
 
-#: pkg/networkmanager/interfaces.js:2510 pkg/networkmanager/interfaces.js:2522
+#: pkg/networkmanager/interfaces.js:2511 pkg/networkmanager/interfaces.js:2523
 msgid "Unknown \"$0\""
 msgstr "Nieznane „$0”"
 
@@ -8699,7 +8769,7 @@ msgstr "Nieznana aplikacja"
 msgid "Unknown Host Key"
 msgstr "Nieznany klucz komputera"
 
-#: pkg/networkmanager/interfaces.js:2627
+#: pkg/networkmanager/interfaces.js:2628
 msgid "Unknown configuration"
 msgstr "Nieznana konfiguracja"
 
@@ -8720,11 +8790,11 @@ msgstr "Odblokuj"
 msgid "Unlock Key"
 msgstr "Odblokuj klucz"
 
-#: pkg/storaged/format-dialog.jsx:140
+#: pkg/storaged/format-dialog.jsx:142 pkg/storaged/format-dialog.jsx:166
 msgid "Unlock at boot"
 msgstr "Odblokowywanie podczas uruchamiania"
 
-#: pkg/storaged/format-dialog.jsx:145
+#: pkg/storaged/format-dialog.jsx:147 pkg/storaged/format-dialog.jsx:171
 msgid "Unlock read only"
 msgstr "Odblokowywanie tylko do odczytu"
 
@@ -8794,7 +8864,7 @@ msgstr "Nieobsługiwany mechanizm ustawiania"
 msgid "Unsupported volume"
 msgstr "Nieobsługiwany wolumin"
 
-#: src/base1/cockpit.js:3999 src/base1/cockpit.js:4001
+#: src/base1/cockpit.js:4000 src/base1/cockpit.js:4002
 msgid "Untrusted host"
 msgstr "Niezaufany komputer"
 
@@ -8847,7 +8917,7 @@ msgstr "Aktualizowanie"
 msgid "Updating $0..."
 msgstr "Aktualizowanie $0…"
 
-#: pkg/machines/components/vmDisksTabLibvirt.jsx:67
+#: pkg/machines/components/vmDisksTabLibvirt.jsx:68
 msgid "Upgrade to a more recent version of libvirt to view disk statistics"
 msgstr ""
 "Należy zaktualizować do nowszej wersji biblioteki libvirt, aby przeglądać "
@@ -8869,9 +8939,13 @@ msgstr[0] "Użycie $0 rdzenia procesora"
 msgstr[1] "Użycie $0 rdzeni procesora"
 msgstr[2] "Użycie $0 rdzeni procesora"
 
-#: pkg/storaged/vdos-panel.jsx:102
+#: pkg/storaged/vdos-panel.jsx:103
 msgid "Use 512 Byte emulation"
 msgstr "Użycie emulacji 512 bajtów"
+
+#: pkg/machines/components/diskAdd.jsx:325
+msgid "Use Existing"
+msgstr ""
 
 #: pkg/storaged/clevis-dialogs.jsx:197
 msgid "Use new key"
@@ -8894,12 +8968,12 @@ msgid "Use trusted GPG key"
 msgstr "Użycie zaufanego klucza GPG"
 
 #: pkg/systemd/index.html:281 pkg/docker/storage.jsx:313
+#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:65
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:72
-#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:63
 #: pkg/machines/components/vm/vmUsageTab.jsx:74
-#: pkg/machines/components/vmDisksTab.jsx:77 pkg/storaged/fsys-tab.jsx:209
+#: pkg/machines/components/vmDisksTab.jsx:66 pkg/storaged/fsys-tab.jsx:209
 #: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1546
 msgid "Used"
 msgstr "Używane"
@@ -8910,6 +8984,7 @@ msgstr "Używane przez kontenery"
 
 #: pkg/dashboard/index.html:142 pkg/kubernetes/views/auth-form.html:61
 #: pkg/kubernetes/views/user-group-add.html:9
+#: pkg/kubernetes/views/user-page.html:20
 #: pkg/kubernetes/views/user-panel.html:9
 #: pkg/kubernetes/views/volume-body.html:64
 #: pkg/kubernetes/views/volume-body.html:103 pkg/playground/translate.html:85
@@ -8974,13 +9049,17 @@ msgstr "Urządzenie VDO"
 msgid "VDO Device $0"
 msgstr "Urządzenie VDO $0"
 
-#: pkg/storaged/vdos-panel.jsx:159
+#: pkg/storaged/vdos-panel.jsx:169
 msgid "VDO Devices"
 msgstr "Urządzenia VDO"
 
 #: pkg/storaged/lvol-tabs.jsx:280
 msgid "VDO backing devices can not be made smaller"
 msgstr "Urządzenia mechanizmu VDO nie mogą być zmniejszane"
+
+#: pkg/storaged/vdos-panel.jsx:175
+msgid "VDO support not installed"
+msgstr ""
 
 #: pkg/ovirt/components/App.jsx:113
 msgid "VDSM"
@@ -8990,12 +9069,12 @@ msgstr "VDSM"
 msgid "VDSM Service Management"
 msgstr "Zarządzanie usługami VDSM"
 
-#: pkg/storaged/format-dialog.jsx:244
+#: pkg/storaged/format-dialog.jsx:269
 msgid "VFAT - Compatible with all systems and devices"
 msgstr "VFAT — zgodne ze wszystkimi systemami i urządzeniami"
 
-#: pkg/networkmanager/interfaces.js:2506 pkg/networkmanager/interfaces.js:2518
-#: pkg/networkmanager/interfaces.js:2893
+#: pkg/networkmanager/interfaces.js:2507 pkg/networkmanager/interfaces.js:2519
+#: pkg/networkmanager/interfaces.js:2894
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -9011,27 +9090,27 @@ msgstr "Ustawienia VLAN"
 msgid "VM DELETE failed."
 msgstr "VM DELETE się nie powiodło."
 
-#: pkg/machines/libvirt.es6:251
+#: pkg/machines/libvirt.es6:264
 msgid "VM FORCE OFF action failed"
 msgstr "Działanie VM FORCE OFF się nie powiodło"
 
-#: pkg/machines/libvirt.es6:271
+#: pkg/machines/libvirt.es6:284
 msgid "VM FORCE REBOOT action failed"
 msgstr "Działanie VM FORCE REBOOT się nie powiodło"
 
-#: pkg/machines/libvirt.es6:262
+#: pkg/machines/libvirt.es6:275
 msgid "VM REBOOT action failed"
 msgstr "Działanie VM REBOOT się nie powiodło"
 
-#: pkg/machines/libvirt.es6:471
+#: pkg/machines/libvirt.es6:380
 msgid "VM SEND Non-Maskable Interrrupt action failed"
 msgstr "Działanie VM SEND niemaskowalnego przerwania się nie powiodło"
 
-#: pkg/machines/libvirt.es6:242
+#: pkg/machines/libvirt.es6:255
 msgid "VM SHUT DOWN action failed"
 msgstr "Działanie VM SHUT DOWN się nie powiodło"
 
-#: pkg/machines/libvirt.es6:280
+#: pkg/machines/libvirt.es6:293
 msgid "VM START action failed"
 msgstr "Działanie VM START się nie powiodło"
 
@@ -9149,7 +9228,7 @@ msgstr "Grupa woluminów"
 msgid "Volume Group $0"
 msgstr "Grupa woluminów $0"
 
-#: pkg/storaged/vgroups-panel.jsx:111
+#: pkg/storaged/vgroups-panel.jsx:115
 msgid "Volume Groups"
 msgstr "Grupy woluminów"
 
@@ -9167,8 +9246,13 @@ msgstr "Nazwa woluminu"
 msgid "Volume Type"
 msgstr "Typ woluminu"
 
-#: pkg/docker/index.html:512 pkg/kubernetes/views/dashboard-page.html:47
-#: pkg/kubernetes/views/pod-page.html:18 pkg/kubernetes/index.html:80
+#: pkg/machines/components/diskAdd.jsx:82
+msgid "Volume: "
+msgstr ""
+
+#: pkg/docker/index.html:512 pkg/kubernetes/index.html:80
+#: pkg/kubernetes/views/dashboard-page.html:47
+#: pkg/kubernetes/views/pod-page.html:18
 #: node_modules/registry-image-widgets/views/image-config.html:32
 msgid "Volumes"
 msgstr "Woluminy"
@@ -9248,15 +9332,15 @@ msgstr "Zapisywanie obiektów"
 msgid "Wrong user name or password"
 msgstr "Błędna nazwa użytkownika lub hasło"
 
-#: pkg/storaged/format-dialog.jsx:240
+#: pkg/storaged/format-dialog.jsx:265
 msgid "XFS - Red Hat Enterprise Linux 7 default"
 msgstr "XFS — domyślne w systemie Red Hat Enterprise Linux 7"
 
-#: pkg/networkmanager/interfaces.js:1973
+#: pkg/networkmanager/interfaces.js:1974
 msgid "XOR"
 msgstr "XOR"
 
-#: pkg/kubernetes/scripts/volumes.js:988 pkg/networkmanager/interfaces.js:2580
+#: pkg/kubernetes/scripts/volumes.js:988 pkg/networkmanager/interfaces.js:2581
 msgid "Yes"
 msgstr "Tak"
 
@@ -9344,11 +9428,11 @@ msgstr ""
 "Serwer niedługo zamknie połączenie. Można połączyć jeszcze raz po jego "
 "ponownym uruchomieniu."
 
-#: src/base1/cockpit.js:3989
+#: src/base1/cockpit.js:3990
 msgid "Your session has been terminated."
 msgstr "Sesja została zakończona."
 
-#: src/base1/cockpit.js:3991
+#: src/base1/cockpit.js:3992
 msgid "Your session has expired. Please log in again."
 msgstr "Sesja wygasła. Proszę zalogować się ponownie."
 
@@ -9457,7 +9541,7 @@ msgstr "Ethernet"
 msgid "every day"
 msgstr "codziennie"
 
-#: pkg/storaged/format-dialog.jsx:241
+#: pkg/storaged/format-dialog.jsx:266
 msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr "ext4 — domyślne w systemie Red Hat Enterprise Linux 6"
 
@@ -9477,7 +9561,7 @@ msgstr "urządzenie gospodarza"
 msgid "iSCSI"
 msgstr "iSCSI"
 
-#: pkg/storaged/iscsi-panel.jsx:289
+#: pkg/storaged/iscsi-panel.jsx:293
 msgid "iSCSI Targets"
 msgstr "Cele iSCSI"
 
@@ -9534,7 +9618,7 @@ msgid "network"
 msgstr "sieć"
 
 #: pkg/kubernetes/views/route-body.html:14
-#: pkg/machines/components/vmDisksTab.jsx:115 pkg/machines/helpers.es6:214
+#: pkg/machines/components/vmDisksTab.jsx:103 pkg/machines/helpers.es6:214
 #: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:43
 msgid "no"
 msgstr "nie"
@@ -9557,7 +9641,7 @@ msgstr "nie odpowiada"
 msgid "none"
 msgstr "brak"
 
-#: pkg/ovirt/provider.es6:62
+#: pkg/ovirt/provider.es6:63
 msgid "oVirt"
 msgstr "oVirt"
 
@@ -9622,7 +9706,7 @@ msgstr "we wtorki"
 msgid "on Wednesdays"
 msgstr "w środy"
 
-#: pkg/machines/libvirt.es6:834
+#: pkg/machines/libvirt-common.es6:109
 msgid "other"
 msgstr "inne"
 
@@ -9637,6 +9721,14 @@ msgstr "oczekuje na akceptację"
 #: pkg/kubernetes/views/dashboard-page.html:83
 msgid "pending volume claims"
 msgstr "oczekujące deklaracje woluminów"
+
+#: pkg/machines/components/diskAdd.jsx:182
+msgid "qcow2"
+msgstr ""
+
+#: pkg/machines/components/diskAdd.jsx:185
+msgid "raw"
+msgstr ""
 
 #: pkg/ovirt/rephraseUI.es6:36
 msgid "reboot"
@@ -9778,7 +9870,7 @@ msgid "vhostuser"
 msgstr "użytkownik gospodarza wirtualizacji"
 
 #: pkg/kubernetes/views/route-body.html:13
-#: pkg/machines/components/vmDisksTab.jsx:115 pkg/machines/helpers.es6:213
+#: pkg/machines/components/vmDisksTab.jsx:103 pkg/machines/helpers.es6:213
 #: pkg/ovirt/components/ClusterVms.jsx:38 pkg/ovirt/rephraseUI.es6:42
 msgid "yes"
 msgstr "tak"

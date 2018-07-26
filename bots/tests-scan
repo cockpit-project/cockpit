@@ -20,7 +20,7 @@
 
 BASELINE_PRIORITY = 10
 
-BRANCHES = [ 'master', 'rhel-7.5' ]
+BRANCHES = [ 'master', 'rhel-7.5', 'rhel-7.6' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora': BRANCHES,
@@ -28,14 +28,14 @@ DEFAULT_VERIFY = {
     'container/bastion': BRANCHES,
     'selenium/firefox': BRANCHES,
     'selenium/chrome': BRANCHES,
-    'verify/centos-7': BRANCHES,
+    'verify/centos-7': [ 'master' ],
     'verify/continuous-atomic': [ ],
     'verify/debian-stable': [ 'master' ],
     'verify/debian-testing': [ 'master' ],
-    'verify/fedora-i386': BRANCHES,
+    'verify/fedora-i386': [ 'master' ],
     'verify/fedora-27': [ ],
     'verify/fedora-28': [ 'master' ],
-    'verify/fedora-atomic': BRANCHES,
+    'verify/fedora-atomic': [ 'master' ],
     'verify/fedora-testing': [ ],
     'verify/ubuntu-1604': [ 'master' ],
     'verify/ubuntu-stable': [ 'master' ],
@@ -45,7 +45,7 @@ DEFAULT_VERIFY = {
 REDHAT_VERIFY = {
     "verify/rhel-7-5": [ 'master', 'rhel-7.5' ],
     "verify/rhel-7-5-distropkg": [ 'master' ],
-    "verify/rhel-7-6": [ ],
+    "verify/rhel-7-6": [ 'rhel-7.6' ],
     "verify/rhel-x": [ 'master' ],
     "verify/rhel-atomic": [ 'master' ],
     'selenium/explorer': [ 'master' ],

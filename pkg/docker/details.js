@@ -253,7 +253,7 @@
             var id = this.container_id;
             this.client.start(this.container_id).
                 fail(function(ex) {
-                    util.handle_scope_start_container(self.client, id, ex.message, function() { self.maybe_reconnect_terminal(); }, null);
+                    util.handle_scope_start_container(self.client, id, ex.message, function() { self.maybe_reconnect_terminal() }, null);
                 }).
                 done(function() {
                     self.maybe_reconnect_terminal();
@@ -285,7 +285,7 @@
                          _("Deleting a container will erase all data in it."),
                          _("Delete")).
                 done(function () {
-                    util.docker_container_delete(self.client, self.container_id, function() { location.go("/"); }, function () { });
+                    util.docker_container_delete(self.client, self.container_id, function() { location.go("/") }, function () { });
                 });
         }
 

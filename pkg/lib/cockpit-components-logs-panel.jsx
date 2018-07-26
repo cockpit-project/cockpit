@@ -115,7 +115,7 @@ export class LogsPanel extends React.Component {
                 render.prepend(entries[i]);
             render.prepend_flush();
             out.limit(this.props.max);
-            this.setState({ logs: out.logs })
+            this.setState({ logs: out.logs });
         });
     }
 

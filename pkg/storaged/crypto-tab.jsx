@@ -50,7 +50,7 @@ var CryptoTab = React.createClass({
 
             block.GetSecretConfiguration({}).done(
                 function (items) {
-                    old_config = array_find(items, function (c) { return c[0] == "crypttab"; });
+                    old_config = array_find(items, function (c) { return c[0] == "crypttab" });
                     new_config = [ "crypttab", old_config ? Object.assign({ }, old_config[1]) : { } ];
 
                     // UDisks insists on always having a "passphrase-contents" field when
@@ -80,7 +80,7 @@ var CryptoTab = React.createClass({
                                       config["passphrase-contents"] = {
                                           t: 'ay',
                                           v: encode_filename(vals.passphrase)
-                                      }
+                                      };
                                       delete config["passphrase-path"];
                                       return commit();
                                   }
@@ -91,11 +91,11 @@ var CryptoTab = React.createClass({
 
         var old_config, old_options;
 
-        old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab"; });
+        old_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
         if (old_config) {
             old_options = (decode_filename(old_config[1].options.v)
                     .split(",")
-                    .filter(function (s) { return s.indexOf("x-parent") !== 0; })
+                    .filter(function (s) { return s.indexOf("x-parent") !== 0 })
                     .join(","));
         }
 
@@ -109,7 +109,7 @@ var CryptoTab = React.createClass({
                                       config["options"] = {
                                           t: 'ay',
                                           v: encode_filename(crypto_options_dialog_options(vals))
-                                      }
+                                      };
                                       return commit();
                                   }
                               }

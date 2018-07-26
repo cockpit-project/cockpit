@@ -70,7 +70,7 @@
         var mem_series;
 
         var cpu_options = plot.plot_simple_template();
-        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0); },
+        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
                                       max: 100
                                     });
         $.extend(cpu_options.grid,  { hoverable: true,

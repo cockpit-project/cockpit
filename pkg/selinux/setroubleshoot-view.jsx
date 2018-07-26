@@ -33,7 +33,7 @@ var SELinuxEventDetails = React.createClass({
         var expanded;
         // all details are collapsed by default
         if (this.props.details)
-            expanded = this.props.details.pluginAnalysis.map(function() { return false; });
+            expanded = this.props.details.pluginAnalysis.map(function() { return false });
 
         return {
             solutionExpanded: expanded, // show details for solution

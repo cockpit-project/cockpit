@@ -29,7 +29,7 @@ const C_ = cockpit.gettext;
 export class DrivesPanel extends React.Component {
     constructor () {
         super();
-        this.on_io_samples = () => { this.setState({}); }
+        this.on_io_samples = () => { this.setState({}) };
     }
 
     componentDidMount() {

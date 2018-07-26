@@ -293,7 +293,7 @@
                 client.vgroups_lvols[lvol.VolumeGroup].push(lvol);
         }
         for (path in client.vgroups_lvols) {
-            client.vgroups_lvols[path].sort(function (a, b) { return a.Name.localeCompare(b.Name); });
+            client.vgroups_lvols[path].sort(function (a, b) { return a.Name.localeCompare(b.Name) });
         }
 
         client.lvols_block = { };
@@ -312,7 +312,7 @@
                 client.lvols_pool_members[lvol.ThinPool].push(lvol);
         }
         for (path in client.lvols_pool_members) {
-            client.lvols_pool_members[path].sort(function (a, b) { return a.Name.localeCompare(b.Name); });
+            client.lvols_pool_members[path].sort(function (a, b) { return a.Name.localeCompare(b.Name) });
         }
 
         client.blocks_cleartext = { };
@@ -332,7 +332,7 @@
                 client.blocks_partitions[part.Table].push(part);
         }
         for (path in client.blocks_partitions) {
-            client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset; });
+            client.blocks_partitions[path].sort(function (a, b) { return a.Offset - b.Offset });
         }
 
         client.path_jobs = { };
@@ -438,7 +438,7 @@
         }
 
         function enable_pk_features() {
-            return PK.detect().then(function (available) { client.features.packagekit = available; });
+            return PK.detect().then(function (available) { client.features.packagekit = available });
         }
 
         function enable_features() {
@@ -623,12 +623,12 @@
         }
 
         function stop_and_unmount_entry(users, entry) {
-            var units = users.map(function (u) { return u.unit; });
+            var units = users.map(function (u) { return u.unit });
             return spawn_nfs_mounts([ "stop-and-unmount", JSON.stringify(units), JSON.stringify(entry) ]);
         }
 
         function stop_and_remove_entry(users, entry) {
-            var units = users.map(function (u) { return u.unit; });
+            var units = users.map(function (u) { return u.unit });
             return spawn_nfs_mounts([ "stop-and-remove", JSON.stringify(units), JSON.stringify(entry) ]);
         }
 
@@ -793,12 +793,12 @@
         }
 
         function find_by_block(block) {
-            function check(encoded) { return self.by_dev[utils.decode_filename(encoded)]; }
+            function check(encoded) { return self.by_dev[utils.decode_filename(encoded)] }
             return check(block.Device) || some(block.Symlinks, check);
         }
 
         function find_by_backing_block(block) {
-            function check(encoded) { return self.by_backing_dev[utils.decode_filename(encoded)]; }
+            function check(encoded) { return self.by_backing_dev[utils.decode_filename(encoded)] }
             return check(block.Device) || some(block.Symlinks, check);
         }
 
@@ -878,7 +878,7 @@
         }
 
         function find_by_block(block) {
-            function check(encoded) { return self.info[utils.decode_filename(encoded)]; }
+            function check(encoded) { return self.info[utils.decode_filename(encoded)] }
             return check(block.Device) || some(block.Symlinks, check);
         }
 

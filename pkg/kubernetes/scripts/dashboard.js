@@ -186,7 +186,7 @@
                         el = angular.element("<a>")
                             .attr("href", href)
                             .attr("target", "_blank")
-                            .on("click", function(ev) { ev.stopPropagation(); });
+                            .on("click", function(ev) { ev.stopPropagation() });
                         element.append(el);
                     } else {
                         el = element;

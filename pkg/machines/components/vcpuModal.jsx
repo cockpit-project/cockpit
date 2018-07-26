@@ -23,11 +23,11 @@ const dividers = (num) => {
     }
 
     return divs;
-}
+};
 
 const clamp = (value, max, min) => {
     return value < min || isNaN(value) ? min : (value > max ? max : value);
-}
+};
 
 const Select = function ({ id, items, onChange, value }) {
     return (<SelectComponent.Select id={id} initial={value} onChange={onChange}>
@@ -35,7 +35,7 @@ const Select = function ({ id, items, onChange, value }) {
             <SelectComponent.SelectEntry data={t}>{t}</SelectComponent.SelectEntry>
         ))}
     </SelectComponent.Select>);
-}
+};
 
 class VCPUModalBody extends React.Component {
     constructor(props) {
@@ -211,7 +211,7 @@ export default function ({ vm, dispatch, config }) {
     let state = {};
     const onStateChange = (st) => {
         state = Object.assign({}, st);
-    }
+    };
     return show_modal_dialog(
         {
             title: cockpit.format(_("$0 vCPU Details"), vm.name),

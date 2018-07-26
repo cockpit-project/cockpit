@@ -28,7 +28,7 @@ const _ = cockpit.gettext;
 export class FilesystemsPanel extends React.Component {
     constructor () {
         super();
-        this.on_fsys_samples = () => { this.setState({}); }
+        this.on_fsys_samples = () => { this.setState({}) };
     }
 
     componentDidMount() {

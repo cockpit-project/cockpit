@@ -159,7 +159,7 @@ class Consoles extends React.Component {
                     this.setState({
                         consoleType: key,
                         consoleDetail,
-                    })
+                    });
                 });
             } else {
                 consoleDetail = vm.displays.vnc;
@@ -169,7 +169,7 @@ class Consoles extends React.Component {
         this.setState({
             consoleType: key,
             consoleDetail,
-        })
+        });
     }
 
     onDesktopConsoleDownload (type) {
@@ -189,7 +189,7 @@ class Consoles extends React.Component {
         const serialConsoleCommand = config.provider.serialConsoleCommand({ vm });
 
         const onDesktopConsole = () => { // prefer spice over vnc
-            this.onDesktopConsoleDownload(vm.displays.spice ? 'spice' : 'vnc')
+            this.onDesktopConsoleDownload(vm.displays.spice ? 'spice' : 'vnc');
         };
 
         logDebug('Consoles render, this.state.consoleType: ', this.state.consoleType);
@@ -204,7 +204,7 @@ class Consoles extends React.Component {
             actions = <VncActions vm={vm} />;
             break;
         case 'desktop':
-            console = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />
+            console = <DesktopConsole vm={vm} onDesktopConsole={onDesktopConsole} config={config} />;
             break;
         default:
             console = <NoConsoleDefined />;

@@ -34,6 +34,6 @@ export class StorageLogsPanel extends React.Component {
             "_SYSTEMD_UNIT=multipathd.service"
         ];
 
-        return <LogsPanel title={_("Storage Logs")} match={match} max={10} />
+        return <LogsPanel title={_("Storage Logs")} match={match} max={10} />;
     }
 }

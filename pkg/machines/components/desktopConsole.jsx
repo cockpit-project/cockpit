@@ -35,7 +35,7 @@ const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
         </li>
 
     );
-}
+};
 
 const MoreInformationContent = () => {
     const msg1 = cockpit.format(_("Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."),
@@ -61,7 +61,7 @@ const MoreInformationContent = () => {
             </ul>
         </div>
     );
-}
+};
 
 class MoreInformation extends React.Component {
     constructor(props) {
@@ -89,7 +89,7 @@ class MoreInformation extends React.Component {
         if (provider.ConsoleClientResources) {
             // external provider can have specific instructions for console setup
             const ProviderConsoleClientResources = provider.ConsoleClientResources; // (vm, providerState);
-            content = <ProviderConsoleClientResources displays={vm.displays} vm={vm} providerState={providerState} />
+            content = <ProviderConsoleClientResources displays={vm.displays} vm={vm} providerState={providerState} />;
         }
 
         return content;
@@ -134,7 +134,7 @@ const ConnectWithRemoteViewer = ({ vm, config, onDesktopConsole }) => {
             </p>
         </td>
     );
-}
+};
 
 const ManualConnectionDetails = ({ displays, idPrefix }) => {
     const spiceAddress = displays.spice && displays.spice.address;
@@ -173,11 +173,11 @@ const ManualConnectionDetails = ({ displays, idPrefix }) => {
             {vncTlsPort && (<dd id={`${idPrefix}-port-vnc-tls`}>{vncTlsPort}</dd>)}
         </dl>
     );
-}
+};
 
 const ManualConnection = ({ displays, idPrefix }) => {
-    const isVNC = !!displays.vnc
-    const isSPICE = !!displays.spice
+    const isVNC = !!displays.vnc;
+    const isSPICE = !!displays.spice;
 
     if (!isVNC && !isSPICE) {
         return null;
@@ -197,8 +197,8 @@ const ManualConnection = ({ displays, idPrefix }) => {
                 <ManualConnectionDetails displays={displays} idPrefix={idPrefix} />
             </p>
         </td>
-    )
-}
+    );
+};
 
 const DesktopConsoleDownload = ({ vm, onDesktopConsole, config }) => {
     return (

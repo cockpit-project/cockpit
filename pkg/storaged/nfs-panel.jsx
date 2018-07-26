@@ -84,7 +84,7 @@ export class NFSPanel extends React.Component {
                 client.features.nfs = true;
                 client.nfs.start();
             }
-        }
+        };
 
         return (
             <OptionalPanel className="storage-mounts" id="nfs-mounts"

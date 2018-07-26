@@ -21,7 +21,7 @@
 
 import React, { PropTypes } from 'react';
 import { gettext as _ } from 'cockpit';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 
 import type { Vm } from '../types.jsx';
 import { vmIdPrefx, mouseClick } from '../utils.jsx';
@@ -52,7 +52,7 @@ const VmActions = ({ vm, onFailure }: { vm: Vm, onFailure: Function }) => {
         <div>
             {buttonDelete}
         </div>);
-}
+};
 
 VmActions.propTypes = {
     vm: PropTypes.object.isRequired,

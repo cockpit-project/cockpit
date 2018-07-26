@@ -598,17 +598,17 @@
                     cpu: {
                         label: _("CPU"),
                         step: 1000 * 1000 * 1000 * 10,
-                        formatter: function(v) { return (v / (100 * 1000 * 1000)) + "%"; }
+                        formatter: function(v) { return (v / (100 * 1000 * 1000)) + "%" }
                     },
                     memory: {
                         label: _("Memory"),
                         step: 1024 * 1024 * 64,
-                        formatter: function(v) { return KubeFormat.formatBytes(v); }
+                        formatter: function(v) { return KubeFormat.formatBytes(v) }
                     },
                     network: {
                         label: _("Network"),
                         step: 1000 * 1000 * 10,
-                        formatter: function(v) { return KubeFormat.formatBitsPerSec((v / 10), "Mbps"); }
+                        formatter: function(v) { return KubeFormat.formatBitsPerSec((v / 10), "Mbps") }
                     }
                 };
 
@@ -617,13 +617,13 @@
                     .selectAll("li")
                         .data(Object.keys(tabs))
                       .enter().append("li")
-                        .attr("data-metric", function(d) { return d; })
+                        .attr("data-metric", function(d) { return d })
                       .append("a")
-                        .text(function(d) { return tabs[d].label; });
+                        .text(function(d) { return tabs[d].label });
 
                 function metric_tab(tab) {
                     outer.selectAll("ul li")
-                        .attr("class", function(d) { return tab === d ? "active": null; });
+                        .attr("class", function(d) { return tab === d ? "active": null });
                     grid.metric(tab);
                 }
 
@@ -667,9 +667,9 @@
                 var offset = 0;
 
                 var line = d3.svg.line()
-                    .defined(function(d) { return d !== undefined; })
-                    .x(function(d, i) { return x((grid.beg + i) - offset); })
-                    .y(function(d, i) { return y(d); });
+                    .defined(function(d) { return d !== undefined })
+                    .x(function(d, i) { return x((grid.beg + i) - offset) })
+                    .y(function(d, i) { return y(d) });
 
                 /* Initial display: 1024 px, 5 minutes of data */
                 var factor = 300000 / 1024;
@@ -773,12 +773,12 @@
                     var rows = grid.rows;
 
                     var series = stage.selectAll("path.line")
-                        .data(rows, function(d, i) { return i; });
+                        .data(rows, function(d, i) { return i });
 
                     series
-                        .style("stroke", function(d, i) { return colors(i); })
-                        .attr("d", function(d) { return line(d); })
-                        .classed("highlight", function(d) { return d.uid === highlighted; });
+                        .style("stroke", function(d, i) { return colors(i) })
+                        .attr("d", function(d) { return line(d) })
+                        .classed("highlight", function(d) { return d.uid === highlighted });
 
                     series.enter().append("path")
                         .attr("class", "line")

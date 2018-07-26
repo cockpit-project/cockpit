@@ -15,7 +15,7 @@ class VCPUModalBody extends React.Component {
             threads: props.cpu.topology.threads || 1,
             cores: props.cpu.topology.cores || 1,
             count: (props.cpu.topology.sockets * props.cpu.topology.cores * props.cpu.topology.threads) || 1
-        }
+        };
 
         this.handleChange = this.handleChange.bind(this);
         props.onChange(this.state);
@@ -38,7 +38,7 @@ class VCPUModalBody extends React.Component {
             state.count = Object.values(state).reduce((accumulator, currentValue) => accumulator * currentValue, 1);
 
             this.setState(state);
-        }
+        };
     }
 
     render () {
@@ -84,7 +84,7 @@ export default function ({ vm, dispatch }) {
     let state = {};
     const onStateChange = (st) => {
         state = Object.assign({}, st);
-    }
+    };
 
     return show_modal_dialog(
         {

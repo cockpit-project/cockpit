@@ -363,7 +363,7 @@
 
         function add_drives() {
             var dfd = cockpit.defer();
-            var devs = drives.map(function (d) { return d.path; });
+            var devs = drives.map(function (d) { return d.path });
             if (docker_will_be_stopped)
                 client.close();
 
@@ -452,7 +452,7 @@
             cockpit.location.go('/');
         });
 
-        $('#storage-reset').on('click', function () { reset_storage(client); });
+        $('#storage-reset').on('click', function () { reset_storage(client) });
 
         function add_callback(drives, model) {
             add_storage(client, drives, model);

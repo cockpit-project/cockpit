@@ -55,7 +55,7 @@ class CreateVmFromTemplate extends React.Component {
     }
 
     onVmNameChanged (e) {
-        this.setState({ vmName: e.target.value })
+        this.setState({ vmName: e.target.value });
     }
 
     onDoCreateVm () {

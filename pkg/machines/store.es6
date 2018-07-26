@@ -19,7 +19,7 @@
 
 import { createStore, applyMiddleware } from 'redux';
 import reducer from './reducers.es6';
-import thunkMiddleware from 'redux-thunk'
+import thunkMiddleware from 'redux-thunk';
 
 const store = createStore(
     reducer,

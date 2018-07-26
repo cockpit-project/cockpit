@@ -17,27 +17,27 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as actionConstants from './action-types.jsx'
+import * as actionConstants from './action-types.jsx';
 
 export function setVms(vms) {
     return {
         type: actionConstants.SET_VMS,
         payload: vms
-    }
+    };
 }
 
 export function setPVs(pvs) {
     return {
         type: actionConstants.SET_PVS,
         payload: pvs
-    }
+    };
 }
 
 export function setSettings(settings) {
     return {
         type: actionConstants.SET_SETTINGS,
         payload: settings
-    }
+    };
 }
 
 export function vmActionFailed({ vm, message, detail }) {

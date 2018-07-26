@@ -21,10 +21,10 @@ import cockpit from 'cockpit';
 
 import React from 'react';
 import DialogPattern from 'cockpit-components-dialog.jsx';
-import CreateVmDialog from './createVmDialog.jsx'
+import CreateVmDialog from './createVmDialog.jsx';
 import { vmCreate } from '../kube-middleware.jsx';
 
-import { mouseClick } from '../utils.jsx'
+import { mouseClick } from '../utils.jsx';
 
 const _ = cockpit.gettext;
 
@@ -41,7 +41,7 @@ class CreateVmButton extends React.Component {
         const dialogProps = {
             title: _("Create Virtual Machine"),
             body: (
-                <CreateVmDialog ref={ d => { dialog = d; return d; } } />
+                <CreateVmDialog ref={ d => { dialog = d; return d } } />
             ),
         };
 

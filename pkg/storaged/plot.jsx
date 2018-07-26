@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 class ZoomControls extends React.Component {
     constructor() {
         super();
-        this.classes = { }
+        this.classes = { };
         this.plots = [ ];
     }
 
@@ -113,8 +113,8 @@ class ZoomControls extends React.Component {
 class StoragePlot extends React.Component {
     constructor() {
         super();
-        this.state = { unit: "" }
-        this.on_resize = () => { this.setState({}); };
+        this.state = { unit: "" };
+        this.on_resize = () => { this.setState({}) };
     }
 
     componentDidMount() {
@@ -247,13 +247,13 @@ export class StoragePlots extends React.Component {
                 this.controls = element;
                 this.controls.reset(this.plots);
             }
-        }
+        };
 
         const new_plot = (p) => {
             this.plots.push(p);
             if (this.controls)
                 this.controls.reset(this.plots);
-        }
+        };
 
         return (
             <div className={Object.keys(this.state.classes).join(" ")}>

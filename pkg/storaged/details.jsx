@@ -73,7 +73,7 @@ export class StdDetailsLayout extends React.Component {
 class Details extends React.Component {
     constructor() {
         super();
-        this.on_client_changed = () => { this.setState({}); };
+        this.on_client_changed = () => { this.setState({}) };
     }
 
     componentDidMount() {

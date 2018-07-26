@@ -162,7 +162,7 @@ export class VDOsPanel extends React.Component {
                 client.features.vdo = true;
                 client.vdo_overlay.start();
             }
-        }
+        };
 
         return (
             <OverviewSidePanel id="vdos"

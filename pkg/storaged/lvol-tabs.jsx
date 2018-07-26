@@ -76,7 +76,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline) {
         if (fsys) {
             // When doing an offline resize, we need to first repair the filesystem.
             if (offline) {
-                return fsys.Repair({ }).then(function () { return fsys.Resize(size - crypto_overhead, { }); });
+                return fsys.Repair({ }).then(function () { return fsys.Resize(size - crypto_overhead, { }) });
             } else {
                 return fsys.Resize(size - crypto_overhead, { });
             }

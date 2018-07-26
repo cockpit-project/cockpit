@@ -55,7 +55,7 @@ function extract_option(split, opt) {
 
 function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
     if (!visible)
-        visible = function () { return true; };
+        visible = function () { return true };
 
     var split_options = parse_options(mount_options == "defaults" ? "" : mount_options);
     var opt_auto = !extract_option(split_options, "noauto");

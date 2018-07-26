@@ -969,8 +969,8 @@ plotter.setup_plot_controls = function setup_plot_controls(container, element, p
             p = [ ];
         plots = p;
         plots.forEach(function (p) {
-            $(p).on("zoomstart", function (event) { zoom_plot_start(); });
-            $(p).on("zoom", function (event, x_range, x_stop) { zoom_plot_in(x_range, x_stop); });
+            $(p).on("zoomstart", function (event) { zoom_plot_start() });
+            $(p).on("zoom", function (event, x_range, x_stop) { zoom_plot_in(x_range, x_stop) });
         });
         plot_reset();
     }
@@ -991,8 +991,8 @@ function setup_plot(graph_id, grid, data, user_options) {
                            fill: 1.0
                          }
                 },
-        xaxis: { tickFormatter: function() { return ""; } },
-        yaxis: { tickFormatter: function() { return ""; } },
+        xaxis: { tickFormatter: function() { return "" } },
+        yaxis: { tickFormatter: function() { return "" } },
         // The point radius influences
         // the margin around the grid
         // even if no points are plotted.

@@ -154,7 +154,7 @@ const Validated = ({ errors, error_key, children }) => {
             { error ? <span className="help-block">{error}</span> : null }
         </div>
     );
-}
+};
 
 const Row = ({ tag, title, errors, children }) => {
     return (
@@ -167,7 +167,7 @@ const Row = ({ tag, title, errors, children }) => {
             </td>
         </tr>
     );
-}
+};
 
 function is_visible(field, values) {
     return !field.options || field.options.visible == undefined || field.options.visible(values);
@@ -184,7 +184,7 @@ const Body = ({body, fields, values, errors, onChange}) => {
                             if (is_visible(f, values))
                                 return (
                                     <Row key={f.title} tag={f.tag} title={f.title} errors={errors}>
-                                        { f.render(values[f.tag], val => { values[f.tag] = val; onChange(); }) }
+                                        { f.render(values[f.tag], val => { values[f.tag] = val; onChange() }) }
                                     </Row>
                                 );
                         })
@@ -194,13 +194,13 @@ const Body = ({body, fields, values, errors, onChange}) => {
             }
         </div>
     );
-}
+};
 
 export const dialog_open = (def) => {
     let fields = def.Fields || [ ];
     let values = { };
 
-    fields.forEach(f => { values[f.tag] = f.initial_value; });
+    fields.forEach(f => { values[f.tag] = f.initial_value });
 
     // We reconstruct the body everytime the values change so that it
     // will be re-rendered.  This could be done with some state in the
@@ -209,7 +209,7 @@ export const dialog_open = (def) => {
 
     const update = (errors) => {
         dlg.setProps(props(errors));
-    }
+    };
 
     const props = (errors) => {
         return {
@@ -221,7 +221,7 @@ export const dialog_open = (def) => {
                         errors={errors}
                         onChange={() => update(null)} />
         };
-    }
+    };
 
     const validate = () => {
         return Promise.all(fields.map(f => {
@@ -234,7 +234,7 @@ export const dialog_open = (def) => {
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
             return (Object.keys(errors).length > 0) ? errors : null;
         });
-    }
+    };
 
     let actions = [ ];
     if (def.Action) {
@@ -259,7 +259,7 @@ export const dialog_open = (def) => {
                                 { actions: actions,
                                   cancel_caption: def.Action ? _("Cancel") : _("Close")
                                 });
-}
+};
 
 /* GENERIC FIELD TYPES
  */
@@ -275,8 +275,8 @@ export const TextInput = (tag, title, options) => {
             <input data-field={tag} data-field-type="text-input"
                    className="form-control" type="text" value={val}
                    onChange={event => change(event.target.value)} />
-    }
-}
+    };
+};
 
 export const PassInput = (tag, title, options) => {
     return {
@@ -289,8 +289,8 @@ export const PassInput = (tag, title, options) => {
             <input data-field={tag} data-field-type="text-input"
                    className="form-control" type="password" value={val}
                    onChange={event => change(event.target.value)} />
-    }
-}
+    };
+};
 
 export const SelectOne = (tag, title, options, choices) => {
     return {
@@ -308,8 +308,8 @@ export const SelectOne = (tag, title, options, choices) => {
                 </div>
             );
         }
-    }
-}
+    };
+};
 
 export const CheckBox = (tag, title, options) => {
     return {
@@ -328,8 +328,8 @@ export const CheckBox = (tag, title, options) => {
                 </div>
             );
         }
-    }
-}
+    };
+};
 
 /* A text input that is guarded by a check box.
  *
@@ -358,5 +358,5 @@ export const TextInputChecked = (tag, title, options) => {
                 </div>
             );
         }
-    }
-}
+    };
+};

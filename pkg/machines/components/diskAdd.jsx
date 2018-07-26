@@ -358,7 +358,7 @@ function getDiskFileName(storagePools, vm, poolName, volumeName) {
 const addDiskDialog = (dispatch, provider, idPrefix, vm, storagePools) => {
     let dialogObj;
     let dialogState = {};
-    const onStateChanged = stateDelta => { Object.assign(dialogState, stateDelta); };
+    const onStateChanged = stateDelta => { Object.assign(dialogState, stateDelta) };
 
     const dialogProps = {
         'title': _("Add Disk"),
@@ -427,7 +427,7 @@ const addDiskDialog = (dispatch, provider, idPrefix, vm, storagePools) => {
     // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
     dispatch(getStoragePools(vm.connectionName))
             .then(() => {
-                dialogObj = DialogPattern.show_modal_dialog(dialogProps, footerProps)
+                dialogObj = DialogPattern.show_modal_dialog(dialogProps, footerProps);
             });
 };
 

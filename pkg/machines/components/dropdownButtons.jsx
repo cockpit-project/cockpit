@@ -37,7 +37,7 @@ const DropdownButtons = ({ buttons }) => {
                         <a role='menuitem' tabIndex="0" onClick={mouseClick(button.action)} id={button.id}>
                             {button.title}
                         </a>
-                    </li>)
+                    </li>);
                 });
 
         const caretId = buttons[0]['id'] ? `${buttons[0]['id']}-caret` : undefined;
@@ -59,9 +59,9 @@ const DropdownButtons = ({ buttons }) => {
             {buttons[0].title}
         </button>
     </div>);
-}
+};
 DropdownButtons.propTypes = {
     buttons: PropTypes.array.isRequired
-}
+};
 
 export default DropdownButtons;

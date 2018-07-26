@@ -28,11 +28,11 @@ export function getPairs(object) {
     return Object.keys(object).map(key => ({
         key,
         value: object[key]
-    }))
+    }));
 }
 
 export function vmIdPrefx(vm) {
-    return `vm-${vm.metadata.name}`
+    return `vm-${vm.metadata.name}`;
 }
 
 // TODO: set log level, i.e. reuse window.debug

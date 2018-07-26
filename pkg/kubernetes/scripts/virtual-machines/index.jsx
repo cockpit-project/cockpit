@@ -49,13 +49,13 @@ function initReduxStore() {
 function addKubeLoaderListener ($scope, kubeLoader, kubeSelect) {
     // register load callback( callback, until )
     kubeLoader.listen(() => {
-        const vms = kubeSelect().kind('VirtualMachine')
-        const persistentVolumes = kubeSelect().kind('PersistentVolume')
+        const vms = kubeSelect().kind('VirtualMachine');
+        const persistentVolumes = kubeSelect().kind('PersistentVolume');
         const pods = kubeSelect().kind('Pod');
 
-        reduxStore.dispatch(actionCreators.setVms(Object.values(vms)))
-        reduxStore.dispatch(actionCreators.setPVs(Object.values(persistentVolumes)))
-        reduxStore.dispatch(actionCreators.setPods(Object.values(pods)))
+        reduxStore.dispatch(actionCreators.setVms(Object.values(vms)));
+        reduxStore.dispatch(actionCreators.setPVs(Object.values(persistentVolumes)));
+        reduxStore.dispatch(actionCreators.setPods(Object.values(pods)));
     }, $scope);
 
     // enable watching( watched-entity-type, until )

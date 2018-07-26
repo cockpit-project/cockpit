@@ -111,7 +111,7 @@ class DnfImpl extends ImplBase {
 
         // check if we have a day of week
         if (daysOfWeek.indexOf(words[0]) >= 0)
-            this.day = words.shift()
+            this.day = words.shift();
         else
             this.day = ""; // daily
 
@@ -205,7 +205,7 @@ class DnfImpl extends ImplBase {
 // automatic updates are not supported, backend will be null.
 function getBackend() {
     if (!getBackend.promise) {
-        debug("getBackend() called first time, initializing promise")
+        debug("getBackend() called first time, initializing promise");
         let dfd = cockpit.defer();
         getBackend.promise = dfd.promise();
 
@@ -231,7 +231,7 @@ function getBackend() {
                 // the detection shell script is supposed to always succeed
                     console.error("automatic updates getBackend() detection failed:", error);
                     dfd.resolve(null);
-                })
+                });
     }
 
     return getBackend.promise;

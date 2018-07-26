@@ -58,7 +58,7 @@ function updateVulnerableInfo() {
 
             /* Atomic sometimes returns containers for which it doesn't
              * have scan results. Remove those. */
-            var ids = Object.keys(infos).filter(function (id) { return infos[id].json_file; });
+            var ids = Object.keys(infos).filter(function (id) { return infos[id].json_file });
 
             if (ids.length > 0) {
                 promises = ids.map(function (id) {

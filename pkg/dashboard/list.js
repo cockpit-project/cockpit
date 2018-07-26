@@ -75,7 +75,7 @@ var resource_monitors = [
           };
       },
       options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter: function(v) { return v + "%"; }} },
+                          tickFormatter: function(v) { return v + "%" }} },
       ymax_min: 100
     },
     { selector: "#dashboard-plot-1",
@@ -350,7 +350,7 @@ PageDashboard.prototype = {
             });
 
             $.each(seen, function(addr) {
-                series[addr].forEach(function (s) { s.remove(); });
+                series[addr].forEach(function (s) { s.remove() });
                 delete series[addr];
             });
 
@@ -455,7 +455,7 @@ PageDashboard.prototype = {
         }
 
         function plot_refresh() {
-            self.plots.forEach(function (p) { p.refresh(); });
+            self.plots.forEach(function (p) { p.refresh() });
         }
 
         function plot_add(addr, info) {
@@ -525,7 +525,7 @@ PageDashboard.prototype = {
         }
 
         $(window).on('resize.dashboard', function () {
-            self.plots.forEach(function (p) { p.resize(); });
+            self.plots.forEach(function (p) { p.resize() });
         });
 
         renderer();

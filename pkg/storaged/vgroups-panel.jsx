@@ -108,7 +108,7 @@ export class VGroupsPanel extends React.Component {
 
         var lvm2_feature = {
             is_enabled: () => client.features.lvm2
-        }
+        };
 
         return (
             <OverviewSidePanel id="vgroups"

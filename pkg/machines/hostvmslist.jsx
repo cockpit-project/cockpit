@@ -29,8 +29,10 @@ import {
     installVm,
     usageStartPolling,
     usageStopPolling,
+} from "./actions/provider-actions.es6";
+import {
     clearNotification,
-} from "./actions.es6";
+} from "./actions/store-actions.es6";
 
 import { vmId } from "./helpers.es6";
 

@@ -7,15 +7,18 @@ import getOSListScript from 'raw!./scripts/get_os_list.sh';
 import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
 
 import {
-    checkLibvirtStatus,
-    getAllVms,
-    getHypervisorMaxVCPU,
-    getOsInfoList,
     vmActionFailed,
     updateLibvirtState,
     updateOrAddVm,
     updateOsInfoList,
-} from './actions.es6';
+} from './actions/store-actions.es6';
+
+import {
+    checkLibvirtStatus,
+    getAllVms,
+    getHypervisorMaxVCPU,
+    getOsInfoList
+} from './actions/provider-actions.es6';
 
 import {
     convertToUnit,

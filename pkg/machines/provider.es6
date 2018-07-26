@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 
 import { logDebug } from './helpers.es6';
-import { setProvider } from './actions.es6';
+import { setProvider } from './actions/store-actions.es6';
 
 var provider = null;
 

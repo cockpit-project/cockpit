@@ -28,7 +28,7 @@ import { pollOvirt, forceNextOvirtPoll } from './ovirt.es6';
 import { oVirtIconToInternal } from './ovirtConverters.es6';
 
 import { updateIcon, downloadIcon } from './actions.es6';
-import { getHypervisorMaxVCPU } from '../machines/actions.es6';
+import { getHypervisorMaxVCPU } from '../machines/actions/provider-actions.es6';
 
 import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';
 import { ovirtReducer } from './reducers.es6';

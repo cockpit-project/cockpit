@@ -24,20 +24,23 @@ import cockpit from 'cockpit';
 
 import {
     updateVm,
-    getVm,
-    getAllVms,
-    delayPolling,
     undefineVm,
     deleteUnlistedVMs,
-    checkLibvirtStatus,
+    updateStoragePools,
+    updateStorageVolumes,
     setHypervisorMaxVCPU,
+} from './actions/store-actions.es6';
+
+import {
+    attachDisk,
+    checkLibvirtStatus,
+    delayPolling,
+    getAllVms,
     getHypervisorMaxVCPU,
     getStoragePools,
     getStorageVolumes,
-    updateStoragePools,
-    updateStorageVolumes,
-    attachDisk,
-} from './actions.es6';
+    getVm,
+} from './actions/provider-actions.es6'
 
 import { usagePollingEnabled } from './selectors.es6';
 import { spawnScript, spawnProcess } from './services.es6';

@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
-import { deleteVm } from '../actions.es6';
+import { deleteVm } from '../actions/provider-actions.es6';
 
 import './deleteDialog.css';
 

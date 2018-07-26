@@ -21,7 +21,7 @@ import {
     addUiVm,
     updateUiVm,
     deleteUiVm,
-} from '../../actions.es6';
+} from '../../actions/store-actions.es6';
 
 import VMS_CONFIG from "../../config.es6";
 

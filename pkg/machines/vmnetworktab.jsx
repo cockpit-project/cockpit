@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
-import { changeNetworkState } from "./actions.es6";
+import { changeNetworkState } from "./actions/provider-actions.es6";
 import { rephraseUI, vmId } from "./helpers.es6";
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 

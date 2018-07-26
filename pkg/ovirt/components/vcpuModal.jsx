@@ -2,7 +2,7 @@ import React from 'react';
 import cockpit from 'cockpit';
 
 import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
-import { setVCPUSettings } from "../../machines/actions.es6";
+import { setVCPUSettings } from "../../machines/actions/provider-actions.es6";
 import InfoRecord from '../../machines/components/infoRecord.jsx';
 
 const _ = cockpit.gettext;

@@ -311,7 +311,7 @@ class TestRealms(MachineCase):
         # Disable sssd support in realmd
 
         realmd_distro_conf = "/usr/lib/realmd/realmd-distro.conf"
-        if m.image.startswith("rhel-7-5") or m.image.startswith("centos-7"):
+        if m.image.startswith("rhel-7") or m.image.startswith("centos-7"):
             realmd_distro_conf = "/usr/lib64/realmd/realmd-distro.conf"
 
         m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)

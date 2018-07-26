@@ -18,7 +18,9 @@ rm -rf ${KUBEVIRT_DIR}
 mkdir -p ${KUBEVIRT_DIR}
 cd ${KUBEVIRT_DIR}
 
-curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/latest > kubevirt_latest.json
+# HACK latest release v0.7.0 breaks, see https://github.com/cockpit-project/cockpit/pull/9638
+# curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/latest > kubevirt_latest.json
+curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/tags/v0.5.0 > kubevirt_latest.json
 KUBEVIRT_VERSION=`cat kubevirt_latest.json | grep -m 1 \"name\": | sed -e 's/^.*\"name\":\s*\"\(.*\)\",/\1/' | sed 's/^v//'`
 echo Kubevirt version found: ${KUBEVIRT_VERSION}
 

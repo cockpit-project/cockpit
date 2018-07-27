@@ -329,7 +329,7 @@ class OstreeRestartCase(MachineCase):
         b.wait_present('table.listing-ct')
         b.wait_present('table.listing-ct tbody')
 
-        if m.image in ["fedora-atomic"]:
+        if m.image in ["rhel-atomic", "fedora-atomic"]:
             # newer rpm-ostree flips back and forth between the two latest releases with rollback
             b.wait_present('table.listing-ct tbody:nth-child(3) i.fa-check-circle-o')
             b.wait_text('table.listing-ct tbody:nth-child(3) div.listing-ct-head h3', name + " cockpit-base.1")

@@ -161,16 +161,13 @@ BRIDGE_CHECKS = \
 	test-metrics \
 	test-connect \
 	test-stream \
+	test-httpstream \
 	test-setup \
 	test-websocketstream \
 	test-process \
 	test-bridge \
 	test-router \
 	$(NULL)
-
-if !BROKEN_GNUTLS
-BRIDGE_CHECKS += test-httpstream
-endif
 
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
 mock_bridge_CFLAGS = \

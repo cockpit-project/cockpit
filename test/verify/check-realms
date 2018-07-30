@@ -18,11 +18,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import parent
-from testlib import *
-
 import re
 import subprocess
+import time
+
+import parent
+from testlib import *
+import packagelib
 
 WAIT_KRB_SCRIPT = """
 set -ex
@@ -509,6 +511,116 @@ class TestKerberos(MachineCase):
             self.assertIn("HTTP/1.1 200 OK", output)
             self.assertIn('"csrf-token"', output)
         self.allow_restart_journal_messages()
+
+
+@skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5-distropkg")
+@skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
+@skipImage("Package (un)install does not work on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+class TestPackageInstall(packagelib.PackageCase):
+    def testInstall(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd")
+
+        # case 1: disable PackageKit
+        m.execute("systemctl mask --runtime packagekit && systemctl stop packagekit.service || true")
+        self.login_and_go("/system")
+        b.wait_text("#system-info-domain a", "Join Domain")
+        b.wait_present("#system-info-domain a.disabled")
+        # check tooltip
+        b.wait_present("#system-info-domain [data-original-title]")
+        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.wait_present(".tooltip-inner")
+        b.wait_in_text(".tooltip-inner", "realmd is not available on this system")
+        b.mouse("#system-info-domain .button-location span", "mouseout")
+        b.logout()
+
+
+        # case 2: enable PackageKit, but no realmd package available
+        m.execute("systemctl unmask --runtime packagekit")
+        self.login_and_go("/system")
+        # Joining a domain should bring up the install dialog
+        b.wait_text("#system-info-domain a", "Join Domain")
+        # check tooltip
+        b.wait_present("#system-info-domain [data-original-title]")
+        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.wait_present(".tooltip-inner")
+        b.wait_in_text(".tooltip-inner", "requires installation of realmd")
+        b.mouse("#system-info-domain .button-location span", "mouseout")
+
+        b.click("#system-info-domain a")
+        b.wait_present("#cockpit_modal_dialog .dialog-error")
+        b.wait_in_text("#cockpit_modal_dialog .dialog-error", "realmd is not available")
+        b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:disabled")
+        b.click("#cockpit_modal_dialog .modal-footer button.cancel")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.logout()
+
+
+        # case 3: provide an available realmd package
+        self.createPackage("realmd", "1", "1", content={ "/realmd-stub": "" })
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        self.login_and_go("/system")
+
+        # Joining a domain should bring up the install dialog
+        b.wait_text("#system-info-domain a", "Join Domain")
+        # check tooltip
+        b.wait_present("#system-info-domain [data-original-title]")
+        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.wait_present(".tooltip-inner")
+        b.wait_in_text(".tooltip-inner", "requires installation of realmd")
+        b.mouse("#system-info-domain .button-location span", "mouseout")
+
+        b.click("#system-info-domain a")
+        b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
+        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # the stub package doesn't provide a realmd D-Bus service, so the "join
+        # domain" dialog won't ever appear; just check that it was installed
+        m.execute("test -e /realmd-stub")
+
+    def testDialogTransition(self):
+        m = self.machine
+        b = self.browser
+
+        # disable the realmd package's service, so that we can restore it, but
+        # the package install code path will be triggered
+        m.execute("systemctl stop realmd && mv /usr/share/dbus-1/system-services/org.freedesktop.realmd.service{,.disabled}")
+
+        self.login_and_go("/system")
+
+        # Joining a domain should bring up the install dialog
+        b.wait_text("#system-info-domain a", "Join Domain")
+        # check tooltip
+        b.wait_present("#system-info-domain [data-original-title]")
+        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.wait_present(".tooltip-inner")
+        b.wait_in_text(".tooltip-inner", "requires installation of realmd")
+        b.mouse("#system-info-domain .button-location span", "mouseout")
+
+        b.click("#system-info-domain a")
+        b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
+        # restore realmd service, to pretend that package install completed
+        m.execute("mv /usr/share/dbus-1/system-services/org.freedesktop.realmd.service{.disabled,}")
+        b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # should continue straight to join dialog
+        b.wait_present("#realms-op")
+        b.wait_popup("realms-op")
+
+        # no running IPA server for this test, so just cancel
+        b.click(".realms-op-cancel")
+        b.wait_popdown("realms-op")
+
+        # should not have a tooltip any more
+        b.mouse("#system-info-domain .button-location span", "mouseover")
+        time.sleep(2)
+        self.assertFalse(b.is_present(".tooltip-inner"))
 
 if __name__ == '__main__':
     test_main()

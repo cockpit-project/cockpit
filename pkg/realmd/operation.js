@@ -3,6 +3,8 @@
 
     var jQuery = require("jquery");
     var cockpit = require("cockpit");
+    var packagekit = require("packagekit.es6");
+    var install_dialog = require("cockpit-components-install-dialog.jsx").install_dialog;
     require("patterns");
 
     var _ = cockpit.gettext;
@@ -513,44 +515,21 @@
         var link = $("<a>");
         element.append(link);
 
-        var realmd = cockpit.dbus("org.freedesktop.realmd");
-        realmd.watch(MANAGER);
-
-        var realms = realmd.proxies("org.freedesktop.realmd.Realm");
+        var realmd = null;
+        var realms = null;
 
         /* The realm we are joined to */
         var joined = null;
 
         var permission = null;
+        var install_realmd = false;
 
-        $(realmd).on("close", function(ev, options) {
-            var message;
-            if (options.problem == "not-found")
-                message = _("Cannot join a domain because realmd is not available on this system");
-            else
-                message = cockpit.message(options);
-            link.addClass("disabled");
+        function setTooltip(message) {
             element
                 .attr('title', message)
                 .tooltip({ container: 'body'})
                 .tooltip('fixTitle');
-            realmd = null;
-        });
-
-        realms.wait(function() {
-            if (!realmd)
-                return;
-
-            permission = cockpit.permission({ admin: true });
-
-            function update_realm_privileged() {
-                $(link).update_privileged(permission,
-                        cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
-                            permission.user ? permission.user.name : ''), null, element);
-            }
-
-            $(permission).on("changed", update_realm_privileged);
-        });
+        }
 
         function update_realms() {
             var text, path, realm;
@@ -568,13 +547,73 @@
             link.text(text);
         }
 
-        $(realms).on("changed", update_realms);
-        update_realms();
+        function setup_realms_proxy() {
+            // HACK: need to reinitialize after installing realmd (https://github.com/cockpit-project/cockpit/pull/9125)
+            realmd = cockpit.dbus("org.freedesktop.realmd");
+            realmd.watch(MANAGER);
+
+            $(realmd).on("close", function(ev, options) {
+                if (options.problem == "not-found") {
+                    /* see if we can install it */
+                    packagekit.detect().then(function (exists) {
+                        if (exists) {
+                            setTooltip("Joining a domain requires installation of realmd");
+                            link.removeClass("disabled");
+                            install_realmd = true;
+                        } else {
+                            setTooltip("Cannot join a domain because realmd is not available on this system");
+                            link.addClass("disabled");
+                        }
+                    });
+                } else {
+                    setTooltip(cockpit.message(options));
+                    link.addClass("disabled");
+                }
+                $(realmd).off();
+                realmd.close();
+                realmd = null;
+            });
+
+            realms = realmd.proxies("org.freedesktop.realmd.Realm");
+            realms.wait(function() {
+                if (!realmd)
+                    return;
+
+                permission = cockpit.permission({ admin: true });
+
+                function update_realm_privileged() {
+                    $(link).update_privileged(permission,
+                            cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
+                                permission.user ? permission.user.name : ''), null, element);
+                }
+
+                $(permission).on("changed", update_realm_privileged);
+            });
+
+            $(realms).on("changed", update_realms);
+        }
+
+        function handle_install_realmd() {
+            install_dialog("realmd")
+                .then(function() {
+                    install_realmd = false;
+                    setup_realms_proxy();
+                    element.tooltip('disable');
+                    // proceed to domain join dialog after realmd initialized
+                    realms.wait().done(handle_link_click);
+                })
+                .catch(function() { }); // dialog cancelled
+        }
 
         var dialog = null;
-        link.on("click", function() {
+        function handle_link_click() {
             if (dialog)
                 $(dialog).remove();
+
+            if (install_realmd) {
+                handle_install_realmd();
+                return;
+            }
 
             if (joined && joined.length)
                 dialog = instance(realmd, 'leave', joined[0], link);
@@ -586,7 +625,11 @@
                 .appendTo("body")
                 .modal('show');
             cockpit.translate();
-        });
+        }
+
+        setup_realms_proxy();
+        update_realms();
+        link.on("click", handle_link_click);
 
         element.close = function close() {
             if (dialog)

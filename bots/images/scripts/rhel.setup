@@ -201,22 +201,51 @@ debuginfo-install -y udisks2
 
 # only install mock and build if TEST_SOURCE is set
 if [ -n "$TEST_SOURCE" ]; then
-    # enable epel for mock
-    if [ ! -f "$SKIP_REPO_FLAG" ]; then
-        mkdir /tmp/dep
-        cd /tmp/dep
-        yum -y install wget
-        wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        yum -y remove wget
-        rpm -Uvh epel-release-*.rpm
-        cd
-        rm -rf /tmp/dep
+    if [ "$IMAGE" = "rhel-x" ]; then
+        # no EPEL for rhel-x yet, so install mock from Fedora 28
+        dnf install -y rpm-build
+
+        cat <<EOF > /etc/yum.repos.d/fedora.repo
+[fedora]
+name=Fedora 28 - \$basearch
+baseurl=http://download.fedoraproject.org/pub/fedora/linux/releases/28/Everything/\$basearch/os/
+enabled=1
+gpgcheck=0
+EOF
+        dnf install -y --setopt=install_weak_deps=False mock
+        rm  /etc/yum.repos.d/fedora.repo
+
+        cat <<EOF > /etc/mock/default.cfg
+config_opts['chroothome'] = '/builddir'
+config_opts['use_host_resolv'] = False
+config_opts['basedir'] = '/var/lib/mock'
+config_opts['rpmbuild_timeout'] = 86400
+config_opts['yum.conf'] = '[main]\\ncachedir=/var/cache/yum\\ndebuglevel=1\\nlogfile=/var/log/yum.log\\nreposdir=/dev/null\\nretries=20\\nobsoletes=1\\ngpgcheck=0\\nassumeyes=1\\nkeepcache=1\\ninstall_weak_deps=0\\nstrict=1\\n\\n# repos\\n\\n[build]\\nname=build\\nbaseurl=http://download.devel.redhat.com/brewroot/repos/rhel-8.0-go-toolset-build/latest/x86_64\\n'
+config_opts['chroot_setup_cmd'] = 'groupinstall build'
+config_opts['target_arch'] = 'x86_64'
+config_opts['root'] = u'rhel-8.0-candidate-x86_64'
+
+config_opts['macros']['%_topdir'] = '/builddir/build'
+config_opts['macros']['%_rpmfilename'] = '%%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm'
+EOF
+    else
+        # enable epel for mock
+        if [ ! -f "$SKIP_REPO_FLAG" ]; then
+            mkdir /tmp/dep
+            cd /tmp/dep
+            yum -y install wget
+            wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            yum -y remove wget
+            rpm -Uvh epel-release-*.rpm
+            cd
+            rm -rf /tmp/dep
+        fi
+
+        yum -y install rpm-build mock
+
+        # disable epel again
+        yum-config-manager --disable 'epel*'
     fi
-
-    yum -y install rpm-build mock
-
-    # disable epel again
-    yum-config-manager --disable 'epel*'
 
     useradd -c Builder -G mock builder
     srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)

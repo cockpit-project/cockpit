@@ -100,6 +100,7 @@ if [ -n "$do_install" ]; then
     rpm -U --force $packages
 
     if type firewall-cmd > /dev/null 2> /dev/null; then
+        systemctl start firewalld
         firewall-cmd --add-service=cockpit --permanent
     fi
 

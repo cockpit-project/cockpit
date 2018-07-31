@@ -22,7 +22,6 @@ import parent
 from testlib import *
 
 @skipImage("No tuned packaged", "debian-stable", "fedora-atomic", "ubuntu-1604")
-@skipImage("tuned currently uninstallable (bz#1537205)", "rhel-x")
 class TestTuned(MachineCase):
     def testBasic(self):
         self.allow_authorize_journal_messages()

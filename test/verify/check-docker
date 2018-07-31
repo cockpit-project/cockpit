@@ -582,7 +582,7 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testContainerProblems(self):

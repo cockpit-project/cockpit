@@ -25,7 +25,7 @@ class TestJournal(MachineCase):
     def setUp(self):
         super(TestJournal, self).setUp()
 
-        if self.machine.image in ["rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "centos-7", "rhel-atomic", "continuous-atomic"]:
+        if self.machine.image in ["rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg", "centos-7", "rhel-atomic", "continuous-atomic"]:
             self.python = "python"
             self.crash_fn = "posix_kill"
         else:
@@ -307,7 +307,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
@@ -343,7 +343,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
@@ -381,7 +381,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_not_present("#journal-entry-fields .nav")
 
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-5", "fedora-i386", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtReport(self):
         self.allow_core_dumps = True

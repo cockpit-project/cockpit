@@ -166,8 +166,8 @@ fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS"
 
-# The rhel-7.5 image has the cockpit packages from base preinstalled, to check for API breakages
-if [ "$IMAGE" = "rhel-7-5" ]; then
+# The rhel-7* images have the cockpit packages from base preinstalled, to check for API breakages
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     DISTRO_COCKPIT_PACKAGES="\
 cockpit
 cockpit-bridge \

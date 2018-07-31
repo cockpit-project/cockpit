@@ -30,7 +30,7 @@ class TestStorage(StorageCase):
         b.wait_timeout(120)
 
         # rhel-7-5 is missing the iSCSI session API
-        if m.image in ["rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6"]:
+        if m.image in ["rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg"]:
             self.login_and_go("/storage")
             # The optional parts of the UI have been configured
             # properly before the page is shown, so we can now

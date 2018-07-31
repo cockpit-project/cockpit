@@ -75,6 +75,8 @@ baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/AppStre
 enabled=1
 gpgcheck=0
 EOF
+        # make ipa-client available
+        dnf module enable idm:4
     else
         # if disabling the repos doesn't work, do without
         yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils

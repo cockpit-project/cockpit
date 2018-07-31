@@ -160,6 +160,8 @@ if [ "$IMAGE" = "rhel-x" ]; then
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
+    # docker is not a rhel-x thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
+    COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS"

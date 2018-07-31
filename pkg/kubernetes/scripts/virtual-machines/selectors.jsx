@@ -24,7 +24,7 @@ import type { Vm } from './types.jsx';
  * Returns pod corresponding to the given vm.
  */
 export function getPod(vm, pods) {
-    if (!pods) {
+    if (!vm || !pods) {
         return null;
     }
 

@@ -66,7 +66,7 @@ const prepareDiskData = (disk, vm, pvs, idPrefix) => {
     if (pv) {
         bus = _("iSCSI");
         onNavigate = () => cockpit.jump(`/kubernetes#/volumes/${pv.metadata.name}`);
-    } else if (disk.disk.bus) {
+    } else if (disk.disk && disk.disk.bus) {
         bus = disk.disk.bus;
     }
 

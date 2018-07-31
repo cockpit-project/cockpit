@@ -64,7 +64,7 @@ const PodLink = ({ pod }) => {
     return (<a href={`#/l/pods/${pod.metadata.namespace}/${pod.metadata.name}`}>{pod.metadata.name}</a>);
 };
 
-const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: VmMessages, pod: Pod }) => {
+const VmOverviewTabKubevirt = ({ vm, vmMessages, pod, showState }: { vm: Vm, vmMessages: VmMessages, pod: Pod, showState: boolean }) => {
     const idPrefix = vmIdPrefx(vm);
 
     const message = (<VmMessage vmMessages={vmMessages} vm={vm} />);
@@ -73,12 +73,25 @@ const VmOverviewTabKubevirt = ({ vm, vmMessages, pod }: { vm: Vm, vmMessages: Vm
     const nodeLink = nodeName ? (<a href={`#/nodes/${nodeName}`}>{nodeName}</a>) : '-';
     const podLink = (<PodLink pod={pod} />);
 
-    const items = [
-        {title: commonTitles.MEMORY, value: getMemory(vm), idPostfix: 'memory'},
-        {title: _("Node:"), value: nodeLink, idPostfix: 'node'},
-        {title: commonTitles.CPUS, value: _(getValueOrDefault(() => vm.spec.domain.cpu.cores, 1)), idPostfix: 'vcpus'},
-        {title: _("Labels:"), value: getLabels(vm), idPostfix: 'labels'},
-        {title: _("Pod:"), value: podLink, idPostfix: 'pod'},
+    const memoryItem = {title: commonTitles.MEMORY, value: getMemory(vm), idPostfix: 'memory'};
+    const vCpusItem = {title: commonTitles.CPUS, value: _(getValueOrDefault(() => vm.spec.domain.cpu.cores, 1)), idPostfix: 'vcpus'};
+    const podItem = {title: _("Pod:"), value: podLink, idPostfix: 'pod'};
+    const nodeItem = {title: _("Node:"), value: nodeLink, idPostfix: 'node'};
+    const labelsItem = {title: _("Labels:"), value: getLabels(vm), idPostfix: 'labels'};
+
+    const items = showState ? [
+        memoryItem,
+        {title: _("State"), value: getValueOrDefault(() => vm.status.phase, _("n/a")), idPostfix: 'state'},
+        vCpusItem,
+        nodeItem,
+        podItem,
+        labelsItem,
+    ] : [
+        memoryItem,
+        nodeItem,
+        vCpusItem,
+        labelsItem,
+        podItem,
     ];
 
     return (<VmOverviewTab message={message}

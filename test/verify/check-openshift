@@ -18,16 +18,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import parent
-from testlib import *
-
 import os
-import unittest
-import time
-import sys
 import re
+import sys
+import time
+import unittest
 
 from kubelib import *
+from testlib import *
 
 # NOTE: Both TestOpenshift and TestRegistry are in this single file to
 # prevent them from being run concurrently.  Both use a 'openshift'
@@ -442,11 +440,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         # kubevirt is not available (means missing in API), so link should not be present
         b.wait_not_present("#vms-menu-link")
 
-    def testKubevirtMachinesList(self):
-        self.bootstrapKubevirt()
-
+    def startKubevirtVm(self):
         o = self.openshift
-
         # The "fedoravm" VirtualMachine is created from OfflineVirtualMachine
         o.execute("oc patch offlinevirtualmachine fedoravm --type=merge -p '{\"spec\":{\"running\": true}}'")  # let's start the VM
         print("starting vm, might take a while")
@@ -454,56 +449,172 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         wait(lambda: "virt-launcher-fedoravm" in o.execute("oc get pods"), delay=2)
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150) # Example: virt-launcher-fedoravm-----rx59t
 
+    def verifyBrowserLocation(self, url):
+        self.browser.wait_js_cond('window.location.href.slice({0}) === "{1}"'.format(-len(url), url))
+
+    def testKubevirtVmInstance(self):
+        self.bootstrapKubevirt()
+        self.startKubevirtVm()
+        o = self.openshift
+        b = self.browser
+        vm_instance_validator = self.VmInstanceValidator(self)
+        self.login_and_go("/kubernetes")
+
+        with self.browser.wait_timeout(120):
+            b.wait_present("#vms-menu-link")
+        b.click("#vms-menu-link")
+
+        # test navigation between the vm and vms
+        vms_url_location = "/kubernetes/index.html#/vms"
+        vm_name = "fedoravm"
+        vm_namespace = "kubevirt"
+
+        vm_namespace_hash = "#/vms/{0}".format(vm_namespace)
+        vm_url_hash = "{0}/{1}".format(vm_namespace_hash, vm_name)
+        vm_url_location = "/kubernetes/index.html{0}".format(vm_url_hash)
+
+        self.verifyBrowserLocation(vms_url_location)
+        b.wait_present("tr[data-row-id='vm-fedoravm']")
+        b.click("tr[data-row-id='vm-fedoravm']")
+
+        self.verifyBrowserLocation(vm_url_location)
+        b.wait_present("#vm-header-link-up")
+        b.click("#vm-header-link-up")
+        self.verifyBrowserLocation(vms_url_location)
+        b.go(vm_url_hash)
+        self.verifyBrowserLocation(vm_url_location)
+
+        # check all rows
+        b.wait_present("#vm-fedoravm-vm-detail-row-title")
+        b.wait_in_text("#vm-fedoravm-vm-detail-row-title", "VM")
+        vm_instance_validator.validateOverview()
+        b.wait_present("#vm-fedoravm-usage-detail-row-title")
+        b.wait_in_text("#vm-fedoravm-usage-detail-row-title", "Usage")
+        vm_instance_validator.validateUsage()
+        b.wait_present("#vm-fedoravm-disks-detail-row-title")
+        b.wait_in_text("#vm-fedoravm-disks-detail-row-title", "Disks")
+        vm_instance_validator.validateDisks()
+
+        # delete the VM (not the OVM), the VM pod should be recreated automatically
+        b.click("#vm-fedoravm-delete")
+        self.verifyBrowserLocation(vms_url_location)
+        # Since the VM is created from OVM, it will be automatically restarted (spec.running: true)
+        b.wait_not_present("tr[data-row-id='vm-fedoravm']")
+        b.wait_present("tr[data-row-id='vm-fedoravm']")
+        b.go(vm_url_hash)
+
+        # check usage still not present because vm is not running yet)
+        vm_instance_validator.validateEmptyUsage()
+
+        wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150)
+
+        # check links are present
+        with self.browser.wait_timeout(15):
+            b.wait_present("#vm-fedoravm-node")
+        wait(lambda: b.text("#vm-fedoravm-node > a").strip() != "-")
+        wait(lambda: b.is_present("#vm-fedoravm-pod > a") and b.text("#vm-fedoravm-pod > a").strip() != "")
+        b.wait_in_text("#vm-fedoravm-pod", "virt-launcher-fedoravm")
+
+        # namespace redirect to vms
+        b.go(vm_namespace_hash)
+        self.verifyBrowserLocation(vms_url_location + "?namespace=kubevirt")
+
+        # check invalid vm
+        invalid_vm_name = "invalidname"
+        invalid_vm_namespace = "invalidns"
+        invalid_vm_hash = "#/vms/{0}/{1}".format(invalid_vm_namespace, invalid_vm_name)
+        invalid_vm_url_location = "/kubernetes/index.html{0}".format(invalid_vm_hash)
+        b.go(invalid_vm_hash)
+        self.verifyBrowserLocation(invalid_vm_url_location)
+        b.wait_present("#vm-not-found-detail-row-title")
+        b.wait_in_text("#vm-not-found-detail-row-title",  "VM {0}:{1} does not exist.".format(invalid_vm_namespace, invalid_vm_name))
+
+    class VmInstanceValidator:
+        def __init__(self, test_obj):
+            self.browser = test_obj.browser
+            self.openshift = test_obj.openshift
+            self.assertFalse = test_obj.assertFalse
+            self.assertGreaterEqual = test_obj.assertGreaterEqual
+
+        def validateOverview(self):
+            b = self.browser
+            b.wait_present("#vm-fedoravm-memory")
+            b.wait_in_text("#vm-fedoravm-memory", "256M")
+            b.wait_in_text("#vm-fedoravm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
+            b.wait_present("#vm-fedoravm-pod")
+
+        def validateUsage(self):
+            b = self.browser
+
+            b.wait_present("#vm-fedoravm-cpu-metric div svg") # cannot check cpu component because it is an external dependency
+            b.wait_present("#vm-fedoravm-memory-metric")
+            b.wait_present("#vm-fedoravm-network-metric")
+
+            wait(lambda: self._get_units_number("#vm-fedoravm-memory-metric-title") > 0)
+            self.assertGreaterEqual(self._get_units_number("#vm-fedoravm-download-metric", True), 0)
+            self.assertGreaterEqual(self._get_units_number("#vm-fedoravm-upload-metric", True), 0)
+
+        def validateEmptyUsage(self):
+            b = self.browser
+
+            wait(lambda: b.is_present("#vm-fedoravm-usage-metrics") and b.text(
+                "#vm-fedoravm-usage-metrics") == "Usage metrics are available after the pod starts", tries=120)
+            self.assertFalse(b.is_present("#vm-fedoravm-cpu-metric"))
+            self.assertFalse(b.is_present("#vm-fedoravm-memory-metric"))
+            self.assertFalse(b.is_present("#vm-fedoravm-network-metric"))
+
+        def validateDisks(self):
+            b = self.browser
+
+            b.wait_present("#vm-fedoravm-disks-disk0-device") # check disk properties
+            b.wait_present("#vm-fedoravm-disks-disk1-device")
+            b.wait_in_text("#vm-fedoravm-disks-disk0-device", "disk0")
+            b.wait_in_text("#vm-fedoravm-disks-disk1-device", "disk1")
+            b.wait_in_text("#vm-fedoravm-disks-disk0-bus", "virtio")
+            b.wait_in_text("#vm-fedoravm-disks-disk1-bus", "virtio")
+            b.wait_in_text("#vm-fedoravm-disks-disk0-source", "kubevirt/fedora-cloud-registry-disk-demo:latest") # registryvolume
+            b.wait_in_text("#vm-fedoravm-disks-disk1-source", "cloudinitvolume")
+
+            # TODO: add iSCSI disk to the test VM and reenable here
+            # b.click("tr.listing-ct-item.listing-ct-noexpand") # test navigation to the "Volumes" page
+            # b.wait_js_cond('window.location.hash === "#/volumes/iscsi-disk-alpine"')
+
+        def _get_units_number(self, selector, per_second=False):
+            units_regex = "([0-9]+\.?[0-9]*) .?i?B"
+            if per_second:
+                units_regex += "/s"
+            m = re.match(units_regex, self.browser.text(selector))
+            return float(m.group(1)) if m else None
+
+
+    def testKubevirtMachinesList(self):
+        self.bootstrapKubevirt()
+        self.startKubevirtVm()
+        o = self.openshift
         b = self.browser
         self.login_and_go("/kubernetes")
         # kubevirt is available, so link should be present
-        b.wait_present("#vms-menu-link")
+        with self.browser.wait_timeout(120):
+            b.wait_present("#vms-menu-link")
         b.click("#vms-menu-link")
         b.wait_present("tr[data-row-id='vm-fedoravm']")
         self.assertEqual(b.text("tr[data-row-id='vm-fedoravm'] th"), "fedoravm")
 
+        vm_instance_validator = self.VmInstanceValidator(self)
         # expand row and check the Overview subtab
-        b.click("tr[data-row-id='vm-fedoravm']")
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")
         b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
         b.wait_in_text("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel", "Node")
-        b.wait_present("#vm-fedoravm-memory")
-        b.wait_in_text("#vm-fedoravm-memory", "256M")
-        b.wait_in_text("#vm-fedoravm-labels", "kubevirt.io/nodeName=f1.cockpit.lan")
-        b.wait_present("#vm-fedoravm-pod")
-
+        vm_instance_validator.validateOverview()
         # switch to the Usage subtab
         b.wait_present("#vm-fedoravm-usage-tab")
         b.click("#vm-fedoravm-usage-tab")
-        b.wait_present("#cpu-metric div svg")  # cannot check cpu component because it is an external dependency
-        b.wait_present("#memory-metric")
-        b.wait_present("#network-metric")
-
-        def get_units_value(selector, per_second=False):
-            units_regex = "([0-9]+\.?[0-9]*) .?i?B"
-            if per_second:
-                units_regex += "/s"
-            m = re.match(units_regex, b.text(selector))
-            return float(m.group(1)) if m else None
-
-        wait(lambda: get_units_value("#memory-metric-title") > 0)
-        self.assertGreaterEqual(get_units_value("#download-metric", True), 0)
-        self.assertGreaterEqual(get_units_value("#upload-metric", True), 0)
+        vm_instance_validator.validateUsage()
 
         # switch to the Disks subtab
         b.wait_present("#vm-fedoravm-disks-tab")
         b.click("#vm-fedoravm-disks-tab")
-        b.wait_present("#vm-fedoravm-disks-disk0-device") # check disk properties
-        b.wait_present("#vm-fedoravm-disks-disk1-device")
-        b.wait_in_text("#vm-fedoravm-disks-disk0-device", "disk0")
-        b.wait_in_text("#vm-fedoravm-disks-disk1-device", "disk1")
-        b.wait_in_text("#vm-fedoravm-disks-disk0-bus", "virtio")
-        b.wait_in_text("#vm-fedoravm-disks-disk1-bus", "virtio")
-        b.wait_in_text("#vm-fedoravm-disks-disk0-source", "kubevirt/fedora-cloud-registry-disk-demo:latest") # registryvolume
-        b.wait_in_text("#vm-fedoravm-disks-disk1-source", "cloudinitvolume")
-
-        # TODO: add iSCSI disk to the test VM and reenable here
-        # b.click("tr.listing-ct-item.listing-ct-noexpand") # test navigation to the "Volumes" page
-        # b.wait_js_cond('window.location.hash === "#/volumes/iscsi-disk-alpine"')
+        vm_instance_validator.validateDisks()
 
         # return back to the virtual-machines
         b.wait_present("#vms-menu-link") # left-side menu
@@ -521,29 +632,27 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
             b.wait_present("tr[data-row-id='vm-fedoravm']")
 
         if not b.is_present("#vm-fedoravm-usage-tab"):  # if not expanded
-            b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+            b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # expand row
 
         # check usage still not present because vm is not running yet)
         b.wait_present("#vm-fedoravm-usage-tab")
         b.click("#vm-fedoravm-usage-tab")
-        b.wait_present("#usage-metrics")
-        b.wait_in_text("#usage-metrics", "Usage metrics are available after the pod starts")
-        self.assertFalse(b.is_present("#cpu-metric"))
-        self.assertFalse(b.is_present("#memory-metric"))
-        self.assertFalse(b.is_present("#network-metric"))
+        vm_instance_validator.validateEmptyUsage()
+
+        b.wait_present("#vm-fedoravm-overview-tab")
         b.click("#vm-fedoravm-overview-tab")
-        b.click("tr[data-row-id='vm-fedoravm']")  # hide row
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # hide row
         wait(lambda: "Running" in o.execute("oc get pods | grep virt-launcher-fedoravm"), delay=2, tries=150)
 
         # link to node
         b.wait_present("tr[data-row-id='vm-fedoravm']") # the just-started VM is listed
-        b.click("tr[data-row-id='vm-fedoravm']")  # expand row
+        b.click("tr[data-row-id='vm-fedoravm'] td.listing-ct-toggle")  # expand row
         b.wait_present("tr[data-row-id='vm-fedoravm'] + tr.listing-ct-panel")
         b.wait_present("#vm-fedoravm-node")
         wait(lambda: b.text("#vm-fedoravm-node > a").strip() != "-") # `-` ==  unassigned ; so wait for a change
         node_name = b.text("#vm-fedoravm-node > a").strip()
         b.click("#vm-fedoravm-node > a") # jump to "node" detail
-        b.wait_js_cond('window.location.hash === "#/nodes/%s"' % (node_name,))
+        self.verifyBrowserLocation('/kubernetes/index.html#/nodes/%s' % node_name)
 
         # link to pod
         b.click("#vms-menu-link")
@@ -552,7 +661,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.wait_in_text("#vm-fedoravm-pod", "virt-launcher-fedoravm")
         pod_name = b.text("#vm-fedoravm-pod > a").strip()
         b.click("#vm-fedoravm-pod > a")
-        b.wait_js_cond('window.location.hash === "#/l/pods/kubevirt/%s"' % (pod_name))
+        self.verifyBrowserLocation('/kubernetes/index.html#/l/pods/kubevirt/%s' % pod_name)
 
     def testKubevirtMachinesCreate(self):
         class TestCreateConfig:
@@ -582,7 +691,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                 self.assertEqual(b.text("{0} td:nth-of-type(2)".format(row_selector)), dialog.getNamespace())
 
                 # expand row
-                b.click(row_selector)
+                b.click("{0} td.listing-ct-toggle".format(row_selector))
                 b.wait_present("{0} + tr.listing-ct-panel".format(row_selector))
                 b.wait_in_text("{0} + tr.listing-ct-panel".format(row_selector), "Node")
 
@@ -591,7 +700,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
             def deleteVm(self, dialog):
                 b = self.browser
                 self.openshift.execute("oc delete vm {0} --namespace={1}".format(dialog.name, dialog.getNamespace()))
-                b.wait_not_present("tr[data-row-id='vm-{0}']".format(dialog.name))
+                with self.browser.wait_timeout(300):
+                    b.wait_not_present("tr[data-row-id='vm-{0}']".format(dialog.name))
 
                 return self
 

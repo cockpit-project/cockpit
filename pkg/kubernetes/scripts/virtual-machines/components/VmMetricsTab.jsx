@@ -21,6 +21,7 @@
 import React, { PropTypes } from 'react';
 import { DonutChart } from 'patternfly-react';
 import cockpit, { gettext as _ } from 'cockpit';
+import { prefixedId } from '../utils.jsx';
 
 import './VmMetricsTab.less';
 
@@ -38,11 +39,11 @@ const MetricColumn = ({ type, children, className }) => {
 const MetricColumnContent = ({ id, title, smallTitle }) => {
     return (
         <div id={id} className="centered">
-            <span id={`${id}-title`} className="block donut-title-big-pf">
+            <span id={prefixedId(id, 'title')} className="block donut-title-big-pf">
                 {title}
             </span>
             <div className="container small-text-layout">
-                <span id={`${id}-small-title`} className="donut-title-small-pf small-text">
+                <span id={prefixedId(id, 'small-title')} className="donut-title-small-pf small-text">
                     {smallTitle}
                 </span>
             </div>
@@ -79,33 +80,33 @@ const CPUChart = ({ id, podMetrics }) => {
     );
 };
 
-const CpuColumn = ({ podMetrics }) => {
+const CpuColumn = ({ idPrefix, podMetrics }) => {
     return (
         <MetricColumn type={_("CPU")}>
-            <CPUChart id="cpu-metric" podMetrics={podMetrics} />
+            <CPUChart id={prefixedId(idPrefix, 'cpu-metric')} podMetrics={podMetrics} />
         </MetricColumn>
     );
 };
 
-const MemoryColumn = ({ podMetrics }) => {
+const MemoryColumn = ({ idPrefix, podMetrics }) => {
     const usage = cockpit.format_bytes(podMetrics.memory.usageBytes);
     return (
         <MetricColumn type={_("Memory")}>
-            <MetricColumnContent id="memory-metric" title={usage} />
+            <MetricColumnContent id={prefixedId(idPrefix, 'memory-metric')} title={usage} />
         </MetricColumn>
     );
 };
 
-const NetworkColumn = ({ podMetrics }) => {
+const NetworkColumn = ({ idPrefix, podMetrics }) => {
     const received = cockpit.format_bytes_per_sec(podMetrics.network.rxBytes);
     const transmitted = cockpit.format_bytes_per_sec(podMetrics.network.txBytes);
     const title = (
         <div>
-            <div className="inline-block" id="download-metric">
+            <div className="inline-block" id={prefixedId(idPrefix, 'download-metric')}>
                 <div className="next-to-left fa fa-arrow-down" />
                 {received}
             </div>
-            <div className="inline-block" id="upload-metric">
+            <div className="inline-block" id={prefixedId(idPrefix, 'upload-metric')}>
                 <div className="next-clear fa fa-arrow-up" />
                 {transmitted}
             </div>
@@ -113,27 +114,27 @@ const NetworkColumn = ({ podMetrics }) => {
     );
     return (
         <MetricColumn type={_("Network")} className="no-padding-left">
-            <MetricColumnContent id="network-metric" title={title} />
+            <MetricColumnContent id={prefixedId(idPrefix, 'network-metric')} title={title} />
         </MetricColumn>
     );
 };
 
-const PodMetrics = ({ podMetrics }) => {
+const PodMetrics = ({ idPrefix, podMetrics }) => {
     return (
         <div className="row">
-            <CpuColumn podMetrics={podMetrics} />
-            <MemoryColumn podMetrics={podMetrics} />
-            <NetworkColumn podMetrics={podMetrics} />
+            <CpuColumn idPrefix={idPrefix} podMetrics={podMetrics} />
+            <MemoryColumn idPrefix={idPrefix} podMetrics={podMetrics} />
+            <NetworkColumn idPrefix={idPrefix} podMetrics={podMetrics} />
         </div>
     );
 };
 
-const VmMetricsTab = ({podMetrics}) => {
-    const content = podMetrics ? (<PodMetrics podMetrics={podMetrics} />)
+const VmMetricsTab = ({idPrefix, podMetrics}) => {
+    const content = podMetrics ? (<PodMetrics idPrefix={idPrefix} podMetrics={podMetrics} />)
         : _("Usage metrics are available after the pod starts");
 
     return (
-        <div id="usage-metrics">
+        <div id={prefixedId(idPrefix, 'usage-metrics')}>
             {content}
         </div>
     );

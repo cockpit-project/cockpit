@@ -20,7 +20,7 @@
 // @flow
 
 import React, { PropTypes } from 'react';
-import { gettext as _ } from 'cockpit';
+import cockpit, { gettext as _ } from 'cockpit';
 import { connect } from "react-redux";
 
 import { ListingRow } from '../../../../lib/cockpit-components-listing.jsx';
@@ -30,31 +30,35 @@ import VmMetricsTab from './VmMetricsTab.jsx';
 import VmDisksTab from './VmDisksTabKubevirt.jsx';
 
 import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
-import { NODE_LABEL, vmIdPrefx, getValueOrDefault } from '../utils.jsx';
+import { NODE_LABEL, vmIdPrefx, prefixedId, getValueOrDefault } from '../utils.jsx';
 import { vmExpanded } from "../action-creators.jsx";
+
+const navigateToVm = (vm) => {
+    return cockpit.location.go([ 'vms', vm.metadata.namespace, vm.metadata.name ]);
+};
 
 const VmsListingRow = ({ vm, vmMessages, pvs, pod, podMetrics, vmUi, onExpandChanged }:
                            { vm: Vm, vmMessages: VmMessages, pvs: PersistenVolumes, pod: Pod, onExpandChanged: Function }) => {
-    const node = (vm.metadata.labels && vm.metadata.labels[NODE_LABEL]) || '-';
-    const phase = (vm.status && vm.status.phase) || _("n/a");
+    const node = getValueOrDefault(() => vm.metadata.labels[NODE_LABEL], '-');
+    const phase = getValueOrDefault(() => vm.status.phase, _("n/a"));
     const idPrefix = vmIdPrefx(vm);
 
     const overviewTabRenderer = {
-        name: (<div id={`${idPrefix}-overview-tab`}>{_("Overview")}</div>),
+        name: (<div id={prefixedId(idPrefix, 'overview-tab')}>{_("Overview")}</div>),
         renderer: VmOverviewTab,
         data: { vm, vmMessages, pod },
         presence: 'always',
     };
 
     const metricsTabRenderer = {
-        name: (<div id={`${idPrefix}-usage-tab`}>{_("Usage")}</div>),
+        name: (<div id={prefixedId(idPrefix, 'usage-tab')}>{_("Usage")}</div>),
         renderer: VmMetricsTab,
-        data: { podMetrics },
+        data: { idPrefix, podMetrics },
         presence: 'always',
     };
 
     const disksTabRenderer = {
-        name: (<div id={`${idPrefix}-disks-tab`}>{_("Disks")}</div>),
+        name: (<div id={prefixedId(idPrefix, 'disks-tab')}>{_("Disks")}</div>),
         renderer: VmDisksTab,
         data: { vm, pvs },
         presence: 'onlyActive',
@@ -74,6 +78,7 @@ const VmsListingRow = ({ vm, vmMessages, pvs, pod, podMetrics, vmUi, onExpandCha
             tabRenderers={[ overviewTabRenderer, metricsTabRenderer, disksTabRenderer ]}
             listingActions={[ <VmActions vm={vm} /> ]}
             expandChanged={onExpandChanged(vm)}
+            navigateToItem={navigateToVm.bind(this, vm)}
             initiallyExpanded={initiallyExpanded} />
     );
 };
@@ -83,6 +88,7 @@ VmsListingRow.propTypes = {
     vmMessages: PropTypes.object,
     pvs: PropTypes.array.isRequired,
     pod: PropTypes.object.isRequired,
+    podMetrics: PropTypes.object,
     vmUi: PropTypes.object,
     onExpandChanged: PropTypes.func.isRequired,
 };

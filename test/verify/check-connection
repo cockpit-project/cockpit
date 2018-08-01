@@ -127,9 +127,9 @@ class TestConnection(MachineCase):
                                  "wrong version number")
 
         # RC4 should not work
-        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -cipher RC4 2>&1 || true')
+        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1 || true')
         self.assertNotIn("DONE", output)
-        self.assertRegexpMatches(output, "no cipher match|ssl handshake failure")
+        self.assertRegexpMatches(output, "no cipher match|no ciphers available|ssl handshake failure")
 
         # Install a certificate chain, and give it an arbitrary bad file context
         m.upload([ "verify/files/cert-chain.cert" ], "/etc/cockpit/ws-certs.d")
@@ -141,8 +141,8 @@ class TestConnection(MachineCase):
         # Should use the new certificates and entire chain should show up
         output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
         self.assertIn("DONE", output)
-        self.assertIn("s:/CN=localhost", output)
-        self.assertIn("1 s:/OU=Intermediate", output)
+        self.assertRegexpMatches(output, "s:/?CN *= *localhost")
+        self.assertRegexpMatches(output, "1 s:/?OU *= *Intermediate")
 
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode(b"admin:foobar").decode(), ))

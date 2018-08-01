@@ -148,8 +148,8 @@ class TestRealms(MachineCase):
             m.start_cockpit(tls=True)
             # OpenSSL and curl should use the system PKI which should trust the IPA server CA
             out = m.execute("openssl s_client -verify 5 -verify_return_error -connect localhost:9090")
-            self.assertIn("subject=/O=COCKPIT.LAN/CN=x0.cockpit.lan", out)
-            self.assertIn("issuer=/O=COCKPIT.LAN/CN=Certificate Authority", out)
+            self.assertRegexpMatches(out, "subject=/?O *= *COCKPIT.LAN.*CN *= *x0.cockpit.lan", out)
+            self.assertRegexpMatches(out, "issuer=/?O *= *COCKPIT.LAN.*CN *= *Certificate Authority")
             self.assertIn("Content-Type: text/html", m.execute("curl --head https://x0.cockpit.lan:9090"))
             # don't leave the secret key copy behind
             m.execute("! test -e /run/cockpit/ipa.key")

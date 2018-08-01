@@ -158,7 +158,9 @@ exec 2>&1
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
     --with-selinux-config-type=etc_t \
-    %{?rhel:--without-storaged-iscsi-sessions} \
+%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
+    --without-storaged-iscsi-sessions \
+%endif
     --with-appstream-data-packages='[ "appstream-data" ]' \
     --with-nfs-client-package='"nfs-utils"' \
     %{?vdo_on_demand:--with-vdo-package='"vdo"'}

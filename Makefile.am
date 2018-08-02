@@ -156,7 +156,6 @@ WEBPACK_PACKAGES = \
 	kubernetes \
 	machines \
 	networkmanager \
-	ostree \
 	ovirt \
 	pcp \
 	packagekit \

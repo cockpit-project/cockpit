@@ -55,10 +55,6 @@ var info = {
             "networkmanager/firewall.jsx"
         ],
 
-        "ostree/ostree": [
-            "ostree/app.js",
-            "ostree/ostree.less",
-        ],
 
         "ovirt/ovirt": [
             "ovirt/index.js",
@@ -188,8 +184,6 @@ var info = {
         "kubernetes/scripts/test-connection",
         "kubernetes/scripts/test-volumes",
 
-        "ostree/test-utils",
-
         "machines/test-machines",
     ],
 
@@ -217,8 +211,6 @@ var info = {
         "networkmanager/index.html",
         "networkmanager/firewall.html",
         "networkmanager/manifest.json",
-
-        "ostree/index.html",
 
         "ovirt/index.html",
         "ovirt/vnc.html",

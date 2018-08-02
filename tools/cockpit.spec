@@ -251,9 +251,6 @@ find %{buildroot}%{_datadir}/cockpit/storaged -type f >> storaged.list
 echo '%dir %{_datadir}/cockpit/networkmanager' > networkmanager.list
 find %{buildroot}%{_datadir}/cockpit/networkmanager -type f >> networkmanager.list
 
-echo '%dir %{_datadir}/cockpit/ostree' > ostree.list
-find %{buildroot}%{_datadir}/cockpit/ostree -type f >> ostree.list
-
 echo '%dir %{_datadir}/cockpit/packagekit' >> packagekit.list
 find %{buildroot}%{_datadir}/cockpit/packagekit -type f >> packagekit.list
 
@@ -323,7 +320,7 @@ rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard docker kubernetes machines ostree ovirt packagekit pcp playground storaged; do
+for pkg in apps dashboard docker kubernetes machines ovirt packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
@@ -709,23 +706,6 @@ Obsoletes: cockpit-ovirt < 161
 The Cockpit components for managing oVirt virtual machines.
 
 %files -n cockpit-machines-ovirt -f ovirt.list
-
-%package -n cockpit-ostree
-BuildArch: noarch
-Summary: Cockpit user interface for rpm-ostree
-# Requires: Uses new translations functionality
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-%if 0%{?fedora} > 0 && 0%{?fedora} < 24
-Requires: rpm-ostree >= 2015.10-1
-%else
-Requires: /usr/libexec/rpm-ostreed
-%endif
-
-%description -n cockpit-ostree
-The Cockpit components for managing software updates for ostree based systems.
-
-%files -n cockpit-ostree -f ostree.list
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

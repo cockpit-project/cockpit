@@ -502,8 +502,71 @@ label {
 body {
     color: #fff;
 }
+
 .login-fatal {
     font-size: 130%;
+}
+
+.unsupported-browser ul {
+    color: #aaa;
+    display: inline-block;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.unsupported-browser a {
+    color: #fff;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.login-browser-recommendations {
+    margin-top: 6rem;
+}
+
+@media screen and (max-width: 480px) {
+
+    .unsupported-browser .container > .row > .col-sm-12 {
+        position: static;
+    }
+
+}
+
+@media screen and (min-width: 481px) {
+
+    .brand-unsupported-browser #brand {
+        margin-left: -40px;
+        position: absolute;
+        text-align: center;
+        width: 100%;
+    }
+
+    .unsupported-browser {
+        font-size: 140%;
+        /*
+        There's 80px on the left and 20px on the side for the login container.
+        We'll center with a workaround to pull the box (80px - 20px) / 2 = 30px left
+        */
+        margin-left: -30px;
+        text-align: center;
+    }
+
+    .unsupported-browser-heading {
+        font-size: 3rem;
+        left: 50%;
+        /* Pull the H2 half the width to the left to center */
+        margin: 0 0 0 -32rem;
+        position: absolute;
+        text-align: center;
+        top: -16rem;
+        width: 64rem;
+    }
+
+    .login-browser-recommendations h3 {
+        font-weight: normal;
+        margin-top: 0;
+    }
+
 }
 
 #login-wait-validating div {

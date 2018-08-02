@@ -154,7 +154,9 @@
                req("defineProperty", Object) &&
                req("console", window) &&
                req("pushState", window.history) &&
-               req("textContent", document);
+               req("textContent", document) &&
+               req("CSS", window) &&
+               req("supports", window.CSS);
     }
 
     function trim(s) {

@@ -549,7 +549,7 @@ PageServer.prototype = {
         /* Memory graph */
 
         var memory_data = {
-            direct: [ "mem.util.used" ],
+            direct: [ "mem.physmem", "mem.util.available" ],
             internal: [ "memory.used" ],
             units: "bytes"
         };
@@ -565,7 +565,7 @@ PageServer.prototype = {
 
         self.memory_plot = plot.plot($("#server_memory_graph"), 300);
         self.memory_plot.set_options(memory_options);
-        self.memory_plot.add_metrics_sum_series(memory_data, { });
+        self.memory_plot.add_metrics_difference_series(memory_data, { });
 
         /* Network graph */
 
@@ -1535,15 +1535,15 @@ PageMemoryStatus.prototype = {
 
         var metrics = [
             { name: "memory.swap-used" },
-            { name: "memory.cached" },
             { name: "memory.used" },
+            { name: "memory.cached" },
             { name: "memory.free" },
         ];
 
         var series = [
             { color: "#e41a1c", label: _("Swap Used") },
-            { color: "#ff7f00", label: _("Cached") },
             { color: "#377eb8", label: _("Used") },
+            { color: "#ff7f00", label: _("Cached") },
             { color: "#4daf4a", label: _("Free") },
         ];
 

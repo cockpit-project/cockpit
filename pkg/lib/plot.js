@@ -397,6 +397,131 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         return self;
     }
 
+    function add_metrics_difference_series(desc, opts) {
+        var channel = null;
+
+        var self = {
+            options: opts,
+            move_to_front: move_to_front,
+            remove: remove
+        };
+
+        series.push({
+            stop: stop,
+            reset: reset_series,
+            hover_hit: hover_hit,
+            hover: hover
+        });
+
+        function stop() {
+            if (channel)
+                channel.close();
+        }
+
+        function add_series() {
+            flot_data.push(opts);
+
+        }
+
+        function remove_series() {
+            var pos = flot_data.indexOf(opts);
+            if (pos >= 0)
+                flot_data.splice(pos, 1);
+        }
+
+        function move_to_front() {
+            var pos = flot_data.indexOf(opts);
+            if (pos >= 0) {
+                flot_data.splice(pos, 1);
+                flot_data.push(opts);
+            }
+        }
+
+        function remove() {
+            stop();
+            remove_series();
+            refresh();
+        }
+
+        function build_metric(n) {
+            return { name: n, units: desc.units, derive: desc.derive };
+        }
+
+        var chanopts_list = [ ];
+
+        if (desc.direct) {
+            chanopts_list.push({ source: "direct",
+                                 archive_source: "pcp-archive",
+                                 metrics: desc.direct.map(build_metric),
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
+
+        if (desc.internal) {
+            chanopts_list.push({ source: "internal",
+                                 metrics: desc.internal.map(build_metric),
+                                 instances: desc.instances,
+                                 "omit-instances": desc['omit-instances'],
+                                 host: desc.host
+                               });
+        }
+
+        function flat_difference(val) {
+            var i, diff;
+
+            if (!val)
+                return 0;
+            if (val.length !== undefined) {
+                diff = val[0];
+                for (i = 1; i < val.length; i++)
+                    diff -= flat_difference(val[i]);
+                return diff;
+            }
+            return val;
+        }
+
+        function reset_series() {
+            if (channel)
+                channel.close();
+
+            channel = cockpit.metrics(interval, chanopts_list);
+
+            var metrics_row = grid.add(channel, [ ]);
+            var factor = desc.factor || 1;
+            opts.data = grid.add(function(row, x, n) {
+                for (var i = 0; i < n; i++)
+                    row[x + i] = [(grid.beg + x + i)*interval, flat_difference(metrics_row[x + i]) * factor];
+            });
+
+            function check_archives() {
+                if (channel.archives && !result.archives) {
+                    result.archives = true;
+                    $(result).triggerHandler("changed");
+                }
+            }
+
+            $(channel).on('changed', check_archives);
+            check_archives();
+
+            sync();
+        }
+
+        function hover_hit(pos, item) {
+            return !!(item && (item.series.data == opts.data));
+        }
+
+        function hover(val) {
+            $(self).triggerHandler('hover', [ val ]);
+        }
+
+        reset_series();
+        add_series();
+
+        return self;
+    }
+
     function add_metrics_stacked_instances_series(desc, opts) {
         var channel = null;
 
@@ -627,6 +752,7 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
         set_options: set_options,
         get_options: get_options,
         add_metrics_sum_series: add_metrics_sum_series,
+        add_metrics_difference_series: add_metrics_difference_series,
         add_metrics_stacked_instances_series: add_metrics_stacked_instances_series
     });
 

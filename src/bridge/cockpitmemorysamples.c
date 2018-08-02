@@ -38,6 +38,7 @@ cockpit_memory_samples (CockpitSamples *samples)
   guint64 total_kb = 0;
   guint64 buffers_kb = 0;
   guint64 cached_kb = 0;
+  guint64 available_kb = 0;
   guint64 swap_total_kb = 0;
   guint64 swap_free_kb = 0;
 
@@ -66,10 +67,13 @@ cockpit_memory_samples (CockpitSamples *samples)
         g_warn_if_fail (sscanf (line + sizeof ("Buffers:") - 1, "%" G_GUINT64_FORMAT, &buffers_kb) == 1);
       else if (g_str_has_prefix (line, "Cached:"))
         g_warn_if_fail (sscanf (line + sizeof ("Cached:") - 1, "%" G_GUINT64_FORMAT, &cached_kb) == 1);
+      else if (g_str_has_prefix (line, "MemAvailable:"))
+        g_warn_if_fail (sscanf (line + sizeof ("MemAvailable:") - 1, "%" G_GUINT64_FORMAT, &available_kb) == 1);
+
     }
 
   cockpit_samples_sample (samples, "memory.free", NULL, free_kb * 1024);
-  cockpit_samples_sample (samples, "memory.used", NULL, (total_kb - free_kb) * 1024);
+  cockpit_samples_sample (samples, "memory.used", NULL, (total_kb - available_kb) * 1024);
   cockpit_samples_sample (samples, "memory.cached", NULL, (buffers_kb + cached_kb) * 1024);
   cockpit_samples_sample (samples, "memory.swap-used", NULL, (swap_total_kb - swap_free_kb) * 1024);
 

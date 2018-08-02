@@ -115,7 +115,7 @@ class TestMetrics(MachineCase):
         # check whether we see that in the plot.
         #
         meminfo = read_mem_info(m)
-        mem_used = meminfo['MemTotal'] - meminfo['MemFree']
+        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
         print("Measured Memory", mem_used)
         b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used*0.95, mem_used*1.05, 15, "mem");
 

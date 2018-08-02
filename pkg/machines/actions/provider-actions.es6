@@ -29,6 +29,7 @@ import {
     CREATE_AND_ATTACH_VOLUME,
     CREATE_VM,
     DELETE_VM,
+    DETACH_DISK,
     ENABLE_LIBVIRT,
     FORCEOFF_VM,
     FORCEREBOOT_VM,
@@ -77,6 +78,10 @@ export function createVm(vmParams) {
 
 export function deleteVm(vm, options) {
     return virt(DELETE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName, options: options });
+}
+
+export function detachDisk({ connectionName, target, name, id, live = false }) {
+    return virt(DETACH_DISK, { connectionName, target, name, id, live });
 }
 
 export function enableLibvirt(enable, serviceName) {

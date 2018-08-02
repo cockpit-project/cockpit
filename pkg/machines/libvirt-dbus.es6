@@ -60,6 +60,7 @@ import {
 } from './helpers.es6';
 
 import {
+    buildFailHandler,
     canConsole,
     canDelete,
     canInstall,
@@ -67,6 +68,7 @@ import {
     canRun,
     canSendNMI,
     canShutdown,
+    getDiskElemByTarget,
     getSingleOptionalElem,
     isRunning,
     parseDumpxml,
@@ -312,6 +314,47 @@ LIBVIRT_DBUS_PROVIDER = {
             } else {
                 return undefine(dispatch);
             }
+        };
+    },
+
+    DETACH_DISK({
+        name,
+        connectionName,
+        id: vmPath,
+        target,
+        live
+    }) {
+        /*
+         * 0 -> VIR_DOMAIN_AFFECT_CURRENT
+         * 1 -> VIR_DOMAIN_AFFECT_LIVE
+         * 2 -> VIR_DOMAIN_AFFECT_CONFIG
+         */
+        let detachFlags = 0;
+        if (live)
+            detachFlags |= 1;
+
+        return dispatch => {
+            clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                    .done(domXml => {
+                        let diskXML = getDiskElemByTarget(domXml[0], target);
+                        /*
+                         * 2 -> VIR_DOMAIN_XML_INACTIVE
+                         */
+                        let getXMLFlags = 2;
+
+                        clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT)
+                                .done(domInactiveXml => {
+                                    let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
+                                    if (diskInactiveXML)
+                                        detachFlags |= 2;
+
+                                    clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT)
+                                            .done(() => { dispatch(getVm({connectionName, id:vmPath})) })
+                                            .fail(buildFailHandler({ dispatch, name, connectionName, message: _("VM DETACH action failed") }));
+                                })
+                                .fail(buildFailHandler({ dispatch, name, connectionName, message: _("VM DETACH action failed") }));
+                    })
+                    .fail(buildFailHandler({ dispatch, name, connectionName, message: _("VM DETACH action failed") }));
         };
     },
 

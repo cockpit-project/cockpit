@@ -25,6 +25,7 @@ export const CONSOLE_VM = "CONSOLE_VM";
 export const CREATE_AND_ATTACH_VOLUME = "CREATE_AND_ATTACH_VOLUME";
 export const CREATE_VM = "CREATE_VM";
 export const DELETE_VM = "DELETE_VM";
+export const DETACH_DISK = "DETACH_DISK";
 export const ENABLE_LIBVIRT = "ENABLE_LIBVIRT";
 export const FORCEOFF_VM = "FORCEOFF_VM";
 export const FORCEREBOOT_VM = "FORCEREBOOT_VM";

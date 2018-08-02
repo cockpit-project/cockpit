@@ -23,6 +23,7 @@ import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
+import RemoveDiskAction from './diskRemove.jsx';
 
 const _ = cockpit.gettext;
 
@@ -54,7 +55,7 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText }) => {
+const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notificationText, dispatch, provider }) => {
     let notification = null;
     const columnTitles = [_("Device"), _("Target")];
     let renderCapacityUsed, renderReadOnly;
@@ -106,6 +107,17 @@ const VmDisksTab = ({ idPrefix, disks, actions, renderCapacity, notificationText
                     }
 
                     columns.push(disk.diskSourceCell);
+
+                    if (provider === 'LibvirtDBus') {
+                        const removeDiskAction = RemoveDiskAction({
+                            dispatch,
+                            vm,
+                            target: disk.target,
+                            idPrefixRow,
+                        });
+                        columns.push(<div>{removeDiskAction}</div>);
+                    }
+
                     return (<ListingRow key={idPrefixRow} columns={columns} navigateToItem={disk.onNavigate} />);
                 })}
             </Listing>
@@ -119,6 +131,7 @@ VmDisksTab.propTypes = {
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     notificationText: PropTypes.string,
+    provider: PropTypes.string,
 };
 
 export default VmDisksTab;

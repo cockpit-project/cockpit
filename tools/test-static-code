@@ -31,11 +31,13 @@ fi
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names
 # Filter these out until these get fixed properly.
+# Also ignore the dangling test/avocado/testvm.py symlink to bots (this isn't
+# shipped in release tarballs)
 if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
     echo "ok 2 pyflakes test # SKIP pyflakes3 not installed"
 
 else
-    out=$($PYFLAKES test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
+    out=$($PYFLAKES test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused|test/avocado/testvm.py)") || true
     if [ -n "$out" ]; then
         echo "$out" >&2
         echo "not ok 2 pyflakes test"

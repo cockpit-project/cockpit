@@ -349,7 +349,7 @@ class AddDisk extends React.Component {
 function getDiskFileName(storagePools, vm, poolName, volumeName) {
     const vmStoragePools = storagePools[vm.connectionName];
     let volume;
-    if (vmStoragePools && vmStoragePools[poolName] && vmStoragePools[poolName]) {
+    if (vmStoragePools && vmStoragePools[poolName]) {
         volume = vmStoragePools[poolName].find(volume => volume.name === volumeName);
     }
     return volume && volume.path;

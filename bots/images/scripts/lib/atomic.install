@@ -165,23 +165,38 @@ class AtomicCockpitInstaller:
         """ Install the latest cockpit RPMs in our container"""
         rpm_args = []
         for package in self.rpms:
-            if 'cockpit-ws' in package or 'cockpit-dashboard' in package or 'cockpit-bridge' in package:
+            if 'cockpit-ws' in package or 'cockpit-dashboard' in package or 'cockpit-bridge' in package or 'libssh' in package:
                 rpm_args.append("/host" + package)
 
         if rpm_args:
             subprocess.check_call(["docker", "run", "--name", "build-cockpit",
                                    "-d", "--privileged", "-v", "/:/host",
                                    "cockpit/ws", "sleep", "1d"])
-            if rpm_args:
-                rpm_args = ["docker", "exec", "build-cockpit",
-                            "rpm", "--freshen", "--verbose", "--force"] + rpm_args
-                if self.verbose:
-                    print("updating cockpit-ws container")
-                subprocess.check_call(rpm_args)
+            if self.verbose:
+                print("updating cockpit-ws container")
 
-                # if we update the RPMs, also update the scripts, to keep them in sync
-                subprocess.check_call(["docker", "exec", "build-cockpit", "sh", "-exc",
-                                       "cp /host/var/tmp/containers/ws/atomic-* /container/"])
+            to_install = []
+            to_freshen = []
+            for package in rpm_args:
+                package_name = subprocess.check_output(["docker", "exec", "build-cockpit",
+                                                        "rpm", "-qp", "--qf", "%{NAME}", package])
+                try:
+                    subprocess.check_call(["docker", "exec", "build-cockpit",
+                                           "rpm", "-q", package_name])
+                    to_install.append(package)
+                except subprocess.CalledProcessError:
+                    to_freshen.append(package)
+
+            if to_install:
+                subprocess.check_call(["docker", "exec", "build-cockpit",
+                                       "rpm", "--install", "--verbose", "--force"] + to_install)
+            if to_freshen:
+                subprocess.check_call(["docker", "exec", "build-cockpit",
+                                       "rpm", "--freshen", "--verbose", "--force"] + to_freshen)
+
+            # if we update the RPMs, also update the scripts, to keep them in sync
+            subprocess.check_call(["docker", "exec", "build-cockpit", "sh", "-exc",
+                                   "cp /host/var/tmp/containers/ws/atomic-* /container/"])
 
             subprocess.check_call(["docker", "commit", "build-cockpit",
                                    "cockpit/ws"])
@@ -263,6 +278,7 @@ parser.add_argument('-v', '--verbose', action='store_true', help='Display verbos
 parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
 parser.add_argument('--build', action='store_true', help='Build')
 parser.add_argument('--install', action='store_true', help='Install')
+parser.add_argument('--extra', action='append', default=[], help='Extra packages to install')
 parser.add_argument('--skip', action='append', default=[], help='Packes to skip during installation')
 args = parser.parse_args()
 
@@ -282,7 +298,7 @@ if args.install:
     rpms = [os.path.abspath(f) for f in os.listdir(".")
             if (f.endswith(".rpm") and not f.endswith(".src.rpm")
                 and not any(f.startswith(s) for s in args.skip))]
-    cockpit_installer = AtomicCockpitInstaller(rpms=rpms, verbose=args.verbose)
+    cockpit_installer = AtomicCockpitInstaller(rpms=rpms + args.extra, verbose=args.verbose)
     cockpit_installer.run()
 
 # vim: ft=python

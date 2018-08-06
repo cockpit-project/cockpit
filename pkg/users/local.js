@@ -274,7 +274,7 @@ function is_user_in_group(user, group) {
 function change_shell(user, shell) {
     var dfd = cockpit.defer();
 
-    cockpit.spawn([ "chsh", "-s", shell, user ], {superuser: "require", err: "out" })
+    cockpit.spawn([ "chsh", "-s", shell, user ], {superuser: "require", err: "message" })
         .done(function() {
             dfd.resolve();
         })
@@ -918,20 +918,16 @@ PageAccount.prototype = {
     get_recorded: function() {
         var self = this;
         function get_shell(content) {
+            var SESSION_SHELL = "/usr/bin/tlog-rec-session";
             var accounts = parse_passwd_content(content);
 
-            for (var i = 0; i < accounts.length; i++) {
-                if (accounts[i]["name"] !== self.account_id)
-                    continue;
-
-                self.account = accounts[i];
-                if (self.account.shell === "/usr/bin/tlog-rec-session") {
-                    self.account.recorded = true;
-                } else {
-                    self.account.recorded = false;
+            accounts.filter(function(account) {
+                if (account["name"] === self.account_id) {
+                    self.account = account;
+                    self.account.recorded = account.shell === SESSION_SHELL;
+                    self.update();
                 }
-                self.update();
-            }
+            });
         }
 
         this.handle_passwd = cockpit.file('/etc/passwd');

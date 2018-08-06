@@ -93,7 +93,7 @@ export function deleteDialog(vm, dispatch) {
               style: 'danger',
               clicked: () => {
                   let storage = [ ];
-                  values.disks.forEach(d => { if (d.checked) storage.push(d.target); });
+                  values.disks.forEach(d => { if (d.checked) storage.push(d.file); });
                   return dispatch(deleteVm(vm, { destroy: values.destroy, storage: storage }));
               }
             }

@@ -151,6 +151,8 @@ qemu-kvm \
 vdo \
 kmod-kvdo \
 dracut-fips \
+clevis-luks \
+tang \
 "
 
 if [ "$IMAGE" = "centos-7" ]; then
@@ -158,7 +160,7 @@ if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
 if [ "$IMAGE" = "rhel-x" ]; then
-    TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils} clevis-luks tang"
+    TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"

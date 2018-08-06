@@ -505,11 +505,12 @@ class TestMachines(MachineCase):
         m = self.machine
 
         # prepare libvirt storage pools
-        m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/vm_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/vm_tmp")
-        m.execute("virsh pool-create-as default_tmp --type dir --target /mnt/vm_tmp")
+        m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
+        m.execute("virsh pool-create-as default_tmp --type dir --target /mnt/default_tmp")
         m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
         m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
 
+        m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
@@ -609,6 +610,21 @@ class TestMachines(MachineCase):
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-source", "/mnt/vm_two/mydiskofpooltwo_temporary")
+
+        # check the autoselected options
+        b.click("#vm-subVmTest1-disks-adddisk")
+        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in modal dialog
+        b.click(".add-disk-dialog label:contains(Use Existing)")
+        # default_tmp pool should be autoselected since it's the first in alphabetical order
+        # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
+        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdc")
+        b.click(".modal-footer button:contains(Add)")
+        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-subVmTest1-disks-vdc-target") # verify after modal dialog close
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-target", "vdc")
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "/mnt/default_tmp/defaultVol")
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")

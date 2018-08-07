@@ -703,9 +703,6 @@ td.storage-action {
     font-size: 200%;
 }
 
-.progressive-disclosure {
-}
-
 .progressive-disclosure .form-group {
     padding-left: 20px;
 }
@@ -714,8 +711,21 @@ td.storage-action {
     margin-left: -20px;
 }
 
-.progressive-disclosure .form-group > :nth-child(2) {
+.progressive-disclosure .form-group > :not(:first-child) {
     margin-top: 0.5em;
+    animation: showRemovalDisclosure ease-in-out 200ms;
+}
+
+@keyframes showRemovalDisclosure {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top left;
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
 }
 
 .modal-dialog .slot-warning {

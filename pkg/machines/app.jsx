@@ -19,7 +19,7 @@
 import React from "react";
 import HostVmsList from "./hostvmslist.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
-import { createVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
+import HostVmsCaption from "./components/hostvmscaption.jsx";
 
 const App = ({ store }) => {
     const { vms, config, storagePools, systemInfo, ui } = store.getState();
@@ -35,8 +35,10 @@ const App = ({ store }) => {
         ui={ui}
         storagePools={storagePools}
         dispatch={dispatch}
-        actions={createVmAction({ dispatch, systemInfo })} />);
+        actions={[<HostVmsCaption dispatch={dispatch} systemInfo={systemInfo} />]} />
+    );
 };
+
 App.propTypes = {
     store: React.PropTypes.object.isRequired,
 };

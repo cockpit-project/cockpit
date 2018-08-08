@@ -73,6 +73,12 @@ class HostVmsList extends React.Component {
         return Object.keys(result).map((k) => result[k]);
     }
 
+    satisfiesActiveFilters(vm, activeFilters) {
+        return (vm.name.startsWith(activeFilters.filterName) &&
+                (activeFilters.filterConnection == 'all' || vm.connectionName == activeFilters.filterConnection) &&
+                (activeFilters.filterState == 'all' || vm.state == activeFilters.filterState));
+    }
+
     render() {
         const { vms, config, ui, storagePools, dispatch, actions } = this.props;
         const combinedVms = [...vms, ...this.asDummVms(vms, ui.vms)];
@@ -88,12 +94,13 @@ class HostVmsList extends React.Component {
             <NotificationArea id={"notification-area"}
                 notifications={ui.notifications}
                 onDismiss={(id) => dispatch(clearNotification(id))} />
-            <Listing title={_("Virtual Machines")}
+            <Listing
                 columnTitles={[_("Name"), _("Connection"), _("State")]}
                 actions={allActions}
                 emptyCaption={_("No VM is running or defined on this host")}>
                 {combinedVms
                         .sort(sortFunction)
+                        .filter(vm => this.satisfiesActiveFilters(vm, ui.activeFilters))
                         .map(vm => {
                             if (vm.isUi) {
                                 return (

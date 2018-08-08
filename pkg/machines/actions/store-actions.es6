@@ -26,6 +26,7 @@ import {
     SET_HYPERVISOR_MAX_VCPU,
     SET_PROVIDER,
     SET_REFRESH_INTERVAL,
+    SET_VISIBILITY_FILTER,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
@@ -128,6 +129,16 @@ export function setRefreshInterval(refreshInterval) {
     return {
         type: SET_REFRESH_INTERVAL,
         refreshInterval,
+    };
+}
+
+export function setVisibilityFilter({filterType, filterValue}) {
+    return {
+        type: SET_VISIBILITY_FILTER,
+        payload: {
+            filterType,
+            filterValue
+        }
     };
 }
 

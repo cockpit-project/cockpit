@@ -28,6 +28,7 @@ import {
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
     SET_REFRESH_INTERVAL,
+    SET_VISIBILITY_FILTER,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
@@ -243,6 +244,11 @@ function ui(state, action) {
     // transient properties
     state = state || {
         notifications: [],
+        activeFilters: {
+            'filterName': '',
+            'filterConnection': 'all',
+            'filterState': 'all',
+        },
         vms: {}, // transient property
     };
     const addVm = () => {
@@ -288,6 +294,9 @@ function ui(state, action) {
         state.notifications = [];
         return state;
     }
+    case SET_VISIBILITY_FILTER:
+        state.activeFilters[action.payload.filterType] = action.payload.filterValue;
+        return state;
     default:
         return state;
     }

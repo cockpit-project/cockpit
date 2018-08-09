@@ -177,7 +177,7 @@ install-exec-hook::
 	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/motd.d
 	$(LN_S) -nf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
 	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/issue.d
-	$(LN_S) -nf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit
+	$(LN_S) -nf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tempconf_DATA = src/ws/cockpit-tempfiles.conf

@@ -317,14 +317,40 @@ class AddDisk extends React.Component {
 
         return (
             <div className='modal-body add-disk-dialog'>
-                <ul className="nav nav-tabs nav-tabs-pf">
-                    <li key='one' className={this.state.mode === CREATE_NEW && "active"}>
-                        <a href="#" onClick={() => this.onValueChanged('mode', CREATE_NEW)}>{_("Create New")}</a>
-                    </li>
-                    <li key='two' className={this.state.mode === USE_EXISTING && "active"}>
-                        <a href="#" onClick={() => this.onValueChanged('mode', USE_EXISTING)}>{_("Use Existing")}</a>
-                    </li>
-                </ul>
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-sm-1 dialog-field add-disk-source-label">
+                            <label className="control-label" htmlFor={`${idPrefix}-source`}>
+                                {_("Source")}
+                            </label>
+                        </div>
+                        <div className="col-sm-11 dialog-field add-disk-source" id={`${idPrefix}-source`}>
+                            <div key='one' className="col-sm-3 add-disk-select-source">
+                                <input id={`${idPrefix}-createnew`}
+                                       type="radio"
+                                       name="source"
+                                       checked={this.state.mode === CREATE_NEW}
+                                       onChange={e => this.onValueChanged('mode', CREATE_NEW)}
+                                       extraClass={this.state.mode === CREATE_NEW && "active"} />
+                                <label className="control-label" htmlFor={`${idPrefix}-createnew`}>
+                                    {_("Create New")}
+                                </label>
+                            </div>
+
+                            <div key='two' className="col-sm-3 add-disk-select-source">
+                                <input id={`${idPrefix}-useexisting`}
+                                       type="radio"
+                                       name="source"
+                                       checked={this.state.mode === USE_EXISTING}
+                                       onChange={e => this.onValueChanged('mode', USE_EXISTING)}
+                                       extraClass={this.state.mode === USE_EXISTING && "active"} />
+                                <label className="control-label" htmlFor={`${idPrefix}-useexisting`}>
+                                    {_("Use Existing")}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {this.state.mode === CREATE_NEW && (
                     <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                    onValueChanged={this.onValueChanged}

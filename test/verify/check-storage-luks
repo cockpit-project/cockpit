@@ -45,15 +45,19 @@ class TestStorage(StorageCase):
 
         # Format it with luks
         self.content_row_action(1, "Create Partition")
-        self.dialog({ "size": 10,
-                      "type": "luks+ext4",
-                      "name": "ENCRYPTED",
-                      "passphrase": "vainu-reku-toma-rolle-kaja",
-                      "passphrase2": "vainu-reku-toma-rolle-kaja",
-                      "store_passphrase": True,
-                      "mounting": "custom",
-                      "mount_point": mount_point_secret,
-                      "crypto_extra_options": CheckBoxText("crypto,options") })
+        self.dialog_wait_open()
+        self.dialog_set_val("size", 10)
+        self.dialog_set_val("type", "luks+ext4")
+        self.dialog_set_val("name", "ENCRYPTED")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
+        if not self.storaged_is_old_udisks:
+            self.dialog_set_val("store_passphrase", True)
+            self.dialog_set_val("mounting", "custom")
+            self.dialog_set_val("mount_point", mount_point_secret)
+            self.dialog_set_val("crypto_extra_options", CheckBoxText("crypto,options"))
+        self.dialog_apply()
+        self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 

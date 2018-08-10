@@ -231,9 +231,9 @@ class StorageCase(MachineCase):
             ftype = self.browser.attr(sel, "data-field-type")
             if ftype == "select":
                 self.browser.click(sel + " button.dropdown-toggle")
-                self.browser.click(sel + " li[data-data=%s] a" % val)
+                self.browser.click(sel + " li[data-data='%s'] a" % val)
             elif ftype == "select-radio":
-                self.browser.click(sel + " input[data-data=%s]" % val)
+                self.browser.click(sel + " input[data-data='%s']" % val)
             elif ftype == "text-input":
                 self.browser.set_input_text(sel, val)
             elif ftype == "TextInputChecked":
@@ -286,6 +286,9 @@ class StorageCase(MachineCase):
     def dialog_wait_not_visible(self, field):
         self.browser.wait_not_visible(self.dialog_field(field))
 
+    def dialog_wait_not_present(self, field):
+        self.browser.wait_not_present(self.dialog_field(field))
+
     def dialog_wait_apply_enabled(self):
         self.browser.wait_attr('#dialog button.apply', "disabled", None)
 
@@ -311,12 +314,33 @@ class StorageCase(MachineCase):
                 return False
         return True
 
+    def dialog_set_vals(self, values):
+        # Sometimes a certain field needs to be set before other
+        # fields come into existence and thus the order matter that we
+        # set the fields in.  The tests however just give us a
+        # unordered 'dict'.  Instead of changing the tests, we figure
+        # out the right order dynamically here by just setting what we
+        # can and then starting over.  As long as we make progress in
+        # each iteration, everything is good.
+        failed = { }
+        last_error = None
+        for f in values:
+            try:
+                self.dialog_set_val(f, values[f])
+            except Error as e:
+                failed[f] = values[f]
+                last_error = e
+        if failed:
+            if len(failed) < len(values):
+                self.dialog_set_vals(failed)
+            else:
+                raise last_error
+
     def dialog(self, values, expect={}):
         self.dialog_wait_open()
         for f in expect:
             self.dialog_wait_val(f, expect[f])
-        for f in values:
-            self.dialog_set_val(f, values[f])
+        self.dialog_set_vals(values)
         self.dialog_apply()
         self.dialog_wait_close()
 

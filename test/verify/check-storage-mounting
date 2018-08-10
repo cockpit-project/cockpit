@@ -59,10 +59,14 @@ class TestStorage(StorageCase):
         # Format it
 
         self.content_tab_action(1, 1, "Format")
-        self.dialog({ "type": "ext4",
-                      "name": "FILESYSTEM",
-                      "mounting": "custom",
-                      "mount_point": mount_point_foo })
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("name", "FILESYSTEM")
+        if not self.storaged_is_old_udisks:
+            self.dialog_set_val("mounting", "custom")
+            self.dialog_set_val("mount_point", mount_point_foo)
+        self.dialog_apply()
+        self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         if not self.storaged_is_old_udisks:

@@ -532,13 +532,11 @@ class SizeSliderElement extends React.Component {
         let { val, max, onChange } = this.props;
         let { unit } = this.state;
 
-        const change_slider = (f) => {
-            onChange(Math.round(f * max));
-        };
+        const change_slider = (f) => onChange(Math.round(f * max));
 
         const change_text = (event) => {
             if (event.type == "change") {
-                let val = +event.target.value * unit;
+                let val = Number(event.target.value) * unit;
                 if (event.target.value === "" || isNaN(val)) {
                     /* If there something else than a number in the
                        input element, we use that as the value
@@ -552,9 +550,7 @@ class SizeSliderElement extends React.Component {
             }
         };
 
-        const change_unit = (u) => {
-            this.setState({ unit: +u });
-        };
+        const change_unit = (u) => this.setState({ unit: Number(u) });
 
         return (
             <div className="size-sliderx">
@@ -576,16 +572,15 @@ export const SizeSlider = (tag, title, options) => {
 
         if (val === "" || isNaN(val))
             msg = _("Size must be a number");
-        if (val === 0)
+        else if (val === 0)
             msg = _("Size cannot be zero");
-        if (val < 0)
+        else if (val < 0)
             msg = _("Size cannot be negative");
-        if (!options.allow_infinite && val > options.max)
+        else if (!options.allow_infinite && val > options.max)
             msg = _("Size is too large");
-        if (options.min !== undefined && val < options.min)
+        else if (options.min !== undefined && val < options.min)
             msg = cockpit.format(_("Size must be at least $0"), fmt_size(options.min));
-
-        if (options.validate)
+        else if (options.validate)
             msg = options.validate(val, vals);
 
         return msg;

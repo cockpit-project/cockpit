@@ -19,11 +19,14 @@
 
 "use strict";
 
-import { CheckBox, TextInputChecked } from "./dialogx.jsx";
+import {
+    dialog_open,
+    TextInput, PassInput, CheckBox, SelectOne, TextInputChecked, SizeSlider,
+    BlockingMessage, TeardownMessage
+} from "./dialogx.jsx";
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
-var dialog = require("./dialog.js");
 
 var React = require("react");
 var StorageControls = require("./storage-controls.jsx");
@@ -53,7 +56,7 @@ function extract_option(split, opt) {
     }
 }
 
-function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
+function mounting_dialogx_fields(is_custom, mount_dir, mount_options, visible) {
     if (!visible)
         visible = function () { return true };
 
@@ -63,59 +66,55 @@ function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
     var extra_options = unparse_options(split_options);
 
     return [
-        { SelectOne: "mounting",
-          Title: _("Mounting"),
-          Options: [
-              { value: "default", Title: _("Default"), selected: !is_custom },
-              { value: "custom", Title: _("Custom"), selected: is_custom }
-          ],
-          visible: visible
-        },
-        { TextInput: "mount_point",
-          Title: _("Mount Point"),
-          Value: mount_dir,
-          visible: function (vals) {
-              return visible(vals) && vals.mounting == "custom";
-          },
-          validate: function (val) {
-              if (val.trim() == "")
-                  return _("Mount point can not be empty");
-          }
-        },
-        { RowTitle: _("Mount options"),
-          CheckBox: "mount_auto",
-          Title: _("Mount at boot"),
-          Value: opt_auto,
-          visible: function (vals) {
-              return visible(vals) && vals.mounting == "custom";
-          },
-          update: function (vals, trigger) {
-              if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
-                  return false;
-              else
-                  return vals.mount_auto;
-          }
-        },
-        { CheckBox: "mount_ro",
-          Title: _("Mount read only"),
-          Value: opt_ro,
-          visible: function (vals) {
-              return visible(vals) && vals.mounting == "custom";
-          },
-          update: function (vals, trigger) {
-              if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
-                  return true;
-              else
-                  return vals.mount_ro;
-          }
-        },
-        { CheckBoxText: "mount_extra_options",
-          Title: _("Custom mount options"),
-          Value: extra_options == "" ? false : extra_options,
-          visible: function (vals) {
-              return visible(vals) && vals.mounting == "custom";
-          }
-        }
+        SelectOne("mounting", _("Mounting"),
+                  { value: is_custom ? "custom" : "default",
+                    visible: visible,
+                  },
+                  [
+                      { value: "default", title: _("Default"), selected: !is_custom },
+                      { value: "custom", title: _("Custom"), selected: is_custom }
+                  ]),
+        TextInput("mount_point", _("Mount Point"),
+                  { value: mount_dir,
+                    visible: function (vals) {
+                        return visible(vals) && vals.mounting == "custom";
+                    },
+                    validate: function (val) {
+                        if (val.trim() == "")
+                            return _("Mount point can not be empty");
+                    }
+                  }),
+        CheckBox("mount_auto", _("Mount at boot"),
+                 { row_title: _("Mount options"),
+                   value: opt_auto,
+                   visible: function (vals) {
+                       return visible(vals) && vals.mounting == "custom";
+                   },
+                   update: function (vals, trigger) {
+                       if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
+                           return false;
+                       else
+                           return vals.mount_auto;
+                   }
+                 }),
+        CheckBox("mount_ro", _("Mount read only"),
+                 { value: opt_ro,
+                   visible: function (vals) {
+                       return visible(vals) && vals.mounting == "custom";
+                   },
+                   update: function (vals, trigger) {
+                       if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
+                           return true;
+                       else
+                           return vals.mount_ro;
+                   }
+                 }),
+        TextInputChecked("mount_extra_options", _("Custom mount options"),
+                         { value: extra_options == "" ? false : extra_options,
+                           visible: function (vals) {
+                               return visible(vals) && vals.mounting == "custom";
+                           }
+                         })
     ];
 }
 
@@ -128,32 +127,6 @@ function mounting_dialog_options(vals) {
     if (vals.mount_extra_options !== false)
         opts = opts.concat(parse_options(vals.mount_extra_options));
     return unparse_options(opts);
-}
-
-function crypto_options_dialog_fields(options, visible) {
-    var split_options = parse_options(options);
-    var opt_auto = !extract_option(split_options, "noauto");
-    var opt_ro = extract_option(split_options, "readonly");
-    var extra_options = unparse_options(split_options);
-
-    return [
-        { RowTitle: _("Encryption Options"),
-          CheckBox: "crypto_options_auto",
-          Title: _("Unlock at boot"),
-          Value: opt_auto,
-          visible: visible
-        },
-        { CheckBox: "crypto_options_ro",
-          Title: _("Unlock read only"),
-          Value: opt_ro,
-          visible: visible
-        },
-        { CheckBoxText: "crypto_extra_options",
-          Title: _("Custom encryption options"),
-          Value: extra_options == "" ? false : extra_options,
-          visible: visible
-        }
-    ];
 }
 
 function crypto_options_dialogx_fields(options, visible) {
@@ -262,82 +235,70 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 
     var filesystem_options = [ ];
-    add_fsys("xfs", { value: "xfs", Title: _("XFS - Red Hat Enterprise Linux 7 default") });
-    add_fsys("ext4", { value: "ext4", Title: _("ext4 - Red Hat Enterprise Linux 6 default") });
-    add_fsys("xfs", { value: "luks+xfs", Title: _("Encrypted XFS (LUKS)") });
-    add_fsys("ext4", { value: "luks+ext4", Title: _("Encrypted EXT4 (LUKS)") });
-    add_fsys("vfat", { value: "vfat", Title: _("VFAT - Compatible with all systems and devices") });
-    add_fsys("ntfs", { value: "ntfs", Title: _("NTFS - Compatible with most systems") });
+    add_fsys("xfs", { value: "xfs", title: _("XFS - Red Hat Enterprise Linux 7 default") });
+    add_fsys("ext4", { value: "ext4", title: _("ext4 - Red Hat Enterprise Linux 6 default") });
+    add_fsys("xfs", { value: "luks+xfs", title: _("Encrypted XFS (LUKS)") });
+    add_fsys("ext4", { value: "luks+ext4", title: _("Encrypted EXT4 (LUKS)") });
+    add_fsys("vfat", { value: "vfat", title: _("VFAT - Compatible with all systems and devices") });
+    add_fsys("ntfs", { value: "ntfs", title: _("NTFS - Compatible with most systems") });
     add_fsys(true, { value: "dos-extended",
-                     Title: _("Extended Partition"),
+                     title: _("Extended Partition"),
                      disabled: !(create_partition && enable_dos_extended) });
-    add_fsys(true, { value: "empty", Title: _("No Filesystem") });
-    add_fsys(true, { value: "custom", Title: _("Custom (Enter filesystem type)") });
+    add_fsys(true, { value: "empty", title: _("No Filesystem") });
+    add_fsys(true, { value: "custom", title: _("Custom (Enter filesystem type)") });
 
     var usage = utils.get_active_usage(client, create_partition ? null : path);
 
     if (usage.Blocking) {
-        dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
-                      Blocking: usage.Blocking,
-                      Fields: [ ]
+        dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                      Body: BlockingMessage(usage)
         });
         return;
     }
 
-    dialog.open({ Title: title,
-                  Teardown: usage.Teardown,
+    dialog_open({ Title: title,
+                  Footer: TeardownMessage(usage),
                   Fields: [
-                      { SizeSlider: "size",
-                        Title: _("Size"),
-                        Value: size,
-                        Max: size,
-                        visible: function () {
-                            return create_partition;
-                        }
-                      },
-                      { SelectOne: "erase",
-                        Title: _("Erase"),
-                        Options: [
-                            { value: "no", Title: _("Don't overwrite existing data") },
-                            { value: "zero", Title: _("Overwrite existing data with zeros") }
-                        ]
-                      },
-                      { SelectOne: "type",
-                        Title: _("Type"),
-                        Options: filesystem_options
-                      },
-                      { TextInput: "name",
-                        Title: _("Name"),
-                        visible: is_filesystem
-                      },
-                      { TextInput: "custom",
-                        Title: _("Filesystem type"),
-                        visible: function (vals) {
-                            return vals.type == "custom";
-                        }
-                      },
-                      { PassInput: "passphrase",
-                        Title: _("Passphrase"),
-                        validate: function (phrase) {
-                            if (phrase === "")
-                                return _("Passphrase cannot be empty");
-                        },
-                        visible: is_encrypted
-                      },
-                      { PassInput: "passphrase2",
-                        Title: _("Confirm passphrase"),
-                        validate: function (phrase2, vals) {
-                            if (phrase2 != vals.passphrase)
-                                return _("Passphrases do not match");
-                        },
-                        visible: is_encrypted
-                      },
-                      { CheckBox: "store_passphrase",
-                        Title: _("Store passphrase"),
-                        visible: is_encrypted_and_not_old_udisks2
-                      }
-                  ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
-                          .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                      SizeSlider("size", _("Size"),
+                                 { value: size,
+                                   max: size,
+                                   visible: function () {
+                                       return create_partition;
+                                   }
+                                 }),
+                      SelectOne("erase", _("Erase"), { },
+                                [
+                                    { value: "no", title: _("Don't overwrite existing data") },
+                                    { value: "zero", title: _("Overwrite existing data with zeros") }
+                                ]),
+                      SelectOne("type", _("Type"), { },
+                                filesystem_options),
+                      TextInput("name", _("Name"),
+                                { visible: is_filesystem
+                                }),
+                      TextInput("custom", _("Filesystem type"),
+                                { visible: function (vals) {
+                                    return vals.type == "custom";
+                                }
+                                }),
+                      PassInput("passphrase", _("Passphrase"),
+                                { validate: function (phrase) {
+                                    if (phrase === "")
+                                        return _("Passphrase cannot be empty");
+                                },
+                                  visible: is_encrypted
+                                }),
+                      PassInput("passphrase2", _("Confirm passphrase"),
+                                { validate: function (phrase2, vals) {
+                                    if (phrase2 != vals.passphrase)
+                                        return _("Passphrases do not match");
+                                },
+                                  visible: is_encrypted
+                                }),
+                      CheckBox("store_passphrase", _("Store passphrase"),
+                               { visible: is_encrypted_and_not_old_udisks2 })
+                  ].concat(crypto_options_dialogx_fields("", is_encrypted_and_not_old_udisks2))
+                          .concat(mounting_dialogx_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   Action: {
                       Title: create_partition ? _("Create partition") : _("Format"),
                       Danger: (create_partition
@@ -435,9 +396,8 @@ module.exports = {
     unparse_options: unparse_options,
     extract_option: extract_option,
 
-    mounting_dialog_fields: mounting_dialog_fields,
+    mounting_dialogx_fields: mounting_dialogx_fields,
     mounting_dialog_options: mounting_dialog_options,
-    crypto_options_dialog_fields: crypto_options_dialog_fields,
     crypto_options_dialogx_fields: crypto_options_dialogx_fields,
     crypto_options_dialog_options: crypto_options_dialog_options,
     format_dialog: format_dialog,

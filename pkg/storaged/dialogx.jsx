@@ -156,6 +156,8 @@ import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
+import { fmt_size } from "./utils.js";
+
 const _ = cockpit.gettext;
 
 const Validated = ({ errors, error_key, explanation, children }) => {
@@ -459,6 +461,131 @@ export const Skip = (className, options) => {
 
         render: () => {
             return <tr><td className={className} /></tr>;
+        }
+    };
+};
+
+const StatelessSlider = ({ fraction, onChange }) => {
+    function start_dragging(event) {
+        let el = event.currentTarget;
+        let width = el.offsetWidth;
+        let left = el.offsetLeft;
+        while (el.offsetParent) {
+            el = el.offsetParent;
+            left += el.offsetLeft;
+        }
+
+        function drag(event) {
+            let f = (event.pageX - left) / width;
+            if (f < 0) f = 0;
+            if (f > 1) f = 1;
+            onChange(f);
+        }
+
+        function stop_dragging() {
+            document.removeEventListener("mousemove", drag);
+            document.removeEventListener("mouseup", stop_dragging);
+        }
+
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", stop_dragging);
+        drag(event);
+    }
+
+    if (fraction < 0) fraction = 0;
+    if (fraction > 1) fraction = 1;
+
+    return (
+        <div className="slider" onMouseDown={start_dragging}>
+            <div className="slider-bar" style={{ width: fraction * 100 + "%" }}>
+                <div className="slider-thumb" />
+            </div>
+        </div>
+    );
+};
+
+class SizeSliderElement extends React.Component {
+    constructor(props) {
+        super();
+        this.units = cockpit.get_byte_units(props.value || props.max);
+        this.units.forEach(u => { if (u.selected) this.state = { unit: u.factor }; });
+    }
+
+    render() {
+        let { val, max, onChange } = this.props;
+        let { unit } = this.state;
+
+        const change_slider = (f) => {
+            onChange(Math.round(f * max));
+        };
+
+        const change_text = (event) => {
+            if (event.type == "change") {
+                let val = +event.target.value * unit;
+                if (event.target.value === "" || isNaN(val)) {
+                    /* If there something else than a number in the
+                       input element, we use that as the value
+                       directly so that it sticks around.  It will be
+                       rejected by the validate function below.
+                     */
+                    onChange(event.target.value);
+                } else {
+                    onChange(Math.round(val));
+                }
+            }
+        };
+
+        const change_unit = (u) => {
+            this.setState({ unit: +u });
+        };
+
+        return (
+            <div className="size-sliderx">
+                <StatelessSlider fraction={val / max} onChange={change_slider} />
+                <input className="size-text form-control"
+                       value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
+                       onChange={change_text} />
+                <StatelessSelect extraClass="size-unit" selected={unit} onChange={change_unit}>
+                    { this.units.map(u => <SelectEntry data={u.factor} key={u.name}>{u.name}</SelectEntry>) }
+                </StatelessSelect>
+            </div>
+        );
+    }
+}
+
+export const SizeSlider = (tag, title, options) => {
+    let validate = (val, vals) => {
+        let msg = null;
+
+        if (val === "" || isNaN(val))
+            msg = _("Size must be a number");
+        if (val === 0)
+            msg = _("Size cannot be zero");
+        if (val < 0)
+            msg = _("Size cannot be negative");
+        if (!options.allow_infinite && val > options.max)
+            msg = _("Size is too large");
+        if (options.min !== undefined && val < options.min)
+            msg = cockpit.format(_("Size must be at least $0"), fmt_size(options.min));
+
+        if (options.validate)
+            msg = options.validate(val, vals);
+
+        return msg;
+    };
+
+    return {
+        tag: tag,
+        title: title,
+        options: Object.assign({ }, options, { validate: validate }),
+        initial_value: options.value || 0,
+
+        render: (val, change) => {
+            return (
+                <div data-field={tag} data-field-type="size-slider">
+                    <SizeSliderElement val={val} max={options.max} onChange={change} />
+                </div>
+            );
         }
     };
 };

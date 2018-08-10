@@ -210,8 +210,15 @@ class StorageCase(MachineCase):
                 self.dialog_select(field, label, val[label])
         elif isinstance(val, int):
             # size slider
-            self.browser.set_val(self.dialog_field(field) + " .size-unit", "1048576")
-            self.browser.set_val(self.dialog_field(field) + " .size-text", str(val))
+            sel = self.dialog_field(field)
+            ftype = self.browser.attr(sel, "data-field-type")
+            if ftype == "size-slider":
+                self.browser.click(sel + " .size-unit button.dropdown-toggle")
+                self.browser.click(sel + " .size-unit li[data-data='1048576'] a")
+                self.browser.set_input_text(sel + " .size-text", str(val))
+            else:
+                self.browser.set_val(sel + " .size-unit", "1048576")
+                self.browser.set_val(sel + " .size-text", str(val))
         elif isinstance(val, CheckBoxText):
             sel = self.dialog_field(field);
             if val.val == False:

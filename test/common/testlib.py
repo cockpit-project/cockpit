@@ -225,6 +225,9 @@ class Browser:
     def focus(self, selector):
         self.call_js_func('ph_focus', selector)
 
+    def blur(self, selector):
+        self.call_js_func('ph_blur', selector)
+
     def key_press(self, keys):
         for k in keys:
             if k.isalnum():
@@ -236,6 +239,7 @@ class Browser:
         self.set_val(selector, "")
         self.focus(selector)
         self.key_press(val)
+        self.blur(selector)
 
     def wait_timeout(self, timeout):
         browser = self

@@ -267,7 +267,7 @@ export const dialog_open = (def) => {
         if (def.Action) {
             actions = [
                 { caption: def.Action.Title,
-                  style: def.Action.DangerButton ? "danger" : "primary",
+                  style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
                   disabled: running_promise != null,
                   clicked: function () {
                       return validate().then(errors => {
@@ -285,6 +285,7 @@ export const dialog_open = (def) => {
 
         return {
             idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
+            extra_element: (def.Action && def.Action.Danger) ? <div className="modal-footer-danger">{def.Action.Danger}</div> : null,
             actions: actions,
             cancel_caption: def.Action ? _("Cancel") : _("Close")
         };

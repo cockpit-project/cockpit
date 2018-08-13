@@ -199,21 +199,31 @@ function is_visible(field, values) {
 }
 
 const Body = ({body, fields, values, errors, onChange}) => {
+    function make_row(field) {
+        function change(val) {
+            values[field.tag] = val;
+            fields.forEach(f => {
+                if (f.tag && f.options && f.options.update)
+                    values[f.tag] = f.options.update(values, field.tag);
+            });
+            onChange();
+        }
+
+        if (is_visible(field, values))
+            return (
+                <Row key={field.tag} tag={field.tag} title={field.title} errors={errors} options={field.options}>
+                    { field.render(values[field.tag], change) }
+                </Row>
+            );
+    }
+
     return (
         <div className="modal-body">
             { body || null }
             { fields.length > 0
                 ? <table className="form-table-ct">
                     <tbody>
-                        { fields.map(f => {
-                            if (is_visible(f, values))
-                                return (
-                                    <Row key={f.tag} tag={f.tag} title={f.title} errors={errors} options={f.options}>
-                                        { f.render(values[f.tag], val => { values[f.tag] = val; onChange() }) }
-                                    </Row>
-                                );
-                        })
-                        }
+                        { fields.map(make_row) }
                     </tbody>
                 </table> : null
             }

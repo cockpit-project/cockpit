@@ -217,6 +217,7 @@ var DialogFooter = React.createClass({
         return (
             <div className="modal-footer">
                 { error_element }
+                { this.props.extra_element }
                 { wait_element }
                 <button
                     className={ cancel_style }

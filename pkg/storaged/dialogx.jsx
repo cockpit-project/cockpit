@@ -283,9 +283,15 @@ export const dialog_open = (def) => {
             ];
         }
 
+        let extra = [ ];
+        if (def.Footer)
+            extra.push(def.Footer);
+        if (def.Action && def.Action.Danger)
+            extra.push(<div className="modal-footer-danger">{def.Action.Danger}</div>);
+
         return {
             idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
-            extra_element: (def.Action && def.Action.Danger) ? <div className="modal-footer-danger">{def.Action.Danger}</div> : null,
+            extra_element: extra,
             actions: actions,
             cancel_caption: def.Action ? _("Cancel") : _("Close")
         };
@@ -599,4 +605,108 @@ export const SizeSlider = (tag, title, options) => {
             );
         }
     };
+};
+
+function add_usage_message(parts, list, text, c1, c2) {
+    if (list.length > 0) {
+        parts.push(<p>{text}</p>);
+        parts.push(
+            <table className="table table-bordered">
+                <tbody>
+                    { list.map(elt => <tr><td><span className="pull-right">{elt[c1]}</span>{elt[c2]}</td></tr>) }
+                </tbody>
+            </table>);
+    }
+}
+
+export const BlockingMessage = (usage) => {
+    let parts = [ ];
+    let blocking = usage.Blocking;
+
+    if (!blocking)
+        return null;
+
+    add_usage_message(parts, blocking.PhysicalVolumes,
+                      _("This device is currently used for volume groups."),
+                      "Name", "VGroup");
+
+    add_usage_message(parts, blocking.MDRaidMembers,
+                      _("This device is currently used for RAID devices."),
+                      "Name", "MDRaid");
+
+    add_usage_message(parts, blocking.VDOs,
+                      _("This device is currently used for VDO devices."),
+                      "Name", "VDO");
+
+    if (parts.length > 0)
+        return <div>{ parts }</div>;
+    else
+        return null;
+};
+
+export const TeardownMessage = (usage) => {
+    let parts = [ ];
+    let teardown = usage.Teardown;
+
+    if (!teardown)
+        return null;
+
+    add_usage_message(parts, teardown.Mounts,
+                      _("This device has filesystems that are currently in use. Proceeding will unmount all filesystems on it."),
+                      "Name", "MountPoint");
+
+    add_usage_message(parts, teardown.PhysicalVolumes,
+                      _("This device is currently used for volume groups. Proceeding will remove it from its volume groups."),
+                      "Name", "VGroup");
+
+    add_usage_message(parts, teardown.MDRaidMembers,
+                      _("This device is currently used for RAID devices. Proceeding will remove it from its RAID devices."),
+                      "Name", "MDRaid");
+
+    let has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
+    let has_services = teardown.Services && teardown.Services.length > 0;
+
+    if (has_sessions && has_services)
+        parts.push(_("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
+    else if (has_sessions)
+        parts.push(_("The filesystem is in use by login sessions. Proceeding will stop these."));
+    else if (has_services)
+        parts.push(_("The filesystem is in use by system services. Proceeding will stop these."));
+
+    function add_units(list, h1, h2, h3, c1, c2, c3) {
+        if (list && list.length > 0) {
+            parts.push(
+                <table className="table table-bordered units-table">
+                    <thead>
+                        <tr>
+                            <th>{h1}</th>
+                            <th>{h2}</th>
+                            <th>{h3}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        { list.map(elt =>
+                            <tr>
+                                <td>{elt[c1]}</td>
+                                <td className="cmd">{elt[c2]}</td>
+                                <td>{elt[c3]}</td>
+                            </tr>)
+                        }
+                    </tbody>
+                </table>);
+        }
+    }
+
+    add_units(teardown.Sessions,
+              _("Session"), _("Process"), _("Active since"),
+              "Name", "Command", "Since");
+
+    add_units(teardown.Services,
+              _("Service"), _("Unit"), _("Active since"),
+              "Name", "Unit", "Since");
+
+    if (parts.length > 0)
+        return <div className="modal-footer-teardown">{ parts }</div>;
+    else
+        return null;
 };

@@ -376,7 +376,7 @@ export const SelectOne = (tag, title, options, choices) => {
             return (
                 <div data-field={tag} data-field-type="select" value={val}>
                     <StatelessSelect extraClass="form-control" selected={val} onChange={change}>
-                        { choices.map(c => <SelectEntry data={c.value} key={c.title}>{c.title}</SelectEntry>) }
+                        { choices.map(c => <SelectEntry data={c.value} disabled={c.disabled} key={c.title}>{c.title}</SelectEntry>) }
                     </StatelessSelect>
                 </div>
             );

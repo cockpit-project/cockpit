@@ -75,6 +75,8 @@
 
             if (ev.target.tagName === 'A') {
                 const liElement = ev.target.offsetParent;
+                if (liElement.className.indexOf("disabled") >= 0)
+                    return;
                 let elementData;
                 if ('data-data' in liElement.attributes)
                     elementData = liElement.attributes['data-data'].value;
@@ -184,13 +186,15 @@
      * Dynamic lists should make sure to also provide 'key' props for react to use
      * Expected properties:
      *  - data (required), will be passed to the select's onChange callback
+     *  - disabled (optional): whether or not the entry is disabled.
      * Example: <SelectEntry data="foo">Some entry</SelectEntry>
      */
     class SelectEntry extends React.Component {
         render() {
             const value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
             return (
-                <li data-value={value} data-data={this.props.data}>
+                <li className={this.props.disabled ? "disabled" : ""}
+                    data-value={value} data-data={this.props.data}>
                     <a>{value}</a>
                 </li>
             );

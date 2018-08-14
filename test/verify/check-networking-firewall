@@ -36,7 +36,6 @@ def wait_unit_state(machine, unit, state):
 
 @skipImage("firewalld not installed", "fedora-atomic", "rhel-atomic", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1604")
 @skipImage("uses downstream networking package which doesn't have firewall support yet", "rhel-7-5-distropkg")
-@skipImage("firewalld broken, https://bugzilla.redhat.com/show_bug.cgi?id=1610344", "rhel-x")
 class TestFirewall(MachineCase):
 
     def testNetworkingPage(self):

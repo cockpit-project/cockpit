@@ -8,6 +8,3 @@ fi
 
 BASE=$(dirname $0)
 $BASE/virt-install-fedora "$1" x86_64 "http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/" $SUBSCRIPTION_PATH
-
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1610344
-virt-customize --add "$1" --run-command 'systemctl disable firewalld'

@@ -50,6 +50,9 @@ const _ = cockpit.gettext;
 const URL_SOURCE = 'url';
 const COCKPIT_FILESYSTEM_SOURCE = 'file';
 
+const LIBVIRT_SESSION_CONNECTION = 'session';
+const LIBVIRT_SYSTEM_CONNECTION = 'system';
+
 /* Create a virtual machine
  * props:
  *  - valuesChanged callback for changed values with the signature (key, value)
@@ -67,7 +70,8 @@ class CreateVM extends React.Component {
             storageSize: props.vmParams.storageSize, // tied to Unit
             storageSizeUnit: units.GiB.name,
             sourceType: props.vmParams.sourceType,
-            startVm: props.vmParams.startVm
+            startVm: props.vmParams.startVm,
+            connection: props.vmParams.connection,
         };
     }
 
@@ -141,6 +145,11 @@ class CreateVM extends React.Component {
             this.setState({ [key]: value });
             break;
         }
+        case 'connection':
+            this.setState({ [key]: value });
+            notifyValuesChanged('connection', null);
+            notifyValuesChanged('error', null);
+            break;
         default:
             break;
         }
@@ -202,10 +211,38 @@ class CreateVM extends React.Component {
             break;
         }
 
+        let connectionUris = [
+            <Select.SelectEntry data={LIBVIRT_SYSTEM_CONNECTION}
+                                key={LIBVIRT_SYSTEM_CONNECTION}>{_("QEMU/KVM System connection")}
+            </Select.SelectEntry>,
+        ];
+
+        // Root user should not be presented the session connection
+        if (this.props.loggedUser.id != 0)
+            connectionUris.push(
+                <Select.SelectEntry data={LIBVIRT_SESSION_CONNECTION}
+                    key={LIBVIRT_SESSION_CONNECTION}>{_("QEMU/KVM User connection")}
+                </Select.SelectEntry>
+            );
+
         return (
             <div className="modal-body modal-dialog-body-table">
                 <table className="form-table-ct">
                     <tbody>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="connection">
+                                    {_("Connection")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.Select id="connection"
+                                               initial={this.state.connection}
+                                               onChange={this.onChangedValue.bind(this, 'connection')}>
+                                    {connectionUris}
+                                </Select.Select>
+                            </td>
+                        </tr>
                         <tr>
                             <td className="top">
                                 <label className="control-label" htmlFor="vm-name">
@@ -310,6 +347,7 @@ CreateVM.propTypes = {
     vendorMap: PropTypes.object.isRequired,
     familyMap: PropTypes.object.isRequired,
     familyList: PropTypes.array.isRequired,
+    loggedUser: PropTypes.object.isRequired,
 };
 
 function validateParams(vmParams) {
@@ -361,9 +399,10 @@ function validateParams(vmParams) {
     }
 }
 
-export const createVmDialog = (dispatch, osInfoList) => {
+export const createVmDialog = (dispatch, osInfoList, loggedUser) => {
     const vmParams = {
         'vmName': '',
+        'connection': LIBVIRT_SYSTEM_CONNECTION,
         "sourceType": COCKPIT_FILESYSTEM_SOURCE,
         'source': '',
         'vendor': NOT_SPECIFIED,
@@ -385,7 +424,8 @@ export const createVmDialog = (dispatch, osInfoList) => {
                   familyList={vendors.familyList}
                   familyMap={vendors.familyMap}
                   vendorMap={vendors.vendorMap}
-                  valuesChanged={changeParams} />
+                  valuesChanged={changeParams}
+                  loggedUser={loggedUser} />
     );
 
     const dialogProps = {
@@ -429,7 +469,7 @@ export const createVmDialog = (dispatch, osInfoList) => {
 export function createVmAction({ dispatch, systemInfo }) {
     return (
         <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-            onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
+            onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList, systemInfo.loggedUser))}>
             <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
         </a>
     );

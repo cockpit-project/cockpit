@@ -622,7 +622,7 @@ export function CONSOLE_VM({
     };
 }
 
-export function CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm }) {
+export function CREATE_VM({ connection, vmName, source, os, memorySize, storageSize, startVm }) {
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
         // shows dummy vm  until we get vm from virsh (cleans up inProgress)
@@ -633,6 +633,7 @@ export function CREATE_VM({ vmName, source, os, memorySize, storageSize, startVm
         }
 
         return cockpit.script(createVmScript, [
+            connection,
             vmName,
             source,
             os,
@@ -717,6 +718,7 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
         setVmInstallInProgress(dispatch, name);
 
         return cockpit.script(installVmScript, [
+            connectionName,
             name,
             metadata.installSource,
             metadata.osVariant,

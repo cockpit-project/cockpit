@@ -1073,14 +1073,16 @@ class TestMachines(MachineCase):
                                          storage_size=0, storage_size_unit='MiB',
                                          os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
-                                         start_vm=False))
+                                         start_vm=False,
+                                         connection='session'))
         # try to INSTALL WITH ERROR
         installWithErrorTest(TestMachines.VmDialog(self, "subVmTestCreate15", is_filesystem_location=True,
                                                    location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    memory_size=900, memory_size_unit='GiB',
                                                    storage_size=10, storage_size_unit='MiB',
                                                    os_vendor=config.APPLE_VENDOR,
-                                                   os_name=config.MACOS_X_LEOPARD))
+                                                   os_name=config.MACOS_X_LEOPARD,
+                                                   connection='session'))
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
@@ -1130,13 +1132,18 @@ class TestMachines(MachineCase):
         MAGEIA_VENDOR = 'Mageia'
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
+        LIBVIRT_CONNECTION = {
+            'session': 'QEMU/KVM User connection',
+            'system': 'QEMU/KVM System connection'}
+
     class VmDialog:
         def __init__(self, test_obj, name, is_filesystem_location=True, location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=1, storage_size_unit='GiB',
                      os_vendor=None,
                      os_name=None,
-                     start_vm=False):
+                     start_vm=False,
+                     connection=None):
 
             if not is_filesystem_location and start_vm:
                 raise Exception("cannot start vm because url specified (no connection available in this test)")
@@ -1155,6 +1162,9 @@ class TestMachines(MachineCase):
             self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
             self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
             self.start_vm = start_vm
+            self.connection = connection
+            if self.connection:
+                self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
 
         def getMemoryText(self):
             return "{0} {1}".format(self.memory_size, self.memory_size_unit)
@@ -1259,6 +1269,9 @@ class TestMachines(MachineCase):
             if self.start_vm:
                 b.click("#start-vm") # TODO: fix this, do not assume initial state of the checkbox
             # b.set_checked("#start-vm", self.start_vm)
+
+            if (self.connection):
+                self._selectFromDropdown("#connection", self.connectionText)
 
             return self
 

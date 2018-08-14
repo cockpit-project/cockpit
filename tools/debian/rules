@@ -8,6 +8,13 @@ ifneq ($(shell dpkg -s libpcp3-dev >/dev/null 2>&1 && echo yes),yes)
 	CONFIG_OPTIONS = --disable-pcp
 endif
 
+# newer firewalld ships cockpit.xml, but keep it for backports
+FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),8 9 16.04 18.04)
+# enable this once firewalld 0.6.0 makes it into Debian testing
+#ifeq ($(FIREWALLD_SERVICE),)
+#	WS_CONFLICTS = firewalld (<< 0.6.0)
+#endif
+
 %:
 	dh $@ --with=systemd,autoreconf
 
@@ -72,5 +79,7 @@ override_dh_install:
 	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
+	if [ -z "$(FIREWALLD_SERVICE)" ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
+
 override_dh_gencontrol:
-	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"
+	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)" -Vws:Conflicts="$(WS_CONFLICTS)"

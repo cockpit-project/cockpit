@@ -124,7 +124,7 @@ AC_MSG_CHECKING([build with cockpit-ssh])
 if test "$enable_ssh" != "no"; then
   enable_ssh="yes"
   AC_MSG_RESULT([$enable_ssh])
-  PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION libssh_threads])
+  PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION])
 
   AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
 

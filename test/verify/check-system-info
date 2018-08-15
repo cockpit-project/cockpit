@@ -265,7 +265,7 @@ class TestSystemInfo(MachineCase):
             b.mouse('#systime-tooltip', 'mouseout')
             b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg", "rhel-atomic")
+    @skipImage("No NTP servers config", "centos-7", "continuous-atomic", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg", "rhel-x", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

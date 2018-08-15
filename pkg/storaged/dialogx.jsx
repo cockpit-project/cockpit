@@ -529,10 +529,38 @@ class SizeSliderElement extends React.Component {
     }
 
     render() {
-        let { val, max, onChange } = this.props;
+        let { val, max, round, onChange } = this.props;
         let { unit } = this.state;
 
-        const change_slider = (f) => onChange(Math.round(f * max));
+        const round_size = (value) => {
+            if (round) {
+                if (typeof round == "function")
+                    value = round(value);
+                else
+                    value = Math.round(value / round) * round;
+            }
+
+            // As a special case, if the user types something that
+            // looks like the maximum (or minimum) when formatted,
+            // always use exactly the maximum (or minimum).  Otherwise
+            // we have the confusing possibility that with the exact
+            // same string in the text input, the size is sometimes
+            // too large (or too small) and sometimes not.
+
+            function sanitize(limit) {
+                var fmt = cockpit.format_number(limit / unit);
+                var parse = +fmt * unit;
+
+                if (value == parse)
+                    value = limit;
+            }
+
+            sanitize(max);
+
+            return Math.round(value);
+        };
+
+        const change_slider = (f) => onChange(round_size(f * max));
 
         const change_text = (event) => {
             if (event.type == "change") {
@@ -545,7 +573,7 @@ class SizeSliderElement extends React.Component {
                      */
                     onChange(event.target.value);
                 } else {
-                    onChange(Math.round(val));
+                    onChange(round_size(val));
                 }
             }
         };

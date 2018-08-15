@@ -271,12 +271,18 @@ class StorageCase(MachineCase):
         self.browser.set_checked('%s :contains("%s") input' % (self.dialog_field(field), label), val)
 
     def dialog_wait_val(self, field, val):
+        sel = self.dialog_field(field)
         if isinstance(val, int):
             # size slider
-            self.browser.wait_val(self.dialog_field(field) + " .size-unit", "1048576")
-            self.browser.wait_val(self.dialog_field(field) + " .size-text", str(val))
+            ftype = self.browser.attr(sel, "data-field-type")
+            if ftype == "size-slider":
+                self.browser.wait_text(sel + " .size-unit button", "MiB")
+                self.browser.wait_val(sel + " .size-text", str(val))
+            else:
+                self.browser.wait_val(sel + " .size-unit", "1048576")
+                self.browser.wait_val(sel + " .size-text", str(val))
         else:
-            self.browser.wait_val(self.dialog_field(field), val)
+            self.browser.wait_val(sel, val)
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error

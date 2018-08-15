@@ -102,7 +102,7 @@ export function install_dialog(pkg) {
             id: "dialog",
             title: _("Install Software"),
             body: (
-                <div className="modal-body">
+                <div className="modal-body scroll">
                     <p>{ format_to_array(_("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }

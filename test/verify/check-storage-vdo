@@ -24,7 +24,6 @@ from testlib import *
 from storagelib import *
 from packagelib import *
 
-@skipImage("VDO is too badly broken still", "rhel-x")
 class TestStorage(StorageCase):
     def testVdo(self):
         m = self.machine
@@ -35,6 +34,9 @@ class TestStorage(StorageCase):
         if m.execute("which vdo || true") == "":
             b.wait_not_present("#vdos")
             return
+
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1616247
+        m.execute("depmod")
 
         b.wait_visible("#vdos")
 

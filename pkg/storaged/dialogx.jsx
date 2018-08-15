@@ -618,7 +618,7 @@ export const SizeSlider = (tag, title, options) => {
         tag: tag,
         title: title,
         options: Object.assign({ }, options, { validate: validate }),
-        initial_value: options.value || 0,
+        initial_value: options.value || options.max || 0,
 
         render: (val, change) => {
             return (

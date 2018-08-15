@@ -17,30 +17,26 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
+import cockpit from "cockpit";
+import {
+    dialog_open, TextInput, PassInput, SelectOne, SizeSlider,
+    BlockingMessage, TeardownMessage
+} from "./dialogx.jsx";
+import utils from "./utils.js";
 
-var cockpit = require("cockpit");
-var dialog = require("./dialog");
-var utils = require("./utils.js");
+import React from "react";
 
-var React = require("react");
-var CockpitListing = require("cockpit-components-listing.jsx");
-var StorageControls = require("./storage-controls.jsx");
-var FormatDialog = require("./format-dialog.jsx");
+import CockpitListing from "cockpit-components-listing.jsx";
+import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { format_dialog } from "./format-dialog.jsx";
 
-var StorageButton = StorageControls.StorageButton;
-var StorageLink = StorageControls.StorageLink;
-
-var FilesystemTab = require("./fsys-tab.jsx").FilesystemTab;
-var CryptoTab = require("./crypto-tab.jsx").CryptoTab;
-var BlockVolTab = require("./lvol-tabs.jsx").BlockVolTab;
-var PoolVolTab = require("./lvol-tabs.jsx").PoolVolTab;
-var PVolTab = require("./pvol-tabs.jsx").PVolTab;
-var MDRaidMemberTab = require("./pvol-tabs.jsx").MDRaidMemberTab;
-var VDOBackingTab = require("./pvol-tabs.jsx").VDOBackingTab;
-var PartitionTab = require("./part-tab.jsx").PartitionTab;
-var SwapTab = require("./swap-tab.jsx").SwapTab;
-var UnrecognizedTab = require("./unrecognized-tab.jsx").UnrecognizedTab;
+import { FilesystemTab } from "./fsys-tab.jsx";
+import { CryptoTab } from "./crypto-tab.jsx";
+import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
+import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
+import { PartitionTab } from "./part-tab.jsx";
+import { SwapTab } from "./swap-tab.jsx";
+import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -101,20 +97,18 @@ function create_tabs(client, target, is_partition) {
         if (!vgroup)
             return;
 
-        dialog.open({ Title: _("Create Thin Volume"),
+        dialog_open({ Title: _("Create Thin Volume"),
                       Fields: [
-                          { TextInput: "name",
-                            Title: _("Name"),
-                            Value: next_default_logical_volume_name(client, vgroup),
-                            validate: utils.validate_lvm2_name
-                          },
-                          { SizeSlider: "size",
-                            Title: _("Size"),
-                            Value: lvol.Size,
-                            Max: lvol.Size * 3,
-                            AllowInfinite: true,
-                            Round: vgroup.ExtentSize
-                          }
+                          TextInput("name", _("Name"),
+                                    { value: next_default_logical_volume_name(client, vgroup),
+                                      validate: utils.validate_lvm2_name
+                                    }),
+                          SizeSlider("size", _("Size"),
+                                     { value: lvol.Size,
+                                       max: lvol.Size * 3,
+                                       allow_infinite: true,
+                                       round: vgroup.ExtentSize
+                                     })
                       ],
                       Action: {
                           Title: _("Create"),
@@ -216,11 +210,9 @@ function create_tabs(client, target, is_partition) {
                 }
             }
 
-            dialog.open({ Title: _("Unlock"),
+            dialog_open({ Title: _("Unlock"),
                           Fields: [
-                              { PassInput: "passphrase",
-                                Title: _("Passphrase")
-                              }
+                              PassInput("passphrase", _("Passphrase"), {})
                           ],
                           Action: {
                               Title: _("Unlock"),
@@ -279,17 +271,14 @@ function create_tabs(client, target, is_partition) {
             var usage = utils.get_active_usage(client, target.path);
 
             if (usage.Blocking) {
-                dialog.open({ Title: cockpit.format(_("$0 is in active use"), name),
-                              Blocking: usage.Blocking,
-                              Fields: [ ]
+                dialog_open({ Title: cockpit.format(_("$0 is in active use"), name),
+                              Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"), name),
-                          Teardown: usage.Teardown,
-                          Fields: [
-                          ],
+            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"), name),
+                          Footer: TeardownMessage(usage),
                           Action: {
                               Danger: danger,
                               Title: _("Delete"),
@@ -419,7 +408,7 @@ function append_partitions(client, rows, level, block) {
 
     function append_free_space(level, start, size) {
         function create_partition() {
-            FormatDialog.format_dialog(client, block.path, start, size, is_dos_partitioned && level <= device_level);
+            format_dialog(client, block.path, start, size, is_dos_partitioned && level <= device_level);
         }
 
         var btn = (
@@ -495,34 +484,29 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         var usage = utils.get_active_usage(client, block.path);
 
         if (usage.Blocking) {
-            dialog.open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
-                          Blocking: usage.Blocking,
-                          Fields: [ ]
+            dialog_open({ Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                          Body: BlockingMessage(usage),
             });
             return;
         }
 
-        dialog.open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
-                      Teardown: usage.Teardown,
+        dialog_open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
+                      Footer: TeardownMessage(usage),
                       Fields: [
-                          { SelectOne: "erase",
-                            Title: _("Erase"),
-                            Options: [
-                                { value: "no", Title: _("Don't overwrite existing data") },
-                                { value: "zero", Title: _("Overwrite existing data with zeros") }
-                            ]
-                          },
-                          { SelectOne: "type",
-                            Title: _("Partitioning"),
-                            Options: [
-                                { value: "dos", Title: _("Compatible with all systems and devices (MBR)") },
-                                { value: "gpt",
-                                  Title: _("Compatible with modern system and hard disks > 2TB (GPT)"),
-                                  selected: true
-                                },
-                                { value: "empty", Title: _("No partitioning") }
-                            ]
-                          }
+                          SelectOne("erase", _("Erase"), { },
+                                    [
+                                        { value: "no", title: _("Don't overwrite existing data") },
+                                        { value: "zero", title: _("Overwrite existing data with zeros") }
+                                    ]),
+                          SelectOne("type", _("Partitioning"),
+                                    { value: "gpt" },
+                                    [
+                                        { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                                        { value: "gpt",
+                                          title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                        },
+                                        { value: "empty", title: _("No partitioning") }
+                                    ])
                       ],
                       Action: {
                           Title: _("Format"),
@@ -634,26 +618,23 @@ var VGroup = React.createClass({
             if (vgroup.FreeSize == 0)
                 return;
 
-            dialog.open({ Title: _("Create Logical Volume"),
+            dialog_open({ Title: _("Create Logical Volume"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                                Value: next_default_logical_volume_name(self.props.client, vgroup),
-                                validate: utils.validate_lvm2_name
-                              },
-                              { SelectOne: "purpose",
-                                Title: _("Purpose"),
-                                Options: [
-                                    { value: "block",
-                                      Title: _("Block device for filesystems"),
-                                      selected: true
-                                    },
-                                    { value: "pool", Title: _("Pool for thinly provisioned volumes") }
-                                    /* Not implemented
-                                       { value: "cache", Title: _("Cache") }
-                                     */
-                                ]
-                              },
+                              TextInput("name", _("Name"),
+                                        { value: next_default_logical_volume_name(self.props.client, vgroup),
+                                          validate: utils.validate_lvm2_name
+                                        }),
+                              SelectOne("purpose", _("Purpose"),
+                                        { value: "block" },
+                                        [
+                                            { value: "block",
+                                              title: _("Block device for filesystems"),
+                                            },
+                                            { value: "pool", title: _("Pool for thinly provisioned volumes") }
+                                            /* Not implemented
+                                               { value: "cache", Title: _("Cache") }
+                                             */
+                                        ]),
                               /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),
@@ -682,11 +663,9 @@ var VGroup = React.createClass({
                                  ],
                                  },
                                */
-                              { SizeSlider: "size",
-                                Title: _("Size"),
-                                Max: vgroup.FreeSize,
-                                Round: vgroup.ExtentSize
-                              }
+                              SizeSlider("size", _("Size"),
+                                         { max: vgroup.FreeSize,
+                                           round: vgroup.ExtentSize })
                           ],
                           Action: {
                               Title: _("Create"),

@@ -360,7 +360,7 @@ dump-dist-gzip:
 # Subdirectories to distribute everything that's committed to git
 COMMITTED_DIST = \
 	tools/ \
-	test/ \
+	test/common \
 	$(NULL)
 
 # Build up the distribution using $COMMITTED_DIST and include node_modules licenses

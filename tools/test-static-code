@@ -37,7 +37,7 @@ if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
     echo "ok 2 pyflakes test # SKIP pyflakes3 not installed"
 
 else
-    out=$($PYFLAKES test/ test/verify/check-* 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused|test/avocado/testvm.py)") || true
+    out=$($PYFLAKES test/ 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused|test/avocado/testvm.py)") || true
     if [ -n "$out" ]; then
         echo "$out" >&2
         echo "not ok 2 pyflakes test"

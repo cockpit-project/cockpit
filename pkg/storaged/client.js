@@ -410,7 +410,7 @@
         }
 
         function enable_clevis_features() {
-            return cockpit.spawn([ "which", "clevis-bind-luks" ], { err: "ignore" }).then(
+            return cockpit.spawn([ "which", "clevis-luks-bind" ], { err: "ignore" }).then(
                 function () {
                     client.features.clevis = true;
                     return cockpit.resolve();

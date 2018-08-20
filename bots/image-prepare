@@ -125,6 +125,8 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
     skips = list(skips or [])
     if "atomic" in machine.image:
         skips.append("cockpit-kubernetes")
+    else:
+        skips.append("cockpit-ostree")
 
     skip_args = [" --skip '%s'" % skip for skip in skips]
     cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,

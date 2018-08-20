@@ -306,7 +306,10 @@ fi
 # Final tweaks
 
 rm -rf /var/log/journal/*
-echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+# RHEL 7 does not enable systemd-coredump by default, later versions do
+if ! grep -qr core_pattern /usr/lib/sysctl.d/; then
+    echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" > /etc/sysctl.d/50-coredump.conf
+fi
 
 # Prevent SSH from hanging for a long time when no external network access
 echo 'UseDNS no' >> /etc/ssh/sshd_config

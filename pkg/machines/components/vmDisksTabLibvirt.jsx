@@ -98,10 +98,14 @@ class VmDisksTabLibvirt extends React.Component {
                 .map(target => this.prepareDiskData(vm.disks[target],
                                                     vm.disksStats && vm.disksStats[target],
                                                     `${idPrefix}-${target}`));
+        let actions = [];
+
+        if (config.provider.name != 'oVirt')
+            actions = [<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} vm={vm} storagePools={storagePools} />];
 
         return (
             <VmDisksTab idPrefix={idPrefix}
-                actions={[<AddDiskAction dispatch={dispatch} provider={config.provider} idPrefix={idPrefix} vm={vm} storagePools={storagePools} />]}
+                actions={actions}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 notificationText={this.getNotification(vm, areDiskStatsSupported)} />

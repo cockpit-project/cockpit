@@ -530,7 +530,7 @@ class TestMachines(MachineCase):
 
         b.wait_present("#vm-subVmTest1-disks-adddisk") # button
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog ul li a:contains(Create New)") # subtab title in the modal dialog
+        b.wait_present(".add-disk-dialog label:contains(Create New)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
 
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
@@ -568,8 +568,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vda-source", "/mnt/vm_one/mydiskofpoolone_permanent") # should survive the shut down
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
-        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
+        b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)") # since both disks are already attached
@@ -577,8 +577,8 @@ class TestMachines(MachineCase):
         b.wait_not_present("#cockpit_modal_dialog")
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
-        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
+        b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-permanent")
         b.click("#vm-subVmTest1-disks-adddisk-existing-permanent")
@@ -594,8 +594,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "/mnt/vm_two/mydiskofpooltwo_permanent")
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog ul li a:contains(Use Existing)") # dialog subtab title
-        b.click(".add-disk-dialog ul li a:contains(Use Existing)")
+        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
+        b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdb")

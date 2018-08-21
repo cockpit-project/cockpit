@@ -22,6 +22,7 @@ import React from "react";
 
 import OnOffSwitch from "cockpit-components-onoff.jsx";
 import Select from "cockpit-components-select.jsx";
+import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -43,6 +44,8 @@ class ImplBase {
         this.type = null; // "all" or "security"
         this.day = null; // systemd.time(7) day of week (e. g. "mon"), or empty for daily
         this.time = null; // systemd.time(7) time (e. g. "06:00") or empty for "any time"
+        this.installed = null; // boolean
+        this.packageName = null; // name of the package providing automatic updates
     }
 
     // Init data members. Return a promise that resolves when done.
@@ -60,13 +63,15 @@ class ImplBase {
 class DnfImpl extends ImplBase {
     getConfig() {
         let dfd = cockpit.defer();
+        this.packageName = "dnf-automatic";
 
         // - dnf has two ways to enable automatic updates: Either by enabling dnf-automatic-install.timer
         //   or by setting "apply_updates = yes" in the config file and enabling dnf-automatic.timer
         // - the config file determines whether to apply security updates only
         // - by default this runs every day (OnUnitInactiveSec=1d), but the timer can be changed with a timer unit
         //   drop-in, so get the last line
-        cockpit.script("if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null || " +
+        cockpit.script("if rpm -q " + this.packageName + " >/dev/null; then echo installed; fi; " +
+                       "if systemctl --quiet is-enabled dnf-automatic-install.timer 2>/dev/null || " +
                        "  (systemctl --quiet is-enabled dnf-automatic.timer 2>/dev/null && grep -q '^[ \t]*apply_updates[ \t]*=[ \t]*yes' " +
                        "    /etc/dnf/automatic.conf); then echo enabled; fi; " +
                        "if grep -q '^[ \\t]*upgrade_type[ \\t]*=[ \\t]*security' /etc/dnf/automatic.conf; then echo security; fi; " +
@@ -74,6 +79,7 @@ class DnfImpl extends ImplBase {
                        "systemctl cat dnf-automatic-install.timer dnf-automatic.timer 2>/dev/null| grep '^OnCalendar= *[^ ]' | tail -n1; ",
                        [], { err: "message" })
                 .done(output => {
+                    this.installed = (output.indexOf("installed\n") >= 0);
                     this.enabled = (output.indexOf("enabled\n") >= 0);
                     this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
 
@@ -88,7 +94,7 @@ class DnfImpl extends ImplBase {
                             this.supported = false;
                     }
 
-                    debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}; raw response '${output}'`);
+                    debug(`dnf getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
                     dfd.resolve();
                 })
                 .fail(error => {
@@ -203,17 +209,13 @@ class DnfImpl extends ImplBase {
 
 // Returns a promise for instantiating "backend"; this will never fail, if
 // automatic updates are not supported, backend will be null.
-function getBackend() {
-    if (!getBackend.promise) {
-        debug("getBackend() called first time, initializing promise");
+function getBackend(forceReinit) {
+    if (!getBackend.promise || forceReinit) {
+        debug("getBackend() called first time or forceReinit passed, initializing promise");
         let dfd = cockpit.defer();
         getBackend.promise = dfd.promise();
 
-        // TODO: only check for dnf/yum/apt and install the "automatic" packages dynamically
-        cockpit.script(["if rpm -q dnf-automatic >/dev/null; then echo dnf; " +
-                        "elif rpm -q yum-cron >/dev/null; then echo yum; " +
-                        "elif dpkg -s unattended-upgrades >/dev/null 2>&1; then echo apt; fi"],
-                       [], { err: "message" })
+        cockpit.script(["command -v dnf yum apt | head -n1 | xargs basename"], [], { err: "message" })
                 .done(output => {
                     output = output.trim();
                     debug("getBackend(): detection finished, output", output);
@@ -223,7 +225,12 @@ function getBackend() {
                     // yum-cron is too limited: neither auto-reboot nor customized time, and nowhere to hook them in
                     // TODO: apt backend
                     if (backend)
-                        backend.getConfig().then(() => dfd.resolve(backend.supported ? backend : null));
+                        backend.getConfig().then(() => {
+                            if (!backend.installed)
+                                dfd.resolve(backend);
+                            else
+                                dfd.resolve(backend.supported ? backend : null);
+                        });
                     else
                         dfd.resolve(null);
                 })
@@ -247,12 +254,20 @@ export default class AutoUpdates extends React.Component {
     constructor() {
         super();
         this.state = { backend: null, pending: false, pendingEnable: null };
+        this.initializeBackend();
+    }
 
-        getBackend().then(b => {
-            this.setState({ backend: b }, () => this.debugBackendState("AutoUpdates: backend initialized"));
+    initializeBackend(forceReinit) {
+        let dfd = cockpit.defer();
+        getBackend(forceReinit).then(b => {
+            this.setState({ backend: b }, () => {
+                this.debugBackendState("AutoUpdates: backend initialized");
+                dfd.resolve();
+            });
             if (this.props.onInitialized)
                 this.props.onInitialized(b ? b.enabled : null);
         });
+        return dfd.promise;
     }
 
     debugBackendState(prefix) {
@@ -277,7 +292,7 @@ export default class AutoUpdates extends React.Component {
 
         var autoConfig;
 
-        if (backend.enabled) {
+        if (backend.enabled && backend.installed) {
             let hours = Array.from(Array(24).keys());
 
             autoConfig = (
@@ -324,9 +339,17 @@ export default class AutoUpdates extends React.Component {
         return (
             <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
                 <h2 className="pk-updates--header--heading">{_("Automatic Updates")}</h2>
-                <div className="pk-updates--header--actions"><OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
-                                                     onChange={e => this.handleChange(e, null, null, null) } /></div>
-
+                <div className="pk-updates--header--actions">
+                    <OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
+                                             onChange={e => {
+                                                 if (!this.state.backend.installed) {
+                                                     install_dialog(this.state.backend.packageName)
+                                                             .then(() => { this.initializeBackend(true).then(() => { this.handleChange(e, null, null, null) }) }, () => null);
+                                                 } else {
+                                                     this.handleChange(e, null, null, null);
+                                                 }
+                                             }} />
+                </div>
                 {autoConfig}
             </div>);
     }

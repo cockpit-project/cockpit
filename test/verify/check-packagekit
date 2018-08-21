@@ -1034,20 +1034,70 @@ class TestAutoUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-
-        # automatic upgrades are not visible
         b.wait_present("#available")
-        self.assertFalse(b.is_present("#automatic"))
+        if self.backend == 'dnf':
+            b.wait_present('#automatic')
+            b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'Off')
+        else:
+            # on-demand installation isn't supported, switch to enable it isn't visible
+            self.assertFalse(b.is_present("#automatic"))
 
         # apply updates
-        b.click("#app .container-fluid button")
+        b.click("#app .container-fluid button.pk-update--all")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf")
+        b.wait_present(".container-fluid div.blank-slate-pf button.btn-default")
+        b.click('.container-fluid div.blank-slate-pf button.btn-default')
         self.assertFalse(b.is_present("#available"))
-        # automatic updates are not visible
-        self.assertFalse(b.is_present("#automatic"))
+        if self.backend == 'dnf':
+            b.is_present('#automatic')
+        else:
+            # on-demand installation isn't supported
+            self.assertFalse(b.is_present('#automatic'))
 
+    @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604",
+               "ubuntu-stable", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
+    def testInstall(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute('dnf remove -y dnf-automatic')
+
+        # provide minimal content in order for the backend to be seen as supported
+        timerContent = '''
+[Unit]
+Description=dnf-automatic timer
+# See comment in dnf-makecache.service
+ConditionPathExists=!/run/ostree-booted
+
+[Timer]
+OnBootSec=1h
+OnUnitInactiveSec=1d
+
+[Install]
+WantedBy=basic.target
+        '''
+        self.createPackage('dnf-automatic', '1', '1', content = {
+            '/etc/dnf/automatic.conf': '',
+            '/usr/lib/systemd/system/dnf-automatic.timer': timerContent,
+            '/usr/lib/systemd/system/dnf-automatic-install.timer': timerContent
+        });
+        self.enableRepo()
+
+        m.start_cockpit()
+        b.login_and_go('/updates')
+
+        # click through install dialog
+        b.wait_present('#automatic div.btn-onoff-ct > .btn.active')
+        b.click('#automatic div.btn-onoff-ct > .btn.active > span')
+        b.wait_popup('dialog')
+        b.wait_visible('#dialog button.apply')
+        b.wait_not_attr('#dialog button.apply', 'disabled', '')
+        b.click('#dialog button.apply')
+
+        # as dnf-automatic isn't actually installed DnfImpl.setConfig will fail,
+        # but we can check that the backend is now enabled
+        b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'On')
 
 if __name__ == '__main__':
     test_main()

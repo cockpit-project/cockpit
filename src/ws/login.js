@@ -137,7 +137,12 @@
                 throw ex;
             }
             if (ret === undefined) {
-                fatal(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
+                if (window.console)
+                    console.warn(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
+                id("login").style.display = 'none';
+                id("login-details").style.display = 'none';
+                id("unsupported-browser").style.display = 'block';
+                document.body.className += " brand-unsupported-browser";
                 return false;
             }
             return true;

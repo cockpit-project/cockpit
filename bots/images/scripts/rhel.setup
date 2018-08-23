@@ -169,18 +169,17 @@ fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS"
 
-# The rhel-7* images have the cockpit packages from base preinstalled, to check for API breakages
-if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
-    DISTRO_COCKPIT_PACKAGES="\
-cockpit
-cockpit-bridge \
-cockpit-system \
-cockpit-ws \
-"
-fi
-
-pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $DISTRO_COCKPIT_PACKAGES"
+pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES"
 yum install -y $pkgs
+
+# Pre-install cockpit packages from base preinstalled, to check for API breakages
+# and more convenient interactive debugging
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "${IMAGE#centos-7}" != "$IMAGE" ] ; then
+    yum install -y cockpit
+else
+    # >= 8 supports weak dependencies
+    sudo dnf --setopt=install_weak_deps=False install -y cockpit
+fi
 
 # the above silently skips over unknown packages, so make sure we got everything
 set +x

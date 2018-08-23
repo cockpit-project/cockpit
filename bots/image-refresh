@@ -146,6 +146,9 @@ def run(image, verbose=False, **kwargs):
         for trigger in triggers:
             api.post("statuses/{0}".format(head), { "state": "pending", "context": trigger,
                 "description": github.NOT_TESTED })
+        # pre-creating statuses circumvents tests-scan's detection of whether bots/ changed
+        # we want to validate all image refreshes with external projects
+        task.label(pull, ["test-external"])
 
 if __name__ == '__main__':
     task.main(function=run, title="Refresh image")

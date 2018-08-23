@@ -441,6 +441,22 @@ class TestMultiMachine(MachineCase):
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/');
 
+    @skipImage("test VM image does not have FIPS support", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "rhel-x", "fedora-atomic")
+    def testFIPS(self):
+        b = self.browser
+
+        # enable FIPS
+        self.machine.execute(r'grubby --update-kernel=$(grubby --default-kernel) --args=fips=1')
+        self.machine.execute(r'uuid=$(findmnt -no uuid /boot); [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}')
+        self.machine.spawn('sync && sync && sync && sleep 0.1 && reboot', 'reboot')
+        self.machine.wait_reboot()
+        # ensure it's really enabled
+        self.assertEqual(self.machine.execute('cat /proc/sys/crypto/fips_enabled').strip(), "1")
+
+        self.login_and_go("/dashboard")
+        add_machine(b, "10.111.113.2")
+        self.checkDirectLogin('/');
+
     def testUrlRoot(self):
         b = self.browser
         m = self.machine

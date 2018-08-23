@@ -11,8 +11,3 @@ rpm --erase --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600452
 # packagekitd spins at 100% CPU on startup
 systemctl mask packagekit.service
-
-# HACK: https://github.com/cockpit-project/cockpit/issues/8881
-# rhel-x has a customized and broken core_pattern that overrides systemd's good one
-# remove this after the next rhel-x image rebuild after 2018-08-20
-rm -f /etc/sysctl.d/50-coredump.conf

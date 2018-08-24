@@ -82,6 +82,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # we log in through ssh
         if not m.atomic_image:
             m.execute("usermod --shell /bin/false admin")
+            b.reload()
+            b.wait_present("#login")
             login("admin", "foobar")
             b.wait_text_not("#login-error-message", "")
             m.execute("usermod --shell /bin/bash admin")

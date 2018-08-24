@@ -815,10 +815,10 @@ do_interactive_auth (CockpitSshData *data)
           else
             {
               answer = prompt_with_authorize (data, prompt, msg, NULL, NULL, echo != '\0');
-              if (answer)
-                  status = ssh_userauth_kbdint_setanswer (data->session, i, answer);
-              else
-                  rc = SSH_AUTH_ERROR;
+              status = ssh_userauth_kbdint_setanswer (data->session, i,
+                                                      answer == NULL ? "" : answer);
+              if (answer == NULL)
+                rc = SSH_AUTH_ERROR;
 
               g_free (answer);
             }

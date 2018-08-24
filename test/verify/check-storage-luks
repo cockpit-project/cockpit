@@ -127,6 +127,7 @@ class TestStorage(StorageCase):
     @skipImage("No clevis/tang",
                "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
                "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+    @skipImage("Cockpit can't do LUKSv2 yet", "rhel-x")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
@@ -230,6 +231,7 @@ class TestStorage(StorageCase):
     @skipImage("No clevis/tang",
                "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
                "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+    @skipImage("Cockpit can't do LUKSv2 yet", "rhel-x")
     def testSlots(self):
         self.allow_journal_messages("Device is not initialized.*")
         m = self.machine

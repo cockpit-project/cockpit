@@ -66,7 +66,7 @@ class TestStorage(StorageCase):
                       "mounting": "custom",
                       "mount_point": mount_point_1,
                       "crypto_extra_options": CheckBoxText("my-crypto-tag") })
-        self.content_row_wait_in_col(2, 1, "46 MiB ext4 File System")
+        self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_1)
         self.wait_in_storaged_configuration("my-crypto-tag")
 

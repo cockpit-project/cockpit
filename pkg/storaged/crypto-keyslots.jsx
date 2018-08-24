@@ -106,7 +106,7 @@ function clevis_remove(block, key) {
                          { superuser: true, err: "message", pty: true });
 }
 
-function clevis_recover_passphrase(block) {
+export function clevis_recover_passphrase(block) {
     var dev = decode_filename(block.Device);
     return cockpit.script(clevis_luks_passphrase_sh, [ dev ],
                           { superuser: true, err: "message" })

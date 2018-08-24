@@ -88,6 +88,10 @@ case "$RELEASE" in
         # our alternative debhelper build dependency
         PBUILDER_EXTRA="dh-systemd"
         ;;
+
+    testing)
+        COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-dbus"
+        ;;
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then

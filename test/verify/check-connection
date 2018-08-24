@@ -180,13 +180,13 @@ class TestConnection(MachineCase):
     def testSocket(self):
         m = self.machine
 
-        if not m.image in ["rhel-7-5-distropkg"]:
+        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
             self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit()
 
-        if not m.image in ["rhel-7-5-distropkg"]:
+        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
@@ -198,7 +198,7 @@ class TestConnection(MachineCase):
         m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-5-distropkg"]:
+        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
             self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
@@ -206,7 +206,7 @@ class TestConnection(MachineCase):
         m.start_cockpit(tls=True)
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-5-distropkg"]:
+        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
             self.assertIn("443", m.execute("cat /etc/issue.d/cockpit.issue"))

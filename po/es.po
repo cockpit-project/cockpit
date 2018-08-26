@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-04 00:55+0000\n"
+"POT-Creation-Date: 2018-08-23 19:32+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Last-Translator: Emilio Herrera <ehespinosa57@gmail.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
-"X-Generator: Zanata 4.5.0\n"
+"X-Generator: Zanata 4.6.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: pkg/docker/storage.jsx:243
@@ -40,14 +40,6 @@ msgstr " 1\"¿Quiere eliminar los nodos siguientes?"
 msgid " or drag & drop."
 msgstr " o arrastre & suelte."
 
-#: pkg/storaged/clevis-dialogs.jsx:34
-msgid "\"http\" Key escrow"
-msgstr "\"http\" Depósito de clave"
-
-#: pkg/storaged/clevis-dialogs.jsx:32
-msgid "\"tang\" Binding server"
-msgstr "\"tang\" Servidor de enlace"
-
 #: pkg/storaged/others-panel.jsx:57
 msgid "$0 Block Device"
 msgstr "$0 Dispositivo de Bloque"
@@ -60,7 +52,7 @@ msgstr "$0 tamaño del fragmento"
 msgid "$0 Disks"
 msgstr "$0 Discos"
 
-#: pkg/storaged/content-views.jsx:317
+#: pkg/storaged/content-views.jsx:331
 msgctxt "storage-id-desc"
 msgid "$0 File System"
 msgstr "$0 Sistema de archivos"
@@ -127,7 +119,7 @@ msgid_plural "$0 disks are missing"
 msgstr[0] "Falta $0 disco"
 msgstr[1] "Faltan $0 discos"
 
-#: src/ws/login.js:299 src/ws/login.js:637
+#: src/ws/login.js:304 src/ws/login.js:642
 msgid "$0 error"
 msgstr "$0 error"
 
@@ -165,7 +157,7 @@ msgstr ""
 "$0 esta disponible para muchos sistemas operativos. Para instalarlo, búscalo "
 "en \"GNOME Software\" o ejecuta el siguiente comando:"
 
-#: pkg/storaged/content-views.jsx:268 pkg/storaged/content-views.jsx:484
+#: pkg/storaged/content-views.jsx:282 pkg/storaged/content-views.jsx:498
 #: pkg/storaged/format-dialog.jsx:280 pkg/storaged/lvol-tabs.jsx:131
 #: pkg/storaged/lvol-tabs.jsx:172 pkg/storaged/mdraid-details.jsx:237
 #: pkg/storaged/mdraid-details.jsx:291 pkg/storaged/vdo-details.jsx:135
@@ -176,10 +168,6 @@ msgstr "$0 esta en uso actualmente"
 #: pkg/lib/cockpit-components-install-dialog.jsx:150
 msgid "$0 is not available from any repository."
 msgstr ""
-
-#: pkg/ostree/client.js:484
-msgid "$0 key ID"
-msgstr "$0 ID de clave"
 
 #: src/base1/cockpit.js:2737
 msgid "$0 killed with signal $1"
@@ -207,17 +195,13 @@ msgstr[1] "$1 ocurrencias"
 msgid "$0 of $1"
 msgstr "$0 de $1"
 
-#: pkg/ostree/app.js:459
-msgid "$0 package"
-msgstr "$0 paquete"
-
-#: pkg/ostree/app.js:459
-msgid "$0 packages"
-msgstr "$0 paquetes"
-
 #: pkg/docker/util.js:128
 msgid "$0 shares"
 msgstr "$0 comparticiones"
+
+#: pkg/storaged/crypto-keyslots.jsx:549
+msgid "$0 slots remain"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:156
 msgid "$0 update"
@@ -301,7 +285,7 @@ msgstr "Se necesita «Organización» al utilizar claves de activación."
 msgid "(default)"
 msgstr "(predeterminado)"
 
-#: pkg/storaged/crypto-tab.jsx:168
+#: pkg/storaged/crypto-tab.jsx:139
 msgid "(none)"
 msgstr "(ninguno)"
 
@@ -310,10 +294,6 @@ msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", incluyendo la corrección de seguridad $1 "
 msgstr[1] ", incluyendo las correcciones de seguridad $1"
-
-#: pkg/ostree/index.html:92
-msgid "- Add New Repository"
-msgstr "- Añadir un repositorio nuevo"
 
 #: pkg/storaged/nfs-details.jsx:310
 msgid "--"
@@ -569,6 +549,11 @@ msgstr ""
 msgid "A disk is needed."
 msgstr "Es necesario un disco."
 
+#: src/ws/login.html:115
+msgid ""
+"A modern browser is required for security, reliability, and performance."
+msgstr ""
+
 #: pkg/storaged/mdraid-details.jsx:119
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr ""
@@ -644,7 +629,7 @@ msgstr "Cuentas"
 msgid "Action"
 msgstr "Acción"
 
-#: pkg/storaged/content-views.jsx:241
+#: pkg/storaged/content-views.jsx:255
 msgid "Activate"
 msgstr "Activar"
 
@@ -690,11 +675,10 @@ msgstr "Equilibrio de carga de transmisión adaptativa"
 #: pkg/kubernetes/views/node-add.html:50
 #: pkg/kubernetes/views/user-add-membership.html:49
 #: pkg/kubernetes/views/user-group-add.html:30 pkg/lib/machine-add.html:43
-#: pkg/ostree/index.html:90 pkg/shell/index.html:181
-#: pkg/machines/components/diskAdd.jsx:419 pkg/storaged/clevis-dialogs.jsx:71
-#: pkg/storaged/iscsi-panel.jsx:155 pkg/storaged/iscsi-panel.jsx:183
-#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/nfs-details.jsx:177
-#: pkg/storaged/vgroup-details.jsx:65
+#: pkg/shell/index.html:181 pkg/machines/components/diskAdd.jsx:445
+#: pkg/storaged/crypto-keyslots.jsx:201 pkg/storaged/iscsi-panel.jsx:155
+#: pkg/storaged/iscsi-panel.jsx:183 pkg/storaged/mdraid-details.jsx:61
+#: pkg/storaged/nfs-details.jsx:177 pkg/storaged/vgroup-details.jsx:65
 msgid "Add"
 msgstr "Añadir"
 
@@ -705,10 +689,6 @@ msgstr "Añadir $0"
 #: pkg/docker/storage.jsx:350
 msgid "Add Additional Storage"
 msgstr "Añadir almacenamiento adicional"
-
-#: pkg/ostree/index.html:75
-msgid "Add Another Key"
-msgstr "Añadir otra clave"
 
 #: pkg/networkmanager/index.html:118
 msgid "Add Bond"
@@ -722,8 +702,8 @@ msgstr "Añadir puente"
 msgid "Add Cluster Node"
 msgstr "Añadir nodo de agrupación"
 
-#: pkg/machines/components/diskAdd.jsx:364
-#: pkg/machines/components/diskAdd.jsx:440
+#: pkg/machines/components/diskAdd.jsx:390
+#: pkg/machines/components/diskAdd.jsx:466
 msgid "Add Disk"
 msgstr ""
 
@@ -734,6 +714,10 @@ msgstr "Añadir discos"
 #: pkg/kubernetes/views/add-group-dialog.html:3
 msgid "Add Group"
 msgstr "Añadir grupo"
+
+#: pkg/storaged/crypto-keyslots.jsx:173
+msgid "Add Key"
+msgstr ""
 
 #: pkg/kubernetes/views/nodes-page.html:34
 msgid "Add Kubernetes Node"
@@ -807,10 +791,6 @@ msgstr "Añadir clave"
 msgid "Add membership"
 msgstr "Añadir afiliación"
 
-#: pkg/storaged/clevis-dialogs.jsx:28
-msgid "Add network key"
-msgstr "Añadir clave de red"
-
 #: pkg/users/index.html:458
 msgid "Add public key"
 msgstr "Añadir clave pública"
@@ -855,10 +835,6 @@ msgstr "Dirección adicional $val"
 msgid "Additional packages:"
 msgstr ""
 
-#: pkg/ostree/index.html:313 pkg/ostree/index.html:331
-msgid "Additions"
-msgstr "Añadidos"
-
 #: pkg/kubernetes/views/auth-form.html:29
 #: pkg/kubernetes/views/dashboard-page.html:157
 #: pkg/kubernetes/views/details-page.html:174
@@ -871,6 +847,10 @@ msgstr "Dirección"
 #: pkg/networkmanager/interfaces.js:2639
 msgid "Address $val"
 msgstr "Dirección $val"
+
+#: pkg/storaged/crypto-keyslots.jsx:197 pkg/storaged/crypto-keyslots.jsx:243
+msgid "Address cannot be empty"
+msgstr ""
 
 #: pkg/machines/components/desktopConsole.jsx:154
 #: pkg/ovirt/components/VmOverviewColumn.jsx:53
@@ -971,10 +951,6 @@ msgstr "Todo corriendo"
 msgid "All running virtual machines will be turned off."
 msgstr "Todas las máquinas virtuales corriendo serán apagadas."
 
-#: pkg/storaged/clevis-dialogs.jsx:45
-msgid "Allow \"http://\" URL"
-msgstr "Permitir \"http://\" URL"
-
 #: pkg/networkmanager/firewall.jsx:323
 msgid "Allowed Services"
 msgstr "Servicios Permitidos"
@@ -1004,19 +980,19 @@ msgstr "Aplicaciones"
 #: pkg/networkmanager/index.html:700 pkg/networkmanager/index.html:724
 #: pkg/networkmanager/index.html:748 pkg/networkmanager/index.html:772
 #: pkg/networkmanager/index.html:796 pkg/networkmanager/index.html:820
-#: pkg/networkmanager/index.html:844 pkg/ostree/index.html:39
-#: pkg/kdump/kdump-view.jsx:358 pkg/machines/components/vcpuModal.jsx:223
+#: pkg/networkmanager/index.html:844 pkg/kdump/kdump-view.jsx:358
+#: pkg/machines/components/vcpuModal.jsx:223
 #: pkg/ovirt/components/vcpuModal.jsx:97 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:76
 #: pkg/storaged/fsys-tab.jsx:123 pkg/storaged/nfs-details.jsx:177
 msgid "Apply"
 msgstr "Aplicar"
 
-#: pkg/packagekit/autoupdates.jsx:288
+#: pkg/packagekit/autoupdates.jsx:303
 msgid "Apply all updates"
 msgstr "Aplicar todas las actualizaciones"
 
-#: pkg/packagekit/autoupdates.jsx:289
+#: pkg/packagekit/autoupdates.jsx:304
 msgid "Apply security updates"
 msgstr "Aplicar actualizaciones de seguridad"
 
@@ -1088,11 +1064,11 @@ msgstr "Autenticación"
 msgid "Authentication Failed"
 msgstr "Autenticación fallida"
 
-#: src/ws/login.js:617
+#: src/ws/login.js:622
 msgid "Authentication Failed: Server closed connection"
 msgstr "Falló la autenticación: Conexión con el servidor cerrada."
 
-#: src/ws/login.js:627
+#: src/ws/login.js:632
 msgid "Authentication failed"
 msgstr "Autenticación Fallida"
 
@@ -1125,7 +1101,7 @@ msgstr "Automático (solo DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "Automático (DHCP)"
 
-#: pkg/packagekit/autoupdates.jsx:326
+#: pkg/packagekit/autoupdates.jsx:341
 msgid "Automatic Updates"
 msgstr "Actualizaciones Automáticas"
 
@@ -1149,7 +1125,7 @@ msgstr "Usando automáticamente servidores NTP específicos"
 msgid "Autostart:"
 msgstr "Auto inicio:"
 
-#: pkg/lib/machine-change-auth.html:66 pkg/ostree/index.html:255
+#: pkg/lib/machine-change-auth.html:66
 #: pkg/machines/components/vm/vmUsageTab.jsx:64
 #: pkg/machines/components/vm/vmUsageTab.jsx:75
 msgid "Available"
@@ -1215,10 +1191,6 @@ msgstr "Plantilla base:"
 msgid "Before"
 msgstr ""
 
-#: pkg/ostree/index.html:68
-msgid "Begins with '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
-msgstr "Empieza con '-----BEGIN PGP PUBLIC KEY BLOCK-----'"
-
 #: pkg/systemd/init.js:682
 msgid "Binds To"
 msgstr ""
@@ -1235,7 +1207,7 @@ msgstr "Recinto de la espada"
 msgid "Block"
 msgstr "Bloque"
 
-#: pkg/storaged/content-views.jsx:634
+#: pkg/storaged/content-views.jsx:648
 msgid "Block device for filesystems"
 msgstr "Dispositivo de bloque para sistemas de archivos"
 
@@ -1354,7 +1326,7 @@ msgstr "En cache"
 msgid "Can&rsquo;t connect to Docker"
 msgstr "Can&rsquo;t connect to Docker"
 
-#: pkg/storaged/content-views.jsx:301
+#: pkg/storaged/content-views.jsx:315
 msgid "Can't delete while unlocked"
 msgstr "No se puede eliminar mientras está desbloqueado"
 
@@ -1400,21 +1372,20 @@ msgstr "No puede cargar imagen"
 #: pkg/networkmanager/index.html:699 pkg/networkmanager/index.html:723
 #: pkg/networkmanager/index.html:747 pkg/networkmanager/index.html:771
 #: pkg/networkmanager/index.html:795 pkg/networkmanager/index.html:819
-#: pkg/networkmanager/index.html:843 pkg/ostree/index.html:164
-#: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
-#: pkg/shell/index.html:122 pkg/shell/simple.html:90 pkg/shell/stub.html:105
-#: pkg/storaged/index.html:416 pkg/systemd/index.html:361
-#: pkg/systemd/index.html:448 pkg/systemd/index.html:500
-#: pkg/systemd/index.html:516 pkg/systemd/services.html:506
-#: pkg/users/index.html:225 pkg/users/index.html:289 pkg/users/index.html:328
-#: pkg/users/index.html:367 pkg/users/index.html:384 pkg/users/index.html:408
-#: pkg/users/index.html:465 pkg/apps/utils.jsx:85
-#: pkg/lib/cockpit-components-dialog.jsx:152
+#: pkg/networkmanager/index.html:843 pkg/playground/translate.html:39
+#: pkg/realmd/operation.html:92 pkg/shell/index.html:122
+#: pkg/shell/simple.html:90 pkg/shell/stub.html:105 pkg/storaged/index.html:416
+#: pkg/systemd/index.html:361 pkg/systemd/index.html:448
+#: pkg/systemd/index.html:500 pkg/systemd/index.html:516
+#: pkg/systemd/services.html:506 pkg/users/index.html:225
+#: pkg/users/index.html:289 pkg/users/index.html:328 pkg/users/index.html:367
+#: pkg/users/index.html:384 pkg/users/index.html:408 pkg/users/index.html:465
+#: pkg/apps/utils.jsx:85 pkg/lib/cockpit-components-dialog.jsx:152
 #: pkg/networkmanager/firewall.jsx:256
 #: pkg/ovirt/components/ClusterTemplates.jsx:75
 #: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:181
-#: pkg/sosreport/index.js:51 pkg/storaged/dialogx.jsx:260
+#: pkg/sosreport/index.js:51 pkg/storaged/dialogx.jsx:277
 #: pkg/storaged/job-views.jsx:43 pkg/storaged/jobs-panel.jsx:123
 msgid "Cancel"
 msgstr "Cancelar"
@@ -1478,10 +1449,6 @@ msgstr "Cambiar Perfil de Desempeño"
 msgid "Change Profile"
 msgstr "Cambiar Perfil"
 
-#: pkg/ostree/index.html:134
-msgid "Change Repository"
-msgstr "Cambiar Repositorio"
-
 #: pkg/systemd/index.html:387
 msgid "Change System Time"
 msgstr "Cambiar la Hora del Sistema"
@@ -1497,6 +1464,10 @@ msgstr "Cambiar Nombre Iniciador de iSCSI "
 #: pkg/kubernetes/views/imagestream-modify.html:4
 msgid "Change image stream"
 msgstr "Cambiar flujo de imagen"
+
+#: pkg/storaged/crypto-keyslots.jsx:219
+msgid "Change passphrase"
+msgstr ""
 
 #: pkg/kubernetes/views/project-modify.html:10
 msgid "Change project"
@@ -1522,7 +1493,7 @@ msgstr ""
 "Cambiando los ajustes romperá la conexión al servidor y ha la administración "
 "de UI no disponible."
 
-#: pkg/ostree/index.html:210 pkg/packagekit/updates.jsx:172
+#: pkg/packagekit/updates.jsx:172
 msgid "Check for Updates"
 msgstr "Comprobacióin de Actualizaciones"
 
@@ -1549,10 +1520,6 @@ msgstr "Requisitos para las nuevas aplicaciones"
 #: pkg/lib/machine-change-auth.html:71
 msgid "Checking for public keys"
 msgstr "Chequeando llaves públicas"
-
-#: pkg/ostree/app.js:303
-msgid "Checking for updates"
-msgstr "Chequeando por actualizaciones"
 
 #: pkg/systemd/host.js:469
 msgid "Checking for updates…"
@@ -1614,7 +1581,7 @@ msgstr "Certificado de Cliente"
 #: pkg/storaged/index.html:421 pkg/systemd/index.html:307
 #: pkg/systemd/services.html:347 pkg/systemd/services.html:365
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:107 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:260
+#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:277
 msgid "Close"
 msgstr "Cerrar"
 
@@ -1639,7 +1606,7 @@ msgstr "Cluster de Máquinas Virtuales"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/ws/login.js:318
+#: src/ws/login.js:323
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "La autenticación de Cockpit está configurado incorrectamente"
 
@@ -1803,11 +1770,11 @@ msgstr "Falló la comunicación con «tuned»"
 msgid "Compact PCI"
 msgstr "PCI Compacto"
 
-#: pkg/storaged/content-views.jsx:504
+#: pkg/storaged/content-views.jsx:518
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "Compatible con todos los sistemas y dispositivos (MBR)"
 
-#: pkg/storaged/content-views.jsx:506
+#: pkg/storaged/content-views.jsx:520
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Compatible con los sistemas modernos y discos duros > 2TB (GPT)"
 
@@ -1884,6 +1851,10 @@ msgstr "Confirmar palabra de paso"
 msgid "Confirm reload:"
 msgstr "Confirme recarga:"
 
+#: pkg/storaged/crypto-keyslots.jsx:335
+msgid "Confirm removal with passphrase"
+msgstr ""
+
 #: pkg/ovirt/components/VdsmView.jsx:108
 msgid "Confirm save:"
 msgstr "Confirme guardar:"
@@ -1931,10 +1902,6 @@ msgstr ""
 #: pkg/docker/index.html:54
 msgid "Connecting to Docker"
 msgstr "Conectando a Docker"
-
-#: pkg/ostree/index.html:418
-msgid "Connecting to OSTree"
-msgstr "Conectando al Árbol de SO"
 
 #: pkg/selinux/setroubleshoot-view.jsx:352
 msgid "Connecting to SETroubleshoot daemon..."
@@ -2041,7 +2008,7 @@ msgctxt "page-title"
 msgid "Containers"
 msgstr "Contenedores"
 
-#: pkg/storaged/content-views.jsx:541
+#: pkg/storaged/content-views.jsx:555
 msgid "Content"
 msgstr "Contenido"
 
@@ -2130,10 +2097,6 @@ msgstr "No se pueden listar los usuarios locales"
 msgid "Couldn't list users"
 msgstr "No se puede listar los usuarios"
 
-#: pkg/ostree/remotes.js:181
-msgid "Couldn't load settings for '$0': $1"
-msgstr "No podría cargar ajustes para '$0': $1"
-
 #: src/bridge/cockpitdbussetup.c:382
 msgid "Couldn't load user data"
 msgstr "No se pudo cargar los datos del usuario"
@@ -2152,17 +2115,17 @@ msgstr "Error del sistema"
 #: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:401
 #: pkg/ovirt/components/ClusterTemplates.jsx:76
-#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:678
+#: pkg/storaged/content-views.jsx:120 pkg/storaged/content-views.jsx:692
 #: pkg/storaged/lvol-tabs.jsx:229 pkg/storaged/mdraids-panel.jsx:84
 #: pkg/storaged/vdos-panel.jsx:108 pkg/storaged/vgroups-panel.jsx:71
 msgid "Create"
 msgstr "Crear"
 
-#: pkg/storaged/content-views.jsx:623
+#: pkg/storaged/content-views.jsx:637
 msgid "Create Logical Volume"
 msgstr "Crear un volumen logico"
 
-#: pkg/machines/components/diskAdd.jsx:322
+#: pkg/machines/components/diskAdd.jsx:336
 msgid "Create New"
 msgstr ""
 
@@ -2179,7 +2142,7 @@ msgstr "Crear Nueva VM"
 msgid "Create New Virtual Machine"
 msgstr "Crear una Nueva Máquina Virtual"
 
-#: pkg/storaged/content-views.jsx:413
+#: pkg/storaged/content-views.jsx:427
 msgid "Create Partition"
 msgstr "Crear Partición"
 
@@ -2240,7 +2203,7 @@ msgstr "Crear un flujo de imagen"
 msgid "Create it"
 msgstr "Crearlo"
 
-#: pkg/storaged/content-views.jsx:697
+#: pkg/storaged/content-views.jsx:711
 msgid "Create new Logical Volume"
 msgstr "Crear un nuevo Volumen Lógico"
 
@@ -2252,7 +2215,7 @@ msgstr "Crear partición"
 msgid "Create partition on $0"
 msgstr "Crear partición en $0"
 
-#: pkg/storaged/content-views.jsx:536
+#: pkg/storaged/content-views.jsx:550
 msgid "Create partition table"
 msgstr "Crear tabla de particiones"
 
@@ -2337,10 +2300,6 @@ msgstr "Crítico y arriba"
 msgid "Current boot"
 msgstr "Arranque actual"
 
-#: pkg/ostree/index.html:184
-msgid "Currently using:"
-msgstr "Usando actualmente:"
-
 #: pkg/storaged/format-dialog.jsx:70
 msgid "Custom"
 msgstr "Personalizar"
@@ -2397,7 +2356,7 @@ msgstr "Tablero"
 msgid "Data Used"
 msgstr "Datos Usados"
 
-#: pkg/storaged/content-views.jsx:239
+#: pkg/storaged/content-views.jsx:253
 msgid "Deactivate"
 msgstr "Desactivar"
 
@@ -2418,7 +2377,6 @@ msgid "Deduplication"
 msgstr "Deduplicación"
 
 #: pkg/docker/index.html:355 pkg/docker/index.html:359
-#: pkg/ostree/index.html:253
 #: node_modules/registry-image-widgets/views/image-config.html:10
 #: pkg/storaged/format-dialog.jsx:69
 #: pkg/subscriptions/subscriptions-register.jsx:101
@@ -2438,15 +2396,14 @@ msgstr "Retraso"
 #: pkg/kubernetes/views/pv-delete.html:11
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
-#: pkg/networkmanager/index.html:607 pkg/ostree/index.html:38
-#: pkg/users/index.html:79 pkg/users/index.html:409
-#: pkg/docker/containers-view.jsx:196 pkg/docker/details.js:286
-#: pkg/docker/util.js:634
+#: pkg/networkmanager/index.html:607 pkg/users/index.html:79
+#: pkg/users/index.html:409 pkg/docker/containers-view.jsx:196
+#: pkg/docker/details.js:286 pkg/docker/util.js:634
 #: pkg/kubernetes/scripts/virtual-machines/components/VmActions.jsx:49
 #: pkg/kubernetes/scripts/volumes.js:218
 #: pkg/machines/components/deleteDialog.jsx:92
 #: pkg/machines/components/vm/vmActions.jsx:98
-#: pkg/storaged/content-views.jsx:281 pkg/storaged/content-views.jsx:302
+#: pkg/storaged/content-views.jsx:295 pkg/storaged/content-views.jsx:316
 #: pkg/storaged/mdraid-details.jsx:303 pkg/storaged/mdraid-details.jsx:326
 #: pkg/storaged/vdo-details.jsx:192 pkg/storaged/vdo-details.jsx:256
 #: pkg/storaged/vgroup-details.jsx:215 pkg/storaged/vgroup-details.jsx:238
@@ -2529,11 +2486,11 @@ msgstr "Al borrar un dispositivo VDO borrará todos los datos en él."
 msgid "Deleting a container will erase all data in it."
 msgstr "Eliminar un contenedor eliminara toda la información en él."
 
-#: pkg/storaged/content-views.jsx:258
+#: pkg/storaged/content-views.jsx:272
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "Eliminar un volumen lógico borrará toda la información en el."
 
-#: pkg/storaged/content-views.jsx:261
+#: pkg/storaged/content-views.jsx:275
 msgid "Deleting a partition will delete all data in it."
 msgstr "Eliminar una partición borrará toda la información en el."
 
@@ -2608,7 +2565,7 @@ msgstr "Dispositivo"
 msgid "Device File"
 msgstr "Fichero de Dispositivo"
 
-#: pkg/storaged/content-views.jsx:535 pkg/storaged/format-dialog.jsx:426
+#: pkg/storaged/content-views.jsx:549 pkg/storaged/format-dialog.jsx:426
 msgid "Device is read-only"
 msgstr "El dispositivo es de sólo lectura"
 
@@ -2667,17 +2624,21 @@ msgstr "Disco I/O"
 msgid "Disk Utilization: $0%"
 msgstr "Uso de disco: $0%"
 
-#: pkg/machines/components/diskAdd.jsx:409
+#: pkg/machines/components/diskAdd.jsx:435
 msgid "Disk failed to be attached with following error: "
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:396
+#: pkg/machines/components/diskAdd.jsx:422
 msgid "Disk failed to be created with following error: "
 msgstr ""
 
 #: pkg/storaged/drive-details.jsx:50
 msgid "Disk is OK"
 msgstr "Disco está OK"
+
+#: pkg/storaged/crypto-keyslots.jsx:152
+msgid "Disk passphrase"
+msgstr ""
 
 #: pkg/kubernetes/scripts/virtual-machines/components/VmDetail.jsx:74
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListingRow.jsx:61
@@ -2784,7 +2745,7 @@ msgstr "Contraseña del Administrador de Dominio"
 msgid "Don't Repeat"
 msgstr "No repetir"
 
-#: pkg/storaged/content-views.jsx:497 pkg/storaged/format-dialog.jsx:301
+#: pkg/storaged/content-views.jsx:511 pkg/storaged/format-dialog.jsx:301
 msgid "Don't overwrite existing data"
 msgstr "No sobreescribir los datos existentes"
 
@@ -2796,13 +2757,13 @@ msgstr "No tire de las imágenes automáticamente"
 msgid "Done!"
 msgstr "Hecho!"
 
-#: pkg/ostree/index.html:319 pkg/ostree/index.html:349
-msgid "Downgrades"
-msgstr "Rebajas"
-
 #: pkg/docker/index.html:595
 msgid "Download"
 msgstr "Descarga"
+
+#: src/ws/login.html:118
+msgid "Download a new browser for free"
+msgstr ""
 
 #: pkg/sosreport/index.html:64
 msgid "Download report"
@@ -2853,13 +2814,17 @@ msgstr "Alias duplicado"
 msgid "Duplicate port"
 msgstr "Puerto duplicado"
 
-#: pkg/storaged/crypto-tab.jsx:162 pkg/storaged/nfs-details.jsx:288
+#: pkg/storaged/crypto-tab.jsx:133 pkg/storaged/nfs-details.jsx:288
 msgid "Edit"
 msgstr "Editar"
 
 #: pkg/dashboard/index.html:128
 msgid "Edit Server"
 msgstr "Editar Servidor"
+
+#: pkg/storaged/crypto-keyslots.jsx:240
+msgid "Edit Tang keyserver"
+msgstr ""
 
 #: node_modules/registry-image-widgets/views/imagestream-body.html:7
 msgid "Edit image stream"
@@ -2868,6 +2833,10 @@ msgstr "Editar flujo de imagen"
 #: pkg/ovirt/components/VdsmView.jsx:125
 msgid "Edit the vdsm.conf"
 msgstr "Editar vdsm.conf"
+
+#: pkg/storaged/crypto-keyslots.jsx:508
+msgid "Editing a key requires a free slot"
+msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:36
 msgid "Ejecting $target"
@@ -2940,7 +2909,7 @@ msgstr "Partición encriptada de $0"
 msgid "Encrypted XFS (LUKS)"
 msgstr "Encriptado XFS (LUKS)"
 
-#: pkg/storaged/content-views.jsx:331
+#: pkg/storaged/content-views.jsx:345
 msgctxt "storage-id-desc"
 msgid "Encrypted data"
 msgstr "Dato encriptado"
@@ -3018,7 +2987,7 @@ msgstr "Punto de entrada"
 msgid "Environment"
 msgstr "Entorno"
 
-#: pkg/storaged/content-views.jsx:495 pkg/storaged/format-dialog.jsx:299
+#: pkg/storaged/content-views.jsx:509 pkg/storaged/format-dialog.jsx:299
 msgid "Erase"
 msgstr "Borrar"
 
@@ -3037,7 +3006,7 @@ msgstr "Errata:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/systemd/services.html:359 pkg/apps/utils.jsx:99
 #: pkg/storaged/devices.js:107 pkg/storaged/storage-controls.jsx:88
-#: pkg/storaged/storage-controls.jsx:189 pkg/users/local.js:1399
+#: pkg/storaged/storage-controls.jsx:180 pkg/users/local.js:1399
 msgid "Error"
 msgstr "Error"
 
@@ -3048,10 +3017,6 @@ msgstr "Error y arriba"
 #: pkg/kubernetes/scripts/connection.js:648
 msgid "Error getting certificate details: $0"
 msgstr "Error al obtener los detalles del certificado: $0"
-
-#: pkg/ostree/remotes.js:327
-msgid "Error loading remotes: $0"
-msgstr "Error cargando remotos: $0"
 
 #: pkg/lib/machine-sync-users.html:13
 msgid "Error loading users: {{perm_failed}}"
@@ -3097,10 +3062,6 @@ msgstr "Todo"
 msgid "Excellent password"
 msgstr "Contraseña excelente "
 
-#: pkg/storaged/clevis-dialogs.jsx:66
-msgid "Existing passphrase"
-msgstr "Existe frase de paso"
-
 #: pkg/docker/util.js:100
 msgid "Exited $ExitCode"
 msgstr "Salió $ExitCode"
@@ -3109,15 +3070,11 @@ msgstr "Salió $ExitCode"
 msgid "Expansion Chassis"
 msgstr "Chasis de Expansión"
 
-#: pkg/ostree/index.html:290
-msgid "Expired Signature"
-msgstr "Firma caducada"
-
 #: pkg/docker/index.html:505
 msgid "Expose container ports"
 msgstr "Exponer puertos de contenedores"
 
-#: pkg/storaged/content-views.jsx:433 pkg/storaged/format-dialog.jsx:272
+#: pkg/storaged/content-views.jsx:447 pkg/storaged/format-dialog.jsx:272
 msgid "Extended Partition"
 msgstr "Partición Extendida"
 
@@ -3129,7 +3086,7 @@ msgstr "Fallido"
 msgid "FQDN"
 msgstr "FQDN"
 
-#: pkg/ostree/index.html:258 pkg/networkmanager/interfaces.js:840
+#: pkg/networkmanager/interfaces.js:840
 msgid "Failed"
 msgstr "Falló"
 
@@ -3274,7 +3231,11 @@ msgstr "Forzar Apagado"
 msgid "Force password change"
 msgstr "Cambio de clave forzado"
 
-#: pkg/machines/components/diskAdd.jsx:175 pkg/storaged/content-views.jsx:514
+#: pkg/storaged/crypto-keyslots.jsx:344
+msgid "Force remove passphrase in $0"
+msgstr ""
+
+#: pkg/machines/components/diskAdd.jsx:175 pkg/storaged/content-views.jsx:528
 #: pkg/storaged/format-dialog.jsx:342 pkg/storaged/format-dialog.jsx:427
 msgid "Format"
 msgstr "Formato"
@@ -3283,11 +3244,11 @@ msgstr "Formato"
 msgid "Format $0"
 msgstr "Formatear $0"
 
-#: pkg/storaged/content-views.jsx:491
+#: pkg/storaged/content-views.jsx:505
 msgid "Format Disk $0"
 msgstr "Formatear Disco $0"
 
-#: pkg/storaged/content-views.jsx:515
+#: pkg/storaged/content-views.jsx:529
 msgid "Formatting a disk will erase all data on it."
 msgstr "Formatear un disco eliminará todos los datos en el."
 
@@ -3307,7 +3268,7 @@ msgstr "Retardo del reenvío $forward_delay"
 msgid "Free"
 msgstr "Libre"
 
-#: pkg/storaged/content-views.jsx:419
+#: pkg/storaged/content-views.jsx:433
 msgid "Free Space"
 msgstr "Espacio Libre"
 
@@ -3379,10 +3340,6 @@ msgstr "Ir a la aplicación"
 msgid "Go to now"
 msgstr "Ir a ahora"
 
-#: pkg/ostree/index.html:289
-msgid "Good Signature"
-msgstr "Buena Firma"
-
 #: pkg/kubernetes/views/project-body.html:3
 #: pkg/kubernetes/views/project-body.html:8
 msgid "Grant additional push or admin access to specific members below."
@@ -3438,10 +3395,6 @@ msgstr "HA"
 #: pkg/ovirt/components/OVirtTab.jsx:125
 msgid "HA:"
 msgstr "HA:"
-
-#: pkg/storaged/clevis-dialogs.jsx:52
-msgid "HTTP method"
-msgstr "Método HTTP"
 
 #: pkg/networkmanager/index.html:324
 msgid "Hair Pin mode"
@@ -3591,6 +3544,10 @@ msgstr "Identidades"
 msgid "Identity"
 msgstr "Identidad"
 
+#: pkg/storaged/crypto-keyslots.jsx:296
+msgid "If tang-show-keys is not available, run the following:"
+msgstr ""
+
 #: pkg/networkmanager/interfaces.js:1967 pkg/packagekit/updates.jsx:517
 msgid "Ignore"
 msgstr "Ignorar"
@@ -3726,7 +3683,7 @@ msgstr ""
 msgid "Inactive"
 msgstr "Inactivo"
 
-#: pkg/storaged/content-views.jsx:597
+#: pkg/storaged/content-views.jsx:611
 msgid "Inactive volume"
 msgstr "Volumen inactivo"
 
@@ -3825,17 +3782,13 @@ msgstr "Interfaz"
 msgid "Interfaces"
 msgstr "Interfaces"
 
-#: src/ws/login.js:609
+#: src/ws/login.js:614
 msgid "Internal Error: Invalid challenge header"
 msgstr "Error Interno: Encabezado del reto no valido "
 
 #: src/base1/cockpit.js:4006
 msgid "Internal error"
 msgstr "Error interno"
-
-#: pkg/ostree/index.html:291
-msgid "Invalid Signature"
-msgstr "La firma no es válida"
 
 #: pkg/networkmanager/utils.js:89 pkg/networkmanager/utils.js:172
 msgid "Invalid address $0"
@@ -3989,25 +3942,29 @@ msgstr "Versión del núcleo"
 msgid "Key Ring Path"
 msgstr "Trayecto del llavero"
 
-#: pkg/storaged/clevis-dialogs.jsx:223
-msgid "Key can't be retrieved"
-msgstr "La clave no puede ser recuperada"
+#: pkg/storaged/crypto-keyslots.jsx:536
+msgid "Key slots with unknown types can not be edited here"
+msgstr ""
 
-#: pkg/storaged/clevis-dialogs.jsx:166
-msgid "Key does not work"
-msgstr "La clave no trabaja"
+#: pkg/storaged/crypto-keyslots.jsx:175
+msgid "Key source"
+msgstr ""
 
-#: pkg/storaged/clevis-dialogs.jsx:190 pkg/storaged/clevis-dialogs.jsx:206
-msgid "Key is obsolete"
-msgstr "La clave es obsoleta"
+#: pkg/storaged/crypto-keyslots.jsx:559
+msgid "Keys"
+msgstr ""
 
-#: pkg/storaged/clevis-dialogs.jsx:160
-msgid "Key is okay"
-msgstr "La clave es correcta"
+#: pkg/storaged/crypto-keyslots.jsx:530
+msgid "Keyserver"
+msgstr ""
 
-#: pkg/storaged/clevis-dialogs.jsx:62
-msgid "Key server address"
-msgstr "Clave de dirección de servidor"
+#: pkg/storaged/crypto-keyslots.jsx:195 pkg/storaged/crypto-keyslots.jsx:242
+msgid "Keyserver address"
+msgstr ""
+
+#: pkg/storaged/crypto-keyslots.jsx:386
+msgid "Keyserver removal may prevent unlocking $0."
+msgstr ""
 
 #: pkg/kubernetes/views/node-body.html:23
 msgid "Kubelet Version"
@@ -4194,7 +4151,7 @@ msgstr "Punto de Montaje Local"
 msgid "Location"
 msgstr "Ubicación"
 
-#: pkg/storaged/content-views.jsx:223
+#: pkg/storaged/content-views.jsx:237
 msgid "Lock"
 msgstr "Bloquear"
 
@@ -4210,7 +4167,7 @@ msgstr "Cuenta bloqueada en $0"
 msgid "Locking $target"
 msgstr "Bloquendo $target"
 
-#: pkg/lib/machine-change-auth.html:81 src/ws/login.html:85 src/ws/login.js:459
+#: pkg/lib/machine-change-auth.html:81 src/ws/login.html:85 src/ws/login.js:464
 msgid "Log In"
 msgstr "Iniciar sesión"
 
@@ -4226,7 +4183,7 @@ msgstr "Ingresar de nuevo"
 msgid "Log in to {{host}}"
 msgstr "Iniciar sesión en {{host}}"
 
-#: src/ws/login.js:485
+#: src/ws/login.js:490
 msgid "Log in with your server user account."
 msgstr "Acceda con su cuenta de usuario del servidor."
 
@@ -4276,7 +4233,7 @@ msgstr "Volumen lógico de $0"
 msgid "Login"
 msgstr "Ingresar"
 
-#: src/ws/login.js:272
+#: src/ws/login.js:277
 msgid "Login Again"
 msgstr "Acceda de Nuevo"
 
@@ -4302,7 +4259,7 @@ msgstr ""
 "Para registrarse es necesario un usuario y contraseña o una clave de "
 "activación."
 
-#: src/ws/login.js:273
+#: src/ws/login.js:278
 msgid "Logout Successful"
 msgstr "Logout Exitoso"
 
@@ -4367,6 +4324,10 @@ msgstr "Maquinas"
 msgid "Main Server Chassis"
 msgstr "Chasis del Servidor Principal"
 
+#: pkg/storaged/crypto-keyslots.jsx:290
+msgid "Make sure the key hash from the Tang server matches:"
+msgstr ""
+
 #: pkg/machines/vmnetworktab.jsx:91
 msgid "Managed"
 msgstr "Manejado"
@@ -4387,9 +4348,9 @@ msgstr "Conexión Manual"
 msgid "Manually"
 msgstr "Manualmente"
 
-#: pkg/storaged/clevis-dialogs.jsx:111
-msgid "Manually verify the key on the server: "
-msgstr "Verificada manualmente la clave sobre el servidor:"
+#: pkg/storaged/crypto-keyslots.jsx:293
+msgid "Manually check with SSH: "
+msgstr ""
 
 #: pkg/storaged/jobs-panel.jsx:60
 msgid "Marking $target as faulty"
@@ -4427,11 +4388,11 @@ msgstr "Medio"
 msgid "Member of"
 msgstr "Miembro de"
 
-#: pkg/storaged/content-views.jsx:328
+#: pkg/storaged/content-views.jsx:342
 msgid "Member of RAID Device"
 msgstr "Miembro del dispositivo RAID"
 
-#: pkg/storaged/content-views.jsx:324
+#: pkg/storaged/content-views.jsx:338
 msgid "Member of RAID Device $0"
 msgstr "Miembro del dispositivo RAID $0"
 
@@ -4502,10 +4463,6 @@ msgstr "Metadatos"
 #: pkg/storaged/lvol-tabs.jsx:378
 msgid "Metadata Used"
 msgstr "Metadatos en uso"
-
-#: pkg/storaged/clevis-dialogs.jsx:30
-msgid "Method"
-msgstr "Método"
 
 #: pkg/docker/index.html:463 pkg/docker/index.html:634
 #: pkg/machines/components/diskAdd.jsx:165
@@ -4703,7 +4660,7 @@ msgstr "Servidor NTP"
 #: pkg/kubernetes/views/volumes-page.html:57 pkg/networkmanager/index.html:127
 #: pkg/networkmanager/index.html:145 pkg/networkmanager/index.html:183
 #: pkg/networkmanager/index.html:239 pkg/networkmanager/index.html:338
-#: pkg/networkmanager/index.html:438 pkg/ostree/index.html:99
+#: pkg/networkmanager/index.html:438
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
 #: pkg/docker/containers-view.jsx:351 pkg/docker/containers-view.jsx:664
@@ -4712,7 +4669,7 @@ msgstr "Servidor NTP"
 #: pkg/machines/components/diskAdd.jsx:126 pkg/machines/hostvmslist.jsx:92
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181 pkg/packagekit/updates.jsx:373
-#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:626
+#: pkg/storaged/content-views.jsx:107 pkg/storaged/content-views.jsx:640
 #: pkg/storaged/format-dialog.jsx:310 pkg/storaged/fsys-panel.jsx:108
 #: pkg/storaged/fsys-tab.jsx:71 pkg/storaged/fsys-tab.jsx:152
 #: pkg/storaged/iscsi-panel.jsx:150 pkg/storaged/iscsi-panel.jsx:211
@@ -4791,10 +4748,6 @@ msgstr "Tránsito de redes"
 msgid "Network devices and graphs require NetworkManager."
 msgstr ""
 
-#: pkg/storaged/crypto-tab.jsx:173
-msgid "Network keys"
-msgstr "Claves de red"
-
 #: pkg/networkmanager/index.html:46
 msgid "NetworkManager is not running."
 msgstr ""
@@ -4854,6 +4807,10 @@ msgstr ""
 msgid "New image stream"
 msgstr "Flujo de imágenes nuevo"
 
+#: pkg/storaged/crypto-keyslots.jsx:183 pkg/storaged/crypto-keyslots.jsx:225
+msgid "New passphrase"
+msgstr ""
+
 #: pkg/lib/credentials.js:238 pkg/users/local.js:121
 msgid "New password was not accepted"
 msgstr "Nueva contraseña no fue aceptada"
@@ -4886,25 +4843,17 @@ msgstr "No"
 msgid "No Delay"
 msgstr "Sin retardo"
 
-#: pkg/ostree/index.html:420
-msgid "No Deployments"
-msgstr "No hay Despliegues"
-
 #: pkg/storaged/format-dialog.jsx:274
 msgid "No Filesystem"
 msgstr "Ningún Sistema de Archivos"
 
-#: pkg/storaged/content-views.jsx:704
+#: pkg/storaged/content-views.jsx:718
 msgid "No Logical Volumes"
 msgstr "No hay ningún volumen lógico"
 
 #: pkg/storaged/nfs-panel.jsx:111
 msgid "No NFS mounts set up"
 msgstr "Sin ajustes de montaje NFS"
-
-#: pkg/ostree/app.js:104
-msgid "No OSTree deployments found"
-msgstr "No se encontraron despliegues de OSTree"
 
 #: src/ws/cockpitcertificate.c:522
 msgid "No PEM-encoded certificate found"
@@ -4951,6 +4900,10 @@ msgstr "No hay aplicaciones instaladas o disponibles"
 msgid "No archive has been created."
 msgstr "No archive has been created."
 
+#: pkg/storaged/crypto-keyslots.jsx:549
+msgid "No available slots"
+msgstr ""
+
 #: pkg/machines/components/vmOverviewTabLibvirt.jsx:30
 msgid "No boot device found"
 msgstr "No encontrado dispositivo de arranque"
@@ -4958,10 +4911,6 @@ msgstr "No encontrado dispositivo de arranque"
 #: pkg/networkmanager/interfaces.js:1420
 msgid "No carrier"
 msgstr "Ningún portador"
-
-#: pkg/ostree/remotes.js:112
-msgid "No configuration data found"
-msgstr "No se encontró ningún dato de configuración"
 
 #: pkg/kdump/kdump-view.jsx:397
 msgid "No configuration found"
@@ -5001,7 +4950,11 @@ msgstr "No se han definido discos para esta VM"
 msgid "No drives attached"
 msgstr "No hay dispositivos adjuntos"
 
-#: pkg/storaged/content-views.jsx:689 pkg/storaged/lvol-tabs.jsx:300
+#: pkg/storaged/crypto-keyslots.jsx:554
+msgid "No free key slots"
+msgstr ""
+
+#: pkg/storaged/content-views.jsx:703 pkg/storaged/lvol-tabs.jsx:300
 msgid "No free space"
 msgstr "No queda espacio disponible"
 
@@ -5040,6 +4993,10 @@ msgstr "No se ha encontrado paquete de instalación para esta aplicación."
 #: pkg/subscriptions/subscriptions-view.jsx:223
 msgid "No installed products on the system."
 msgstr "No hay ningún producto instalado en el sistema."
+
+#: pkg/storaged/crypto-keyslots.jsx:493
+msgid "No keys added"
+msgstr ""
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:204
 msgid "No matching files found"
@@ -5082,7 +5039,7 @@ msgstr "Sin conexión oVirt"
 msgid "No open ports"
 msgstr "Sin puertos abiertos"
 
-#: pkg/storaged/content-views.jsx:509
+#: pkg/storaged/content-views.jsx:523
 msgid "No partitioning"
 msgstr "No particionar"
 
@@ -5121,10 +5078,6 @@ msgstr "No hay contenedores corriendo"
 #: pkg/docker/containers-view.jsx:358
 msgid "No running containers that match the current filter"
 msgstr "No hay contenedores corriendo que coincidan con el filtro actual"
-
-#: pkg/ostree/index.html:294
-msgid "No signature avaliable"
-msgstr "No hay firma disponible"
 
 #: pkg/storaged/mdraids-panel.jsx:128
 msgid "No storage set up as RAID"
@@ -5225,10 +5178,6 @@ msgstr "No es un valor valido para el host"
 msgid "Not authorized to access Docker on this system"
 msgstr "No esta autorizado a acceder a Docker en este sistema"
 
-#: pkg/ostree/app.js:83
-msgid "Not authorized to update software on this system"
-msgstr "No esta autorizado para actualizar software en este sistema"
-
 #: pkg/systemd/logs.js:452
 msgid "Not authorized to upload-report"
 msgstr "No autorizado para cargar informe"
@@ -5297,10 +5246,6 @@ msgstr "OK"
 msgid "OS"
 msgstr "SO"
 
-#: pkg/ostree/client.js:585 pkg/ostree/client.js:681
-msgid "OS $0 not found"
-msgstr "OS $0 no encontrado"
-
 #: pkg/ovirt/components/OVirtTab.jsx:143
 msgid "OS Type:"
 msgstr "Tipo de SO:"
@@ -5312,10 +5257,6 @@ msgstr "Proveedor de SO"
 #: pkg/kubernetes/views/nodes-page.html:19
 msgid "OS Versions"
 msgstr "Versiones de SO"
-
-#: pkg/ostree/app.js:85
-msgid "OSTree is not available on this system"
-msgstr "OSTree no esta disponible para este sistema"
 
 #: pkg/selinux/setroubleshoot-view.jsx:375
 msgid "Occurred $0"
@@ -5339,6 +5280,10 @@ msgstr "Aceptar"
 #: pkg/shell/index.html:301 pkg/users/index.html:243
 msgid "Old Password"
 msgstr "Contraseña vieja"
+
+#: pkg/storaged/crypto-keyslots.jsx:221
+msgid "Old passphrase"
+msgstr ""
 
 #: pkg/lib/credentials.js:220 pkg/users/local.js:78
 msgid "Old password not accepted"
@@ -5393,15 +5338,10 @@ msgstr "Solo se soportan archivos de un tamaño de $0 MiB y menos"
 msgid "Ooops!"
 msgstr "Ooops!"
 
-#: pkg/kubernetes/views/nodes-page.html:42 pkg/ostree/index.html:301
-#: pkg/systemd/index.html:100
+#: pkg/kubernetes/views/nodes-page.html:42 pkg/systemd/index.html:100
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:247
 msgid "Operating System"
 msgstr "Sistema Operativo"
-
-#: pkg/ostree/index.html:375
-msgid "Operating System Updates"
-msgstr "Actualizaciones de Sistema Operativo"
 
 #: pkg/storaged/jobs-panel.jsx:84
 msgid "Operation '$operation' on $target"
@@ -5416,24 +5356,24 @@ msgstr "Disco Óptico"
 msgid "Optimized for:"
 msgstr "Optimizado para:"
 
-#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:167
+#: pkg/kubernetes/views/volume-body.html:130 pkg/storaged/crypto-tab.jsx:138
 #: pkg/storaged/vdos-panel.jsx:96
 msgid "Options"
 msgstr "Opciones"
+
+#: src/ws/login.html:125
+msgid "Or use a bundled browser"
+msgstr ""
 
 #: pkg/subscriptions/subscriptions-register.jsx:176
 msgid "Organization"
 msgstr "Organización"
 
-#: pkg/ostree/index.html:307
-msgid "Origin"
-msgstr "Origen"
-
 #: pkg/lib/machine-info.es6:60
 msgid "Other"
 msgstr "Otro"
 
-#: pkg/storaged/content-views.jsx:336
+#: pkg/storaged/content-views.jsx:350
 msgctxt "storage-id-desc"
 msgid "Other Data"
 msgstr "Otros datos"
@@ -5453,7 +5393,7 @@ msgstr "Otras Opciones"
 msgid "Overview"
 msgstr "Visión conjunta"
 
-#: pkg/storaged/content-views.jsx:498 pkg/storaged/format-dialog.jsx:302
+#: pkg/storaged/content-views.jsx:512 pkg/storaged/format-dialog.jsx:302
 msgid "Overwrite existing data with zeros"
 msgstr "Sobreescribir los datos existentes con ceros"
 
@@ -5481,10 +5421,6 @@ msgstr "PackageKit no está instalado"
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit reportó error con código $0"
 
-#: pkg/ostree/index.html:266
-msgid "Packages"
-msgstr "Paquetes"
-
 #: pkg/networkmanager/index.html:166
 msgid "Parent"
 msgstr "Padre"
@@ -5510,7 +5446,7 @@ msgstr "Partición"
 msgid "Partition of $0"
 msgstr "Partición de $0"
 
-#: pkg/storaged/content-views.jsx:502
+#: pkg/storaged/content-views.jsx:516
 msgid "Partitioning"
 msgstr "Particionamiento"
 
@@ -5518,14 +5454,22 @@ msgstr "Particionamiento"
 msgid "Passive"
 msgstr "Pasivo"
 
-#: pkg/storaged/content-views.jsx:208 pkg/storaged/format-dialog.jsx:320
+#: pkg/storaged/content-views.jsx:222 pkg/storaged/crypto-keyslots.jsx:179
+#: pkg/storaged/crypto-keyslots.jsx:525 pkg/storaged/format-dialog.jsx:320
 msgid "Passphrase"
 msgstr "Palabra de paso"
 
-#: pkg/storaged/clevis-dialogs.jsx:67 pkg/storaged/format-dialog.jsx:323
+#: pkg/storaged/crypto-keyslots.jsx:154 pkg/storaged/crypto-keyslots.jsx:185
+#: pkg/storaged/crypto-keyslots.jsx:222 pkg/storaged/crypto-keyslots.jsx:226
+#: pkg/storaged/format-dialog.jsx:323
 msgid "Passphrase cannot be empty"
 msgstr "La frase de contraseña no puede estar vacía"
 
+#: pkg/storaged/crypto-keyslots.jsx:327
+msgid "Passphrase removal may prevent unlocking $0."
+msgstr ""
+
+#: pkg/storaged/crypto-keyslots.jsx:192 pkg/storaged/crypto-keyslots.jsx:229
 #: pkg/storaged/format-dialog.jsx:331
 msgid "Passphrases do not match"
 msgstr "Palabra de paso no coincide"
@@ -5630,7 +5574,7 @@ msgstr "Chasis Periférico"
 msgid "Permanent"
 msgstr "Permanente"
 
-#: src/ws/login.js:633
+#: src/ws/login.js:638
 msgid "Permission denied"
 msgstr "Permiso denegado"
 
@@ -5646,7 +5590,7 @@ msgstr "Fase"
 msgid "Physical"
 msgstr "Físico"
 
-#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:326
+#: pkg/storaged/content-views.jsx:147 pkg/storaged/content-views.jsx:340
 msgid "Physical Volume"
 msgstr "Volumen físico"
 
@@ -5654,7 +5598,7 @@ msgstr "Volumen físico"
 msgid "Physical Volumes"
 msgstr "Volúmenea Físicos"
 
-#: pkg/storaged/content-views.jsx:321
+#: pkg/storaged/content-views.jsx:335
 msgid "Physical volume of $0"
 msgstr "Volumen físico de $0"
 
@@ -5675,7 +5619,7 @@ msgid "Pizza Box"
 msgstr "Pizza Box"
 
 #: pkg/docker/containers-view.jsx:194 pkg/docker/details.js:284
-#: pkg/docker/util.js:605 pkg/storaged/content-views.jsx:275
+#: pkg/docker/util.js:605 pkg/storaged/content-views.jsx:289
 #: pkg/storaged/mdraid-details.jsx:298 pkg/storaged/vdo-details.jsx:187
 #: pkg/storaged/vgroup-details.jsx:209
 msgid "Please confirm deletion of $0"
@@ -5684,10 +5628,6 @@ msgstr "Por favor confirmar la eliminación de $0"
 #: pkg/docker/util.js:509
 msgid "Please confirm forced deletion of $0"
 msgstr "Por favor confirme, forzar el borrado de $0"
-
-#: pkg/storaged/clevis-dialogs.jsx:128
-msgid "Please confirm network key removal"
-msgstr "Por favor confirme el borrado de la clave de red"
 
 #: pkg/storaged/mdraid-details.jsx:245 pkg/storaged/vdo-details.jsx:143
 msgid "Please confirm stopping of $0"
@@ -5701,11 +5641,11 @@ msgstr "Por favor confirme que el host será conmutado a modo mantenimiento."
 msgid "Please create another namespace for $0 \"$1\""
 msgstr "Por favor cree otro nombre de espacio para $0 \"$1\""
 
-#: pkg/machines/components/diskAdd.jsx:380
+#: pkg/machines/components/diskAdd.jsx:406
 msgid "Please enter new volume name"
 msgstr ""
 
-#: pkg/machines/components/diskAdd.jsx:383
+#: pkg/machines/components/diskAdd.jsx:409
 msgid "Please enter new volume size"
 msgstr ""
 
@@ -5725,10 +5665,6 @@ msgstr "Provea un nombre de usuario"
 msgid "Please provide a valid NFS server"
 msgstr "Por favor provea un servidos NFS valido"
 
-#: pkg/ostree/remotes.js:261
-msgid "Please provide a valid URL"
-msgstr "Proporcione un URL válido"
-
 #: pkg/kubernetes/scripts/connection.js:537
 msgid "Please provide a valid address"
 msgstr "Provea una dirección valida"
@@ -5745,7 +5681,7 @@ msgstr "Por favor provea una interfaz valida"
 msgid "Please provide a valid logical unit number"
 msgstr "Por favor provea un número valido de unidad lógica"
 
-#: pkg/kubernetes/scripts/volumes.js:477 pkg/ostree/remotes.js:254
+#: pkg/kubernetes/scripts/volumes.js:477
 msgid "Please provide a valid name"
 msgstr "Por favor provea un nombre valido"
 
@@ -5807,7 +5743,7 @@ msgstr "Por favor provea una opción de política valida."
 msgid "Please specify an expiration date"
 msgstr "Por favor especifique una fecha de expiración"
 
-#: src/ws/login.js:420
+#: src/ws/login.js:425
 msgid "Please specify the host to connect to"
 msgstr "Por favor especifique el host para conectarse"
 
@@ -5896,11 +5832,11 @@ msgstr "Nombre del grupo"
 msgid "Pool for Thin Logical Volumes"
 msgstr "Reserva para Volúmenes Lógicos Delgados"
 
-#: pkg/storaged/content-views.jsx:578
+#: pkg/storaged/content-views.jsx:592
 msgid "Pool for Thin Volumes"
 msgstr "Grupo para Volúmenes Finos"
 
-#: pkg/storaged/content-views.jsx:637
+#: pkg/storaged/content-views.jsx:651
 msgid "Pool for thinly provisioned volumes"
 msgstr "Grupo para volúmenes poco aprovisionados"
 
@@ -6125,7 +6061,7 @@ msgstr "Extraer desde"
 msgid "Pull specific tags from another image repository"
 msgstr "Extraer etiquetas específicas desde otro repositorio de imágenes"
 
-#: pkg/storaged/content-views.jsx:631
+#: pkg/storaged/content-views.jsx:645
 msgid "Purpose"
 msgstr "Proposito"
 
@@ -6312,10 +6248,6 @@ msgstr "El nombre real de anfitrión debe tener 64 caracteres o menos"
 msgid "Reason"
 msgstr "Razón"
 
-#: pkg/ostree/index.html:241
-msgid "Rebase and Reboot"
-msgstr "Reorganizar y reiniciar"
-
 #: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:242
 msgid "Reboot"
 msgstr "Reiniciar"
@@ -6326,18 +6258,6 @@ msgstr "Reiniciar"
 msgid "Receiving"
 msgstr "Recibiendo"
 
-#: pkg/ostree/client.js:56
-msgid "Receiving delta parts"
-msgstr "Reciviendo deltas"
-
-#: pkg/ostree/client.js:58
-msgid "Receiving metadata objects"
-msgstr "Recibiendo metadatos"
-
-#: pkg/ostree/client.js:61
-msgid "Receiving objects: $0%"
-msgstr "Recibiendo objetos: $0%"
-
 #: pkg/systemd/logs.html:41
 msgid "Recent"
 msgstr "Reciente"
@@ -6347,8 +6267,8 @@ msgid "Reclaim Policy"
 msgstr "Normativa de reclamación"
 
 #: pkg/kubernetes/index.html:114 pkg/kubernetes/registry.html:75
-#: pkg/ostree/index.html:423 pkg/shell/index.html:406 pkg/shell/simple.html:138
-#: pkg/shell/stub.html:180 pkg/machines/components/serialConsole.jsx:135
+#: pkg/shell/index.html:406 pkg/shell/simple.html:138 pkg/shell/stub.html:180
+#: pkg/machines/components/serialConsole.jsx:135
 msgid "Reconnect"
 msgstr "Reconectarse"
 
@@ -6372,15 +6292,15 @@ msgstr "Reformatear y añadir discos"
 msgid "Refreshing package information"
 msgstr "Refrescando información del paquete"
 
-#: src/ws/login.js:623
+#: src/ws/login.js:628
 msgid "Refusing to connect. Host is unknown"
 msgstr "Rechazando conexión. El host es desconocido"
 
-#: src/ws/login.js:625
+#: src/ws/login.js:630
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Rechazando conexión. La clave de host no coincide"
 
-#: src/ws/login.js:621
+#: src/ws/login.js:626
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Rechazando la conexión. La clave de host es desconocida"
 
@@ -6412,10 +6332,6 @@ msgstr "Registrando oVirt a Cockpit"
 #: pkg/packagekit/updates.jsx:902
 msgid "Register…"
 msgstr "Registro…"
-
-#: pkg/ostree/index.html:305
-msgid "Released"
-msgstr "Lanzado"
 
 #: pkg/ovirt/components/App.jsx:60 pkg/ovirt/components/VdsmView.jsx:100
 #: pkg/systemd/init.js:519
@@ -6451,10 +6367,6 @@ msgctxt "storage"
 msgid "Removable Drive"
 msgstr "Disco Removible"
 
-#: pkg/ostree/index.html:315 pkg/ostree/index.html:337
-msgid "Removals"
-msgstr "Removidos"
-
 #: pkg/lib/cockpit-components-install-dialog.jsx:81
 msgid "Removals:"
 msgstr ""
@@ -6464,6 +6376,7 @@ msgstr ""
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
 #: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:109
+#: pkg/storaged/crypto-keyslots.jsx:364 pkg/storaged/crypto-keyslots.jsx:400
 #: pkg/storaged/nfs-details.jsx:290
 msgid "Remove"
 msgstr "Eliminar"
@@ -6471,6 +6384,10 @@ msgstr "Eliminar"
 #: pkg/networkmanager/interfaces.js:3043
 msgid "Remove $0"
 msgstr "Quitar $0"
+
+#: pkg/storaged/crypto-keyslots.jsx:385
+msgid "Remove $0?"
+msgstr ""
 
 #: pkg/kubernetes/views/group-delete.html:3
 msgid "Remove Group"
@@ -6484,6 +6401,10 @@ msgstr "Quitar miembro"
 msgid "Remove Role"
 msgstr "Quitar rol"
 
+#: pkg/storaged/crypto-keyslots.jsx:394
+msgid "Remove Tang keyserver"
+msgstr ""
+
 #: pkg/kubernetes/views/user-delete.html:3
 msgid "Remove User"
 msgstr "Quitar usuario"
@@ -6496,13 +6417,17 @@ msgstr "Quitar dispositivo"
 msgid "Remove image tag"
 msgstr "Remover etiqueta de imagen"
 
-#: pkg/storaged/clevis-dialogs.jsx:137 pkg/storaged/clevis-dialogs.jsx:175
-msgid "Remove key"
-msgstr "Borrar clave"
-
 #: pkg/kubernetes/views/user-remove-membership.html:3
 msgid "Remove membership"
 msgstr "Quitar afiliación"
+
+#: pkg/storaged/crypto-keyslots.jsx:358
+msgid "Remove passphrase"
+msgstr ""
+
+#: pkg/storaged/crypto-keyslots.jsx:325
+msgid "Remove passphrase in $0?"
+msgstr ""
 
 #: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
 msgid "Removing"
@@ -6523,10 +6448,6 @@ msgid ""
 msgstr ""
 "Quitar <b>$0</b> romperá la conexión con el servidor y hará la "
 "administración de UI no disponible."
-
-#: pkg/storaged/clevis-dialogs.jsx:132 pkg/storaged/clevis-dialogs.jsx:170
-msgid "Removing network keys might prevent unattended booting."
-msgstr "Borrar las claves de red podría evitar arranques no atendidos."
 
 #: pkg/storaged/jobs-panel.jsx:74
 msgid "Removing physical volume from $target"
@@ -6572,6 +6493,11 @@ msgstr "Repetir cada semana"
 #: pkg/systemd/services.html:476
 msgid "Repeat Yearly"
 msgstr "Repetir cada año"
+
+#: pkg/storaged/crypto-keyslots.jsx:177 pkg/storaged/crypto-keyslots.jsx:187
+#: pkg/storaged/crypto-keyslots.jsx:228
+msgid "Repeat passphrase"
+msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:9
 #: pkg/kubernetes/views/details-page.html:141
@@ -6737,10 +6663,6 @@ msgstr "Reintentos:"
 msgid "Retrieving subscription status..."
 msgstr "Obteniendo el estado de la suscripción…"
 
-#: pkg/storaged/clevis-dialogs.jsx:225
-msgid "Retrieving the key from $0 has failed: $1."
-msgstr "La recuperación de la clave desde $0 ha fallado: $1."
-
 #: src/ws/login.html:57
 msgid "Reuse my password for privileged tasks"
 msgstr "Reutilizar mi contraseña para tareas privilegiadas"
@@ -6766,10 +6688,6 @@ msgstr "Rol"
 #: pkg/kubernetes/views/project-body.html:21 pkg/users/index.html:94
 msgid "Roles"
 msgstr "Roles"
-
-#: pkg/ostree/index.html:237
-msgid "Roll Back and Reboot"
-msgstr "Revertir y reiniciar"
 
 #: pkg/networkmanager/interfaces.js:1972 pkg/networkmanager/interfaces.js:1989
 msgid "Round Robin"
@@ -6807,7 +6725,7 @@ msgstr "Ejecutar como"
 msgid "Runner"
 msgstr "Ejecutor"
 
-#: pkg/ostree/index.html:251 pkg/storaged/mdraid-details.jsx:350
+#: pkg/storaged/mdraid-details.jsx:350
 msgid "Running"
 msgstr "Corriendo"
 
@@ -6896,12 +6814,15 @@ msgid "Saturday"
 msgstr "Sábado"
 
 #: pkg/systemd/services.html:507 pkg/ovirt/components/VdsmView.jsx:114
+#: pkg/storaged/crypto-keyslots.jsx:233 pkg/storaged/crypto-keyslots.jsx:248
 msgid "Save"
 msgstr "Guardar"
 
-#: pkg/ostree/client.js:66
-msgid "Scanning metadata"
-msgstr "Escaneando metadatos"
+#: pkg/storaged/crypto-keyslots.jsx:155
+msgid ""
+"Saving a new passphrase requires unlocking the disk. Please provide a "
+"current disk passphrase."
+msgstr ""
 
 #: pkg/kubernetes/views/node-capacity.html:9
 msgid "Scheduled Pods"
@@ -7018,17 +6939,9 @@ msgstr "Dirección del Servidor"
 msgid "Server Administrator"
 msgstr "Administrador del Servidor"
 
-#: pkg/storaged/clevis-dialogs.jsx:63
-msgid "Server address cannot be empty"
-msgstr "La dirección del servidor no puede estar vacía"
-
 #: pkg/storaged/iscsi-panel.jsx:47
 msgid "Server address cannot be empty."
 msgstr "La dirección del servidor no puede estar vacía."
-
-#: pkg/storaged/clevis-dialogs.jsx:213
-msgid "Server can't be reached"
-msgstr "No se puede alcanzar el servidor"
 
 #: pkg/storaged/nfs-details.jsx:135
 msgid "Server cannot be empty."
@@ -7246,14 +7159,6 @@ msgstr "Encoger Volumen Lógico"
 msgid "Shut Down"
 msgstr "Apagar"
 
-#: pkg/ostree/index.html:267
-msgid "Signature"
-msgstr "Firma"
-
-#: pkg/ostree/index.html:279
-msgid "Signed by"
-msgstr "Firmado por"
-
 #: pkg/kubernetes/views/container-body.html:18
 msgid "Since"
 msgstr "Desde"
@@ -7264,7 +7169,7 @@ msgstr "Desde $0"
 
 #: pkg/kubernetes/views/volumes-page.html:60 pkg/docker/containers-view.jsx:664
 #: pkg/machines/components/diskAdd.jsx:148 pkg/storaged/content-views.jsx:112
-#: pkg/storaged/content-views.jsx:672 pkg/storaged/format-dialog.jsx:291
+#: pkg/storaged/content-views.jsx:686 pkg/storaged/format-dialog.jsx:291
 #: pkg/storaged/fsys-panel.jsx:110 pkg/storaged/lvol-tabs.jsx:142
 #: pkg/storaged/lvol-tabs.jsx:183 pkg/storaged/lvol-tabs.jsx:219
 #: pkg/storaged/lvol-tabs.jsx:324 pkg/storaged/lvol-tabs.jsx:365
@@ -7302,12 +7207,16 @@ msgstr "Saltar la Verificación de Certificado"
 msgid "Slot"
 msgstr "Espacio"
 
+#: pkg/storaged/crypto-keyslots.jsx:504
+msgid "Slot $0"
+msgstr ""
+
 #: pkg/systemd/services.html:55 pkg/machines/components/vcpuModal.jsx:183
 #: pkg/ovirt/components/vcpuModal.jsx:59
 msgid "Sockets"
 msgstr "Sockets"
 
-#: pkg/ostree/index.html:23 pkg/packagekit/index.html:23
+#: pkg/packagekit/index.html:23
 msgid "Software Updates"
 msgstr "Actualizaciones de Software"
 
@@ -7343,6 +7252,7 @@ msgstr ""
 msgid "Sorry, I don't know how to modify this volume"
 msgstr "Lo siento, no se como modificar este volumen"
 
+#: pkg/machines/components/diskAdd.jsx:324
 #: pkg/machines/components/vmDisksTab.jsx:74 pkg/machines/vmnetworktab.jsx:70
 msgid "Source"
 msgstr "Fuente"
@@ -7449,7 +7359,7 @@ msgstr "Estático"
 #: pkg/kubernetes/views/node-body.html:39
 #: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
 #: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
-#: pkg/kubernetes/views/volumes-page.html:21 pkg/ostree/index.html:288
+#: pkg/kubernetes/views/volumes-page.html:21
 #: pkg/networkmanager/interfaces.js:2601
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -7543,7 +7453,7 @@ msgstr "Guardar palabra de paso"
 msgid "Stored Passphrase"
 msgstr "Frase de paso guardada"
 
-#: pkg/storaged/crypto-tab.jsx:161
+#: pkg/storaged/crypto-tab.jsx:132
 msgid "Stored passphrase"
 msgstr "Frase de paso almacenada"
 
@@ -7583,7 +7493,7 @@ msgstr "Suspendido"
 msgid "Swap"
 msgstr "Intercambio"
 
-#: pkg/storaged/content-views.jsx:334
+#: pkg/storaged/content-views.jsx:348
 msgctxt "storage-id-desc"
 msgid "Swap Space"
 msgstr "Espacio de intercambio"
@@ -7717,6 +7627,10 @@ msgstr "Etiquetas"
 #: pkg/docker/containers-view.jsx:392
 msgid "Tags"
 msgstr "Etiquetas"
+
+#: pkg/storaged/crypto-keyslots.jsx:180
+msgid "Tang keyserver"
+msgstr ""
 
 #: pkg/kubernetes/views/pv-modify.html:137
 #: pkg/machines/components/diskAdd.jsx:222
@@ -7903,6 +7817,11 @@ msgstr ""
 "El usuario actual no tiene permitido acceder al estado de suscripción al "
 "sistema."
 
+#: pkg/storaged/crypto-keyslots.jsx:489
+msgid ""
+"The currently logged in user is not permitted to see information about keys."
+msgstr ""
+
 #: pkg/kubernetes/views/deploymentconfig-page.html:25
 msgid "The deployment config '{{ target }}' does not exist."
 msgstr "La configuración de despliegue '{{ target }}' no existe."
@@ -7958,10 +7877,6 @@ msgstr ""
 msgid "The group '{{ groupName }}' does not exist."
 msgstr "El grupo '{{ groupName }}' no existe."
 
-#: pkg/storaged/clevis-dialogs.jsx:131
-msgid "The key of $0 will be removed."
-msgstr "La clave de $0 será borrada."
-
 #: pkg/lib/machine-invalid-hostkey.html:8
 msgid ""
 "The key of {{#strong}}{{host}}{{/strong}} does not match the key previously "
@@ -7973,16 +7888,6 @@ msgstr ""
 "recientemente, es posible que alguien este tratando de atacar tu conexión a "
 "esta máquina."
 
-#: pkg/storaged/clevis-dialogs.jsx:215
-msgid ""
-"The key server at $0 can not be reached.  This network key can not unlock "
-"the encrypted data right now, but it might be able to when the server "
-"becomes reachable again."
-msgstr ""
-"El servidor clave en $0 no puede ser alcanzado.  Esta clave de red no puede "
-"desbloquear los datos encriptados ahora, pero podría ser capaz cuando el "
-"servidor sea alcanzable otra vez."
-
 #: pkg/users/authorized-keys.js:119
 msgid "The key you provided was not valid."
 msgstr "La llave que envió no era valida."
@@ -7990,6 +7895,10 @@ msgstr "La llave que envió no era valida."
 #: pkg/storaged/mdraid-details.jsx:121
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "El último disco del dispositivo RAID no puede ser quitado."
+
+#: pkg/storaged/crypto-keyslots.jsx:514
+msgid "The last key slot can not be removed"
+msgstr ""
 
 #: pkg/storaged/vgroup-details.jsx:94
 msgid "The last physical volume of a volume group cannot be removed."
@@ -8018,10 +7927,6 @@ msgstr "El nodo no tiene bastante espacio de disco"
 #: pkg/kubernetes/views/node-alerts.html:11
 msgid "The node doesn't have enough free memory"
 msgstr "El nodo no tiene bastante memoria libre"
-
-#: pkg/storaged/clevis-dialogs.jsx:115
-msgid "The output should match this text: "
-msgstr "La salida coincidiría con este texto:"
 
 #: pkg/users/local.js:412 pkg/users/local.js:1326
 msgid "The passwords do not match"
@@ -8069,11 +7974,7 @@ msgstr ""
 "El archivo seleccionado no es un archivo de manifiesto de aplicación "
 "kubernetes valido"
 
-#: pkg/storaged/clevis-dialogs.jsx:258
-msgid "The server has returned a key that doesn't work."
-msgstr "El servidor ha devuelto una clave que no funciona."
-
-#: src/ws/login.js:615
+#: src/ws/login.js:620
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -8201,14 +8102,6 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "Este dispositivo VDO no usa todos sus dispositivos de respaldo."
 
-#: pkg/storaged/clevis-dialogs.jsx:49
-msgid ""
-"This box must be checked to confirm that the key will be transported without "
-"HTTPS"
-msgstr ""
-"Esta caja debe ser comprobada para confirmar que la clave será transportada "
-"sin HTTPS"
-
 #: pkg/kubernetes/views/pvc-delete.html:8
 msgid ""
 "This claim is in use. Deleting it may cause issues with the following pod:"
@@ -8223,13 +8116,6 @@ msgid ""
 msgstr ""
 "Este día no existe todos los meses.<br> El temporizador solo será ejecutado "
 "en los meses que tengan 31."
-
-#: pkg/ostree/index.html:327
-msgid ""
-"This deployment contains the same packages as your currently booted system"
-msgstr ""
-"Este despliegue contiene los mismos paquetes que su sistema actualmente "
-"arrancado"
 
 #: pkg/networkmanager/interfaces.js:2612
 msgid "This device cannot be managed here."
@@ -8300,34 +8186,6 @@ msgstr "Esta maquina ya ha sido agregada"
 #: pkg/realmd/operation.html:91
 msgid "This may take a while"
 msgstr "Esto podría tomar un momento"
-
-#: pkg/storaged/clevis-dialogs.jsx:244
-msgid "This network key is not recognized anymore by the server."
-msgstr "Esta clave no se reconoce por el servidor."
-
-#: pkg/storaged/clevis-dialogs.jsx:207
-msgid ""
-"This network key is obsolete. It is still functional but it should be "
-"replaced. A new key has been retrieved from the server."
-msgstr ""
-"Esta clave de red es obsoleta. Es todavía funcional pero debería ser "
-"cambiada. Una nueva clave ha sido recuperada desde el servidor."
-
-#: pkg/storaged/clevis-dialogs.jsx:193
-msgid ""
-"This network key is obsolete. It is still functional but it should be "
-"replaced. A new key has been securely retrieved from the server."
-msgstr ""
-"Esta clave de red es obsoleta. Es todavía funcional pero debería ser "
-"cambiada. Una nueva clave ha sido recuperada con seguridad desde el servidor"
-
-#: pkg/storaged/clevis-dialogs.jsx:161
-msgid ""
-"This network key works fine right now and the encrypted data can be unlocked "
-"with it."
-msgstr ""
-"Esta clave de red funciona correctamente y los datos encriptados pueden ser "
-"desbloqueados con ella."
 
 #: pkg/kubernetes/views/pv-modify.html:24
 msgid ""
@@ -8410,7 +8268,7 @@ msgid "This volume needs to be activated before it can be resized."
 msgstr ""
 "Este volumen necesita ser activado antes de poder modificar el tamaño."
 
-#: src/ws/login.js:140
+#: src/ws/login.js:141
 msgid "This web browser is too old to run Cockpit (missing $0)"
 msgstr ""
 "Este navegador web es demasiado viejo para ejecutar Cockpit (desaparecido "
@@ -8512,10 +8370,6 @@ msgstr ""
 msgid "Tower"
 msgstr "Torre"
 
-#: pkg/ostree/index.html:265
-msgid "Tree"
-msgstr "Árbol"
-
 #: pkg/systemd/init.js:695
 msgid "Triggered By"
 msgstr ""
@@ -8530,13 +8384,9 @@ msgstr "Disparadores"
 msgid "Troubleshoot"
 msgstr "Soporte"
 
-#: pkg/storaged/clevis-dialogs.jsx:94
-msgid "Trust Key"
-msgstr "Clave de Confianza"
-
-#: pkg/storaged/clevis-dialogs.jsx:208
-msgid "Trust new key"
-msgstr "Confía en  nueva clave"
+#: pkg/storaged/crypto-keyslots.jsx:302
+msgid "Trust key"
+msgstr ""
 
 #: pkg/kubernetes/views/auth-rejected-cert.html:21
 msgid "Trust this certificate for this connection"
@@ -8581,9 +8431,9 @@ msgstr "Tuned esta apagado"
 #: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
 #: pkg/kubernetes/views/service-body.html:11
 #: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:285
-#: pkg/machines/vmnetworktab.jsx:66 pkg/storaged/clevis-dialogs.jsx:57
-#: pkg/storaged/format-dialog.jsx:306 pkg/storaged/part-tab.jsx:50
-#: pkg/storaged/unrecognized-tab.jsx:45 pkg/systemd/hwinfo.jsx:34
+#: pkg/machines/vmnetworktab.jsx:66 pkg/storaged/format-dialog.jsx:306
+#: pkg/storaged/part-tab.jsx:50 pkg/storaged/unrecognized-tab.jsx:45
+#: pkg/systemd/hwinfo.jsx:34
 msgid "Type"
 msgstr "Tipo"
 
@@ -8605,20 +8455,10 @@ msgstr ""
 "UDP:  Protocolo de Datagramas de Usuario, por sus siglas en ingles (User "
 "Datagram Protocol)"
 
-#: pkg/ostree/index.html:48 pkg/ostree/index.html:109
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:216
-#: pkg/storaged/clevis-dialogs.jsx:36
 #: pkg/subscriptions/subscriptions-register.jsx:110
 msgid "URL"
 msgstr "URL"
-
-#: pkg/storaged/clevis-dialogs.jsx:39
-msgid "URL cannot be empty"
-msgstr "La URL no puede estar vacía"
-
-#: pkg/storaged/clevis-dialogs.jsx:41
-msgid "URL must start with either \"http:\" or \"https:\""
-msgstr "La URL debe empezar por \"http:\" o \"https:\""
 
 #: pkg/storaged/part-tab.jsx:46
 msgid "UUID"
@@ -8632,15 +8472,11 @@ msgstr "Incapaz de aplicar los ajustes: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Incapaz de aplicar esta solución automáticamente"
 
-#: pkg/ostree/index.html:419
-msgid "Unable to communicate with OSTree"
-msgstr "Incapaz de comunicar con OSTree"
-
 #: pkg/subscriptions/subscriptions-view.jsx:195
 msgid "Unable to connect"
 msgstr "Incapaz de conectar"
 
-#: src/ws/login.js:619
+#: src/ws/login.js:624
 msgid "Unable to connect to that address"
 msgstr "Incapaz de conectar a esa dirección"
 
@@ -8748,12 +8584,16 @@ msgstr "Configuración desconocida"
 msgid "Unknown host name"
 msgstr "Nombre de host desconocido "
 
+#: pkg/storaged/crypto-keyslots.jsx:535
+msgid "Unknown type"
+msgstr ""
+
 #: pkg/docker/index.html:546 pkg/docker/util.js:113
 msgid "Unless Stopped"
 msgstr "A menos que detenido"
 
-#: pkg/storaged/content-views.jsx:205 pkg/storaged/content-views.jsx:212
-#: pkg/storaged/content-views.jsx:225
+#: pkg/storaged/content-views.jsx:219 pkg/storaged/content-views.jsx:226
+#: pkg/storaged/content-views.jsx:239
 msgid "Unlock"
 msgstr "Desbloquear"
 
@@ -8772,6 +8612,10 @@ msgstr "Desbloquear solo lectura"
 #: pkg/storaged/jobs-panel.jsx:37
 msgid "Unlocking $target"
 msgstr "Desbloquendo $target"
+
+#: pkg/storaged/crypto-keyslots.jsx:161
+msgid "Unlocking disk..."
+msgstr ""
 
 #: pkg/networkmanager/index.html:140
 msgid "Unmanaged Interfaces"
@@ -8801,7 +8645,7 @@ msgstr "Desenchufar"
 msgid "Unrecognized Data"
 msgstr "Datos No Reconocidos"
 
-#: pkg/storaged/content-views.jsx:341
+#: pkg/storaged/content-views.jsx:355
 msgctxt "storage-id-desc"
 msgid "Unrecognized Data"
 msgstr "Dato desnocnocido"
@@ -8831,7 +8675,7 @@ msgstr "Irresoluto"
 msgid "Unsupported setup mechanism"
 msgstr "Mecanismo de ajuste no soportado"
 
-#: pkg/storaged/content-views.jsx:597
+#: pkg/storaged/content-views.jsx:611
 msgid "Unsupported volume"
 msgstr "Volumen no soportado"
 
@@ -8855,10 +8699,6 @@ msgstr "Histórico de Actualización"
 msgid "Update Log"
 msgstr "Actualizar Registro"
 
-#: pkg/ostree/index.html:233
-msgid "Update and Reboot"
-msgstr "Actualizar y Reiniciar"
-
 #: pkg/packagekit/updates.jsx:57
 msgid "Updated"
 msgstr "Actualizado"
@@ -8868,10 +8708,6 @@ msgid "Updated packages may require a restart to take effect."
 msgstr ""
 "Los paquetes actualizados pueden requerir un reinicio para tener efecto."
 
-#: pkg/ostree/index.html:317 pkg/ostree/index.html:343
-msgid "Updates"
-msgstr "Actualizaciones"
-
 #: pkg/systemd/host.js:455
 msgid "Updates Available"
 msgstr "Actualizaciones Disponibles"
@@ -8880,8 +8716,7 @@ msgstr "Actualizaciones Disponibles"
 msgid "Updates are disabled."
 msgstr "Las actualizaciones están deshabilitadas."
 
-#: pkg/ostree/index.html:262 pkg/packagekit/updates.jsx:49
-#: pkg/subscriptions/subscriptions-view.jsx:187
+#: pkg/packagekit/updates.jsx:49 pkg/subscriptions/subscriptions-view.jsx:187
 msgid "Updating"
 msgstr "Actualizando"
 
@@ -8915,13 +8750,9 @@ msgstr[1] "Utilización de $0 núcleos de CPU"
 msgid "Use 512 Byte emulation"
 msgstr "Usar emulación de 512 Byte"
 
-#: pkg/machines/components/diskAdd.jsx:325
+#: pkg/machines/components/diskAdd.jsx:348
 msgid "Use Existing"
 msgstr ""
-
-#: pkg/storaged/clevis-dialogs.jsx:197
-msgid "Use new key"
-msgstr "Usar nueva clave"
 
 #: pkg/subscriptions/subscriptions-register.jsx:132
 msgid "Use proxy server"
@@ -8934,10 +8765,6 @@ msgstr "Use la siguiente llave para autenticarse en otros sistemas"
 #: pkg/kdump/kdump-view.jsx:162
 msgid "Use the setting in /etc/kdump.conf"
 msgstr "Usar los ajustes de /etc/kdump.conf"
-
-#: pkg/ostree/index.html:59 pkg/ostree/index.html:121
-msgid "Use trusted GPG key"
-msgstr "Usar las claves GPG de confianza"
 
 #: pkg/systemd/index.html:281 pkg/docker/storage.jsx:313
 #: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
@@ -8983,7 +8810,7 @@ msgstr "Interfaz de usuario para servidores Linux"
 msgid "User name"
 msgstr "Nombre de usuario"
 
-#: src/ws/login.js:418
+#: src/ws/login.js:423
 msgid "User name cannot be empty"
 msgstr "El nombre de usuario no puede estar vacío"
 
@@ -9008,7 +8835,7 @@ msgstr "Usando credenciales disponibles"
 msgid "VDO Backing"
 msgstr "Apoyo VDO"
 
-#: pkg/storaged/content-views.jsx:339
+#: pkg/storaged/content-views.jsx:353
 msgctxt "storage-id-desc"
 msgid "VDO Backing"
 msgstr "Apoyo VDO"
@@ -9143,17 +8970,16 @@ msgstr "Proveedor"
 msgid "Verified"
 msgstr "Verificado"
 
-#: pkg/storaged/clevis-dialogs.jsx:92
-msgid "Verify Key"
-msgstr "Verificar Clave"
+#: pkg/storaged/crypto-keyslots.jsx:287
+msgid "Verify key"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:51
 msgid "Verifying"
 msgstr "Verificando"
 
-#: pkg/ostree/index.html:303 pkg/shell/index.html:88 pkg/shell/simple.html:64
-#: pkg/shell/stub.html:71 pkg/systemd/index.html:115
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
+#: pkg/shell/index.html:88 pkg/shell/simple.html:64 pkg/shell/stub.html:71
+#: pkg/systemd/index.html:115 pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:83 pkg/packagekit/updates.jsx:374
 #: pkg/subscriptions/subscriptions-view.jsx:34 pkg/systemd/hwinfo.jsx:42
 msgid "Version"
@@ -9284,7 +9110,11 @@ msgstr "Semanas"
 msgid "Welcome to the Image Registry"
 msgstr "Bienvenidos al Registro de Imagen"
 
-#: pkg/kubernetes/views/volumes-page.html:61 pkg/ostree/index.html:282
+#: pkg/storaged/crypto-keyslots.jsx:295
+msgid "What if tang-show-keys is not available?"
+msgstr ""
+
+#: pkg/kubernetes/views/volumes-page.html:61
 msgid "When"
 msgstr "Cuando"
 
@@ -9300,11 +9130,7 @@ msgstr "Escribir casi todo"
 msgid "Writing"
 msgstr "Escribiendo"
 
-#: pkg/ostree/client.js:64
-msgid "Writing objects"
-msgstr "Escribiendo objetos"
-
-#: src/ws/login.js:629
+#: src/ws/login.js:634
 msgid "Wrong user name or password"
 msgstr "Nombre de usuario o contraseña equivocada"
 
@@ -9369,10 +9195,6 @@ msgid "You don't have permission to manage the Docker storage pool."
 msgstr ""
 "Usted no tiene permisos para gestionar el grupo de almacenamiento Docker."
 
-#: pkg/storaged/clevis-dialogs.jsx:169
-msgid "You might want to remove it."
-msgstr "Es posible que desee eliminarlo."
-
 #: pkg/packagekit/updates.jsx:809
 msgid "You need to re-subscribe this system."
 msgstr "Usted necesita volver a suscribirse a este sistema."
@@ -9434,11 +9256,11 @@ msgstr "activo"
 msgid "alias"
 msgstr "Alias"
 
-#: pkg/packagekit/autoupdates.jsx:316
+#: pkg/packagekit/autoupdates.jsx:331
 msgid "and restart the machine automatically."
 msgstr "y reinicia la máquina automáticamente."
 
-#: pkg/ostree/index.html:186 pkg/packagekit/autoupdates.jsx:308
+#: pkg/packagekit/autoupdates.jsx:323
 msgid "at"
 msgstr "en"
 
@@ -9515,7 +9337,7 @@ msgstr "error"
 msgid "ethernet"
 msgstr "ethernet"
 
-#: pkg/packagekit/autoupdates.jsx:296
+#: pkg/packagekit/autoupdates.jsx:311
 msgid "every day"
 msgstr "cada día"
 
@@ -9574,6 +9396,10 @@ msgstr "kdumping"
 #: pkg/docker/run.js:526
 msgid "key"
 msgstr "clave"
+
+#: pkg/storaged/crypto-keyslots.jsx:321
+msgid "key slot $0"
+msgstr ""
 
 #: pkg/kdump/kdump-view.jsx:385 pkg/kdump/kdump-view.jsx:387
 msgid "locally in $0"
@@ -9655,31 +9481,31 @@ msgid_plural "of $0 CPU cores"
 msgstr[0] "de $0 núcleo de CPU"
 msgstr[1] "de $0 núcleos de CPU"
 
-#: pkg/packagekit/autoupdates.jsx:301
+#: pkg/packagekit/autoupdates.jsx:316
 msgid "on Fridays"
 msgstr "en Viernes"
 
-#: pkg/packagekit/autoupdates.jsx:297
+#: pkg/packagekit/autoupdates.jsx:312
 msgid "on Mondays"
 msgstr "en Lunes"
 
-#: pkg/packagekit/autoupdates.jsx:302
+#: pkg/packagekit/autoupdates.jsx:317
 msgid "on Saturdays"
 msgstr "en Sábados"
 
-#: pkg/packagekit/autoupdates.jsx:303
+#: pkg/packagekit/autoupdates.jsx:318
 msgid "on Sundays"
 msgstr "en Domingos"
 
-#: pkg/packagekit/autoupdates.jsx:300
+#: pkg/packagekit/autoupdates.jsx:315
 msgid "on Thursdays"
 msgstr "en Jueves"
 
-#: pkg/packagekit/autoupdates.jsx:298
+#: pkg/packagekit/autoupdates.jsx:313
 msgid "on Tuesdays"
 msgstr "en Martes"
 
-#: pkg/packagekit/autoupdates.jsx:299
+#: pkg/packagekit/autoupdates.jsx:314
 msgid "on Wednesdays"
 msgstr "en Miércoles"
 

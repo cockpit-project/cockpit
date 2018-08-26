@@ -3,4 +3,4 @@
 
 set -e
 
-/var/lib/testvm/atomic.install --skip cockpit-sosreport --extra "/root/rpms/libssh*" "$@"
+/var/lib/testvm/atomic.install --skip cockpit-sosreport --extra "/root/rpms/libssh*" --extra "/var/tmp/build-results/cockpit-dashboard*" "$@"

@@ -79,7 +79,7 @@ override_dh_install:
 	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
-	if [ -z "$(FIREWALLD_SERVICE)" ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
+	if [ -z "$(FIREWALLD_SERVICE)" ] && [ -d debian/cockpit-ws ]; then rm debian/cockpit-ws/usr/lib/firewalld/services/cockpit.xml; rmdir -p --ignore-fail-on-non-empty debian/cockpit-ws/usr/lib/firewalld/services/; fi
 
 override_dh_gencontrol:
 	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)" -Vws:Conflicts="$(WS_CONFLICTS)"

@@ -151,7 +151,10 @@ systemctl start docker || journalctl -u docker
 
 # our cockpit/base container is only really a thing on x86_64, just skip it on other arches
 if [ $(uname -m) = x86_64 ]; then
-    docker build -t cockpit/base /var/tmp/cockpit-base
+    # HACK: docker is broken on fedora-29: https://bugzilla.redhat.com/show_bug.cgi?id=1622543
+    if [ "$IMAGE" != "fedora-29" ]; then
+        docker build -t cockpit/base /var/tmp/cockpit-base
+    fi
 fi
 
 # Configure kubernetes

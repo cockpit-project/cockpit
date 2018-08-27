@@ -1,0 +1,9 @@
+#! /bin/bash
+
+set -e
+/var/lib/testvm/fedora.install "$@"
+
+# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1557913
+# this fails every test due to the SELinux violations (so naughty override
+# causes too much spamming) and causes long boot times due to holding up default.target
+systemctl disable pmcd.service

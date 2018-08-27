@@ -14,8 +14,7 @@ RELEASE_SRPM=$PWD/_release/srpm
 RELEASE_DSC=$PWD/_release/dsc
 RELEASE_SOURCE=$PWD/_release/source
 
-# Fedora needs this crap. It's like packages are made
-# by cobblers not automated systems.
+# Authenticate for pushing into Fedora dist-git
 cat ~/.fedora-password | kinit cockpit@FEDORAPROJECT.ORG
 
 # Build the source tarball patches and srpm

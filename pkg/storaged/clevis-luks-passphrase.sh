@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -eu
+
 if [ $# -ne 1 ]; then
     echo "usage: $0 DEV" >&2
     exit 1

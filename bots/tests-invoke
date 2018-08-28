@@ -335,7 +335,7 @@ class PullTask(object):
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
                     "--quick", "--tests" ]
         elif prefix == "selenium":
-            if value not in ['firefox', 'chrome', 'explorer', 'edge']:
+            if value not in ['firefox', 'chrome', 'edge']:
                 ret = "Unknown browser for selenium test"
             cmd = [ "timeout", "60m", os.path.join(test, "avocado", "run-tests"),
                     "--quick", "--selenium-tests", "--browser", value]

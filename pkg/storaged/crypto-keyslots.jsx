@@ -92,16 +92,16 @@ function compute_sigkey_thps(adv) {
  */
 
 function clevis_add(block, pin, cfg, passphrase) {
-    // HACK - clevis 6 has only "bind luks", let's use that for now
     var dev = decode_filename(block.Device);
-    return cockpit.spawn([ "clevis", "bind", "luks", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg) ],
+    return cockpit.spawn([ "clevis", "luks", "bind", "-f", "-k", "-", "-d", dev, pin, JSON.stringify(cfg) ],
                          { superuser: true, err: "message" }).input(passphrase);
 }
 
 function clevis_remove(block, key) {
-    // HACK - only clevis version 10 brings "luks unbind"
+    // HACK - only clevis version 10 brings "luks unbind", but it is important to use it
+    // when it exists because our fallback can't deal with all cases, such as LUKSv2.
     // cryptsetup needs a terminal on stdin, even with -q or --key-file.
-    var script = 'cryptsetup luksKillSlot -q "$0" "$1" && luksmeta wipe -d "$0" -s "$1" -f';
+    var script = 'if which clevis-luks-unbind; then clevis-luks-unbind -d "$0" -s "$1" -f; else cryptsetup luksKillSlot -q "$0" "$1" && luksmeta wipe -d "$0" -s "$1" -f; fi';
     return cockpit.spawn([ "/bin/sh", "-c", script, decode_filename(block.Device), key.slot ],
                          { superuser: true, err: "message", pty: true });
 }
@@ -430,7 +430,7 @@ export class CryptoKeyslots extends React.Component {
                     buf = lines[lines.length - 1];
                     if (lines.length >= 2) {
                         const data = JSON.parse(lines[lines.length - 2]);
-                        this.setState({ slots: data.slots, luks_version: data.version });
+                        this.setState({ slots: data.slots, luks_version: data.version, max_slots: data.max_slots });
                     }
                 });
                 this.monitor_channel.fail(err => {
@@ -453,8 +453,7 @@ export class CryptoKeyslots extends React.Component {
 
         this.monitor_slots(block);
 
-        if (this.state.luks_version > 1 ||
-            (this.state.slots == null && this.state.slot_error == null) ||
+        if ((this.state.slots == null && this.state.slot_error == null) ||
             this.state.slot_error == "not-found")
             return null;
 
@@ -546,7 +545,7 @@ export class CryptoKeyslots extends React.Component {
                 <div className="panel-heading">
                     <div className="pull-right">
                         <span className="key-slot-panel-remaining">
-                            { remaining ? cockpit.format(_("$0 slots remain"), remaining) : _("No available slots") }
+                            { remaining < 6 ? (remaining ? cockpit.format(_("$0 slots remain"), remaining) : _("No available slots")) : null }
                         </span>
                         { "\n" }
                         <StorageButton onClick={() => add_dialog(client, block)}

@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 # This simulates the org.freedesktop.UDisks.Encrypted.Slots property
-# for versions of UDisks that don't have it yet.
+# et al for versions of UDisks that don't have them yet.
 
 import sys
 import json
@@ -15,8 +15,8 @@ def b64_decode(data):
     # anything?  Not even base64?
     return base64.urlsafe_b64decode(data + '=' * ((4 - len(data) % 4) % 4))
 
-def get_clevis_config(jwe):
-    header = b64_decode(jwe.split(".")[0]).decode("utf-8")
+def get_clevis_config_from_protected_header(protected_header):
+    header = b64_decode(protected_header).decode("utf-8")
     header_object = json.loads(header)
     clevis = header_object.get("clevis", None)
     if clevis:
@@ -27,7 +27,7 @@ def get_clevis_config(jwe):
             subpins = { }
             jwes = clevis["sss"]["jwe"]
             for jwe in jwes:
-                subconf = get_clevis_config(jwe)
+                subconf = get_clevis_config_from_jwe(jwe)
                 subpin = subconf["pin"]
                 if subpin not in subpins:
                     subpins[subpin] = [ subconf[subpin] ]
@@ -37,33 +37,64 @@ def get_clevis_config(jwe):
         else:
             return { "pin": pin, pin: { } }
 
+def get_clevis_config_from_jwe(jwe):
+    return get_clevis_config_from_protected_header(jwe.split(".")[0])
+
 def info(dev):
+    slots = { }
+    version = 1
+    max_slots = 8
+
     result = subprocess.run([ "cryptsetup", "luksDump", dev ], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    slots = [ ]
-    data = { "slots": slots, "version": 1 }
     if result.returncode != 0:
-        return data
+        return { "version": version, "slots": [ ], "max_slots": max_slots }
+
     in_luks2_slot_section = False
+    in_luks2_token_section = False
     for line in result.stdout.splitlines():
+        if not (line.startswith(b" ") or line.startswith(b"\t")):
+            in_luks2_slot_section = False
+            in_luks2_token_section = False
         if line == b"Keyslots:":
             in_luks2_slot_section = True
-            data["version"] = 2
-        elif not line.startswith(b" "):
-            in_luks2_slot_section = False
-        if not in_luks2_slot_section:
-            match = re.fullmatch(b"Key Slot ([0-9]+): ENABLED", line)
-        else:
+            version = 2
+            max_slots = 32
+        elif line == b"Tokens:":
+            in_luks2_token_section = True
+
+        if in_luks2_slot_section:
             match = re.fullmatch(b"  ([0-9]+): luks2", line)
+        else:
+            match = re.fullmatch(b"Key Slot ([0-9]+): ENABLED", line)
         if match:
             slot = int(match.group(1))
             entry = { "Index": { "v": slot } }
-            luksmeta = subprocess.run([ "luksmeta", "load", "-d", dev, "-s", str(slot),
-                                        "-u", "cb6e8904-81ff-40da-a84a-07ab9ab5715e" ],
-                                      stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-            if (luksmeta.returncode == 0):
-                entry["ClevisConfig"] = { "v": json.dumps(get_clevis_config(luksmeta.stdout.decode("utf-8"))) }
-            slots.append(entry)
-    return data
+            if version == 1:
+                luksmeta = subprocess.run([ "luksmeta", "load", "-d", dev, "-s", str(slot),
+                                            "-u", "cb6e8904-81ff-40da-a84a-07ab9ab5715e" ],
+                                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                if (luksmeta.returncode == 0):
+                    entry["ClevisConfig"] = {
+                        "v": json.dumps(get_clevis_config_from_jwe(luksmeta.stdout.decode("utf-8")))
+                    }
+            if slot not in slots:
+                slots[slot] = entry
+
+        if in_luks2_token_section:
+            match = re.fullmatch(b"  ([0-9]+): clevis", line)
+            if match:
+                token = subprocess.run([ "cryptsetup", "token", "export", dev, "--token-id", match.group(1) ],
+                                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                if (token.returncode == 0):
+                    token_object = json.loads(token.stdout.decode("utf-8"))
+                    if token_object.get("type") == "clevis":
+                        config = json.dumps(get_clevis_config_from_protected_header(token_object["jwe"]["protected"]))
+                        for slot_str in token_object.get("keyslots", [ ]):
+                            slot = int(slot_str)
+                            slots[slot] = { "Index": { "v": slot },
+                                            "ClevisConfig": { "v": config } }
+
+    return { "version": version, "slots": list(slots.values()), "max_slots": max_slots }
 
 def monitor(dev):
     path = subprocess.check_output([ "udevadm", "info", "-q", "path", dev ]).rstrip(b"\n")

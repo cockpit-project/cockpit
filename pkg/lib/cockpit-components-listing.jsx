@@ -17,11 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
-var React = require('react');
-
-require('./listing.less');
+import PropTypes from 'prop-types';
+import React from 'react';
+import './listing.less';
 
 /* entry for an alert in the listing, can be expanded (with details) or standard
  * rowId optional: an identifier for the row which will be set as "data-row-id" attribute on the <tr>
@@ -47,55 +45,43 @@ require('./listing.less');
  * initiallyExpanded optional: the entry will be initially rendered as expanded, but then behaves normally
  * expandChanged optional: callback will be used if the row is either expanded or collapsed passing single `isExpanded` boolean argument
  */
-var ListingRow = React.createClass({
-    propTypes: {
-        rowId: React.PropTypes.string,
-        columns: React.PropTypes.array.isRequired,
-        tabRenderers: React.PropTypes.array,
-        navigateToItem: React.PropTypes.func,
-        listingDetail: React.PropTypes.node,
-        listingActions: React.PropTypes.arrayOf(React.PropTypes.node),
-        selectChanged: React.PropTypes.func,
-        selected: React.PropTypes.bool,
-        initiallyExpanded: React.PropTypes.bool,
-        expandChanged: React.PropTypes.func,
-        initiallyActiveTab: React.PropTypes.bool,
-    },
-    getDefaultProps: function () {
-        return {
-            tabRenderers: [],
-            navigateToItem: null,
-        };
-    },
-    getInitialState: function() {
-        return {
+export class ListingRow extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
             activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
             loadedTabs: {}, // which tabs were already loaded - this is important for 'loadOnDemand' setting
             // contains tab indices
             selected: this.props.selected, // whether the current row is selected
         };
-    },
-    handleNavigateClick: function(e) {
+        this.handleNavigateClick = this.handleNavigateClick.bind(this);
+        this.handleExpandClick = this.handleExpandClick.bind(this);
+        this.handleSelectClick = this.handleSelectClick.bind(this);
+        this.handleTabClick = this.handleTabClick.bind(this);
+    }
+
+    handleNavigateClick(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
         this.props.navigateToItem();
-    },
-    handleExpandClick: function(e) {
+    }
+
+    handleExpandClick(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
 
-        var willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
+        let willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
         this.setState({ expanded: willBeExpanded });
 
-        var loadedTabs = {};
+        let loadedTabs = {};
         // unload all tabs if not expanded
         if (willBeExpanded) {
             // see if we should preload some tabs
-            var tabIdx;
-            var tabPresence;
+            let tabIdx;
+            let tabPresence;
             for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
                 if ('presence' in this.props.tabRenderers[tabIdx])
                     tabPresence = this.props.tabRenderers[tabIdx].presence;
@@ -115,13 +101,14 @@ var ListingRow = React.createClass({
 
         e.stopPropagation();
         e.preventDefault();
-    },
-    handleSelectClick: function(e) {
+    }
+
+    handleSelectClick(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
 
-        var selected = !this.state.selected;
+        let selected = !this.state.selected;
         this.setState({ selected: selected });
 
         if (this.props.selectChanged)
@@ -129,14 +116,15 @@ var ListingRow = React.createClass({
 
         e.stopPropagation();
         e.preventDefault();
-    },
-    handleTabClick: function(tabIdx, e) {
+    }
+
+    handleTabClick(tabIdx, e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
-        var prevTab = this.state.activeTab;
-        var prevTabPresence = 'default';
-        var loadedTabs = this.state.loadedTabs;
+        let prevTab = this.state.activeTab;
+        let prevTabPresence = 'default';
+        let loadedTabs = this.state.loadedTabs;
         if (prevTab !== tabIdx) {
             // see if we need to unload the previous tab
             if ('presence' in this.props.tabRenderers[prevTab])
@@ -151,13 +139,14 @@ var ListingRow = React.createClass({
         }
         e.stopPropagation();
         e.preventDefault();
-    },
-    render: function() {
-        var self = this;
-        // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
-        var allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
+    }
 
-        var headerEntries = this.props.columns.map((itm, index) => {
+    render() {
+        let self = this;
+        // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
+        let allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
+
+        let headerEntries = this.props.columns.map((itm, index) => {
             if (typeof itm === 'string' || typeof itm === 'number' || itm === null || itm === undefined || itm instanceof String || React.isValidElement(itm))
                 return (<td key={index}>{itm}</td>);
             else if ('header' in itm && itm.header)
@@ -168,8 +157,8 @@ var ListingRow = React.createClass({
                 return (<td key={index}>{itm.name}</td>);
         });
 
-        var allowExpand = (this.props.tabRenderers.length > 0);
-        var expandToggle;
+        let allowExpand = (this.props.tabRenderers.length > 0);
+        let expandToggle;
         if (allowExpand) {
             expandToggle = <td key="expandToggle" className="listing-ct-toggle" onClick={ allowNavigate ? this.handleExpandClick : undefined }>
                 <i className="fa fa-fw" />
@@ -178,14 +167,14 @@ var ListingRow = React.createClass({
             expandToggle = <td key="expandToggle-empty" className="listing-ct-toggle" />;
         }
 
-        var listingItemClasses = ["listing-ct-item"];
+        let listingItemClasses = ["listing-ct-item"];
         if (!allowNavigate)
             listingItemClasses.push("listing-ct-nonavigate");
         if (!allowExpand)
             listingItemClasses.push("listing-ct-noexpand");
 
-        var allowSelect = !(allowNavigate || allowExpand) && (this.state.selected !== undefined);
-        var clickHandler;
+        let allowSelect = !(allowNavigate || allowExpand) && (this.state.selected !== undefined);
+        let clickHandler;
         if (allowSelect) {
             clickHandler = this.handleSelectClick;
             if (this.state.selected)
@@ -197,7 +186,7 @@ var ListingRow = React.createClass({
                 clickHandler = this.handleExpandClick;
         }
 
-        var listingItem = (
+        let listingItem = (
             <tr data-row-id={ this.props.rowId }
                 className={ listingItemClasses.join(' ') }
                 onClick={clickHandler}>
@@ -207,18 +196,18 @@ var ListingRow = React.createClass({
         );
 
         if (this.state.expanded) {
-            var links = this.props.tabRenderers.map((itm, idx) => {
+            let links = this.props.tabRenderers.map((itm, idx) => {
                 return (
                     <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
                         <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
                     </li>
                 );
             });
-            var tabs = [];
-            var tabIdx;
-            var Renderer;
-            var rendererData;
-            var row;
+            let tabs = [];
+            let tabIdx;
+            let Renderer;
+            let rendererData;
+            let row;
             for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
                 Renderer = this.props.tabRenderers[tabIdx].renderer;
                 rendererData = this.props.tabRenderers[tabIdx].data;
@@ -231,7 +220,7 @@ var ListingRow = React.createClass({
                     tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
             }
 
-            var listingDetail;
+            let listingDetail;
             if ('listingDetail' in this.props) {
                 listingDetail = (
                     <span className="listing-ct-caption">
@@ -268,8 +257,26 @@ var ListingRow = React.createClass({
             );
         }
     }
-});
+}
 
+ListingRow.defaultProps = {
+    tabRenderers: [],
+    navigateToItem: null,
+};
+
+ListingRow.propTypes = {
+    rowId: PropTypes.string,
+    columns: PropTypes.array.isRequired,
+    tabRenderers: PropTypes.array,
+    navigateToItem: PropTypes.func,
+    listingDetail: PropTypes.node,
+    listingActions: PropTypes.arrayOf(PropTypes.node),
+    selectChanged: PropTypes.func,
+    selected: PropTypes.bool,
+    initiallyExpanded: PropTypes.bool,
+    expandChanged: PropTypes.func,
+    initiallyActiveTab: PropTypes.bool
+};
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/list-view/
  * Properties:
@@ -281,85 +288,77 @@ var ListingRow = React.createClass({
  *                     receives the column index as argument
  * - actions: additional listing-wide actions (displayed next to the list's title)
  */
-var Listing = React.createClass({
-    propTypes: {
-        title: React.PropTypes.string,
-        fullWidth: React.PropTypes.bool,
-        emptyCaption: React.PropTypes.string.isRequired,
-        columnTitles: React.PropTypes.arrayOf(
-            React.PropTypes.oneOfType([
-                React.PropTypes.string,
-                React.PropTypes.element,
-            ])),
-        columnTitleClick: React.PropTypes.func,
-        actions: React.PropTypes.arrayOf(React.PropTypes.node)
-    },
-    getDefaultProps: function () {
-        return {
-            title: '',
-            fullWidth: true,
-            columnTitles: [],
-            actions: []
-        };
-    },
-    render: function() {
-        var self = this;
-        var bodyClasses = ["listing", "listing-ct"];
-        if (this.props.fullWidth)
-            bodyClasses.push("listing-ct-wide");
-        var headerClasses;
-        var headerRow;
-        var selectableRows;
-        if (!this.props.children || this.props.children.length === 0) {
-            headerClasses = "listing-ct-empty";
-            headerRow = <tr><td>{this.props.emptyCaption}</td></tr>;
-        } else if (this.props.columnTitles.length) {
-            // check if any of the children are selectable
-            selectableRows = false;
-            this.props.children.forEach(function(r) {
-                if (r.props.selected !== undefined)
-                    selectableRows = true;
+export const Listing = (props) => {
+    let bodyClasses = ["listing", "listing-ct"];
+    if (props.fullWidth)
+        bodyClasses.push("listing-ct-wide");
+    let headerClasses;
+    let headerRow;
+    let selectableRows;
+    if (!props.children || props.children.length === 0) {
+        headerClasses = "listing-ct-empty";
+        headerRow = <tr><td>{props.emptyCaption}</td></tr>;
+    } else if (props.columnTitles.length) {
+        // check if any of the children are selectable
+        selectableRows = false;
+        props.children.forEach(function(r) {
+            if (r.props.selected !== undefined)
+                selectableRows = true;
+        });
+
+        if (selectableRows) {
+            // now make sure that if one is set, it's available on all items
+            props.children.forEach(function(r) {
+                if (r.props.selected === undefined)
+                    r.props.selected = false;
             });
-
-            if (selectableRows) {
-                // now make sure that if one is set, it's available on all items
-                this.props.children.forEach(function(r) {
-                    if (r.props.selected === undefined)
-                        r.props.selected = false;
-                });
-            }
-
-            headerRow = (
-                <tr>
-                    <th key="empty" className="listing-ct-toggle" />
-                    { this.props.columnTitles.map((title, index) => {
-                        var clickHandler = null;
-                        if (self.props.columnTitleClick)
-                            clickHandler = function() { self.props.columnTitleClick(index) };
-                        return <th key={index} onClick={clickHandler}>{title}</th>;
-                    }) }
-                </tr>
-            );
-        } else {
-            headerRow = <tr />;
         }
-        var caption;
-        if (this.props.title || (this.props.actions && this.props.actions.length > 0))
-            caption = <caption className="cockpit-caption">{this.props.title}{this.props.actions}</caption>;
 
-        return (
-            <table className={ bodyClasses.join(" ") }>
-                {caption}
-                <thead className={headerClasses}>
-                    {headerRow}
-                </thead>
-                {this.props.children}
-            </table>
+        headerRow = (
+            <tr>
+                <th key="empty" className="listing-ct-toggle" />
+                { props.columnTitles.map((title, index) => {
+                    let clickHandler = null;
+                    if (props.columnTitleClick)
+                        clickHandler = function() { props.columnTitleClick(index) };
+                    return <th key={index} onClick={clickHandler}>{title}</th>;
+                }) }
+            </tr>
         );
-    },
-});
+    } else {
+        headerRow = <tr />;
+    }
+    let caption;
+    if (props.title || (props.actions && props.actions.length > 0))
+        caption = <caption className="cockpit-caption">{props.title}{props.actions}</caption>;
 
-module.exports = {
-    ListingRow: ListingRow,
-    Listing: Listing,
+    return (
+        <table className={ bodyClasses.join(" ") }>
+            {caption}
+            <thead className={headerClasses}>
+                {headerRow}
+            </thead>
+            {props.children}
+        </table>
+    );
+};
+
+Listing.defaultProps = {
+    title: '',
+    fullWidth: true,
+    columnTitles: [],
+    actions: []
+};
+
+Listing.propTypes = {
+    title: PropTypes.string,
+    fullWidth: PropTypes.bool,
+    emptyCaption: PropTypes.string.isRequired,
+    columnTitles: PropTypes.arrayOf(
+        PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.element,
+        ])),
+    columnTitleClick: PropTypes.func,
+    actions: PropTypes.arrayOf(PropTypes.node)
 };

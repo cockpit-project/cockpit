@@ -18,7 +18,7 @@
  */
 import React, { PropTypes } from "react";
 import cockpit from 'cockpit';
-import Select from "cockpit-components-select.jsx";
+import * as Select from "cockpit-components-select.jsx";
 
 import SerialConsole from './serialConsole.jsx';
 import Vnc, { VncActions } from './vnc.jsx';

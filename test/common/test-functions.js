@@ -184,6 +184,11 @@ function ph_focus(sel)
     ph_find(sel).focus();
 }
 
+function ph_blur(sel)
+{
+    ph_find(sel).blur();
+}
+
 class PhWaitCondTimeout extends Error {
     constructor() {
         super("condition did not become true");

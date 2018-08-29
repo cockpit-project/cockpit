@@ -156,6 +156,8 @@ import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
+import { fmt_size } from "./utils.js";
+
 const _ = cockpit.gettext;
 
 const Validated = ({ errors, error_key, explanation, children }) => {
@@ -197,21 +199,31 @@ function is_visible(field, values) {
 }
 
 const Body = ({body, fields, values, errors, onChange}) => {
+    function make_row(field) {
+        function change(val) {
+            values[field.tag] = val;
+            fields.forEach(f => {
+                if (f.tag && f.options && f.options.update)
+                    values[f.tag] = f.options.update(values, field.tag);
+            });
+            onChange();
+        }
+
+        if (is_visible(field, values))
+            return (
+                <Row key={field.tag} tag={field.tag} title={field.title} errors={errors} options={field.options}>
+                    { field.render(values[field.tag], change) }
+                </Row>
+            );
+    }
+
     return (
         <div className="modal-body">
             { body || null }
             { fields.length > 0
                 ? <table className="form-table-ct">
                     <tbody>
-                        { fields.map(f => {
-                            if (is_visible(f, values))
-                                return (
-                                    <Row key={f.tag} tag={f.tag} title={f.title} errors={errors} options={f.options}>
-                                        { f.render(values[f.tag], val => { values[f.tag] = val; onChange() }) }
-                                    </Row>
-                                );
-                        })
-                        }
+                        { fields.map(make_row) }
                     </tbody>
                 </table> : null
             }
@@ -255,7 +267,7 @@ export const dialog_open = (def) => {
         if (def.Action) {
             actions = [
                 { caption: def.Action.Title,
-                  style: def.Action.DangerButton ? "danger" : "primary",
+                  style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
                   disabled: running_promise != null,
                   clicked: function () {
                       return validate().then(errors => {
@@ -271,8 +283,15 @@ export const dialog_open = (def) => {
             ];
         }
 
+        let extra = [ ];
+        if (def.Footer)
+            extra.push(def.Footer);
+        if (def.Action && def.Action.Danger)
+            extra.push(<div className="modal-footer-danger">{def.Action.Danger}</div>);
+
         return {
             idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
+            extra_element: extra,
             actions: actions,
             cancel_caption: def.Action ? _("Cancel") : _("Close")
         };
@@ -355,9 +374,9 @@ export const SelectOne = (tag, title, options, choices) => {
 
         render: (val, change) => {
             return (
-                <div data-field={tag} data-field-type="select">
+                <div data-field={tag} data-field-type="select" value={val}>
                     <StatelessSelect extraClass="form-control" selected={val} onChange={change}>
-                        { choices.map(c => <SelectEntry data={c.value} key={c.title}>{c.title}</SelectEntry>) }
+                        { choices.map(c => <SelectEntry data={c.value} disabled={c.disabled} key={c.title}>{c.title}</SelectEntry>) }
                     </StatelessSelect>
                 </div>
             );
@@ -461,4 +480,228 @@ export const Skip = (className, options) => {
             return <tr><td className={className} /></tr>;
         }
     };
+};
+
+const StatelessSlider = ({ fraction, onChange }) => {
+    function start_dragging(event) {
+        let el = event.currentTarget;
+        let width = el.offsetWidth;
+        let left = el.offsetLeft;
+        while (el.offsetParent) {
+            el = el.offsetParent;
+            left += el.offsetLeft;
+        }
+
+        function drag(event) {
+            let f = (event.pageX - left) / width;
+            if (f < 0) f = 0;
+            if (f > 1) f = 1;
+            onChange(f);
+        }
+
+        function stop_dragging() {
+            document.removeEventListener("mousemove", drag);
+            document.removeEventListener("mouseup", stop_dragging);
+        }
+
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", stop_dragging);
+        drag(event);
+    }
+
+    if (fraction < 0) fraction = 0;
+    if (fraction > 1) fraction = 1;
+
+    return (
+        <div className="slider" onMouseDown={start_dragging}>
+            <div className="slider-bar" style={{ width: fraction * 100 + "%" }}>
+                <div className="slider-thumb" />
+            </div>
+        </div>
+    );
+};
+
+class SizeSliderElement extends React.Component {
+    constructor(props) {
+        super();
+        this.units = cockpit.get_byte_units(props.value || props.max);
+        this.units.forEach(u => { if (u.selected) this.state = { unit: u.factor }; });
+    }
+
+    render() {
+        let { val, max, onChange } = this.props;
+        let { unit } = this.state;
+
+        const change_slider = (f) => onChange(Math.round(f * max));
+
+        const change_text = (event) => {
+            if (event.type == "change") {
+                let val = Number(event.target.value) * unit;
+                if (event.target.value === "" || isNaN(val)) {
+                    /* If there something else than a number in the
+                       input element, we use that as the value
+                       directly so that it sticks around.  It will be
+                       rejected by the validate function below.
+                     */
+                    onChange(event.target.value);
+                } else {
+                    onChange(Math.round(val));
+                }
+            }
+        };
+
+        const change_unit = (u) => this.setState({ unit: Number(u) });
+
+        return (
+            <div className="size-sliderx">
+                <StatelessSlider fraction={val / max} onChange={change_slider} />
+                <input className="size-text form-control"
+                       value={ val === "" || isNaN(val) ? val : cockpit.format_number(val / unit) }
+                       onChange={change_text} />
+                <StatelessSelect extraClass="size-unit" selected={unit} onChange={change_unit}>
+                    { this.units.map(u => <SelectEntry data={u.factor} key={u.name}>{u.name}</SelectEntry>) }
+                </StatelessSelect>
+            </div>
+        );
+    }
+}
+
+export const SizeSlider = (tag, title, options) => {
+    let validate = (val, vals) => {
+        let msg = null;
+
+        if (val === "" || isNaN(val))
+            msg = _("Size must be a number");
+        else if (val === 0)
+            msg = _("Size cannot be zero");
+        else if (val < 0)
+            msg = _("Size cannot be negative");
+        else if (!options.allow_infinite && val > options.max)
+            msg = _("Size is too large");
+        else if (options.min !== undefined && val < options.min)
+            msg = cockpit.format(_("Size must be at least $0"), fmt_size(options.min));
+        else if (options.validate)
+            msg = options.validate(val, vals);
+
+        return msg;
+    };
+
+    return {
+        tag: tag,
+        title: title,
+        options: Object.assign({ }, options, { validate: validate }),
+        initial_value: options.value || 0,
+
+        render: (val, change) => {
+            return (
+                <div data-field={tag} data-field-type="size-slider">
+                    <SizeSliderElement val={val} max={options.max} onChange={change} />
+                </div>
+            );
+        }
+    };
+};
+
+function add_usage_message(parts, list, text, c1, c2) {
+    if (list.length > 0) {
+        parts.push(<p>{text}</p>);
+        parts.push(
+            <table className="table table-bordered">
+                <tbody>
+                    { list.map(elt => <tr><td><span className="pull-right">{elt[c1]}</span>{elt[c2]}</td></tr>) }
+                </tbody>
+            </table>);
+    }
+}
+
+export const BlockingMessage = (usage) => {
+    let parts = [ ];
+    let blocking = usage.Blocking;
+
+    if (!blocking)
+        return null;
+
+    add_usage_message(parts, blocking.PhysicalVolumes,
+                      _("This device is currently used for volume groups."),
+                      "Name", "VGroup");
+
+    add_usage_message(parts, blocking.MDRaidMembers,
+                      _("This device is currently used for RAID devices."),
+                      "Name", "MDRaid");
+
+    add_usage_message(parts, blocking.VDOs,
+                      _("This device is currently used for VDO devices."),
+                      "Name", "VDO");
+
+    if (parts.length > 0)
+        return <div>{ parts }</div>;
+    else
+        return null;
+};
+
+export const TeardownMessage = (usage) => {
+    let parts = [ ];
+    let teardown = usage.Teardown;
+
+    if (!teardown)
+        return null;
+
+    add_usage_message(parts, teardown.Mounts,
+                      _("This device has filesystems that are currently in use. Proceeding will unmount all filesystems on it."),
+                      "Name", "MountPoint");
+
+    add_usage_message(parts, teardown.PhysicalVolumes,
+                      _("This device is currently used for volume groups. Proceeding will remove it from its volume groups."),
+                      "Name", "VGroup");
+
+    add_usage_message(parts, teardown.MDRaidMembers,
+                      _("This device is currently used for RAID devices. Proceeding will remove it from its RAID devices."),
+                      "Name", "MDRaid");
+
+    let has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
+    let has_services = teardown.Services && teardown.Services.length > 0;
+
+    if (has_sessions && has_services)
+        parts.push(_("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
+    else if (has_sessions)
+        parts.push(_("The filesystem is in use by login sessions. Proceeding will stop these."));
+    else if (has_services)
+        parts.push(_("The filesystem is in use by system services. Proceeding will stop these."));
+
+    function add_units(list, h1, h2, h3, c1, c2, c3) {
+        if (list && list.length > 0) {
+            parts.push(
+                <table className="table table-bordered units-table">
+                    <thead>
+                        <tr>
+                            <th>{h1}</th>
+                            <th>{h2}</th>
+                            <th>{h3}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        { list.map(elt =>
+                            <tr>
+                                <td>{elt[c1]}</td>
+                                <td className="cmd">{elt[c2]}</td>
+                                <td>{elt[c3]}</td>
+                            </tr>)
+                        }
+                    </tbody>
+                </table>);
+        }
+    }
+
+    add_units(teardown.Sessions,
+              _("Session"), _("Process"), _("Active since"),
+              "Name", "Command", "Since");
+
+    add_units(teardown.Services,
+              _("Service"), _("Unit"), _("Active since"),
+              "Name", "Unit", "Since");
+
+    if (parts.length > 0)
+        return <div className="modal-footer-teardown">{ parts }</div>;
+    else
+        return null;
 };

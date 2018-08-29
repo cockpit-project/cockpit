@@ -20,7 +20,7 @@ import React from 'react';
 import cockpit from 'cockpit';
 
 import DialogPattern from 'cockpit-components-dialog.jsx';
-import Select from "cockpit-components-select.jsx";
+import * as Select from "cockpit-components-select.jsx";
 
 import { mouseClick, units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
 import { volumeCreateAndAttach, attachDisk, getVm, getStoragePools } from '../actions/provider-actions.es6';

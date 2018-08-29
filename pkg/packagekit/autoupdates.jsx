@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import OnOffSwitch from "cockpit-components-onoff.jsx";
-import Select from "cockpit-components-select.jsx";
+import * as Select from "cockpit-components-select.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
 const _ = cockpit.gettext;

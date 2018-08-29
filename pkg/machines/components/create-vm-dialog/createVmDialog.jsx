@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { PropTypes } from "react";
 import DialogPattern from 'cockpit-components-dialog.jsx';
-import Select from "cockpit-components-select.jsx";
+import * as Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.es6';
 import { addErrorNotification } from '../../actions/store-actions.es6';

@@ -26,7 +26,7 @@ import utils from "./utils.js";
 
 import React from "react";
 
-import CockpitListing from "cockpit-components-listing.jsx";
+import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { format_dialog } from "./format-dialog.jsx";
 
@@ -377,10 +377,10 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     ];
 
     rows.push(
-        <CockpitListing.ListingRow key={key}
-                                   columns={cols}
-                                   tabRenderers={tabs.renderers}
-                                   listingActions={tabs.actions} />
+        <ListingRow key={key}
+                    columns={cols}
+                    tabRenderers={tabs.renderers}
+                    listingActions={tabs.actions} />
     );
 }
 
@@ -426,7 +426,7 @@ function append_partitions(client, rows, level, block) {
         ];
 
         rows.push(
-            <CockpitListing.ListingRow columns={cols} key={"free-space-" + rows.length.toString()} />
+            <ListingRow columns={cols} key={"free-space-" + rows.length.toString()} />
         );
     }
 
@@ -536,11 +536,11 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             </div>);
 
     return (
-        <CockpitListing.Listing title={_("Content")}
-                                actions={[ format_disk_btn ]}
-                                emptyCaption="">
+        <Listing title={_("Content")}
+                 actions={[ format_disk_btn ]}
+                 emptyCaption="">
             { block_rows(client, block) }
-        </CockpitListing.Listing>
+        </Listing>
     );
 };
 
@@ -692,11 +692,11 @@ var VGroup = React.createClass({
             </div>);
 
         return (
-            <CockpitListing.Listing title="Logical Volumes"
-                                    actions={[ new_volume_link ]}
-                                    emptyCaption={_("No Logical Volumes")}>
+            <Listing title="Logical Volumes"
+                     actions={[ new_volume_link ]}
+                     emptyCaption={_("No Logical Volumes")}>
                 { vgroup_rows(self.props.client, vgroup) }
-            </CockpitListing.Listing>
+            </Listing>
         );
     }
 });

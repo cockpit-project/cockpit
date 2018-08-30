@@ -98,8 +98,9 @@ Package: cockpit-machines
 Architecture: all
 Depends: ${misc:Depends},
          libvirt-daemon-system,
+         libvirt-clients | libvirt-bin,
          libosinfo-bin
-Recommends: virtinst
+Recommends: virtinst, libvirt-dbus
 Description: Cockpit user interface for virtual machines
  The Cockpit components for managing virtual machines.
  .

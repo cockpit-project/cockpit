@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -140,6 +139,7 @@ VOLUME_XML="""
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
     created_pool = False
+    provider = None
 
     def setUp(self):
         MachineCase.setUp(self)
@@ -353,7 +353,12 @@ class TestMachines(MachineCase):
         b.click("a.alert-link.machines-more-button")
         b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p")
         b.wait_in_text("a.alert-link.machines-more-button", "show less")
-        b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "Domain is already active")
+
+        # the message when trying to start active VM differs between virsh and libvirt-dbus provider
+        if (self.provider == "libvirt-dbus"):
+            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "domain is already running")
+        else:
+            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "Domain is already active")
 
         b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
         b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone

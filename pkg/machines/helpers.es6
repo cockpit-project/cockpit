@@ -172,6 +172,9 @@ const transform = {
     'autostart': {
         'disable': _("disabled"),
         'enable': _("enabled"),
+        /* The following keys are used in LibvirtDBus provider */
+        false: _("disabled"),
+        true: _("enabled"),
     },
     'connections': {
         'system': _("System"),

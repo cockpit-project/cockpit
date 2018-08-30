@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+
+from testlib import *
+import machineslib
+
+
+class TestMachinesVirsh(machineslib.TestMachines):
+    def removeLibvirtDBus(self):
+        m = self.machine
+        if ("debian" in self.machine.image) or ("ubuntu" in self.machine.image):
+            m.execute("dpkg --remove libvirt-dbus || true")
+        else:
+            m.execute("rpm -e --nodeps libvirt-dbus || true")
+
+    def setUp(self):
+        super(TestMachinesVirsh, self).setUp()
+
+        self.removeLibvirtDBus()
+        self.provider = "virsh"
+
+if __name__ == '__main__':
+    test_main()

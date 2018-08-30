@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 import DialogPattern from 'cockpit-components-dialog.jsx';
 import * as Select from "cockpit-components-select.jsx";
 
-import { mouseClick, units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
+import { mouseClick, units, convertToUnit, digitFilter, toFixedPrecision, logDebug } from '../helpers.es6';
 import { volumeCreateAndAttach, attachDisk, getVm, getStoragePools } from '../actions/provider-actions.es6';
 
 import './diskAdd.css';
@@ -434,23 +434,26 @@ const addDiskDialog = (dispatch, provider, idPrefix, vm, storagePools) => {
                                                     target: dialogState.target,
                                                     permanent: dialogState.permanent,
                                                     hotplug: dialogState.hotplug,
-                                                    vmName: vm.name }))
+                                                    vmName: vm.name,
+                                                    vmId: vm.id }))
                     .fail(exc => dialogError(_("Disk failed to be created with following error: ") + exc.message))
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
-                        return dispatch(getVm(vm.connectionName, vm.name));
+                        return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
                     });
         }
 
         // use existing volume
+        logDebug("dialogState: %s", JSON.stringify(dialogState));
         return dispatch(attachDisk({ connectionName: vm.connectionName,
                                      diskFileName: getDiskFileName(storagePools, vm, dialogState.storagePoolName, dialogState.existingVolumeName),
                                      target: dialogState.target,
                                      permanent: dialogState.permanent,
                                      hotplug: dialogState.hotplug,
-                                     vmName: vm.name }))
+                                     vmName: vm.name,
+                                     vmId: vm.id }))
                 .fail(exc => dialogError(_("Disk failed to be attached with following error: ") + exc.message))
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
-                    return dispatch(getVm(vm.connectionName, vm.name));
+                    return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
                 });
     };
 

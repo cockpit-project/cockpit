@@ -1,5 +1,4 @@
 import cockpit from 'cockpit';
-import $ from 'jquery';
 import service from '../lib/service.js';
 import createVmScript from 'raw!./scripts/create_machine.sh';
 import installVmScript from 'raw!./scripts/install_machine.sh';
@@ -124,7 +123,8 @@ function getBootableDeviceType(device) {
 }
 
 export function getDomainElem(domXml) {
-    const xmlDoc = $.parseXML(domXml);
+    let parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(domXml, "application/xml");
 
     if (!xmlDoc) {
         console.warn(`Can't parse dumpxml, input: "${domXml}"`);

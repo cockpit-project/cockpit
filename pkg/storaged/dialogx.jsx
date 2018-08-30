@@ -50,9 +50,37 @@
                      [ child, ... ])
 
    The "tag" is used to uniquely identify this field in the dialog.
-   The action function will receive the values of all field in an
+   The action function will receive the values of all fields in an
    object, and the tag of a field is the key in that object, for
    example.  The tag is also used to interact with a field from tests.
+
+   ACTION FUNCTIONS
+
+   The action funtion is called like this:
+
+      action(values, progress_callback)
+
+   The "values" parameter contains the validated values of the dialog
+   fields and the "progress_callback" can be called by the action function
+   to update the progress information in the dialog while it runs.
+
+   The progress callback should be called like this:
+
+      progress_callback(message, cancel_callback)
+
+   The "message" will be displayed in the dialog and if "cancel_callback" is
+   not null, the Cancel button in the dialog will be enabled and
+   "cancel_callback" will be called when the user clicks it.
+
+   The return value of the action function is normally a promise.  When
+   it is resolved, the dialog is closed.  When it is rejected the value
+   given in the rejection is displayed as an error in the dialog.
+
+   If the error value is a string, it is displayed as a global failure
+   message.  When it is an array, it contains errors for individual
+   fields in this form:
+
+      { tag1: message, tag2: message }
 
    COMMON FIELD OPTIONS
 
@@ -170,7 +198,7 @@ const Validated = ({ errors, error_key, explanation, children }) => {
     return (
         <div className={error ? "has-error" : ""}>
             { children }
-            { text ? <span className="help-block">{text}</span> : null }
+            { (text && text !== true) ? <span className="help-block">{text}</span> : null }
         </div>
     );
 };
@@ -279,15 +307,17 @@ export const dialog_open = (def) => {
                 { caption: def.Action.Title,
                   style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
                   disabled: running_promise != null,
-                  clicked: function () {
-                      return validate().then(errors => {
-                          if (errors) {
-                              update(errors);
-                              return Promise.reject();
-                          } else {
-                              return def.Action.action(values);
-                          }
-                      });
+                  clicked: function (progress_callback) {
+                      return validate()
+                              .then(() => def.Action.action(values, progress_callback))
+                              .catch(error => {
+                                  if (error.toString() != "[object Object]") {
+                                      return Promise.reject(error);
+                                  } else {
+                                      update(error);
+                                      return Promise.reject();
+                                  }
+                              });
                   }
                 }
             ];
@@ -315,7 +345,8 @@ export const dialog_open = (def) => {
         })).then(results => {
             let errors = { };
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
-            return (Object.keys(errors).length > 0) ? errors : null;
+            if (Object.keys(errors).length > 0)
+                return Promise.reject(errors);
         });
     };
 

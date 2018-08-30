@@ -177,18 +177,28 @@ const Validated = ({ errors, error_key, explanation, children }) => {
 
 const Row = ({ tag, title, errors, options, children }) => {
     if (tag) {
-        if (options.widest_title)
-            title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
-        return (
-            <tr>
-                <td className="top">{title}</td>
-                <td>
-                    <Validated errors={errors} error_key={tag} explanation={options.explanation}>
-                        { children }
-                    </Validated>
-                </td>
-            </tr>
+        let validated = (
+            <Validated errors={errors} error_key={tag} explanation={options.explanation}>
+                { children }
+            </Validated>
         );
+
+        if (title || title == "") {
+            if (options.widest_title)
+                title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
+            return (
+                <tr>
+                    <td className="top">{title}</td>
+                    <td>{validated}</td>
+                </tr>
+            );
+        } else {
+            return (
+                <tr>
+                    <td colSpan="2">{validated}</td>
+                </tr>
+            );
+        }
     } else {
         return children;
     }
@@ -405,6 +415,37 @@ export const SelectOneRadio = (tag, title, options, choices) => {
     };
 };
 
+export const SelectRow = (tag, headers, options, choices) => {
+    return {
+        tag: tag,
+        title: null,
+        options: options,
+        initial_value: options.value || choices[0].value,
+
+        render: (val, change) => {
+            return (
+                <table data-field={tag} data-field-type=" select-row" className="dialog-select-row-table">
+                    <thead>
+                        <tr>{headers.map(h => <th>{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                        { choices.map(row => {
+                            return (
+                                <tr key={row.value}
+                                    onMouseDown={ev => { if (ev && ev.button === 0) change(row.value); }}
+                                    className={row.value == val ? "highlight-ct" : ""}>
+                                    {row.columns.map(c => <td>{c}</td>)}
+                                </tr>
+                            );
+                        })
+                        }
+                    </tbody>
+                </table>
+            );
+        }
+    };
+};
+
 export const CheckBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -434,7 +475,7 @@ export const CheckBox = (tag, title, options) => {
 export const TextInputChecked = (tag, title, options) => {
     return {
         tag: tag,
-        title: options.row_title,
+        title: options.row_title || "",
         options: options,
         initial_value: (options.value === undefined) ? false : options.value,
 
@@ -455,23 +496,10 @@ export const TextInputChecked = (tag, title, options) => {
     };
 };
 
-export const Intermission = (children, options) => {
-    return {
-        tag: false,
-        title: "",
-        options: options,
-        initial_value: false,
-
-        render: () => {
-            return <div className="intermission">{ children }</div>;
-        }
-    };
-};
-
 export const Skip = (className, options) => {
     return {
         tag: false,
-        title: "",
+        title: null,
         options: options,
         initial_value: false,
 

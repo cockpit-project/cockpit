@@ -19,7 +19,7 @@
 import cockpit from 'cockpit';
 
 import { buildFailHandler } from '../machines/libvirt-common.es6';
-import LIBVIRT_PROVIDER from '../machines/libvirt.es6';
+import LIBVIRT_PROVIDER from '../machines/libvirt-virsh.es6';
 import { logDebug, logError, fileDownload } from '../machines/helpers.es6';
 import { readConfiguration } from './configFuncs.es6';
 import { CONSOLE_TYPE_ID_MAP } from './config.es6';

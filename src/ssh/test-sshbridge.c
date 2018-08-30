@@ -49,7 +49,6 @@ typedef struct {
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
-
 } TestCase;
 
 typedef struct {
@@ -59,6 +58,8 @@ typedef struct {
     const char *username;
     const char *knownhosts_data;
     const char *knownhosts_file;
+    const char *knownhosts_sssd;
+    const char *knownhosts_sssd_host;
     const char *config;
     const char *problem;
     gboolean allow_unknown;
@@ -232,6 +233,7 @@ setup (TestCase *tc,
   gchar **env = NULL;
   gchar *host = NULL;
   gchar *knownhosts_data = NULL;
+  gchar *path = NULL;
 
   alarm (TIMEOUT);
 
@@ -265,11 +267,28 @@ setup (TestCase *tc,
                               knownhosts_data, TRUE);
     }
 
+  if (fixture && fixture->knownhosts_sssd)
+    {
+      g_assert (fixture->knownhosts_sssd_host != NULL);
+      env = g_environ_setenv (env, "COCKPIT_MOCK_SSS_KNOWN_HOSTS_HOST",
+                              fixture->knownhosts_sssd_host, TRUE);
+      env = g_environ_setenv (env, "COCKPIT_MOCK_SSS_KNOWN_HOSTS_KEY",
+                              fixture->knownhosts_sssd, TRUE);
+
+      path = g_strjoin (":",
+                        SRCDIR "/src/ssh/mock-bin",
+                        g_environ_getenv (env, "PATH") ?: "",
+                        NULL);
+
+      env = g_environ_setenv (env, "PATH", path, TRUE);
+    }
+
   tc->transport = start_bridge (env, (gchar **) argv);
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_set_flag), &tc->closed);
   g_strfreev (env);
   g_free (host);
   g_free (knownhosts_data);
+  g_free (path);
 }
 
 static void
@@ -561,10 +580,11 @@ test_echo_large (TestCase *tc,
 }
 
 
-static const gchar MOCK_RSA_KEY[] = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v";
+#define MOCK_RSA_KEY "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v"
 
 static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
 
+#define MOCK_DSA_PUB_KEY "ssh-dss AAAAB3NzaC1kc3MAAACBAIK3RTEWBw+rAPcYUM2Qq4kEw59gXpUQ/WvkdeY7QDO64MHaaorySj8xsraNudmQFh4xb/i5Q1EMnNchOFxtilfU5bUJgdTvetyZEWFL+2HxqBs8GaWRyB1vtSFAw3GO8VUEnjF844N3dNyLoc0NX8IvzwNIaQho6KTsueQlG1X9AAAAFQCXUl4a5UvElL4thi/8QlxR5PtEewAAAIBqNpl5MTBxKQu5jT0+WASa7pAqwT53ofv7ZTDIEokYRb57/nwzDgkcs1fsBRrI6eczJ/VlXWwKbsgkx2Nh3ZiWYwC+HY5uqRpDaj3HERC6LMn4dzdcl29fYeziEibCbRjJX5lZF2vIaA1Ewv8yT0UlunyHZRiyw4WlEglkf/NITAAAAIBxLsdBBXn+8qEYwWK9KT+arRqNXC/lrl0Fp5YyxGNGCv82JcnuOShGGTzhYf8AtTCY1u5oixiW9kea6KXGAKgTjfJShr7n47SZVfOPOrBT3VLhRdGGO3GblDUppzfL8wsEdoqXjzrJuxSdrGnkFu8S9QjkPn9dCtScvWEcluHqMw=="
 
 static void
 do_auth_conversation (CockpitTransport *transport,
@@ -690,6 +710,34 @@ static const TestFixture fixture_knownhost_data = {
   .knownhosts_data = MOCK_RSA_KEY,
   .knownhosts_file = "/dev/null",
   .ssh_command = BUILDDIR "/mock-echo"
+};
+
+static const TestFixture fixture_knownhost_sssd_known = {
+  .knownhosts_sssd = MOCK_RSA_KEY,
+  .knownhosts_sssd_host = "127.0.0.1",
+  .knownhosts_file = "/dev/null",
+  .ssh_command = BUILDDIR "/mock-echo"
+};
+
+static const TestFixture fixture_knownhost_sssd_known_multi_key = {
+  .knownhosts_sssd = MOCK_DSA_PUB_KEY "\n" MOCK_RSA_KEY,
+  .knownhosts_sssd_host = "127.0.0.1",
+  .knownhosts_file = "/dev/null",
+  .ssh_command = BUILDDIR "/mock-echo"
+};
+
+static const TestFixture fixture_knownhost_sssd_unknown = {
+  .knownhosts_sssd = MOCK_RSA_KEY,
+  .knownhosts_sssd_host = "somehost",
+  .knownhosts_file = "/dev/null",
+  .problem = "unknown-host"
+};
+
+static const TestFixture fixture_knownhost_sssd_badkey = {
+  .knownhosts_sssd = "ssh-rsa Ym9ndXMK",
+  .knownhosts_sssd_host = "127.0.0.1",
+  .knownhosts_file = "/dev/null",
+  .problem = "invalid-hostkey"
 };
 
 static void
@@ -1372,6 +1420,15 @@ main (int argc,
               setup, test_invalid_knownhost, teardown);
   g_test_add ("/ssh-bridge/knownhost-authorize-bad", TestCase, &fixture_authorize_host_key,
               setup, test_knownhost_data_prompt_bad, teardown);
+  g_test_add ("/ssh-bridge/knownhost-sssd-known", TestCase, &fixture_knownhost_sssd_known,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/knownhost-sssd-known-multi-key", TestCase, &fixture_knownhost_sssd_known_multi_key,
+              setup, test_echo_and_close, teardown);
+  g_test_add ("/ssh-bridge/knownhost-sssd-unknown", TestCase, &fixture_knownhost_sssd_unknown,
+              setup, test_problem, teardown);
+  g_test_add ("/ssh-bridge/knownhost-sssd-badkey", TestCase, &fixture_knownhost_sssd_badkey,
+              setup, test_problem, teardown);
+
   g_test_add ("/ssh-bridge/hostkey-unknown", TestCase, &fixture_prompt_host_key,
               setup, test_hostkey_unknown, teardown);
   g_test_add ("/ssh-bridge/hostkey-conversation", TestCase, &fixture_prompt_host_key,

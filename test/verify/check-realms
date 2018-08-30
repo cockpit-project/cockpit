@@ -181,6 +181,7 @@ class TestRealms(MachineCase):
             b.wait_in_text('#service-unit', "dead")
             b.logout()
             b.password = orig_password
+            m.execute("chown -R admin /home/admin")
 
             self.allow_authorize_journal_messages()
 
@@ -190,6 +191,25 @@ class TestRealms(MachineCase):
             self.assertRaisesRegexp(subprocess.CalledProcessError, "returned non-zero exit status 6", m.execute,
                     ['curl', '-s', '--negotiate', '--delegation', 'always', '-u:', '-D-',
                      'http://x0.cockpit.lan:9090/cockpit/login'])
+
+        # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
+        # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
+        b.login_and_go("/dashboard")
+        b.wait_present('#dashboard-add')
+        b.click('#dashboard-add')
+        b.wait_popup('dashboard_setup_server_dialog')
+        b.set_val('#add-machine-address', 'x0.cockpit.lan')
+        b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
+        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
+        b.click('#dashboard_setup_server_dialog .btn-primary')
+
+        # with --pubkey support this should Just Work, otherwise confirm fingerprint
+        if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
+            b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
+            b.click('#dashboard_setup_server_dialog .btn-primary')
+        b.wait_popdown('dashboard_setup_server_dialog')
+        b.wait_present("#dashboard-hosts a[data-address='x0.cockpit.lan']")
+        b.logout()
 
         # Leave the domain
         b.login_and_go("/system")
@@ -479,8 +499,10 @@ class TestKerberos(MachineCase):
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
         b.click('#troubleshoot-dialog .btn-primary')
-        b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
-        b.click('#troubleshoot-dialog .btn-primary')
+        # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
+        if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
+            b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
+            b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_present("#login-type button")

@@ -531,6 +531,66 @@ static void cleanup_knownhosts_file (void)
     }
 }
 
+static gboolean
+write_tmp_knownhosts_file (CockpitSshData *data,
+                           const gchar *content,
+                           const gchar **problem)
+{
+  FILE *fp = NULL;
+
+  tmp_knownhost_file = create_knownhosts_temp ();
+  if (!tmp_knownhost_file)
+    {
+      *problem = "internal-error";
+      return FALSE;
+    }
+  atexit (cleanup_knownhosts_file);
+
+  fp = fopen (tmp_knownhost_file, "a");
+  if (fp == NULL)
+    {
+      g_warning ("%s: couldn't open temporary known host file for data: %s",
+                 data->logname, tmp_knownhost_file);
+      *problem = "internal-error";
+      return FALSE;
+    }
+
+  if (fputs (content, fp) < 0)
+    {
+      g_warning ("%s: couldn't write data to temporary known host file: %s",
+                 data->logname, g_strerror (errno));
+      fclose (fp);
+      *problem = "internal-error";
+      return FALSE;
+    }
+
+  fclose (fp);
+  return TRUE;
+}
+
+/**
+ * prepend_host_port:
+ *
+ * Transform lines of keys to an ssh known_hosts format with lines of
+ * "[host]:port key".
+ */
+static gchar *
+prepend_host_port (const gchar *host,
+                   guint port,
+                   const gchar *keys)
+{
+  gchar **lines = g_strsplit (keys, "\n", 0);
+  gchar **line;
+  GString *result = g_string_new (NULL);
+
+  for (line = lines; *line; ++line)
+    g_string_append_printf (result, "[%s]:%d %s\n", host, port, *line);
+
+  g_strfreev (lines);
+  return g_string_free (result, FALSE);
+
+}
+
 /**
  * set_knownhosts_file:
  *
@@ -546,7 +606,9 @@ set_knownhosts_file (CockpitSshData *data,
 {
   gboolean host_known;
   const gchar *knownhosts_data;
-  const gchar *problem;
+  const gchar *problem = NULL;
+  gchar *sout = NULL;
+  gchar *serr = NULL;
 
   gchar *authorize_knownhosts_data = NULL;
 
@@ -563,35 +625,10 @@ set_knownhosts_file (CockpitSshData *data,
   /* $COCKPIT_SSH_KNOWN_HOSTS_DATA has highest priority */
   if (knownhosts_data)
     {
-      FILE *fp = NULL;
-      tmp_knownhost_file = create_knownhosts_temp ();
-      if (!tmp_knownhost_file)
-        {
-          problem = "internal-error";
-          goto out;
-        }
-      atexit (cleanup_knownhosts_file);
-
-      fp = fopen (tmp_knownhost_file, "a");
-      if (fp == NULL)
-        {
-          g_warning ("%s: couldn't open temporary known host file for data: %s",
-                     data->logname, tmp_knownhost_file);
-          problem = "internal-error";
-          goto out;
-        }
-
-      if (fputs (knownhosts_data, fp) < 0)
-        {
-          g_warning ("%s: couldn't write to data to temporary known host file: %s",
-                     data->logname, g_strerror (errno));
-          fclose (fp);
-          problem = "internal-error";
-          goto out;
-        }
-
-      fclose (fp);
-      data->ssh_options->knownhosts_file = tmp_knownhost_file;
+      if (write_tmp_knownhosts_file (data, knownhosts_data, &problem))
+        data->ssh_options->knownhosts_file = tmp_knownhost_file;
+      else
+        goto out;
     }
 
   /* now check the default global ssh file */
@@ -622,6 +659,52 @@ set_knownhosts_file (CockpitSshData *data,
         }
     }
 
+  /* last (most expensive) fallback is to ask sssd's ssh known_hosts proxy */
+  if (!host_known && tmp_knownhost_file == NULL)
+    {
+      char port_str[10];
+      const gchar *argv [] = {
+          "sss_ssh_knownhostsproxy",
+          "--pubkey",
+          "--port", port_str,
+          host,
+          NULL
+      };
+      GError *error = NULL;
+      gint exit;
+
+      g_debug ("%s: host not known in any local file, asking sssd", data->logname);
+
+      snprintf (port_str, sizeof (port_str), "%u", port);
+
+      if (g_spawn_sync (NULL, (gchar **) argv, NULL, G_SPAWN_SEARCH_PATH, NULL,
+                        NULL, &sout, &serr, &exit, &error))
+        {
+          sout = g_strstrip (sout);
+          if (exit == 0 && strlen (sout) > 0)
+            {
+              gchar *known_hosts = prepend_host_port (host, port, sout);
+              gboolean res = write_tmp_knownhosts_file (data, known_hosts, &problem);
+              g_free (known_hosts);
+              if (!res)
+                goto out;
+
+              /* this should always be known now, but let's make double-sure */
+              host_known = cockpit_is_host_known (tmp_knownhost_file, host, port);
+              if (host_known)
+                data->ssh_options->knownhosts_file = tmp_knownhost_file;
+              else
+                g_warning ("sss_ssh_knownhostsproxy reported key for %s:%u which is not known to cockpit_is_host_known()", host, port);
+            } else {
+              /* the --pubkey option is not yet known by many older distributions; don't show the error in the log */
+              g_debug ("sss_ssh_knownhostsproxy failed: exit code %i, output '%s', error '%s'", exit, sout, serr);
+            }
+        } else {
+          g_debug ("Failed to run sss_ssh_knownhostsproxy: %s", error->message);
+          g_clear_error (&error);
+        }
+    }
+
   g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
   if (!data->ssh_options->allow_unknown_hosts && !host_known)
     {
@@ -634,6 +717,8 @@ set_knownhosts_file (CockpitSshData *data,
   problem = NULL;
 out:
   g_free (authorize_knownhosts_data);
+  g_free (sout);
+  g_free (serr);
   return problem;
 }
 

@@ -94,10 +94,11 @@ export function deleteUiVm(vm) {
     };
 }
 
-export function deleteUnlistedVMs(connectionName, vmNames) {
+export function deleteUnlistedVMs(connectionName, vmNames, vmIds) {
     return {
         type: DELETE_UNLISTED_VMS,
         vmNames,
+        vmIds,
         connectionName,
     };
 }
@@ -131,10 +132,11 @@ export function setRefreshInterval(refreshInterval) {
     };
 }
 
-export function undefineVm(connectionName, name, transientOnly) {
+export function undefineVm({connectionName, name, id, transientOnly}) {
     return {
         type: UNDEFINE_VM,
         name,
+        id,
         connectionName,
         transientOnly,
     };

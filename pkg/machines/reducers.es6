@@ -160,13 +160,22 @@ function vms(state, action) {
         return replaceVm({ state, updatedVm, index: indexedVm.index });
     }
     case UNDEFINE_VM: {
-        return state
-                .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
-                    (action.transientOnly && vm.persistent)));
+        if (action.id)
+            return state
+                    .filter(vm => (action.connectionName !== vm.connectionName || action.id != vm.id ||
+                        (action.transientOnly && vm.persistent)));
+        else
+            return state
+                    .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
+                        (action.transientOnly && vm.persistent)));
     }
     case DELETE_UNLISTED_VMS: {
-        return state
-                .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0));
+        if (action.vmIDs)
+            return state
+                    .filter(vm => (action.connectionName !== vm.connectionName || action.vmIDs.indexOf(vm.id) >= 0));
+        else
+            return state
+                    .filter(vm => (action.connectionName !== vm.connectionName || action.vmNames.indexOf(vm.name) >= 0));
     }
     default: // by default all reducers should return initial state on unknown actions
         return state;

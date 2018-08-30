@@ -21,15 +21,16 @@ fi
 "$INSTALLER" install -y sed
 
 arch=`uname -p`
-rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm || true)
+rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm /container/rpms/cockpit-dashboard-*$OSVER.*$arch.rpm || true)
 
 # If there are rpm files in the current directory we'll install those
 if [ -n "$rpm" ]; then
-    $INSTALLER -y install /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm
+    $INSTALLER -y install /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm /container/rpms/cockpit-dashboard-*$OSVER.*$arch.rpm
 else
     ws=$(package_name "cockpit-ws")
     bridge=$(package_name "cockpit-bridge")
-    "$INSTALLER" -y install "$ws" "$bridge"
+    dashboard=$(package_name "cockpit-dashboard")
+    "$INSTALLER" -y install "$ws" "$bridge" "$dashboard"
 fi
 
 "$INSTALLER" clean all

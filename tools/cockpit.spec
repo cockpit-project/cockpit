@@ -673,6 +673,9 @@ Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
+%if 0%{?fedora}
+Requires: libvirt-dbus
+%endif
 # Optional components
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: virt-install

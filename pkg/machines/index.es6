@@ -26,8 +26,33 @@ import App from './app.jsx';
 import { initDataRetrieval } from './actions/provider-actions.es6';
 import { logDebug } from './helpers.es6';
 
+import cockpit from 'cockpit';
+import LibvirtDbus from './libvirt-dbus.es6';
 import Libvirt from './libvirt-virsh.es6';
 import { setVirtProvider } from './provider.es6';
+
+/**
+ * Returns promise that will have as return value the Provider that should be set.
+ * @return {Promise}
+ */
+
+function detectLibvirtProvider() {
+    let client = cockpit.dbus("org.freedesktop.DBus");
+
+    return client.call("/org/freedesktop/DBus", "org.freedesktop.DBus",
+                       "ListActivatableNames")
+            .then(services => {
+                let libvirtDBusavailable = services[0].includes("org.libvirt");
+
+                client.close();
+                return libvirtDBusavailable ? LibvirtDbus : Libvirt;
+            })
+            .catch(exception => {
+                console.warn("Could not get a list of services from DBus.", exception);
+                client.close();
+                return Libvirt;
+            });
+}
 
 function render() {
     ReactDOM.render(
@@ -36,14 +61,7 @@ function render() {
     );
 }
 
-/**
- * Start the application.
- */
-export function appMain() {
-    logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
-
-    setVirtProvider(Libvirt);
-
+function renderApp() {
     // re-render app every time the state changes
     store.subscribe(render);
 
@@ -52,4 +70,17 @@ export function appMain() {
 
     // initiate data retrieval
     store.dispatch(initDataRetrieval());
+}
+
+/**
+ * Start the application.
+ */
+export function appMain() {
+    logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
+
+    detectLibvirtProvider().then((providerVal) => {
+        console.info(`index.es6: Setting ${providerVal.name} as virt provider.`);
+        setVirtProvider(providerVal);
+        renderApp();
+    });
 }

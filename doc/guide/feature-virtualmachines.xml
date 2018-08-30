@@ -8,7 +8,11 @@
         These can be accessed from menu via <emphasis>Virtual Machines</emphasis></para>
 
     <para>Primary datasource is <ulink url="https://www.qemu.org/">QEMU</ulink> / <ulink url="https://libvirt.org/">Libvirt</ulink>,
-        access to Libvirtd is wrapped by the <ulink url="https://libvirt.org/virshcmdref.html">virsh</ulink> tool.</para>
+        access to Libvirtd is wrapped either by the <ulink url="https://libvirt.org/virshcmdref.html">virsh</ulink> tool or
+        <ulink url="https://libvirt.org/dbus.html">libvirt D-Bus API bindings</ulink>, depending if the latter is installed on
+        the system. If libvirt-dbus package is not available in your distribution's software repositories you can follow the instructions
+        <ulink url="https://github.com/libvirt/libvirt-dbus/blob/master/README.md">here</ulink> to install from sources.
+    </para>
 
     <section id="feature-virtualmachines-nestedvirtualization">
     <title>Nested Virtualization</title>
@@ -18,6 +22,15 @@
         (refer <code>test/verify/nested-kvm</code> or
         <ulink url="https://fedoraproject.org/wiki/How_to_enable_nested_virtualization_in_KVM">
             How to enable nested virtualization in KVM</ulink> to get more information).
+    </para>
+    </section>
+
+    <section id="feature-virtualmachines-systemaccess">
+    <title>Managing VMs on system connection</title>
+    <para>
+        In order to manipulate as unprivileged user VMs on system connection through
+        <emphasis>cockpit-machines</emphasis> plugin using libvirt D-Bus provider you need to follow
+        the intructions specified <ulink url="https://libvirt.org/dbus.html#usage">here</ulink>.
     </para>
     </section>
 
@@ -35,6 +48,10 @@
         </para>
         <para>
             By default, <emphasis>cockpit-machines-ovirt</emphasis> takes precedence over <emphasis>cockpit-machines</emphasis>.
+        </para>
+        <para>
+            New features for <emphasis>cockpit-machines</emphasis> should be only implemented for the componenent
+            using libvirt D-Bus.
         </para>
 
     </section>

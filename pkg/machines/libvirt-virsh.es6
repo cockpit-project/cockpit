@@ -150,7 +150,7 @@ LIBVIRT_PROVIDER = {
      * @param VM name
      * @returns {Function}
      */
-    GET_VM ({ lookupId: name, connectionName }) {
+    GET_VM ({ name, connectionName }) {
         logDebug(`${this.name}.GET_VM()`);
 
         return dispatch => {
@@ -358,7 +358,7 @@ LIBVIRT_PROVIDER = {
                         failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed") }),
                         args: ['domif-setlink', name, networkMac, state]
             }).then(() => {
-                dispatch(getVm(connectionName, name));
+                dispatch(getVm({connectionName, name}));
             });
         };
     },
@@ -415,7 +415,7 @@ function doGetAllVms (dispatch, connectionName) {
         dispatch(deleteUnlistedVMs(connectionName, vmNames));
 
         // read VM details
-        return cockpit.all(vmNames.map((name) => dispatch(getVm(connectionName, name))));
+        return cockpit.all(vmNames.map((name) => dispatch(getVm({connectionName, name}))));
     });
 }
 
@@ -605,20 +605,20 @@ function handleEvent(dispatch, connectionName, line) {
         let type = info.split(' ')[0];
         switch (type) {
         case 'Undefined':
-            dispatch(undefineVm(connectionName, name));
+            dispatch(undefineVm({connectionName, name}));
             break;
 
         case 'Defined':
         case 'Started':
-            dispatch(getVm(connectionName, name));
+            dispatch(getVm({connectionName, name}));
             break;
 
         case 'Stopped':
             // there might be changes between live and permanent domain definition, so full reload
-            dispatch(getVm(connectionName, name));
+            dispatch(getVm({connectionName, name}));
 
             // transient VMs don't have a separate Undefined event, so remove them on stop
-            dispatch(undefineVm(connectionName, name, true));
+            dispatch(undefineVm({connectionName, name, transientOnly: true}));
             break;
 
         case 'Suspended':
@@ -641,7 +641,7 @@ function handleEvent(dispatch, connectionName, line) {
     case 'tray-change':
     case 'control-error':
         // these (can) change what we display, so re-read the state
-        dispatch(getVm(connectionName, name));
+        dispatch(getVm({connectionName, name}));
         break;
 
     default:

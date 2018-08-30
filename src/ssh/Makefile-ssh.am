@@ -78,12 +78,14 @@ EXTRA_DIST += \
 	src/ssh/test_rsa.pub \
 	src/ssh/mock_known_hosts \
 	src/ssh/mock-pid-cat \
+	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
 	src/ssh/mock-config \
 	src/ssh/invalid_known_hosts \
 	$(NULL)
 
 noinst_SCRIPTS += \
 	src/ssh/mock-pid-cat \
+	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
 	$(NULL)
 
 noinst_PROGRAMS += $(SSH_CHECKS)

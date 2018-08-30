@@ -26,7 +26,7 @@ import App from './app.jsx';
 import { initDataRetrieval } from './actions/provider-actions.es6';
 import { logDebug } from './helpers.es6';
 
-import Libvirt from './libvirt.es6';
+import Libvirt from './libvirt-virsh.es6';
 import { setVirtProvider } from './provider.es6';
 
 function render() {

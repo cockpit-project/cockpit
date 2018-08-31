@@ -239,6 +239,7 @@ class Browser:
         self.set_val(selector, "")
         self.focus(selector)
         self.key_press(val)
+        self.wait_val(selector, val)
         self.blur(selector)
 
     def wait_timeout(self, timeout):

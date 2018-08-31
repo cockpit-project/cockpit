@@ -71,6 +71,7 @@ parser.add_argument('-m', '--maintain', action='store_true', help='Changes are p
 parser.add_argument('-M', '--memory', default=None, type=int, help='Memory (in MiB) of the target machine')
 parser.add_argument('-C', '--cpus', default=None, type=int, help='Number of cpus in the target machine')
 parser.add_argument('--network', action='store_true', help='Setup a bridged network for running machines')
+parser.add_argument('--no-network', action='store_true', help='Do not connect the machine to the Internet')
 
 parser.add_argument('image', help='The image to run')
 args = parser.parse_args()
@@ -96,7 +97,7 @@ try:
     network = testvm.VirtNetwork(0, bridge=bridge)
 
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=args.maintain,
-                                 networking=network.host(), memory_mb=memory, cpus=args.cpus)
+                                 networking=network.host(restrict=args.no_network), memory_mb=memory, cpus=args.cpus)
 
     # Hack to make things easier for users who don't know about kubeconfig
     if 'openshift' in args.image:

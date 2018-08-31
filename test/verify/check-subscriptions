@@ -106,6 +106,12 @@ class TestSubscriptions(MachineCase):
         # make sure that rhsm skips certificate checks for the server
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
+        # Apply some extra cleanups on rhel-atomic.  These cleanups
+        # are necessary because all changes to /etc after a "atomic
+        # host upgrade" and before the next boot are lost.
+        if m.image == "rhel-atomic":
+            m.execute("rm -f /etc/pki/consumer/* /etc/pki/entitlement/*")
+
         # Wait for the web service to be accessible
         args = { "addr": "10.111.113.5" }
         m.execute(script=WAIT_SCRIPT % args)

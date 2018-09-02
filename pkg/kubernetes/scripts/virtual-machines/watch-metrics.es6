@@ -17,11 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getNodeName } from './selectors.jsx';
-import { fetchStatSummary } from './kube-middleware.jsx';
-import { setNodeMetrics } from "./action-creators.jsx";
+import { getNodeName } from './selectors.es6';
+import { fetchStatSummary } from './kube-middleware.es6';
+import { setNodeMetrics } from "./action-creators.es6";
 
 import CONFIG from './config.es6';
+import { combineVms, getValueOrDefault } from './utils.es6';
 
 let metrics = {
     timeout: null,
@@ -39,6 +40,18 @@ function watchMetricsContinuously(fetchNode, timeout) {
     }, timeout == null ? CONFIG.MetricsRefreshInterval : timeout);
 }
 
+function collectNode(nodes, vmi) {
+    let refresh = false;
+    const node = getNodeName(vmi);
+    if (node) {
+        if (!metrics.watchedNodes[node] && !nodes[node]) {
+            refresh = true;
+        }
+        nodes[node] = node;
+    }
+    return refresh;
+}
+
 export function watchMetrics(store) {
     if (metrics.timeout) {
         cleanupMetricsWatch();
@@ -54,17 +67,17 @@ export function watchMetrics(store) {
         const nodes = {};
         let refresh = false;
 
-        Object.keys(state.ui).forEach(metadata_uid => {
-            const vmUiState = state.ui[metadata_uid];
-            if (vmUiState.isExpanded) {
-                const vm = state.vms.find(vm => vm.metadata.uid === metadata_uid);
-                const node = getNodeName(vm);
-                if (node) {
-                    if (!metrics.watchedNodes[node] && !nodes[node]) {
-                        refresh = true;
-                    }
-                    nodes[node] = node;
-                }
+        // poll visible vmis
+        state.vmis.forEach(vmi => {
+            if (getValueOrDefault(() => state.vmisUi[vmi.metadata.uid].isVisible) && collectNode(nodes, vmi)) {
+                refresh = true;
+            }
+        });
+
+        // poll visible vms
+        combineVms(state.vms, state.vmis).forEach(({vm, vmi}) => {
+            if (getValueOrDefault(() => state.vmsUi[vm.metadata.uid].isVisible) && collectNode(nodes, vmi)) {
+                refresh = true;
             }
         });
 

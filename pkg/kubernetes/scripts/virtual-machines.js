@@ -20,16 +20,25 @@
 (function() {
     "use strict";
 
+    /* Expose jQuery and Bootstrap to non-Angular code */
+    var jquery = require('jquery/dist/jquery.js');
+    window.jQuery = jquery;
+    require('bootstrap/dist/js/bootstrap.js');
+
     var angular = require('angular');
     require('angular-route');
     require('angular-dialog.js');
     require('./kube-client');
     require('./listing');
+
     var vmsReact = require('./virtual-machines/entry-points/virtual-machines.jsx');
     var vmReact = require('./virtual-machines/entry-points/virtual-machine.jsx');
+    var vmiReact = require('./virtual-machines/entry-points/virtual-machine-instance.jsx');
+    var paths = require('./virtual-machines/entry-points/util/paths.es6');
 
     require('../views/virtual-machines-page.html');
     require('../views/virtual-machine-page.html');
+    require('../views/virtual-machine-instance-page.html');
 
     angular.module('kubernetes.virtualMachines', [
         'ngRoute',
@@ -44,16 +53,23 @@
         '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider
-                .when('/vms', {
+                .when(paths.VMS, {
                     templateUrl: 'views/virtual-machines-page.html',
                     controller: 'VirtualMachinesCtrl'
                 })
-                .when('/vms/:namespace/:name', {
-                  templateUrl: 'views/virtual-machine-page.html',
-                  controller: 'VirtualMachineCtrl'
+                .when(paths.VMS + '/:namespace/:name', {
+                    templateUrl: 'views/virtual-machine-page.html',
+                    controller: 'VirtualMachineCtrl'
                 })
-                .when('/vms/:namespace', {
-                    redirectTo: '/vms'
+                .when(paths.VMIS + '/:namespace/:name', {
+                    templateUrl: 'views/virtual-machine-instance-page.html',
+                    controller: 'VirtualMachineInstanceCtrl'
+                })
+                .when(paths.VMS + '/:namespace', {
+                    redirectTo: paths.VMS
+                })
+                .when(paths.VMIS + '/:namespace', {
+                    redirectTo: paths.VMS
                 });
             /*
             Links rewriting is enabled by default. It does two things:
@@ -96,6 +112,18 @@
         'KubeRequest',
         function($scope, $routeParams, loader, select, methods, request) {
             vmReact.init($scope, $routeParams, loader, select, methods, request);
+        }]
+    )
+
+    .controller('VirtualMachineInstanceCtrl', [
+        '$scope',
+        '$routeParams',
+        'kubeLoader',
+        'kubeSelect',
+        'kubeMethods',
+        'KubeRequest',
+        function($scope, $routeParams, loader, select, methods, request) {
+            vmiReact.init($scope, $routeParams, loader, select, methods, request);
         }]
     );
 

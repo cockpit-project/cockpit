@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { logDebug } from './utils.jsx';
+import { logDebug } from './utils.es6';
 import cockpit from 'cockpit';
 
 let kubeMethods = null;
@@ -45,10 +45,21 @@ function vmCreate(resource) {
     return deferred.promise;
 }
 
-async function vmDelete({ vm }) {
-    const selfLink = vm.metadata.selfLink; // example: /apis/kubevirt.io/v1alpha1/namespaces/kube-system/virtualmachines/testvm
-    logDebug('vmDelete(), selfLink: ', selfLink);
+async function remove(entity) {
+    const selfLink = entity.metadata.selfLink; // example: /apis/kubevirt.io/v1alpha1/namespaces/kube-system/virtualmachines/testvm
+    logDebug('remove(), selfLink: ', selfLink);
     return kubeMethods.delete(selfLink); // no value is returned (empty promise). An exception is thrown in case of failure
+}
+
+async function vmPatch({ vm, running }) {
+    const selfLink = vm.metadata.selfLink;
+    logDebug('vmPatch(), selfLink: ', selfLink);
+    const patch = {
+        spec: {
+            running: running,
+        }
+    };
+    return kubeMethods.patch(selfLink, patch, "merge");
 }
 
 async function fetchStatSummary(nodeName) {
@@ -57,4 +68,4 @@ async function fetchStatSummary(nodeName) {
     return KubeRequest("GET", path);
 }
 
-export { vmDelete, vmCreate, fetchStatSummary };
+export { remove, vmCreate, vmPatch, fetchStatSummary };

@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { initMiddleware } from '../../kube-middleware.jsx';
+import { initMiddleware } from '../../kube-middleware.es6';
 import { watchMetrics, cleanupMetricsWatch } from '../../watch-metrics.es6';
-import * as actionCreators from '../../action-creators.jsx';
+import * as actionCreators from '../../action-creators.es6';
 
 function addKubeLoaderListener (store, $scope, kubeLoader, kubeSelect) {
     // register load callback( callback, until )

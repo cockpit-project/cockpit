@@ -38,7 +38,7 @@
 
     var KUBE = "/api/v1";
     var OPENSHIFT = "/oapi/v1";
-    var KUBEVIRT = "/apis/kubevirt.io/v1alpha1";
+    var KUBEVIRT = "/apis/kubevirt.io/v1alpha2";
     var DEFAULT = { api: KUBE, create: 0 };
     var SCHEMA = flatSchema([
         { kind: "DeploymentConfig", type: "deploymentconfigs", api: OPENSHIFT },
@@ -63,6 +63,7 @@
         { kind: "Service", type: "services", api: KUBE, create: -80 },
         { kind: "SubjectAccessReview", type: "subjectaccessreviews", api: OPENSHIFT },
         { kind: "User", type: "users", api: OPENSHIFT, global: true },
+        { kind: "VirtualMachineInstance", type: "virtualmachineinstances", api: KUBEVIRT },
         { kind: "VirtualMachine", type: "virtualmachines", api: KUBEVIRT },
     ]);
 
@@ -1273,11 +1274,11 @@
                 });
             }
 
-            function patchResource(resource, patch) {
+            function patchResource(resource, patch, mergeType) {
                 var path = resourcePath([resource]);
                 path += "?timeout=" + REQ_TIMEOUT;
                 var body = JSON.stringify(patch);
-                var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
+                var config = { headers: { "Content-Type": "application/" + (mergeType || "strategic-merge") + "-patch+json" } };
                 var promise = new KubeRequest("PATCH", path, body, config);
                 return promise.then(function(response) {
                     debug("patched resource:", path, response.data);

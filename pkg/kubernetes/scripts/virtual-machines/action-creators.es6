@@ -17,12 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as actionConstants from './action-types.jsx';
+import * as actionConstants from './action-types.es6';
 
 export function setVms(vms) {
     return {
         type: actionConstants.SET_VMS,
         payload: vms
+    };
+}
+
+export function setVmis(vmis) {
+    return {
+        type: actionConstants.SET_VMIS,
+        payload: vmis
     };
 }
 
@@ -60,6 +67,26 @@ export function removeVmMessage({ vm }) {
     };
 }
 
+export function vmiActionFailed({ vmi, message, detail }) {
+    return {
+        type: actionConstants.VMI_ACTION_FAILED,
+        payload: {
+            vmi,
+            message,
+            detail,
+        }
+    };
+}
+
+export function removeVmiMessage({ vmi }) {
+    return {
+        type: actionConstants.REMOVE_VMI_MESSAGE,
+        payload: {
+            vmi,
+        }
+    };
+}
+
 export function setPods(pods) {
     return {
         type: actionConstants.SET_PODS,
@@ -74,12 +101,22 @@ export function setNodeMetrics(metrics) {
     };
 }
 
-export function vmExpanded({ vm, isExpanded }) {
+export function showVm({ vm, isVisible }) {
     return {
-        type: actionConstants.VM_EXPANDED,
+        type: actionConstants.SHOW_VM,
         payload: {
             vm,
-            isExpanded
+            isVisible
+        }
+    };
+}
+
+export function showVmi({ vmi, isVisible }) {
+    return {
+        type: actionConstants.SHOW_VMI,
+        payload: {
+            vmi,
+            isVisible
         }
     };
 }

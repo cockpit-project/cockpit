@@ -23,25 +23,25 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { gettext as _ } from 'cockpit';
 
-import { Listing } from '../../../../lib/cockpit-components-listing.jsx';
+import { Listing } from 'cockpit-components-listing.jsx';
 import VmsListingRow from './VmsListingRow.jsx';
-import { getPod, getPodMetrics } from '../selectors.jsx';
+import { getPod, getPodMetrics } from '../../selectors.es6';
+import { combineVms } from '../../utils.es6';
 import CreateVmButton from './createVmButton.jsx';
 
-const VmsListing = ({ vms, pvs, pods, settings, vmsMessages, nodeMetrics }) => {
+const VmsListing = ({vmTuples, pods, nodeMetrics, settings}) => {
     const isOpenshift = settings.flavor === 'openshift';
     const namespaceLabel = isOpenshift ? _("Project") : _("Namespace");
 
-    const rows = vms.map(vm => {
-        const pod = getPod(vm, pods);
+    const rows = vmTuples.map(({vm, vmi}) => {
+        const pod = getPod(vmi, pods);
 
         return (
             <VmsListingRow vm={vm}
-                vmMessages={vmsMessages[vm.metadata.uid]}
-                pod={pod}
-                podMetrics={getPodMetrics(pod, nodeMetrics)}
-                pvs={pvs}
-                key={vm.metadata.uid} />
+                           vmi={vmi}
+                           pod={pod}
+                           podMetrics={getPodMetrics(pod, nodeMetrics)}
+                           key={vm.metadata.uid} />
         );
     });
 
@@ -53,27 +53,24 @@ const VmsListing = ({ vms, pvs, pods, settings, vmsMessages, nodeMetrics }) => {
         <Listing title={_("Virtual Machines")}
                  emptyCaption={_("No virtual machines")}
                  actions={actions}
-                 columnTitles={[_("Name"), namespaceLabel, _("Node"), _("State")]}>
+                 columnTitles={[_("Name"), namespaceLabel, _("Node"), _("Age"), _("State")]}>
             {rows}
         </Listing>
     );
 };
 
 VmsListing.propTypes = {
-    vms: PropTypes.array.isRequired,
-    pvs: PropTypes.array.isRequired,
+    vmTuples: PropTypes.array.isRequired,
     pods: PropTypes.array.isRequired,
-    vmsMessages: PropTypes.object.isRequired,
     nodeMetrics: PropTypes.object.isRequired,
+    settings: PropTypes.object.isRequired,
 };
 
 export default connect(
-    ({ vms, pods, pvs, settings, vmsMessages, nodeMetrics }) => ({
-        vms, // VirtualMachines
+    ({vms, vmis, pods, settings, nodeMetrics}) => ({
+        vmTuples: combineVms(vms, vmis), // VirtualMachines and VirtualMachineInstances
         pods,
-        pvs, // PersistentVolumes
-        settings,
-        vmsMessages,
         nodeMetrics,
+        settings,
     })
 )(VmsListing);

@@ -21,43 +21,36 @@ import 'regenerator-runtime/runtime'; // required for library initialization
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { setVms, setVmis, showVm } from '../action-creators.es6';
-import VmDetail from '../components/vm/VmDetail.jsx';
+import { setVmis, showVmi } from '../action-creators.es6';
+import VmiDetail from '../components/vmi/VmiDetail.jsx';
 import { initStore, getStore } from '../store.es6';
 import initialize from './util/initialize.es6';
-import { VM_KIND, VMI_KIND } from '../constants.es6';
+import { VMI_KIND } from '../constants.es6';
 
 import '../../../../machines/machines.less'; // once per component hierarchy
 
-const VmPage = ({pageParams}) => (
+const VmiPage = ({pageParams}) => (
     <Provider store={getStore()}>
-        <VmDetail pageParams={pageParams} />
+        <VmiDetail pageParams={pageParams} />
     </Provider>
 );
 
 function addVmListener (store, $scope, kubeLoader, kubeSelect, namespace, name) {
     const cancelable = kubeLoader.listen(() => {
-        const vm = kubeSelect().kind(VM_KIND)
-                .namespace(namespace)
-                .name(name)
-                .one();
-
         const vmi = kubeSelect().kind(VMI_KIND)
                 .namespace(namespace)
                 .name(name)
                 .one();
 
-        if (vm) {
-            store.dispatch(showVm({
-                vm,
+        if (vmi) {
+            store.dispatch(showVmi({
+                vmi,
                 isVisible: true
             }));
         }
 
-        store.dispatch(setVms(vm ? [vm] : []));
         store.dispatch(setVmis(vmi ? [vmi] : []));
     }, $scope);
-    kubeLoader.watch(VM_KIND, $scope);
     kubeLoader.watch(VMI_KIND, $scope);
 
     return cancelable;
@@ -81,25 +74,25 @@ function init ($scope, $routeParams, kubeLoader, kubeSelect, kubeMethods, KubeRe
     if (namespace && name) {
         // fetch only if there is a namespace and name
         const cancelable = addVmListener(store, $scope, kubeLoader, kubeSelect, namespace, name);
-        // enable metrics fetching
+
         onDestroy = () => {
             cancelable.cancel();
             const state = store.getState();
-            if (state.vms.length > 0) {
-                store.dispatch(showVm({
-                    vm: state.vms[0],
+            if (state.vmis.length > 0) {
+                store.dispatch(showVmi({
+                    vmi: state.vmis[0],
                     isVisible: false,
                 }));
             }
         };
     } else {
         // otherwise reset
-        store.dispatch(setVms([]));
+        store.dispatch(setVmis([]));
     }
     initialize($scope, kubeLoader, kubeSelect, kubeMethods, KubeRequest, store, onDestroy);
 
-    const rootElement = document.querySelector('#kubernetes-virtual-machine-root');
-    React.render(<VmPage pageParams={{name, namespace}} />, rootElement);
+    const rootElement = document.querySelector('#kubernetes-virtual-machine-instance-root');
+    React.render(<VmiPage pageParams={{name, namespace}} />, rootElement);
 }
 
 export { init };

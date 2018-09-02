@@ -18,8 +18,8 @@
  */
 
 import { createStore } from 'redux';
-import reducers from './reducers.jsx';
-import { logDebug } from './utils.jsx';
+import reducers from './reducers.es6';
+import { logDebug } from './utils.es6';
 
 let reduxStore;
 
@@ -30,7 +30,8 @@ export function initStore () {
     }
     logDebug('initStore(): initializing empty store');
     const initialState = {
-        vms: []
+        vms: [],
+        vmis: [],
     };
 
     const storeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();

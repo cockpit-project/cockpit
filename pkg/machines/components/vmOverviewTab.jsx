@@ -21,35 +21,66 @@ import React, { PropTypes } from "react";
 
 const _ = cockpit.gettext;
 
-const Items = ({ items, idPrefix, divider, colClass }) => {
+const getBootstrapColumnsClasses = (sizes) => {
+    if (!sizes) {
+        sizes = [];
+    }
+    // fill the sizes with the last one or default to 12
+    if (sizes.length < 4) {
+        const lastDivider = sizes.length > 0 ? sizes[sizes.length - 1] : 12;
+        sizes = [...sizes, ...Array(4 - sizes.length).fill(lastDivider)];
+    }
+
+    return `col-lg-${sizes[0]} col-md-${sizes[1]} col-sm-${sizes[2]} col-xs-${sizes[3]}`;
+};
+
+const ItemsRow = ({ items, idPrefix, colClass }) => {
     if (!items) {
         return null;
     }
 
-    colClass = colClass || 'col-lg-6 col-md-6 col-sm-6 col-xs-12';
-    return (
-        <div className={`col-lg-${divider} col-md-${divider} col-sm-${divider} col-xs-${divider}`}>
-            <div className='row'>
-                {items.map(item => {
-                    let content = item.value;
-                    if (item.title) {
-                        content = (
-                            <dl>
-                                <dt>{item.title}</dt>
-                                <dd id={`${idPrefix}-${item.idPostfix}`}>{item.value}</dd>
-                            </dl>
-                        );
-                    }
+    colClass = colClass || getBootstrapColumnsClasses([6, 6, 6, 12]);
 
-                    return (
-                        <div className={`${colClass} ${item.className || ''}`}>
-                            {content}
-                        </div>
+    return (
+        <div className='row'>
+            {items.map(item => {
+                let content = item.value;
+                if (item.title) {
+                    content = (
+                        <dl>
+                            <dt>{item.title}</dt>
+                            <dd id={`${idPrefix}-${item.idPostfix}`}>{item.value}</dd>
+                        </dl>
                     );
-                })}
-            </div>
+                }
+
+                return (
+                    <div className={`${colClass} ${item.className || ''}`}>
+                        {content}
+                    </div>
+                );
+            })}
         </div>
     );
+};
+
+export const Items = ({ items, idPrefix, dividers, colClass }) => {
+    if (!items) {
+        return null;
+    }
+
+    return (
+        <div className={getBootstrapColumnsClasses(dividers)}>
+            <ItemsRow items={items} idPrefix={idPrefix} colClass={colClass} />
+        </div>
+    );
+};
+
+Items.propTypes = {
+    items: PropTypes.array, // array of items to be rendered. Each item is an object of { title, value, idPostfix }
+    idPrefix: PropTypes.string.isRequired, // prefix for HTML IDs
+    dividers: PropTypes.array.isRequired, // array with media class sizes
+    colClass: PropTypes.string.isRequired, // className for each item
 };
 
 /**
@@ -59,10 +90,10 @@ const VmOverviewTab = ({ message, idPrefix, items, extraItems }) => {
     return (
         <div>
             {message}
-            <Items items={items} idPrefix={idPrefix} divider={extraItems ? 6 : 12} />
+            <Items items={items} idPrefix={idPrefix} dividers={extraItems ? [6] : [12]} />
             {extraItems && extraItems.map(col =>
-                (<Items items={col} idPrefix={idPrefix} divider='3'
-                        colClass='col-lg-12 col-md-12 col-sm-12 col-xs-12' />))}
+                (<Items items={col} idPrefix={idPrefix} dividers={[3]}
+                        colClass={getBootstrapColumnsClasses([12])} />))}
         </div>);
 };
 

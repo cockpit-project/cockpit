@@ -21,27 +21,23 @@
 
 import React, { PropTypes } from 'react';
 import cockpit, { gettext as _ } from 'cockpit';
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 
-import { DetailPage, DetailPageRow, DetailPageHeader } from 'cockpit-components-detail-page.jsx';
-import { getPod, getPodMetrics } from '../selectors.jsx';
-import VmOverviewTab from './VmOverviewTabKubevirt.jsx';
+import { DetailPage, DetailPageHeader, DetailPageRow } from 'cockpit-components-detail-page.jsx';
+import { getEntityTitle, getPod, getPodMetrics } from '../../selectors.es6';
+import VmOverviewTab from './VmOverviewTab.jsx';
 import VmActions from './VmActions.jsx';
-import VmMetricsTab from './VmMetricsTab.jsx';
-import VmDisksTab from './VmDisksTabKubevirt.jsx';
+import PodMetricsTab from '../common/PodMetricsTab.jsx';
+import VmDisksTab from '../common/DisksTabKubevirt.jsx';
+import { navigateToVms } from '../../entry-points/util/paths.es6';
 
-import type { Vm, VmMessages, PersistenVolumes, Pod } from '../types.jsx';
-import { vmIdPrefx, prefixedId } from '../utils.jsx';
+import type { PersistenVolumes, Pod, Vm, Vmi, VmUi, PodMetrics } from '../../types.es6';
+import { getValueOrDefault, kindIdPrefx, prefixedId } from '../../utils.es6';
 
-const navigateToVms = () => {
-    cockpit.location.go([ 'vms' ]);
-};
-
-const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
-                      { vm: Vm, vmMessages: VmMessages, pageParams: Object, pvs: PersistenVolumes, pod: Pod}) => {
-    const mainTitle = vm ? `${vm.metadata.namespace}:${vm.metadata.name}` : null;
-    const actions = vm ? <VmActions vm={vm} onDeleteSuccess={navigateToVms} /> : null;
-    const header = (<DetailPageHeader title={mainTitle}
+const VmDetail = ({vm, vmi, vmUi, pageParams, pvs, pod, podMetrics}:
+                       { vm: Vm, vmi: Vmi, vmUi?: VmUi, pageParams: Object, pvs: PersistenVolumes, pod: Pod, podMetrics: PodMetrics }) => {
+    const actions = vm ? <VmActions vm={vm} vmi={vmi} onDeleteSuccess={navigateToVms} /> : null;
+    const header = (<DetailPageHeader title={getEntityTitle(vm)}
                                       navigateUpTitle={_("Show all VMs")}
                                       onNavigateUp={navigateToVms}
                                       actions={actions}
@@ -59,17 +55,17 @@ const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
             </div>
         );
     }
-    const idPrefix = vmIdPrefx(vm);
+    const idPrefix = kindIdPrefx(vm);
 
     return (
         <div>
             <DetailPage>
                 {header}
                 <DetailPageRow title={_("VM")} idPrefix={prefixedId(idPrefix, 'vm')} >
-                    <VmOverviewTab vm={vm} vmMessages={vmMessages} pod={pod} showState />
+                    <VmOverviewTab vm={vm} vmi={vmi} message={getValueOrDefault(() => vmUi.message, false)} pod={pod} showState />
                 </DetailPageRow>
                 <DetailPageRow title={_("Usage")} idPrefix={prefixedId(idPrefix, 'usage')} >
-                    <VmMetricsTab idPrefix={idPrefix} podMetrics={podMetrics} />
+                    <PodMetricsTab idPrefix={idPrefix} podMetrics={podMetrics} />
                 </DetailPageRow>
                 <DetailPageRow title={_("Disks")} idPrefix={prefixedId(idPrefix, 'disks')} >
                     <VmDisksTab vm={vm} pvs={pvs} />
@@ -80,22 +76,26 @@ const VmDetail = ({ vm, pageParams, vmMessages, pvs, pod, podMetrics }:
 };
 
 VmDetail.propTypes = {
-    vm: PropTypes.object.isRequired,
-    pageParams: PropTypes.object,
-    vmMessages: PropTypes.object,
+    vm: PropTypes.object,
+    vmi: PropTypes.object,
+    vmUi: PropTypes.object,
+    pageParams: PropTypes.object.isRequired,
     pvs: PropTypes.array.isRequired,
     pod: PropTypes.object.isRequired,
     podMetrics: PropTypes.object,
 };
 
 export default connect(
-    ({vms, pvs, pods, vmsMessages, nodeMetrics}) => {
+    ({vms, vmis, pvs, pods, vmsUi, nodeMetrics}) => {
         const vm = vms.length > 0 ? vms[0] : null;
-        const pod = getPod(vm, pods);
+        const vmi = vmis.length > 0 ? vmis[0] : null;
+
+        const pod = getPod(vmi, pods);
         const podMetrics = getPodMetrics(pod, nodeMetrics);
         return {
             vm,
-            vmMessages: vm ? vmsMessages[vm.metadata.uid] : null,
+            vmi,
+            vmUi: vm ? vmsUi[vm.metadata.uid] : null,
             pvs,
             pod,
             podMetrics,

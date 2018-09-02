@@ -30,7 +30,7 @@ WAIT_KRB_SCRIPT = """
 set -ex
 # HACK: This needs to work, but may take a minute
 for x in $(seq 1 60); do
-    if getent passwd admin@cockpit.lan; then
+    if getent passwd {0}; then
         break
     fi
     if systemctl --quiet is-failed sssd.service; then
@@ -40,14 +40,14 @@ for x in $(seq 1 60); do
     sleep $x
 done
 # ensure this works now, if the above loop timed out
-getent passwd admin@cockpit.lan
+getent passwd {0}
 
 # This directory should be owned by the domain user
-chown -R admin@cockpit.lan /home/admin
+chown -R {0} /home/admin
 
 # HACK: This needs to work but may take a minute
 for x in $(seq 1 60); do
-    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l admin@cockpit.lan x0.cockpit.lan true; then
+    if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l {0} x0.cockpit.lan true; then
         break
     fi
     sleep $x
@@ -135,7 +135,7 @@ class TestRealms(MachineCase):
         if m.image not in ["rhel-7-5-distropkg", "ubuntu-1604"]:
             # validate Kerberos setup for ws
             m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
-            m.execute(script=WAIT_KRB_SCRIPT, timeout=300)
+            m.execute(script=WAIT_KRB_SCRIPT.format("admin@cockpit.lan"), timeout=300)
 
             # should have added SPN to ws keytab
             output = m.execute(['klist', '-k', '/etc/cockpit/krb5.keytab'])
@@ -259,7 +259,7 @@ class TestRealms(MachineCase):
         wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
         # delete the local admin user, going to use the IPA one instead
-        m.execute("userdel --remove admin" )
+        m.execute("userdel admin; systemctl try-restart sssd" )
 
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
@@ -401,7 +401,7 @@ class TestKerberos(MachineCase):
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
         self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
-        self.machine.execute(script=WAIT_KRB_SCRIPT, timeout=300)
+        self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     def testNegotiate(self):
         self.allow_authorize_journal_messages()
@@ -409,10 +409,17 @@ class TestKerberos(MachineCase):
         b = self.browser
         m = self.machine
 
+        # Tell realmd to not enable domain-qualified logins
+        # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
+        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
+
+        # delete the local admin user, going to use the IPA one instead
+        m.execute("userdel admin" )
+
         # HACK: There is no operating system where the domain admins are admins by default
         # This is something that needs to be worked on at an OS level. We use admin level
         # features below, such as adding a machine to the dashboard
-        m.execute("echo 'admin@cockpit.lan        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")
+        m.execute("echo 'admin        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")
 
         # Make sure negotiate auth is not offered first
         m.start_cockpit()
@@ -460,7 +467,7 @@ class TestKerberos(MachineCase):
         self.assertIn("Ticket cache", text)
 
         # Now connect to another machine
-        self.assertNotIn("admin@cockpit.lan", m.execute("ps -xa | grep sshd"))
+        self.assertNotIn("admin", m.execute("ps -xa | grep sshd"))
         b.switch_to_top()
         b.go("/@x0.cockpit.lan/system/terminal")
         b.wait_visible("#machine-troubleshoot")
@@ -495,7 +502,7 @@ class TestKerberos(MachineCase):
         b.wait_visible(".terminal")
 
         # Make sure we connected via SSH
-        self.assertIn("admin@cockpit.lan", m.execute("ps -xa | grep sshd"))
+        self.assertIn("admin", m.execute("ps -xa | grep sshd"))
         b.kill()
 
         if m.image not in ["rhel-7-5-distropkg"]:

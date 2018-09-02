@@ -39,9 +39,10 @@ for x in $(seq 1 60); do
     fi
     sleep $x
 done
+# ensure this works now, if the above loop timed out
+getent passwd admin@cockpit.lan
 
 # This directory should be owned by the domain user
-getent passwd admin@cockpit.lan
 chown -R admin@cockpit.lan /home/admin
 
 # HACK: This needs to work but may take a minute
@@ -85,6 +86,9 @@ class TestRealms(MachineCase):
         b = self.browser
 
         self.addSudoRule()
+
+        # Tell realmd to enable domain-qualified logins; unqualified ones are covered in testIpaUnqualifiedUsers
+        m.execute("printf '[cockpit.lan]\\nfully-qualified-names = yes\\n'  >> /etc/realmd.conf")
 
         m.execute("hostnamectl set-hostname x0.cockpit.lan")
         self.login_and_go("/system")
@@ -169,12 +173,10 @@ class TestRealms(MachineCase):
             orig_password = b.password
             b.password = 'foobarfoo'
 
-            # Joining a domain with realmd enables `use_fully_qualified_names` by default; this is inconsistent with
-            # ipa-client-install (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
             self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
             b.wait_present('#service-unit')
             b.wait_in_text('#service-unit', "waiting")
-            b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]')
+            b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]:not(.disabled)')
             b.click('#service-unit-primary-action button[data-action="StopUnit"]')
             b.wait_in_text('#service-unit', "dead")
             b.logout()

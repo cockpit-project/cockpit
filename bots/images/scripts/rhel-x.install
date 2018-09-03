@@ -7,3 +7,6 @@ rpm --erase --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
 
 /var/lib/testvm/fedora.install --rhel --skip cockpit-kubernetes \
                                --skip cockpit-docker "$@"
+
+# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1624862
+rm /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-AUX-2018

@@ -107,7 +107,7 @@ var DialogFooter = React.createClass({
 
                     /* Always log global dialog errors for easier debugging */
                     if (error)
-                        console.warn(error);
+                        console.warn(error.message || error.toString());
 
                     self.setState({ action_in_progress: false, error_message: error });
                 });

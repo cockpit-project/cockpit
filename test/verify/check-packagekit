@@ -753,6 +753,7 @@ class TestUpdatesSubscriptions(PackageCase):
             b.wait_text("#system_information_updates_text", "System Up To Date")
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
+    @skipImage("HACK: subscription-manager cockpit needs to be installed and fixed on rhel-x", "rhel-x")
     def testAvailableUpdates(self):
         m = self.machine
         b = self.browser

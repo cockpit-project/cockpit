@@ -44,7 +44,7 @@ if [ "$ID" = "rhel" ]; then
     REPO="rhel-7-server-extras-rpms"
     ID="rhel7"
 fi
-docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils createrepo && yum install -y --downloadonly --enablerepo=$REPO libssh && find /var -name '*.rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done; createrepo /tmp/rpms"
+docker run --rm --volume=/etc/yum.repos.d:/etc/yum.repos.d:z --volume=/root/rpms:/tmp/rpms:rw,z "$ID:$VERSION_ID" /bin/sh -cex "yum install -y findutils createrepo yum-utils && (cd /tmp/; yumdownloader --enablerepo=$REPO libssh) && find /tmp -name '*.$(uname -m).*rpm' | while read rpm; do mv -v \$rpm /tmp/rpms; done; createrepo /tmp/rpms"
 rm -f /etc/yum.repos.d/*
 cat >/etc/yum.repos.d/deps.repo <<EOF
 [deps]

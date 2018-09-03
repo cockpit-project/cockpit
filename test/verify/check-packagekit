@@ -697,6 +697,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.candlepin.download("/root/candlepin/generated_certs/88888.pem", product_file)
 
         # # upload product info to the test machine
+        m.execute("mkdir -p /etc/pki/product")
         m.upload([product_file], "/etc/pki/product")
 
         # make sure that rhsm skips certificate checks for the server

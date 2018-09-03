@@ -3,7 +3,7 @@
 
 set -e
 
-/var/lib/testvm/atomic.install --verbose --skip cockpit-kdump "$@"
+/var/lib/testvm/atomic.install --verbose --skip cockpit-kdump --extra "/root/rpms/libssh*" "$@"
 
 # HACK: https://github.com/projectatomic/rpm-ostree/issues/1360
 # rpm-ostree upgrade --check otherwise fails

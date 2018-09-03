@@ -266,7 +266,6 @@ config: !Configuration
 
 class TestStoragePackages(StorageCase, PackageCase):
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
     def testVdoMissingPackages(self):
         m = self.machine
         b = self.browser

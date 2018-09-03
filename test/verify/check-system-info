@@ -394,7 +394,6 @@ class TestPcp(packagelib.PackageCase):
 
     @skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5-distropkg")
     @skipImage("doesn't have pcp", "debian-stable")
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
     def testEnablePcpLink(self):
         m = self.machine
         b = self.browser

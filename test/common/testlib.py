@@ -827,6 +827,14 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { module_request }.*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
 
+        if self.image in ['fedora-29']:
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1608030
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .* comm="ebtables".*firewalld_t.*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1571377
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { .* } for .* path="/dev/random" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* name="random" .*')
+
         if self.image == 'rhel-x':
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820
             # this affects every boot (so naughty override causes too much spamming)

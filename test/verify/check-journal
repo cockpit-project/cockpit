@@ -330,7 +330,11 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
 
         b.click("li:contains(Problem info)")
-        wait_field("crash_function", self.crash_fn)
+        # HACK on fedora-29 crash_function is not present
+        if m.image in ["fedora-29"]:
+            wait_field("reason", "killed by SIGSEGV")
+        else:
+            wait_field("crash_function", self.crash_fn)
 
         b.click("li:contains(Problem details)")
         sel = "#journal-entry-fields #accordion-markup .panel .panel-heading"

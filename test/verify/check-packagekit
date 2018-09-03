@@ -229,6 +229,7 @@ class TestUpdates(PackageCase):
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -426,6 +427,7 @@ class TestUpdates(PackageCase):
         self.allow_restart_journal_messages()
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testSecurityOnly(self):
         b = self.browser
         m = self.machine
@@ -468,6 +470,7 @@ class TestUpdates(PackageCase):
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
     @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine

@@ -202,7 +202,6 @@ class TestStorage(StorageCase):
         b.wait_present("#detail-header button:contains(Mount)")
 
 @skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
-@skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
 class TestStoragePackages(StorageCase, PackageCase):
 
     def testNfsMissingPackages(self):

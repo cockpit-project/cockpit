@@ -7,7 +7,3 @@ rpm --erase --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
 
 /var/lib/testvm/fedora.install --rhel --skip cockpit-kubernetes \
                                --skip cockpit-docker "$@"
-
-# HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600452
-# packagekitd spins at 100% CPU on startup
-systemctl mask packagekit.service

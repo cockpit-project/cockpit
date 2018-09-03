@@ -524,7 +524,6 @@ class TestKerberos(MachineCase):
 
 
 @skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-5-distropkg", "rhel-7-6-distropkg")
-@skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
 @skipImage("Package (un)install does not work on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestPackageInstall(packagelib.PackageCase):
     def testInstall(self):

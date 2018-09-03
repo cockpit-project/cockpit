@@ -24,7 +24,6 @@ from packagelib import *
 
 @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipPackage("cockpit-apps")
-@skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1600452", "rhel-x")
 class TestApps(PackageCase):
 
     def setUp(self):

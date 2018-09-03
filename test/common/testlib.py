@@ -829,6 +829,9 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .*comm="nft" .*firewalld_t.*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600452
             self.allowed_messages.append('org.freedesktop.PackageKit:.*Timeout was reached')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1571377
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { .* } for .* path="/dev/random" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* name="random" .*')
 
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
         if self.image in ["ubuntu-1604", "debian-stable"]:

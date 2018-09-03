@@ -85,6 +85,14 @@ sys.dont_write_bytecode = True
 
 from task import github, label, REDHAT_PING
 
+# Check if we have access to Red Hat network
+try:
+    urllib.request.urlopen(REDHAT_PING).read()
+    run_redhat_tasks = True
+except IOError:
+    run_redhat_tasks = False
+
+
 def main():
     parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')
     parser.add_argument('-v', '--human-readable', action="store_true", default=False,
@@ -120,14 +128,7 @@ def main():
 
 def default_policy():
     policy = DEFAULT_VERIFY
-
-    # Check if we have access to Red Hat network
-    try:
-        urllib.request.urlopen(REDHAT_PING).read()
-        policy.update(REDHAT_VERIFY)
-    except IOError:
-        pass
-
+    policy.update(REDHAT_VERIFY)
     return policy
 
 # Prepare a human readable output
@@ -149,6 +150,9 @@ def tests_human(priority, name, revision, ref, context, base, repo, bots_ref):
 
 # Prepare an test invocation command
 def tests_invoke(priority, name, revision, ref, context, base, repo, bots_ref, options):
+    if not run_redhat_tasks and context in REDHAT_VERIFY:
+        return ''
+
     try:
         priority = int(priority)
     except (ValueError, TypeError):

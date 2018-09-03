@@ -161,6 +161,7 @@ if [ "$IMAGE" = "centos-7" ]; then
 fi
 if [ "$IMAGE" = "rhel-x" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
+    TEST_PACKAGES="${TEST_PACKAGES} dnf-automatic"
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"

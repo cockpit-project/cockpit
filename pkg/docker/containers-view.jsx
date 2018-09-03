@@ -607,7 +607,7 @@ var ImageList = createReactClass({
             element = <div className="spinner" />;
         } else {
             element = <button className="btn btn-default btn-control-ct fa fa-play"
-                onClick={ this.showRunImageDialog.bind(this) }
+                onClick={ this.showRunImageDialog }
                 data-image={image.Id} />;
         }
 
@@ -642,7 +642,7 @@ var ImageList = createReactClass({
         }
 
         var actions = [
-            <button className="btn btn-danger btn-delete pficon pficon-delete"
+            <button key="delete" className="btn btn-danger btn-delete pficon pficon-delete"
                     onClick={ this.deleteImage.bind(this, image) } />
         ];
 
@@ -662,7 +662,7 @@ var ImageList = createReactClass({
 
         var imageRows = filtered.map(this.renderRow, this);
 
-        var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+        var getNewImageAction = <a key="new" role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
             <span className="pficon pficon-add-circle-o" />{_("Get new image")}
         </a>;
 
@@ -697,7 +697,7 @@ var ImageList = createReactClass({
                 <Listing.Listing title={_("Images")}
                     columnTitles={columnTitles}
                     emptyCaption={emptyCaption}
-                    actions={getNewImageAction}>
+                    actions={[ getNewImageAction ]}>
                     {imageRows}
                 </Listing.Listing>
                 {pendingRows}

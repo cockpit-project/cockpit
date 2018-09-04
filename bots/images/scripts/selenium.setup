@@ -38,9 +38,6 @@ systemctl enable docker
 docker pull selenium/hub:3
 docker pull selenium/node-chrome:3
 docker pull selenium/node-firefox:3
-# HACK: Fedora 27's python2-selenium does not work with :3, so install the
-# one as well; see https://github.com/cockpit-project/cockpit/pull/9178
-docker pull selenium/node-firefox:2.53.1
 
 # reduce image size
 dnf clean all

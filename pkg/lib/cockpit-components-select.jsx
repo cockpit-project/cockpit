@@ -133,7 +133,7 @@ export class StatelessSelect extends React.Component {
 }
 
 StatelessSelect.propTypes = {
-    selected: PropTypes.string,
+    selected: PropTypes.any,
     onChange: PropTypes.func,
     id: PropTypes.string,
     enabled: PropTypes.bool,
@@ -174,7 +174,7 @@ export class Select extends React.Component {
 }
 
 Select.propTypes = {
-    initial: PropTypes.string,
+    initial: PropTypes.any,
     onChange: PropTypes.func,
     id: PropTypes.string,
     enabled: PropTypes.bool,
@@ -216,5 +216,5 @@ export const SelectHeader = ({ children }) => {
 };
 
 SelectEntry.propTypes = {
-    data: PropTypes.string.isRequired,
+    data: PropTypes.any.isRequired,
 };

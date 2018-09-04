@@ -99,9 +99,6 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.execute("chown -R admin:admin /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        # kubevirt is deployed by default, so link should appear in the menu
-        b.wait_present("#vms-menu-link")
-
         b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
         b.wait_present("a[href='#/volumes']")

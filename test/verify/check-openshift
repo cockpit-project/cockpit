@@ -391,6 +391,13 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#kubernetes-reconnect")
         b.wait_present("#service-list")
 
+
+class TestOpenshiftPrerelease(TestOpenshift):
+    provision = {
+        "machine1": { "address": "10.111.113.1/20" },
+        "openshift": { "image": "openshift-prerelease", "forward": { 30000: 30000, 8443: 8443 } }
+    }
+
     def bootstrapKubevirt(self):
         o = self.openshift
 
@@ -918,13 +925,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
                                        'filename': TestCreateConfig.VM_CONFIG_FILE,
                                    })
         )
-
-
-class TestOpenshiftPrerelease(TestOpenshift):
-    provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "openshift": { "image": "openshift-prerelease", "forward": { 30000: 30000, 8443: 8443 } }
-    }
 
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")

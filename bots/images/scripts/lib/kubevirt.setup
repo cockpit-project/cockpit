@@ -1,6 +1,6 @@
 #!/bin/bash
-
 set -ex
+TOKEN= 
 
 # Wait for x for many minutes
 function wait() {
@@ -18,9 +18,14 @@ rm -rf ${KUBEVIRT_DIR}
 mkdir -p ${KUBEVIRT_DIR}
 cd ${KUBEVIRT_DIR}
 
-curl -sL https://api.github.com/repos/kubevirt/kubevirt/releases/latest > kubevirt_latest.json
-KUBEVIRT_VERSION=`cat kubevirt_latest.json | grep -m 1 \"name\": | sed -e 's/^.*\"name\":\s*\"\(.*\)\",/\1/' | sed 's/^v//'`
+# TODO: remove this
+curl -i https://api.github.com/user${TOKEN}
+
+curl -sL "https://api.github.com/repos/kubevirt/kubevirt/releases${TOKEN}" > kubevirt_releases.json
+KUBEVIRT_VERSION=`cat kubevirt_releases.json | jq -r "[ .[] | select (.prerelease == false) | {name, tarball_url} ] | sort_by(.name) | reverse | .[0] | .name" | sed 's/^v//'`
+TARBALL=`cat kubevirt_releases.json | jq -r "[ .[] | select (.prerelease == false) | {name, tarball_url} ] | sort_by(.name) | reverse | .[0] | .tarball_url"`
 echo Kubevirt version found: ${KUBEVIRT_VERSION}
+echo Kubevirt tarball found: ${TARBALL}
 
 oc login -u system:admin
 oc adm policy add-cluster-role-to-user cluster-admin admin
@@ -41,9 +46,8 @@ docker run --rm --net=host -v $HOME/.kube:/opt/apb/.kube:z -u $UID \
    --extra-vars 'cluster=openshift' \
    --extra-vars "version=${KUBEVIRT_VERSION}"
 
-TARBALL=`cat kubevirt_latest.json | grep \"tarball_url\": | sed -e 's/^.*\"tarball_url\":\s*\"\(.*\)\",/\1/'`
 ( mkdir kubevirt.src && cd kubevirt.src && curl -sL ${TARBALL} > kubevirt.tar.gz && tar -xzf kubevirt.tar.gz --strip=1 )
-cp kubevirt.src/cluster/vm-template-fedora.yaml ./
+cp kubevirt.src/cluster/examples/vm-template-fedora.yaml ./
 
 curl -sL https://github.com/kubevirt/kubevirt/releases/download/v${KUBEVIRT_VERSION}/kubevirt.yaml > /kubevirt/kubevirt.yaml
 
@@ -57,7 +61,7 @@ oc project kubevirt
 oc process -f vm-template-fedora.yaml -p NAME=fedoravm -p MEMORY=256Mi -p CPU_CORES=1 | oc apply -f -
 
 # Start it (means create VirtualMachine from an OfflineVirtualMachine)
-oc patch offlinevirtualmachine fedoravm --type=merge -p '{"spec":{"running": true}}'
+oc patch VirtualMachine fedoravm --type=merge -p '{"spec":{"running": true}}'
 
 # Wait till the VM is running. Means all kubevirt's images are pulled as well
 wait "(oc get pods | grep virt-launcher-fedoravm | grep -q Running)"

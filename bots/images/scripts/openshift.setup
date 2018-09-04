@@ -1,6 +1,8 @@
 #! /bin/bash
 
 set -eux
+TOKEN=
+
 PRERELEASE=
 if [ "${1%prerelease*}" != "$1" ]; then
     PRERELEASE=1
@@ -71,7 +73,7 @@ if [ -n "$PRERELEASE" ]; then
     VERSION=latest
 else
     # Can't use latest because release on older versions are done out of order
-    RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases)
+    RELEASES_JSON=$(curl -s https://api.github.com/repos/openshift/origin/releases${TOKEN})
     set +x
     VERSION=$(echo "$RELEASES_JSON" | LC_ALL=C.UTF-8 python3 -c "import json, sys; obj=json.load(sys.stdin); releases = [x.get('tag_name', '') for x in obj if not x.get('prerelease')]; print(sorted (releases, reverse=True)[0])") || {
         echo "Failed to parse latest release:" >&2
@@ -304,7 +306,8 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Pull down remaining images
 /var/lib/testvm/docker-images.setup
 
-# Prepare Kubevirt for later installation
+# Install Kubevirt
+wait dnf install -y jq
 /var/lib/testvm/kubevirt.setup
 
 # use the pristine kube config; kubevirt.setup changes it

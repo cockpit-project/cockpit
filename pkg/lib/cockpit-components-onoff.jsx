@@ -62,7 +62,7 @@ var OnOffSwitch = React.createClass({
         }
         var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
         return (
-            <div className="btn-group btn-onoff-ct" enabled={this.props.enabled}>
+            <div className="btn-group btn-onoff-ct">
                 <label className={ onClasses.join(" ") }>
                     <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOn}</span>

@@ -48,6 +48,5 @@ docker run  -d -p 4444:4444 --name selenium-hub selenium/hub:3
 wait_curl /grid/console "Grid Console"
 docker run -d --shm-size=512M --link selenium-hub:hub selenium/node-chrome:3
 wait_curl /grid/console "browserName: chrome"
-# HACK: Fedora 27's python2-selenium does not work with :3
-docker run -d --shm-size=512M --link selenium-hub:hub selenium/node-firefox:2.53.1
+docker run -d --shm-size=512M --link selenium-hub:hub selenium/node-firefox:3
 wait_curl /grid/console "browserName: firefox"

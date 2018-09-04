@@ -46,6 +46,7 @@ class TestAccounts(MachineCase):
 
         good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
         # Delete it
+        b.wait_present('#account-delete:not([disabled])')
         b.click('#account-delete')
         b.wait_popup('account-confirm-delete-dialog')
         b.click('#account-confirm-delete-apply')
@@ -111,24 +112,25 @@ class TestAccounts(MachineCase):
         b.go("#/jussi")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
+        b.wait_present('#account-locked:not([disabled])')
         b.set_checked('#account-locked', False)
-        b.wait_present(admin_role_sel + ":not(:checked)")
+        b.wait_present(admin_role_sel + ":not(:checked):not([disabled])")
         b.set_checked(admin_role_sel, True)
-        b.wait_present(admin_role_sel + ":checked")
         b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
         # An alert which shows up once we've changed things
         if m.image != 'rhel-7-5-distropkg':
             b.wait_present("#account-roles .alert-info")
+        b.wait_present(admin_role_sel + ":checked:not([disabled])")
         b.set_checked(admin_role_sel, False)
-        b.wait_present(admin_role_sel + ":not(:checked)")
         b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
-        b.wait_present(admin_role_sel + ":checked")
+        b.wait_present(admin_role_sel + ":checked:not([disabled])")
 
         # Change the password of this account
         b.go("#/jussi")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
+        b.wait_present('#account-set-password:not([disabled])')
         b.click('#account-set-password')
         b.wait_popup('account-set-password-dialog')
 

@@ -311,8 +311,9 @@ class TestKeys(MachineCase):
         b.wait_not_visible("tr.load-custom-key")
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
+
         if openssh_version >= [ 7, 8 ]:
-            new_key_tbody = "tbody:contains('root@localhost.localdomain')"
+            new_key_tbody = "tbody:contains('root@')"
         else:
             new_key_tbody = "tbody[data-name='/tmp/new.rsa']"
         b.wait_present(new_key_tbody)

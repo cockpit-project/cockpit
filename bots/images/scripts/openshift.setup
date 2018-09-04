@@ -154,6 +154,7 @@ update-ca-trust extract
 # multiple O= RDNs; if it's in the "wrong" order, create a new admin
 # certificate that swaps it around
 # See https://github.com/openshift/origin/issues/18715
+dnf install -y openssl
 if openssl x509 -in /openshift.local.config/master/admin.crt -text | grep -q 'Subject:.*system:cluster-admins.*system:masters'; then
     echo "Regenerating admin certificate to work around https://github.com/openshift/origin/issues/18715"
     pushd /openshift.local.config/master/
@@ -304,11 +305,14 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Pull down remaining images
 /var/lib/testvm/docker-images.setup
 
-# Prepare Kubevirt for later installation
-/var/lib/testvm/kubevirt.setup
+# kubevirt is currently uninstallable: https://github.com/cockpit-project/cockpit/pull/9638
+if [ -n "$PRERELEASE" ]; then
+    # Prepare Kubevirt for later installation
+    /var/lib/testvm/kubevirt.setup
 
-# use the pristine kube config; kubevirt.setup changes it
-cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
+    # use the pristine kube config; kubevirt.setup changes it
+    cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
+fi
 
 dnf install -y cockpit-system
 

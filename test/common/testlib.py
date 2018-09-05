@@ -230,7 +230,9 @@ class Browser:
 
     def key_press(self, keys):
         for k in keys:
-            if k.isalnum():
+            if k == "Backspace":
+                self.cdp.invoke("Input.dispatchKeyEvent", type="keyDown", windowsVirtualKeyCode=8)
+            elif k.isalnum():
                 self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k, key=k)
             else:
                 self.cdp.invoke("Input.dispatchKeyEvent", type="char", text=k)
@@ -238,7 +240,11 @@ class Browser:
     def set_input_text(self, selector, val):
         self.set_val(selector, "")
         self.focus(selector)
-        self.key_press(val)
+        if val == "":
+            # We need some real action for React to emit change signals
+            self.key_press([ " ", "Backspace" ])
+        else:
+            self.key_press(val)
         self.wait_val(selector, val)
         self.blur(selector)
 

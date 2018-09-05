@@ -51,6 +51,12 @@
 %define build_subscriptions 1
 %endif
 
+# cockpit-kubernetes is RHEL 7 only, and 64 bit arches only
+%if 0%{?fedora} || (0%{?rhel}%{?centos} >= 7 && 0%{?rhel}%{?centos} < 8)
+%ifarch aarch64 x86_64 ppc64le s390x
+%define build_kubernetes 1
+%endif
+%endif
 
 %if 0%{?rhel} >= 8
 %global go_scl_prefix go-toolset-7-
@@ -118,8 +124,8 @@ Requires: cockpit-bridge
 Requires: cockpit-ws
 Requires: cockpit-system
 
-# Optional components (for f24 we use soft deps)
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+# Optional components
+%if 0%{?fedora} || 0%{?rhel} >= 8
 %if 0%{?rhel} == 0
 Recommends: cockpit-dashboard
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
@@ -133,7 +139,9 @@ Recommends: cockpit-packagekit
 Recommends: subscription-manager-cockpit
 %endif
 Suggests: cockpit-pcp
+%if 0%{?build_kubernetes}
 Suggests: cockpit-kubernetes
+%endif
 Suggests: cockpit-selinux
 %endif
 
@@ -279,7 +287,7 @@ rm -rf %{buildroot}/%{_datadir}/cockpit/docker
 touch docker.list
 %endif
 
-%ifarch aarch64 x86_64 ppc64le s390x
+%if 0%{?build_kubernetes}
 %if %{defined wip}
 %else
 rm %{buildroot}/%{_datadir}/cockpit/kubernetes/override.json
@@ -355,7 +363,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 # dwz has trouble with the go binaries
 # https://fedoraproject.org/wiki/PackagingDrafts/Go
 %global _dwz_low_mem_die_limit 0
-%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 8
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 %endif
@@ -443,7 +451,7 @@ Requires: NetworkManager
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
 # Optional components (only when soft deps are supported)
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: polkit
 %endif
 %if 0%{?rhel} >= 8
@@ -481,7 +489,7 @@ Conflicts: firewalld >= 0.6.0-1
 %else
 Conflicts: firewalld < 0.6.0-1
 %endif
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: sscg >= 2.3
 %endif
 Requires(post): systemd
@@ -572,7 +580,7 @@ Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires: NetworkManager
 # Optional components (only when soft deps are supported)
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: NetworkManager-team
 %endif
 BuildArch: noarch
@@ -590,7 +598,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: setroubleshoot-server >= 3.3.3
 %endif
 BuildArch: noarch
@@ -617,37 +625,24 @@ Dummy package from building optional packages only; never install or publish me.
 
 %if 0%{?build_optional}
 
-# storaged on Fedora < 27, udisks on newer ones
-# Recommends: not supported in RHEL <= 7
 %package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
-%if 0%{?rhel} == 7 || 0%{?centos} == 7
 Requires: udisks2 >= 2.6
+%if 0%{?rhel} == 7 || 0%{?centos} == 7
+# Recommends: not supported in RHEL <= 7
 Requires: udisks2-lvm2 >= 2.6
 Requires: udisks2-iscsi >= 2.6
 Requires: device-mapper-multipath
+Requires: python
+Requires: python-dbus
 %else
-%if 0%{?fedora} >= 27 || 0%{?rhel} >= 8
-Requires: udisks2 >= 2.6
 Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
-%else
-# Fedora < 27
-Requires: storaged >= 2.1.1
-Recommends: storaged-lvm2 >= 2.1.1
-Recommends: storaged-iscsi >= 2.1.1
-Recommends: device-mapper-multipath
-%endif
-%endif
-%if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: python3
 Requires: python3-dbus
-%else
-Requires: python
-Requires: python-dbus
 %endif
 BuildArch: noarch
 
@@ -681,8 +676,8 @@ Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
-# Optional components (for f24 we use soft deps)
-%if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
+# Optional components
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: virt-install
 %endif
 
@@ -700,10 +695,6 @@ Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
 Requires: libvirt
 Requires: libvirt-client
-# package of old name "cockpit-ovirt" was shipped on fedora only
-%if 0%{?fedora} >= 25
-Obsoletes: cockpit-ovirt < 161
-%endif
 
 %description -n cockpit-machines-ovirt
 The Cockpit components for managing oVirt virtual machines.
@@ -773,7 +764,7 @@ This package is not yet complete.
 %endif
 %endif
 
-%ifarch aarch64 x86_64 ppc64le s390x
+%if 0%{?build_kubernetes}
 
 %package -n cockpit-kubernetes
 Summary: Cockpit user interface for Kubernetes cluster

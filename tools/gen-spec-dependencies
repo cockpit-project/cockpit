@@ -21,19 +21,35 @@
 
 import sys
 import os
+import re
 import fileinput
 import subprocess
+import json
 
-min_base_version_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "min-base-version")
+tools_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+min_base_version_path = os.path.join(tools_dir, "min-base-version")
+package_json = os.path.join(os.path.dirname(tools_dir), "package.json")
 
 if len(sys.argv) != 2:
     sys.stderr.write("Usage: %s <specfile>\n" % sys.argv[0])
     sys.exit(1)
 
+# for resolving %{npm-version:*}
+with open(package_json) as f:
+    dependencies = json.load(f)["dependencies"]
+
 curpkg = None
 pkg_base_dep = None
+npm_version_re = re.compile(r"%{npm-version:(.*?)}")
+
 for line in fileinput.input(sys.argv[1], inplace=True):
-    if line.startswith("%package"):
+    npm_version_match = npm_version_re.search(line)
+    if npm_version_match:
+        # translate %{npm-version:*} to version from package.json
+        module = dependencies[npm_version_match.group(1)]
+        sys.stderr.write('NPM version of %s: %s\n' % (npm_version_match.group(1), module))
+        line = npm_version_re.sub(module, line)
+    elif line.startswith("%package"):
         # translate package name into pkg/<page> name
         curpkg = line.split()[-1]
         if curpkg.startswith('cockpit-'):

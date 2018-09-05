@@ -83,7 +83,7 @@ class TestStorage(StorageCase):
             # up with crypttab and we see the old options.
             self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 2, "Options"),
                                    expect = { "crypto_extra_options": "crypto,options" },
-                                   values = { "crypto_extra_options": "weird,options" })
+                                   values = { "crypto_extra_options": CheckBoxText("weird,options") })
 
             assert m.execute("grep 'weird,options' /etc/crypttab") != ""
             self.wait_in_storaged_configuration("weird,options")
@@ -280,7 +280,7 @@ class TestStorage(StorageCase):
         # delete second key slot by providing passphrase
         b.click(panel + "tr:nth-child(2) .fa-minus")
         self.dialog_wait_open()
-        b.set_val(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
+        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
         self.dialog_wait_close()
         # check that it is not possible to unlock with deleted passphrase
@@ -317,7 +317,7 @@ class TestStorage(StorageCase):
         slots_table = tab + " .panel table "
         b.wait_present(slots_table + "tbody tr:last-child .fa-minus")
         b.click(slots_table + "tbody tr:last-child .fa-minus")
-        b.set_val(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
+        b.set_input_text(self.dialog_field("passphrase") + " input[type=password]", "vainu-reku-toma-rolle-kaja-7")
         self.dialog_apply()
         self.dialog_wait_close()
         # check if buttons have become enabled after removing last slot

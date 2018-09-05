@@ -352,22 +352,24 @@ var BlockVolTab = React.createClass({
                     <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton>
                 </div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Name")}</td>
-                        <td>
-                            <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>{_("Size")}</td>
-                        <td>
-                            {utils.fmt_size(this.props.lvol.Size)}
-                            <div className="tab-row-actions">
-                                <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
-                                <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
-                            </div>
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Name")}</td>
+                            <td>
+                                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{_("Size")}</td>
+                            <td>
+                                {utils.fmt_size(this.props.lvol.Size)}
+                                <div className="tab-row-actions">
+                                    <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
+                                    <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

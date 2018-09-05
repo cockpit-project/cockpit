@@ -105,7 +105,7 @@ class VGroupSidebar extends React.Component {
             }
 
             return (
-                <tr>
+                <tr key={pvol.path}>
                     <td className="storage-icon">
                         <div><img src="images/storage-disk.png" /></div>
                     </td>
@@ -240,14 +240,16 @@ export class VGroupDetails extends React.Component {
                 </div>
                 <div className="panel-body">
                     <table className="info-table-ct">
-                        <tr>
-                            <td>{_("storage", "UUID")}</td>
-                            <td>{ vgroup.UUID }</td>
-                        </tr>
-                        <tr>
-                            <td>{_("storage", "Capacity")}</td>
-                            <td>{ utils.fmt_size_long(vgroup.Size) }</td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td>{_("storage", "UUID")}</td>
+                                <td>{ vgroup.UUID }</td>
+                            </tr>
+                            <tr>
+                                <td>{_("storage", "Capacity")}</td>
+                                <td>{ utils.fmt_size_long(vgroup.Size) }</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>

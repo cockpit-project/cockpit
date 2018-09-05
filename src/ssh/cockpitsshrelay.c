@@ -697,10 +697,10 @@ set_knownhosts_file (CockpitSshData *data,
                 g_warning ("sss_ssh_knownhostsproxy reported key for %s:%u which is not known to cockpit_is_host_known()", host, port);
             } else {
               /* the --pubkey option is not yet known by many older distributions; don't show the error in the log */
-              g_debug ("sss_ssh_knownhostsproxy failed: exit code %i, output '%s', error '%s'", exit, sout, serr);
+              g_debug ("%s: sss_ssh_knownhostsproxy failed: exit code %i, output '%s', error '%s'", data->logname, exit, sout, serr);
             }
         } else {
-          g_debug ("Failed to run sss_ssh_knownhostsproxy: %s", error->message);
+          g_debug ("%s: Failed to run sss_ssh_knownhostsproxy: %s", data->logname, error->message);
           g_clear_error (&error);
         }
     }
@@ -809,7 +809,7 @@ verify_knownhost (CockpitSshData *data,
                  data->logname, data->host_key_type);
       break;
     case SSH_SERVER_FILE_NOT_FOUND:
-      g_debug ("Couldn't find the known hosts file");
+      g_debug ("%s: Couldn't find the known hosts file", data->logname);
       /* fall through */
     case SSH_SERVER_NOT_KNOWN:
       ret = prompt_for_host_key (data);

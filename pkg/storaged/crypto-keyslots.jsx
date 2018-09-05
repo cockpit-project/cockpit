@@ -440,7 +440,7 @@ export class CryptoKeyslots extends React.Component {
         }
     }
 
-    componentDidUnmount() {
+    componentWillUnmount() {
         this.monitor_slots(null);
     }
 

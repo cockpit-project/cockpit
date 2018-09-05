@@ -199,7 +199,7 @@ function is_visible(field, values) {
 }
 
 const Body = ({body, fields, values, errors, onChange}) => {
-    function make_row(field) {
+    function make_row(field, index) {
         function change(val) {
             values[field.tag] = val;
             fields.forEach(f => {
@@ -211,7 +211,7 @@ const Body = ({body, fields, values, errors, onChange}) => {
 
         if (is_visible(field, values))
             return (
-                <Row key={field.tag} tag={field.tag} title={field.title} errors={errors} options={field.options}>
+                <Row key={index} tag={field.tag} title={field.title} errors={errors} options={field.options}>
                     { field.render(values[field.tag], change) }
                 </Row>
             );
@@ -283,11 +283,10 @@ export const dialog_open = (def) => {
             ];
         }
 
-        let extra = [ ];
-        if (def.Footer)
-            extra.push(def.Footer);
-        if (def.Action && def.Action.Danger)
-            extra.push(<div className="modal-footer-danger">{def.Action.Danger}</div>);
+        let extra = <div>
+            { def.Footer }
+            { def.Action && def.Action.Danger ? <div className="modal-footer-danger">{def.Action.Danger}</div> : null }
+        </div>;
 
         return {
             idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
@@ -632,11 +631,11 @@ export const SizeSlider = (tag, title, options) => {
 
 function add_usage_message(parts, list, text, c1, c2) {
     if (list.length > 0) {
-        parts.push(<p>{text}</p>);
+        parts.push(<p key={text}>{text}</p>);
         parts.push(
-            <table className="table table-bordered">
+            <table key={text + " table"} className="table table-bordered">
                 <tbody>
-                    { list.map(elt => <tr><td><span className="pull-right">{elt[c1]}</span>{elt[c2]}</td></tr>) }
+                    { list.map(elt => <tr key={elt[c2]}><td><span className="pull-right">{elt[c1]}</span>{elt[c2]}</td></tr>) }
                 </tbody>
             </table>);
     }
@@ -709,7 +708,7 @@ export const TeardownMessage = (usage) => {
                     </thead>
                     <tbody>
                         { list.map(elt =>
-                            <tr>
+                            <tr key={elt[c3]}>
                                 <td>{elt[c1]}</td>
                                 <td className="cmd">{elt[c2]}</td>
                                 <td>{elt[c3]}</td>

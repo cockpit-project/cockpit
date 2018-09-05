@@ -225,7 +225,7 @@ class StorageCase(MachineCase):
                 self.browser.set_checked(sel + " input[type=checkbox]", False)
             else:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)
-                self.browser.set_val(sel + " input[type=text]", val.val)
+                self.browser.set_input_text(sel + " input[type=text]", val.val)
         else:
             sel = self.dialog_field(field)
             ftype = self.browser.attr(sel, "data-field-type")

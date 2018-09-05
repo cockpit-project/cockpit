@@ -497,7 +497,7 @@ export class CryptoKeyslots extends React.Component {
 
             var add_row = (slot, type, desc, edit, edit_excuse, remove) => {
                 rows.push(
-                    <tr>
+                    <tr key={slot}>
                         <td className="shrink key-type">{ type }</td>
                         <td>{ desc }</td>
                         <td className="shrink key-slot">{ cockpit.format(_("Slot $0"), slot) }</td>
@@ -558,7 +558,7 @@ export class CryptoKeyslots extends React.Component {
                     {_("Keys")}
                 </div>
                 <table className="table">
-                    <tbody> { rows } </tbody>
+                    <tbody>{ rows }</tbody>
                 </table>
             </div>
         );

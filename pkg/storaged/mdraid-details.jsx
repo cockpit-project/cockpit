@@ -125,7 +125,7 @@ class MDRaidSidebar extends React.Component {
             }
 
             return (
-                <tr>
+                <tr key={block.path}>
                     <td className="storage-icon">
                         <div><img src="images/storage-disk.png" /></div>
                     </td>
@@ -328,27 +328,29 @@ export class MDRaidDetails extends React.Component {
                 </div>
                 <div className="panel-body">
                     <table className="info-table-ct">
-                        <tr>
-                            <td>{_("storage", "Device")}</td>
-                            <td>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</td>
-                        </tr>
-                        <tr>
-                            <td>{_("storage", "UUID")}</td>
-                            <td>{ mdraid.UUID }</td>
-                        </tr>
-                        <tr>
-                            <td>{_("storage", "Capacity")}</td>
-                            <td>{ utils.fmt_size_long(mdraid.Size) }</td>
-                        </tr>
-                        <tr>
-                            <td>{_("storage", "RAID Level")}</td>
-                            <td>{ level }</td>
-                        </tr>
-                        { bitmap }
-                        <tr>
-                            <td>{_("storage", "State")}</td>
-                            <td>{ running ? _("Running") : _("Not running") }</td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td>{_("storage", "Device")}</td>
+                                <td>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</td>
+                            </tr>
+                            <tr>
+                                <td>{_("storage", "UUID")}</td>
+                                <td>{ mdraid.UUID }</td>
+                            </tr>
+                            <tr>
+                                <td>{_("storage", "Capacity")}</td>
+                                <td>{ utils.fmt_size_long(mdraid.Size) }</td>
+                            </tr>
+                            <tr>
+                                <td>{_("storage", "RAID Level")}</td>
+                                <td>{ level }</td>
+                            </tr>
+                            { bitmap }
+                            <tr>
+                                <td>{_("storage", "State")}</td>
+                                <td>{ running ? _("Running") : _("Not running") }</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>

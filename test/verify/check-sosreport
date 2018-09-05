@@ -18,10 +18,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os.path
+import tempfile
+import shutil
+import glob
+
 import parent
 from testlib import *
-
-import subprocess
 
 @skipImage("No sosreport", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
 class TestSOS(MachineCase):
@@ -36,21 +39,17 @@ class TestSOS(MachineCase):
         with b.wait_timeout(360):
             b.wait_visible("#sos-download")
 
-        # There doesn't seem to be a easy way to do a real download
-        # with PhantomJS, but we really want to excersize our special
-        # machinery that makes the download work.  So we steal the
-        # cookie and use curl.
-        #
-        # https://github.com/ariya/phantomjs/issues/10052
+        download_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, download_dir)
+        b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=download_dir)
 
         b.click("#sos-download button")
-        b.wait_present("body > iframe")
-        url = "http://" + self.machine.web_address + ":" + self.machine.web_port + b.attr("body > iframe", "src")
-        cookie = b.cookie('cockpit')
-        size = subprocess.check_output('curl -s -f -b "cockpit=%s" "%s" | wc -c' % (cookie, url), shell=True)
-        self.assertGreater(int(size), 1000000)
+        # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
+        wait(lambda: len(glob.glob(os.path.join(download_dir, "sosreport-*.xz"))) > 0)
+        report = glob.glob(os.path.join(download_dir, "sosreport-*.xz"))[0]
+        self.assertGreater(os.path.getsize(report), 1000000)
 
-        self.allow_journal_messages('.*{ associate }.*comm="sosreport".*')
+        self.allow_journal_messages('.*comm="sosreport".*')
 
     @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testAppStream(self):

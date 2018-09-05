@@ -52,11 +52,6 @@
 %endif
 
 
-%define libssh_version 0.7.1
-%if 0%{?fedora} > 0 && 0%{?fedora} < 22
-%define libssh_version 0.6.0
-%endif
-
 %if 0%{?rhel} >= 8
 %global go_scl_prefix go-toolset-7-
 %else
@@ -96,7 +91,7 @@ BuildRequires: /usr/bin/python2
 %endif
 BuildRequires: intltool
 %if %{defined build_dashboard}
-BuildRequires: libssh-devel >= %{libssh_version}
+BuildRequires: libssh-devel >= 0.7.1
 %endif
 BuildRequires: openssl-devel
 BuildRequires: zlib-devel
@@ -397,7 +392,6 @@ machines.
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
 %if 0%{?rhel} != 7 && 0%{?centos} != 7
-Requires: libssh >= %{libssh_version}
 Provides: cockpit-ssh = %{version}-%{release}
 # cockpit-ssh moved from dashboard to bridge in 171
 Conflicts: cockpit-dashboard < 170.x
@@ -738,7 +732,6 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %package -n cockpit-dashboard
 Summary: Cockpit remote servers and dashboard
 %if 0%{?rhel} == 7 || 0%{?centos} == 7
-Requires: libssh >= %{libssh_version}
 Provides: cockpit-ssh = %{version}-%{release}
 # nothing depends on the dashboard, but we can't use it with older versions of the bridge
 Conflicts: cockpit-bridge < 135

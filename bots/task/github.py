@@ -370,3 +370,10 @@ class Checklist(object):
 
     def add(self, item):
         self.process(self.body, { item: False })
+
+    def checked(self):
+        result = { }
+        for item, check in self.items.items():
+            if check:
+                result[item] = check
+        return result

@@ -82,5 +82,14 @@ class TestChecklist(unittest.TestCase):
         self.assertEqual(checklist.body, "This is a description\n- [ ] item1\n * [x] Item two\n\nMore lines\n * [ ] Item three")
         self.assertEqual(checklist.items, { "item1": False, "Item two": True, "Item three": False })
 
+    def testChecked(self):
+        body = "This is a description\n- [ ] item1\n * [x] Item two\n * [X] Item three\n\nMore lines"
+        checklist = github.Checklist(body)
+        checklist.check("item1", True)
+        checklist.check("Item three", False)
+        checked = checklist.checked()
+        self.assertEqual(checklist.items, { "item1": True, "Item two": True, "Item three": False })
+        self.assertEqual(checked, { "item1": True, "Item two": True })
+
 if __name__ == '__main__':
     unittest.main()

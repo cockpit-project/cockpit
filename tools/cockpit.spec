@@ -16,8 +16,9 @@
 # by tools/gen-spec-dependencies during "make dist", but keep a hardcoded fallback
 %define required_base 122
 
+# we generally want CentOS packages to be like RHEL; special cases need to check %{centos} explicitly
 %if 0%{?centos}
-%define rhel 0
+%define rhel %{centos}
 %endif
 
 # for testing this already gets set in fedora.install, as we want the target
@@ -52,7 +53,7 @@
 %endif
 
 # cockpit-kubernetes is RHEL 7 only, and 64 bit arches only
-%if 0%{?fedora} || (0%{?rhel}%{?centos} >= 7 && 0%{?rhel}%{?centos} < 8)
+%if 0%{?fedora} || (0%{?rhel} >= 7 && 0%{?rhel} < 8)
 %ifarch aarch64 x86_64 ppc64le s390x
 %define build_kubernetes 1
 %endif
@@ -64,7 +65,7 @@
 %global go_scl_prefix %{nil}
 %endif
 
-%if 0%{?rhel} >= 7 || 0%{?centos}
+%if 0%{?rhel} >= 7
 %define vdo_on_demand 1
 %endif
 
@@ -201,7 +202,7 @@ echo '%dir %{_datadir}/cockpit/base1' > base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 # RHEL 7 needs to keep cockpit-ssh in dashboard for backwards compat
-%if 0%{?rhel} == 7 || 0%{?centos} == 7
+%if 0%{?rhel} == 7
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> dashboard.list
 echo '%{_libexecdir}/cockpit-ssh' >> dashboard.list
 %else
@@ -266,13 +267,8 @@ find %{buildroot}%{_datadir}/cockpit/machines -type f >> machines.list
 echo '%dir %{_datadir}/cockpit/ovirt' > ovirt.list
 find %{buildroot}%{_datadir}/cockpit/ovirt -type f >> ovirt.list
 
-# on CentOS systems we don't have the required setroubleshoot-server packages
-%if 0%{?centos}
-rm -rf %{buildroot}%{_datadir}/cockpit/selinux
-%else
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
-%endif
 
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 %if 0%{?fedora} || 0%{?rhel} < 8
@@ -352,7 +348,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainf
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
 
-%if 0%{?rhel}%{?centos}
+%if 0%{?rhel}
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 %endif
 
@@ -399,7 +395,7 @@ machines.
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
-%if 0%{?rhel} != 7 && 0%{?centos} != 7
+%if 0%{?rhel} != 7
 Provides: cockpit-ssh = %{version}-%{release}
 # cockpit-ssh moved from dashboard to bridge in 171
 Conflicts: cockpit-dashboard < 170.x
@@ -542,7 +538,7 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 %systemd_postun_with_restart cockpit.service
 
 # -------------------------------------------------------------------------------
-# Sub-packages that are part of cockpit-system in RHEL, but separate in Fedora
+# Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
 
 %if 0%{?rhel} == 0
 
@@ -592,7 +588,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %endif
 
-%if 0%{?rhel}%{?centos} == 0
+%if 0%{?rhel} == 0
 
 %package selinux
 Summary: Cockpit SELinux package
@@ -629,7 +625,7 @@ Dummy package from building optional packages only; never install or publish me.
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
 Requires: udisks2 >= 2.6
-%if 0%{?rhel} == 7 || 0%{?centos} == 7
+%if 0%{?rhel} == 7
 # Recommends: not supported in RHEL <= 7
 Requires: udisks2-lvm2 >= 2.6
 Requires: udisks2-iscsi >= 2.6
@@ -722,7 +718,7 @@ Cockpit support for reading PCP metrics and loading PCP archives.
 %if %{defined build_dashboard}
 %package -n cockpit-dashboard
 Summary: Cockpit remote servers and dashboard
-%if 0%{?rhel} == 7 || 0%{?centos} == 7
+%if 0%{?rhel} == 7
 Provides: cockpit-ssh = %{version}-%{release}
 # nothing depends on the dashboard, but we can't use it with older versions of the bridge
 Conflicts: cockpit-bridge < 135

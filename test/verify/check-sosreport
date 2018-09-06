@@ -58,7 +58,7 @@ class TestSOS(MachineCase):
 
         self.login_and_go("/apps")
         b.wait_not_present(".app-list-empty .spinner")
-        if m.image.startswith("fedora-") or m.image in [ "centos-7" ]:
+        if m.image.startswith("fedora-"):
             b.wait_present(".app-list tr:contains('Diagnostic Reports')")
             b.wait_present(".app-list tr:contains('Diagnostic Reports') button:contains('Remove')")
         else:

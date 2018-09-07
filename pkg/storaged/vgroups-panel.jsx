@@ -23,10 +23,10 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import {
     fmt_size, validate_lvm2_name,
-    get_available_spaces, available_space_to_option, prepare_available_spaces
+    get_available_spaces, prepare_available_spaces
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import dialog from "./dialog.js";
+import { dialog_open, TextInput, SelectSpaces } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -50,22 +50,20 @@ export class VGroupsPanel extends React.Component {
                     break;
             }
 
-            dialog.open({ Title: _("Create Volume Group"),
+            dialog_open({ Title: _("Create Volume Group"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                                Value: name,
-                                validate: validate_lvm2_name
-                              },
-                              { SelectMany: "disks",
-                                Title: _("Disks"),
-                                Options: get_available_spaces(client).map(available_space_to_option),
-                                EmptyWarning: _("No disks are available."),
-                                validate: function (disks) {
-                                    if (disks.length === 0)
-                                        return _("At least one disk is needed.");
-                                }
-                              }
+                              TextInput("name", _("Name"),
+                                        { value: name,
+                                          validate: validate_lvm2_name
+                                        }),
+                              SelectSpaces("disks", _("Disks"),
+                                           { empty_warning: _("No disks are available."),
+                                             validate: function (disks) {
+                                                 if (disks.length === 0)
+                                                     return _("At least one disk is needed.");
+                                             }
+                                           },
+                                           get_available_spaces(client)),
                           ],
                           Action: {
                               Title: _("Create"),

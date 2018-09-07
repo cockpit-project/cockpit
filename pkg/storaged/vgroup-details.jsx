@@ -23,7 +23,8 @@ import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
-import dialog from "./dialog.js";
+import { dialog_open, TextInput, SelectSpaces,
+    BlockingMessage, TeardownMessage } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -45,21 +46,17 @@ class VGroupSidebar extends React.Component {
         }
 
         function add_disk() {
-            dialog.open({ Title: _("Add Disks"),
+            dialog_open({ Title: _("Add Disks"),
                           Fields: [
-                              { SelectMany: "disks",
-                                Title: _("Disks"),
-                                Options: (
-                                    utils.get_available_spaces(client)
-                                            .filter(filter_inside_vgroup)
-                                            .map(utils.available_space_to_option)
-                                ),
-                                EmptyWarning: _("No disks are available."),
-                                validate: function(disks) {
-                                    if (disks.length === 0)
-                                        return _("At least one disk is needed.");
-                                }
-                              }
+                              SelectSpaces("disks", _("Disks"),
+                                           { empty_warning: _("No disks are available."),
+                                             validate: function(disks) {
+                                                 if (disks.length === 0)
+                                                     return _("At least one disk is needed.");
+                                             }
+                                           },
+                                           utils.get_available_spaces(client).filter(filter_inside_vgroup)
+                              )
                           ],
                           Action: {
                               Title: _("Add"),
@@ -174,13 +171,12 @@ export class VGroupDetails extends React.Component {
         function rename() {
             var location = cockpit.location;
 
-            dialog.open({ Title: _("Rename Volume Group"),
+            dialog_open({ Title: _("Rename Volume Group"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                                Value: vgroup.Name,
-                                validate: utils.validate_lvm2_name
-                              },
+                              TextInput("name", _("Name"),
+                                        { value: vgroup.Name,
+                                          validate: utils.validate_lvm2_name
+                                        })
                           ],
                           Action: {
                               Title: _("Rename"),
@@ -199,17 +195,15 @@ export class VGroupDetails extends React.Component {
             var usage = utils.get_active_usage(client, vgroup.path);
 
             if (usage.Blocking) {
-                dialog.open({ Title: cockpit.format(_("$0 is in active use"), vgroup.Name),
-                              Blocking: usage.Blocking,
-                              Fields: [ ]
+                dialog_open({ Title: cockpit.format(_("$0 is in active use"),
+                                                    vgroup.Name),
+                              Body: BlockingMessage(usage)
                 });
                 return;
             }
 
-            dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
-                          Teardown: usage.Teardown,
-                          Fields: [
-                          ],
+            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"), vgroup.Name),
+                          Footer: TeardownMessage(usage),
                           Action: {
                               Danger: _("Deleting a volume group will erase all data on it."),
                               Title: _("Delete"),

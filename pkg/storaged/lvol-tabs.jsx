@@ -19,27 +19,21 @@
 
 "use strict";
 
-var cockpit = require("cockpit");
-var dialog = require("./dialog");
-var utils = require("./utils.js");
+import cockpit from "cockpit";
+import utils from "./utils.js";
 
-var React = require("react");
-var StorageControls = require("./storage-controls.jsx");
-
-var StorageButton = StorageControls.StorageButton;
-var StorageLink = StorageControls.StorageLink;
-
-var clevis_recover_passphrase = require("./crypto-keyslots.jsx").clevis_recover_passphrase;
+import React from "react";
+import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { clevis_recover_passphrase } from "./crypto-keyslots.jsx";
+import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialogx.jsx";
 
 var _ = cockpit.gettext;
 
 function lvol_rename(lvol) {
-    dialog.open({ Title: _("Rename Logical Volume"),
+    dialog_open({ Title: _("Rename Logical Volume"),
                   Fields: [
-                      { TextInput: "name",
-                        Title: _("Name"),
-                        Value: lvol.Name
-                      }
+                      TextInput("name", _("Name"),
+                                { value: lvol.Name })
                   ],
                   Action: {
                       Title: _("Rename"),
@@ -150,32 +144,25 @@ function lvol_grow(client, lvol, info) {
     var usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Blocking: usage.Blocking,
-                      Fields: [ ]
+        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+                      Body: BlockingMessage(usage)
         });
         return;
     }
 
     figure_out_passphrase(block, (need_explicit_passphrase, passphrase) => {
-        dialog.open({ Title: _("Grow Logical Volume"),
-                      Teardown: usage.Teardown,
+        dialog_open({ Title: _("Grow Logical Volume"),
+                      Footer: TeardownMessage(usage),
                       Fields: [
-                          { SizeSlider: "size",
-                            Title: _("Size"),
-                            Value: lvol.Size,
-                            Min: lvol.Size,
-                            Max: (pool
-                                ? pool.Size * 3
-                                : lvol.Size + vgroup.FreeSize),
-                            AllowInfinite: !!pool,
-                            Round: vgroup.ExtentSize
-                          },
-                          {
-                              PassInput: "passphrase",
-                              Title: _("Passphrase"),
-                              visible: () => need_explicit_passphrase
-                          }
+                          SizeSlider("size", _("Size"),
+                                     { value: lvol.Size,
+                                       min: lvol.Size,
+                                       max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
+                                       allow_infinite: !!pool,
+                                       round: vgroup.ExtentSize
+                                     }),
+                          PassInput("passphrase", _("Passphrase"),
+                                    { visible: () => need_explicit_passphrase })
                       ],
                       Action: {
                           Title: _("Grow"),
@@ -199,28 +186,23 @@ function lvol_shrink(client, lvol, info) {
     var usage = utils.get_active_usage(client, block && info.shrink_needs_unmount ? block.path : null);
 
     if (usage.Blocking) {
-        dialog.open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
-                      Blocking: usage.Blocking,
-                      Fields: [ ]
+        dialog_open({ Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+                      Body: BlockingMessage(usage)
         });
         return;
     }
 
     figure_out_passphrase(block, (need_explicit_passphrase, passphrase) => {
-        dialog.open({ Title: _("Shrink Logical Volume"),
-                      Teardown: usage.Teardown,
+        dialog_open({ Title: _("Shrink Logical Volume"),
+                      Footer: TeardownMessage(usage),
                       Fields: [
-                          { SizeSlider: "size",
-                            Title: _("Size"),
-                            Value: lvol.Size,
-                            Max: lvol.Size,
-                            Round: vgroup.ExtentSize
-                          },
-                          {
-                              PassInput: "passphrase",
-                              Title: _("Passphrase"),
-                              visible: () => need_explicit_passphrase
-                          }
+                          SizeSlider("size", _("Size"),
+                                     { value: lvol.Size,
+                                       max: lvol.Size,
+                                       round: vgroup.ExtentSize
+                                     }),
+                          PassInput("passphrase", _("Passphrase"),
+                                    { visible: () => need_explicit_passphrase })
                       ],
                       Action: {
                           Title: _("Shrink"),
@@ -247,21 +229,18 @@ var BlockVolTab = React.createClass({
         var vgroup = client.vgroups[lvol.VolumeGroup];
 
         function create_snapshot() {
-            dialog.open({ Title: _("Create Snapshot"),
+            dialog_open({ Title: _("Create Snapshot"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                                validate: utils.validate_lvm2_name
-                              },
-                              { SizeSlider: "size",
-                                Title: _("Size"),
-                                Value: lvol.Size * 0.2,
-                                Max: lvol.Size,
-                                Round: vgroup.ExtentSize,
-                                visible: function () {
-                                    return lvol.ThinPool == "/";
-                                }
-                              }
+                              TextInput("name", _("Name"),
+                                        { validate: utils.validate_lvm2_name }),
+                              SizeSlider("size", _("Size"),
+                                         { value: lvol.Size * 0.2,
+                                           max: lvol.Size,
+                                           round: vgroup.ExtentSize,
+                                           visible: function () {
+                                               return lvol.ThinPool == "/";
+                                           }
+                                         })
                           ],
                           Action: {
                               Title: _("Create"),

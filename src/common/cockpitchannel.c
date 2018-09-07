@@ -457,7 +457,7 @@ cockpit_channel_ensure_capable (CockpitChannel *channel,
       if (channel->priv->capabilities == NULL ||
           !strv_contains(channel->priv->capabilities, capabilities[i]))
         {
-          g_message ("unsupported capability required: %s", capabilities[i]);
+          g_message ("%s: unsupported capability required: %s", channel->priv->id, capabilities[i]);
           missing = TRUE;
         }
     }

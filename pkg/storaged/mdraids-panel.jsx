@@ -23,10 +23,10 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import {
     fmt_size, mdraid_name,
-    get_available_spaces, available_space_to_option, prepare_available_spaces
+    get_available_spaces, prepare_available_spaces
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import dialog from "./dialog.js";
+import { dialog_open, TextInput, SelectOne, SelectSpaces } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -35,50 +35,52 @@ export class MDRaidsPanel extends React.Component {
         var client = this.props.client;
 
         function create_mdraid() {
-            dialog.open({ Title: _("Create RAID Device"),
+            dialog_open({ Title: _("Create RAID Device"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                              },
-                              { SelectOne: "level",
-                                Title: _("RAID Level"),
-                                Options: [
-                                    { value: "raid0", Title: _("RAID 0 (Stripe)") },
-                                    { value: "raid1", Title: _("RAID 1 (Mirror)") },
-                                    { value: "raid4", Title: _("RAID 4 (Dedicated Parity)") },
-                                    { value: "raid5", Title: _("RAID 5 (Distributed Parity)"), selected: true },
-                                    { value: "raid6", Title: _("RAID 6 (Double Distributed Parity)") },
-                                    { value: "raid10", Title: _("RAID 10 (Stripe of Mirrors)") }
-                                ]
-                              },
-                              { SelectOne: "chunk",
-                                Title: _("Chunk Size"),
-                                Options: [
-                                    { value: "4", Title: _("4 KiB") },
-                                    { value: "8", Title: _("8 KiB") },
-                                    { value: "16", Title: _("16 KiB") },
-                                    { value: "32", Title: _("32 KiB") },
-                                    { value: "64", Title: _("64 KiB") },
-                                    { value: "128", Title: _("128 KiB") },
-                                    { value: "512", Title: _("512 KiB"), selected: true },
-                                    { value: "1024", Title: _("1 MiB") },
-                                    { value: "2048", Title: _("2 MiB") }
-                                ],
-                                visible: function (vals) {
-                                    return vals.level != "raid1";
-                                }
-                              },
-                              { SelectMany: "disks",
-                                Title: _("Disks"),
-                                Options: get_available_spaces(client).map(available_space_to_option),
-                                EmptyWarning: _("No disks are available."),
-                                validate: function (disks, vals) {
-                                    var disks_needed = vals.level == "raid6" ? 4 : 2;
-                                    if (disks.length < disks_needed)
-                                        return cockpit.format(_("At least $0 disks are needed."),
-                                                              disks_needed);
-                                }
-                              }
+                              TextInput("name", _("Name"), { }),
+                              SelectOne("level", _("RAID Level"), { value: "raid5" },
+                                        [
+                                            { value: "raid0",
+                                              title: _("RAID 0 (Stripe)") },
+                                            { value: "raid1",
+                                              title: _("RAID 1 (Mirror)") },
+                                            { value: "raid4",
+                                              title: _("RAID 4 (Dedicated Parity)") },
+                                            { value: "raid5",
+                                              title: _("RAID 5 (Distributed Parity)") },
+                                            { value: "raid6",
+                                              title: _("RAID 6 (Double Distributed Parity)") },
+                                            { value: "raid10",
+                                              title: _("RAID 10 (Stripe of Mirrors)") }
+                                        ]),
+                              SelectOne("chunk", _("Chunk Size"),
+                                        { value: "512",
+                                          visible: function (vals) {
+                                              return vals.level != "raid1";
+                                          }
+                                        },
+                                        [
+                                            { value: "4", title: _("4 KiB") },
+                                            { value: "8", title: _("8 KiB") },
+                                            { value: "16", title: _("16 KiB") },
+                                            { value: "32", title: _("32 KiB") },
+                                            { value: "64", title: _("64 KiB") },
+                                            { value: "128", title: _("128 KiB") },
+                                            { value: "512", title: _("512 KiB") },
+                                            { value: "1024", title: _("1 MiB") },
+                                            { value: "2048", title: _("2 MiB") }
+                                        ]),
+                              SelectSpaces("disks", _("Disks"),
+                                           {
+                                               empty_warning: _("No disks are available."),
+                                               validate: function (disks, vals) {
+                                                   var disks_needed = vals.level == "raid6" ? 4 : 2;
+                                                   if (disks.length < disks_needed)
+                                                       return cockpit.format(_("At least $0 disks are needed."),
+                                                                             disks_needed);
+                                               }
+                                           },
+                                           get_available_spaces(client))
                           ],
                           Action: {
                               Title: _("Create"),

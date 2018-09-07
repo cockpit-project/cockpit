@@ -190,7 +190,7 @@ import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
-import { fmt_size } from "./utils.js";
+import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 
 const _ = cockpit.gettext;
 
@@ -478,6 +478,88 @@ export const SelectRow = (tag, headers, options, choices) => {
                         }
                     </tbody>
                 </table>
+            );
+        }
+    };
+};
+
+export const SelectSpaces = (tag, title, options, spaces) => {
+    return {
+        tag: tag,
+        title: title,
+        options: options,
+        initial_value: [ ],
+
+        render: (val, change) => {
+            if (spaces.length === 0)
+                return <span className="text-danger">{options.empty_warning}</span>;
+
+            return (
+                <ul className="list-group available-disks-group dialog-list-ct"
+                data-field={tag} data-field-type="select-spaces">
+                    { spaces.map(spc => {
+                        let selected = (val.indexOf(spc) >= 0);
+
+                        const on_change = (event) => {
+                            if (event.target.checked && !selected)
+                                change(val.concat(spc));
+                            else if (!event.target.checked && selected)
+                                change(val.filter(v => (v != spc)));
+                        };
+
+                        return (
+                            <li className="list-group-item">
+                                <div className="checkbox">
+                                    <label>
+                                        <input type="checkbox" checked={selected} onChange={on_change} />
+                                        { spc.block ? <span className="pull-right">{block_name(spc.block)}</span> : null }
+                                        <span>{format_size_and_text(spc.size, spc.desc)}</span>
+                                    </label>
+                                </div>
+                            </li>
+                        );
+                    })
+                    }
+                </ul>
+            );
+        }
+    };
+};
+
+export const SelectSpace = (tag, title, options, spaces) => {
+    return {
+        tag: tag,
+        title: title,
+        options: options,
+        initial_value: null,
+
+        render: (val, change) => {
+            if (spaces.length === 0)
+                return <span className="text-danger">{options.empty_warning}</span>;
+
+            return (
+                <ul className="list-group available-disks-group dialog-list-ct"
+                    data-field={tag} data-field-type="select-spaces">
+                    { spaces.map(spc => {
+                        const on_change = (event) => {
+                            if (event.target.checked)
+                                change(spc);
+                        };
+
+                        return (
+                            <li className="list-group-item">
+                                <div className="radio">
+                                    <label>
+                                        <input type="radio" checked={val == spc} onChange={on_change} />
+                                        { spc.block ? <span className="pull-right">{block_name(spc.block)}</span> : null }
+                                        <span>{format_size_and_text(spc.size, spc.desc)}</span>
+                                    </label>
+                                </div>
+                            </li>
+                        );
+                    })
+                    }
+                </ul>
             );
         }
     };

@@ -228,6 +228,11 @@ cockpit_channel_response_close (CockpitChannel *channel,
           g_debug ("%s: not found", self->logname);
           cockpit_web_response_error (self->response, 404, NULL, NULL);
         }
+      else if (g_str_equal (problem, "access-denied"))
+        {
+          g_debug ("%s: forbidden", self->logname);
+          cockpit_web_response_error (self->response, 403, NULL, NULL);
+        }
       else if (g_str_equal (problem, "no-host") ||
                g_str_equal (problem, "no-cockpit") ||
                g_str_equal (problem, "unknown-hostkey") ||

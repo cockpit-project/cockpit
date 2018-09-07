@@ -204,7 +204,7 @@ const Validated = ({ errors, error_key, explanation, children }) => {
     return (
         <div className={error ? "has-error" : ""}>
             { children }
-            { (text && text !== true) ? <span className="help-block">{text}</span> : null }
+            { (text && text !== true) ? <span className="help-block dialog-error">{text}</span> : null }
         </div>
     );
 };

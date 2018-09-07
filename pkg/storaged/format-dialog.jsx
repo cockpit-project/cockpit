@@ -91,24 +91,12 @@ function mounting_dialogx_fields(is_custom, mount_dir, mount_options, visible) {
                    value: opt_auto,
                    visible: function (vals) {
                        return visible(vals) && vals.mounting == "custom";
-                   },
-                   update: function (vals, trigger) {
-                       if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
-                           return false;
-                       else
-                           return vals.mount_auto;
                    }
                  }),
         CheckBox("mount_ro", _("Mount read only"),
                  { value: opt_ro,
                    visible: function (vals) {
                        return visible(vals) && vals.mounting == "custom";
-                   },
-                   update: function (vals, trigger) {
-                       if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
-                           return true;
-                       else
-                           return vals.mount_ro;
                    }
                  }),
         TextInputChecked("mount_extra_options", _("Custom mount options"),
@@ -301,6 +289,12 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                { visible: is_encrypted_and_not_old_udisks2 })
                   ].concat(crypto_options_dialogx_fields("", is_encrypted_and_not_old_udisks2))
                           .concat(mounting_dialogx_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                  update: function (dlg, vals, trigger) {
+                      if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
+                          dlg.set_values({ "mount_auto": false });
+                      if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
+                          dlg.set_values({ "mount_ro": true });
+                  },
                   Action: {
                       Title: create_partition ? _("Create partition") : _("Format"),
                       Danger: (create_partition

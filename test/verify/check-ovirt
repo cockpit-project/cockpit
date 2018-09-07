@@ -346,9 +346,9 @@ class TestOVirtMachines(MachineCase):
         b.is_present(".machines-vcpu-caution")
 
         # Set new socket value
-        b.set_val("#socketsInput", "2")
-        b.set_val("#coresInput", "1")
-        b.set_val("#threadsInput", "2")
+        b.set_input_text("#socketsInput", "2")
+        b.set_input_text("#coresInput", "1")
+        b.set_input_text("#threadsInput", "2")
 
         b.wait_val("#machines-vcpu-count-field", "4")
 

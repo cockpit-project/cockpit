@@ -712,8 +712,8 @@ class TestMachines(MachineCase):
         b.wait_val("#machines-vcpu-max-field", "1")
 
         # Set new values
-        b.set_val("#machines-vcpu-max-field", "4")
-        b.set_val("#machines-vcpu-count-field", "3")
+        b.set_input_text("#machines-vcpu-max-field", "4")
+        b.set_input_text("#machines-vcpu-count-field", "3")
 
         # Set new socket value
         b.wait_present("#socketsSelect li[data-value=2] a")
@@ -774,7 +774,7 @@ class TestMachines(MachineCase):
 
         b.wait_present(".vcpu-detail-modal-table")
 
-        b.set_val("#machines-vcpu-count-field", "2")
+        b.set_input_text("#machines-vcpu-count-field", "2")
 
         # Set new socket value
         b.wait_present("#coresSelect li[data-value=2] a")

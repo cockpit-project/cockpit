@@ -199,6 +199,8 @@ class StorageCase(MachineCase):
                 return False
             else:
                 return self.browser.val(sel + " input[type=text]")
+        elif ftype == "select":
+            return self.browser.attr(sel, "data-value")
         else:
             return self.browser.val(self.dialog_field(field))
 
@@ -272,15 +274,17 @@ class StorageCase(MachineCase):
 
     def dialog_wait_val(self, field, val):
         sel = self.dialog_field(field)
+        ftype = self.browser.attr(sel, "data-field-type")
         if isinstance(val, int):
             # size slider
-            ftype = self.browser.attr(sel, "data-field-type")
             if ftype == "size-slider":
                 self.browser.wait_text(sel + " .size-unit button", "MiB")
                 self.browser.wait_val(sel + " .size-text", str(val))
             else:
                 self.browser.wait_val(sel + " .size-unit", "1048576")
                 self.browser.wait_val(sel + " .size-text", str(val))
+        elif ftype == "select":
+            self.browser.wait_attr(sel, "data-value", val)
         else:
             self.browser.wait_val(sel, val)
 

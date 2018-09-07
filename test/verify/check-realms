@@ -128,7 +128,7 @@ class TestRealms(MachineCase):
         b.logout()
 
         if m.image in ["fedora-28", "fedora-testing", "fedora-i386", "rhel-x"]:
-            # HACK: fix authselect/IPA regression (https://bugzilla.redhat.com/show_bug.cgi?id=1582111)
+            # HACK: realmd breaks IPA's nsswitch (https://bugzilla.redhat.com/show_bug.cgi?id=1620097)
             self.machine.execute("authselect enable-feature with-sudo")
 
         # the following requires the "ipa" tool and fixed "admin" permission check (PR #9127)
@@ -287,7 +287,7 @@ class TestRealms(MachineCase):
         m.execute("echo foobarfoo | realm join -vU admin cockpit.lan")
 
         if m.image in ["fedora-28", "fedora-testing", "fedora-i386", "rhel-x"]:
-            # HACK: fix authselect/IPA regression (https://bugzilla.redhat.com/show_bug.cgi?id=1582111)
+            # HACK: realmd breaks IPA's nsswitch (https://bugzilla.redhat.com/show_bug.cgi?id=1620097)
             self.machine.execute("authselect enable-feature with-sudo")
 
         # wait until IPA user works

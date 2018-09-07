@@ -234,7 +234,7 @@ process_pong (CockpitChannel *self,
                  self->priv->id, sequence);
     }
 
-  if (sequence > self->priv->out_window)
+  if (sequence >= self->priv->out_window)
     {
       /* Up to this point has been confirmed received */
       self->priv->out_window = sequence + CHANNEL_FLOW_WINDOW;

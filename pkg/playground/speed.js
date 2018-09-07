@@ -125,6 +125,7 @@
         var options = {
             payload: "fsread1",
             path: path.value,
+            max_read_size: 100 * 1024 * 1024 * 1024,
             binary: sideband ? "raw" : true,
         };
 

@@ -157,6 +157,44 @@
         }
     }
 
+    function download(ev) {
+        stop();
+
+        var path = document.getElementById("download-path");
+        var anchor;
+
+        var options = {
+            binary: "raw",
+            max_read_size: 100 * 1024 * 1024 * 1024,
+            external: {
+                "content-disposition": 'attachment; filename="download"',
+                "content-type": "application/octet-stream"
+            }
+        };
+
+        /* Allow use of HTTP URLs */
+        if (path.value.indexOf("http") === 0) {
+            anchor = document.createElement("a");
+            anchor.href = path.value;
+            options["payload"] = "http-stream2";
+            options["address"] = anchor.hostname;
+            options["port"] = parseInt(anchor.port, 10);
+            options["path"] = anchor.pathname;
+            options["method"] = "GET";
+        } else {
+            options["payload"] = "fsread1";
+            options["path"] = path.value;
+        }
+
+        console.log("Download", options);
+
+        start = Date.now();
+        total = 0;
+
+        var query = window.btoa(JSON.stringify(options));
+        window.open("/cockpit/channel/" + cockpit.transport.csrf_token + "?" + query);
+    }
+
     function stop() {
         update();
 
@@ -177,6 +215,7 @@
         document.getElementById("echo-sideband").addEventListener("click", echo);
         document.getElementById("read-normal").addEventListener("click", read);
         document.getElementById("read-sideband").addEventListener("click", read);
+        document.getElementById("download-external").addEventListener("click", download);
         document.getElementById("stop").addEventListener("click", stop);
         window.setInterval(update, 500);
         document.body.style.display = "block";

@@ -359,7 +359,8 @@ cockpit_channel_actual_send (CockpitChannel *self,
       self->priv->out_sequence = out_sequence;
       if (self->priv->out_sequence > self->priv->out_window)
         {
-          g_debug ("%s: sent too much data without acknowledgement, emitting back pressure", self->priv->id);
+          g_debug ("%s: sent too much data without acknowledgement, emitting back pressure until %"
+                   G_GINT64_FORMAT, self->priv->id, self->priv->out_window);
           cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
         }
     }

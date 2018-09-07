@@ -676,6 +676,7 @@ class SizeSliderElement extends React.Component {
 
     render() {
         let { val, max, round, onChange } = this.props;
+        let min = this.props.min || 0;
         let { unit } = this.state;
 
         const round_size = (value) => {
@@ -701,12 +702,13 @@ class SizeSliderElement extends React.Component {
                     value = limit;
             }
 
+            sanitize(min);
             sanitize(max);
 
             return Math.round(value);
         };
 
-        const change_slider = (f) => onChange(round_size(f * max));
+        const change_slider = (f) => onChange(round_size(Math.max(min, f * max)));
 
         const change_text = (event) => {
             if (event.type == "change") {

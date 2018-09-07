@@ -87,6 +87,7 @@
             websocket.onclose = function(event) {
                 if (websocket)
                     window.alert("channel closed");
+                stop();
             };
 
         } else {
@@ -102,6 +103,7 @@
             channel.addEventListener("close", function(event, options) {
                 if (options.problem)
                     window.alert(options.problem);
+                stop();
             });
 
             for (var i = 0; i < batch; i++)
@@ -139,6 +141,7 @@
             websocket.onclose = function(event) {
                 if (websocket)
                     window.alert("channel closed");
+                stop();
             };
         } else {
             channel = cockpit.channel(options);
@@ -148,6 +151,7 @@
             channel.addEventListener("close", function(event, options) {
                 if (options.problem)
                     window.alert(options.problem);
+                stop();
             });
         }
     }

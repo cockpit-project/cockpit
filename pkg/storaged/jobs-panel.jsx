@@ -128,6 +128,18 @@ class JobRow extends React.Component {
 }
 
 export class JobsPanel extends React.Component {
+    constructor() {
+        super();
+        this.reminder = null;
+    }
+
+    componentWillUnmount() {
+        if (this.reminder) {
+            window.clearTimeout(this.reminder);
+            this.reminder = null;
+        }
+    }
+
     render() {
         var client = this.props.client;
         var server_now = new Date().getTime() + client.time_offset;
@@ -157,7 +169,9 @@ export class JobsPanel extends React.Component {
             } else if (!have_reminder) {
                 // If there is a unstable job, we have to check again in a bit since being
                 // stable or not depends on the current time.
-                window.setTimeout(() => { this.setState({}) }, 1000);
+                if (this.reminder)
+                    window.clearTimeout(this.reminder);
+                this.reminder = window.setTimeout(() => { this.setState({}) }, 1000);
                 have_reminder = true;
             }
         }

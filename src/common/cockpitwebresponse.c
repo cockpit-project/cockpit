@@ -1261,7 +1261,7 @@ web_response_file (CockpitWebResponse *response,
 
   /* Someone is trying to escape the root directory, or access hidden files? */
   unescaped = g_uri_unescape_string (escaped, NULL);
-  if (strstr (unescaped, "/.") || strstr (unescaped, "../") || strstr (unescaped, "//"))
+  if (!unescaped || strstr (unescaped, "/.") || strstr (unescaped, "../") || strstr (unescaped, "//"))
     {
       g_debug ("%s: invalid path request", escaped);
       cockpit_web_response_error (response, 404, NULL, "Not Found");

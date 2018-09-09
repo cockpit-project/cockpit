@@ -310,6 +310,22 @@ test_file_encoding_denied (TestCase *tc,
 }
 
 static void
+test_file_slash_denied (TestCase *tc,
+                        gconstpointer user_data)
+{
+  gchar *root = realpath ( SRCDIR "/src", NULL);
+  const gchar *roots[] = { root, NULL };
+  const gchar *breakout = "/common%2fMakefile-common.am";
+  gchar *check = g_build_filename (roots[0], "common", "Makefile-common.am", NULL);
+  g_assert (root);
+  g_assert (g_file_test (check, G_FILE_TEST_EXISTS));
+  g_free (check);
+  cockpit_web_response_file (tc->response, breakout, roots);
+  cockpit_assert_strmatch (output_as_string (tc), "HTTP/1.1 404*");
+  free (root);
+}
+
+static void
 test_file_breakout_non_existant (TestCase *tc,
                                  gconstpointer user_data)
 {
@@ -1440,6 +1456,8 @@ main (int argc,
               setup, test_file_breakout_denied, teardown);
   g_test_add ("/web-response/file/invalid-encoding-denied", TestCase, NULL,
               setup, test_file_encoding_denied, teardown);
+  g_test_add ("/web-response/file/file-slash-denied", TestCase, NULL,
+              setup, test_file_slash_denied, teardown);
   g_test_add ("/web-response/file/breakout-non-existant", TestCase, NULL,
               setup, test_file_breakout_non_existant, teardown);
   g_test_add ("/web-reponse/file/template", TestCase, &template_fixture,

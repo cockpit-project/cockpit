@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import sha1 from "js-sha1";
-import stable_stringify from "json-stable-stringify";
+import stable_stringify from "json-stable-stringify-without-jsonify";
 
 import {
     dialog_open,

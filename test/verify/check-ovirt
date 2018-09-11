@@ -49,6 +49,21 @@ for x in $(seq 1 60); do
 done
 """
 
+START_VM_SCRIPT = """
+set -ex
+VM_ID=$(%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath "string(/vms/vm[name='VM']/@id)" -)
+for x in $(seq 1 60); do
+    if [ "$(%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath "string(/vms/vm[name='VM']/status)" -)" = "down" ]; then
+        %(api)s -X POST -d "<action/>"  "https://%(addr)s/ovirt-engine/api/vms/$VM_ID/start" 1>/dev/null
+        while [ "$(%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath "string(/vms/vm[name='VM']/status)" -)" = "wait_for_launch" ]; do
+            sleep 5
+        done
+    else
+        break
+    fi
+done
+"""
+
 TEST_VDSM_CONF_CONTENT = "Dummy content of the vdsm.conf file"
 
 @skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-i386", "fedora-atomic", "rhel-atomic", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
@@ -75,9 +90,7 @@ class TestOVirtMachines(MachineCase):
         m.execute(script=WAIT_SCRIPT % args, timeout=1000)
 
         # Run the prepared VM
-        vmid = m.execute("%(api)s https://%(addr)s/ovirt-engine/api/vms/ | xmllint --xpath \"string(/vms/vm[name=\'VM\']/@id)\" -" % args)
-        self.assertNotEqual(vmid, "")
-        m.execute("%(api)s -X POST -d \"<action/>\"  https://%(addr)s/ovirt-engine/api/vms/" % args + vmid + "/start")
+        m.execute(script=START_VM_SCRIPT % args, timeout=1000)
 
         self.enforce_cockpit_ovirt()
         self.hack_for_missing_vdsm()

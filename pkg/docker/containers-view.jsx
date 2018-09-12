@@ -385,11 +385,13 @@ var ImageDetails = React.createClass({
             ports = Object.keys(image.Config.ExposedPorts || {});
         }
 
+        var repotags = image.RepoTags || [];
+
         return (
             <div className='listing-ct-body'>
                 <dl>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
-                    <dt>{_("Tags")}</dt>       <dd>{ image.RepoTags.join(" ") }</dd>
+                    <dt>{_("Tags")}</dt>       <dd>{ repotags.join(" ") }</dd>
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
                     <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
                     <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.calendar() }</dd>

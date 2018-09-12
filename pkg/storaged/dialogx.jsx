@@ -77,10 +77,16 @@
    given in the rejection is displayed as an error in the dialog.
 
    If the error value is a string, it is displayed as a global failure
-   message.  When it is an array, it contains errors for individual
+   message.  When it is an object, it contains errors for individual
    fields in this form:
 
       { tag1: message, tag2: message }
+
+   As a special case, when "message" is "true", the field is rendered
+   as having an error (with a red outline, say), but without any
+   directly associated text.  The idea is that a group of fields is in
+   error, and the error message for all of them is shown below the last
+   one in the group.
 
    COMMON FIELD OPTIONS
 

@@ -123,12 +123,12 @@ class TestStorage(StorageCase):
         assert m.execute("grep -v ^# /etc/crypttab || true").strip() == ""
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
+    @skipImage("No clevis/tang",
+               "centos-7", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
-
-        if m.execute("which clevis || true") == "":
-            self.skipTest("No clevis/tang here")
 
         # HACK - clevis in rhel devel is too old
         can_unlock = m.image not in [ "rhel-x" ]
@@ -262,12 +262,12 @@ class TestStorage(StorageCase):
         self.confirm()
         b.wait_not_in_text(self.content_tab_info_row(1, 1, "Network keys"), "127.0.0.1")
 
+    @skipImage("No clevis/tang",
+               "centos-7", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testClevisHttp(self):
         m = self.machine
         b = self.browser
-
-        if m.execute("which clevis || true") == "":
-            self.skipTest("No clevis/tang here")
 
         # HACK - clevis in rhel devel is too old
         can_unlock = m.image not in [ "rhel-x" ]

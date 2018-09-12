@@ -119,6 +119,7 @@ PackageKit \
 pcp-libs \
 pcp \
 realmd \
+redhat-logos \
 selinux-policy-targeted \
 setroubleshoot-server \
 subscription-manager \
@@ -156,6 +157,7 @@ tang \
 "
 
 if [ "$IMAGE" = "centos-7" ]; then
+    COCKPIT_DEPS="${COCKPIT_DEPS/redhat-logos/}"
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi

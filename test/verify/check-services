@@ -134,16 +134,16 @@ Unit=test.service
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(3)', '')  # next run
         b.wait_text(svc_sel('test.timer') + ' td:nth-child(4)', '')  # last trigger
         m.execute("systemctl start test.timer")
-        b.wait_in_text(svc_sel('test.timer') + ' td:nth-child(3)', "Today")  # next run
-        b.wait_in_text(svc_sel('test.timer') + ' td:nth-child(4)', "unknown")  # last trigger
+        b.wait_in_text(svc_sel('test.timer'), "Today")  # next run
+        b.wait_in_text(svc_sel('test.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test.timer")
 
         b.wait_present(svc_sel('test-onboot.timer'))
         b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(3)', '')  # next run
         b.wait_text(svc_sel('test-onboot.timer') + ' td:nth-child(4)', '')  # last trigger
         m.execute("systemctl start test-onboot.timer")
-        b.wait_in_text(svc_sel('test-onboot.timer') + ' td:nth-child(3)', "Today")  # next run
-        b.wait_in_text(svc_sel('test-onboot.timer') + ' td:nth-child(4)', "unknown")  # last trigger
+        b.wait_in_text(svc_sel('test-onboot.timer'), "Today")  # next run
+        b.wait_in_text(svc_sel('test-onboot.timer'), "unknown")  # last trigger
         m.execute("systemctl stop test-onboot.timer")
 
         # Selects Services tab

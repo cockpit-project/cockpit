@@ -491,6 +491,9 @@ Recommends: sscg >= 2.3
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
+%if 0%{?rhel}
+Requires: system-logos
+%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.

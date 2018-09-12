@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-05 15:20+0000\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2018-09-12 14:18+0200\n"
 "PO-Revision-Date: 2018-08-24 03:51+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Zanata 4.6.2\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 
 #: pkg/docker/storage.jsx:244
 msgid " (shared with the OS)"
@@ -87,7 +87,7 @@ msgstr[0] "$0 байт"
 msgstr[1] "$0 байти"
 msgstr[2] "$0 байтів"
 
-#: pkg/storaged/vdo-details.jsx:278
+#: pkg/storaged/vdo-details.jsx:279
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 даних + $1 додатково використано з $2 ($3)"
 
@@ -213,7 +213,7 @@ msgstr[0] "$0 оновлення"
 msgstr[1] "$0 оновлення"
 msgstr[2] "$0 оновлень"
 
-#: pkg/storaged/vdo-details.jsx:291
+#: pkg/storaged/vdo-details.jsx:292
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 використано з $1 ($2 заощаджено)"
 
@@ -241,7 +241,6 @@ msgstr[1] "$0 роки"
 msgstr[2] "$0 років"
 
 #: pkg/kubernetes/scripts/nodes.js:874
-#, c-format
 msgid "$0% Free"
 msgid_plural "$0% Free"
 msgstr[0] "Вільно $0%"
@@ -600,7 +599,7 @@ msgid "Access"
 msgstr "Доступ"
 
 #: pkg/kubernetes/views/pv-body.html:9 pkg/kubernetes/views/pv-claim.html:9
-#: pkg/kubernetes/views/pv-modify.html:69 pkg/kubernetes/views/pvc-body.html:18
+#: pkg/kubernetes/views/pvc-body.html:18 pkg/kubernetes/views/pv-modify.html:69
 msgid "Access Modes"
 msgstr "Режими доступу"
 
@@ -664,7 +663,7 @@ msgid "Active Pages"
 msgstr "Активні сторінки"
 
 #: pkg/storaged/index.html:377 pkg/storaged/index.html:397
-#: pkg/storaged/dialogx.jsx:724 pkg/storaged/dialogx.jsx:728
+#: pkg/storaged/dialogx.jsx:788 pkg/storaged/dialogx.jsx:792
 msgid "Active since"
 msgstr "Активний з"
 
@@ -685,11 +684,11 @@ msgstr "Адаптивне урівноваження навантаження �
 #: pkg/kubernetes/views/add-user-dialog.html:27
 #: pkg/kubernetes/views/node-add.html:50
 #: pkg/kubernetes/views/user-add-membership.html:49
-#: pkg/kubernetes/views/user-group-add.html:30 pkg/lib/machine-add.html:43
-#: pkg/shell/index.html:181 pkg/machines/components/diskAdd.jsx:445
-#: pkg/storaged/crypto-keyslots.jsx:201 pkg/storaged/iscsi-panel.jsx:155
-#: pkg/storaged/iscsi-panel.jsx:183 pkg/storaged/mdraid-details.jsx:61
-#: pkg/storaged/nfs-details.jsx:177 pkg/storaged/vgroup-details.jsx:65
+#: pkg/kubernetes/views/user-group-add.html:30 pkg/shell/index.html:181
+#: pkg/lib/machine-add.html:43 pkg/machines/components/diskAdd.jsx:445
+#: pkg/storaged/nfs-details.jsx:177 pkg/storaged/crypto-keyslots.jsx:201
+#: pkg/storaged/iscsi-panel.jsx:133 pkg/storaged/iscsi-panel.jsx:156
+#: pkg/storaged/mdraid-details.jsx:61 pkg/storaged/vgroup-details.jsx:65
 msgid "Add"
 msgstr "Додати"
 
@@ -851,7 +850,7 @@ msgstr "Додаткові пакунки:"
 #: pkg/kubernetes/views/details-page.html:174
 #: pkg/kubernetes/views/node-add.html:8 pkg/kubernetes/views/node-body.html:5
 #: pkg/kubernetes/views/nodes-page.html:43 pkg/lib/machine-add.html:11
-#: pkg/machines/vmnetworktab.jsx:60 pkg/storaged/iscsi-panel.jsx:150
+#: pkg/machines/vmnetworktab.jsx:60 pkg/storaged/iscsi-panel.jsx:127
 msgid "Address"
 msgstr "Адреса"
 
@@ -932,8 +931,7 @@ msgstr "Всі типи"
 
 #: pkg/machines/components/vcpuModal.jsx:159
 msgid "All changes will take effect only after stopping and starting the VM."
-msgstr ""
-"Усі зміни набудуть чинності лише після перезапуску віртуальної машини."
+msgstr "Усі зміни набудуть чинності лише після перезапуску віртуальної машини."
 
 #: pkg/docker/storage.jsx:354
 msgid ""
@@ -971,19 +969,18 @@ msgstr "Дозволені служби"
 msgid "Always"
 msgstr "Завжди"
 
-#: pkg/kubernetes/views/node-body.html:57
 #: pkg/kubernetes/views/route-body.html:27
+#: pkg/kubernetes/views/node-body.html:57
 #: node_modules/registry-image-widgets/views/annotations.html:1
 msgid "Annotations"
 msgstr "Анотації"
 
 #: pkg/kubernetes/scripts/projects.js:1028
 msgid "Anonymous: Allow all unauthenticated users to pull images"
-msgstr ""
-"Анонімний: дозволити усім нерозпізнаним користувачам отримувати образи"
+msgstr "Анонімний: дозволити усім нерозпізнаним користувачам отримувати образи"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:152
-#: pkg/apps/application.jsx:143
+#: pkg/apps/index.html:23 pkg/apps/application.jsx:143
+#: pkg/apps/application-list.jsx:152
 msgid "Applications"
 msgstr "Програми"
 
@@ -991,11 +988,11 @@ msgstr "Програми"
 #: pkg/networkmanager/index.html:700 pkg/networkmanager/index.html:724
 #: pkg/networkmanager/index.html:748 pkg/networkmanager/index.html:772
 #: pkg/networkmanager/index.html:796 pkg/networkmanager/index.html:820
-#: pkg/networkmanager/index.html:844 pkg/kdump/kdump-view.jsx:358
-#: pkg/machines/components/vcpuModal.jsx:223
-#: pkg/ovirt/components/vcpuModal.jsx:97 pkg/storaged/crypto-tab.jsx:78
+#: pkg/networkmanager/index.html:844 pkg/machines/components/vcpuModal.jsx:223
+#: pkg/storaged/nfs-details.jsx:177 pkg/storaged/crypto-tab.jsx:78
 #: pkg/storaged/crypto-tab.jsx:107 pkg/storaged/fsys-tab.jsx:73
-#: pkg/storaged/fsys-tab.jsx:120 pkg/storaged/nfs-details.jsx:177
+#: pkg/storaged/fsys-tab.jsx:120 pkg/kdump/kdump-view.jsx:358
+#: pkg/ovirt/components/vcpuModal.jsx:97
 msgid "Apply"
 msgstr "Застосувати"
 
@@ -1044,8 +1041,8 @@ msgstr "Мітка активу"
 msgid "At least $0 disks are needed."
 msgstr "Потрібно принаймні $0 дисків."
 
-#: pkg/storaged/mdraid-details.jsx:56 pkg/storaged/vgroup-details.jsx:60
-#: pkg/storaged/vgroups-panel.jsx:66
+#: pkg/storaged/vgroups-panel.jsx:66 pkg/storaged/mdraid-details.jsx:56
+#: pkg/storaged/vgroup-details.jsx:60
 msgid "At least one disk is needed."
 msgstr "Потрібен принаймні один диск."
 
@@ -1065,9 +1062,9 @@ msgstr "Журнал інспектування"
 msgid "Authenticating"
 msgstr "Автентифікація"
 
-#: pkg/kubernetes/views/auth-form.html:85 pkg/lib/machine-change-auth.html:32
-#: pkg/realmd/operation.html:35 pkg/shell/index.html:66
-#: pkg/shell/index.html:149
+#: pkg/kubernetes/views/auth-form.html:85 pkg/realmd/operation.html:35
+#: pkg/shell/index.html:66 pkg/shell/index.html:149
+#: pkg/lib/machine-change-auth.html:32
 msgid "Authentication"
 msgstr "Розпізнавання"
 
@@ -1083,13 +1080,13 @@ msgstr "Не вдалося пройти розпізнавання: з’єдн
 msgid "Authentication failed"
 msgstr "Помилка розпізнавання"
 
-#: pkg/storaged/iscsi-panel.jsx:171
+#: pkg/storaged/iscsi-panel.jsx:148
 msgid "Authentication required"
 msgstr "Слід пройти розпізнавання"
 
 #: pkg/docker/index.html:694
 #: node_modules/registry-image-widgets/views/image-body.html:12
-#: pkg/docker/containers-view.jsx:396
+#: pkg/docker/containers-view.jsx:398
 msgid "Author"
 msgstr "Автор"
 
@@ -1146,7 +1143,7 @@ msgstr "Доступні"
 msgid "Available Updates"
 msgstr "Доступні оновлення"
 
-#: pkg/storaged/iscsi-panel.jsx:145
+#: pkg/storaged/iscsi-panel.jsx:124
 msgid "Available targets on $0"
 msgstr "Доступні призначення на $0"
 
@@ -1174,7 +1171,7 @@ msgstr "Версія BIOS"
 msgid "Back to Accounts"
 msgstr "Назад до облікових записів"
 
-#: pkg/storaged/vdo-details.jsx:266
+#: pkg/storaged/vdo-details.jsx:267
 msgid "Backing Device"
 msgstr "Резервний пристрій"
 
@@ -1297,10 +1294,10 @@ msgid "CHANGE NETWORK STATE action failed"
 msgstr "Не вдалося виконати дію зі зміни стану мережі"
 
 #: pkg/dashboard/index.html:70 pkg/docker/index.html:268
-#: pkg/docker/containers-view.jsx:351 pkg/kubernetes/scripts/graphs.js:599
-#: pkg/kubernetes/scripts/nodes.js:715 pkg/kubernetes/scripts/nodes.js:821
+#: pkg/docker/containers-view.jsx:351
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:85
-#: pkg/systemd/hwinfo.jsx:62
+#: pkg/kubernetes/scripts/graphs.js:599 pkg/kubernetes/scripts/nodes.js:715
+#: pkg/kubernetes/scripts/nodes.js:821 pkg/systemd/hwinfo.jsx:62
 msgid "CPU"
 msgstr "Процесор"
 
@@ -1365,7 +1362,6 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/kubernetes/views/project-delete.html:8
 #: pkg/kubernetes/views/project-modify.html:71
 #: pkg/kubernetes/views/pv-delete.html:10
-#: pkg/kubernetes/views/pv-modify.html:203
 #: pkg/kubernetes/views/pvc-delete.html:14
 #: pkg/kubernetes/views/remove-role-dialog.html:7
 #: pkg/kubernetes/views/replicationcontroller-modify.html:16
@@ -1377,27 +1373,27 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/kubernetes/views/user-group-remove.html:9
 #: pkg/kubernetes/views/user-modify.html:26
 #: pkg/kubernetes/views/user-remove-membership.html:9
-#: pkg/lib/machine-add.html:42 pkg/lib/machine-change-auth.html:80
+#: pkg/kubernetes/views/pv-modify.html:203 pkg/networkmanager/index.html:651
+#: pkg/networkmanager/index.html:675 pkg/networkmanager/index.html:699
+#: pkg/networkmanager/index.html:723 pkg/networkmanager/index.html:747
+#: pkg/networkmanager/index.html:771 pkg/networkmanager/index.html:795
+#: pkg/networkmanager/index.html:819 pkg/networkmanager/index.html:843
+#: pkg/playground/translate.html:39 pkg/realmd/operation.html:92
+#: pkg/shell/index.html:122 pkg/shell/simple.html:90 pkg/shell/stub.html:105
+#: pkg/storaged/index.html:416 pkg/systemd/index.html:361
+#: pkg/systemd/index.html:448 pkg/systemd/index.html:500
+#: pkg/systemd/index.html:516 pkg/systemd/services.html:506
+#: pkg/users/index.html:225 pkg/users/index.html:289 pkg/users/index.html:328
+#: pkg/users/index.html:367 pkg/users/index.html:384 pkg/users/index.html:408
+#: pkg/users/index.html:465 pkg/lib/machine-add.html:42
 #: pkg/lib/machine-change-port.html:40 pkg/lib/machine-sync-users.html:74
-#: pkg/networkmanager/index.html:651 pkg/networkmanager/index.html:675
-#: pkg/networkmanager/index.html:699 pkg/networkmanager/index.html:723
-#: pkg/networkmanager/index.html:747 pkg/networkmanager/index.html:771
-#: pkg/networkmanager/index.html:795 pkg/networkmanager/index.html:819
-#: pkg/networkmanager/index.html:843 pkg/playground/translate.html:39
-#: pkg/realmd/operation.html:92 pkg/shell/index.html:122
-#: pkg/shell/simple.html:90 pkg/shell/stub.html:105 pkg/storaged/index.html:416
-#: pkg/systemd/index.html:361 pkg/systemd/index.html:448
-#: pkg/systemd/index.html:500 pkg/systemd/index.html:516
-#: pkg/systemd/services.html:506 pkg/users/index.html:225
-#: pkg/users/index.html:289 pkg/users/index.html:328 pkg/users/index.html:367
-#: pkg/users/index.html:384 pkg/users/index.html:408 pkg/users/index.html:465
-#: pkg/apps/utils.jsx:85 pkg/lib/cockpit-components-dialog.jsx:153
-#: pkg/networkmanager/firewall.jsx:258
+#: pkg/lib/machine-change-auth.html:80 pkg/networkmanager/firewall.jsx:258
+#: pkg/sosreport/index.js:51 pkg/storaged/job-views.jsx:43
+#: pkg/storaged/jobs-panel.jsx:123 pkg/storaged/dialogx.jsx:341
+#: pkg/lib/cockpit-components-dialog.jsx:153 pkg/apps/utils.jsx:85
+#: pkg/ovirt/components/VdsmView.jsx:97 pkg/ovirt/components/VdsmView.jsx:111
 #: pkg/ovirt/components/ClusterTemplates.jsx:75
-#: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
-#: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:183
-#: pkg/sosreport/index.js:51 pkg/storaged/dialogx.jsx:296
-#: pkg/storaged/job-views.jsx:43 pkg/storaged/jobs-panel.jsx:123
+#: pkg/ovirt/components/OVirtTab.jsx:66 pkg/packagekit/updates.jsx:183
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -1418,7 +1414,7 @@ msgid "Cannot schedule event in the past"
 msgstr "Не можна планувати подію на минуле"
 
 #: pkg/kubernetes/views/node-page.html:17 pkg/kubernetes/views/pv-body.html:13
-#: pkg/kubernetes/views/pv-modify.html:44 pkg/kubernetes/views/pvc-body.html:32
+#: pkg/kubernetes/views/pvc-body.html:32 pkg/kubernetes/views/pv-modify.html:44
 #: pkg/machines/components/vmDisksTab.jsx:68
 msgid "Capacity"
 msgstr "Місткість"
@@ -1436,11 +1432,11 @@ msgid "Ceph Monitors"
 msgstr "Монітори Ceph"
 
 #: pkg/docker/index.html:657 pkg/kubernetes/views/project-modify.html:74
-#: pkg/kubernetes/views/pv-modify.html:205
 #: pkg/kubernetes/views/replicationcontroller-modify.html:17
-#: pkg/kubernetes/views/route-modify.html:17 pkg/systemd/index.html:362
+#: pkg/kubernetes/views/route-modify.html:17
+#: pkg/kubernetes/views/pv-modify.html:205 pkg/systemd/index.html:362
 #: pkg/systemd/index.html:449 pkg/users/index.html:329 pkg/users/index.html:368
-#: pkg/storaged/iscsi-panel.jsx:216
+#: pkg/storaged/iscsi-panel.jsx:182
 msgid "Change"
 msgstr "Змінити"
 
@@ -1468,7 +1464,7 @@ msgstr "Змінити системний час"
 msgid "Change User"
 msgstr "Змінити користувача"
 
-#: pkg/storaged/iscsi-panel.jsx:208
+#: pkg/storaged/iscsi-panel.jsx:177
 msgid "Change iSCSI Initiator Name"
 msgstr "Змінити назву ініціатора iSCSI"
 
@@ -1576,23 +1572,24 @@ msgstr "Натисніть, щоб побачити дані щодо облад
 msgid ""
 "Clicking \"Launch Remote Viewer\" will download a .vv file and launch $0."
 msgstr ""
-"У результаті натискання «Запустити віддалений переглядач» буде отримано файл "
-".vv і запущено $0."
+"У результаті натискання «Запустити віддалений переглядач» буде отримано "
+"файл .vv і запущено $0."
 
 #: pkg/kubernetes/views/auth-form.html:88
 msgid "Client Certificate"
 msgstr "Сертифікат клієнта"
 
-#: pkg/docker/index.html:729 pkg/lib/machine-auth-failed.html:20
-#: pkg/lib/machine-change-port.html:45 pkg/lib/machine-invalid-hostkey.html:19
-#: pkg/lib/machine-not-supported.html:8 pkg/lib/machine-unknown-hostkey.html:19
-#: pkg/networkmanager/index.html:862 pkg/shell/index.html:96
-#: pkg/shell/index.html:139 pkg/shell/index.html:343 pkg/shell/simple.html:72
-#: pkg/shell/stub.html:79 pkg/shell/stub.html:122 pkg/storaged/index.html:79
-#: pkg/storaged/index.html:421 pkg/systemd/index.html:307
-#: pkg/systemd/services.html:347 pkg/systemd/services.html:365
-#: pkg/users/index.html:45 pkg/apps/utils.jsx:107 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:296
+#: pkg/docker/index.html:729 pkg/networkmanager/index.html:862
+#: pkg/shell/index.html:96 pkg/shell/index.html:139 pkg/shell/index.html:343
+#: pkg/shell/simple.html:72 pkg/shell/stub.html:79 pkg/shell/stub.html:122
+#: pkg/storaged/index.html:79 pkg/storaged/index.html:421
+#: pkg/systemd/index.html:307 pkg/systemd/services.html:347
+#: pkg/systemd/services.html:365 pkg/users/index.html:45
+#: pkg/lib/machine-auth-failed.html:20 pkg/lib/machine-change-port.html:45
+#: pkg/lib/machine-invalid-hostkey.html:19 pkg/lib/machine-not-supported.html:8
+#: pkg/lib/machine-unknown-hostkey.html:19 pkg/sosreport/index.js:45
+#: pkg/sosreport/index.js:110 pkg/storaged/dialogx.jsx:341
+#: pkg/apps/utils.jsx:107
 msgid "Close"
 msgstr "Закрити"
 
@@ -1600,7 +1597,7 @@ msgstr "Закрити"
 msgid "Close Selected Pages"
 msgstr "Закрити позначені сторінки"
 
-#: pkg/kubernetes/index.html:37 pkg/kubernetes/views/auth-form.html:5
+#: pkg/kubernetes/views/auth-form.html:5 pkg/kubernetes/index.html:37
 #: pkg/ovirt/components/App.jsx:105
 msgid "Cluster"
 msgstr "Кластер"
@@ -1698,16 +1695,15 @@ msgstr ""
 
 #: pkg/lib/machine-auth-failed.html:15
 msgid ""
-"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}You may want to try to {{#sync_link}}synchronize users{{/"
-"sync_link}}.{{/can_sync}} For more authentication options and "
-"troubleshooting support please upgrade cockpit-ws to a newer version."
+"Cockpit was unable to log in to {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
+"You may want to try to {{#sync_link}}synchronize users{{/sync_link}}.{{/"
+"can_sync}} For more authentication options and troubleshooting support "
+"please upgrade cockpit-ws to a newer version."
 msgstr ""
-"Cockpit не вдалося увійти до {{#strong}}{{host}}{{/strong}}. "
-"{{#can_sync}}Вам варто спробувати {{#sync_link}}синхронізувати "
-"користувачів{{/sync_link}}.{{/can_sync}} Щоб отримати доступ до ширшого "
-"спектра способів розпізнавання та до підтримки діагностики помилок, будь "
-"ласка, оновіть cockpit-ws."
+"Cockpit не вдалося увійти до {{#strong}}{{host}}{{/strong}}. {{#can_sync}}"
+"Вам варто спробувати {{#sync_link}}синхронізувати користувачів{{/sync_link}}."
+"{{/can_sync}} Щоб отримати доступ до ширшого спектра способів розпізнавання "
+"та до підтримки діагностики помилок, будь ласка, оновіть cockpit-ws."
 
 #: pkg/lib/machine-change-auth.html:9
 msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
@@ -1721,8 +1717,8 @@ msgid ""
 msgstr ""
 "Cockpit не вдалося увійти до {{#strong}}{{host}}{{/strong}}. Щоб "
 "користуватися цим комп’ютером за допомогою cockpit, вам слід увімкнути "
-"вказані нижче способи розпізнавання у налаштуваннях sshd на "
-"{{#strong}}{{host}}{{/strong}}:"
+"вказані нижче способи розпізнавання у налаштуваннях sshd на {{#strong}}"
+"{{host}}{{/strong}}:"
 
 #: pkg/lib/machine-change-auth.html:13
 msgid ""
@@ -1731,9 +1727,9 @@ msgid ""
 "{{#sync_link}}synchronize accounts and passwords{{/sync_link}}.{{/can_sync}}"
 msgstr ""
 "Cockpit не вдалося увійти до {{#strong}}{{host}}{{/strong}}. Ви можете "
-"змінити ваші реєстраційні дані для розпізнавання нижче. "
-"{{#can_sync}}Можливо, варто надати перевагу {{#sync_link}}синхронізації "
-"облікових записів і паролів{{/sync_link}}.{{/can_sync}}"
+"змінити ваші реєстраційні дані для розпізнавання нижче. {{#can_sync}}"
+"Можливо, варто надати перевагу {{#sync_link}}синхронізації облікових записів "
+"і паролів{{/sync_link}}.{{/can_sync}}"
 
 #: pkg/dashboard/index.html:155 pkg/lib/machine-add.html:27
 msgid "Color"
@@ -1754,7 +1750,7 @@ msgstr[2] "Комбіноване використання $0 ядер проц�
 #: pkg/docker/index.html:700 pkg/systemd/services.html:411
 #: node_modules/registry-image-widgets/views/image-config.html:2
 #: pkg/docker/containers-view.jsx:127 pkg/docker/containers-view.jsx:351
-#: pkg/docker/containers-view.jsx:394
+#: pkg/docker/containers-view.jsx:396
 msgid "Command"
 msgstr "Команда"
 
@@ -1799,8 +1795,8 @@ msgstr "Сумісний зі сучасними системами та жор�
 msgid "Compress crash dumps to save space"
 msgstr "Стиснути дампи аварійних завершень для заощадження місця"
 
-#: pkg/kdump/kdump-view.jsx:190 pkg/storaged/vdo-details.jsx:305
-#: pkg/storaged/vdos-panel.jsx:94
+#: pkg/storaged/vdos-panel.jsx:94 pkg/storaged/vdo-details.jsx:306
+#: pkg/kdump/kdump-view.jsx:190
 msgid "Compression"
 msgstr "Стискання"
 
@@ -2014,10 +2010,11 @@ msgid "Container:"
 msgstr "Контейнер:"
 
 #: pkg/docker/index.html:23 pkg/docker/index.html:285
-#: pkg/kubernetes/index.html:55 pkg/kubernetes/views/containers-listing.html:5
+#: pkg/kubernetes/views/containers-listing.html:5
 #: pkg/kubernetes/views/dashboard-page.html:158
 #: pkg/kubernetes/views/dashboard-page.html:199
-#: pkg/kubernetes/views/pod-page.html:36 pkg/docker/containers-view.jsx:367
+#: pkg/kubernetes/views/pod-page.html:36 pkg/kubernetes/index.html:55
+#: pkg/docker/containers-view.jsx:367
 msgid "Containers"
 msgstr "Контейнери"
 
@@ -2132,10 +2129,10 @@ msgstr "Аварійно завершити роботу системи"
 #: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:63
 #: pkg/kubernetes/scripts/virtual-machines/components/createVmButton.jsx:76
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:414
+#: pkg/storaged/mdraids-panel.jsx:84 pkg/storaged/vdos-panel.jsx:108
+#: pkg/storaged/vgroups-panel.jsx:71 pkg/storaged/content-views.jsx:114
+#: pkg/storaged/content-views.jsx:671 pkg/storaged/lvol-tabs.jsx:267
 #: pkg/ovirt/components/ClusterTemplates.jsx:76
-#: pkg/storaged/content-views.jsx:114 pkg/storaged/content-views.jsx:671
-#: pkg/storaged/lvol-tabs.jsx:267 pkg/storaged/mdraids-panel.jsx:84
-#: pkg/storaged/vdos-panel.jsx:108 pkg/storaged/vgroups-panel.jsx:71
 msgid "Create"
 msgstr "Створити"
 
@@ -2237,12 +2234,13 @@ msgstr "Створити розділ на $0"
 msgid "Create partition table"
 msgstr "Створити таблицю розділів"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:7
-#: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
+#: pkg/kubernetes/views/pod-body.html:7
 #: pkg/kubernetes/views/replicationcontroller-body.html:7
 #: pkg/kubernetes/views/route-body.html:7
-#: pkg/kubernetes/views/service-body.html:7 pkg/docker/containers-view.jsx:124
-#: pkg/docker/containers-view.jsx:395 pkg/docker/containers-view.jsx:664
+#: pkg/kubernetes/views/service-body.html:7
+#: pkg/kubernetes/views/deploymentconfig-body.html:7
+#: pkg/kubernetes/views/node-body.html:3 pkg/docker/containers-view.jsx:124
+#: pkg/docker/containers-view.jsx:397 pkg/docker/containers-view.jsx:666
 msgid "Created"
 msgstr "Створено"
 
@@ -2370,7 +2368,7 @@ msgstr "Домени пошуку DNS $val"
 msgid "Dashboard"
 msgstr "Панель приладів"
 
-#: pkg/storaged/lvol-tabs.jsx:412
+#: pkg/storaged/lvol-tabs.jsx:414
 msgid "Data Used"
 msgstr "Використано даних"
 
@@ -2390,7 +2388,7 @@ msgstr "Деактивуємо $target"
 msgid "Debug and above"
 msgstr "Діагностика і вище"
 
-#: pkg/storaged/vdo-details.jsx:311 pkg/storaged/vdos-panel.jsx:99
+#: pkg/storaged/vdos-panel.jsx:99 pkg/storaged/vdo-details.jsx:312
 msgid "Deduplication"
 msgstr "Скасування дублювання"
 
@@ -2415,12 +2413,11 @@ msgstr "Затримка"
 #: pkg/kubernetes/views/pvc-delete.html:15
 #: pkg/kubernetes/views/user-remove-membership.html:10
 #: pkg/networkmanager/index.html:607 pkg/users/index.html:79
-#: pkg/users/index.html:409 pkg/docker/containers-view.jsx:196
-#: pkg/docker/details.js:286 pkg/docker/util.js:634
+#: pkg/users/index.html:409 pkg/docker/details.js:286 pkg/docker/util.js:634
+#: pkg/docker/containers-view.jsx:196 pkg/kubernetes/scripts/volumes.js:218
 #: pkg/kubernetes/scripts/virtual-machines/components/VmActions.jsx:49
-#: pkg/kubernetes/scripts/volumes.js:218
-#: pkg/machines/components/deleteDialog.jsx:92
 #: pkg/machines/components/vm/vmActions.jsx:98
+#: pkg/machines/components/deleteDialog.jsx:92
 #: pkg/storaged/content-views.jsx:284 pkg/storaged/content-views.jsx:305
 #: pkg/storaged/mdraid-details.jsx:303 pkg/storaged/mdraid-details.jsx:326
 #: pkg/storaged/vdo-details.jsx:192 pkg/storaged/vdo-details.jsx:256
@@ -2490,8 +2487,8 @@ msgid ""
 "automatically created again in some cases."
 msgstr ""
 "Вилучення кокона призведе до завершення роботи усіх пов’язаних із ним "
-"контейнерів. У певних випадках кокон може бути повторно створено автоматично."
-"\n"
+"контейнерів. У певних випадках кокон може бути повторно створено "
+"автоматично.\n"
 "          "
 
 #: pkg/storaged/mdraid-details.jsx:304
@@ -2502,7 +2499,7 @@ msgstr "Вилучення пристрою RAID призведе до вити�
 msgid "Deleting a VDO device will erase all data on it."
 msgstr "Вилучення пристрою VDO призведе до витирання усіх даних на ньому."
 
-#: pkg/docker/containers-view.jsx:195 pkg/docker/details.js:285
+#: pkg/docker/details.js:285 pkg/docker/containers-view.jsx:195
 msgid "Deleting a container will erase all data in it."
 msgstr ""
 "Вилучення контейнера призведе до витирання усіх даних, що на ньому "
@@ -2518,7 +2515,6 @@ msgstr ""
 msgid "Deleting a partition will delete all data in it."
 msgstr ""
 "Вилучення розділу призведе до вилучення усіх даних, що на ньому зберігаються."
-""
 
 #: pkg/storaged/vgroup-details.jsx:214
 msgid "Deleting a volume group will erase all data on it."
@@ -2557,14 +2553,14 @@ msgstr "Налаштування розгортання"
 #: pkg/kubernetes/views/project-listing.html:54
 #: pkg/kubernetes/views/project-modify.html:40 pkg/systemd/services.html:397
 #: node_modules/registry-image-widgets/views/image-body.html:6
-#: pkg/ovirt/components/ClusterTemplates.jsx:135
+#: pkg/systemd/init.js:271 pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:83
-#: pkg/ovirt/components/ClusterVms.jsx:181 pkg/systemd/init.js:271
+#: pkg/ovirt/components/ClusterVms.jsx:181
 msgid "Description"
 msgstr "Опис"
 
-#: pkg/ovirt/components/OVirtTab.jsx:146
 #: pkg/ovirt/components/VmOverviewColumn.jsx:52
+#: pkg/ovirt/components/OVirtTab.jsx:146
 msgid "Description:"
 msgstr "Опис:"
 
@@ -2577,10 +2573,10 @@ msgid "Detachable"
 msgstr "Змінний"
 
 #: pkg/kubernetes/index.html:73 pkg/shell/index.html:249
-#: pkg/docker/containers-view.jsx:328 pkg/docker/containers-view.jsx:484
-#: pkg/docker/containers-view.jsx:494 pkg/docker/containers-view.jsx:623
-#: pkg/networkmanager/firewall.jsx:85 pkg/packagekit/updates.jsx:378
-#: pkg/subscriptions/subscriptions-view.jsx:209
+#: pkg/docker/containers-view.jsx:328 pkg/docker/containers-view.jsx:486
+#: pkg/docker/containers-view.jsx:496 pkg/docker/containers-view.jsx:625
+#: pkg/networkmanager/firewall.jsx:85
+#: pkg/subscriptions/subscriptions-view.jsx:209 pkg/packagekit/updates.jsx:378
 msgid "Details"
 msgstr "Подробиці"
 
@@ -2589,7 +2585,7 @@ msgstr "Подробиці"
 msgid "Device"
 msgstr "Пристрій"
 
-#: pkg/storaged/vdo-details.jsx:262
+#: pkg/storaged/vdo-details.jsx:263
 msgid "Device File"
 msgstr "Файл пристрою"
 
@@ -2671,9 +2667,9 @@ msgstr "Пароль до диска"
 
 #: pkg/kubernetes/scripts/virtual-machines/components/VmDetail.jsx:74
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListingRow.jsx:61
-#: pkg/machines/components/vm/vm.jsx:45 pkg/storaged/mdraid-details.jsx:47
-#: pkg/storaged/mdraid-details.jsx:154 pkg/storaged/mdraids-panel.jsx:72
-#: pkg/storaged/vgroup-details.jsx:51 pkg/storaged/vgroups-panel.jsx:61
+#: pkg/machines/components/vm/vm.jsx:45 pkg/storaged/mdraids-panel.jsx:72
+#: pkg/storaged/vgroups-panel.jsx:61 pkg/storaged/mdraid-details.jsx:47
+#: pkg/storaged/mdraid-details.jsx:154 pkg/storaged/vgroup-details.jsx:51
 msgid "Disks"
 msgstr "Диски"
 
@@ -2725,8 +2721,8 @@ msgstr ""
 
 #: pkg/kubernetes/views/remove-role-dialog.html:5
 msgid ""
-"Do you want to remove the role '{{ fields.displayRole }}' from member {{ "
-"fields.member.metadata.name }}?"
+"Do you want to remove the role '{{ fields.displayRole }}' from member "
+"{{ fields.member.metadata.name }}?"
 msgstr ""
 "Хочете вилучити роль «{{ fields.displayRole }}» із запису учасника {{ fields."
 "member.metadata.name }}?"
@@ -2841,7 +2837,7 @@ msgstr "Дублювання псевдоніма"
 msgid "Duplicate port"
 msgstr "Дублювання порту"
 
-#: pkg/storaged/crypto-tab.jsx:133 pkg/storaged/nfs-details.jsx:288
+#: pkg/storaged/nfs-details.jsx:288 pkg/storaged/crypto-tab.jsx:133
 msgid "Edit"
 msgstr "Змінити"
 
@@ -3005,7 +3001,7 @@ msgstr ""
 msgid "Entry"
 msgstr "Запис"
 
-#: pkg/docker/containers-view.jsx:393
+#: pkg/docker/containers-view.jsx:395
 msgid "Entrypoint"
 msgstr "Точка входження"
 
@@ -3031,9 +3027,9 @@ msgid "Errata:"
 msgstr "Помилки:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/systemd/services.html:359 pkg/apps/utils.jsx:99
-#: pkg/storaged/devices.js:107 pkg/storaged/storage-controls.jsx:88
-#: pkg/storaged/storage-controls.jsx:180 pkg/users/local.js:1400
+#: pkg/systemd/services.html:359 pkg/storaged/devices.js:107
+#: pkg/storaged/storage-controls.jsx:88 pkg/storaged/storage-controls.jsx:182
+#: pkg/users/local.js:1400 pkg/apps/utils.jsx:99
 msgid "Error"
 msgstr "Помилка"
 
@@ -3121,7 +3117,7 @@ msgstr "Помилка"
 msgid "Failed to add machine: $0"
 msgstr "Не вдалося додати комп’ютер: $0"
 
-#: pkg/lib/credentials.js:230 pkg/users/local.js:114 pkg/users/local.js:145
+#: pkg/users/local.js:114 pkg/users/local.js:145 pkg/lib/credentials.js:230
 msgid "Failed to change password"
 msgstr "Не вдалося змінити пароль"
 
@@ -3187,7 +3183,6 @@ msgstr "Монтування файлової системи"
 msgid "Filesystem Name"
 msgstr "Назва файлової системи"
 
-#: pkg/kubernetes/views/pv-modify.html:181
 #: pkg/kubernetes/views/volume-body.html:6
 #: pkg/kubernetes/views/volume-body.html:16
 #: pkg/kubernetes/views/volume-body.html:62
@@ -3195,6 +3190,7 @@ msgstr "Назва файлової системи"
 #: pkg/kubernetes/views/volume-body.html:91
 #: pkg/kubernetes/views/volume-body.html:120
 #: pkg/kubernetes/views/volume-body.html:132
+#: pkg/kubernetes/views/pv-modify.html:181
 msgid "Filesystem Type"
 msgstr "Тип файлової системи"
 
@@ -3210,7 +3206,7 @@ msgstr "Файлові системи"
 msgid "Filter Services"
 msgstr "Фільтрувати служби"
 
-#: pkg/lib/machine-unknown-hostkey.html:10 pkg/shell/index.html:289
+#: pkg/shell/index.html:289 pkg/lib/machine-unknown-hostkey.html:10
 msgid "Fingerprint"
 msgstr "Відбиток"
 
@@ -3334,7 +3330,7 @@ msgstr "Загальний"
 msgid "Generating report"
 msgstr "Створюємо звіт"
 
-#: pkg/docker/containers-view.jsx:661
+#: pkg/docker/containers-view.jsx:663
 msgid "Get new image"
 msgstr "Отримати новий образ"
 
@@ -3399,9 +3395,9 @@ msgstr "Група або проект"
 msgid "Groups"
 msgstr "Групи"
 
-#: pkg/storaged/lvol-tabs.jsx:181 pkg/storaged/lvol-tabs.jsx:367
-#: pkg/storaged/lvol-tabs.jsx:407 pkg/storaged/vdo-details.jsx:223
-#: pkg/storaged/vdo-details.jsx:297
+#: pkg/storaged/lvol-tabs.jsx:181 pkg/storaged/lvol-tabs.jsx:368
+#: pkg/storaged/lvol-tabs.jsx:409 pkg/storaged/vdo-details.jsx:223
+#: pkg/storaged/vdo-details.jsx:298
 msgid "Grow"
 msgstr "Збільшити"
 
@@ -3462,9 +3458,9 @@ msgstr "Час вітання $hello_time"
 #: pkg/kubernetes/views/details-page.html:73
 #: pkg/kubernetes/views/route-body.html:9
 #: pkg/kubernetes/views/route-modify.html:8
-#: pkg/machines/components/vmDiskSourceCell.jsx:41
+#: pkg/machines/components/vmDiskSourceCell.jsx:41 pkg/shell/indexes.js:333
 #: pkg/ovirt/components/App.jsx:101 pkg/ovirt/components/ClusterVms.jsx:65
-#: pkg/ovirt/components/ClusterVms.jsx:182 pkg/shell/indexes.js:333
+#: pkg/ovirt/components/ClusterVms.jsx:182
 msgid "Host"
 msgstr "Вузол"
 
@@ -3504,8 +3500,8 @@ msgstr "Очікування В-В"
 msgid "INSTALL VM action failed"
 msgstr "Помилка під час дії зі встановлення ВМ"
 
-#: pkg/kubernetes/views/node-body.html:10
 #: pkg/kubernetes/views/service-body.html:9
+#: pkg/kubernetes/views/node-body.html:10
 msgid "IP"
 msgstr "IP"
 
@@ -3545,7 +3541,7 @@ msgstr "Параметри IPv6"
 msgid "ISCSI"
 msgstr "ISCSI"
 
-#: pkg/docker/containers-view.jsx:123 pkg/docker/containers-view.jsx:391
+#: pkg/docker/containers-view.jsx:123 pkg/docker/containers-view.jsx:393
 #: pkg/systemd/init.js:272
 msgid "Id"
 msgstr "Ід."
@@ -3634,11 +3630,10 @@ msgstr "Потік образу"
 msgid "Image:"
 msgstr "Зображення:"
 
-#: pkg/kubernetes/index.html:87 pkg/kubernetes/registry.html:49
-#: pkg/kubernetes/views/images-page.html:13
-#: pkg/kubernetes/views/imagestream-page.html:24
 #: pkg/kubernetes/views/registry-dashboard-page.html:19
-#: pkg/docker/containers-view.jsx:692
+#: pkg/kubernetes/views/images-page.html:13
+#: pkg/kubernetes/views/imagestream-page.html:24 pkg/kubernetes/index.html:87
+#: pkg/kubernetes/registry.html:49 pkg/docker/containers-view.jsx:694
 msgid "Images"
 msgstr "Зображення"
 
@@ -3696,16 +3691,15 @@ msgstr ""
 msgid ""
 "In order to begin pushing images to the registry, you need to create a "
 "project."
-msgstr ""
-"Щоб розпочати надсилання образів до реєстру, вам слід створити проект."
+msgstr "Щоб розпочати надсилання образів до реєстру, вам слід створити проект."
 
 #: pkg/lib/machine-sync-users.html:50
 msgid ""
 "In order to synchronize users, you need to log in to {{#strong}}{{host}}{{/"
 "strong}}."
 msgstr ""
-"Для синхронізації параметрів користувачів, слід увійти до "
-"{{#strong}}{{host}}{{/strong}}. "
+"Для синхронізації параметрів користувачів, слід увійти до {{#strong}}{{host}}"
+"{{/strong}}. "
 
 #: pkg/networkmanager/interfaces.js:822 pkg/networkmanager/interfaces.js:1418
 #: pkg/networkmanager/interfaces.js:1425 pkg/networkmanager/interfaces.js:2594
@@ -3720,7 +3714,7 @@ msgstr "Неактивний том"
 msgid "Incorrect Host Key"
 msgstr "Неправильний ключ вузла"
 
-#: pkg/storaged/vdo-details.jsx:301 pkg/storaged/vdos-panel.jsx:84
+#: pkg/storaged/vdos-panel.jsx:84 pkg/storaged/vdo-details.jsx:302
 msgid "Index Memory"
 msgstr "Пам'ять покажчика"
 
@@ -3736,9 +3730,9 @@ msgstr "Немає доступу до даних щодо резервного 
 msgid "Initializing..."
 msgstr "Ініціалізація…"
 
-#: pkg/apps/application-list.jsx:87 pkg/apps/application.jsx:112
-#: pkg/lib/cockpit-components-install-dialog.jsx:115
 #: pkg/machines/components/vm/vmActions.jsx:83
+#: pkg/lib/cockpit-components-install-dialog.jsx:115
+#: pkg/apps/application.jsx:112 pkg/apps/application-list.jsx:87
 msgid "Install"
 msgstr "Встановити"
 
@@ -3788,7 +3782,7 @@ msgstr "Встановлено"
 msgid "Installed products"
 msgstr "Встановлені продукти"
 
-#: pkg/apps/application-list.jsx:47 pkg/apps/application.jsx:55
+#: pkg/apps/application.jsx:55 pkg/apps/application-list.jsx:47
 #: pkg/packagekit/updates.jsx:50
 msgid "Installing"
 msgstr "Встановлення"
@@ -3801,8 +3795,8 @@ msgstr "Встановлюємо $0"
 msgid "Instantiate"
 msgstr "Створити екземпляр"
 
-#: pkg/kubernetes/views/pv-modify.html:170
 #: pkg/kubernetes/views/volume-body.html:81
+#: pkg/kubernetes/views/pv-modify.html:170
 msgid "Interface"
 msgstr "Інтерфейс"
 
@@ -3826,11 +3820,11 @@ msgstr "Некоректна адреса $0"
 msgid "Invalid credentials"
 msgstr "Реєстраційні дані вказано з помилками"
 
-#: pkg/systemd/host.js:1328 pkg/systemd/shutdown.js:142
+#: pkg/systemd/shutdown.js:142 pkg/systemd/host.js:1328
 msgid "Invalid date format"
 msgstr "Некоректний формат дати"
 
-#: pkg/systemd/host.js:1324 pkg/systemd/shutdown.js:138
+#: pkg/systemd/shutdown.js:138 pkg/systemd/host.js:1324
 msgid "Invalid date format and invalid time format"
 msgstr "Некоректний формат дати і часу"
 
@@ -3878,7 +3872,7 @@ msgstr "Некоректний префікс $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Некоректний префікс або маска мережі $0"
 
-#: pkg/systemd/host.js:1326 pkg/systemd/shutdown.js:140
+#: pkg/systemd/shutdown.js:140 pkg/systemd/host.js:1326
 msgid "Invalid time format"
 msgstr "Некоректний формат визначення часу"
 
@@ -3886,7 +3880,7 @@ msgstr "Некоректний формат визначення часу"
 msgid "Invalid time zone"
 msgstr "Некоректний часовий пояс"
 
-#: pkg/storaged/iscsi-panel.jsx:103 pkg/storaged/iscsi-panel.jsx:194
+#: pkg/storaged/iscsi-panel.jsx:80 pkg/storaged/iscsi-panel.jsx:164
 #: pkg/subscriptions/subscriptions-client.js:194
 msgid "Invalid username or password"
 msgstr "Некоректне ім’я користувача чи пароль"
@@ -4006,11 +4000,12 @@ msgstr "Кластер Kubernetes"
 msgid "LACP Key"
 msgstr "Ключ LACP"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:41
-#: pkg/kubernetes/views/node-body.html:31 pkg/kubernetes/views/pod-body.html:26
+#: pkg/kubernetes/views/pod-body.html:26
 #: pkg/kubernetes/views/replicationcontroller-body.html:17
 #: pkg/kubernetes/views/route-body.html:22
 #: pkg/kubernetes/views/service-body.html:26
+#: pkg/kubernetes/views/deploymentconfig-body.html:41
+#: pkg/kubernetes/views/node-body.html:31
 #: node_modules/registry-image-widgets/views/image-meta.html:3
 msgid "Labels"
 msgstr "Мітки"
@@ -4055,8 +4050,8 @@ msgstr "Останнє оновлення"
 msgid "Last checked: $0 ago"
 msgstr "Востаннє перевірено: $0 тому"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:15
 #: pkg/kubernetes/views/details-page.html:107
+#: pkg/kubernetes/views/deploymentconfig-body.html:15
 msgid "Latest Version"
 msgstr "Найсвіжіша версія"
 
@@ -4087,7 +4082,6 @@ msgid ""
 "Leave blank to connect to this machine as the currently logged in "
 "user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a "
 "different username, that user will always be used connecting to this machine."
-""
 msgstr ""
 "Не заповнюйте, щоб встановити з’єднання із цією машиною від імені поточного "
 "користувача системи{{#default_user}} ({{default_user}}){{/default_user}}. "
@@ -4154,8 +4148,8 @@ msgstr "Завантажуємо доступні оновлення, зачек
 msgid "Loading data ..."
 msgstr "Завантажуємо дані…"
 
-#: pkg/kdump/kdump-view.jsx:372 pkg/systemd/logs.js:140 pkg/systemd/logs.js:155
-#: pkg/systemd/logs.js:199 pkg/systemd/logs.js:240
+#: pkg/systemd/logs.js:140 pkg/systemd/logs.js:155 pkg/systemd/logs.js:199
+#: pkg/systemd/logs.js:240 pkg/kdump/kdump-view.jsx:372
 msgid "Loading..."
 msgstr "Завантаження…"
 
@@ -4231,17 +4225,17 @@ msgstr "Повідомлення журналу"
 msgid "Logged In"
 msgstr "Вхід"
 
-#: pkg/storaged/vdo-details.jsx:288
+#: pkg/storaged/vdo-details.jsx:289
 msgid "Logical"
 msgstr "Логічний"
 
-#: pkg/storaged/vdo-details.jsx:214 pkg/storaged/vdos-panel.jsx:68
+#: pkg/storaged/vdos-panel.jsx:68 pkg/storaged/vdo-details.jsx:214
 msgid "Logical Size"
 msgstr "Логічний розмір"
 
-#: pkg/kubernetes/views/pv-modify.html:159
 #: pkg/kubernetes/views/volume-body.html:79
 #: pkg/kubernetes/views/volume-body.html:118
+#: pkg/kubernetes/views/pv-modify.html:159
 msgid "Logical Unit Number"
 msgstr "Логічний номер модуля"
 
@@ -4439,9 +4433,10 @@ msgstr "Участь"
 
 #: pkg/dashboard/index.html:71 pkg/docker/index.html:269
 #: pkg/playground/translate.html:90 pkg/systemd/index.html:230
-#: pkg/docker/containers-view.jsx:351 pkg/kubernetes/scripts/graphs.js:604
-#: pkg/kubernetes/scripts/nodes.js:719 pkg/kubernetes/scripts/nodes.js:830
+#: pkg/docker/containers-view.jsx:351
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:94
+#: pkg/kubernetes/scripts/graphs.js:604 pkg/kubernetes/scripts/nodes.js:719
+#: pkg/kubernetes/scripts/nodes.js:830
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:270
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181
@@ -4473,8 +4468,8 @@ msgstr "Використання пам'яті:"
 msgid "Memory:"
 msgstr "Пам’ять:"
 
-#: pkg/kubernetes/views/node-body.html:47 pkg/kubernetes/views/pv-body.html:27
-#: pkg/kubernetes/views/pv-claim.html:32 pkg/kubernetes/views/pvc-body.html:15
+#: pkg/kubernetes/views/pv-body.html:27 pkg/kubernetes/views/pv-claim.html:32
+#: pkg/kubernetes/views/pvc-body.html:15 pkg/kubernetes/views/node-body.html:47
 msgid "Message"
 msgstr "Повідомлення"
 
@@ -4489,7 +4484,7 @@ msgstr "Повідомлення користувачам, які увійшли
 msgid "Metadata"
 msgstr "Метадані"
 
-#: pkg/storaged/lvol-tabs.jsx:416
+#: pkg/storaged/lvol-tabs.jsx:418
 msgid "Metadata Used"
 msgstr "Використано метаданих"
 
@@ -4569,8 +4564,8 @@ msgstr "Докладніше"
 msgid "More details"
 msgstr "Докладніше"
 
-#: pkg/kdump/kdump-view.jsx:104 pkg/storaged/fsys-tab.jsx:166
-#: pkg/storaged/fsys-tab.jsx:197 pkg/storaged/nfs-details.jsx:283
+#: pkg/storaged/nfs-details.jsx:283 pkg/storaged/fsys-tab.jsx:166
+#: pkg/storaged/fsys-tab.jsx:197 pkg/kdump/kdump-view.jsx:104
 msgid "Mount"
 msgstr "Змонтувати"
 
@@ -4578,17 +4573,17 @@ msgstr "Змонтувати"
 msgid "Mount Location"
 msgstr "Місце монтування"
 
-#: pkg/storaged/fsys-tab.jsx:178 pkg/storaged/nfs-details.jsx:162
+#: pkg/storaged/nfs-details.jsx:162 pkg/storaged/fsys-tab.jsx:178
 msgid "Mount Options"
 msgstr "Параметри монтування"
 
-#: pkg/storaged/format-dialog.jsx:77 pkg/storaged/fsys-panel.jsx:109
-#: pkg/storaged/fsys-tab.jsx:159 pkg/storaged/nfs-details.jsx:302
-#: pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/nfs-details.jsx:302 pkg/storaged/fsys-panel.jsx:109
+#: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/format-dialog.jsx:77
+#: pkg/storaged/fsys-tab.jsx:159
 msgid "Mount Point"
 msgstr "Точка монтування"
 
-#: pkg/storaged/format-dialog.jsx:87 pkg/storaged/nfs-details.jsx:164
+#: pkg/storaged/nfs-details.jsx:164 pkg/storaged/format-dialog.jsx:87
 msgid "Mount at boot"
 msgstr "Змонтувати при завантаженні"
 
@@ -4612,7 +4607,7 @@ msgstr "Точка монтування не може бути порожньо�
 msgid "Mount point must start with \"/\"."
 msgstr "Запис точки монтування має починатися з «/»."
 
-#: pkg/storaged/format-dialog.jsx:100 pkg/storaged/nfs-details.jsx:168
+#: pkg/storaged/nfs-details.jsx:168 pkg/storaged/format-dialog.jsx:100
 msgid "Mount read only"
 msgstr "Змонтувати лише для читання"
 
@@ -4676,37 +4671,38 @@ msgstr "Сервер NTP"
 #: pkg/kubernetes/views/details-page.html:171
 #: pkg/kubernetes/views/imagestream-modify.html:10
 #: pkg/kubernetes/views/node-add.html:16
-#: pkg/kubernetes/views/nodes-page.html:41
 #: pkg/kubernetes/views/project-listing.html:14
 #: pkg/kubernetes/views/project-listing.html:53
 #: pkg/kubernetes/views/project-listing.html:90
 #: pkg/kubernetes/views/project-modify.html:16
-#: pkg/kubernetes/views/pv-claim.html:4 pkg/kubernetes/views/pv-modify.html:32
+#: pkg/kubernetes/views/pv-claim.html:4
 #: pkg/kubernetes/views/service-modify.html:9
 #: pkg/kubernetes/views/user-modify.html:9
 #: pkg/kubernetes/views/volume-body.html:31
 #: pkg/kubernetes/views/volumes-page.html:19
-#: pkg/kubernetes/views/volumes-page.html:57 pkg/networkmanager/index.html:127
+#: pkg/kubernetes/views/volumes-page.html:57
+#: pkg/kubernetes/views/nodes-page.html:41
+#: pkg/kubernetes/views/pv-modify.html:32 pkg/networkmanager/index.html:127
 #: pkg/networkmanager/index.html:145 pkg/networkmanager/index.html:183
 #: pkg/networkmanager/index.html:239 pkg/networkmanager/index.html:338
 #: pkg/networkmanager/index.html:438
 #: node_modules/registry-image-widgets/views/image-body.html:2
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:5
-#: pkg/docker/containers-view.jsx:351 pkg/docker/containers-view.jsx:664
+#: pkg/docker/containers-view.jsx:351 pkg/docker/containers-view.jsx:666
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:56
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:206
 #: pkg/machines/components/diskAdd.jsx:126 pkg/machines/hostvmslist.jsx:92
+#: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/part-tab.jsx:38
+#: pkg/storaged/fsys-panel.jsx:108 pkg/storaged/vdos-panel.jsx:51
+#: pkg/storaged/vgroups-panel.jsx:56 pkg/storaged/content-views.jsx:102
+#: pkg/storaged/content-views.jsx:623 pkg/storaged/format-dialog.jsx:276
+#: pkg/storaged/fsys-tab.jsx:69 pkg/storaged/fsys-tab.jsx:149
+#: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:179
+#: pkg/storaged/lvol-tabs.jsx:40 pkg/storaged/lvol-tabs.jsx:253
+#: pkg/storaged/lvol-tabs.jsx:357 pkg/storaged/lvol-tabs.jsx:399
+#: pkg/storaged/vgroup-details.jsx:180 pkg/systemd/hwinfo.jsx:40
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181 pkg/packagekit/updates.jsx:375
-#: pkg/storaged/content-views.jsx:102 pkg/storaged/content-views.jsx:623
-#: pkg/storaged/format-dialog.jsx:276 pkg/storaged/fsys-panel.jsx:108
-#: pkg/storaged/fsys-tab.jsx:69 pkg/storaged/fsys-tab.jsx:149
-#: pkg/storaged/iscsi-panel.jsx:150 pkg/storaged/iscsi-panel.jsx:211
-#: pkg/storaged/lvol-tabs.jsx:40 pkg/storaged/lvol-tabs.jsx:253
-#: pkg/storaged/lvol-tabs.jsx:356 pkg/storaged/lvol-tabs.jsx:397
-#: pkg/storaged/mdraids-panel.jsx:41 pkg/storaged/part-tab.jsx:38
-#: pkg/storaged/vdos-panel.jsx:51 pkg/storaged/vgroup-details.jsx:180
-#: pkg/storaged/vgroups-panel.jsx:56 pkg/systemd/hwinfo.jsx:40
 msgid "Name"
 msgstr "Назва"
 
@@ -4740,7 +4736,6 @@ msgstr "Назва не може складатися лише із порожн
 
 #: pkg/kubernetes/views/containers-listing.html:14
 #: pkg/kubernetes/views/dashboard-page.html:160
-#: pkg/kubernetes/views/deploymentconfig-body.html:5
 #: pkg/kubernetes/views/details-page.html:36
 #: pkg/kubernetes/views/details-page.html:72
 #: pkg/kubernetes/views/details-page.html:105
@@ -4751,6 +4746,7 @@ msgstr "Назва не може складатися лише із порожн
 #: pkg/kubernetes/views/route-body.html:5
 #: pkg/kubernetes/views/service-body.html:5
 #: pkg/kubernetes/views/volumes-page.html:59
+#: pkg/kubernetes/views/deploymentconfig-body.html:5
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:33
 msgid "Namespace"
 msgstr "Простір назв"
@@ -4764,8 +4760,8 @@ msgid "Need at least one NTP server"
 msgstr "Потрібен принаймні один сервер NTP"
 
 #: pkg/dashboard/index.html:72 pkg/playground/translate.html:95
-#: pkg/kubernetes/scripts/graphs.js:609
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:116
+#: pkg/kubernetes/scripts/graphs.js:609
 msgid "Network"
 msgstr "Мережа"
 
@@ -4833,8 +4829,8 @@ msgstr "Новий проект"
 msgid "New Volume Name"
 msgstr "Назва нового тому"
 
-#: pkg/kubernetes/views/images-page.html:11
 #: pkg/kubernetes/views/registry-dashboard-page.html:86
+#: pkg/kubernetes/views/images-page.html:11
 msgid "New image stream"
 msgstr "Новий потік образу"
 
@@ -4842,7 +4838,7 @@ msgstr "Новий потік образу"
 msgid "New passphrase"
 msgstr "Новий пароль"
 
-#: pkg/lib/credentials.js:238 pkg/users/local.js:122
+#: pkg/users/local.js:122 pkg/lib/credentials.js:238
 msgid "New password was not accepted"
 msgstr "Новий пароль не прийнято"
 
@@ -4852,7 +4848,7 @@ msgstr "Новий пароль не прийнято"
 msgid "New project"
 msgstr "Новий проект"
 
-#: pkg/realmd/operation.html:93 pkg/storaged/iscsi-panel.jsx:59
+#: pkg/realmd/operation.html:93 pkg/storaged/iscsi-panel.jsx:50
 msgid "Next"
 msgstr "Далі"
 
@@ -4967,9 +4963,9 @@ msgstr "Немає контейнерів, які проходять поточ�
 msgid "No description provided."
 msgstr "Опису не надано."
 
-#: pkg/storaged/mdraid-details.jsx:53 pkg/storaged/mdraids-panel.jsx:74
-#: pkg/storaged/vdos-panel.jsx:60 pkg/storaged/vgroup-details.jsx:57
-#: pkg/storaged/vgroups-panel.jsx:63
+#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/vdos-panel.jsx:60
+#: pkg/storaged/vgroups-panel.jsx:63 pkg/storaged/mdraid-details.jsx:53
+#: pkg/storaged/vgroup-details.jsx:57
 msgid "No disks are available."
 msgstr "Немає доступних дисків."
 
@@ -4997,7 +4993,7 @@ msgstr "Немає груп."
 msgid "No host keys found."
 msgstr "Не знайдено ключів вузлів."
 
-#: pkg/storaged/iscsi-panel.jsx:294
+#: pkg/storaged/iscsi-panel.jsx:260
 msgid "No iSCSI targets set up"
 msgstr "Призначень iSCSI не налаштовано"
 
@@ -5005,7 +5001,7 @@ msgstr "Призначень iSCSI не налаштовано"
 msgid "No image streams are present."
 msgstr "Немає потоків образів."
 
-#: pkg/docker/containers-view.jsx:686
+#: pkg/docker/containers-view.jsx:688
 msgid "No images"
 msgstr "Немає образів"
 
@@ -5013,7 +5009,7 @@ msgstr "Немає образів"
 msgid "No images pushed"
 msgstr "Не вивантажено жодного образу"
 
-#: pkg/docker/containers-view.jsx:688
+#: pkg/docker/containers-view.jsx:690
 msgid "No images that match the current filter"
 msgstr "Немає образів, які проходять поточні умови фільтрування"
 
@@ -5165,9 +5161,9 @@ msgstr "Вузол"
 msgid "Node:"
 msgstr "Вузол:"
 
-#: pkg/kubernetes/index.html:49 pkg/kubernetes/views/dashboard-page.html:90
+#: pkg/kubernetes/views/dashboard-page.html:90
 #: pkg/kubernetes/views/dashboard-page.html:192
-#: pkg/kubernetes/views/nodes-page.html:36
+#: pkg/kubernetes/views/nodes-page.html:36 pkg/kubernetes/index.html:49
 msgid "Nodes"
 msgstr "Вузли"
 
@@ -5178,7 +5174,7 @@ msgstr "Вузли — комп’ютери, на яких запущено в�
 #: pkg/kubernetes/views/pod-page.html:27 pkg/kubernetes/views/pod-panel.html:53
 #: pkg/kubernetes/views/service-body.html:15
 #: node_modules/registry-image-widgets/views/image-config.html:29
-#: pkg/kdump/kdump-view.jsx:420 pkg/tuned/dialog.js:233
+#: pkg/tuned/dialog.js:233 pkg/kdump/kdump-view.jsx:420
 msgid "None"
 msgstr "Немає"
 
@@ -5220,8 +5216,8 @@ msgstr "Недоступний"
 msgid "Not connected"
 msgstr "Не з’єднано"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:17
 #: pkg/kubernetes/views/details-page.html:122
+#: pkg/kubernetes/views/deploymentconfig-body.html:17
 msgid "Not deployed"
 msgstr "Не розгорнуто"
 
@@ -5237,7 +5233,7 @@ msgstr "Не змонтовано"
 msgid "Not permitted to perform this action."
 msgstr "Немає дозволу на виконання цієї дії."
 
-#: pkg/storaged/mdraid-details.jsx:350
+#: pkg/storaged/mdraid-details.jsx:351
 msgid "Not running"
 msgstr "Зупинено"
 
@@ -5265,8 +5261,8 @@ msgstr "Зауваження і вище"
 msgid "Number of virtual CPUs that gonna be used."
 msgstr "Кількість віртуальних процесорів, які слід використовувати."
 
-#: pkg/ovirt/components/HostToMaintenance.jsx:47
 #: pkg/ovirt/components/VdsmView.jsx:96 pkg/ovirt/components/VdsmView.jsx:109
+#: pkg/ovirt/components/HostToMaintenance.jsx:47
 msgid "OK"
 msgstr "Гаразд"
 
@@ -5298,8 +5294,8 @@ msgstr "Сталося між $0 і $1"
 
 #: pkg/networkmanager/index.html:105 pkg/playground/jquery-patterns.html:95
 #: pkg/playground/jquery-patterns.html:108 pkg/shell/index.html:241
-#: pkg/systemd/index.html:177 pkg/lib/cockpit-components-onoff.jsx:38
-#: pkg/lib/patterns.js:244
+#: pkg/systemd/index.html:177 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:38
 msgid "Off"
 msgstr "Вимкнено"
 
@@ -5315,14 +5311,14 @@ msgstr "Старий пароль"
 msgid "Old passphrase"
 msgstr "Старий пароль"
 
-#: pkg/lib/credentials.js:220 pkg/users/local.js:79
+#: pkg/users/local.js:79 pkg/lib/credentials.js:220
 msgid "Old password not accepted"
 msgstr "Старий пароль не прийнято"
 
 #: pkg/networkmanager/index.html:101 pkg/playground/jquery-patterns.html:91
 #: pkg/playground/jquery-patterns.html:104 pkg/shell/index.html:237
-#: pkg/systemd/index.html:173 pkg/lib/cockpit-components-onoff.jsx:39
-#: pkg/lib/patterns.js:244
+#: pkg/systemd/index.html:173 pkg/lib/patterns.js:244
+#: pkg/lib/cockpit-components-onoff.jsx:39
 msgid "On"
 msgstr "Увімкнено"
 
@@ -5506,11 +5502,12 @@ msgstr "Вилучення пароля може завадити розблок
 msgid "Passphrases do not match"
 msgstr "Паролі не збігаються"
 
-#: pkg/kubernetes/views/auth-form.html:105 pkg/lib/machine-auth-failed.html:8
-#: pkg/lib/machine-change-auth.html:52 pkg/lib/machine-sync-users.html:61
-#: pkg/shell/index.html:212 pkg/shell/index.html:251 pkg/shell/index.html:264
-#: pkg/users/index.html:119 pkg/users/index.html:181 src/ws/login.html:50
-#: pkg/storaged/iscsi-panel.jsx:55 pkg/storaged/iscsi-panel.jsx:178
+#: pkg/kubernetes/views/auth-form.html:105 pkg/shell/index.html:212
+#: pkg/shell/index.html:251 pkg/shell/index.html:264 pkg/users/index.html:119
+#: pkg/users/index.html:181 pkg/lib/machine-auth-failed.html:8
+#: pkg/lib/machine-sync-users.html:61 pkg/lib/machine-change-auth.html:52
+#: src/ws/login.html:50 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/storaged/iscsi-panel.jsx:152
 #: pkg/subscriptions/subscriptions-register.jsx:88
 #: pkg/subscriptions/subscriptions-register.jsx:152
 msgid "Password"
@@ -5551,10 +5548,10 @@ msgstr "Вставте JSON нижче, "
 msgid "Paste the contents of your public SSH key file here"
 msgstr "Сюди слід вставити вміст файла вашого відкритого ключа SSH"
 
-#: pkg/kubernetes/views/pv-modify.html:126
 #: pkg/kubernetes/views/volume-body.html:37
 #: pkg/kubernetes/views/volume-body.html:49
 #: pkg/kubernetes/views/volume-body.html:101
+#: pkg/kubernetes/views/pv-modify.html:126
 msgid "Path"
 msgstr "Шлях"
 
@@ -5618,7 +5615,7 @@ msgstr "Сталі томи"
 msgid "Phase"
 msgstr "Фаза"
 
-#: pkg/storaged/vdo-details.jsx:275
+#: pkg/storaged/vdo-details.jsx:276
 msgid "Physical"
 msgstr "Фізичний"
 
@@ -5650,8 +5647,8 @@ msgstr "Ціль тестування луною"
 msgid "Pizza Box"
 msgstr "З коробку для піци"
 
-#: pkg/docker/containers-view.jsx:194 pkg/docker/details.js:284
-#: pkg/docker/util.js:605 pkg/storaged/content-views.jsx:280
+#: pkg/docker/details.js:284 pkg/docker/util.js:605
+#: pkg/docker/containers-view.jsx:194 pkg/storaged/content-views.jsx:280
 #: pkg/storaged/mdraid-details.jsx:298 pkg/storaged/vdo-details.jsx:187
 #: pkg/storaged/vgroup-details.jsx:209
 msgid "Please confirm deletion of $0"
@@ -5669,7 +5666,6 @@ msgstr "Будь ласка, підтвердьте зупинку $0"
 msgid "Please confirm, the host shall be switched to maintenance mode."
 msgstr ""
 "Будь ласка, підтвердьте, що вузол має бути перемкнуто у режим обслуговування."
-""
 
 #: pkg/kubernetes/scripts/dashboard.js:440
 msgid "Please create another namespace for $0 \"$1\""
@@ -5880,9 +5876,8 @@ msgstr "Заповнити"
 
 #: pkg/lib/machine-change-port.html:23
 #: pkg/machines/components/vmDiskSourceCell.jsx:42
-#: pkg/machines/vmnetworktab.jsx:61
+#: pkg/machines/vmnetworktab.jsx:61 pkg/storaged/iscsi-panel.jsx:127
 #: pkg/ovirt/components/InstallationDialog.jsx:65
-#: pkg/storaged/iscsi-panel.jsx:150
 msgid "Port"
 msgstr "Порт"
 
@@ -5898,7 +5893,7 @@ msgstr "Група портів"
 #: pkg/kubernetes/views/service-body.html:13 pkg/networkmanager/index.html:248
 #: pkg/networkmanager/index.html:447
 #: node_modules/registry-image-widgets/views/image-config.html:27
-#: pkg/docker/containers-view.jsx:397 pkg/networkmanager/interfaces.js:2974
+#: pkg/docker/containers-view.jsx:399 pkg/networkmanager/interfaces.js:2974
 msgid "Ports"
 msgstr "Порти"
 
@@ -5981,7 +5976,7 @@ msgstr "Дані щодо проблеми"
 msgid "Problems"
 msgstr "Проблеми"
 
-#: pkg/storaged/index.html:376 pkg/storaged/dialogx.jsx:724
+#: pkg/storaged/index.html:376 pkg/storaged/dialogx.jsx:788
 msgid "Process"
 msgstr "Процес"
 
@@ -5995,7 +5990,6 @@ msgstr "Назва продукту"
 
 #: pkg/kubernetes/views/containers-listing.html:13
 #: pkg/kubernetes/views/dashboard-page.html:159
-#: pkg/kubernetes/views/deploymentconfig-body.html:4
 #: pkg/kubernetes/views/details-page.html:35
 #: pkg/kubernetes/views/details-page.html:71
 #: pkg/kubernetes/views/details-page.html:104
@@ -6007,6 +6001,7 @@ msgstr "Назва продукту"
 #: pkg/kubernetes/views/route-body.html:4
 #: pkg/kubernetes/views/service-body.html:4
 #: pkg/kubernetes/views/volumes-page.html:58
+#: pkg/kubernetes/views/deploymentconfig-body.html:4
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:33
 msgid "Project"
 msgstr "Проект"
@@ -6041,10 +6036,10 @@ msgstr "Сайт проекту"
 msgid "Project:"
 msgstr "Проект:"
 
-#: pkg/kubernetes/index.html:94 pkg/kubernetes/registry.html:55
 #: pkg/kubernetes/views/group-delete.html:10
 #: pkg/kubernetes/views/project-listing.html:9
-#: pkg/kubernetes/views/user-delete.html:10
+#: pkg/kubernetes/views/user-delete.html:10 pkg/kubernetes/index.html:94
+#: pkg/kubernetes/registry.html:55
 msgid "Projects"
 msgstr "Проекти"
 
@@ -6076,7 +6071,7 @@ msgstr "Проксі"
 msgid "Proxy Version"
 msgstr "Версія проксі"
 
-#: pkg/lib/machine-auth-failed.html:9 pkg/shell/index.html:250
+#: pkg/shell/index.html:250 pkg/lib/machine-auth-failed.html:9
 msgid "Public Key"
 msgstr "Відкритий ключ"
 
@@ -6104,8 +6099,8 @@ msgstr "Призначення"
 msgid "Push an image:"
 msgstr "Вивантажити образ:"
 
-#: pkg/kubernetes/views/pv-modify.html:148
 #: pkg/kubernetes/views/volume-body.html:77
+#: pkg/kubernetes/views/pv-modify.html:148
 msgid "Qualified Name"
 msgstr "Повна назва"
 
@@ -6169,7 +6164,7 @@ msgstr "Апаратний блок RAID"
 msgid "RAID Device"
 msgstr "пристрій RAID"
 
-#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/utils.js:213
+#: pkg/storaged/utils.js:213 pkg/storaged/mdraid-details.jsx:319
 msgid "RAID Device $0"
 msgstr "Пристій RAID $0"
 
@@ -6205,7 +6200,6 @@ msgstr "Випадковий"
 msgid "Raw to a device"
 msgstr "Без обробки на пристрій"
 
-#: pkg/kubernetes/views/pv-modify.html:195
 #: pkg/kubernetes/views/volume-body.html:10
 #: pkg/kubernetes/views/volume-body.html:20
 #: pkg/kubernetes/views/volume-body.html:44
@@ -6217,6 +6211,7 @@ msgstr "Без обробки на пристрій"
 #: pkg/kubernetes/views/volume-body.html:122
 #: pkg/kubernetes/views/volume-body.html:136
 #: pkg/kubernetes/views/volume-body.html:143
+#: pkg/kubernetes/views/pv-modify.html:195
 msgid "Read Only"
 msgstr "Лише читання"
 
@@ -6283,7 +6278,7 @@ msgstr "Назва справжнього вузла має складатися
 msgid "Reason"
 msgstr "Підстава"
 
-#: pkg/lib/cockpit-components-logs-panel.jsx:82 pkg/lib/journal.js:242
+#: pkg/lib/journal.js:242 pkg/lib/cockpit-components-logs-panel.jsx:82
 msgid "Reboot"
 msgstr "Перезавантажити"
 
@@ -6339,8 +6334,8 @@ msgstr "Відмовляємо у з’єднанні. Ключі вузла н�
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Відмовляємо у з’єднанні. Невідомий ключ вузла."
 
-#: pkg/kubernetes/views/pv-modify.html:206 pkg/subscriptions/main.js:46
-#: pkg/subscriptions/subscriptions-view.jsx:143
+#: pkg/kubernetes/views/pv-modify.html:206
+#: pkg/subscriptions/subscriptions-view.jsx:143 pkg/subscriptions/main.js:46
 msgid "Register"
 msgstr "Зареєструвати"
 
@@ -6368,8 +6363,8 @@ msgstr "Реєструємо oVirt на Cockpit"
 msgid "Register…"
 msgstr "Зареєструвати…"
 
-#: pkg/ovirt/components/App.jsx:60 pkg/ovirt/components/VdsmView.jsx:100
-#: pkg/systemd/init.js:519
+#: pkg/systemd/init.js:519 pkg/ovirt/components/VdsmView.jsx:100
+#: pkg/ovirt/components/App.jsx:60
 msgid "Reload"
 msgstr "Перезавантажити"
 
@@ -6410,9 +6405,9 @@ msgstr "Вилучення:"
 #: pkg/kubernetes/views/remove-role-dialog.html:8
 #: pkg/kubernetes/views/user-delete.html:25
 #: pkg/kubernetes/views/user-group-remove.html:10
-#: pkg/apps/application-list.jsx:85 pkg/apps/application.jsx:109
-#: pkg/storaged/crypto-keyslots.jsx:364 pkg/storaged/crypto-keyslots.jsx:400
-#: pkg/storaged/nfs-details.jsx:290
+#: pkg/storaged/nfs-details.jsx:290 pkg/storaged/crypto-keyslots.jsx:364
+#: pkg/storaged/crypto-keyslots.jsx:400 pkg/apps/application.jsx:109
+#: pkg/apps/application-list.jsx:85
 msgid "Remove"
 msgstr "Вилучити"
 
@@ -6464,7 +6459,7 @@ msgstr "Вилучити пароль"
 msgid "Remove passphrase in $0?"
 msgstr "Вилучити пароль у $0?"
 
-#: pkg/apps/application-list.jsx:51 pkg/apps/application.jsx:59
+#: pkg/apps/application.jsx:59 pkg/apps/application-list.jsx:51
 msgid "Removing"
 msgstr "Вилучаємо"
 
@@ -6534,10 +6529,10 @@ msgstr "Повторювати щороку"
 msgid "Repeat passphrase"
 msgstr "Повторіть пароль"
 
-#: pkg/kubernetes/views/deploymentconfig-body.html:9
 #: pkg/kubernetes/views/details-page.html:141
 #: pkg/kubernetes/views/replicationcontroller-body.html:9
 #: pkg/kubernetes/views/replicationcontroller-modify.html:8
+#: pkg/kubernetes/views/deploymentconfig-body.html:9
 msgid "Replicas"
 msgstr "Репліки"
 
@@ -6654,8 +6649,8 @@ msgstr "Усуньте наведені вище помилки, щоб прод
 
 #: pkg/docker/index.html:135 pkg/systemd/index.html:143
 #: pkg/systemd/index.html:153 pkg/docker/containers-view.jsx:309
-#: pkg/machines/components/vm/vmActions.jsx:41 pkg/systemd/init.js:518
-#: pkg/systemd/shutdown.js:96 pkg/systemd/shutdown.js:97
+#: pkg/machines/components/vm/vmActions.jsx:41 pkg/systemd/shutdown.js:96
+#: pkg/systemd/shutdown.js:97 pkg/systemd/init.js:518
 msgid "Restart"
 msgstr "Перезапустити"
 
@@ -6704,8 +6699,7 @@ msgid "Reuse my password for privileged tasks"
 msgstr "Повторно використати ваш пароль для привілейованих завдань"
 
 #: pkg/shell/index.html:159
-msgid ""
-"Reuse my password for privileged tasks and to connect to other machines"
+msgid "Reuse my password for privileged tasks and to connect to other machines"
 msgstr ""
 "Повторно використати ваш пароль для привілейованих завдань та з’єднання з "
 "іншими комп’ютерами"
@@ -6761,7 +6755,7 @@ msgstr "Запустити від імені"
 msgid "Runner"
 msgstr "Засіб для запуску"
 
-#: pkg/storaged/mdraid-details.jsx:350
+#: pkg/storaged/mdraid-details.jsx:351
 msgid "Running"
 msgstr "Працює"
 
@@ -6849,8 +6843,8 @@ msgstr "Не вдалося виконати дію SUSPEND"
 msgid "Saturday"
 msgstr "субота"
 
-#: pkg/systemd/services.html:507 pkg/ovirt/components/VdsmView.jsx:114
-#: pkg/storaged/crypto-keyslots.jsx:233 pkg/storaged/crypto-keyslots.jsx:248
+#: pkg/systemd/services.html:507 pkg/storaged/crypto-keyslots.jsx:233
+#: pkg/storaged/crypto-keyslots.jsx:248 pkg/ovirt/components/VdsmView.jsx:114
 msgid "Save"
 msgstr "Зберегти"
 
@@ -6905,7 +6899,7 @@ msgstr "Ключі захищеної оболонки (SSH)"
 msgid "Securely erasing $target"
 msgstr "Безпечно витираємо $target"
 
-#: pkg/docker/containers-view.jsx:486 pkg/docker/containers-view.jsx:630
+#: pkg/docker/containers-view.jsx:488 pkg/docker/containers-view.jsx:632
 msgid "Security"
 msgstr "Безпека"
 
@@ -6937,11 +6931,11 @@ msgstr "Виберіть об’єкт для перегляду ширшого 
 
 #: pkg/lib/machine-sync-users.html:8
 msgid ""
-"Select the users that you would like to be synchronized with "
-"{{#strong}}{{host}}{{/strong}}"
+"Select the users that you would like to be synchronized with {{#strong}}"
+"{{host}}{{/strong}}"
 msgstr ""
-"Виберіть користувачів, записи яких ви б хотіли синхронізувати з "
-"{{#strong}}{{host}}{{/strong}}"
+"Виберіть користувачів, записи яких ви б хотіли синхронізувати з {{#strong}}"
+"{{host}}{{/strong}}"
 
 #: pkg/machines/components/vm/vmActions.jsx:65
 msgid "Send Non-Maskable Interrupt"
@@ -6961,15 +6955,14 @@ msgstr "Надсилання"
 msgid "Serial Console"
 msgstr "Послідовна консоль"
 
-#: pkg/kubernetes/views/pv-modify.html:82
-#: pkg/kubernetes/views/volume-body.html:47 src/ws/login.html:94
-#: pkg/kdump/kdump-view.jsx:127 pkg/storaged/nfs-details.jsx:298
-#: pkg/storaged/nfs-panel.jsx:101
-#: pkg/subscriptions/subscriptions-register.jsx:64
+#: pkg/kubernetes/views/volume-body.html:47
+#: pkg/kubernetes/views/pv-modify.html:82 src/ws/login.html:94
+#: pkg/storaged/nfs-details.jsx:298 pkg/storaged/nfs-panel.jsx:101
+#: pkg/subscriptions/subscriptions-register.jsx:64 pkg/kdump/kdump-view.jsx:127
 msgid "Server"
 msgstr "Сервер"
 
-#: pkg/storaged/iscsi-panel.jsx:44 pkg/storaged/nfs-details.jsx:131
+#: pkg/storaged/nfs-details.jsx:131 pkg/storaged/iscsi-panel.jsx:43
 msgid "Server Address"
 msgstr "Адреса сервера"
 
@@ -6977,7 +6970,7 @@ msgstr "Адреса сервера"
 msgid "Server Administrator"
 msgstr "Адміністратор сервера"
 
-#: pkg/storaged/iscsi-panel.jsx:47
+#: pkg/storaged/iscsi-panel.jsx:44
 msgid "Server address cannot be empty."
 msgstr "Адреса сервера не може бути порожньою."
 
@@ -6996,7 +6989,7 @@ msgstr "Сервери"
 #: pkg/kubernetes/views/service-page.html:12
 #: pkg/kubernetes/views/service-panel.html:8
 #: pkg/kubernetes/views/topology-page.html:30 pkg/storaged/index.html:395
-#: pkg/networkmanager/firewall.jsx:326 pkg/storaged/dialogx.jsx:728
+#: pkg/networkmanager/firewall.jsx:326 pkg/storaged/dialogx.jsx:792
 msgid "Service"
 msgstr "Служба"
 
@@ -7047,7 +7040,7 @@ msgstr ""
 "збалансовану за навантаженням IP-адресу для доступу до них."
 
 #: pkg/storaged/index.html:375 pkg/machines/helpers.es6:178
-#: pkg/storaged/dialogx.jsx:724
+#: pkg/storaged/dialogx.jsx:788
 msgid "Session"
 msgstr "Сеанс"
 
@@ -7185,7 +7178,7 @@ msgstr "Показати усі образи"
 msgid "Show fingerprints"
 msgstr "Показати відбитки"
 
-#: pkg/storaged/lvol-tabs.jsx:226 pkg/storaged/lvol-tabs.jsx:366
+#: pkg/storaged/lvol-tabs.jsx:226 pkg/storaged/lvol-tabs.jsx:367
 msgid "Shrink"
 msgstr "Стиснути"
 
@@ -7206,34 +7199,34 @@ msgstr "З"
 msgid "Since $0"
 msgstr "З $0"
 
-#: pkg/kubernetes/views/volumes-page.html:60 pkg/docker/containers-view.jsx:664
-#: pkg/machines/components/diskAdd.jsx:148 pkg/storaged/content-views.jsx:106
+#: pkg/kubernetes/views/volumes-page.html:60 pkg/docker/containers-view.jsx:666
+#: pkg/machines/components/diskAdd.jsx:148 pkg/storaged/nfs-details.jsx:306
+#: pkg/storaged/part-tab.jsx:42 pkg/storaged/fsys-panel.jsx:110
+#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/content-views.jsx:106
 #: pkg/storaged/content-views.jsx:666 pkg/storaged/format-dialog.jsx:262
-#: pkg/storaged/fsys-panel.jsx:110 pkg/storaged/lvol-tabs.jsx:165
-#: pkg/storaged/lvol-tabs.jsx:214 pkg/storaged/lvol-tabs.jsx:257
-#: pkg/storaged/lvol-tabs.jsx:362 pkg/storaged/lvol-tabs.jsx:403
-#: pkg/storaged/nfs-details.jsx:306 pkg/storaged/nfs-panel.jsx:103
-#: pkg/storaged/part-tab.jsx:42
+#: pkg/storaged/lvol-tabs.jsx:165 pkg/storaged/lvol-tabs.jsx:214
+#: pkg/storaged/lvol-tabs.jsx:257 pkg/storaged/lvol-tabs.jsx:363
+#: pkg/storaged/lvol-tabs.jsx:405
 msgid "Size"
 msgstr "Розмір"
 
-#: pkg/storaged/dialog.js:450 pkg/storaged/dialogx.jsx:606
+#: pkg/storaged/dialog.js:450 pkg/storaged/dialogx.jsx:670
 msgid "Size cannot be negative"
 msgstr "Розмір не може бути від’ємним"
 
-#: pkg/storaged/dialog.js:448 pkg/storaged/dialogx.jsx:604
+#: pkg/storaged/dialog.js:448 pkg/storaged/dialogx.jsx:668
 msgid "Size cannot be zero"
 msgstr "Розмір не може бути нульовим"
 
-#: pkg/storaged/dialog.js:452 pkg/storaged/dialogx.jsx:608
+#: pkg/storaged/dialog.js:452 pkg/storaged/dialogx.jsx:672
 msgid "Size is too large"
 msgstr "Розмір є надто великим"
 
-#: pkg/storaged/dialog.js:446 pkg/storaged/dialogx.jsx:602
+#: pkg/storaged/dialog.js:446 pkg/storaged/dialogx.jsx:666
 msgid "Size must be a number"
 msgstr "Розмір має бути числом"
 
-#: pkg/storaged/dialog.js:454 pkg/storaged/dialogx.jsx:610
+#: pkg/storaged/dialog.js:454 pkg/storaged/dialogx.jsx:674
 msgid "Size must be at least $0"
 msgstr "Розмір має бути не меншим за $0"
 
@@ -7329,7 +7322,7 @@ msgid "Stable"
 msgstr "Стабільний"
 
 #: pkg/docker/index.html:133 pkg/docker/containers-view.jsx:306
-#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/swap-tab.jsx:76
+#: pkg/storaged/swap-tab.jsx:76 pkg/storaged/mdraid-details.jsx:323
 #: pkg/storaged/vdo-details.jsx:253 pkg/systemd/init.js:514
 msgid "Start"
 msgstr "Почати"
@@ -7370,10 +7363,10 @@ msgstr "Починається"
 #: pkg/kubernetes/views/details-page.html:38
 #: pkg/kubernetes/views/details-page.html:175
 #: pkg/docker/containers-view.jsx:128 pkg/docker/containers-view.jsx:351
-#: pkg/kubernetes/scripts/virtual-machines/components/VmOverviewTabKubevirt.jsx:84
 #: pkg/kubernetes/scripts/virtual-machines/components/VmsListing.jsx:56
+#: pkg/kubernetes/scripts/virtual-machines/components/VmOverviewTabKubevirt.jsx:84
 #: pkg/machines/hostvmslist.jsx:92 pkg/machines/vmnetworktab.jsx:119
-#: pkg/ovirt/components/ClusterVms.jsx:184 pkg/systemd/init.js:276
+#: pkg/systemd/init.js:276 pkg/ovirt/components/ClusterVms.jsx:184
 msgid "State"
 msgstr "Стан"
 
@@ -7395,10 +7388,11 @@ msgid "Static"
 msgstr "Статичний"
 
 #: pkg/kubernetes/views/containers-listing.html:16
-#: pkg/kubernetes/views/node-body.html:39
-#: pkg/kubernetes/views/nodes-page.html:44 pkg/kubernetes/views/pv-body.html:24
-#: pkg/kubernetes/views/pv-claim.html:29 pkg/kubernetes/views/pvc-body.html:13
+#: pkg/kubernetes/views/pv-body.html:24 pkg/kubernetes/views/pv-claim.html:29
+#: pkg/kubernetes/views/pvc-body.html:13
 #: pkg/kubernetes/views/volumes-page.html:21
+#: pkg/kubernetes/views/node-body.html:39
+#: pkg/kubernetes/views/nodes-page.html:44
 #: pkg/networkmanager/interfaces.js:2601
 #: pkg/subscriptions/subscriptions-view.jsx:36
 msgid "Status"
@@ -7421,7 +7415,7 @@ msgid "Sticky"
 msgstr "Липкий"
 
 #: pkg/docker/index.html:134 pkg/docker/containers-view.jsx:304
-#: pkg/storaged/mdraid-details.jsx:322 pkg/storaged/swap-tab.jsx:75
+#: pkg/storaged/swap-tab.jsx:75 pkg/storaged/mdraid-details.jsx:322
 #: pkg/storaged/vdo-details.jsx:148 pkg/storaged/vdo-details.jsx:252
 #: pkg/systemd/init.js:515
 msgid "Stop"
@@ -7662,7 +7656,7 @@ msgstr "Мітка"
 #: node_modules/registry-image-widgets/views/image-body.html:29
 #: node_modules/registry-image-widgets/views/imagestream-listing.html:6
 #: node_modules/registry-image-widgets/views/imagestream-panel.html:16
-#: pkg/docker/containers-view.jsx:392
+#: pkg/docker/containers-view.jsx:394
 msgid "Tags"
 msgstr "Мітки"
 
@@ -7684,7 +7678,7 @@ msgstr "Портал призначення"
 msgid "Target World Wide Names"
 msgstr "WWN призначень"
 
-#: pkg/systemd/services.html:53 pkg/storaged/iscsi-panel.jsx:149
+#: pkg/systemd/services.html:53
 msgid "Targets"
 msgstr "Призначення"
 
@@ -7821,8 +7815,8 @@ msgstr "У адресі містяться некоректні символи"
 
 #: pkg/lib/machine-unknown-hostkey.html:6
 msgid ""
-"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be established."
-" Are you sure you want to continue connecting?"
+"The authenticity of host {{#strong}}{{host}}{{/strong}} can't be "
+"established. Are you sure you want to continue connecting?"
 msgstr ""
 "Не вдалося встановити ідентичність вузла {{#strong}}{{host}}{{/strong}}. Ви "
 "справді хочете продовжити спробу встановити з’єднання?"
@@ -7844,8 +7838,7 @@ msgstr "Контейнера «{{ target }}» не існує."
 #: pkg/storaged/vdo-details.jsx:106
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
-msgstr ""
-"Створення цього пристрою VDO не завершено, ним не можна користуватися."
+msgstr "Створення цього пристрою VDO не завершено, ним не можна користуватися."
 
 #: pkg/subscriptions/subscriptions-view.jsx:192
 msgid "The current user isn't allowed to access system subscription status."
@@ -7866,13 +7859,13 @@ msgstr "Налаштувань розгортання «{{ target }}» не іс
 
 #: pkg/storaged/index.html:357
 msgid ""
-"The filesystem is in use by login sessions and system services.              "
-"  Proceeding will stop these."
+"The filesystem is in use by login sessions and system "
+"services.                Proceeding will stop these."
 msgstr ""
 "Файлова система використовується службами системи або сеансами користувачів. "
 "Виконання цієї дії призведе до припинення роботи цих служб та сеансів."
 
-#: pkg/storaged/dialogx.jsx:693
+#: pkg/storaged/dialogx.jsx:757
 msgid ""
 "The filesystem is in use by login sessions and system services. Proceeding "
 "will stop these."
@@ -7886,9 +7879,8 @@ msgstr ""
 "Файлова система використовується сеансами користувачів. Виконання цієї дії "
 "призведе до припинення роботи цих сеансів."
 
-#: pkg/storaged/dialogx.jsx:695
-msgid ""
-"The filesystem is in use by login sessions. Proceeding will stop these."
+#: pkg/storaged/dialogx.jsx:759
+msgid "The filesystem is in use by login sessions. Proceeding will stop these."
 msgstr ""
 
 #: pkg/storaged/index.html:367
@@ -7899,14 +7891,13 @@ msgstr ""
 "Файлова система використовується службами системи. Виконання цієї дії "
 "призведе до припинення роботи цих служб."
 
-#: pkg/storaged/dialogx.jsx:697
+#: pkg/storaged/dialogx.jsx:761
 msgid ""
 "The filesystem is in use by system services. Proceeding will stop these."
 msgstr ""
 
 #: pkg/docker/util.js:624
-msgid ""
-"The following containers depend on this image and will become unusable."
+msgid "The following containers depend on this image and will become unusable."
 msgstr ""
 "Вказані нижче контейнери залежать від цього образу, отже стануть "
 "непридатними до використання."
@@ -7939,9 +7930,9 @@ msgid ""
 "in use. Unless this machine was recently replaced, it is likely that someone "
 "is trying to attack your connection to this machine."
 msgstr ""
-"Ключ {{#strong}}{{host}}{{/strong}} не відповідає раніше використаному ключу."
-" Якщо нещодавно ніхто не міняв цього комп’ютера, ймовірною причиною є спроба "
-"атаки на ваше з’єднання із цим комп’ютером."
+"Ключ {{#strong}}{{host}}{{/strong}} не відповідає раніше використаному "
+"ключу. Якщо нещодавно ніхто не міняв цього комп’ютера, ймовірною причиною є "
+"спроба атаки на ваше з’єднання із цим комп’ютером."
 
 #: pkg/users/authorized-keys.js:119
 msgid "The key you provided was not valid."
@@ -8015,11 +8006,11 @@ msgstr "Контролера реплікації «{{ target }}» не існу
 msgid "The route '{{ target }}' does not exist."
 msgstr "Маршруту «{{ target }}» не існує."
 
-#: pkg/docker/containers-view.jsx:417
+#: pkg/docker/containers-view.jsx:419
 msgid "The scan from $time ($type) found no vulnerabilities."
 msgstr "Скануванням від $time ($type) вразливостей не знайдено."
 
-#: pkg/docker/containers-view.jsx:415
+#: pkg/docker/containers-view.jsx:417
 msgid "The scan from $time ($type) was not successful."
 msgstr "Сканування $time ($type) виконати не вдалося."
 
@@ -8114,8 +8105,7 @@ msgstr ""
 
 #: src/ws/login.js:135
 msgid ""
-"The web browser configuration prevents Cockpit from running (inaccessible "
-"$0)"
+"The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
 "Налаштування програми для перегляду інтернету забороняють запуск Cockpit "
 "(недоступна можливість $0)"
@@ -8184,13 +8174,13 @@ msgstr ""
 "На цьому пристрої міститься файлова система, яка зараз використовується. "
 "Виконання дії призведе до демонтування усіх файлових систем на пристрої."
 
-#: pkg/storaged/dialogx.jsx:678
+#: pkg/storaged/dialogx.jsx:742
 msgid ""
 "This device has filesystems that are currently in use. Proceeding will "
 "unmount all filesystems on it."
 msgstr ""
 
-#: pkg/storaged/index.html:110 pkg/storaged/dialogx.jsx:657
+#: pkg/storaged/index.html:110 pkg/storaged/dialogx.jsx:721
 msgid "This device is currently used for RAID devices."
 msgstr "Цей пристрій зараз використовується для пристроїв RAID."
 
@@ -8202,18 +8192,18 @@ msgstr ""
 "Цей пристрій зараз використовується для формування пристроїв RAID. Якщо дію "
 "буде виконано, пристрій буде вилучено із його пристроїв RAID."
 
-#: pkg/storaged/dialogx.jsx:686
+#: pkg/storaged/dialogx.jsx:750
 msgid ""
 "This device is currently used for RAID devices. Proceeding will remove it "
 "from its RAID devices."
 msgstr ""
 
-#: pkg/storaged/index.html:118 pkg/storaged/dialogx.jsx:661
+#: pkg/storaged/index.html:118 pkg/storaged/dialogx.jsx:725
 msgid "This device is currently used for VDO devices."
 msgstr ""
 "Цей пристрій зараз використовується для зберігання даних пристроїв VDO."
 
-#: pkg/storaged/index.html:102 pkg/storaged/dialogx.jsx:653
+#: pkg/storaged/index.html:102 pkg/storaged/dialogx.jsx:717
 msgid "This device is currently used for volume groups."
 msgstr "Цей пристрій зараза використовується для груп томів."
 
@@ -8225,7 +8215,7 @@ msgstr ""
 "Цей пристрій зараз використовується для груп томів. Якщо дію буде виконано, "
 "пристрій буде вилучено із його груп томів."
 
-#: pkg/storaged/dialogx.jsx:682
+#: pkg/storaged/dialogx.jsx:746
 msgid ""
 "This device is currently used for volume groups. Proceeding will remove it "
 "from its volume groups."
@@ -8248,7 +8238,7 @@ msgstr ""
 "Цей вузол керується засобом керування віртуалізацією, тому створення нових "
 "віртуальних машин з вузла неможливе."
 
-#: pkg/docker/containers-view.jsx:474
+#: pkg/docker/containers-view.jsx:476
 msgid "This image does not exist."
 msgstr "Цього образу не існує."
 
@@ -8323,12 +8313,12 @@ msgstr "Ця віртуальна машина не керується з бок
 
 #: pkg/kubernetes/views/pv-delete.html:7
 msgid ""
-"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / {{ "
-"item.item.spec.claimRef.name }}. Deleting it will break that claim and may "
-"cause issues with any pods depending on it."
+"This volume has been claimed by {{ item.item.spec.claimRef.namespace }} / "
+"{{ item.item.spec.claimRef.name }}. Deleting it will break that claim and "
+"may cause issues with any pods depending on it."
 msgstr ""
-"Цей том може бути заявлено для {{ item.item.spec.claimRef.namespace }} / {{ "
-"item.item.spec.claimRef.name }}. Його вилучення порушить цю заявку і може "
+"Цей том може бути заявлено для {{ item.item.spec.claimRef.namespace }} / "
+"{{ item.item.spec.claimRef.name }}. Його вилучення порушить цю заявку і може "
 "призвести до проблем із усіма коконами, які від нього залежать."
 
 #: pkg/kubernetes/views/pv-claim.html:23
@@ -8337,8 +8327,7 @@ msgstr "Цей том не заявлено"
 
 #: pkg/storaged/lvol-tabs.jsx:329
 msgid "This volume needs to be activated before it can be resized."
-msgstr ""
-"Перш ніж розмір цього тому можна буде змінювати, його слід активувати."
+msgstr "Перш ніж розмір цього тому можна буде змінювати, його слід активувати."
 
 #: src/ws/login.js:141
 msgid "This web browser is too old to run Cockpit (missing $0)"
@@ -8498,11 +8487,11 @@ msgstr "Tuned не запущено"
 msgid "Tuned is off"
 msgstr "Tuned вимкнено"
 
-#: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/pv-modify.html:10
-#: pkg/kubernetes/views/service-body.html:11
-#: pkg/kubernetes/views/volumes-page.html:20 pkg/shell/index.html:285
-#: pkg/machines/vmnetworktab.jsx:66 pkg/storaged/format-dialog.jsx:274
-#: pkg/storaged/part-tab.jsx:50 pkg/storaged/unrecognized-tab.jsx:45
+#: pkg/kubernetes/views/deploy.html:9 pkg/kubernetes/views/service-body.html:11
+#: pkg/kubernetes/views/volumes-page.html:20
+#: pkg/kubernetes/views/pv-modify.html:10 pkg/shell/index.html:285
+#: pkg/machines/vmnetworktab.jsx:66 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/unrecognized-tab.jsx:45 pkg/storaged/format-dialog.jsx:274
 #: pkg/systemd/hwinfo.jsx:36
 msgid "Type"
 msgstr "Тип"
@@ -8565,7 +8554,7 @@ msgstr "Не вдалося отримати параметри нагадува
 msgid "Unable to get alert: $0"
 msgstr "Не вдалося отримати нагадування: $0"
 
-#: pkg/storaged/iscsi-panel.jsx:112
+#: pkg/storaged/iscsi-panel.jsx:88
 msgid "Unable to reach server"
 msgstr "Не вдалося досягти сервера"
 
@@ -8611,23 +8600,23 @@ msgstr "Неочікувана помилка"
 msgid "Unique name"
 msgstr ""
 
-#: pkg/storaged/index.html:396 pkg/storaged/dialogx.jsx:728
+#: pkg/storaged/index.html:396 pkg/storaged/dialogx.jsx:792
 msgid "Unit"
 msgstr "Модуль"
 
-#: pkg/kubernetes/views/node-body.html:12
-#: pkg/kubernetes/views/node-body.html:43 pkg/kubernetes/views/pv-body.html:26
-#: pkg/kubernetes/views/pv-claim.html:31
+#: pkg/kubernetes/views/pv-body.html:26 pkg/kubernetes/views/pv-claim.html:31
 #: pkg/kubernetes/views/volumes-page.html:35
+#: pkg/kubernetes/views/node-body.html:12
+#: pkg/kubernetes/views/node-body.html:43
 #: node_modules/registry-image-widgets/views/image-body.html:16
 #: node_modules/registry-image-widgets/views/imagestream-body.html:30
 #: node_modules/registry-image-widgets/views/imagestream-body.html:31
-#: pkg/kubernetes/scripts/nodes.js:316 pkg/kubernetes/scripts/nodes.js:664
-#: pkg/kubernetes/scripts/nodes.js:757 pkg/kubernetes/scripts/volumes.js:266
-#: pkg/lib/machine-info.es6:61 pkg/networkmanager/interfaces.js:592
-#: pkg/networkmanager/interfaces.js:1066 pkg/networkmanager/interfaces.js:2525
-#: pkg/networkmanager/interfaces.js:2527 pkg/storaged/fsys-tab.jsx:61
-#: pkg/storaged/swap-tab.jsx:56
+#: pkg/kubernetes/scripts/volumes.js:266 pkg/kubernetes/scripts/nodes.js:316
+#: pkg/kubernetes/scripts/nodes.js:664 pkg/kubernetes/scripts/nodes.js:757
+#: pkg/networkmanager/interfaces.js:592 pkg/networkmanager/interfaces.js:1066
+#: pkg/networkmanager/interfaces.js:2525 pkg/networkmanager/interfaces.js:2527
+#: pkg/storaged/swap-tab.jsx:56 pkg/storaged/fsys-tab.jsx:61
+#: pkg/lib/machine-info.es6:61
 msgid "Unknown"
 msgstr "Невідомий"
 
@@ -8651,7 +8640,7 @@ msgstr "Невідомий ключ вузла"
 msgid "Unknown configuration"
 msgstr "Невідомі налаштування"
 
-#: pkg/storaged/iscsi-panel.jsx:108
+#: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
 msgstr "Невідома назва вузла"
 
@@ -8696,7 +8685,7 @@ msgstr "Некеровані інтерфейси"
 msgid "Unmask"
 msgstr "Розмаскувати"
 
-#: pkg/storaged/fsys-tab.jsx:196 pkg/storaged/nfs-details.jsx:282
+#: pkg/storaged/nfs-details.jsx:282 pkg/storaged/fsys-tab.jsx:196
 msgid "Unmount"
 msgstr "Демонтувати"
 
@@ -8786,7 +8775,7 @@ msgstr "Доступні оновлення"
 msgid "Updates are disabled."
 msgstr "Оновлення вимкнено."
 
-#: pkg/packagekit/updates.jsx:51 pkg/subscriptions/subscriptions-view.jsx:187
+#: pkg/subscriptions/subscriptions-view.jsx:187 pkg/packagekit/updates.jsx:51
 msgid "Updating"
 msgstr "Оновлення"
 
@@ -8838,13 +8827,13 @@ msgid "Use the setting in /etc/kdump.conf"
 msgstr "Використовувати параметр у /etc/kdump.conf"
 
 #: pkg/systemd/index.html:281 pkg/docker/storage.jsx:314
-#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:66
 #: pkg/kubernetes/scripts/virtual-machines/components/VmMetricsTab.jsx:73
+#: pkg/kubernetes/scripts/nodes.js:832 pkg/kubernetes/scripts/nodes.js:841
 #: pkg/machines/components/vm/vmUsageTab.jsx:63
 #: pkg/machines/components/vm/vmUsageTab.jsx:74
-#: pkg/machines/components/vmDisksTab.jsx:66 pkg/storaged/fsys-tab.jsx:206
-#: pkg/storaged/swap-tab.jsx:82 pkg/systemd/host.js:1546
+#: pkg/machines/components/vmDisksTab.jsx:66 pkg/storaged/swap-tab.jsx:82
+#: pkg/storaged/fsys-tab.jsx:206 pkg/systemd/host.js:1546
 msgid "Used"
 msgstr "Використано"
 
@@ -8854,10 +8843,10 @@ msgstr "Використано контейнерами"
 
 #: pkg/dashboard/index.html:142 pkg/kubernetes/views/auth-form.html:61
 #: pkg/kubernetes/views/user-group-add.html:9
-#: pkg/kubernetes/views/user-page.html:20
-#: pkg/kubernetes/views/user-panel.html:9
 #: pkg/kubernetes/views/volume-body.html:64
-#: pkg/kubernetes/views/volume-body.html:103 pkg/playground/translate.html:85
+#: pkg/kubernetes/views/volume-body.html:103
+#: pkg/kubernetes/views/user-page.html:20
+#: pkg/kubernetes/views/user-panel.html:9 pkg/playground/translate.html:85
 #: pkg/playground/translate.html:105 pkg/systemd/index.html:259
 #: pkg/subscriptions/subscriptions-register.jsx:76 pkg/systemd/host.js:1454
 msgid "User"
@@ -8876,7 +8865,7 @@ msgstr "Пароль користувача"
 msgid "User interface for Linux servers"
 msgstr "Інтерфейс користувача для серверів Linux"
 
-#: pkg/lib/machine-change-auth.html:18 pkg/lib/machine-sync-users.html:54
+#: pkg/lib/machine-sync-users.html:54 pkg/lib/machine-change-auth.html:18
 #: src/ws/login.html:43
 msgid "User name"
 msgstr "Ім'я користувача"
@@ -8889,8 +8878,8 @@ msgstr "Ім’я користувача не може бути порожнім
 msgid "User or Group"
 msgstr "Користувач або група"
 
-#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/iscsi-panel.jsx:51
-#: pkg/storaged/iscsi-panel.jsx:174
+#: pkg/kubernetes/views/auth-form.html:94 pkg/storaged/iscsi-panel.jsx:46
+#: pkg/storaged/iscsi-panel.jsx:150
 msgid "Username"
 msgstr "Користувач"
 
@@ -9051,9 +9040,9 @@ msgid "Verifying"
 msgstr "Перевіряємо"
 
 #: pkg/shell/index.html:88 pkg/shell/simple.html:64 pkg/shell/stub.html:71
-#: pkg/systemd/index.html:115 pkg/ovirt/components/ClusterTemplates.jsx:135
+#: pkg/systemd/index.html:115 pkg/subscriptions/subscriptions-view.jsx:34
+#: pkg/systemd/hwinfo.jsx:44 pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:83 pkg/packagekit/updates.jsx:376
-#: pkg/subscriptions/subscriptions-view.jsx:34 pkg/systemd/hwinfo.jsx:44
 msgid "Version"
 msgstr "Версія"
 
@@ -9115,8 +9104,8 @@ msgstr "Групи томів"
 msgid "Volume ID"
 msgstr "Ід. тому"
 
-#: pkg/kubernetes/views/pv-modify.html:115
 #: pkg/kubernetes/views/volume-body.html:42
+#: pkg/kubernetes/views/pv-modify.html:115
 msgid "Volume Name"
 msgstr "Назва тому"
 
@@ -9124,9 +9113,8 @@ msgstr "Назва тому"
 msgid "Volume Type"
 msgstr "Тип тому"
 
-#: pkg/docker/index.html:512 pkg/kubernetes/index.html:80
-#: pkg/kubernetes/views/dashboard-page.html:47
-#: pkg/kubernetes/views/pod-page.html:18
+#: pkg/docker/index.html:512 pkg/kubernetes/views/dashboard-page.html:47
+#: pkg/kubernetes/views/pod-page.html:18 pkg/kubernetes/index.html:80
 #: node_modules/registry-image-widgets/views/image-config.html:32
 msgid "Volumes"
 msgstr "Томи"
@@ -9267,8 +9255,7 @@ msgstr ""
 
 #: pkg/docker/storage.jsx:475
 msgid "You don't have permission to manage the Docker storage pool."
-msgstr ""
-"У вас немає прав доступу до керування резервним сховищем даних Docker."
+msgstr "У вас немає прав доступу до керування резервним сховищем даних Docker."
 
 #: pkg/packagekit/updates.jsx:811
 msgid "You need to re-subscribe this system."
@@ -9438,7 +9425,7 @@ msgstr "пристрій осн. системи"
 msgid "iSCSI"
 msgstr "iSCSI"
 
-#: pkg/storaged/iscsi-panel.jsx:293
+#: pkg/storaged/iscsi-panel.jsx:259
 msgid "iSCSI Targets"
 msgstr "Призначення iSCSI"
 
@@ -9513,10 +9500,10 @@ msgstr "не придатна до роботи"
 msgid "non responsive"
 msgstr "не відповідає"
 
-#: pkg/kubernetes/views/node-body.html:33
-#: pkg/kubernetes/views/node-body.html:59
 #: pkg/kubernetes/views/route-body.html:24
 #: pkg/kubernetes/views/route-body.html:29
+#: pkg/kubernetes/views/node-body.html:33
+#: pkg/kubernetes/views/node-body.html:59
 #: node_modules/registry-image-widgets/views/image-listing.html:53
 #: pkg/docker/run.js:418 pkg/docker/run.js:474 pkg/docker/run.js:528
 #: pkg/docker/run.js:573 pkg/tuned/dialog.js:106
@@ -9697,7 +9684,7 @@ msgstr "udp"
 msgid "unassigned"
 msgstr "не прив'язано"
 
-#: pkg/lib/cockpit-components-select.jsx:31
+#: pkg/lib/cockpit-components-select.jsx:29
 msgid "undefined"
 msgstr "не визначено"
 

@@ -87,6 +87,7 @@
             websocket.onclose = function(event) {
                 if (websocket)
                     window.alert("channel closed");
+                stop();
             };
 
         } else {
@@ -102,6 +103,7 @@
             channel.addEventListener("close", function(event, options) {
                 if (options.problem)
                     window.alert(options.problem);
+                stop();
             });
 
             for (var i = 0; i < batch; i++)
@@ -123,6 +125,7 @@
         var options = {
             payload: "fsread1",
             path: path.value,
+            max_read_size: 100 * 1024 * 1024 * 1024,
             binary: sideband ? "raw" : true,
         };
 
@@ -139,6 +142,7 @@
             websocket.onclose = function(event) {
                 if (websocket)
                     window.alert("channel closed");
+                stop();
             };
         } else {
             channel = cockpit.channel(options);
@@ -148,8 +152,47 @@
             channel.addEventListener("close", function(event, options) {
                 if (options.problem)
                     window.alert(options.problem);
+                stop();
             });
         }
+    }
+
+    function download(ev) {
+        stop();
+
+        var path = document.getElementById("download-path");
+        var anchor;
+
+        var options = {
+            binary: "raw",
+            max_read_size: 100 * 1024 * 1024 * 1024,
+            external: {
+                "content-disposition": 'attachment; filename="download"',
+                "content-type": "application/octet-stream"
+            }
+        };
+
+        /* Allow use of HTTP URLs */
+        if (path.value.indexOf("http") === 0) {
+            anchor = document.createElement("a");
+            anchor.href = path.value;
+            options["payload"] = "http-stream2";
+            options["address"] = anchor.hostname;
+            options["port"] = parseInt(anchor.port, 10);
+            options["path"] = anchor.pathname;
+            options["method"] = "GET";
+        } else {
+            options["payload"] = "fsread1";
+            options["path"] = path.value;
+        }
+
+        console.log("Download", options);
+
+        start = Date.now();
+        total = 0;
+
+        var query = window.btoa(JSON.stringify(options));
+        window.open("/cockpit/channel/" + cockpit.transport.csrf_token + "?" + query);
     }
 
     function stop() {
@@ -172,6 +215,7 @@
         document.getElementById("echo-sideband").addEventListener("click", echo);
         document.getElementById("read-normal").addEventListener("click", read);
         document.getElementById("read-sideband").addEventListener("click", read);
+        document.getElementById("download-external").addEventListener("click", download);
         document.getElementById("stop").addEventListener("click", stop);
         window.setInterval(update, 500);
         document.body.style.display = "block";

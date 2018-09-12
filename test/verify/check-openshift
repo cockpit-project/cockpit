@@ -576,7 +576,7 @@ class TestOpenshiftPrerelease(TestOpenshift):
             b.wait_in_text("#vm-fedoravm-disks-disk1-device", "disk1")
             b.wait_in_text("#vm-fedoravm-disks-disk0-bus", "virtio")
             b.wait_in_text("#vm-fedoravm-disks-disk1-bus", "virtio")
-            b.wait_in_text("#vm-fedoravm-disks-disk0-source", "kubevirt/fedora-cloud-registry-disk-demo:latest") # registryvolume
+            b.wait_in_text("#vm-fedoravm-disks-disk0-source", "kubevirt/fedora-cloud-registry-disk-demo:") # registryvolume
             b.wait_in_text("#vm-fedoravm-disks-disk1-source", "cloudinitvolume")
 
             # TODO: add iSCSI disk to the test VM and reenable here

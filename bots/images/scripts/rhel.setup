@@ -48,13 +48,13 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [EXTRAS-7.6-LATEST]
 name=rhel-extras-compose
-baseurl=http://download.eng.bos.redhat.com/devel/candidate-trees/EXTRAS-RHEL-7.6/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
+baseurl=http://download.devel.redhat.com/nightly/EXTRAS-RHEL-7.6/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
 enabled=1
 gpgcheck=0
 
 [RHEL-7.6-NIGHTLY]
 name=base-rhel
-baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
+baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
 enabled=1
 gpgcheck=0
 EOF
@@ -65,13 +65,13 @@ EOF
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-8-NIGHTLY-BaseOS]
 name=baseos
-baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/
+baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/
 enabled=1
 gpgcheck=0
 
 [RHEL-8-NIGHTLY-AppStream]
 name=appstream
-baseurl=http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/AppStream/x86_64/os/
+baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-8/compose/AppStream/x86_64/os/
 enabled=1
 gpgcheck=0
 EOF

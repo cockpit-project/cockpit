@@ -50,9 +50,43 @@
                      [ child, ... ])
 
    The "tag" is used to uniquely identify this field in the dialog.
-   The action function will receive the values of all field in an
+   The action function will receive the values of all fields in an
    object, and the tag of a field is the key in that object, for
    example.  The tag is also used to interact with a field from tests.
+
+   ACTION FUNCTIONS
+
+   The action funtion is called like this:
+
+      action(values, progress_callback)
+
+   The "values" parameter contains the validated values of the dialog
+   fields and the "progress_callback" can be called by the action function
+   to update the progress information in the dialog while it runs.
+
+   The progress callback should be called like this:
+
+      progress_callback(message, cancel_callback)
+
+   The "message" will be displayed in the dialog and if "cancel_callback" is
+   not null, the Cancel button in the dialog will be enabled and
+   "cancel_callback" will be called when the user clicks it.
+
+   The return value of the action function is normally a promise.  When
+   it is resolved, the dialog is closed.  When it is rejected the value
+   given in the rejection is displayed as an error in the dialog.
+
+   If the error value is a string, it is displayed as a global failure
+   message.  When it is an object, it contains errors for individual
+   fields in this form:
+
+      { tag1: message, tag2: message }
+
+   As a special case, when "message" is "true", the field is rendered
+   as having an error (with a red outline, say), but without any
+   directly associated text.  The idea is that a group of fields is in
+   error, and the error message for all of them is shown below the last
+   one in the group.
 
    COMMON FIELD OPTIONS
 
@@ -170,25 +204,35 @@ const Validated = ({ errors, error_key, explanation, children }) => {
     return (
         <div className={error ? "has-error" : ""}>
             { children }
-            { text ? <span className="help-block">{text}</span> : null }
+            { (text && text !== true) ? <span className="help-block">{text}</span> : null }
         </div>
     );
 };
 
 const Row = ({ tag, title, errors, options, children }) => {
     if (tag) {
-        if (options.widest_title)
-            title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
-        return (
-            <tr>
-                <td className="top">{title}</td>
-                <td>
-                    <Validated errors={errors} error_key={tag} explanation={options.explanation}>
-                        { children }
-                    </Validated>
-                </td>
-            </tr>
+        let validated = (
+            <Validated errors={errors} error_key={tag} explanation={options.explanation}>
+                { children }
+            </Validated>
         );
+
+        if (title || title == "") {
+            if (options.widest_title)
+                title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
+            return (
+                <tr>
+                    <td className="top">{title}</td>
+                    <td>{validated}</td>
+                </tr>
+            );
+        } else {
+            return (
+                <tr>
+                    <td colSpan="2">{validated}</td>
+                </tr>
+            );
+        }
     } else {
         return children;
     }
@@ -269,15 +313,17 @@ export const dialog_open = (def) => {
                 { caption: def.Action.Title,
                   style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
                   disabled: running_promise != null,
-                  clicked: function () {
-                      return validate().then(errors => {
-                          if (errors) {
-                              update(errors);
-                              return Promise.reject();
-                          } else {
-                              return def.Action.action(values);
-                          }
-                      });
+                  clicked: function (progress_callback) {
+                      return validate()
+                              .then(() => def.Action.action(values, progress_callback))
+                              .catch(error => {
+                                  if (error.toString() != "[object Object]") {
+                                      return Promise.reject(error);
+                                  } else {
+                                      update(error);
+                                      return Promise.reject();
+                                  }
+                              });
                   }
                 }
             ];
@@ -305,7 +351,8 @@ export const dialog_open = (def) => {
         })).then(results => {
             let errors = { };
             fields.forEach((f, i) => { if (results[i]) errors[f.tag] = results[i]; });
-            return (Object.keys(errors).length > 0) ? errors : null;
+            if (Object.keys(errors).length > 0)
+                return Promise.reject(errors);
         });
     };
 
@@ -405,6 +452,37 @@ export const SelectOneRadio = (tag, title, options, choices) => {
     };
 };
 
+export const SelectRow = (tag, headers, options, choices) => {
+    return {
+        tag: tag,
+        title: null,
+        options: options,
+        initial_value: options.value || choices[0].value,
+
+        render: (val, change) => {
+            return (
+                <table data-field={tag} data-field-type=" select-row" className="dialog-select-row-table">
+                    <thead>
+                        <tr>{headers.map(h => <th>{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                        { choices.map(row => {
+                            return (
+                                <tr key={row.value}
+                                    onMouseDown={ev => { if (ev && ev.button === 0) change(row.value); }}
+                                    className={row.value == val ? "highlight-ct" : ""}>
+                                    {row.columns.map(c => <td>{c}</td>)}
+                                </tr>
+                            );
+                        })
+                        }
+                    </tbody>
+                </table>
+            );
+        }
+    };
+};
+
 export const CheckBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -434,7 +512,7 @@ export const CheckBox = (tag, title, options) => {
 export const TextInputChecked = (tag, title, options) => {
     return {
         tag: tag,
-        title: options.row_title,
+        title: options.row_title || "",
         options: options,
         initial_value: (options.value === undefined) ? false : options.value,
 
@@ -455,23 +533,10 @@ export const TextInputChecked = (tag, title, options) => {
     };
 };
 
-export const Intermission = (children, options) => {
-    return {
-        tag: false,
-        title: "",
-        options: options,
-        initial_value: false,
-
-        render: () => {
-            return <div className="intermission">{ children }</div>;
-        }
-    };
-};
-
 export const Skip = (className, options) => {
     return {
         tag: false,
-        title: "",
+        title: null,
         options: options,
         initial_value: false,
 

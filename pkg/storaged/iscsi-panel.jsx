@@ -23,7 +23,7 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import { } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import dialog from "./dialog.js";
+import { dialog_open, TextInput, PassInput, SelectRow } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -38,26 +38,17 @@ export class IscsiPanel extends React.Component {
         var client = this.props.client;
 
         function iscsi_discover() {
-            dialog.open({ Title: _("Add iSCSI Portal"),
+            dialog_open({ Title: _("Add iSCSI Portal"),
                           Fields: [
-                              { TextInput: "address",
-                                Title: _("Server Address"),
-                                validate: function (val) {
-                                    if (val === "")
-                                        return _("Server address cannot be empty.");
-                                }
-                              },
-                              { TextInput: "username",
-                                Title: _("Username")
-
-                              },
-                              { PassInput: "password",
-                                Title: _("Password")
-                              }
+                              TextInput("address", _("Server Address"),
+                                        { validate: val => val === "" ? _("Server address cannot be empty.") : null,
+                                        }),
+                              TextInput("username", _("Username"), { }),
+                              PassInput("password", _("Password"), { })
                           ],
                           Action: {
                               Title: _("Next"),
-                              action: function (vals) {
+                              action: function (vals, progress_callback) {
                                   var dfd = cockpit.defer();
 
                                   var options = { };
@@ -79,40 +70,33 @@ export class IscsiPanel extends React.Component {
                                               }
                                           })
                                           .fail(function (error) {
-                                              if (!cancelled)
-                                                  dfd.reject(error);
+                                              if (cancelled)
+                                                  return;
+
+                                              // HACK - https://github.com/storaged-project/storaged/issues/26
+                                              if (error.message.indexOf("initiator failed authorization") != -1)
+                                                  error = {
+                                                      "username": true, // make it red without text below
+                                                      "password": _("Invalid username or password")
+                                                  };
+                                              else if (error.message.indexOf("cannot resolve host name") != -1)
+                                                  error = {
+                                                      "address": _("Unknown host name")
+                                                  };
+                                              else if (error.message.indexOf("connection login retries") != -1)
+                                                  error = {
+                                                      "address": _("Unable to reach server")
+                                                  };
+
+                                              dfd.reject(error);
                                           });
 
-                                  var promise = dfd.promise();
-                                  promise.cancel = function () {
+                                  progress_callback(null, function () {
                                       cancelled = true;
                                       dfd.reject();
-                                  };
-                                  return promise;
-                              },
-                              failure_filter: function (vals, err) {
-                                  if (!err)
-                                      return err;
+                                  });
 
-                                  // HACK - https://github.com/storaged-project/storaged/issues/26
-                                  if (err.message.indexOf("initiator failed authorization") != -1)
-                                      return [ { field: "username",
-                                                 message: null,
-                                      },
-                                      { field: "password",
-                                        message: _("Invalid username or password"),
-                                      }
-                                      ];
-                                  else if (err.message.indexOf("cannot resolve host name") != -1)
-                                      return { field: "address",
-                                               message: _("Unknown host name")
-                                      };
-                                  else if (err.message.indexOf("connection login retries") != -1)
-                                      return { field: "address",
-                                               message: _("Unable to reach server")
-                                      };
-                                  else
-                                      return err;
+                                  return dfd.promise();
                               }
                           }
             });
@@ -137,65 +121,50 @@ export class IscsiPanel extends React.Component {
         }
 
         function iscsi_add(discover_vals, nodes) {
-            var target_rows = nodes.map(function (n) {
-                return { Columns: [ n[0], n[2], n[3] ],
-                         value: n
-                };
-            });
-            dialog.open({ Title: cockpit.format(_("Available targets on $0"),
+            dialog_open({ Title: cockpit.format(_("Available targets on $0"),
                                                 discover_vals.address),
                           Fields: [
-                              { SelectRow: "target",
-                                Title: _("Targets"),
-                                Headers: [ _("Name"), _("Address"), _("Port") ],
-                                Rows: target_rows
-                              }
+                              SelectRow("target", [ _("Name"), _("Address"), _("Port") ],
+                                        { },
+                                        nodes.map(n => ({ columns: [ n[0], n[2], n[3] ],
+                                                          value: n })))
                           ],
                           Action: {
                               Title: _("Add"),
                               action: function (vals) {
-                                  return iscsi_login(vals.target, discover_vals);
-                              },
-                              failure_filter: function (vals, err) {
-                                  // HACK - https://github.com/storaged-project/storaged/issues/26
-                                  if (err.message.indexOf("authorization") != -1)
-                                      iscsi_add_with_creds(discover_vals, vals);
-                                  else
-                                      return err;
+                                  return iscsi_login(vals.target, discover_vals)
+                                          .catch(err => {
+                                              if (err.message.indexOf("authorization") != -1)
+                                                  iscsi_add_with_creds(discover_vals, vals);
+                                              else
+                                                  return cockpit.reject(err);
+                                          });
                               }
                           }
             });
         }
 
         function iscsi_add_with_creds(discover_vals, login_vals) {
-            dialog.open({ Title: _("Authentication required"),
+            dialog_open({ Title: _("Authentication required"),
                           Fields: [
-                              { TextInput: "username",
-                                Title: _("Username"),
-                                Value: discover_vals.username
-                              },
-                              { PassInput: "password",
-                                Title: _("Password"),
-                                Value: discover_vals.password
-                              }
+                              TextInput("username", _("Username"),
+                                        { value: discover_vals.username }),
+                              PassInput("password", _("Password"),
+                                        { value: discover_vals.password })
                           ],
                           Action: {
                               Title: _("Add"),
                               action: function (vals) {
-                                  return iscsi_login(login_vals.target, vals);
-                              },
-                              failure_filter: function (vals, err) {
-                                  // HACK - https://github.com/storaged-project/storaged/issues/26
-                                  if (err.message.indexOf("authorization") != -1)
-                                      return [ { field: "username",
-                                                 message: null,
-                                      },
-                                      { field: "password",
-                                        message: _("Invalid username or password"),
-                                      }
-                                      ];
-                                  else
-                                      return err;
+                                  return iscsi_login(login_vals.target, vals)
+                                          .catch(err => {
+                                              // HACK - https://github.com/storaged-project/storaged/issues/26
+                                              if (err.message.indexOf("authorization") != -1)
+                                                  err = {
+                                                      "username": true, // makes it red without text below
+                                                      "password": _("Invalid username or password")
+                                                  };
+                                              return cockpit.reject(err);
+                                          });
                               }
                           }
             });
@@ -205,12 +174,9 @@ export class IscsiPanel extends React.Component {
             client.manager_iscsi.call('GetInitiatorName')
                     .done(function (results) {
                         var name = results[0];
-                        dialog.open({ Title: _("Change iSCSI Initiator Name"),
+                        dialog_open({ Title: _("Change iSCSI Initiator Name"),
                                       Fields: [
-                                          { TextInput: "name",
-                                            Title: _("Name"),
-                                            Value: name
-                                          }
+                                          TextInput("name", _("Name"), { value: name })
                                       ],
                                       Action: {
                                           Title: _("Change"),

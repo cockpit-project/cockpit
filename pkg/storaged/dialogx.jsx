@@ -315,7 +315,14 @@ export const dialog_open = (def) => {
                   disabled: running_promise != null,
                   clicked: function (progress_callback) {
                       return validate()
-                              .then(() => def.Action.action(values, progress_callback))
+                              .then(() => {
+                                  let visible_values = { };
+                                  fields.forEach(f => {
+                                      if (is_visible(f, values))
+                                          visible_values[f.tag] = values[f.tag];
+                                  });
+                                  return def.Action.action(visible_values, progress_callback);
+                              })
                               .catch(error => {
                                   if (error.toString() != "[object Object]") {
                                       return Promise.reject(error);

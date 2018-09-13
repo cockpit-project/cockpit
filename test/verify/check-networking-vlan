@@ -25,7 +25,7 @@ from netlib import *
 class TestNetworking(NetworkCase):
     provision = {
         "machine1": { },
-        "machine2": { "image": "fedora-26", "address": "10.111.113.2/20", "dhcp": True }
+        "machine2": { "image": "fedora-28", "address": "10.111.113.2/20", "dhcp": True }
     }
 
     def testVlan(self):

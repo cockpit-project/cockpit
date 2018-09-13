@@ -51,6 +51,12 @@
 %define build_subscriptions 1
 %endif
 
+# cockpit-kubernetes is RHEL 7 only, and 64 bit arches only
+%if 0%{?fedora} || (0%{?rhel}%{?centos} >= 7 && 0%{?rhel}%{?centos} < 8)
+%ifarch aarch64 x86_64 ppc64le s390x
+%define build_kubernetes 1
+%endif
+%endif
 
 %define libssh_version 0.7.1
 %if 0%{?fedora} > 0 && 0%{?fedora} < 22
@@ -138,7 +144,9 @@ Recommends: cockpit-packagekit
 Recommends: subscription-manager-cockpit
 %endif
 Suggests: cockpit-pcp
+%if 0%{?build_kubernetes}
 Suggests: cockpit-kubernetes
+%endif
 Suggests: cockpit-selinux
 %endif
 
@@ -284,7 +292,7 @@ rm -rf %{buildroot}/%{_datadir}/cockpit/docker
 touch docker.list
 %endif
 
-%ifarch aarch64 x86_64 ppc64le s390x
+%if 0%{?build_kubernetes}
 %if %{defined wip}
 %else
 rm %{buildroot}/%{_datadir}/cockpit/kubernetes/override.json
@@ -780,7 +788,7 @@ This package is not yet complete.
 %endif
 %endif
 
-%ifarch aarch64 x86_64 ppc64le s390x
+%if 0%{?build_kubernetes}
 
 %package -n cockpit-kubernetes
 Summary: Cockpit user interface for Kubernetes cluster

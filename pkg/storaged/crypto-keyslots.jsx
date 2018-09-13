@@ -158,18 +158,22 @@ function existing_passphrase_fields() {
 }
 
 function get_existing_passphrase(dlg, block) {
-    dlg.run(_("Unlocking disk..."),
-            clevis_recover_passphrase(block).then(passphrase => {
-                if (passphrase == "") {
-                    dlg.set_values({ needs_explicit_passphrase: true });
-                } else {
-                    dlg.set_values({ passphrase: passphrase });
-                }
-            })
-    );
+    let prom = clevis_recover_passphrase(block).then(passphrase => {
+        if (passphrase == "") {
+            dlg.set_values({ needs_explicit_passphrase: true });
+            return null;
+        } else {
+            return passphrase;
+        }
+    });
+
+    dlg.run(_("Unlocking disk..."), prom);
+    return prom;
 }
 
 function add_dialog(client, block) {
+    let recovered_passphrase;
+
     let dlg = dialog_open({ Title: _("Add Key"),
                             Fields: [
                                 SelectOneRadio("type", _("Key source"),
@@ -182,7 +186,7 @@ function add_dialog(client, block) {
                                 Skip("medskip"),
                                 PassInput("new_passphrase", _("New passphrase"),
                                           { visible: vals => vals.type == "luks-passphrase",
-                                            validate: val => !val.length && _("Passphrase cannot be empty")
+                                            validate: val => !val.length && _("Passphrase cannot be empty"),
                                           }),
                                 PassInput("new_passphrase2", _("Repeat passphrase"),
                                           { visible: vals => vals.type == "luks-passphrase",
@@ -200,19 +204,20 @@ function add_dialog(client, block) {
                             Action: {
                                 Title: _("Add"),
                                 action: function (vals) {
+                                    let existing_passphrase = vals.passphrase || recovered_passphrase;
                                     if (vals.type == "luks-passphrase") {
-                                        return passphrase_add(block, vals.new_passphrase, vals.passphrase);
+                                        return passphrase_add(block, vals.new_passphrase, existing_passphrase);
                                     } else {
                                         return get_tang_adv(vals.tang_url).then(function (adv) {
                                             edit_tang_adv(client, block, null,
-                                                          vals.tang_url, adv, vals.passphrase);
+                                                          vals.tang_url, adv, existing_passphrase);
                                         });
                                     }
                                 }
                             }
     });
 
-    get_existing_passphrase(dlg, block);
+    get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_passphrase_dialog(block, key) {
@@ -237,6 +242,8 @@ function edit_passphrase_dialog(block, key) {
 }
 
 function edit_clevis_dialog(client, block, key) {
+    let recovered_passphrase;
+
     let dlg = dialog_open({ Title: _("Edit Tang keyserver"),
                             Fields: [
                                 TextInput("tang_url", _("Keyserver address"),
@@ -247,14 +254,15 @@ function edit_clevis_dialog(client, block, key) {
                             Action: {
                                 Title: _("Save"),
                                 action: function (vals) {
+                                    let existing_passphrase = vals.passphrase || recovered_passphrase;
                                     return get_tang_adv(vals.tang_url).then(adv => {
-                                        edit_tang_adv(client, block, key, vals.tang_url, adv, vals.passphrase);
+                                        edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
                                     });
                                 }
                             }
     });
 
-    get_existing_passphrase(dlg, block);
+    get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 class Revealer extends React.Component {

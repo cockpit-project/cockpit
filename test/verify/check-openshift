@@ -53,6 +53,7 @@ def wait_project(machine, project):
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@unittest.skip("Irrelevant for rhel-7.5 branch")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },
@@ -382,6 +383,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@unittest.skip("Irrelevant for rhel-7.5 branch")
 class TestRegistry(MachineCase):
     provision = {
         "machine1": { "address": "10.111.113.1/20" },

@@ -173,6 +173,7 @@ class TestAccounts(MachineCase):
         m = self.machine
         b = self.browser
         new_password = "tqymuVh.Zf5"
+        new_password_2 = "cEwghLYX"
 
         # defaults to empty shell on debian-stable (Debian 9 only), so specify it explicitly
         m.execute("useradd --shell /bin/bash anton; echo anton:foobar | chpasswd")
@@ -197,6 +198,22 @@ class TestAccounts(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.wait_present('#content')
+
+        # Set minimum age to disallow changing it immediately again
+        m.execute("chage --mindays 7 anton")
+        b.enter_page("/users")
+        b.go("#/anton")
+        b.wait_present("#account-user-name")
+        b.wait_text("#account-user-name", "anton")
+        b.wait_present('#account-set-password:enabled')
+        b.click('#account-set-password')
+        b.wait_popup('account-set-password-dialog')
+        b.set_val("#account-set-password-old", new_password)
+        b.set_val("#account-set-password-pw1", new_password_2)
+        b.set_val("#account-set-password-pw2", new_password_2)
+        b.click('#account-set-password-apply')
+        b.wait_present(".dialog-error")
+        b.wait_in_text(".dialog-error", "must wait longer")
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()

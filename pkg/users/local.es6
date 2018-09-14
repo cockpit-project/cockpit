@@ -73,6 +73,9 @@ function passwd_self(old_pass, new_pass) {
     var bad_exps = [
         /.*BAD PASSWORD:.*/
     ];
+    var too_new_exps = [
+        /.*must wait longer to change.*/
+    ];
 
     var dfd = cockpit.defer();
     var buffer = "";
@@ -104,6 +107,15 @@ function passwd_self(old_pass, new_pass) {
                     if (old_exps[i].test(buffer)) {
                         buffer = "";
                         this.input(old_pass + "\n", true);
+                        return;
+                    }
+                }
+
+                for (i = 0; i < too_new_exps.length; i++) {
+                    if (too_new_exps[i].test(buffer)) {
+                        buffer = "";
+                        failure = _("You must wait longer to change your password");
+                        this.input("\n", true);
                         return;
                     }
                 }

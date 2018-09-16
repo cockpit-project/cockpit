@@ -954,7 +954,7 @@ class VirtMachine(Machine):
 
         self.memory_mb = memory_mb or VirtMachine.memory_mb or MEMORY_MB
         self.cpus = cpus or VirtMachine.cpus or 1
-        self.graphics = graphics
+        self.graphics = graphics or "windows" in image
 
         # Set up some temporary networking info if necessary
         if networking is None:

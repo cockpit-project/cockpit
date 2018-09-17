@@ -374,7 +374,7 @@ class TestMachines(MachineCase):
                 raise
             # stats did not show up, check if user message showed up
             print("Libvirt version does not support disk statistics")
-            b.wait_present("#vm-{0}-disksstats-unsupported".format(name))
+            b.wait_present("#vm-{0}-disks-notification".format(name))
 
     def testLibvirt(self):
         b = self.browser

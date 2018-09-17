@@ -55,26 +55,17 @@ class SeleniumTest(Test):
     :avocado: disable
     """
     def setUp(self):
-        if not (os.environ.has_key("HUB") or os.environ.has_key("BROWSER")):
-            @Retry(attempts = 3, timeout = 30,
-                   exceptions = (WebDriverException,),
-                   error = Exception('Timeout: Unable to attach firefox driver'))
-            def connectfirefox():
-                self.driver = selenium.webdriver.Firefox()
-            connectfirefox()
-            guest_machine = 'localhost'
-        else:
-            selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
-            browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
-            if browser == 'edge':
-                browser = 'MicrosoftEdge'
-            guest_machine = os.environ["GUEST"]
-            @Retry(attempts = 3, timeout = 30,
-                   exceptions = (WebDriverException,),
-                   error = Exception('Timeout: Unable to attach remote Browser on hub'))
-            def connectbrowser():
-                self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-            connectbrowser()
+        selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
+        browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+        if browser == 'edge':
+            browser = 'MicrosoftEdge'
+        guest_machine = os.environ["GUEST"]
+        @Retry(attempts = 3, timeout = 30,
+               exceptions = (WebDriverException,),
+               error = Exception('Timeout: Unable to attach remote Browser on hub'))
+        def connectbrowser():
+            self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
+        connectbrowser()
         self.driver.set_window_size(1400, 1200)
         self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element

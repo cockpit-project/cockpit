@@ -487,13 +487,11 @@ Conflicts: firewalld < 0.6.0-1
 %endif
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: sscg >= 2.3
+Recommends: system-logos
 %endif
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
-%if 0%{?rhel}
-Requires: system-logos
-%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.

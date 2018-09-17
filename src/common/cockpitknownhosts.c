@@ -264,6 +264,9 @@ cockpit_is_host_known (const gchar *known_hosts_file,
   gchar *ptr;
   gchar *hostport = NULL;
 
+  if (!known_hosts_file)
+    return FALSE;
+
   FILE *file = g_fopen (known_hosts_file, "r");
   gboolean ret = FALSE;
 

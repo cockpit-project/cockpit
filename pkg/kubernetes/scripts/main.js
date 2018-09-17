@@ -44,7 +44,6 @@
     require('./nodes');
     require('./topology');
     require('./volumes');
-    require('./virtual-machines.js');
 
     /* And the actual application */
     require('./app');
@@ -64,7 +63,6 @@
         'kubernetes.volumes',
         'kubernetes.nodes',
         'kubernetes.date',
-        'kubernetes.virtualMachines',
         'registry.images',
         'registry.policy',
         'registry.projects',

@@ -305,15 +305,6 @@ printf 'AuthorizedKeysCommand /usr/local/bin/authorized-kube-keys --kubeconfig=/
 # Pull down remaining images
 /var/lib/testvm/docker-images.setup
 
-# kubevirt is currently uninstallable: https://github.com/cockpit-project/cockpit/pull/9638
-if [ -n "$PRERELEASE" ]; then
-    # Prepare Kubevirt for later installation
-    /var/lib/testvm/kubevirt.setup
-
-    # use the pristine kube config; kubevirt.setup changes it
-    cp /openshift.local.config/master/admin.kubeconfig /root/.kube/config
-fi
-
 dnf install -y cockpit-system
 
 docker info

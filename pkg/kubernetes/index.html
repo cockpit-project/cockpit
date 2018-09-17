@@ -55,12 +55,6 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                         <span class="list-group-item-value" translate>Containers</span>
                     </a>
                 </li>
-                <li class="list-group-item" ng-class="{ active: viewActive('vms')}" ng-if="settings.kubevirtEnabled">
-                    <a ng-href="#{{ viewUrl('vms') }}" id="vms-menu-link">
-                        <i class="fa pficon-virtual-machine fa-fw" title="Virtual Machines"></i>
-                        <span class="list-group-item-value" translate>Virtual Machines</span>
-                    </a>
-                </li>
                 <li class="list-group-item" ng-class="{ active: viewActive('topology')}">
                     <a ng-href="#{{ viewUrl('topology') }}">
                         <i class="pficon pficon-topology fa-fw" title="Topology"></i>

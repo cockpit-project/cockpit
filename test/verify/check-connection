@@ -127,9 +127,10 @@ class TestConnection(MachineCase):
                                  "wrong version number")
 
         # RC4 should not work
-        output = m.execute('openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1 || true')
+        output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
         self.assertNotIn("DONE", output)
-        self.assertRegexpMatches(output, "no cipher match|no ciphers available|ssl handshake failure")
+        # HACK: (NONE) cipher is a regression in Fedora 29 (https://bugzilla.redhat.com/show_bug.cgi?id=1629732)
+        self.assertRegexpMatches(output, "no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
 
         # Install a certificate chain, and give it an arbitrary bad file context
         m.upload([ "verify/files/cert-chain.cert" ], "/etc/cockpit/ws-certs.d")
@@ -157,6 +158,7 @@ class TestConnection(MachineCase):
             ".*Peer failed to perform TLS handshake",
             ".*Peer sent fatal TLS alert: Handshake failed",
             ".*invalid base64 data in Basic header",
+            ".*Error performing TLS handshake: No supported cipher suites have been found.",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
         # check the Debian smoke test

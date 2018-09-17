@@ -1456,6 +1456,9 @@ class TestMachines(MachineCase):
 
             b.wait_present("#vm-{0}-install".format(name))
             # Overview should be opened
+            b.wait_present("#vm-{0}-overview".format(name)) # wait for the tab
+            b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
+
             b.wait_present("#vm-{0}-last-message".format(name))
             b.wait_in_text("#vm-{0}-last-message".format(name), "INSTALL VM action failed")
             b.click("#app .listing-ct tbody:nth-of-type(1) a:contains(show more)")

@@ -41,13 +41,14 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     const stateAlert = vm.lastMessage && (<span className='pficon-warning-triangle-o machines-status-alert' />);
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
+    const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
     const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
-        {name: _("Overview"), renderer: VmOverviewTab, data: { vm, config, dispatch }},
+        {name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch }},
         {name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive'},
         {name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch }, presence: 'onlyActive'},
         {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},

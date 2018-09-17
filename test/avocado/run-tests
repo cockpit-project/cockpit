@@ -145,7 +145,7 @@ def copy_avocado_logs(machine, title):
 
         # create a compressed archive on the remote host
         remote_archive = os.path.join(remote_archive_dir, "avocado_logs.tar.gz")
-        machine.execute("cd {0} && tar cfz {1} {2} --exclude='*.png'".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
+        machine.execute("cd {0} && tar czf {1} --exclude='*.png' {2}".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
 
         # download and attach to our test
         local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.label, title))

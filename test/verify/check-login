@@ -81,12 +81,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Try to login with disabled shell; this does not work on Atomic where
         # we log in through ssh
         if not m.atomic_image:
-            m.execute("usermod --shell /bin/false admin")
+            m.execute("usermod --shell /bin/false admin; sync")
             b.reload()
             b.wait_present("#login")
             login("admin", "foobar")
             b.wait_text_not("#login-error-message", "")
-            m.execute("usermod --shell /bin/bash admin")
+            m.execute("usermod --shell /bin/bash admin; sync")
 
         # Login as admin
         b.open("/system")

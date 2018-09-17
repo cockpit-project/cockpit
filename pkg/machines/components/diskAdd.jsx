@@ -46,14 +46,23 @@ function getAvailableTargets(vm) {
     return targets;
 }
 
-const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStoragePools, vmDisks }) => {
-    const vmStoragePool = vmStoragePools[dialogValues.storagePoolName];
-
-    const usedDiskPaths = Object.getOwnPropertyNames(vmDisks)
-            .filter(target => vmDisks[target].source && vmDisks[target].source.file)
-            .map(target => vmDisks[target].source.file);
+function getFilteredVolumes(vmStoragePool, disks) {
+    const usedDiskPaths = Object.getOwnPropertyNames(disks)
+            .filter(target => disks[target].source && disks[target].source.file)
+            .map(target => disks[target].source.file);
 
     const filteredVolumes = vmStoragePool.filter(volume => !usedDiskPaths.includes(volume.path));
+
+    const filteredVolumesSorted = filteredVolumes.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    });
+
+    return filteredVolumesSorted;
+}
+
+const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStoragePools, vmDisks }) => {
+    const vmStoragePool = vmStoragePools[dialogValues.storagePoolName];
+    const filteredVolumes = getFilteredVolumes(vmStoragePool, vmDisks);
 
     let initiallySelected;
     let content;
@@ -274,7 +283,7 @@ class AddDisk extends React.Component {
 
         const availableTargets = getAvailableTargets(vm);
         this.state = {
-            storagePoolName: storagePools && storagePools[vm.connectionName] && Object.getOwnPropertyNames(storagePools[vm.connectionName])[0],
+            storagePoolName: storagePools && storagePools[vm.connectionName] && Object.getOwnPropertyNames(storagePools[vm.connectionName]).sort()[0],
             mode: CREATE_NEW,
             volumeName: undefined,
             existingVolumeName: undefined,
@@ -296,7 +305,9 @@ class AddDisk extends React.Component {
     getDefaultVolumeName(poolName) {
         const { storagePools, vm } = this.props;
         const vmStoragePools = storagePools[vm.connectionName];
-        return vmStoragePools && vmStoragePools[poolName] && vmStoragePools[poolName][0] && vmStoragePools[poolName][0].name;
+        const vmStoragePool = vmStoragePools[poolName];
+        const filteredVolumes = getFilteredVolumes(vmStoragePool, vm.disks);
+        return filteredVolumes[0] && filteredVolumes[0].name;
     }
 
     onValueChanged(key, value) {
@@ -304,6 +315,11 @@ class AddDisk extends React.Component {
 
         if (key === 'storagePoolName' && this.state.mode === USE_EXISTING) { // user changed pool
             stateDelta.existingVolumeName = this.getDefaultVolumeName(value);
+        }
+
+        if (key === 'mode' && value === USE_EXISTING) { // user moved to USE_EXISTING subtab
+            const poolName = this.state.storagePoolName;
+            stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
         }
 
         this.setState(stateDelta);

@@ -814,7 +814,7 @@ $(function() {
     $('#journal-box').on('click', '.cockpit-logline', function() {
          var cursor = $(this).attr('data-cursor');
          if (cursor)
-            cockpit.location.go([ cursor ]);
+            cockpit.location.go([ cursor ], {'parent_options': JSON.stringify(cockpit.location.options)});
     });
 
     $('#journal-prio-menu a').on('click', function() {
@@ -822,7 +822,11 @@ $(function() {
     });
 
     $('#journal-navigate-home').on("click", function() {
-        cockpit.location.go('/');
+        var parent_options;
+        if (cockpit.location.options.parent_options) {
+            parent_options = JSON.parse(cockpit.location.options.parent_options);
+        }
+        cockpit.location.go('/', parent_options);
     });
 
     update();

@@ -925,7 +925,7 @@ plotter.setup_plot_controls = function setup_plot_controls(container, element, p
         plots.forEach(function (p) {
             var options = p.get_options();
             if (!options.selection || options.selection.mode != mode) {
-                options.selection = { mode: mode, color: "#d4edfa" };
+                options.selection = { mode: mode, color: "#edf8ff" };
                 p.set_options(options);
                 p.refresh();
             }

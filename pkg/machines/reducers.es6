@@ -269,7 +269,7 @@ function ui(state, action) {
         return state;
     }
     case UPDATE_UI_VM: {
-        if (state.vms[action.vm.name]) {
+        if (state.vms[action.vm.name] && state.vms[action.vm.name].isUi) {
             addVm();
         }
         return state;

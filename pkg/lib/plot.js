@@ -365,9 +365,16 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
             var metrics_row = grid.add(channel, [ ]);
             var factor = desc.factor || 1;
+            var threshold = desc.threshold || null;
+            var offset = desc.offset || 0;
             opts.data = grid.add(function(row, x, n) {
-                for (var i = 0; i < n; i++)
-                    row[x + i] = [(grid.beg + x + i)*interval, flat_sum(metrics_row[x + i]) * factor];
+                for (var i = 0; i < n; i++) {
+                    var value = offset + flat_sum(metrics_row[x + i]) * factor;
+                    if (threshold !== null)
+                        row[x + i] = [(grid.beg + x + i)*interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    else
+                        row[x + i] = [(grid.beg + x + i)*interval, value ];
+                }
             });
 
             function check_archives() {
@@ -490,9 +497,16 @@ plotter.plot = function plot(element, x_range_seconds, x_stop_seconds) {
 
             var metrics_row = grid.add(channel, [ ]);
             var factor = desc.factor || 1;
+            var threshold = desc.threshold || null;
+            var offset = desc.offset || 0;
             opts.data = grid.add(function(row, x, n) {
-                for (var i = 0; i < n; i++)
-                    row[x + i] = [(grid.beg + x + i)*interval, flat_difference(metrics_row[x + i]) * factor];
+                for (var i = 0; i < n; i++) {
+                    var value = offset + flat_difference(metrics_row[x + i]) * factor;
+                    if (threshold !== null)
+                        row[x + i] = [(grid.beg + x + i)*interval, Math.abs(value) > threshold ? value : null, threshold ];
+                    else
+                        row[x + i] = [(grid.beg + x + i)*interval, value ];
+                }
             });
 
             function check_archives() {
@@ -1260,10 +1274,20 @@ plotter.setup_complicated_plot = function setup_complicated_plot(graph_id, grid,
         });
     }
 
+    function offset_flot_row(grid, input, offset, factor) {
+        var f = factor || 1;
+        return grid.add(function(row, x, n) {
+            for (var i = 0; i < n; i++)
+                row[x + i] = [i, offset + (f * (input[x + i] || 0)), offset];
+        });
+    }
+
     /* All the data row setup happens now */
     var last = null;
     series.forEach(function(ser, i) {
-        if (options.x_rh_stack_graphs)
+        if (ser.offset)
+            ser.data = offset_flot_row(grid, ser.row, ser.offset, ser.factor);
+        else if (options.x_rh_stack_graphs)
             ser.data = stacked_flot_row(grid, ser.row, last);
         else
             ser.data = basic_flot_row(grid, ser.row);

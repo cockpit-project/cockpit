@@ -227,7 +227,9 @@
             <div id="server_cpu_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
-              <span class="plot-unit" id="server_memory_unit"></span><a id="link-memory" translate>Memory</a>
+              <span class="plot-unit" id="server_memory_unit"></span>
+              <a id="link-memory" translate>Memory</a>
+              <a id="link-memory-and-swap" hidden translate>Memory & Swap</a>
             </div>
             <div id="server_memory_graph" class="server-graph zoomable-plot"></div>
             <br/>
@@ -272,17 +274,13 @@
                 <i class="fa fa-square"></i>
                 <span translatable="yes">Swap Used</span>
             </li>
-            <li class="memory-used">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Used</span>
-            </li>
             <li class="memory-cached">
                 <i class="fa fa-square"></i>
                 <span translatable="yes">Cached</span>
             </li>
-            <li class="memory-free">
+            <li class="memory-used">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Free</span>
+                <span translatable="yes">Used</span>
             </li>
         </ul>
         <div id="memory_status_graph"></div>

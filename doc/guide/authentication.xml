@@ -29,6 +29,13 @@
       </filename> will need to be configured to allow password based authentication.
       Alternatively you can setup a <link linkend="sso">Kerberos based SSO
       solution</link>.</para>
+
+    <para>Like <filename>sshd</filename>, cockpit can be configured to limit the number
+      of concurrent login attempts allowed. This is done by adding a <code>MaxStartups</code>
+      option to the <code>WebService</code> section of your <code>cockpit.conf</code>.
+      Additional connections will be dropped until authentication succeeds or
+      the connections are closed.</para>
+
   </section>
 
   <section id="secondary-auth">

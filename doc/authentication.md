@@ -121,12 +121,8 @@ action = none
 
 # Limits
 
-Like ```sshd``` cockpit can be configured to limit the number of concurrent
-login attempts allowed. This is done by adding a ```MaxStartups```
-option to the ```WebService``` section of your cockpit configuration.
-Additional connections will be dropped until authentication succeeds or
-the connections are closed. See the man page for cockpit.conf for more
-details. By default the limit is set to 10.
+Cockpit can be configured to limit the number of concurrent login processes. See cockpit.conf
+for more details. This will affect how many custom authentication processes can be launched.
 
 Environment Variables
 ================================

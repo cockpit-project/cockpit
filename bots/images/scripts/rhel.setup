@@ -170,6 +170,7 @@ if [ "$IMAGE" = "rhel-x" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
     # docker is not a rhel-x thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
+    COCKPIT_DEPS="$COCKPIT_DEPS libvirt-dbus"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS"

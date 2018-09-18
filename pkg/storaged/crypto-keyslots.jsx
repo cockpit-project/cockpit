@@ -169,6 +169,26 @@ function get_existing_passphrase(dlg, block) {
     );
 }
 
+function parse_url(url) {
+    // clevis-encrypt-tang defaults to "http://" (via curl), so we do the same here.
+    if (!RegExp("^[a-zA-Z]+://").test(url))
+        url = "http://" + url;
+    try {
+        return new URL(url);
+    } catch (e) {
+        if (e instanceof TypeError)
+            return null;
+        throw e;
+    }
+}
+
+function validate_url(url) {
+    if (url.length === 0)
+        return _("Address cannot be empty");
+    if (!parse_url(url))
+        return _("Address is not a valid URL");
+}
+
 function add_dialog(client, block) {
     let dlg = dialog_open({ Title: _("Add Key"),
                             Fields: [
@@ -194,7 +214,7 @@ function add_dialog(client, block) {
                                           }),
                                 TextInput("tang_url", _("Keyserver address"),
                                           { visible: vals => vals.type == "tang",
-                                            validate: val => !val.length && _("Address cannot be empty")
+                                            validate: validate_url
                                           })
                             ].concat(existing_passphrase_fields()),
                             Action: {
@@ -240,7 +260,7 @@ function edit_clevis_dialog(client, block, key) {
     let dlg = dialog_open({ Title: _("Edit Tang keyserver"),
                             Fields: [
                                 TextInput("tang_url", _("Keyserver address"),
-                                          { validate: val => !val.length && _("Address cannot be empty"),
+                                          { validate: validate_url,
                                             value: key.url
                                           })
                             ].concat(existing_passphrase_fields()),
@@ -276,11 +296,9 @@ class Revealer extends React.Component {
 }
 
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
-    var port_pos = url.lastIndexOf(":");
-    var host = (port_pos >= 0) ? url.substr(0, port_pos) : url;
-    var port = (port_pos >= 0) ? url.substr(port_pos + 1) : "";
-    var cmd = cockpit.format("ssh $0 tang-show-keys $1", host, port);
-    var cmd_alt = cockpit.format("ssh $0 \"curl -s localhost:$1/adv |\n  jose fmt -j- -g payload -y -o- |\n  jose jwk use -i- -r -u verify -o- |\n  jose jwk thp -i-\"", host, port);
+    var parsed = parse_url(url);
+    var cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
+    var cmd_alt = cockpit.format("ssh $0 \"curl -s localhost:$1/adv |\n  jose fmt -j- -g payload -y -o- |\n  jose jwk use -i- -r -u verify -o- |\n  jose jwk thp -i-\"", parsed.hostname, parsed.port);
 
     var sigkey_thps = compute_sigkey_thps(tang_adv_payload(adv));
 

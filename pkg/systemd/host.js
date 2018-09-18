@@ -634,7 +634,30 @@ PageServer.prototype = {
                                                    info.cpus));
                 cpu_data.factor = 0.1 / info.cpus; // millisec / sec -> percent
                 self.cpu_plot.add_metrics_sum_series(cpu_data, { });
-                memory_options.yaxis.max = info.memory;
+
+                if (info.swap) {
+                    memory_options.yaxis.max = info.memory + info.swap * 0.25;
+                    memory_options.yaxis.tickFormatter = function (v) {
+                        return v <= info.memory ? plot.format_bytes_tick_no_unit(v, memory_options.yaxis)
+                            : plot.format_bytes_tick_no_unit(v + (v - info.memory) * 4,memory_options.yaxis);
+                    };
+                    memory_options.colors[1] = "#CC0000";
+                    memory_options.grid.markings = [
+                        { yaxis: {from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed"}
+                    ];
+                    var swap_data = {
+                        internal: [ "memory.swap-used" ],
+                        units: "bytes",
+                        factor: 0.25,
+                        threshold: info.memory,
+                        offset: info.memory
+                    };
+                    self.memory_plot.add_metrics_sum_series(swap_data, { });
+                    $("#link-memory").hide();
+                    $("#link-memory-and-swap").show();
+                } else {
+                    memory_options.yaxis.max = info.memory;
+                }
                 self.memory_plot.set_options(memory_options);
             });
 
@@ -1513,63 +1536,86 @@ PageMemoryStatus.prototype = {
 
     enter: function() {
         var self = this;
+        var dfd = cockpit.defer();
+        self.setupPromise = dfd.promise;
 
-        var options = {
-            series: {shadowSize: 0, // drawing is faster without shadows
-                     lines: {lineWidth: 0.0, fill: true}
-                    },
-            yaxis: {min: 0,
+        machine_info.cpu_ram_info().done(function (info) {
+            var options = {
+                series: {
+                    shadowSize: 0, // drawing is faster without shadows
+                    lines: {lineWidth: 0.0, fill: true}
+                },
+                yaxis: {
+                    min: 0,
+                    max: info.memory,
                     ticks: 5,
                     tickFormatter: function (v) {
                         return cockpit.format_bytes(v);
                     }
-                   },
-            xaxis: {show: true,
+                },
+                xaxis: {
+                    show: true,
                     ticks: [[0.0 * 60, _("5 min")],
                             [1.0 * 60, _("4 min")],
                             [2.0 * 60, _("3 min")],
                             [3.0 * 60, _("2 min")],
-                            [4.0 * 60, _("1 min")]]},
-            x_rh_stack_graphs: true
-        };
+                            [4.0 * 60, _("1 min")]]
+                },
+                x_rh_stack_graphs: true,
+            };
+            var metrics = [
+                { name: "memory.used" },
+                { name: "memory.cached" },
+            ];
+            var series = [
+                { color: "#0088ce", label: _("Used") },
+                { color: "#ff7f00", label: _("Cached") },
+            ];
 
-        var metrics = [
-            { name: "memory.swap-used" },
-            { name: "memory.used" },
-            { name: "memory.cached" },
-            { name: "memory.free" },
-        ];
+            if (info.swap) {
+                options.yaxis.max = info.memory + info.swap * 0.25;
+                options.yaxis.tickFormatter = function (v) {
+                    return v <= info.memory ? cockpit.format_bytes(v)
+                        : cockpit.format_bytes(v + (v - info.memory) * 4);
+                };
+                $.extend(options, { grid: { aboveData: false, markings: [
+                    { yaxis: { from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed" }
+                ]}});
+                metrics.push({ name: "memory.swap-used" });
+                series.push({ color: "#e41a1c", label: _("Swap Used"), offset: info.memory, factor: 0.25 });
+            } else {
+                $("#memory_status .memory-swap").hide();
+            }
 
-        var series = [
-            { color: "#e41a1c", label: _("Swap Used") },
-            { color: "#377eb8", label: _("Used") },
-            { color: "#ff7f00", label: _("Cached") },
-            { color: "#4daf4a", label: _("Free") },
-        ];
+            self.channel = cockpit.metrics(1000, {
+                source: "internal",
+                metrics: metrics,
+                cache: "memory-status"
+            });
+            /* The grid shows us the last five minutes */
+            self.grid = cockpit.grid(1000, -300, -0);
+            for(var i = 0; i < series.length; i++)
+                series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
 
-        self.channel = cockpit.metrics(1000, {
-            source: "internal",
-            metrics: metrics,
-            cache: "memory-status"
+            /* Start pulling data, and make the grid follow the data */
+            self.channel.follow();
+            self.grid.walk();
+            self.plot = plot.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
+            dfd.resolve();
+        }).fail(function(ex) {
+            debug("Couldn't read memory info: " + ex);
+            dfd.reject();
         });
-
-        /* The grid shows us the last five minutes */
-        self.grid = cockpit.grid(1000, -300, -0);
-
-        var i;
-        for(i = 0; i < series.length; i++) {
-            series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
-        }
-
-        /* Start pulling data, and make the grid follow the data */
-        self.channel.follow();
-        self.grid.walk();
-
-        this.plot = plot.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
     },
 
     show: function() {
-        this.plot.start();
+        var self = this;
+        if (self.setupPromise) {
+            self.setupPromise.done(function() {
+                self.plot.start();
+                $("#memory_status_graph canvas").css("z-index", -1);
+            });
+        }
     },
 
     leave: function() {
@@ -1588,7 +1634,7 @@ $("#link-cpu").on("click", function() {
     return false;
 });
 
-$("#link-memory").on("click", function() {
+$("#link-memory, #link-memory-and-swap").on("click", function() {
     cockpit.location.go([ "memory" ]);
     return false;
 });

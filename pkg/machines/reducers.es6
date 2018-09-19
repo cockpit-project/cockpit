@@ -27,7 +27,6 @@ import {
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
-    SET_REFRESH_INTERVAL,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
@@ -57,11 +56,6 @@ function config(state, action) {
     switch (action.type) {
     case SET_PROVIDER:
         return Object.assign({}, state, { provider: action.provider });
-    case SET_REFRESH_INTERVAL: {
-        const newState = Object.assign({}, state);
-        newState.refreshInterval = action.refreshInterval;
-        return newState;
-    }
     case 'SET_HYPERVISOR_MAX_VCPU': {
         const newState = Object.assign({}, state);
         newState.hypervisorMaxVCPU = Object.assign({}, newState.hypervisorMaxVCPU, { [action.payload.connectionName]: action.payload.count });

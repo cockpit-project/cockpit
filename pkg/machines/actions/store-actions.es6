@@ -25,7 +25,6 @@ import {
     DELETE_UNLISTED_VMS,
     SET_HYPERVISOR_MAX_VCPU,
     SET_PROVIDER,
-    SET_REFRESH_INTERVAL,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
@@ -122,13 +121,6 @@ export function setProvider(provider) {
     return {
         type: SET_PROVIDER,
         provider,
-    };
-}
-
-export function setRefreshInterval(refreshInterval) {
-    return {
-        type: SET_REFRESH_INTERVAL,
-        refreshInterval,
     };
 }
 

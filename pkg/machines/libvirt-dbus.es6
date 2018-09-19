@@ -620,7 +620,7 @@ function getDomainMaxVCPU(capsXML) {
 
     const domainCapsElem = xmlDoc.getElementsByTagName("domainCapabilities")[0];
     const vcpuElem = domainCapsElem.getElementsByTagName("vcpu")[0];
-    const vcpuMaxAttr = vcpuElem.attributes.getNamedItem('max');
+    const vcpuMaxAttr = vcpuElem.getAttribute('max');
 
     return vcpuMaxAttr;
 }

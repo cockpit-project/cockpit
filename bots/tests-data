@@ -23,6 +23,7 @@ import json
 import os
 import re
 import socket
+import ssl
 import subprocess
 import sys
 import tempfile
@@ -204,7 +205,11 @@ class Pulls():
 
 # Retrieves the content of the given URL
 def retrieve(url):
-    return urllib.request.urlopen(url).read().decode('utf-8', 'replace')
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    req = urllib.request.urlopen(url, context=ctx)
+    return req.read().decode('utf-8', 'replace')
 
 # Returns a list of all results at the given URL
 def links(url):

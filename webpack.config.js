@@ -444,6 +444,11 @@ module.exports = {
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: 'strict' // Adds "use strict"
             },
+            /* these are called *.js, but are ES6 */
+            {
+                test: /\/node_modules\/@novnc.*\.js$/,
+                loader: "babel-loader"
+            },
             {
                 test: /\.jsx$/,
                 loader: "babel-loader"

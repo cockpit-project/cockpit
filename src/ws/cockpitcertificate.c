@@ -293,7 +293,7 @@ generate_temp_cert (const gchar *dir,
       cert_path = NULL;
       goto out;
     }
-  error = NULL;
+  g_clear_error (error);
 
   /* Fall back to using the openssl CLI */
 

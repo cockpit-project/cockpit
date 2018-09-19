@@ -41,6 +41,8 @@ typedef struct {
 typedef struct {
   const gchar **files;
   const gchar *expected_message;
+  gboolean readonly_dir;
+  gboolean ensure;
 } TestFixture;
 
 static void
@@ -90,7 +92,19 @@ setup (TestCase *tc,
   /* make sure we start clean */
   delete_all(tc);
 
+  if (fix->readonly_dir)
+    {
+      g_assert (g_mkdir_with_parents (tc->cert_dir, 0755) == 0);
+      g_assert (g_chmod (tc->cert_dir, 0555) == 0);
+    }
+
   g_ptr_array_add (ptr, "certificate");
+  if (fix->ensure)
+    {
+      cockpit_expect_info ("Generating temporary certificate*");
+      cockpit_expect_info ("Error generating temporary dummy cert using sscg, falling back to openssl*");
+      g_ptr_array_add (ptr, "--ensure");
+    }
   g_ptr_array_add (ptr, "--user");
   g_ptr_array_add (ptr, (gchar *) g_get_user_name ());
 
@@ -149,6 +163,7 @@ test_combine_bad (TestCase *test,
   g_dir_close (dir);
 }
 
+const gchar *no_files[] = { NULL };
 const gchar *good_files[3] = { SRCDIR "/src/bridge/mock-server.crt",
                                SRCDIR "/src/bridge/mock-server.key", NULL };
 const gchar *bad_files[2] = { "bad", NULL };
@@ -188,6 +203,14 @@ static const TestFixture fixture_invalid3 = {
   .expected_message = "*: No PEM-encoded certificate found",
   .files = invalid_files3
 };
+
+static const TestFixture fixture_create_no_permission = {
+  .expected_message = "Couldn't create temporary file*Permission denied",
+  .files = no_files,
+  .readonly_dir = TRUE,
+  .ensure = TRUE
+};
+
 int
 main (int argc,
       char *argv[])
@@ -205,6 +228,8 @@ main (int argc,
   g_test_add ("/remotectl-certificate/combine-no-key", TestCase, &fixture_invalid2,
               setup, test_combine_bad, teardown);
   g_test_add ("/remotectl-certificate/combine-no-cert", TestCase, &fixture_invalid3,
+              setup, test_combine_bad, teardown);
+  g_test_add ("/remotectl-certificate/create-no-permission", TestCase, &fixture_create_no_permission,
               setup, test_combine_bad, teardown);
   return g_test_run ();
 }

@@ -62,9 +62,9 @@ delete_all (TestCase *tc)
       g_free (path);
     }
 
+  g_rmdir (tc->cert_dir);
   parent = g_path_get_dirname (tc->cert_dir);
   g_rmdir (parent);
-  g_rmdir (tc->cert_dir);
   g_rmdir (config_dir);
 
 out:

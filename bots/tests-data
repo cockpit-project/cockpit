@@ -62,7 +62,7 @@ def run(filename, verbose=False, dry=False, **kwargs):
             with gzip.open(filename, 'rb') as fp:
                 seed(since, fp, pulls, output)
     else:
-        output = sys.stdout
+        output = sys.stdout.buffer
         outname = None
 
     def write(**kwargs):

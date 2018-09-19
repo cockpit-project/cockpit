@@ -189,13 +189,12 @@ function systemInfo(state, action) {
     switch (action.type) {
     case UPDATE_OS_INFO_LIST: {
         if (action.osInfoList instanceof Array) {
-            state.osInfoList = [...action.osInfoList];
+            return Object.assign({}, state, { osInfoList: action.osInfoList });
         }
         return state;
     }
     case UPDATE_LIBVIRT_STATE: {
-        state.libvirtService = Object.assign({}, state.libvirtService, action.state);
-        return state;
+        return Object.assign({}, state, { libvirtService:  Object.assign({}, state.libvirtService, action.state) });
     }
     default: // by default all reducers should return initial state on unknown actions
         return state;
@@ -249,28 +248,33 @@ function ui(state, action) {
         vms: {}, // transient property
     };
     const addVm = () => {
-        const oldVm = state.vms[action.vm.name];
+        let newState = Object.assign({}, state);
+        newState.vms = Object.assign({}, state.vms);
+        const oldVm = newState.vms[action.vm.name];
         const vm = Object.assign({}, oldVm, action.vm);
 
-        state.vms = Object.assign({}, state.vms, {
+        newState.vms = Object.assign({}, newState.vms, {
             [action.vm.name]: vm,
         });
+        return newState;
     };
 
     switch (action.type) {
     case ADD_UI_VM: {
-        addVm();
-        return state;
+        return addVm();
     }
     case UPDATE_UI_VM: {
         if (state.vms[action.vm.name] && state.vms[action.vm.name].isUi) {
-            addVm();
+            return addVm();
         }
         return state;
     }
-    case DELETE_UI_VM:
-        delete state.vms[action.vm.name];
-        return state;
+    case DELETE_UI_VM: {
+        let newState = Object.assign({}, state);
+        newState.vms = Object.assign({}, state.vms);
+        delete newState.vms[action.vm.name];
+        return newState;
+    }
     case ADD_NOTIFICATION: {
         const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
         const notifs = state.notifications;

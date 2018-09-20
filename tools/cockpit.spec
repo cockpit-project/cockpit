@@ -21,6 +21,10 @@
 %define rhel %{centos}
 %endif
 
+%if "%{!?__python3:1}"
+%define __python3 /usr/bin/python3
+%endif
+
 # for testing this already gets set in fedora.install, as we want the target
 # VERSION_ID, not the mock chroot's one
 %if "%{!?os_version_id:1}"
@@ -638,7 +642,7 @@ Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
-Requires: python3
+Requires: %{__python3}
 Requires: python3-dbus
 %endif
 BuildArch: noarch
@@ -750,7 +754,7 @@ Requires: cockpit-shell >= %{required_base}
 Requires: /usr/bin/docker
 Requires: /usr/lib/systemd/system/docker.service
 %if 0%{?fedora}
-Requires: python3
+Requires: %{__python3}
 %else
 Requires: python2
 %endif

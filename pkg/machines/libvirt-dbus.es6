@@ -265,11 +265,17 @@ LIBVIRT_DBUS_PROVIDER = {
         id: objPath,
         options
     }) {
-        function destroy() {
-            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
+        function destroy(dispatch) {
+            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT)
+                    .catch(exception => dispatch(vmActionFailed({
+                        name: name,
+                        connectionName,
+                        message: _("VM DELETE action failed"),
+                        detail: {exception}
+                    })));
         }
 
-        function undefine() {
+        function undefine(dispatch) {
             let storageVolPromises = [];
             let storageVolPathsPromises = [];
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
@@ -277,7 +283,6 @@ LIBVIRT_DBUS_PROVIDER = {
             for (let i = 0; i < options.storage.length; i++) {
                 storageVolPathsPromises.push(
                     call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [options.storage[i]], TIMEOUT)
-                            .fail((ex) => console.error("Failed to LookupByPath", options.storage[i]))
                 );
             }
 
@@ -286,22 +291,26 @@ LIBVIRT_DBUS_PROVIDER = {
                         for (let i = 0; i < storageVolPaths.length; i++) {
                             storageVolPromises.push(
                                 call(connectionName, storageVolPaths[i][0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT)
-                                        .fail((ex) => console.error("Failed to Delete", storageVolPaths[i][0]))
                             );
                         }
                         return Promise.all(storageVolPathsPromises);
                     })
                     .then(() => {
-                        call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT)
-                                .fail(ex => console.error("Failed to Undefine Domain %s:", name, ex));
-                    });
+                        call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
+                    })
+                    .catch(exception => dispatch(vmActionFailed({
+                        name: name,
+                        connectionName,
+                        message: _("VM DELETE action failed"),
+                        detail: {exception}
+                    })));
         }
 
         return dispatch => {
             if (options.destroy) {
-                return destroy().then(undefine);
+                return destroy(dispatch).then(undefine(dispatch));
             } else {
-                return undefine();
+                return undefine(dispatch);
             }
         };
     },

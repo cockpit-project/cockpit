@@ -500,7 +500,6 @@ LIBVIRT_DBUS_PROVIDER = {
         return dispatch => {
             call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
                     .done(domXml => {
-                        parseDumpxml(dispatch, connectionName, domXml[0], objPath);
                         call(connectionName, objPath, 'org.libvirt.Domain', 'GetState', [0], TIMEOUT)
                                 .done(state => {
                                     let DOMAINSTATE = [
@@ -535,6 +534,8 @@ LIBVIRT_DBUS_PROVIDER = {
                                                     props.autostart = returnProps[0].Autostart.v.v;
 
                                                 logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
+
+                                                parseDumpxml(dispatch, connectionName, domXml[0], objPath);
                                                 dispatch(updateVm(props));
                                             })
                                             .fail(function(ex) { console.warn("failed waiting for Domain proxy to get ready", ex) });

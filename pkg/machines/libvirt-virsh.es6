@@ -152,14 +152,16 @@ LIBVIRT_PROVIDER = {
      */
     GET_VM ({ name, connectionName }) {
         logDebug(`${this.name}.GET_VM()`);
+        let xmlDesc;
 
         return dispatch => {
             if (!isEmpty(name)) {
                 return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
-                    parseDumpxml(dispatch, connectionName, domXml);
+                    xmlDesc = domXml;
                     return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
                 })
                         .then(domInfo => {
+                            parseDumpxml(dispatch, connectionName, xmlDesc);
                             parseDominfo(dispatch, connectionName, name, domInfo);
                         }); // end of GET_VM return
             }

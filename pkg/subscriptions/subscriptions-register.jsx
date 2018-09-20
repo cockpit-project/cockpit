@@ -105,84 +105,88 @@ var PatternDialogBody = createReactClass({
         return (
             <div className="modal-body">
                 <table className="form-table-ct">
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="subscription-register-url">
-                                {_("URL")}
-                            </label>
-                        </td>
-                        <td>
-                            <Select.Select key='urlSource' onChange={ this.props.onChange.bind(this, 'url') }
-                                           id="subscription-register-url" initial="default">
-                                <Select.SelectEntry data='default' key='default'>{ urlEntries['default'] }</Select.SelectEntry>
-                                <Select.SelectEntry data='custom' key='custom'>{ urlEntries['custom'] }</Select.SelectEntry>
-                            </Select.Select>
-                            {customURL}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label">
-                                {_("Proxy")}
-                            </label>
-                        </td>
-                        <td>
-                            <label>
-                                <input id="subscription-proxy-use" type="checkbox" checked={this.props.proxy}
-                                       onChange={ this.props.onChange.bind(this, 'proxy') } />
-                                {_("Use proxy server")}
-                            </label>
-                            {proxy}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top ">
-                            <label className="control-label" htmlFor="subscription-register-username">
-                                {_("Login")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="subscription-register-username" className="form-control" type="text"
-                                   value={this.props.user}
-                                   onChange={this.props.onChange.bind(this, 'user')} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="subscription-register-password">
-                                {_("Password")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="subscription-register-password" className="form-control" type="password"
-                                   value={this.props.password}
-                                   onChange={this.props.onChange.bind(this, 'password')} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="subscription-register-key">
-                                {_("Activation Key")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="subscription-register-key" className="form-control" type="text"
-                                   placeholder="key_one,key_two" value={this.props.activationKeys}
-                                   onChange={this.props.onChange.bind(this, 'activationKeys')} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="top">
-                            <label className="control-label" htmlFor="subscription-register-org">
-                                {_("Organization")}
-                            </label>
-                        </td>
-                        <td>
-                            <input id="subscription-register-org" className="form-control" type="text"
-                                   value={this.props.org}
-                                   onChange={this.props.onChange.bind(this, 'org')} />
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="subscription-register-url">
+                                    {_("URL")}
+                                </label>
+                            </td>
+                            <td>
+                                <Select.StatelessSelect key='urlSource'
+                                                        onChange={ this.props.onChange.bind(this, 'url') }
+                                                        id="subscription-register-url"
+                                                        selected={this.props.url}>
+                                    <Select.SelectEntry data='default' key='default'>{ urlEntries['default'] }</Select.SelectEntry>
+                                    <Select.SelectEntry data='custom' key='custom'>{ urlEntries['custom'] }</Select.SelectEntry>
+                                </Select.StatelessSelect>
+                                {customURL}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label">
+                                    {_("Proxy")}
+                                </label>
+                            </td>
+                            <td>
+                                <label>
+                                    <input id="subscription-proxy-use" type="checkbox" checked={this.props.proxy}
+                                           onChange={ this.props.onChange.bind(this, 'proxy') } />
+                                    {_("Use proxy server")}
+                                </label>
+                                {proxy}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top ">
+                                <label className="control-label" htmlFor="subscription-register-username">
+                                    {_("Login")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="subscription-register-username" className="form-control" type="text"
+                                       value={this.props.user}
+                                       onChange={this.props.onChange.bind(this, 'user')} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="subscription-register-password">
+                                    {_("Password")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="subscription-register-password" className="form-control" type="password"
+                                       value={this.props.password}
+                                       onChange={this.props.onChange.bind(this, 'password')} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="subscription-register-key">
+                                    {_("Activation Key")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="subscription-register-key" className="form-control" type="text"
+                                       placeholder="key_one,key_two" value={this.props.activationKeys}
+                                       onChange={this.props.onChange.bind(this, 'activationKeys')} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="top">
+                                <label className="control-label" htmlFor="subscription-register-org">
+                                    {_("Organization")}
+                                </label>
+                            </td>
+                            <td>
+                                <input id="subscription-register-org" className="form-control" type="text"
+                                       value={this.props.org}
+                                       onChange={this.props.onChange.bind(this, 'org')} />
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

@@ -142,9 +142,9 @@ class TestSubscriptions(MachineCase):
         # enter server and incorrect login data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
-        b.set_val("#subscription-register-username", "doc")
-        b.set_val("#subscription-register-password", "wrongpass")
+        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-username", "doc")
+        b.set_input_text("#subscription-register-password", "wrongpass")
 
         # try to register
         dialog_register_button_sel = "div.modal-footer .btn-primary"
@@ -154,7 +154,7 @@ class TestSubscriptions(MachineCase):
         b.wait_in_text("body", "Invalid credentials")
 
         # enter correct login data and try again, old error should disappear
-        b.set_val("#subscription-register-password", "password")
+        b.set_input_text("#subscription-register-password", "password")
         b.click(dialog_register_button_sel)
 
         b.wait_not_in_text("body", "Invalid credentials")
@@ -163,17 +163,17 @@ class TestSubscriptions(MachineCase):
         b.wait_in_text("body", "'Organization' required to register.")
 
         # now specify the org
-        b.set_val("#subscription-register-org", "admin")
+        b.set_input_text("#subscription-register-org", "admin")
 
         # use an activation key
         activation_key_id = self.candlepin.execute(ACTIVATION_KEY_COMMAND).strip()
         pool_id = self.candlepin.execute(POOL_COMMAND).strip()
         key_url = "https://localhost:8443/candlepin/activation_keys/{key}/pools/{pool}".format(key=activation_key_id, pool=pool_id)
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
-        b.set_val("#subscription-register-username", "")
-        b.set_val("#subscription-register-password", "")
-        b.set_val("#subscription-register-password", "")
-        b.set_val("#subscription-register-key", "awesome_os_pool")
+        b.set_input_text("#subscription-register-username", "")
+        b.set_input_text("#subscription-register-password", "")
+        b.set_input_text("#subscription-register-password", "")
+        b.set_input_text("#subscription-register-key", "awesome_os_pool")
 
         # try to register again
         b.click(dialog_register_button_sel)
@@ -233,14 +233,14 @@ class TestSubscriptions(MachineCase):
         # enter server data
         b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
-        b.set_val("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
+        b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
 
         # make sure we have an activation key on the target machine
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
 
         # enter key and org
-        b.set_val("#subscription-register-key", "awesome_os_pool")
-        b.set_val("#subscription-register-org", "admin")
+        b.set_input_text("#subscription-register-key", "awesome_os_pool")
+        b.set_input_text("#subscription-register-org", "admin")
         b.click(dialog_register_button_sel)
 
         # dialog should disappear

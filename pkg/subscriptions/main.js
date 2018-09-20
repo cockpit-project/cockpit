@@ -61,8 +61,6 @@ function openRegisterDialog() {
                     registerDialogDetails[prop] = data.target.checked;
                 } else {
                     registerDialogDetails[prop] = data.target.value;
-                    // input from the ui, so we don't need to re-render
-                    return;
                 }
             } else {
                 registerDialogDetails[prop] = data;

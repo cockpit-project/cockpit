@@ -29,15 +29,17 @@ var cockpitListing = require("cockpit-components-listing.jsx");
 var SubscriptionProductDetails = createReactClass({
     render: function() {
         return (
-            <div key={this.props.productId}>
-                <tr><td className="form-tr-ct-title">{_("Product name")}</td><td><span>{this.props.productName}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Product ID")}</td><td><span>{this.props.productId}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Version")}</td><td><span>{this.props.version}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Architecture")}</td><td><span>{this.props.arch}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Status")}</td><td><span>{this.props.status}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Starts")}</td><td><span>{this.props.starts}</span></td></tr>
-                <tr><td className="form-tr-ct-title">{_("Ends")}</td><td><span>{this.props.ends}</span></td></tr>
-            </div>
+            <table key={this.props.productId}>
+                <tbody>
+                    <tr><td className="form-tr-ct-title">{_("Product name")}</td><td><span>{this.props.productName}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Product ID")}</td><td><span>{this.props.productId}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Version")}</td><td><span>{this.props.version}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Architecture")}</td><td><span>{this.props.arch}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Status")}</td><td><span>{this.props.status}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Starts")}</td><td><span>{this.props.starts}</span></td></tr>
+                    <tr><td className="form-tr-ct-title">{_("Ends")}</td><td><span>{this.props.ends}</span></td></tr>
+                </tbody>
+            </table>
         );
     }
 });
@@ -213,7 +215,7 @@ var SubscriptionsPage = createReactClass({
                 },
             ];
             var columns = [ { name: itm.productName, 'header': true } ];
-            return <cockpitListing.ListingRow columns={columns} tabRenderers={tabRenderers} />;
+            return <cockpitListing.ListingRow key={itm.productId} columns={columns} tabRenderers={tabRenderers} />;
         });
 
         return (

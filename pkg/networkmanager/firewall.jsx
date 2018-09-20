@@ -99,11 +99,13 @@ class SearchInput extends React.Component {
     }
 
     onValueChanged(event) {
+        let value = event.target.value;
+
         if (this.timer)
             window.clearTimeout(this.timer);
 
         this.timer = window.setTimeout(() => {
-            this.props.onChange(event.target.value);
+            this.props.onChange(value);
             this.timer = null;
         }, 300);
     }
@@ -176,23 +178,25 @@ class AddServicesDialogBody extends React.Component {
         return (
             <div id="add-services-dialog" className="modal-body">
                 <table className="form-table-ct">
-                    <tr>
-                        <td>
-                            <label htmlFor="filter-services-input" className="control-label">
-                                {_("Filter Services")}
-                            </label>
-                        </td>
-                        <td>
-                            <SearchInput id="filter-services-input"
-                                         className="form-control"
-                                         onChange={this.onFilterChanged} />
-                        </td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label htmlFor="filter-services-input" className="control-label">
+                                    {_("Filter Services")}
+                                </label>
+                            </td>
+                            <td>
+                                <SearchInput id="filter-services-input"
+                                             className="form-control"
+                                             onChange={this.onFilterChanged} />
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
                 <ul className="list-group dialog-list-ct">
                     {
                         services.map(s => (
-                            <li className="list-group-item">
+                            <li key={s.id} className="list-group-item">
                                 <label>
                                     <input id={s.id}
                                            type="checkbox"
@@ -297,12 +301,12 @@ export class Firewall extends React.Component {
         var addServiceAction;
         if (this.state.firewall.readonly) {
             addServiceAction = (
-                <Tooltip className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
+                <Tooltip key="" className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
                     <button className="btn btn-primary" disabled> {_("Add Services…")} </button>
                 </Tooltip>
             );
         } else {
-            addServiceAction = <button className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;
+            addServiceAction = <button key="" className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;
         }
 
         var services = [...this.state.firewall.enabledServices].map(id => this.state.firewall.services[id]);
@@ -325,9 +329,10 @@ export class Firewall extends React.Component {
                 <Listing title={_("Allowed Services")}
                          columnTitles={[ _("Service"), _("TCP"), _("UDP"), "" ]}
                          emptyCaption={_("No open ports")}
-                         actions={addServiceAction}>
+                         actions={[ addServiceAction ]}>
                     {
-                        services.map(s => <ServiceRow service={s}
+                        services.map(s => <ServiceRow key={s.id}
+                                                      service={s}
                                                       readonly={this.state.firewall.readonly}
                                                       onRemoveService={this.onRemoveService} />)
                     }

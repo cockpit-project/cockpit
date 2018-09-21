@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 
 // FIXME: eventually convert all images to python 3
-const pyinvoke = [ "sh", "-ec", "exec $(which python3 2>/dev/null || which python) $@", "--", "-" ];
+const pyinvoke = [ "sh", "-ec", "exec $(which /usr/libexec/platform-python 2>/dev/null || which python3 2>/dev/null || which python) $@", "--", "-" ];
 
 export function spawn (script_pieces, args, options) {
     var script;

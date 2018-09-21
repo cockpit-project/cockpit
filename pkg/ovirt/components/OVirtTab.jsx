@@ -143,7 +143,7 @@ const OVirtTab = ({ vm, providerState, dispatch }) => {
                     <td className='ovirt-provider-listing-top-column'>
                         <table className='form-table-ct'>
                             <tbody>
-                                <VmProperty descr={_("Description:")} value={clusterVm.description} id={`${idPrefix}-description`} />
+                                <VmProperty descr={_("Description:")} value={clusterVm.description || ""} id={`${idPrefix}-description`} />
                                 <VmTemplate clusterVm={clusterVm} templates={providerState.templates} id={`${idPrefix}-template`} />
                                 <VmProperty descr={_("OS Type:")} value={clusterVm.os.type} id={`${idPrefix}-ostype`} />
                             </tbody>

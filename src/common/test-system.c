@@ -103,7 +103,7 @@ test_start_time (gconstpointer data)
   if (fixture->contents)
     {
       filename = g_strdup_printf ("%s/stat", directory);
-      g_file_set_contents (filename, fixture->contents, -1, &error);
+      g_assert (g_file_set_contents (filename, fixture->contents, -1, &error));
       g_assert_no_error (error);
     }
   if (fixture->warning)

@@ -627,7 +627,7 @@ cockpit_handler_default (CockpitWebServer *server,
   /* Stuff in /cockpit or /cockpit+xxx */
   if (resource)
     {
-      cockpit_web_response_skip_path (response);
+      g_assert (cockpit_web_response_skip_path (response));
       remainder = cockpit_web_response_get_path (response);
 
       if (!remainder)

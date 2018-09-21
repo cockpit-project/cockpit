@@ -224,7 +224,7 @@ def prioritize(status, title, labels, priority, context):
             priority -= 1
 
         # Pull requests where the title starts with WIP get penalized
-        if title.startswith("WIP"):
+        if title.startswith("WIP") or "needswork" in values:
             priority -= 3
 
         # Is testing already in progress?

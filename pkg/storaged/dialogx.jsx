@@ -727,7 +727,9 @@ class SizeSliderElement extends React.Component {
         let min = this.props.min || 0;
         let { unit } = this.state;
 
-        const round_size = (value) => {
+        const change_slider = (f) => {
+            let value = f * max;
+
             if (round) {
                 if (typeof round == "function")
                     value = round(value);
@@ -735,28 +737,8 @@ class SizeSliderElement extends React.Component {
                     value = Math.round(value / round) * round;
             }
 
-            // As a special case, if the user types something that
-            // looks like the maximum (or minimum) when formatted,
-            // always use exactly the maximum (or minimum).  Otherwise
-            // we have the confusing possibility that with the exact
-            // same string in the text input, the size is sometimes
-            // too large (or too small) and sometimes not.
-
-            function sanitize(limit) {
-                var fmt = cockpit.format_number(limit / unit);
-                var parse = +fmt * unit;
-
-                if (value == parse)
-                    value = limit;
-            }
-
-            sanitize(min);
-            sanitize(max);
-
-            return Math.round(value);
+            onChange(Math.max(min, value));
         };
-
-        const change_slider = (f) => onChange(round_size(Math.max(min, f * max)));
 
         const change_text = (event) => {
             if (event.type == "change") {
@@ -769,7 +751,25 @@ class SizeSliderElement extends React.Component {
                      */
                     onChange(event.target.value);
                 } else {
-                    onChange(round_size(val));
+                    // As a special case, if the user types something that
+                    // looks like the maximum (or minimum) when formatted,
+                    // always use exactly the maximum (or minimum).  Otherwise
+                    // we have the confusing possibility that with the exact
+                    // same string in the text input, the size is sometimes
+                    // too large (or too small) and sometimes not.
+
+                    const sanitize = (limit) => {
+                        var fmt = cockpit.format_number(limit / unit);
+                        var parse = +fmt * unit;
+
+                        if (val == parse)
+                            val = limit;
+                    };
+
+                    sanitize(min);
+                    sanitize(max);
+
+                    onChange(val);
                 }
             }
         };
@@ -825,7 +825,9 @@ export const SizeSlider = (tag, title, options) => {
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="size-slider">
-                    <SizeSliderElement val={val} max={all_options.max} onChange={change} />
+                    <SizeSliderElement val={val} max={all_options.max}
+                                       round={all_options.round}
+                                       onChange={change} />
                 </div>
             );
         }

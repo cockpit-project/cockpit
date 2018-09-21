@@ -120,11 +120,6 @@ def run(image, verbose=False, **kwargs):
     # Cleanup any extraneous disk usage elsewhere
     subprocess.check_call([ os.path.join(BASE, "test", "vm-reset") ])
 
-    # Setup network if necessary, any failures caught during testing
-    prep = os.path.join(BASE, "test", "vm-prep")
-    if os.path.exists(prep):
-        subprocess.call(["sudo", "-n", prep ])
-
     cmd = [ os.path.join(BOTS, "image-create"), "--verbose", "--upload" ]
     if store:
         cmd += [ "--store", store ]

@@ -2757,11 +2757,11 @@ process_connection (CockpitDBusJson *self,
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED) ||
           g_cancellable_is_cancelled (self->cancellable))
         {
-          g_debug ("%s", error->message);
+          g_debug ("%s", error ? error->message : "(error is NULL)");
         }
       else
         {
-          cockpit_channel_fail (channel, "internal-error", "%s", error->message);
+          cockpit_channel_fail (channel, "internal-error", "%s", error ? error->message : "(error is NULL)");
         }
       g_error_free (error);
     }

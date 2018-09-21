@@ -509,6 +509,8 @@ export function unknownConnectionName(action, libvirtServiceName) {
 
 export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) {
     const domainElem = getDomainElem(domXml);
+    if (!domainElem)
+        throw new Error("updateVCPUSettings: domXML has no domain element");
 
     let cpuElem = domainElem.getElementsByTagName("cpu")[0];
     if (!cpuElem) {

@@ -349,11 +349,6 @@ class PullTask(object):
         env = os.environ.copy()
         env["PATH"] = "{0}:{1}:{2}".format(env.get("PATH", "/bin:/sbin"), BOTS, test)
 
-        # Setup network if necessary, any failures caught during testing
-        prep = os.path.join(BASE, "test", "vm-prep")
-        if os.path.exists(prep):
-            subprocess.call(["sudo", "-n", prep ], env=env)
-
         # Prepare the image to run
         if not ret and prefix != "cockpit":
             ret = self.prepare(prefix, value, image, opts.verbose)

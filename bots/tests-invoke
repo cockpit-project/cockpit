@@ -346,9 +346,6 @@ class PullTask(object):
             ret = "Unknown context"
 
 
-        env = os.environ.copy()
-        env["PATH"] = "{0}:{1}:{2}".format(env.get("PATH", "/bin:/sbin"), BOTS, test)
-
         # Prepare the image to run
         if not ret and prefix != "cockpit":
             ret = self.prepare(prefix, value, image, opts.verbose)
@@ -361,7 +358,7 @@ class PullTask(object):
         if not ret:
             if opts.verbose:
                 cmd.append("--verbose")
-            ret = subprocess.call(cmd, env=env)
+            ret = subprocess.call(cmd)
 
         # All done
         if self.sink:

@@ -860,8 +860,12 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
  * Get Libvirt D-Bus client
  */
 function dbus_client(connectionName) {
-    if (!(connectionName in clientLibvirt) || clientLibvirt[connectionName] === null)
-        clientLibvirt[connectionName] = cockpit.dbus("org.libvirt", { bus: connectionName });
+    if (!(connectionName in clientLibvirt) || clientLibvirt[connectionName] === null) {
+        let opts = { bus: connectionName };
+        if (connectionName === 'system')
+            opts['superuser'] = 'try';
+        clientLibvirt[connectionName] = cockpit.dbus("org.libvirt", opts);
+    }
 
     return clientLibvirt[connectionName];
 }

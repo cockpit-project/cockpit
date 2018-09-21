@@ -33,15 +33,10 @@ class TestMachinesDBus(machineslib.TestMachines):
         except subprocess.CalledProcessError:
             raise unittest.SkipTest("libvirt-dbus is not available");
 
-    def allowSystemDBusUnprivileged(self):
-        # Add admin user to libvirt group so that he has access to system libvirt-dbus
-        self.machine.execute("sudo usermod -a -G libvirt admin")
-
     def setUp(self):
         super(TestMachinesDBus, self).setUp()
 
         self.skipIfNotLibvirtDbusAvailable()
-        self.allowSystemDBusUnprivileged()
         self.provider = "libvirt-dbus"
 
 

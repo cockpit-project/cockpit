@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 const DeleteDialogBody = ({ values, onChange }) => {
     function disk_row(disk) {
         return (
-            <tr key={disk}>
+            <tr key={disk.target}>
                 <td>
                     <input type="checkbox" checked={disk.checked}
                            onChange={(event) => {
@@ -84,10 +84,15 @@ export function deleteDialog(vm, dispatch) {
     if (vm.state == 'running')
         values.destroy = true;
 
+    function body_props() {
+        return {
+            title: cockpit.format(_("Confirm deletion of $0"), vm.name),
+            body: <DeleteDialogBody values={values} onChange={() => dlg.setProps(body_props())} />
+        };
+    }
+
     let dlg = show_modal_dialog(
-        { title: cockpit.format(_("Confirm deletion of $0"), vm.name),
-          body: <DeleteDialogBody values={values} onChange={() => dlg.render()} />
-        },
+        body_props(),
         { actions: [
             { caption: _("Delete"),
               style: 'danger',

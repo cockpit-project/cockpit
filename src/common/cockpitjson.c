@@ -786,6 +786,8 @@ dump_value (const gchar   *name,
     }
   else
     {
+      if (length)
+        *length = 0;
       g_return_val_if_reached (NULL);
     }
 

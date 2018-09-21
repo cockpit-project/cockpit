@@ -390,8 +390,8 @@ test_large (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
-  g_file_get_contents (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/COPYING",
-                       &contents, &length, &error);
+  g_assert (g_file_get_contents (SRCDIR "/src/bridge/mock-resource/system/cockpit/test/sub/COPYING",
+                                 &contents, &length, &error));
   g_assert_no_error (error);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);

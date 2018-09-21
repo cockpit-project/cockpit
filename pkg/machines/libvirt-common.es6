@@ -8,7 +8,6 @@ import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.
 import {
     vmActionFailed,
     updateLibvirtState,
-    updateOrAddVm,
     updateOsInfoList,
 } from './actions/store-actions.es6';
 
@@ -206,7 +205,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
 
     const ui = resolveUiState(dispatch, name);
 
-    dispatch(updateOrAddVm({
+    return {
         connectionName,
         name,
         id,
@@ -222,7 +221,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         interfaces,
         metadata,
         ui,
-    }));
+    };
 }
 
 export function parseDumpxmlForBootOrder(osElem, devicesElem) {

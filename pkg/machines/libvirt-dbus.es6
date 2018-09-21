@@ -39,6 +39,7 @@ import {
     deleteUnlistedVMs,
     undefineVm,
     updateNetworks,
+    updateOrAddVm,
     updateStoragePools,
     updateStorageVolumes,
     updateVm,
@@ -535,8 +536,8 @@ LIBVIRT_DBUS_PROVIDER = {
 
                                                 logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
 
-                                                parseDumpxml(dispatch, connectionName, domXml[0], objPath);
-                                                dispatch(updateVm(props));
+                                                let dumpxmlParams = parseDumpxml(dispatch, connectionName, domXml[0], objPath);
+                                                dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
                                             })
                                             .fail(function(ex) { console.warn("failed waiting for Domain proxy to get ready", ex) });
                                 })

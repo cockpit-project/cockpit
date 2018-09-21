@@ -24,6 +24,7 @@ import cockpit from 'cockpit';
 
 import {
     updateVm,
+    updateOrAddVm,
     undefineVm,
     deleteUnlistedVMs,
     updateStoragePools,
@@ -161,8 +162,12 @@ LIBVIRT_PROVIDER = {
                     return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
                 })
                         .then(domInfo => {
-                            parseDumpxml(dispatch, connectionName, xmlDesc);
-                            parseDominfo(dispatch, connectionName, name, domInfo);
+                            let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
+                            let domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
+
+                            dispatch(updateOrAddVm(
+                                Object.assign({}, dumpxmlParams, domInfoParams)
+                            ));
                         }); // end of GET_VM return
             }
         };
@@ -450,12 +455,10 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     const persistent = getValueFromLine(lines, 'Persistent:') == 'yes';
 
     if (!LIBVIRT_PROVIDER.isRunning(state)) { // clean usage data
-        dispatch(updateVm({connectionName, name, state, autostart, persistent, actualTimeInMs: -1}));
+        return {connectionName, name, state, autostart, persistent, actualTimeInMs: -1};
     } else {
-        dispatch(updateVm({connectionName, name, state, persistent, autostart}));
+        return {connectionName, name, state, persistent, autostart};
     }
-
-    return state;
 }
 
 function parseDommemstat(dispatch, connectionName, name, dommemstat) {
@@ -477,10 +480,10 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
     // TODO: Add network usage statistics
 
     if (cpuTime) {
-        dispatch(updateVm({connectionName, name, actualTimeInMs, cpuTime}));
+        return {connectionName, name, actualTimeInMs, cpuTime};
     }
 
-    dispatch(updateVm({connectionName, name, disksStats: parseDomstatsForDisks(lines)}));
+    return {connectionName, name, disksStats: parseDomstatsForDisks(lines)};
 }
 
 function parseDomstatsForDisks(domstatsLines) {
@@ -575,8 +578,10 @@ function doUsagePolling (name, connectionName) {
                     }
                 })
                 .then(domstats => {
-                    if (domstats)
-                        parseDomstats(dispatch, connectionName, name, domstats);
+                    if (domstats) {
+                        let domstatsParams = parseDomstats(dispatch, connectionName, name, domstats);
+                        dispatch(updateVm(domstatsParams));
+                    }
                 });
     };
 }

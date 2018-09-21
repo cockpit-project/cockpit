@@ -69,13 +69,6 @@ TAILQ_HEAD (ExpectedList, _ExpectedMessage) el_head;
 typedef struct _ExpectedMessage ExpectedMessage;
 
 static void
-free_expected (ExpectedMessage *em)
-{
-  free (em);
-  em = NULL;
-}
-
-static void
 expect_message (const char *msg)
 {
   ExpectedMessage *em = NULL;
@@ -95,7 +88,7 @@ test_logger (int level, const char *msg)
       ExpectedMessage *em = el_head.tqh_first;
       assert_str_contains (msg, em->line);
       TAILQ_REMOVE (&el_head, el_head.tqh_first, messages);
-      free_expected (em);
+      free (em);
     }
   else
     {
@@ -157,7 +150,7 @@ teardown (void *arg)
       ExpectedMessage *em = el_head.tqh_first;
       warnx ("message didn't get logged: %s", em->line);
       TAILQ_REMOVE (&el_head, el_head.tqh_first, messages);
-      free_expected (em);
+      free (em);
       missed = 1;
     }
 

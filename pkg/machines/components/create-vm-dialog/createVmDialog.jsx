@@ -67,6 +67,7 @@ class CreateVM extends React.Component {
             storageSize: props.vmParams.storageSize, // tied to Unit
             storageSizeUnit: units.GiB.name,
             sourceType: props.vmParams.sourceType,
+            startVm: props.vmParams.startVm
         };
     }
 
@@ -136,6 +137,10 @@ class CreateVM extends React.Component {
             value = convertToUnit(this.state.storageSize, value, units.GiB);
             key = 'storageSize';
             break;
+        case 'startVm': {
+            this.setState({ [key]: value });
+            break;
+        }
         default:
             break;
         }
@@ -288,7 +293,7 @@ class CreateVM extends React.Component {
                             </td>
                             <td>
                                 <input id="start-vm" type="checkbox"
-                                       checked={this.props.vmParams.startVm}
+                                       checked={this.state.startVm}
                                        onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
                             </td>
                         </tr>

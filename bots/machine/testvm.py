@@ -1143,7 +1143,7 @@ class VirtMachine(Machine):
             image_file = os.path.join(BOTS_DIR, "images", image)
         if not os.path.exists(image_file):
             try:
-                subprocess.check_call([ "image-download", image_file ])
+                subprocess.check_call([ os.path.join(BOTS_DIR, "image-download"), image_file ])
             except OSError as ex:
                 if ex.errno != errno.ENOENT:
                     raise

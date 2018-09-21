@@ -964,6 +964,7 @@ PageAccount.prototype = {
                                            { "roles": this.roles, "changed": this.roles_changed });
                 $('#account-change-roles-roles').html(html);
                 $('#account-roles').parents('tr').show();
+                $('#account-roles [data-toggle="tooltip"]').tooltip();
                 $("#account-change-roles-roles :input")
                     .on("change", $.proxy (this, "change_role"));
             } else {

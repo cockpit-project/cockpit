@@ -773,6 +773,7 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-vcpus-count")
 
         b.wait_present(".vcpu-detail-modal-table")
+        b.wait_not_present(".machines-vcpu-caution")
 
         b.set_input_text("#machines-vcpu-count-field", "2")
 
@@ -790,12 +791,16 @@ class TestMachines(MachineCase):
 
         b.wait(lambda: m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
 
+        # Run VM - this ensures that the internal state is updated before we move on.
+        # We need this here because we can't wait for UI updates after we open the modal dialog.
+        b.click("#vm-subVmTest1-run")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
         # Open dialog
         b.wait_present("#vm-subVmTest1-vcpus-count")
         b.click("#vm-subVmTest1-vcpus-count")
 
         b.wait_present(".vcpu-detail-modal-table")
-        b.wait_not_present(".machines-vcpu-caution")
 
         # Set new socket value
         b.wait_in_text("#coresSelect button", "2")

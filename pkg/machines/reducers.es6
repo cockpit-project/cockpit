@@ -219,12 +219,25 @@ function storagePools(state, action) {
         const { connectionName, pools } = action.payload;
 
         const newState = Object.assign({}, state);
-        newState[connectionName] = {};
+        if (!(connectionName in newState))
+            newState[connectionName] = {};
+        else
+            newState[connectionName] = Object.assign({}, state[connectionName]);
 
-        // Array of strings (pool names)
-        pools.forEach(poolName => {
-            newState[connectionName][poolName] = []; // will be filled by UPDATE_STORAGE_VOLUMES
-        });
+        // Delete pools from state that are not in the payload
+        for (var poolCurrent in newState[connectionName]) {
+            if (!pools.includes(poolCurrent)) {
+                delete newState[connectionName][poolCurrent];
+            }
+        }
+
+        // Add new pools to state
+        for (var i in pools) {
+            let poolName = pools[i];
+            if (!(poolName in newState[connectionName])) {
+                newState[connectionName][poolName] = [];
+            }
+        }
 
         return newState;
     }

@@ -180,6 +180,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = id_overwrite || domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
     const osType = osTypeElem.nodeValue;
+    const arch = osTypeElem.getAttribute("arch");
     const emulatedMachine = osTypeElem.getAttribute("machine");
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
@@ -210,6 +211,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         name,
         id,
         osType,
+        arch,
         currentMemory,
         vcpus,
         disks,

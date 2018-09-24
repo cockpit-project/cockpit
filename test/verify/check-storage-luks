@@ -129,7 +129,7 @@ class TestStorage(StorageCase):
         assert m.execute("grep %s /etc/fstab || true" % mount_point_secret) == ""
 
     @skipImage("No clevis/tang",
-               "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
+               "rhel-7-5", "rhel-7-5-distropkg",
                "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
@@ -228,7 +228,7 @@ class TestStorage(StorageCase):
         b.wait_not_present(panel + ".table tr:nth-child(2)")
 
     @skipImage("No clevis/tang",
-               "centos-7", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg",
+               "rhel-7-5", "rhel-7-5-distropkg",
                "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
     def testSlots(self):
         self.allow_journal_messages("Device is not initialized.*")

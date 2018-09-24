@@ -366,20 +366,6 @@ info.tests.forEach(function(test) {
     }
 });
 
-/* Just for the sake of tests, jquery.js and cockpit.js files */
-if (!section || section.indexOf("base1") === 0) {
-    files.push({
-        from: srcdir + path.sep + "src/base1/cockpit.js",
-        to: "base1/cockpit.js"
-    }, {
-        from: nodedir + path.sep + "jquery/dist/jquery.js",
-        to: "base1/jquery.js"
-    }, {
-        from: srcdir + path.sep + "po/po.js",
-        to: "shell/po.js"
-    });
-}
-
 var aliases = {
     "angular": "angular/angular.js",
     "angular-route": "angular-route/angular-route.js",

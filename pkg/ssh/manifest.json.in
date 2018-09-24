@@ -7,8 +7,8 @@
     "bridges": [
         {
             "match": { "session": "private", "user": null, "host": null },
-            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
-                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize",
+            "environ": [ "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS=true",
+                         "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT=true",
                          "COCKPIT_PRIVATE_${channel}=${channel}" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
             "timeout": 30,
@@ -16,8 +16,8 @@
         },
         {
             "match": { "session": "private", "host": null },
-            "environ": [ "COCKPIT_SSH_ALLOW_UNKNOWN=true",
-                         "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize",
+            "environ": [ "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS=true",
+                         "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT=true",
                          "COCKPIT_PRIVATE_${channel}=${channel}" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
             "timeout": 30,
@@ -25,14 +25,14 @@
         },
         {
             "match": { "user": null, "host": null },
-            "environ": [ "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "environ": [ "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT=true" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${user}@${host}" ],
             "timeout": 30,
             "problem": "not-supported"
         },
         {
             "match": { "host": null },
-            "environ": [ "COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize" ],
+            "environ": [ "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT=true" ],
             "spawn": [ "@libexecdir@/cockpit-ssh", "${host}" ],
             "timeout": 30,
             "problem": "not-supported"

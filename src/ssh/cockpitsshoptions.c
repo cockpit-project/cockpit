@@ -23,9 +23,6 @@
 
 static const gchar *default_knownhosts = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
 static const gchar *default_command = "cockpit-bridge";
-static const gchar *ignore_hosts_data = "*";
-static const gchar *authorize_knownhosts_data = "authorize";
-static const gchar *hostkey_mismatch_data = "* invalid key";
 
 static gboolean
 has_environment_val (gchar **env,
@@ -78,16 +75,23 @@ set_environment_bool (gchar **env,
 }
 
 static gboolean
-get_allow_unknown_hosts (gchar **env)
+get_connect_to_unknown_hosts (gchar **env)
 {
   const gchar *remote_peer = g_environ_getenv (env, "COCKPIT_REMOTE_PEER");
 
-  if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
-      g_strcmp0 (remote_peer, "::1") == 0 ||
+  /* Fallback to allowUnknown  */
+  if (!cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts") &&
       cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "allowUnknown", FALSE))
     return TRUE;
 
-  return get_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN", FALSE);
+  if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
+      g_strcmp0 (remote_peer, "::1") == 0 ||
+      cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts", FALSE))
+    return TRUE;
+
+  if (!has_environment_val (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS"))
+    return get_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN", FALSE);
+  return get_environment_bool (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS", FALSE);
 }
 
 CockpitSshOptions *
@@ -95,23 +99,19 @@ cockpit_ssh_options_from_env (gchar **env)
 {
 
   CockpitSshOptions *options = g_new0 (CockpitSshOptions, 1);
-  options->knownhosts_data = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
-                                                 NULL);
-  if (g_strcmp0 (options->knownhosts_data, ignore_hosts_data) == 0)
-    options->ignore_hostkey = TRUE;
-
-  if (g_strcmp0 (options->knownhosts_data, authorize_knownhosts_data) == 0)
-    options->knownhosts_authorize = TRUE;
-
   options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                                                   default_knownhosts);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
+  options->connect_to_unknown_hosts = get_connect_to_unknown_hosts (env);
 
-  if (options->knownhosts_data != NULL && !options->knownhosts_authorize)
-    options->allow_unknown_hosts = TRUE;
-  else
-    options->allow_unknown_hosts = get_allow_unknown_hosts (env);
+  options->challenge_unknown_host_preconnect =
+    get_environment_bool (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT", FALSE);
+  /* HACK: fallback to deprecated _DATA=authorize */
+  if (!has_environment_val (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT") &&
+      g_str_equal (get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", ""),
+                   "authorize"))
+    options->challenge_unknown_host_preconnect = TRUE;
 
   return options;
 }
@@ -120,26 +120,14 @@ gchar **
 cockpit_ssh_options_to_env (CockpitSshOptions *options,
                             gchar **env)
 {
-  const gchar *knownhosts_data;
-
-  env = set_environment_bool (env, "COCKPIT_SSH_ALLOW_UNKNOWN",
-                              options->allow_unknown_hosts);
+  env = set_environment_bool (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
+                              options->connect_to_unknown_hosts);
+  env = set_environment_bool (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT",
+                              options->challenge_unknown_host_preconnect);
   env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
                              options->knownhosts_file);
   env = set_environment_val (env, "COCKPIT_REMOTE_PEER",
                              options->remote_peer);
-
-  if (options->ignore_hostkey)
-    knownhosts_data = ignore_hosts_data;
-  else if (options->knownhosts_authorize)
-    knownhosts_data = authorize_knownhosts_data;
-  else if (options->knownhosts_data && options->knownhosts_data[0] == '\0')
-    knownhosts_data = hostkey_mismatch_data;
-  else
-    knownhosts_data = options->knownhosts_data;
-
-  env = set_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA",
-                             knownhosts_data);
 
   /* Don't reset these vars unless we have values for them */
   if (options->command)

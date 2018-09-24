@@ -25,13 +25,11 @@
 G_BEGIN_DECLS
 
 typedef struct {
-  const gchar *knownhosts_data;
   const gchar *knownhosts_file;
   const gchar *command;
   const gchar *remote_peer;
-  gboolean allow_unknown_hosts;
-  gboolean ignore_hostkey;
-  gboolean knownhosts_authorize;
+  gboolean connect_to_unknown_hosts;
+  gboolean challenge_unknown_host_preconnect;
 } CockpitSshOptions;
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);

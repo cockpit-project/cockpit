@@ -3008,9 +3008,21 @@ cockpit_dbus_json_prepare (CockpitChannel *channel)
         {
           gchar *bus_address = NULL;
           gchar *key = NULL;
+          GError *error = NULL;
           GDBusConnection *connection = NULL;
 
-          bus_address = g_dbus_address_get_for_bus_sync (self->bus_type, self->cancellable, NULL);
+          bus_address = g_dbus_address_get_for_bus_sync (self->bus_type, self->cancellable, &error);
+
+          if (bus_address == NULL)
+            {
+              cockpit_channel_fail (channel, "protocol-error",
+                                    "failed to connect to %s bus: %s",
+                                    self->bus_type == G_BUS_TYPE_SESSION ? "session" : "system",
+                                    error->message);
+              g_clear_error (&error);
+              return;
+            }
+
           key = g_strdup_printf ("%s:%s", group, bus_address);
 
           if (group_connections)

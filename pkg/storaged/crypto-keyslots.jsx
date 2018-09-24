@@ -22,6 +22,8 @@ import React from "react";
 import sha1 from "js-sha1";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
+import * as python from "python.jsx";
+
 import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
@@ -446,8 +448,7 @@ export class CryptoKeyslots extends React.Component {
             this.monitored_block = block;
             if (block) {
                 var dev = decode_filename(block.Device);
-                this.monitor_channel = cockpit.spawn([ "/usr/bin/python3", "--", "-", dev ],
-                                                     { superuser: true }).input(luksmeta_monitor_hack_py);
+                this.monitor_channel = python.spawn(luksmeta_monitor_hack_py, [ dev ], { superuser: true });
                 var buf = "";
                 this.monitor_channel.stream(output => {
                     var lines;

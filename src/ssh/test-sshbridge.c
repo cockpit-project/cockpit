@@ -608,8 +608,8 @@ test_echo_large (TestCase *tc,
   json_object_unref (init);
 }
 
-
-#define MOCK_RSA_KEY "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v"
+#define MOCK_RSA_KEY "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v\n"
+#define MOCK_RSA_KEY_INVALID  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7YmnYAJaC579hyNFzcszH+ZFQeDuR8I2li1vCgKeM0lOIkV5TwCY4Tl1lbXI7NNffDACQnUrJfNNm6FamdhVzFEvyQAk+iQz/Wz6lHbDlY2dVvoVaJzNWyqXu/qaYs8Mb2QUmNXKtYk4IuM8PH88z5L4JwZXRbOEPOxnJNcaazP9pBhN/0TrHALaXwW29BR0SIJicJqK2r/mPuDovg/SWs8NdgY9DTAAfzdELshTigVXlc1AX6vo71x3O9NWMaPKZuy88o0BeQNI+mkVeV04Pewm3bUlDsr3VeEcd4D+Ixdyfg4+S57K1in0kHQD4PXrd/x5GoCZekxgUuBoE7HVB\n"
 
 #if HAVE_DECL_SSH_PUBLICKEY_HASH_SHA256
 static const gchar MOCK_RSA_FP[] = "SHA256:XQ8a7zGxMFstDrGecBRUP9OMnOUXd/T3vkNGtYShs2w";
@@ -752,7 +752,7 @@ static const TestFixture fixture_knownhost_sssd_unknown = {
 };
 
 static const TestFixture fixture_knownhost_sssd_badkey = {
-  .knownhosts_sssd = "ssh-rsa Ym9ndXMK",
+  .knownhosts_sssd = MOCK_RSA_KEY_INVALID,
   .knownhosts_sssd_host = "127.0.0.1",
   .knownhosts_file = "/dev/null",
   .problem = "invalid-hostkey"

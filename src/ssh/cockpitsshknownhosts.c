@@ -17,16 +17,148 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "cockpitsshknownhosts.h"
+
+#include <glib/gstdio.h>
+#include <glib.h>
+#include <glib-object.h>
+
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <stdio.h>
 
-#include <glib/gstdio.h>
-#include "cockpitknownhosts.h"
+static gchar *knownhosts_file = NULL;
 
-/* HACK: This file is a hack around the fact that libssh doesn't provide any
+void shim_set_knownhosts_file (const gchar *file)
+{
+  g_free (knownhosts_file);
+  knownhosts_file = g_strdup (file);
+}
+
+gboolean ssh_session_has_known_hosts_entry (ssh_session session)
+{
+  gboolean result = FALSE;
+  char *host = NULL;
+  guint port = 0;
+  g_warn_if_fail (ssh_options_get (session, SSH_OPTIONS_HOST, &host) == SSH_OK);
+  g_warn_if_fail (ssh_options_get_port (session, &port) == SSH_OK);
+  if (knownhosts_file)
+    {
+      result = cockpit_is_host_known (knownhosts_file, host, port);
+      g_clear_pointer(&knownhosts_file, g_free);
+    }
+  if (host)
+    ssh_string_free_char (host);
+  return result;
+}
+
+/*
+ * HACK: SELinux prevents us from writing to the directories we want to
+ * write to, so we have to try multiple locations.
+ *
+ * https://bugzilla.redhat.com/show_bug.cgi?id=1279430
+ */
+static gchar *
+create_knownhosts_temp (void)
+{
+  const gchar *directories[] = {
+      "/tmp",
+      PACKAGE_LOCALSTATE_DIR,
+      NULL,
+  };
+
+  gchar *name;
+  int i, fd, err;
+
+  for (i = 0; directories[i] != NULL; i++)
+    {
+      name = g_build_filename (directories[i], "known-hosts.XXXXXX", NULL);
+      fd = g_mkstemp (name);
+      err = errno;
+
+      if (fd >= 0)
+        {
+          close (fd);
+          return name;
+        }
+      g_free (name);
+
+      if ((err == ENOENT || err == EPERM || err == EACCES) && directories[i + 1] != NULL)
+        continue;
+
+      g_warning ("couldn't make temporary file for knownhosts line in %s: %m", directories[i]);
+      break;
+    }
+
+  return NULL;
+}
+
+/*
+ * NOTE: This function changes the SSH_OPTIONS_KNOWNHOSTS option on
+ * the session.
+ *
+ * We can't save and restore it since ssh_options_get doesn't allow us
+ * to retrieve the old value of SSH_OPTIONS_KNOWNHOSTS.
+ *
+ * HACK: This function should be provided by libssh.
+ *
+ * https://red.libssh.org/issues/162
+*/
+static gchar *
+get_knownhosts_line (ssh_session session)
+{
+
+  gchar *name = NULL;
+  GError *error = NULL;
+  gchar *line = NULL;
+
+  name = create_knownhosts_temp ();
+  if (!name)
+    goto out;
+
+  if (ssh_options_set (session, SSH_OPTIONS_KNOWNHOSTS, name) != SSH_OK)
+    {
+      g_warning ("Couldn't set SSH_OPTIONS_KNOWNHOSTS option.");
+      goto out;
+    }
+
+  if (ssh_write_knownhost (session) != SSH_OK)
+    {
+      g_warning ("Couldn't write knownhosts file: %s", ssh_get_error (session));
+      goto out;
+    }
+
+  if (!g_file_get_contents (name, &line, NULL, &error))
+    {
+      g_warning ("Couldn't read temporary known_hosts %s: %s", name, error->message);
+      g_clear_error (&error);
+      goto out;
+    }
+
+out:
+  if (name)
+    {
+      g_unlink (name);
+      g_free (name);
+    }
+
+  return line;
+}
+
+int ssh_session_export_known_hosts_entry (ssh_session session,
+                                          char **pentry_string)
+{
+  gchar *line = get_knownhosts_line (session);
+  if (line == NULL)
+    return SSH_ERROR;
+  *pentry_string = g_strdup (line);
+  g_free (line);
+  return SSH_OK;
+}
+
+/* HACK: The following is a hack around the fact that libssh doesn't provide any
  * API to check for the presence of a known host key without actually connecting to
  * a remote server. We want to gate our outgoing connections based on the contents
  * of known hosts so here's a implementation of that until we can get similar functionality

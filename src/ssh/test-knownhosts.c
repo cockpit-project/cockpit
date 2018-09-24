@@ -19,13 +19,13 @@
 
 #include "config.h"
 
-#include "cockpitknownhosts.h"
+#include "cockpitsshknownhosts.h"
 
-#include "cockpittest.h"
+#include "common/cockpittest.h"
 
 #include <glib.h>
 
-const static gchar *known_hosts_file = SRCDIR "/src/common/mock_known_hosts";
+const static gchar *known_hosts_file = SRCDIR "/src/ssh/mock_known_hosts_2";
 
 static void
 test_knownhosts (void)

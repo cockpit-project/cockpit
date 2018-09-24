@@ -838,6 +838,12 @@ class TestMultiMachine(MachineCase):
         b.wait_present("#edit-machine-port")
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog .btn-primary')
+        # Using libssh's knownhosts api port is taken into account when verifying a host
+        if m1.image not in ['rhel-7-5', 'rhel-7-6', 'rhel-7-5-distropkg', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1604', 'ubuntu-stable']:
+            b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
+            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
+            b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
+            b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_visible("#login-diff-password")
         b.click("#login-type button")

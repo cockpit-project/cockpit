@@ -12,6 +12,13 @@ libcockpit_ssh_a_SOURCES = \
 	src/common/cockpitauthorize.h \
 	$(NULL)
 
+if !HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
+libcockpit_ssh_a_SOURCES += \
+	src/ssh/cockpitsshknownhosts.h \
+	src/ssh/cockpitsshknownhosts.c \
+	$(NULL)
+endif
+
 libcockpit_ssh_a_CFLAGS = \
 	-I$(top_srcdir)/src/ssh \
 	-DCOCKPIT_BUILD_INFO=\"$(COCKPIT_BUILD_INFO)\"	\
@@ -63,6 +70,16 @@ test_sshbridge_CFLAGS = $(cockpit_ssh_CFLAGS)
 test_sshbridge_SOURCES = src/ssh/test-sshbridge.c
 test_sshbridge_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
 
+if !HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
+SSH_CHECKS += \
+	test-knownhosts \
+	$(NULL)
+
+test_knownhosts_CFLAGS = $(cockpit_ssh_CFLAGS)
+test_knownhosts_SOURCES = src/ssh/test-knownhosts.c
+test_knownhosts_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
+endif
+
 test_rsa_key: src/ssh/test_rsa
 	$(AM_V_GEN) cp $< $@ && chmod 600 $@
 noinst_DATA += test_rsa_key
@@ -81,6 +98,7 @@ EXTRA_DIST += \
 	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
 	src/ssh/mock-config \
 	src/ssh/invalid_known_hosts \
+	src/ssh/mock_known_hosts_2 \
 	$(NULL)
 
 noinst_SCRIPTS += \

@@ -605,33 +605,12 @@ set_knownhosts_file (CockpitSshData *data,
                      const guint port)
 {
   gboolean host_known;
-  const gchar *knownhosts_data;
   const gchar *problem = NULL;
   gchar *sout = NULL;
   gchar *serr = NULL;
-
   gchar *authorize_knownhosts_data = NULL;
 
-  if (data->ssh_options->knownhosts_authorize)
-    {
-      authorize_knownhosts_data = challenge_for_knownhosts_data (data);
-      knownhosts_data = authorize_knownhosts_data;
-    }
-  else
-    {
-      knownhosts_data = data->ssh_options->knownhosts_data;
-    }
-
-  /* $COCKPIT_SSH_KNOWN_HOSTS_DATA has highest priority */
-  if (knownhosts_data)
-    {
-      if (write_tmp_knownhosts_file (data, knownhosts_data, &problem))
-        data->ssh_options->knownhosts_file = tmp_knownhost_file;
-      else
-        goto out;
-    }
-
-  /* now check the default global ssh file */
+  /* first check the default global ssh file */
   host_known = cockpit_is_host_known (data->ssh_options->knownhosts_file, host, port);
 
   /* if we check the default system known hosts file (i. e. not during the test suite), also check
@@ -705,14 +684,30 @@ set_knownhosts_file (CockpitSshData *data,
         }
     }
 
-  g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
-  if (!data->ssh_options->allow_unknown_hosts && !host_known)
+  if (!host_known && data->ssh_options->challenge_unknown_host_preconnect)
     {
-      g_message ("%s: refusing to connect to unknown host: %s:%d",
-                 data->logname, host, port);
-      problem = "unknown-host";
-      goto out;
+      authorize_knownhosts_data = challenge_for_knownhosts_data (data);
+      if (authorize_knownhosts_data)
+        {
+          if (write_tmp_knownhosts_file (data, authorize_knownhosts_data, &problem))
+            {
+              host_known = cockpit_is_host_known (tmp_knownhost_file, host, port);
+              if (host_known)
+                data->ssh_options->knownhosts_file = tmp_knownhost_file;
+            }
+          else
+            goto out;
+        }
     }
+
+  g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
+  if (!data->ssh_options->connect_to_unknown_hosts && !host_known)
+      {
+          g_message ("%s: refusing to connect to unknown host: %s:%d",
+                     data->logname, host, port);
+          problem = "unknown-host";
+          goto out;
+      }
 
   problem = NULL;
 out:
@@ -1370,8 +1365,8 @@ cockpit_ssh_connect (CockpitSshData *data,
                      ssh_channel *out_channel)
 {
   const gchar *ignore_hostkey;
+  gboolean host_is_whitelisted;
   const gchar *problem;
-  const gchar *knownhosts;
 
   guint port = 22;
   gchar *host;
@@ -1400,30 +1395,20 @@ cockpit_ssh_connect (CockpitSshData *data,
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
 
-  if (!data->ssh_options->ignore_hostkey)
-    {
-      /* This is a single host, for which we have been told to ignore the host key */
-      ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
-      if (!ignore_hostkey)
-        ignore_hostkey = "127.0.0.1";
+  /* This is a single host, for which we have been told to ignore the host key */
+  ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
+  if (!ignore_hostkey)
+    ignore_hostkey = "127.0.0.1";
+  host_is_whitelisted = g_str_equal (ignore_hostkey, host);
 
-      data->ssh_options->ignore_hostkey = g_str_equal (ignore_hostkey, host);
-    }
-
-  if (!data->ssh_options->ignore_hostkey)
+  if (!host_is_whitelisted)
     {
       problem = set_knownhosts_file (data, host, port);
       if (problem != NULL)
         goto out;
-      knownhosts = data->ssh_options->knownhosts_file;
-    }
-  else
-    {
-      knownhosts = "/dev/null";
     }
 
-  // Set knownhosts before trying to connect to ensure key exchange uses the right file
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, knownhosts) == 0);
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, data->ssh_options->knownhosts_file) == 0);
 
   rc = ssh_connect (data->session);
   if (rc != SSH_OK)
@@ -1435,8 +1420,7 @@ cockpit_ssh_connect (CockpitSshData *data,
     }
 
   g_debug ("%s: connected", data->logname);
-
-  if (!data->ssh_options->ignore_hostkey)
+  if (!host_is_whitelisted)
     {
       problem = verify_knownhost (data, host, port);
       if (problem != NULL)

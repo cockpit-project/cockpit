@@ -133,7 +133,7 @@ The following environment variables are set by cockpit-ws when spawning an auth 
 
 The following environment variables are used to set options for the ```cockpit-ssh``` process.
 
- * **COCKPIT_SSH_ALLOW_UNKNOWN**` Set to ```1``` to  allow connecting to hosts that are not saved in the current knownhosts file. If not set cockpit will only connect to unknown hosts if either the remote_peer is local or if the ```Ssh-Login``` section in ```cockpit.conf``` has a ```allowUnknown``` option set to a truthy value (```1```, ```yes``` or ```true```).
+ * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS**` Set to ```1``` to  allow connecting to hosts that are not present in the current ```known_hosts``` files. If not set, Cockpit will only connect to unknown hosts if either the remote peer is local, or if the ```Ssh-Login``` section in ```cockpit.conf``` has an ```allowUnknown``` option set to a true value (```1```, ```yes``` or ```true```).
  * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_SYSCONF_DIR/ssh/ssh_known_hosts```
- * **COCKPIT_SSH_KNOWN_HOSTS_DATA** Known host data to validate against or '*' to skip validation```
  * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.
+ * **COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT** Set to ```1``` to receive an authorize challenge if the host is unknown, before connecting to the host. This is done in cockpit-bridge, but not for direct URL logins in cockpit-ws. This is an internal hack to mimic the obsolete magic ```COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize``` mode, until cockpit-ws starts to set this through the JSON protocol. Don't set this outside of Cockpit, this is *not* API!

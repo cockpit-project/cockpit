@@ -24,7 +24,9 @@ dist/ovirt/install.sh: pkg/ovirt/install.sh
 metainfodir = ${datarootdir}/metainfo
 metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml \
 		pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
-		pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml
+		pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml \
+		pkg/machines/org.cockpit-project.cockpit-machines.metainfo.xml \
+		$(NULL)
 
 pixmapsdir = ${datarootdir}/pixmaps
 pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png

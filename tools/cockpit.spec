@@ -691,6 +691,7 @@ The Cockpit components for managing virtual machines.
 If "virt-install" is installed, you can also create new virtual machines.
 
 %files -n cockpit-machines -f machines.list
+%{_datadir}/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 
 %package -n cockpit-machines-ovirt
 BuildArch: noarch

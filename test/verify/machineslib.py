@@ -24,6 +24,7 @@ import unittest
 
 import os
 import functools
+import time
 
 def readFile(name):
     content = ''
@@ -789,7 +790,7 @@ class TestMachines(MachineCase):
         b.click(".apply")
         b.wait_not_present("#cockpit_modal_dialog")
 
-        b.wait(lambda: m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
+        wait(lambda: m.execute("virsh dumpxml subVmTest1 | tee /tmp/subVmTest1.xml | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
 
         # Run VM - this ensures that the internal state is updated before we move on.
         # We need this here because we can't wait for UI updates after we open the modal dialog.
@@ -889,7 +890,7 @@ class TestMachines(MachineCase):
 
         b.wait_not_present("#vm-{0}-row".format(name))
 
-        m.execute("! test -f {0}".format(img2))
+        m.execute("while test -f {0}; do sleep 1; done".format(img2))
 
         self.assertNotIn(name, m.execute("virsh list --all"))
 
@@ -962,10 +963,10 @@ class TestMachines(MachineCase):
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def checkDialogErrorTest(dialog, error, ui_validation=True):
+        def checkDialogErrorTest(dialog, errors, ui_validation=True):
             dialog.open() \
                 .fill() \
-                .createAndExpectError(error, ui_validation) \
+                .createAndExpectError(errors, ui_validation) \
                 .cancel(ui_validation)
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
@@ -1020,13 +1021,13 @@ class TestMachines(MachineCase):
         # try to CREATE WITH DIALOG ERROR
 
         # name
-        checkDialogErrorTest(TestMachines.VmDialog(self, ""), "Name")
+        checkDialogErrorTest(TestMachines.VmDialog(self, ""), ["Name"])
 
         # location
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate7", is_filesystem_location=False,
                                                    location="invalid/url",
                                                    os_vendor=config.NOVELL_VENDOR,
-                                                   os_name=config.NOVELL_NETWARE_4), "Source")
+                                                   os_name=config.NOVELL_NETWARE_4), ["Source"])
 
         # memory
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate8", location=config.NOVELL_MOCKUP_ISO_PATH,
@@ -1034,20 +1035,20 @@ class TestMachines(MachineCase):
                                                    storage_size=100, storage_size_unit='MiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), "memory", ui_validation=False)
+                                                   start_vm=True), ["memory", "buffer"], ui_validation=False)
 
         # disk
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate9", location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    storage_size=10000, storage_size_unit='GiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), "space", ui_validation=False)
+                                                   start_vm=True), ["space"], ui_validation=False)
 
         # start vm
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate10",
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6, start_vm=True),
-                             "Installation Source should not be empty", ui_validation=True)
+                             ["Installation Source should not be empty"], ui_validation=True)
 
         # try to CREATE few machines
         createTest(TestMachines.VmDialog(self, "subVmTestCreate11", is_filesystem_location=False,
@@ -1286,8 +1287,17 @@ class TestMachines(MachineCase):
             b.wait_not_present("#cockpit_modal_dialog")
             return self
 
-        def createAndExpectError(self, error, ui_validation):
+        def createAndExpectError(self, errors, ui_validation):
             b = self.browser
+
+            def waitForError(errors, error_location):
+                for retry in range(0, 60):
+                    error_message = b.text(error_location)
+                    if any(error in error_message for error in errors):
+                        break
+                    time.sleep(5)
+                else:
+                    raise testlib.Error("Retry limit exceeded: %s is not part of the error message" % error)
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors
@@ -1296,7 +1306,8 @@ class TestMachines(MachineCase):
                 error_message = b.text(location)
 
                 if "CPU is incompatible with host CPU" not in error_message and \
-                                "unsupported configuration: CPU mode" not in error_message:
+                                "unsupported configuration: CPU mode" not in error_message and \
+                                "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
                     raise original_exception
 
             b.click(".modal-footer button:contains(Create)")
@@ -1305,14 +1316,15 @@ class TestMachines(MachineCase):
 
             if ui_validation:
                 b.wait_present(error_location)
-                b.wait_in_text(error_location, error)
+                waitForError(errors, error_location)
             else:
                 b.wait_present(".modal-footer .spinner")
                 b.wait_not_present(".modal-footer .spinner")
                 try:
                     with b.wait_timeout(10):
                         b.wait_present(error_location)
-                        b.wait_in_text(error_location, error)
+                        waitForError(errors, error_location)
+
                     # dialog can complete if the error was not returned immediately
                 except Exception as x1:
                     if b.is_present("#cockpit_modal_dialog"):
@@ -1324,7 +1336,7 @@ class TestMachines(MachineCase):
                         try:
                             with b.wait_timeout(20):
                                 b.wait_present(error_location)
-                                b.wait_in_text(error_location, error)
+                                waitForError(errors, error_location)
                         except Exception as x2:
                             # allow CPU errors in the notification area
                             allowBugErrors(error_location, x2)

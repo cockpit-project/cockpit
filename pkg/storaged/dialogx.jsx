@@ -46,8 +46,7 @@
 
    They are all called like this:
 
-       FieldFunction(tag, title, { option: value, ... },
-                     [ child, ... ])
+       FieldFunction(tag, title, { option: value, ... })
 
    The "tag" is used to uniquely identify this field in the dialog.
    The action function will receive the values of all fields in an
@@ -90,8 +89,8 @@
 
    COMMON FIELD OPTIONS
 
-   Each field function describes its options and its children.
-   However, there are some options that apply to all fields:
+   Each field function describes its options.  However, there are some
+   options that apply to all fields:
 
    - value
 
@@ -520,18 +519,19 @@ export const ComboBox = (tag, title, options) => {
     };
 };
 
-export const SelectOne = (tag, title, options, choices) => {
+export const SelectOne = (tag, title, options) => {
     return {
         tag: tag,
         title: title,
         options: options,
-        initial_value: options.value || choices[0].value,
+        initial_value: options.value || options.choices[0].value,
 
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="select" data-value={val}>
                     <StatelessSelect extraClass="form-control" selected={val} onChange={change}>
-                        { choices.map(c => <SelectEntry data={c.value} disabled={c.disabled} key={c.title}>{c.title}</SelectEntry>) }
+                        { options.choices.map(c => <SelectEntry data={c.value} disabled={c.disabled}
+                                                                key={c.title}>{c.title}</SelectEntry>) }
                     </StatelessSelect>
                 </div>
             );
@@ -539,17 +539,17 @@ export const SelectOne = (tag, title, options, choices) => {
     };
 };
 
-export const SelectOneRadio = (tag, title, options, choices) => {
+export const SelectOneRadio = (tag, title, options) => {
     return {
         tag: tag,
         title: title,
         options: options,
-        initial_value: options.value || choices[0].value,
+        initial_value: options.value || options.choices[0].value,
 
         render: (val, change) => {
             return (
                 <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio" >
-                    { choices.map(c => (
+                    { options.choices.map(c => (
                         <label>
                             <input type="radio" checked={val == c.value} data-data={c.value}
                                      onChange={event => change(c.value)} />{c.title}
@@ -561,12 +561,12 @@ export const SelectOneRadio = (tag, title, options, choices) => {
     };
 };
 
-export const SelectRow = (tag, headers, options, choices) => {
+export const SelectRow = (tag, headers, options) => {
     return {
         tag: tag,
         title: null,
         options: options,
-        initial_value: options.value || choices[0].value,
+        initial_value: options.value || options.choices[0].value,
 
         render: (val, change) => {
             return (
@@ -575,7 +575,7 @@ export const SelectRow = (tag, headers, options, choices) => {
                         <tr>{headers.map(h => <th>{h}</th>)}</tr>
                     </thead>
                     <tbody>
-                        { choices.map(row => {
+                        { options.choices.map(row => {
                             return (
                                 <tr key={row.value}
                                     onMouseDown={ev => { if (ev && ev.button === 0) change(row.value); }}
@@ -592,7 +592,7 @@ export const SelectRow = (tag, headers, options, choices) => {
     };
 };
 
-export const SelectSpaces = (tag, title, options, spaces) => {
+export const SelectSpaces = (tag, title, options) => {
     return {
         tag: tag,
         title: title,
@@ -600,13 +600,13 @@ export const SelectSpaces = (tag, title, options, spaces) => {
         initial_value: [ ],
 
         render: (val, change) => {
-            if (spaces.length === 0)
+            if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;
 
             return (
                 <ul className="list-group available-disks-group dialog-list-ct"
                 data-field={tag} data-field-type="select-spaces">
-                    { spaces.map(spc => {
+                    { options.spaces.map(spc => {
                         let selected = (val.indexOf(spc) >= 0);
 
                         const on_change = (event) => {
@@ -635,7 +635,7 @@ export const SelectSpaces = (tag, title, options, spaces) => {
     };
 };
 
-export const SelectSpace = (tag, title, options, spaces) => {
+export const SelectSpace = (tag, title, options) => {
     return {
         tag: tag,
         title: title,
@@ -643,13 +643,13 @@ export const SelectSpace = (tag, title, options, spaces) => {
         initial_value: null,
 
         render: (val, change) => {
-            if (spaces.length === 0)
+            if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;
 
             return (
                 <ul className="list-group available-disks-group dialog-list-ct"
                     data-field={tag} data-field-type="select-spaces">
-                    { spaces.map(spc => {
+                    { options.spaces.map(spc => {
                         const on_change = (event) => {
                             if (event.target.checked)
                                 change(spc);

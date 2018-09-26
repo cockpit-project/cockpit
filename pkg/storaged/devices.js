@@ -28,6 +28,8 @@
     var details = require("./details.jsx");
     var utils = require("./utils");
 
+    var dialog_open = require("./dialog.jsx").dialog_open;
+
     require("page.css");
     require("table.css");
     require("plot.css");
@@ -104,9 +106,9 @@
                           { superuser: "try"
                           }).
                 fail(function (error) {
-                    $('#error-popup-title').text(_("Error"));
-                    $('#error-popup-message').text(error.toString());
-                    $('#error-popup').modal('show');
+                    dialog_open({ Title: _("Error"),
+                                  Body: error.toString()
+                                });
                 });
         });
     }

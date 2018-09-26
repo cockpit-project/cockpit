@@ -27,7 +27,7 @@ import * as python from "python.jsx";
 import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
-} from "./dialogx.jsx";
+} from "./dialog.jsx";
 import { decode_filename, block_name, fmt_to_array } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
 

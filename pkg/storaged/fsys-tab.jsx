@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { dialog_open, TextInput } from "./dialogx.jsx";
+import { dialog_open, TextInput } from "./dialog.jsx";
 
 var React = require("react");
 var createReactClass = require('create-react-class');
@@ -117,7 +117,7 @@ var FilesystemTab = createReactClass({
 
         function mounting_dialog() {
             dialog_open({ Title: _("Filesystem Mounting"),
-                          Fields: FormatDialog.mounting_dialogx_fields(!!old_config, old_dir, old_opts),
+                          Fields: FormatDialog.mounting_dialog_fields(!!old_config, old_dir, old_opts),
                           Action: {
                               Title: _("Apply"),
                               action: function (vals) {

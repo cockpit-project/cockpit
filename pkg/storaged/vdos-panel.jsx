@@ -27,7 +27,7 @@ import {
     get_config
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBox } from "./dialogx.jsx";
+import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBox } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 

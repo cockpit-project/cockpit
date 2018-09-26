@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
-import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialogx.jsx";
+import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";

@@ -199,8 +199,8 @@ class TestStorage(StorageCase):
         self.dialog_set_val("crypto_options_ro", True)
 
         # Set extra options.
-        self.dialog_set_val("crypto_extra_options", CheckBoxText("foo"))
-        self.dialog_set_val("mount_extra_options", CheckBoxText("foo"))
+        self.dialog_set_val("crypto_extra_options", "foo")
+        self.dialog_set_val("mount_extra_options", "foo")
 
         # Fill in the erst and do the format
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")

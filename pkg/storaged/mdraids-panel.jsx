@@ -26,7 +26,7 @@ import {
     get_available_spaces, prepare_available_spaces
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import { dialog_open, TextInput, SelectOne, SelectSpaces } from "./dialogx.jsx";
+import { dialog_open, TextInput, SelectOne, SelectSpaces } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 

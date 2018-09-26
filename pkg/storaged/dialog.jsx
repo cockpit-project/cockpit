@@ -605,7 +605,7 @@ export const SelectSpaces = (tag, title, options) => {
 
             return (
                 <ul className="list-group available-disks-group dialog-list-ct"
-                data-field={tag} data-field-type="select-spaces">
+                    data-field={tag} data-field-type="select-spaces">
                     { options.spaces.map(spc => {
                         let selected = (val.indexOf(spc) >= 0);
 
@@ -685,8 +685,10 @@ export const CheckBox = (tag, title, options) => {
             return (
                 <div className="checkbox">
                     <label>
-                        <input type="checkbox" data-field={tag} checked={val}
-                            onChange={event => change(event.target.checked)} />{title}
+                        <input type="checkbox" data-field={tag} data-field-type="checkbox"
+                               checked={val}
+                               onChange={event => change(event.target.checked)} />
+                        {title}
                     </label>
                 </div>
             );
@@ -709,7 +711,7 @@ export const TextInputChecked = (tag, title, options) => {
 
         render: (val, change) => {
             return (
-                <div className="dialog-checkbox-text" data-field={tag} data-field-type="TextInputChecked">
+                <div className="dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
                     <div className="checkbox">
                         <label>
                             <input type="checkbox" checked={val !== false}

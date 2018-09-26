@@ -26,6 +26,7 @@ var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var $ = require("jquery");
 
+var dialog_open = require("./dialog.jsx").dialog_open;
 var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
 var _ = cockpit.gettext;
@@ -85,9 +86,9 @@ function checked(callback) {
         var promise = callback();
         if (promise)
             promise.fail(function (error) {
-                $('#error-popup-title').text(_("Error"));
-                $('#error-popup-message').text(error.toString());
-                $('#error-popup').modal('show');
+                dialog_open({ Title: _("Error"),
+                              Body: error.toString()
+                });
             });
         event.stopPropagation();
     };
@@ -179,9 +180,9 @@ class StorageOnOff extends React.Component {
             if (promise) {
                 promise.always(() => { self.setState({ promise: null }) });
                 promise.fail((error) => {
-                    $('#error-popup-title').text(_("Error"));
-                    $('#error-popup-message').text(error.toString());
-                    $('#error-popup').modal('show');
+                    dialog_open({ Title: _("Error"),
+                                  Body: error.toString()
+                    });
                 });
             }
 

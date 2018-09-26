@@ -23,7 +23,7 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import { } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import { dialog_open, TextInput, PassInput, SelectRow } from "./dialogx.jsx";
+import { dialog_open, TextInput, PassInput, SelectRow } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 

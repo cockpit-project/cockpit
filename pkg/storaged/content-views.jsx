@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage
-} from "./dialogx.jsx";
+} from "./dialog.jsx";
 import utils from "./utils.js";
 
 import React from "react";

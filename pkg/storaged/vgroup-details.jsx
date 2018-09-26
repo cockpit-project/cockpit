@@ -23,8 +23,10 @@ import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
-import { dialog_open, TextInput, SelectSpaces,
-    BlockingMessage, TeardownMessage } from "./dialogx.jsx";
+import {
+    dialog_open, TextInput, SelectSpaces,
+    BlockingMessage, TeardownMessage
+} from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 

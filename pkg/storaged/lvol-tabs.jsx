@@ -26,7 +26,7 @@ import React from "react";
 import createReactClass from 'create-react-class';
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { clevis_recover_passphrase } from "./crypto-keyslots.jsx";
-import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialogx.jsx";
+import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
 var _ = cockpit.gettext;
 

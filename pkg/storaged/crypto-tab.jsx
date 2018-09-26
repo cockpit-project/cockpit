@@ -20,12 +20,12 @@
 "use strict";
 
 import cockpit from "cockpit";
-import { dialog_open, PassInput } from "./dialogx.jsx";
+import { dialog_open, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename } from "./utils.js";
 
 import React from "react";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import { FormatButton, crypto_options_dialogx_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
+import { FormatButton, crypto_options_dialog_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
@@ -104,7 +104,7 @@ var CryptoTab = createReactClass({
         function edit_options() {
             edit_config(function (config, commit) {
                 dialog_open({ Title: _("Encryption Options"),
-                              Fields: crypto_options_dialogx_fields(old_options),
+                              Fields: crypto_options_dialog_fields(old_options),
                               Action: {
                                   Title: _("Apply"),
                                   action: function (vals) {

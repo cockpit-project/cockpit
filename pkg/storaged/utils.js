@@ -405,14 +405,6 @@
         return spaces;
     };
 
-    utils.available_space_to_option = function available_space_to_option(spc) {
-        return {
-            value: spc,
-            Title: utils.format_size_and_text(spc.size, spc.desc),
-            Label: utils.block_name(spc.block)
-        };
-    };
-
     utils.prepare_available_spaces = function prepare_available_spaces(client, spcs) {
         function prepare(spc) {
             if (spc.type == 'block')
@@ -542,7 +534,7 @@
             return usage;
         }
 
-        // Prepare the result for Mustache
+        // Prepare the result for the dialogs
 
         var usage = get_usage(path);
 

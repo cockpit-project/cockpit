@@ -23,7 +23,7 @@ import {
     dialog_open,
     TextInput, PassInput, CheckBox, SelectOne, TextInputChecked, SizeSlider,
     BlockingMessage, TeardownMessage
-} from "./dialogx.jsx";
+} from "./dialog.jsx";
 
 var React = require("react");
 var createReactClass = require('create-react-class');
@@ -58,7 +58,7 @@ function extract_option(split, opt) {
     }
 }
 
-function mounting_dialogx_fields(is_custom, mount_dir, mount_options, visible) {
+function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
     if (!visible)
         visible = function () { return true };
 
@@ -118,7 +118,7 @@ function mounting_dialog_options(vals) {
     return unparse_options(opts);
 }
 
-function crypto_options_dialogx_fields(options, visible) {
+function crypto_options_dialog_fields(options, visible) {
     var split_options = parse_options(options);
     var opt_auto = !extract_option(split_options, "noauto");
     var opt_ro = extract_option(split_options, "readonly");
@@ -287,8 +287,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                 }),
                       CheckBox("store_passphrase", _("Store passphrase"),
                                { visible: is_encrypted_and_not_old_udisks2 })
-                  ].concat(crypto_options_dialogx_fields("", is_encrypted_and_not_old_udisks2))
-                          .concat(mounting_dialogx_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                  ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
+                          .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
                   update: function (dlg, vals, trigger) {
                       if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
                           dlg.set_values({ "mount_auto": false });
@@ -396,9 +396,9 @@ module.exports = {
     unparse_options: unparse_options,
     extract_option: extract_option,
 
-    mounting_dialogx_fields: mounting_dialogx_fields,
+    mounting_dialog_fields: mounting_dialog_fields,
     mounting_dialog_options: mounting_dialog_options,
-    crypto_options_dialogx_fields: crypto_options_dialogx_fields,
+    crypto_options_dialog_fields: crypto_options_dialog_fields,
     crypto_options_dialog_options: crypto_options_dialog_options,
     format_dialog: format_dialog,
     FormatButton: FormatButton

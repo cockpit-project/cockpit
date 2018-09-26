@@ -23,7 +23,7 @@ import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
 
-import { dialog_open, TeardownMessage, TextInput, TextInputChecked, ComboBox, CheckBox } from "./dialogx.jsx";
+import { dialog_open, TeardownMessage, TextInput, TextInputChecked, ComboBox, CheckBox } from "./dialog.jsx";
 import format from "./format-dialog.jsx";
 import { format_fsys_usage } from "./utils.js";
 

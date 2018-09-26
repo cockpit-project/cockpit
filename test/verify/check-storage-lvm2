@@ -194,7 +194,7 @@ class TestStorage(StorageCase):
         # add a disk and resize the pool
         b.click('#detail-sidebar .panel-heading button')
         self.dialog_wait_open()
-        self.dialog_select('disks', "DISK2", True)
+        self.dialog_set_val('disks', { "DISK2": True })
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#detail-sidebar", "DISK2")

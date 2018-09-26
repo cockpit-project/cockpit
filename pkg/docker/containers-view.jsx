@@ -102,7 +102,7 @@ var ContainerHeader = createReactClass({
     render: function () {
         return (
             <div>
-                <Select.Select id="containers-containers-filter" initial="running" onChange={this.handleFilterChange}>
+                <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
                     <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>
                     <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
                 </Select.Select>

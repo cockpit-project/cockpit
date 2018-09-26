@@ -825,7 +825,9 @@ export const SizeSlider = (tag, title, options) => {
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="size-slider">
-                    <SizeSliderElement val={val} max={all_options.max}
+                    <SizeSliderElement val={val}
+                                       max={all_options.max}
+                                       min={all_options.min}
                                        round={all_options.round}
                                        onChange={change} />
                 </div>

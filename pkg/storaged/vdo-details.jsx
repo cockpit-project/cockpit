@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
-import dialog from "./dialog.js";
+import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialogx.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import Content from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
@@ -132,18 +132,16 @@ export class VDODetails extends React.Component {
             var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
-                dialog.open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
-                              Fields: [ ],
-                              Blocking: usage.Blocking,
+                dialog_open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                              Body: BlockingMessage(usage),
                 });
                 return;
             }
 
             if (usage.Teardown) {
-                dialog.open({ Title: cockpit.format(_("Please confirm stopping of $0"),
+                dialog_open({ Title: cockpit.format(_("Please confirm stopping of $0"),
                                                     vdo.name),
-                              Teardown: usage.Teardown,
-                              Fields: [ ],
+                              Body: TeardownMessage(usage),
                               Action: {
                                   Title: _("Stop"),
                                   action: function () {
@@ -163,9 +161,8 @@ export class VDODetails extends React.Component {
             var usage = get_active_usage(client, block ? block.path : "/");
 
             if (usage.Blocking) {
-                dialog.open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
-                              Fields: [ ],
-                              Blocking: usage.Blocking,
+                dialog_open({ Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                              Body: BlockingMessage(usage),
                 });
                 return;
             }
@@ -184,10 +181,9 @@ export class VDODetails extends React.Component {
                 }
             }
 
-            dialog.open({ Title: cockpit.format(_("Please confirm deletion of $0"),
+            dialog_open({ Title: cockpit.format(_("Please confirm deletion of $0"),
                                                 vdo.name),
-                          Teardown: usage.Teardown,
-                          Fields: [ ],
+                          Body: TeardownMessage(usage),
                           Action: {
                               Title: _("Delete"),
                               Danger: _("Deleting a VDO device will erase all data on it."),
@@ -208,16 +204,15 @@ export class VDODetails extends React.Component {
         }
 
         function grow_logical() {
-            dialog.open({ Title: cockpit.format(_("Grow logical size of $0"), vdo.name),
+            dialog_open({ Title: cockpit.format(_("Grow logical size of $0"), vdo.name),
                           Fields: [
-                              { SizeSlider: "lsize",
-                                Title: _("Logical Size"),
-                                Max: 5 * vdo.logical_size,
-                                Min: vdo.logical_size,
-                                Round: 512,
-                                Value: vdo.logical_size,
-                                AllowInfinite: true
-                              },
+                              SizeSlider("lsize", _("Logical Size"),
+                                         { max: 5 * vdo.logical_size,
+                                           min: vdo.logical_size,
+                                           round: 512,
+                                           value: vdo.logical_size,
+                                           allow_infinite: true
+                                         })
                           ],
                           Action: {
                               Title: _("Grow"),

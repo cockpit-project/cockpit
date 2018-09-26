@@ -459,6 +459,66 @@ export const PassInput = (tag, title, options) => {
     };
 };
 
+class ComboboxElement extends React.Component {
+    constructor(props) {
+        super();
+        this.state = { open: false };
+    }
+
+    render() {
+        let { value, onChange, disabled, choices } = this.props;
+
+        const toggle_open = (event) => {
+            if (event.button === 0)
+                this.setState({ open: !this.state.open });
+        };
+
+        const set_from_menu = (event, text) => {
+            if (event.button === 0) {
+                this.setState({ open: false });
+                onChange(text);
+            }
+        };
+
+        return (
+            <div className="combobox-container">
+                <div className={"input-group" + (this.state.open ? " open" : "")}>
+                    <input className="combobox form-control" type="text"
+                       disabled={disabled} value={value}
+                           onChange={event => onChange(event.target.value)} />
+                    { choices.length > 0 && !disabled
+                        ? <React.Fragment>
+                            <span className="input-group-addon"
+                              onClick={toggle_open}>
+                                <span className="caret" />
+                            </span>
+                            <ul className="typeahead typeahead-long dropdown-menu">
+                                { choices.map(c => <li key={c}><a onClick={ev => set_from_menu(ev, c)}>{c}</a></li>) }
+                            </ul>
+                        </React.Fragment>
+                        : null
+                    }
+                </div>
+            </div>
+        );
+    }
+}
+
+export const ComboBox = (tag, title, options) => {
+    return {
+        tag: tag,
+        title: title,
+        options: options,
+        initial_value: options.value || "",
+
+        render: (val, change) =>
+            <div data-field={tag} data-field-type="combobox">
+                <ComboboxElement value={val} choices={options.choices}
+                                 disabled={options.disabled} onChange={change} />
+            </div>
+    };
+};
+
 export const SelectOne = (tag, title, options, choices) => {
     return {
         tag: tag,

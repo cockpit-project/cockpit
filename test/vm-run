@@ -95,7 +95,7 @@ try:
     if "windows" in args.image and memory is None:
         memory = 4096
 
-    graphics = args.graphics
+    graphics = args.graphics or 'windows' in args.image
     network = testvm.VirtNetwork(0, bridge=bridge)
 
     machine = testvm.VirtMachine(verbose=args.verbose, image=args.image, maintain=args.maintain,

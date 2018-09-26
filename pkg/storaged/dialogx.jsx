@@ -441,6 +441,7 @@ export const TextInput = (tag, title, options) => {
         render: (val, change) =>
             <input data-field={tag} data-field-type="text-input"
                    className="form-control" type="text" value={val}
+                   disabled={options.disabled}
                    onChange={event => change(event.target.value)} />
     };
 };

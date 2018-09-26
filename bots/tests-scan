@@ -60,11 +60,17 @@ EXTERNAL_PROJECTS = {
     ],
     'cockpit-project/cockpit-ostree': [
         'cockpit/fedora-atomic',
-        'cockpit/rhel-atomic',
         'cockpit/continuous-atomic',
     ],
     'cockpit-project/cockpit-podman': [
         'cockpit/fedora-28',
+    ],
+}
+
+# Test context for projects that use Cockpit's non-public images
+REDHAT_EXTERNAL_PROJECTS = {
+    'cockpit-project/cockpit-ostree': [
+        'cockpit/rhel-atomic',
     ],
     'weldr/welder-web': [
         'cockpit/rhel-7-6',
@@ -152,7 +158,8 @@ def tests_human(priority, name, revision, ref, context, base, repo, bots_ref):
 
 # Prepare an test invocation command
 def tests_invoke(priority, name, revision, ref, context, base, repo, bots_ref, options):
-    if not run_redhat_tasks and context in REDHAT_VERIFY:
+    if not run_redhat_tasks and (context in REDHAT_VERIFY or
+                                 context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
         return ''
 
     try:

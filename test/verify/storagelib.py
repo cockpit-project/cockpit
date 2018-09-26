@@ -255,7 +255,7 @@ class StorageCase(MachineCase):
             })""", self.dialog_field(field), val)
 
     def dialog_set_combobox(self, field, val):
-        self.browser.set_val(self.dialog_field(field) + " input[type=text]", val)
+        self.browser.set_input_text(self.dialog_field(field) + " input[type=text]", val)
 
     def dialog_combobox_choices(self, field):
         return self.browser.call_js_func("""(function (sel) {

@@ -178,11 +178,9 @@ class BasicTestSuite(SeleniumTest):
             "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable)
         self.mainframe()
 
-        # TODO edge support for terminal test
+        # Edge needs the "Terminal" link to be human-visible
         if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
-            self.error=False
-            return
-
+            self.driver.execute_script('document.getElementById("host-apps").scrollTop += 1000;')
         self.click(self.wait_link('Terminal', cond=clickable))
         self.wait_frame("terminal")
         terminal = self.wait_xpath("//*[@class='terminal']")

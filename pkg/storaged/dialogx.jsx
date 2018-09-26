@@ -897,9 +897,13 @@ export const SizeSlider = (tag, title, options) => {
     };
 };
 
+function add_para(parts, text) {
+    parts.push(<p key={text}>{text}</p>);
+}
+
 function add_usage_message(parts, list, text, c1, c2) {
-    if (list.length > 0) {
-        parts.push(<p key={text}>{text}</p>);
+    if (list && list.length > 0) {
+        add_para(parts, text);
         parts.push(
             <table key={text + " table"} className="table table-bordered">
                 <tbody>
@@ -957,16 +961,16 @@ export const TeardownMessage = (usage) => {
     let has_services = teardown.Services && teardown.Services.length > 0;
 
     if (has_sessions && has_services)
-        parts.push(_("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
+        add_para(parts, _("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
     else if (has_sessions)
-        parts.push(_("The filesystem is in use by login sessions. Proceeding will stop these."));
+        add_para(parts, _("The filesystem is in use by login sessions. Proceeding will stop these."));
     else if (has_services)
-        parts.push(_("The filesystem is in use by system services. Proceeding will stop these."));
+        add_para(parts, _("The filesystem is in use by system services. Proceeding will stop these."));
 
-    function add_units(list, h1, h2, h3, c1, c2, c3) {
+    function add_units(list, key, h1, h2, h3, c1, c2, c3) {
         if (list && list.length > 0) {
             parts.push(
-                <table className="table table-bordered units-table">
+                <table key={key} className="table table-bordered units-table">
                     <thead>
                         <tr>
                             <th>{h1}</th>
@@ -987,11 +991,11 @@ export const TeardownMessage = (usage) => {
         }
     }
 
-    add_units(teardown.Sessions,
+    add_units(teardown.Sessions, "sessions",
               _("Session"), _("Process"), _("Active since"),
               "Name", "Command", "Since");
 
-    add_units(teardown.Services,
+    add_units(teardown.Services, "services",
               _("Service"), _("Unit"), _("Active since"),
               "Name", "Unit", "Since");
 

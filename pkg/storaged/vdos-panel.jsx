@@ -23,11 +23,11 @@ import React from "react";
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import {
     fmt_size, decode_filename,
-    get_available_spaces, available_space_to_option, prepare_available_spaces,
+    get_available_spaces, prepare_available_spaces,
     get_config
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import dialog from "./dialog.js";
+import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBox } from "./dialogx.jsx";
 
 const _ = cockpit.gettext;
 
@@ -43,67 +43,52 @@ export class VDOsPanel extends React.Component {
                     break;
             }
 
-            var spaces = get_available_spaces(client).map(available_space_to_option);
-
-            dialog.open({ Title: _("Create VDO Device"),
+            dialog_open({ Title: _("Create VDO Device"),
                           Fields: [
-                              { TextInput: "name",
-                                Title: _("Name"),
-                                Value: name,
-                                validate: function (name) {
-                                    if (name == "")
-                                        return _("Name can not be empty.");
-                                }
-                              },
-                              { SelectOneOfMany: "space",
-                                Title: _("Disk"),
-                                EmptyWarning: _("No disks are available."),
-                                Options: spaces,
-                                validate: function (spc) {
-                                    if (spc === undefined)
-                                        return _("A disk is needed.");
-                                }
-                              },
-                              { SizeSlider: "lsize",
-                                Title: _("Logical Size"),
-                                Max: 3 * 1024 * 1024 * 1024 * 1024,
-                                Round: 512,
-                                Value: 1024 * 1024 * 1024 * 1024,
-                                AllowInfinite: true,
-                                update: function (vals, trigger) {
-                                    if (trigger == "space") {
-                                        return {
-                                            Max: 3 * vals.space.size,
-                                            Value: vals.space.size
-                                        };
-                                    } else
-                                        return vals.lsize;
-                                }
-                              },
-                              { SizeSlider: "index_mem",
-                                Title: _("Index Memory"),
-                                Max: 2 * 1024 * 1024 * 1024,
-                                Round: function (val) {
-                                    var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
-                                    return Math.round(val / round) * round;
-                                },
-                                Value: 256 * 1024 * 1024,
-                                AllowInfinite: true,
-                              },
-                              { CheckBox: "compression",
-                                Title: _("Compression"),
-                                Value: true,
-                                RowTitle: _("Options")
-                              },
-                              { CheckBox: "deduplication",
-                                Title: _("Deduplication"),
-                                Value: true
-                              },
-                              { CheckBox: "emulate_512",
-                                Title: _("Use 512 Byte emulation"),
-                                Value: false
-                              }
+                              TextInput("name", _("Name"),
+                                        { value: name,
+                                          validate: function (name) {
+                                              if (name == "")
+                                                  return _("Name can not be empty.");
+                                          }
+                                        }),
+                              SelectSpace("space", _("Disk"),
+                                          { empty_warning: _("No disks are available."),
+                                            validate: function (spc) {
+                                                if (spc === undefined)
+                                                    return _("A disk is needed.");
+                                            }
+                                          },
+                                          get_available_spaces(client)),
+                              SizeSlider("lsize", _("Logical Size"),
+                                         { max: 3 * 1024 * 1024 * 1024 * 1024,
+                                           round: 512,
+                                           value: 1024 * 1024 * 1024 * 1024,
+                                           allow_infinite: true
+                                         }),
+                              SizeSlider("index_mem", _("Index Memory"),
+                                         { max: 2 * 1024 * 1024 * 1024,
+                                           round: function (val) {
+                                               var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
+                                               return Math.round(val / round) * round;
+                                           },
+                                           value: 256 * 1024 * 1024,
+                                           allow_infinite: true,
+                                         }),
+                              CheckBox("compression", _("Compression"),
+                                       { value: true,
+                                         row_title: _("Options") }),
+                              CheckBox("deduplication", _("Deduplication"),
+                                       { value: true }),
+                              CheckBox("emulate_512", _("Use 512 Byte emulation"),
+                                       { value: false })
                           ],
+                          update: (dlg, vals, trigger) => {
+                              if (trigger == "space") {
+                                  dlg.set_values({ "lsize": vals.space.size });
+                                  dlg.set_options("lsize", { max: 3 * vals.space.size });
+                              }
+                          },
                           Action: {
                               Title: _("Create"),
                               action: function (vals) {

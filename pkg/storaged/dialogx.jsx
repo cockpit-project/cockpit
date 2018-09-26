@@ -134,6 +134,34 @@
 
    A test to show below the field, as an explanation.
 
+   RUNNING TASKS AND DYNAMIC UPDATES
+
+   The dialog_show function returns an object that can be used to interact
+   with the dialog in various ways while it is open.
+
+       dlg = dialog_show(...)
+
+   One can run asynchronous tasks:
+
+       dlg.run("title", promise)
+
+   This will disable the footer buttons and wait for promise to be resolved
+   or rejected while showing "title" and a spinner.
+
+   One can set field values and options:
+
+       dlg.set_values({ tag1: value1, tag2: value2, ... })
+       dlg.set_options(tag, { opt1: value1, opt2: value2, ... })
+
+   It is also possible to specify a "update" function when creating the dialog:
+
+       dialog_show({ ...
+                     update: function (dlg, vals, trigger) { }
+                     ... })
+
+   This function is called whenever the values of fields are changed.  The
+   "trigger" argument is the tag of the field that has just been changed.
+
    DEFINING NEW FIELD TYPES
 
    To define a new field type, just define a new function that follows
@@ -250,7 +278,7 @@ const Body = ({body, fields, values, errors, onChange}) => {
                 if (f.tag && f.options && f.options.update)
                     values[f.tag] = f.options.update(values, field.tag);
             });
-            onChange();
+            onChange(field.tag);
         }
 
         if (is_visible(field, values))
@@ -286,7 +314,9 @@ export const dialog_open = (def) => {
     // Body component maybe, but we also want the values up here so
     // that we can pass them to validate and the action functon.
 
-    const update = (errors) => {
+    const update = (errors, trigger) => {
+        if (def.update)
+            def.update(self, values, trigger);
         dlg.setProps(props(errors));
     };
 
@@ -298,7 +328,7 @@ export const dialog_open = (def) => {
                         fields={fields}
                         values={values}
                         errors={errors}
-                        onChange={() => update(null)} />
+                        onChange={trigger => update(null, trigger)} />
         };
     };
 
@@ -327,7 +357,7 @@ export const dialog_open = (def) => {
                                   if (error.toString() != "[object Object]") {
                                       return Promise.reject(error);
                                   } else {
-                                      update(error);
+                                      update(error, null);
                                       return Promise.reject();
                                   }
                               });
@@ -365,7 +395,7 @@ export const dialog_open = (def) => {
 
     let dlg = show_modal_dialog(props(null), footer_props(null, null));
 
-    return {
+    let self = {
         run: (title, promise) => {
             update_footer(title, promise);
             promise.then(
@@ -374,17 +404,28 @@ export const dialog_open = (def) => {
                 },
                 (errors) => {
                     if (errors)
-                        update(errors);
+                        update(errors, null);
                     update_footer(null, null);
                 });
         },
 
         set_values: (new_vals) => {
             Object.assign(values, new_vals);
-            update(null);
-        }
+            update(null, null);
+        },
+
+        set_options: (tag, new_options) => {
+            fields.forEach(f => {
+                if (f.tag == tag) {
+                    Object.assign(f.options, new_options);
+                    update(null, null);
+                }
+            });
+        },
 
     };
+
+    return self;
 };
 
 /* GENERIC FIELD TYPES
@@ -686,7 +727,9 @@ class SizeSliderElement extends React.Component {
         let min = this.props.min || 0;
         let { unit } = this.state;
 
-        const round_size = (value) => {
+        const change_slider = (f) => {
+            let value = f * max;
+
             if (round) {
                 if (typeof round == "function")
                     value = round(value);
@@ -694,28 +737,8 @@ class SizeSliderElement extends React.Component {
                     value = Math.round(value / round) * round;
             }
 
-            // As a special case, if the user types something that
-            // looks like the maximum (or minimum) when formatted,
-            // always use exactly the maximum (or minimum).  Otherwise
-            // we have the confusing possibility that with the exact
-            // same string in the text input, the size is sometimes
-            // too large (or too small) and sometimes not.
-
-            function sanitize(limit) {
-                var fmt = cockpit.format_number(limit / unit);
-                var parse = +fmt * unit;
-
-                if (value == parse)
-                    value = limit;
-            }
-
-            sanitize(min);
-            sanitize(max);
-
-            return Math.round(value);
+            onChange(Math.max(min, value));
         };
-
-        const change_slider = (f) => onChange(round_size(Math.max(min, f * max)));
 
         const change_text = (event) => {
             if (event.type == "change") {
@@ -728,7 +751,25 @@ class SizeSliderElement extends React.Component {
                      */
                     onChange(event.target.value);
                 } else {
-                    onChange(round_size(val));
+                    // As a special case, if the user types something that
+                    // looks like the maximum (or minimum) when formatted,
+                    // always use exactly the maximum (or minimum).  Otherwise
+                    // we have the confusing possibility that with the exact
+                    // same string in the text input, the size is sometimes
+                    // too large (or too small) and sometimes not.
+
+                    const sanitize = (limit) => {
+                        var fmt = cockpit.format_number(limit / unit);
+                        var parse = +fmt * unit;
+
+                        if (val == parse)
+                            val = limit;
+                    };
+
+                    sanitize(min);
+                    sanitize(max);
+
+                    onChange(val);
                 }
             }
         };
@@ -769,16 +810,24 @@ export const SizeSlider = (tag, title, options) => {
         return msg;
     };
 
+    /* This object might be mutated by dialog.set_options(), so we
+       have to use it below for the 'max' option in order to pick up
+       changes to it.
+     */
+    let all_options = Object.assign({ }, options, { validate: validate });
+
     return {
         tag: tag,
         title: title,
-        options: Object.assign({ }, options, { validate: validate }),
+        options: all_options,
         initial_value: options.value || options.max || 0,
 
         render: (val, change) => {
             return (
                 <div data-field={tag} data-field-type="size-slider">
-                    <SizeSliderElement val={val} max={options.max} onChange={change} />
+                    <SizeSliderElement val={val} max={all_options.max}
+                                       round={all_options.round}
+                                       onChange={change} />
                 </div>
             );
         }

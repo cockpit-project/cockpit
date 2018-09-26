@@ -84,7 +84,9 @@ class TestDocker(MachineCase):
         b.wait_visible("#containers-containers")
         b.click("#containers-containers-filter button")
         b.wait_visible("#containers-containers-filter .dropdown-menu")
+        b.wait_in_text("#containers-containers-filter span:first-child()", "Images and running containers");
         b.click("#containers-containers-filter li[data-data='all'] a")
+        b.wait_in_text("#containers-containers-filter span:first-child()", "Everything");
 
         # Run it
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')

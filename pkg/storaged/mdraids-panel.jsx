@@ -38,38 +38,38 @@ export class MDRaidsPanel extends React.Component {
             dialog_open({ Title: _("Create RAID Device"),
                           Fields: [
                               TextInput("name", _("Name"), { }),
-                              SelectOne("level", _("RAID Level"), { value: "raid5" },
-                                        [
-                                            { value: "raid0",
-                                              title: _("RAID 0 (Stripe)") },
-                                            { value: "raid1",
-                                              title: _("RAID 1 (Mirror)") },
-                                            { value: "raid4",
-                                              title: _("RAID 4 (Dedicated Parity)") },
-                                            { value: "raid5",
-                                              title: _("RAID 5 (Distributed Parity)") },
-                                            { value: "raid6",
-                                              title: _("RAID 6 (Double Distributed Parity)") },
-                                            { value: "raid10",
-                                              title: _("RAID 10 (Stripe of Mirrors)") }
-                                        ]),
+                              SelectOne("level", _("RAID Level"),
+                                        { value: "raid5",
+                                          choices: [
+                                              { value: "raid0",
+                                                title: _("RAID 0 (Stripe)") },
+                                              { value: "raid1",
+                                                title: _("RAID 1 (Mirror)") },
+                                              { value: "raid4",
+                                                title: _("RAID 4 (Dedicated Parity)") },
+                                              { value: "raid5",
+                                                title: _("RAID 5 (Distributed Parity)") },
+                                              { value: "raid6",
+                                                title: _("RAID 6 (Double Distributed Parity)") },
+                                              { value: "raid10",
+                                                title: _("RAID 10 (Stripe of Mirrors)") }
+                                          ]}),
                               SelectOne("chunk", _("Chunk Size"),
                                         { value: "512",
                                           visible: function (vals) {
                                               return vals.level != "raid1";
-                                          }
-                                        },
-                                        [
-                                            { value: "4", title: _("4 KiB") },
-                                            { value: "8", title: _("8 KiB") },
-                                            { value: "16", title: _("16 KiB") },
-                                            { value: "32", title: _("32 KiB") },
-                                            { value: "64", title: _("64 KiB") },
-                                            { value: "128", title: _("128 KiB") },
-                                            { value: "512", title: _("512 KiB") },
-                                            { value: "1024", title: _("1 MiB") },
-                                            { value: "2048", title: _("2 MiB") }
-                                        ]),
+                                          },
+                                          choices: [
+                                              { value: "4", title: _("4 KiB") },
+                                              { value: "8", title: _("8 KiB") },
+                                              { value: "16", title: _("16 KiB") },
+                                              { value: "32", title: _("32 KiB") },
+                                              { value: "64", title: _("64 KiB") },
+                                              { value: "128", title: _("128 KiB") },
+                                              { value: "512", title: _("512 KiB") },
+                                              { value: "1024", title: _("1 MiB") },
+                                              { value: "2048", title: _("2 MiB") }
+                                          ]}),
                               SelectSpaces("disks", _("Disks"),
                                            {
                                                empty_warning: _("No disks are available."),
@@ -78,9 +78,9 @@ export class MDRaidsPanel extends React.Component {
                                                    if (disks.length < disks_needed)
                                                        return cockpit.format(_("At least $0 disks are needed."),
                                                                              disks_needed);
-                                               }
-                                           },
-                                           get_available_spaces(client))
+                                               },
+                                               spaces: get_available_spaces(client)
+                                           })
                           ],
                           Action: {
                               Title: _("Create"),

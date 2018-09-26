@@ -49,9 +49,9 @@ class MDRaidSidebar extends React.Component {
                                                validate: function (disks) {
                                                    if (disks.length === 0)
                                                        return _("At least one disk is needed.");
-                                               }
-                                           },
-                                           utils.get_available_spaces(client).filter(filter_inside_mdraid))
+                                               },
+                                               spaces: utils.get_available_spaces(client).filter(filter_inside_mdraid)
+                                           })
                           ],
                           Action: {
                               Title: _("Add"),

@@ -125,9 +125,8 @@ export class IscsiPanel extends React.Component {
                                                 discover_vals.address),
                           Fields: [
                               SelectRow("target", [ _("Name"), _("Address"), _("Port") ],
-                                        { },
-                                        nodes.map(n => ({ columns: [ n[0], n[2], n[3] ],
-                                                          value: n })))
+                                        { choices: nodes.map(n => ({ columns: [ n[0], n[2], n[3] ],
+                                                                     value: n })) })
                           ],
                           Action: {
                               Title: _("Add"),

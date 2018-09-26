@@ -494,20 +494,20 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         dialog_open({ Title: cockpit.format(_("Format Disk $0"), utils.block_name(block)),
                       Footer: TeardownMessage(usage),
                       Fields: [
-                          SelectOne("erase", _("Erase"), { },
-                                    [
+                          SelectOne("erase", _("Erase"),
+                                    { choices: [
                                         { value: "no", title: _("Don't overwrite existing data") },
                                         { value: "zero", title: _("Overwrite existing data with zeros") }
-                                    ]),
+                                    ]}),
                           SelectOne("type", _("Partitioning"),
-                                    { value: "gpt" },
-                                    [
-                                        { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
-                                        { value: "gpt",
-                                          title: _("Compatible with modern system and hard disks > 2TB (GPT)")
-                                        },
-                                        { value: "empty", title: _("No partitioning") }
-                                    ])
+                                    { value: "gpt",
+                                      choices: [
+                                          { value: "dos", title: _("Compatible with all systems and devices (MBR)") },
+                                          { value: "gpt",
+                                            title: _("Compatible with modern system and hard disks > 2TB (GPT)")
+                                          },
+                                          { value: "empty", title: _("No partitioning") }
+                                      ]})
                       ],
                       Action: {
                           Title: _("Format"),
@@ -626,16 +626,16 @@ var VGroup = createReactClass({
                                           validate: utils.validate_lvm2_name
                                         }),
                               SelectOne("purpose", _("Purpose"),
-                                        { value: "block" },
-                                        [
-                                            { value: "block",
-                                              title: _("Block device for filesystems"),
-                                            },
-                                            { value: "pool", title: _("Pool for thinly provisioned volumes") }
-                                            /* Not implemented
-                                               { value: "cache", Title: _("Cache") }
-                                             */
-                                        ]),
+                                        { value: "block",
+                                          choices: [
+                                              { value: "block",
+                                                title: _("Block device for filesystems"),
+                                              },
+                                              { value: "pool", title: _("Pool for thinly provisioned volumes") }
+                                              /* Not implemented
+                                                 { value: "cache", Title: _("Cache") }
+                                               */
+                                          ]}),
                               /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),

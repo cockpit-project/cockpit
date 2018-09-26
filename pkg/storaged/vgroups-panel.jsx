@@ -61,9 +61,9 @@ export class VGroupsPanel extends React.Component {
                                              validate: function (disks) {
                                                  if (disks.length === 0)
                                                      return _("At least one disk is needed.");
-                                             }
-                                           },
-                                           get_available_spaces(client)),
+                                             },
+                                             spaces: get_available_spaces(client)
+                                           })
                           ],
                           Action: {
                               Title: _("Create"),

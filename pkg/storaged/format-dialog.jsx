@@ -71,11 +71,10 @@ function mounting_dialogx_fields(is_custom, mount_dir, mount_options, visible) {
         SelectOne("mounting", _("Mounting"),
                   { value: is_custom ? "custom" : "default",
                     visible: visible,
-                  },
-                  [
-                      { value: "default", title: _("Default"), selected: !is_custom },
-                      { value: "custom", title: _("Custom"), selected: is_custom }
-                  ]),
+                    choices: [
+                        { value: "default", title: _("Default"), selected: !is_custom },
+                        { value: "custom", title: _("Custom"), selected: is_custom }
+                    ]}),
         TextInput("mount_point", _("Mount Point"),
                   { value: mount_dir,
                     visible: function (vals) {
@@ -256,13 +255,14 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                        return create_partition;
                                    }
                                  }),
-                      SelectOne("erase", _("Erase"), { },
-                                [
+                      SelectOne("erase", _("Erase"),
+                                { choices: [
                                     { value: "no", title: _("Don't overwrite existing data") },
                                     { value: "zero", title: _("Overwrite existing data with zeros") }
-                                ]),
-                      SelectOne("type", _("Type"), { },
-                                filesystem_options),
+                                ]}),
+                      SelectOne("type", _("Type"),
+                                { choices: filesystem_options
+                                }),
                       TextInput("name", _("Name"),
                                 { visible: is_filesystem
                                 }),

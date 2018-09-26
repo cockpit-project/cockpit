@@ -57,9 +57,9 @@ export class VDOsPanel extends React.Component {
                                             validate: function (spc) {
                                                 if (spc === undefined)
                                                     return _("A disk is needed.");
-                                            }
-                                          },
-                                          get_available_spaces(client)),
+                                            },
+                                            spaces: get_available_spaces(client)
+                                          }),
                               SizeSlider("lsize", _("Logical Size"),
                                          { max: 3 * 1024 * 1024 * 1024 * 1024,
                                            round: 512,

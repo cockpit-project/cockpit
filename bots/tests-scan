@@ -87,6 +87,7 @@ import pipes
 import random
 import sys
 import time
+import itertools
 import urllib.request, urllib.parse, urllib.error
 
 sys.dont_write_bytecode = True
@@ -347,7 +348,8 @@ def cockpit_tasks(api, update, contexts, repo):
             return False
 
         if trigger_externals():
-            for proj_repo, proj_contexts in EXTERNAL_PROJECTS.items():
+            for proj_repo, proj_contexts in itertools.chain(
+                    EXTERNAL_PROJECTS.items(), REDHAT_EXTERNAL_PROJECTS.items()):
                 for context in proj_contexts:
                     repo_context = context + "@" + proj_repo
 
@@ -380,7 +382,7 @@ def scan_for_pull_tasks(api, policy, opts, repo):
 
 def scan_external_projects(opts):
     tests = []
-    for repo, contexts in EXTERNAL_PROJECTS.items():
+    for repo, contexts in itertools.chain(EXTERNAL_PROJECTS.items(), REDHAT_EXTERNAL_PROJECTS.items()):
         policy = { c: [ "master" ] for c in contexts }
         tests += scan_for_pull_tasks(github.GitHub(repo=repo), policy, opts, repo)
     return tests

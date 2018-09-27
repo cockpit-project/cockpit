@@ -1035,7 +1035,7 @@ class TestMachines(MachineCase):
                                                    storage_size=100, storage_size_unit='MiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), ["memory", "buffer"], ui_validation=False)
+                                                   start_vm=True), ["memory", "RAM", "buffer"], ui_validation=False)
 
         # disk
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate9", location=config.NOVELL_MOCKUP_ISO_PATH,

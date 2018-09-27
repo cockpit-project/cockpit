@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eux
+
+OUTPUT="$1"
+
+curl https://download.cirros-cloud.net/0.4.0/cirros-0.4.0-i386-disk.img > "$OUTPUT"
+
+# prepare a cloud-init iso for disabling network source, to avoid a 90s timeout at boot
+WORKDIR=$(mktemp -d)
+trap "rm -rf '$WORKDIR'" EXIT INT QUIT PIPE
+cd "$WORKDIR"
+
+cat > meta-data <<EOF
+{ "instance-id": "nocloud" }
+EOF
+
+cat > user-data <<EOF
+#!/bin/sh
+set -ex
+sed -i 's/configdrive *//; s/ec2 *//' /etc/cirros-init/config
+(sleep 1; poweroff) &
+EOF
+
+genisoimage -input-charset utf-8 -output cloud-init.iso -volid cidata -joliet -rock user-data meta-data
+
+# boot it once with the cloud-init ISO
+qemu-system-x86_64 -enable-kvm -nographic -net none \
+    -drive file="$OUTPUT",if=virtio -cdrom cloud-init.iso

@@ -85,7 +85,7 @@ def module_copyright(moddir):
     mod = os.path.basename(moddir)
     copyrights = set()
     try:
-        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*[1-9][0-9]\+'],
+        out = subprocess.check_output(['env', '-u', 'LANGUAGE', 'LC_ALL=C.UTF-8', 'grep', '-hri', 'copyright.*\([1-9][0-9]\+\|(c)\)'],
                                       cwd=moddir).decode('UTF-8')
         for l in out.splitlines():
             # ignore compiled .css.map files
@@ -93,6 +93,8 @@ def module_copyright(moddir):
                 continue
             # weed out some noise
             if 'grunt.template.today' in l or 'copyright-mark' in l or '@font-face' in l or 'Binary file' in l:
+                continue
+            if '<name of author>' in l:
                 continue
             l = l.replace('<copyright>', '').replace('</copyright>', '')
             l = l.replace('&copy;', '(c)').replace('copyright = ', '')

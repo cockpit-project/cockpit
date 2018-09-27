@@ -79,12 +79,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-disks-vdb-detach")
         b.wait_not_present("vm-subVmTest1-disks-vdb-target")
 
-        # Test detaching permanent disk of a stopped domain
+        # Test that detaching disk of a running domain will affect the
+        # inactive configuration as well
         b.click("#vm-subVmTest1-off-caret")
         b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_not_present("vm-subVmTest1-disks-vdb-target")
 
+        # Test detaching permanent disk of a stopped domain
         b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 

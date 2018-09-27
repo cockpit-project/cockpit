@@ -130,7 +130,7 @@ export function getDiskElemByTarget(domxml, targetOriginal) {
         return;
     }
 
-    const devicesElem = domainElem.getElementsByTagName("devices")[0];
+    const devicesElem = domainElem.getElementsByTagName('devices')[0];
     const diskElems = devicesElem.getElementsByTagName('disk');
 
     if (diskElems) {

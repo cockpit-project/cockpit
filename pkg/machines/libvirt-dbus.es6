@@ -101,6 +101,7 @@ const Enum = {
     VIR_DOMAIN_STATS_BALLOON: 4,
     VIR_DOMAIN_STATS_VCPU: 8,
     VIR_DOMAIN_STATS_BLOCK: 32,
+    VIR_DOMAIN_XML_INACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64
 };
@@ -324,29 +325,21 @@ LIBVIRT_DBUS_PROVIDER = {
         target,
         live
     }) {
-        /*
-         * 0 -> VIR_DOMAIN_AFFECT_CURRENT
-         * 1 -> VIR_DOMAIN_AFFECT_LIVE
-         * 2 -> VIR_DOMAIN_AFFECT_CONFIG
-         */
-        let detachFlags = 0;
+        let detachFlags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
         if (live)
-            detachFlags |= 1;
+            detachFlags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
 
         return dispatch => {
             clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
                     .done(domXml => {
                         let diskXML = getDiskElemByTarget(domXml[0], target);
-                        /*
-                         * 2 -> VIR_DOMAIN_XML_INACTIVE
-                         */
-                        let getXMLFlags = 2;
+                        let getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
 
                         clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT)
                                 .done(domInactiveXml => {
                                     let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
                                     if (diskInactiveXML)
-                                        detachFlags |= 2;
+                                        detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
                                     clientLibvirt[connectionName].call(vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT)
                                             .done(() => { dispatch(getVm({connectionName, id:vmPath})) })

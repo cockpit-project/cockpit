@@ -65,13 +65,13 @@ EOF
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-8-NIGHTLY-BaseOS]
 name=baseos
-baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/
+baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8/compose/BaseOS/x86_64/os/
 enabled=1
 gpgcheck=0
 
 [RHEL-8-NIGHTLY-AppStream]
 name=appstream
-baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-8/compose/AppStream/x86_64/os/
+baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8/compose/AppStream/x86_64/os/
 enabled=1
 gpgcheck=0
 EOF

@@ -122,6 +122,29 @@ function getBootableDeviceType(device) {
     return type;
 }
 
+export function getDiskElemByTarget(domxml, targetOriginal) {
+    const domainElem = getDomainElem(domxml);
+
+    if (!domainElem) {
+        console.warn(`Can't parse dumpxml, input: "${domainElem}"`);
+        return;
+    }
+
+    const devicesElem = domainElem.getElementsByTagName('devices')[0];
+    const diskElems = devicesElem.getElementsByTagName('disk');
+
+    if (diskElems) {
+        for (let i = 0; i < diskElems.length; i++) {
+            const diskElem = diskElems[i];
+            const targetElem = diskElem.getElementsByTagName('target')[0];
+            const target = targetElem.getAttribute('dev'); // identifier of the disk, i.e. sda, hdc
+            if (target === targetOriginal) {
+                return new XMLSerializer().serializeToString(diskElem);
+            }
+        }
+    }
+}
+
 export function getDomainElem(domXml) {
     let parser = new DOMParser();
     const xmlDoc = parser.parseFromString(domXml, "application/xml");

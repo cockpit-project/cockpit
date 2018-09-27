@@ -67,7 +67,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
         { name: _("Type"), value: (network, networkId) => <div id={`${id}-network-${networkId}-type`}>{rephraseUI('networkType', network.type)}</div>, header: true },
         { name: _("Model type"), value: 'model' },
         { name: _("MAC Address"), value: 'mac' },
-        { name: _("Target"), value: 'target' },
+        { name: _("Host Interface"), value: 'target' },
         { name: _("Source"), value: (network, networkId) => {
             const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link" : undefined;
             const mapSource = {

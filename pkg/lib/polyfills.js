@@ -25,6 +25,21 @@
 // for IE 11
 require('promise/polyfill.js');
 
+// For almost everyone
+if (!Promise.prototype.finally) {
+    Promise.prototype.finally = function (f) {
+        return this.then(function (value) {
+            return Promise.resolve(f()).then(function () {
+                return value;
+            });
+        }, function (err) {
+            return Promise.resolve(f()).then(function () {
+                throw err;
+            });
+        });
+    };
+}
+
 // for IE 11
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (searchString, position) {

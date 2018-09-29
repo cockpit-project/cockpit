@@ -170,20 +170,27 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Look for noise lines in input jsonl")
     parser.add_argument("--only", action="append", help="Only analyze these statuses")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print verbose progress output")
-    parser.add_argument("filename", help="The filename in JSONL gzip format")
+    parser.add_argument("-t", "--tokenize", action="store_true", help="Just tokenize a raw file")
+    parser.add_argument("filename", help="The filename in JSONL gzip format or raw file for --tokenize")
     opts = parser.parse_args()
 
-    # The kind of statuses to inlcude
-    if not opts.only:
-        only = None
+    if opts.tokenize:
+        with open(opts.filename, "r") as fp:
+            contents = fp.read()
+            print("\n".join(Extractor.tokenize({ "log": contents })))
+
     else:
-        only = lambda item: item.get("status") in opts.only
+        # The kind of statuses to inlcude
+        if not opts.only:
+            only = None
+        else:
+            only = lambda item: item.get("status") in opts.only
 
-    # Load the actual data
-    items = data.load(opts.filename, only=only, verbose=opts.verbose)
+        # Load the actual data
+        items = data.load(opts.filename, only=only, verbose=opts.verbose)
 
-    # Print out all lines we think are stop lines in the data
-    extract = Extractor()
-    extract.fit(items)
-    for stop in extract.stop_tokens():
-        print(stop)
+        # Print out all lines we think are stop lines in the data
+        extract = Extractor()
+        extract.fit(items)
+        for stop in extract.stop_tokens():
+            print(stop)

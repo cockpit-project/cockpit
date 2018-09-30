@@ -60,13 +60,20 @@ class SeleniumTest(Test):
         if browser == 'edge':
             browser = 'MicrosoftEdge'
         guest_machine = os.environ["GUEST"]
-        @Retry(attempts = 3, timeout = 30,
+        @Retry(attempts = 6 if browser == 'MicrosoftEdge' else 3,
+               timeout = 120 if browser == 'MicrosoftEdge' else 30,
                exceptions = (WebDriverException,),
                error = Exception('Timeout: Unable to attach remote Browser on hub'))
         def connectbrowser():
             self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-        connectbrowser()
-        self.driver.set_window_size(1400, 1200)
+        # sleep edge buggy
+        while True:
+            try:
+                connectbrowser()
+                self.driver.set_window_size(1400, 1200)
+                break
+            except WebDriverException as e:
+                self.log.error("Retrying connect")
         try:
             self.driver.set_page_load_timeout(90)
         except WebDriverException as e:

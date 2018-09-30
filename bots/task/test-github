@@ -44,6 +44,10 @@ def mockServer():
         "count": 0,
     }
 
+    issues =[{ "number": "5", "state": "open", "created_at": "2011-04-22T13:33:48Z" },
+             { "number": "6", "state": "closed", "closed_at": "2011-04-21T13:33:48Z" },
+             { "number": "7", "state": "open" }]
+
     import http.server
     class Handler(http.server.BaseHTTPRequestHandler):
 
@@ -65,11 +69,7 @@ def mockServer():
             if parsed.path == "/count":
                 self.replyJson(self.server.data["count"])
             elif parsed.path == "/issues":
-                self.replyJson([
-                    { "number": "5", "state": "open", "created_at": "2011-04-22T13:33:48Z" },
-                    { "number": "6", "state": "closed", "closed_at": "2011-04-21T13:33:48Z" },
-                    { "number": "7", "state": "open" }
-                ])
+                self.replyJson(issues)
             elif parsed.path == "/test/user":
                 if self.headers.get("If-None-Match") == "blah":
                     self.replyData("", status=304)
@@ -91,6 +91,14 @@ def mockServer():
                     { "login": "two" },
                     { "login": "three" }
                 ])
+            else:
+                self.send_error(404, 'Mock Not Found: ' + parsed.path)
+
+        def do_DELETE(self):
+            parsed = urllib.parse.urlparse(self.path)
+            if parsed.path == '/issues/7':
+                del issues[-1]
+                self.replyJson({})
             else:
                 self.send_error(404, 'Mock Not Found: ' + parsed.path)
 
@@ -177,6 +185,14 @@ class TestGitHub(unittest.TestCase):
         self.assertEqual(api.teamIdFromName(github.TEAM_CONTRIBUTORS), 1)
         self.assertEqual(api.teamIdFromName("Other team"), 2)
         self.assertRaises(KeyError, api.teamIdFromName, "team that doesn't exist")
+
+    def testLastIssueDelete(self):
+        api = github.GitHub("http://127.0.0.8:9898/")
+        self.assertEqual(len(api.issues()), 2)
+        api.delete("/issues/7")
+        issues = api.issues()
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0]["number"], "5")
 
 if __name__ == '__main__':
     unittest.main()

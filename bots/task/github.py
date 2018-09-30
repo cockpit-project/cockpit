@@ -202,6 +202,15 @@ class GitHub(object):
         self.cache.mark()
         return json.loads(response['data'])
 
+    def delete(self, resource, accept=[]):
+        response = self.request("DELETE", resource, "", { "Content-Type": "application/json" })
+        status = response['status']
+        if (status < 200 or status >= 300) and status not in accept:
+            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
+            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
+        self.cache.mark()
+        return json.loads(response['data'])
+
     def patch(self, resource, data, accept=[]):
         response = self.request("PATCH", resource, json.dumps(data), { "Content-Type": "application/json" })
         status = response['status']

@@ -185,6 +185,19 @@ class TestStorage(StorageCase):
         self.dialog_set_val("crypto_options_ro", True)
         wait_checked("mount_ro")
 
+        # Check mount auto.  This gets propagated to crypto auto.
+        self.dialog_set_val("mount_auto", True)
+        wait_checked("crypto_options_auto")
+
+        # Uncheck mount ro.  This gets propagated to crypto ro.
+        self.dialog_set_val("mount_ro", False)
+        wait_not_checked("crypto_options_ro")
+
+        # Uncheck crypto auto and check crypto_ro again to verify that
+        # they have the expected effect.
+        self.dialog_set_val("crypto_options_auto", False)
+        self.dialog_set_val("crypto_options_ro", True)
+
         # Set extra options.
         self.dialog_set_val("crypto_extra_options", CheckBoxText("foo"))
         self.dialog_set_val("mount_extra_options", CheckBoxText("foo"))

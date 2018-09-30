@@ -294,6 +294,10 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                           dlg.set_values({ "mount_auto": false });
                       if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
                           dlg.set_values({ "mount_ro": true });
+                      if (trigger == "mount_auto" && vals.mount_auto == true)
+                          dlg.set_values({ "crypto_options_auto": true });
+                      if (trigger == "mount_ro" && vals.mount_ro == false)
+                          dlg.set_values({ "crypto_options_ro": false });
                   },
                   Action: {
                       Title: create_partition ? _("Create partition") : _("Format"),

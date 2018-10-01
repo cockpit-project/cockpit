@@ -467,7 +467,7 @@ function parseDommemstat(dispatch, connectionName, name, dommemstat) {
     let rssMemory = getValueFromLine(lines, 'rss'); // in KiB
 
     if (rssMemory) {
-        dispatch(updateVm({connectionName, name, rssMemory}));
+        return {connectionName, name, rssMemory};
     }
 }
 
@@ -570,19 +570,22 @@ function doUsagePolling (name, connectionName) {
         // Do polling even if following virsh calls fails. Might fail i.e. if a VM is not (yet) started
         dispatch(delayPolling(doUsagePolling(name, connectionName), null, name, connectionName));
 
-        return spawnVirshReadOnly({ connectionName, method: 'dommemstat', name, failHandler: canFailHandler })
-                .then(dommemstat => {
-                    if (dommemstat) { // is undefined if vm is not running
-                        parseDommemstat(dispatch, connectionName, name, dommemstat);
-                        return spawnVirshReadOnly({ connectionName, method: 'domstats', name, failHandler: canFailHandler });
-                    }
-                })
+        return spawnVirshReadOnly({ connectionName, method: 'domstats', name, failHandler: canFailHandler })
                 .then(domstats => {
                     if (domstats) {
                         let domstatsParams = parseDomstats(dispatch, connectionName, name, domstats);
                         dispatch(updateVm(domstatsParams));
                     }
-                });
+                    return spawnVirshReadOnly({ connectionName, method: 'dommemstat', name, failHandler: canFailHandler });
+                })
+                .then(dommemstats => {
+                    if (dommemstats) {
+                        let dommemstatsParams = parseDommemstat(dispatch, connectionName, name, dommemstats);
+                        if (dommemstatsParams)
+                            dispatch(updateVm(dommemstatsParams));
+                    }
+                }, dispatch(updateVm({connectionName, name, rssMemory: 0.0}))
+                );
     };
 }
 

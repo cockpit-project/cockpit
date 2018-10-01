@@ -27,6 +27,7 @@ import {
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
+    SET_LOGGED_IN_USER,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
@@ -209,6 +210,7 @@ function systemInfo(state, action) {
             unitState: 'unknown',
         },
         osInfoList: [],
+        loggedUser: null,
     };
 
     switch (action.type) {
@@ -220,6 +222,9 @@ function systemInfo(state, action) {
     }
     case UPDATE_LIBVIRT_STATE: {
         return Object.assign({}, state, { libvirtService:  Object.assign({}, state.libvirtService, action.state) });
+    }
+    case SET_LOGGED_IN_USER: {
+        return Object.assign({}, state, { loggedUser: action.payload.loggedUser });
     }
     default: // by default all reducers should return initial state on unknown actions
         return state;

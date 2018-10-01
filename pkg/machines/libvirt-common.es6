@@ -6,6 +6,7 @@ import getOSListScript from 'raw!./scripts/get_os_list.sh';
 import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
 
 import {
+    setLoggedInUser,
     vmActionFailed,
     updateLibvirtState,
     updateOsInfoList,
@@ -15,6 +16,7 @@ import {
     checkLibvirtStatus,
     getAllVms,
     getHypervisorMaxVCPU,
+    getLoggedInUser,
     getOsInfoList
 } from './actions/provider-actions.es6';
 
@@ -663,6 +665,15 @@ export function ENABLE_LIBVIRT({ enable, serviceName }) {
     };
 }
 
+export function GET_LOGGED_IN_USER() {
+    logDebug(`${this.name}.GET_LOGGED_IN_USER:`);
+    return dispatch => {
+        return cockpit.user().then(loggedUser => {
+            dispatch(setLoggedInUser({loggedUser}));
+        });
+    };
+}
+
 export function GET_OS_INFO_LIST () {
     logDebug(`${this.name}.GET_OS_INFO_LIST():`);
     return dispatch => cockpit.script(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
@@ -678,6 +689,7 @@ export function INIT_DATA_RETRIEVAL () {
     logDebug(`${this.name}.INIT_DATA_RETRIEVAL():`);
     return dispatch => {
         dispatch(getOsInfoList());
+        dispatch(getLoggedInUser());
         return cockpit.script(getLibvirtServiceNameScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
                 .then(serviceName => {
                     const match = serviceName.match(/([^\s]+)/);

@@ -24,6 +24,7 @@ import {
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_HYPERVISOR_MAX_VCPU,
+    SET_LOGGED_IN_USER,
     SET_PROVIDER,
     UNDEFINE_VM,
     UPDATE_ADD_VM,
@@ -114,6 +115,15 @@ export function setHypervisorMaxVCPU({ count, connectionName }) {
         payload: {
             count,
             connectionName,
+        }
+    };
+}
+
+export function setLoggedInUser({ loggedUser }) {
+    return {
+        type: SET_LOGGED_IN_USER,
+        payload: {
+            loggedUser
         }
     };
 }

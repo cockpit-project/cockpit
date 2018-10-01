@@ -36,6 +36,7 @@ import {
     FORCEREBOOT_VM,
     GET_ALL_VMS,
     GET_HYPERVISOR_MAX_VCPU,
+    GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
     GET_NETWORKS,
     GET_STORAGE_POOLS,
@@ -122,6 +123,10 @@ export function getAllVms(connectionName, libvirtServiceName) {
 
 export function getHypervisorMaxVCPU(connectionName) {
     return virt(GET_HYPERVISOR_MAX_VCPU, { connectionName });
+}
+
+export function getLoggedInUser() {
+    return virt(GET_LOGGED_IN_USER);
 }
 
 export function getOsInfoList() {

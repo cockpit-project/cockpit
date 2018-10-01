@@ -62,7 +62,8 @@ def main():
     context = opts.context
     if "/" not in context:
         context = "verify/{0}".format(context)
-    prefix, unused, image = context.rpartition("/")
+    prefix, _, image = context.partition("/")
+    image, _, scenario = image.partition("/")
 
     try:
         output = sys.stdin.read()

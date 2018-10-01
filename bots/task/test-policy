@@ -86,6 +86,13 @@ class TestPolicy(unittest.TestCase):
         (output, unused) = proc.communicate(PCP_CRASH)
         self.assertEqual(output, "9876\n")
 
+    def testScenario(self):
+        script = os.path.join(BOTS, "tests-policy")
+        cmd = [ script, "--simple", "--offline", "verify/example/scen-one" ]
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        (output, unused) = proc.communicate(PCP_CRASH)
+        self.assertEqual(output, "9876\n")
+
     def testKnownIssue(self):
         script = os.path.join(BOTS, "tests-policy")
         cmd = [ script, "--offline", "verify/example" ]

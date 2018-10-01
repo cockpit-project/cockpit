@@ -36,8 +36,8 @@ systemctl enable docker
 
 # docker images that we need for integration testing
 docker pull selenium/hub:3
-docker pull selenium/node-chrome:3
-docker pull selenium/node-firefox:3
+docker pull selenium/node-chrome-debug:3
+docker pull selenium/node-firefox-debug:3
 
 # reduce image size
 dnf clean all

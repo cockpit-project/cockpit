@@ -275,7 +275,7 @@ ListingRow.propTypes = {
     selected: PropTypes.bool,
     initiallyExpanded: PropTypes.bool,
     expandChanged: PropTypes.func,
-    initiallyActiveTab: PropTypes.bool
+    initiallyActiveTab: PropTypes.number
 };
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/list-view/

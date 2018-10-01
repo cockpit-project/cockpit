@@ -127,7 +127,7 @@ class TestRealms(MachineCase):
         m.execute("! su -c klist admin")
         b.logout()
 
-        if m.image in ["fedora-29", "fedora-28", "fedora-testing", "fedora-i386", "rhel-x"]:
+        if m.image in ["fedora-29", "fedora-28", "fedora-testing", "fedora-i386"]:
             # HACK: realmd breaks IPA's nsswitch (https://bugzilla.redhat.com/show_bug.cgi?id=1620097)
             self.machine.execute("authselect enable-feature with-sudo")
 
@@ -286,7 +286,7 @@ class TestRealms(MachineCase):
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = no\\n'  >> /etc/realmd.conf")
         m.execute("echo foobarfoo | realm join -vU admin cockpit.lan")
 
-        if m.image in ["fedora-29", "fedora-28", "fedora-testing", "fedora-i386", "rhel-x"]:
+        if m.image in ["fedora-29", "fedora-28", "fedora-testing", "fedora-i386"]:
             # HACK: realmd breaks IPA's nsswitch (https://bugzilla.redhat.com/show_bug.cgi?id=1620097)
             self.machine.execute("authselect enable-feature with-sudo")
 

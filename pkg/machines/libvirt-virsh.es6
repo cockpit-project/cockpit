@@ -478,12 +478,12 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const cpuTime = getValueFromLine(lines, 'cpu.time=');
     // TODO: Add network usage statistics
+    let retParams = {connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines)};
 
     if (cpuTime) {
-        return {connectionName, name, actualTimeInMs, cpuTime};
+        retParams['cpuTime'] = cpuTime;
     }
-
-    return {connectionName, name, disksStats: parseDomstatsForDisks(lines)};
+    return retParams;
 }
 
 function parseDomstatsForDisks(domstatsLines) {

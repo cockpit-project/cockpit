@@ -332,7 +332,7 @@ LIBVIRT_PROVIDER = {
             }
 
             function undefine() {
-                let args = ['undefine', name, '--managed-save'];
+                let args = ['undefine', name, '--managed-save', '--nvram'];
                 if (options.storage) {
                     args.push('--storage');
                     args.push(options.storage.join(','));

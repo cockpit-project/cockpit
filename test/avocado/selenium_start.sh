@@ -46,7 +46,7 @@ systemctl start docker
 
 docker run  -d -p 4444:4444 --name selenium-hub selenium/hub:3
 wait_curl /grid/console "Grid Console"
-docker run -d --shm-size=512M --link selenium-hub:hub selenium/node-chrome:3
+docker run -d --shm-size=512M --link selenium-hub:hub -p 5901:5900 -e VNC_NO_PASSWORD=1 selenium/node-chrome-debug:3
 wait_curl /grid/console "browserName: chrome"
-docker run -d --shm-size=512M --link selenium-hub:hub selenium/node-firefox:3
+docker run -d --shm-size=512M --link selenium-hub:hub -p 5902:5900 -e VNC_NO_PASSWORD=1 selenium/node-firefox-debug:3
 wait_curl /grid/console "browserName: firefox"

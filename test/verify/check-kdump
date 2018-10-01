@@ -29,7 +29,7 @@ class TestKdump(MachineCase):
 
     def enableKdump(self):
         # we need to make sure that the kernel command line options include our crashkernel parameter
-        if self.machine.atomic_image or self.machine.image  in ["rhel-x"]:
+        if self.machine.atomic_image:
             # on atomic and rhel-x we have a crashkernel option already, but for auto
             contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
             self.assertIn("crashkernel=auto", contents)

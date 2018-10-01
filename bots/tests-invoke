@@ -310,6 +310,10 @@ class PullTask(object):
 
         if prefix in [ 'container', 'selenium', 'avocado' ]:
             image = 'fedora-28'
+        elif prefix == 'cockpit':
+            (image, _, scenario) = value.partition('/')
+            if scenario:
+                os.environ["TEST_SCENARIO"] = scenario
         else:
             image = value
         os.environ["TEST_OS"] = image

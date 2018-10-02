@@ -28,7 +28,7 @@ import {
 } from "../../helpers.es6";
 
 import VmDisksTab from '../vmDisksTabLibvirt.jsx';
-import VmNetworkTab from '../../vmnetworktab.jsx';
+import VmNetworkTab from '../vmnetworktab.jsx';
 import Consoles from '../consoles.jsx';
 import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
 import VmActions from './vmActions.jsx';

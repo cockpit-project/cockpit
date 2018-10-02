@@ -86,38 +86,6 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
                 return null;
             }
         }},
-        { name: _("Additional"), value: (network, networkId) => {
-            const additionalMap = [
-                { name: _("MTU"), value: 'mtu' },
-                { name: _("Virtualport"), value: 'virtualportType' },
-                { name: _("Managed"), value: rephraseUI('networkManaged', network.managed) },
-                { name: _("Portgroup"), value: (network) => {
-                    if (network.source.portgroup) {
-                        return network.source.portgroup;
-                    }
-                    return null;
-                } },
-            ];
-            const columns = additionalMap.map(d => {
-                let name = d.name;
-                let value = null;
-                if (typeof d.value === 'string') {
-                    value = network[d.value];
-                }
-                if (typeof d.value === 'function') {
-                    value = d.value(network);
-                }
-                if (value) {
-                    return (
-                        <div className='col-xs-12 col-md-6 machines-network-additional-column' id={`${id}-network-${networkId}-${name}`}>
-                            <div className='machines-network-source-descr col-xs-12 col-sm-6'>{name}</div>
-                            <div className='machines-network-source-value col-xs-12 col-sm-6'>{value}</div>
-                        </div>);
-                }
-                return null;
-            });
-            return (<div>{columns}</div>);
-        }},
         { name: _("State"), value: (network, networkId) => {
             const isUp = network.state === 'up';
             return (<div className='machines-network-state' id={`${id}-network-${networkId}-state`}>

@@ -660,7 +660,11 @@ BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
+%if 0%{?rhel} == 7
 Requires: libvirt
+%else
+Requires: (libvirt-daemon-kvm or libvirt)
+%endif
 Requires: libvirt-client
 # Optional components (for f24 we use soft deps)
 %if 0%{?fedora} >= 24 || 0%{?rhel} >= 8
@@ -679,7 +683,11 @@ BuildArch: noarch
 Summary: Cockpit user interface for oVirt virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
+%if 0%{?rhel} == 7
 Requires: libvirt
+%else
+Requires: (libvirt-daemon-kvm or libvirt)
+%endif
 Requires: libvirt-client
 # package of old name "cockpit-ovirt" was shipped on fedora only
 %if 0%{?fedora} >= 25

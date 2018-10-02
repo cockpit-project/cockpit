@@ -1297,7 +1297,7 @@ class TestMachines(MachineCase):
                         break
                     time.sleep(5)
                 else:
-                    raise Error("Retry limit exceeded: %s is not part of the error message" % error)
+                    raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (', '.join(errors), b.text(error_location)))
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors

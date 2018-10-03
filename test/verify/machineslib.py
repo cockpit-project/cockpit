@@ -672,7 +672,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
 
-        b.wait_in_text("#vm-subVmTest1-network-1-state span", "up")
+        b.wait_in_text("#vm-subVmTest1-network-1-state", "up")
 
         # Test add network
         m.execute("virsh attach-interface --domain subVmTest1 --type network --source default --model virtio --mac 52:54:00:4b:73:5f --config --live")
@@ -683,7 +683,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-network-2-model", "virtio")
         b.wait_in_text("#vm-subVmTest1-network-2-mac", "52:54:00:4b:73:5f")
 
-        b.wait_in_text("#vm-subVmTest1-network-2-state span", "up")
+        b.wait_in_text("#vm-subVmTest1-network-2-state", "up")
 
     def testVCPU(self):
         b = self.browser

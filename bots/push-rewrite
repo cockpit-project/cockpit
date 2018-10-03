@@ -16,8 +16,6 @@ import subprocess
 import argparse
 import sys
 
-sys.dont_write_bytecode = True
-
 from task import github
 
 def execute(*args):
@@ -48,7 +46,7 @@ def main():
         sys.stderr.write("Nothing to push.\n")
         return 0
 
-    if git("diff", local, remote) != "":
+    if git("diff", "--stat", local, remote) != "":
         sys.stderr.write("You have local changes, aborting.\n")
         return 1
 

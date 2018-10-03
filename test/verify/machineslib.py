@@ -671,7 +671,6 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-network-1-type")
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
-        b.wait_in_text("#vm-subVmTest1-network-1-target", "vnet0")
 
         b.wait_in_text("#vm-subVmTest1-network-1-state span", "up")
 
@@ -681,7 +680,6 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-network-2-type")
         b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-2-source", "default")
-        b.wait_in_text("#vm-subVmTest1-network-2-target", "vnet1")
         b.wait_in_text("#vm-subVmTest1-network-2-model", "virtio")
         b.wait_in_text("#vm-subVmTest1-network-2-mac", "52:54:00:4b:73:5f")
 

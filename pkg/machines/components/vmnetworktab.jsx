@@ -86,9 +86,12 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
             }
         }},
         { name: _("State"), value: (network, networkId) => {
+            return <span className='machines-network-state' id={`${id}-network-${networkId}-state`}>{rephraseUI('networkState', network.state)}</span>;
+        }},
+        { name: _(""), value: (network, networkId) => {
             const isUp = network.state === 'up';
-            return (<div className='machines-network-state' id={`${id}-network-${networkId}-state`}>
-                <span className='machines-network-state-text'>{rephraseUI('networkState', network.state)}</span>
+
+            return (<div className='machines-network-state' id={`${id}-network-${networkId}-state-btn`}>
                 <button className='btn btn-default' onClick={onChangeState(network)} title={`${isUp ? _("Unplug") : _("Plug")}`}>
                     {isUp ? 'Unplug' : 'Plug'}
                 </button>

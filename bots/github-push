@@ -1,0 +1,154 @@
+#! /usr/bin/python3
+
+# github-push -- Push the local branch to a GitHub PR, with benefits
+#
+# This tool pushes your local changes to a PR and also adds a comment
+# that summarizes what has changed.  The idea is to cement the actual
+# history of the PR in its comments, regardless of rebases, rewrites,
+# squashed fixups, etc.
+#
+# If you don't have a upstream tracking branch, you need to specify
+# the pull request number as an argument.
+#
+# If you do have a upstream tracking branch, you can omit the pull
+# request number.  The tool will find it by looking through all open
+# pull requests on GitHub and picking the one that matches the
+# tracking branch.  Once it has been found, the number is cached in
+# the Git config file to speed up subsequent invocations.
+
+import subprocess
+import argparse
+import sys
+import time
+
+from task import github
+
+def execute(*args):
+    try:
+        output = subprocess.check_output(args, universal_newlines=True)
+    except subprocess.CalledProcessError as ex:
+        sys.exit(ex.returncode)
+    return output
+
+def git(*args):
+    return execute("git", *args)
+
+def git_config(name):
+    try:
+        output = subprocess.check_output([ "git", "config", name ], universal_newlines=True)
+    except subprocess.CalledProcessError as ex:
+        return None
+    return output.strip()
+
+def push_and_comment(api, repo, pull_number, remote, local, push_dest, push_ref):
+    if local == remote:
+        sys.stderr.write("Nothing to push.\n")
+        return 0
+
+    diff = git("diff", remote, local)
+    old_commits_link = "https://github.com/" + repo + "/commits/" + remote
+    diff_link = "https://github.com/" + repo + "/compare/" + remote + ".." + local
+
+    def make_comment(title, include_old_commits=False):
+        diff_lines = diff.count("\n")
+        first_line_parts = [ ]
+        if include_old_commits:
+            first_line_parts.append("[Old commits](%s)" % old_commits_link)
+        if diff_lines > 0:
+            first_line_parts.append("[Diff](%s)" % (diff_link))
+        first_line = " | ".join(first_line_parts)
+        if diff_lines > 0 and diff_lines < 500:
+            return ("<details><summary>%s</summary>\n\n%s\n```diff\n%s```\n</details>\n"
+                    % (title, first_line, diff))
+        else:
+            return "%s\n%s\n" % (title, first_line)
+
+    git("push", "--force-with-lease=%s:%s" % (push_ref, remote), push_dest, "%s:%s" % (local, push_ref))
+
+    for n in range(100,0,-1):
+        try:
+            if api.get("commits/%s" % local, verbose=False):
+                break
+        except RuntimeError as e:
+            if not "Unprocessable Entity" in str(e) or n <= 1:
+                raise
+            print("(new commits not yet in the GiHub API...please stand by. *beep*)")
+        time.sleep(1)
+
+    if git("merge-base", local, remote).strip() == remote:
+        comment = make_comment("New commits.")
+
+    elif diff == "":
+        old_statuses = api.statuses(remote)
+        copy_count = 0
+        for key in old_statuses:
+            api.post("statuses/" + local, old_statuses[key])
+            copy_count += 1
+
+        comment = make_comment("Commit history has been rewritten.", include_old_commits=True)
+        comment += "\n%s test results have been copied.\n" % copy_count
+    else:
+        comment = make_comment("Pull request has been rewritten.", include_old_commits=True)
+
+    api.post("issues/{0}/comments".format(pull_number), { "body": comment })
+
+def with_tracking_branch(api, repo):
+    local = git("rev-parse", "HEAD").strip()
+    remote = git("rev-parse", "@{u}").strip()
+
+    ( tracking_remote, tracking_ref ) = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}").strip().split("/")
+    tracking_url = git("remote", "get-url", tracking_remote).strip()
+
+    pull_number = None
+    pull_config = git_config("pull.%s.%s" % (tracking_remote, tracking_ref))
+    if not pull_config:
+        # Find the pull request that matches the tracking branch
+        pulls = api.pulls()
+        for p in pulls:
+            ref = p["head"]["ref"]
+            url = "git@github.com:%s.git" % p["head"]["repo"]["full_name"]
+            if ref == tracking_ref and url == tracking_url:
+                pull_number = p["number"]
+                break
+        if not pull_number:
+            sys.stderr.write("No pull request found for %s/%s\n" % (tracking_remote, tracking_ref))
+            return 1
+        git("config", "pull.%s.%s" % (tracking_remote, tracking_ref), str(pull_number))
+    else:
+        pull_number=int(pull_config)
+
+    push_and_comment(api, repo, pull_number,
+                     local=local, remote=remote,
+                     push_dest=tracking_remote, push_ref=tracking_ref)
+
+def without_tracking_branch(api, repo, pull_number):
+    pull = api.get("pulls/{0}".format(pull_number))
+
+    local = git("rev-parse", "HEAD").strip()
+    remote = pull["head"]["sha"]
+
+    # XXX - If we don't have the remote sha already in our local
+    # repository, then we should probably fail here....
+    #
+    git("fetch", "git@github.com:%s.git" % pull["head"]["repo"]["full_name"], pull["head"]["ref"])
+
+    push_and_comment(api, repo, pull_number,
+                     local=local, remote=remote,
+                     push_dest="git@github.com:%s.git" % pull["head"]["repo"]["full_name"],
+                     push_ref=pull["head"]["ref"])
+
+def main():
+    parser = argparse.ArgumentParser(description='Force push after a rewrite')
+    parser.add_argument('--repo', help="The GitHub repository to work with", default="cockpit-project/cockpit")
+    parser.add_argument('pull', nargs='?', help="The pull request number to push to")
+    opts = parser.parse_args()
+
+    api = github.GitHub(repo=opts.repo)
+
+    if not opts.pull:
+        return with_tracking_branch(api, opts.repo)
+    else:
+        return without_tracking_branch(api, opts.repo, opts.pull)
+
+if __name__ == '__main__':
+    sys.exit(main())

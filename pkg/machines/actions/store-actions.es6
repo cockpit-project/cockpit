@@ -29,6 +29,7 @@ import {
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
     UPDATE_OS_INFO_LIST,
+    UPDATE_NETWORKS,
     UPDATE_STORAGE_POOLS,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -152,6 +153,16 @@ export function updateOsInfoList(osInfoList) {
     return {
         type: UPDATE_OS_INFO_LIST,
         osInfoList,
+    };
+}
+
+export function updateNetworks({ connectionName, networks }) {
+    return {
+        type: UPDATE_NETWORKS,
+        payload: {
+            connectionName,
+            networks,
+        }
     };
 }
 

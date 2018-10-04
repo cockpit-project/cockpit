@@ -29,6 +29,7 @@ import {
     delayPolling,
     getAllVms,
     getHypervisorMaxVCPU,
+    getNetworks,
     getStoragePools,
     getStorageVolumes,
     getVm,
@@ -37,6 +38,7 @@ import {
 import {
     deleteUnlistedVMs,
     undefineVm,
+    updateNetworks,
     updateStoragePools,
     updateStorageVolumes,
     updateVm,
@@ -102,6 +104,7 @@ const Enum = {
     VIR_DOMAIN_STATS_VCPU: 8,
     VIR_DOMAIN_STATS_BLOCK: 32,
     VIR_DOMAIN_XML_INACTIVE: 2,
+    VIR_CONNECT_LIST_NETWORKS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64
 };
@@ -401,6 +404,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 doGetAllVms(dispatch, connectionName);
                 dispatch(getStoragePools(connectionName));
+                dispatch(getNetworks(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
             };
         }
@@ -421,6 +425,36 @@ LIBVIRT_DBUS_PROVIDER = {
         }
 
         return unknownConnectionName(setHypervisorMaxVCPU);
+    },
+
+    /**
+     * Retrieves list of libvirt "networks" for particular connection.
+     */
+    GET_NETWORKS({
+        connectionName
+    }) {
+        let flags = Enum.VIR_CONNECT_LIST_NETWORKS_ACTIVE;
+        return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNetworks', [flags], TIMEOUT)
+                .done(objPaths => {
+                    let networks = [];
+                    let networksPropsPromises = [];
+
+                    logDebug(`GET_NETWORKS: object paths: ${JSON.stringify(objPaths)}`);
+
+                    for (let i = 0; i < objPaths[0].length; i++) {
+                        networksPropsPromises.push(call(connectionName, objPaths[0][i], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.Network", "Name"], TIMEOUT));
+                    }
+                    Promise.all(networksPropsPromises).then(networkNames => {
+                        for (let i = 0; i < networkNames.length; i++) {
+                            networks.push(networkNames[i][0].v);
+                        }
+                        dispatch(updateNetworks({
+                            connectionName,
+                            networks,
+                        }));
+                    });
+                })
+                .fail(ex => console.error("ListNetworks failed:", JSON.stringify(ex)));
     },
 
     /**

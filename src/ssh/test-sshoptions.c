@@ -56,9 +56,10 @@ test_ssh_options (void)
   g_assert_cmpstr (g_environ_getenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS"), ==, "1");
 
   g_free (options);
+  g_strfreev (env);
 
   /* Start with a clean env */
-  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE", "other-known", TRUE);
+  env = g_environ_setenv (NULL, "COCKPIT_SSH_KNOWN_HOSTS_FILE", "other-known", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_BRIDGE_COMMAND", "other-command", TRUE);
   env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS", "", TRUE);
 
@@ -95,22 +96,6 @@ test_ssh_options (void)
   g_free (options);
   g_strfreev (env);
 
-  env = g_environ_setenv (NULL, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "authorize", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->challenge_unknown_host_preconnect);
-  g_free (options);
-
-  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_false (options->challenge_unknown_host_preconnect);
-  g_free (options);
-
-  env = g_environ_setenv (env, "COCKPIT_SSH_ALLOW_UNKNOWN", "yes", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->connect_to_unknown_hosts);
-  g_free (options);
-  g_strfreev (env);
-
   env = g_environ_setenv (NULL, "COCKPIT_REMOTE_PEER", "127.0.0.1", TRUE);
   options = cockpit_ssh_options_from_env (env);
   g_assert_true (options->connect_to_unknown_hosts);
@@ -121,6 +106,31 @@ test_ssh_options (void)
   options = cockpit_ssh_options_from_env (env);
   g_assert_true (options->connect_to_unknown_hosts);
   g_free (options);
+  g_strfreev (env);
+}
+
+static void
+test_ssh_options_deprecated (void)
+{
+  gchar **env = NULL;
+  CockpitSshOptions *options = NULL;
+
+  env = g_environ_setenv (NULL, "COCKPIT_SSH_ALLOW_UNKNOWN", "yes", TRUE);
+  options = cockpit_ssh_options_from_env (env);
+  g_assert_true (options->connect_to_unknown_hosts);
+  g_assert_false (options->challenge_unknown_host_preconnect);
+  g_free (options);
+
+  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "authorize", TRUE);
+  options = cockpit_ssh_options_from_env (env);
+  g_assert_true (options->challenge_unknown_host_preconnect);
+  g_free (options);
+
+  env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "", TRUE);
+  options = cockpit_ssh_options_from_env (env);
+  g_assert_false (options->challenge_unknown_host_preconnect);
+  g_free (options);
+
   g_strfreev (env);
 }
 
@@ -137,6 +147,19 @@ test_ssh_options_alt_conf (void)
   g_free (options);
 }
 
+static void
+test_ssh_options_conf_deprecated (void)
+{
+  CockpitSshOptions *options = NULL;
+
+  cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit-deprecated.conf";
+  cockpit_conf_cleanup ();
+
+  options = cockpit_ssh_options_from_env (NULL);
+  g_assert_true (options->connect_to_unknown_hosts);
+  g_free (options);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -144,7 +167,9 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/ssh-options/basic", test_ssh_options);
+  g_test_add_func ("/ssh-options/deprecated", test_ssh_options_deprecated);
   g_test_add_func ("/ssh-options/alt-conf", test_ssh_options_alt_conf);
+  g_test_add_func ("/ssh-options/deprecated-conf", test_ssh_options_conf_deprecated);
 
   return g_test_run ();
 }

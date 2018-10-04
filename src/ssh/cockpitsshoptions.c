@@ -79,7 +79,8 @@ get_connect_to_unknown_hosts (gchar **env)
 {
   const gchar *remote_peer = g_environ_getenv (env, "COCKPIT_REMOTE_PEER");
 
-  /* Fallback to allowUnknown  */
+  /* Fallback to deprecated allowUnknown option; use cockpit_conf_string() to
+   * test for existence as _bool() cannot tell apart "unset" from "set to false". */
   if (!cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts") &&
       cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "allowUnknown", FALSE))
     return TRUE;
@@ -105,9 +106,14 @@ cockpit_ssh_options_from_env (gchar **env)
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
   options->connect_to_unknown_hosts = get_connect_to_unknown_hosts (env);
 
+  /* HACK: Set to receive an authorize challenge if the host is unknown, before
+   * connecting to the host. This is done in cockpit-bridge (via
+   * pkg/ssh/manifest.json.in), but not for direct URL logins in cockpit-ws.
+   * This is an internal hack to mimic the obsolete magic
+   * COCKPIT_SSH_KNOWN_HOSTS_DATA=authorize mode, until cockpit-ws starts to
+   * set this through the JSON protocol.*/
   options->challenge_unknown_host_preconnect =
     get_environment_bool (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT", FALSE);
-  /* HACK: fallback to deprecated _DATA=authorize */
   if (!has_environment_val (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT") &&
       g_str_equal (get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", ""),
                    "authorize"))

@@ -187,8 +187,10 @@ setup_env (const TestFixture *fix)
     }
 
   if (fix && fix->challenge_unknown_host_preconnect)
-    env = g_environ_setenv (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT",
-                            "true", TRUE);
+    {
+      env = g_environ_setenv (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT",
+                              "true", TRUE);
+    }
 
   knownhosts_file = fix ? fix->knownhosts_file : NULL;
   if (!knownhosts_file)
@@ -713,11 +715,33 @@ static const TestFixture fixture_knownhost_challenge_preconnect = {
   .ssh_command = BUILDDIR "/mock-echo"
 };
 
+static const TestFixture fixture_host_key_invalid = {
+  .knownhosts_file = SRCDIR "/src/ssh/invalid_known_hosts",
+};
+
 static const TestFixture fixture_prompt_host_key = {
   .knownhosts_file = "/dev/null",
   .allow_unknown = TRUE,
   .ssh_command = BUILDDIR "/mock-echo"
 };
+
+static void
+test_invalid_knownhost (TestCase *tc,
+                        gconstpointer data)
+{
+  const TestFixture *fix = data;
+  JsonObject *init = NULL;
+
+  g_assert_cmpstr (fix->knownhosts_file, ==, SRCDIR "/src/ssh/invalid_known_hosts");
+  do_auth_response (tc->transport, "*", "");
+
+  init = wait_until_transport_init (tc->transport, "invalid-hostkey");
+
+  g_assert_cmpstr (json_object_get_string_member (init, "invalid-hostkey-file"),
+                   ==, fix->knownhosts_file);
+
+  json_object_unref (init);
+}
 
 static void
 test_knownhost_data_prompt (TestCase *tc,
@@ -1266,6 +1290,8 @@ main (int argc,
   g_test_add ("/ssh-bridge/knownhost-challenge-preconnect", TestCase,
               &fixture_knownhost_challenge_preconnect,
               setup, test_knownhost_data_prompt, teardown);
+  g_test_add ("/ssh-bridge/knownhost-invalid", TestCase, &fixture_host_key_invalid,
+              setup, test_invalid_knownhost, teardown);
   g_test_add ("/ssh-bridge/knownhost-sssd-known", TestCase, &fixture_knownhost_sssd_known,
               setup, test_echo_and_close, teardown);
   g_test_add ("/ssh-bridge/knownhost-sssd-known-multi-key", TestCase, &fixture_knownhost_sssd_known_multi_key,

@@ -25,7 +25,7 @@ from testlib import *
 import kubelib
 
 @skipImage("No kubernetes packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg", "rhel-x", "centos-7")
-@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "fedora-30")
 @skipPackage("cockpit-kubernetes")
 class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
 
@@ -41,7 +41,7 @@ class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
         m.execute("docker tag gcr.io/google_containers/pause-amd64:3.0 k8s.gcr.io/pause-amd64:3.1 || true")
 
 @skipImage("No kubernetes packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg", "rhel-x", "centos-7")
-@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "fedora-30")
 @skipPackage("cockpit-kubernetes")
 class TestConnection(kubelib.KubernetesCase):
     def testConnect(self):

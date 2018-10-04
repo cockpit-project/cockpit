@@ -56,8 +56,8 @@
 %define build_subscriptions 1
 %endif
 
-# cockpit-kubernetes is RHEL 7 only, and 64 bit arches only
-%if 0%{?fedora} || (0%{?rhel} >= 7 && 0%{?rhel} < 8)
+# cockpit-kubernetes is RHEL 7 and Fedora < 30 only, and 64 bit arches only
+%if (0%{?fedora} && 0%{?fedora} < 30) || (0%{?rhel} >= 7 && 0%{?rhel} < 8)
 %ifarch aarch64 x86_64 ppc64le s390x
 %define build_kubernetes 1
 %endif

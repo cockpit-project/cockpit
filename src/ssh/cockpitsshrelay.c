@@ -691,9 +691,12 @@ set_knownhosts_file (CockpitSshData *data,
         {
           if (write_tmp_knownhosts_file (data, authorize_knownhosts_data, &problem))
             {
+              /* this should always be known now, but let's make double-sure */
               host_known = cockpit_is_host_known (tmp_knownhost_file, host, port);
               if (host_known)
                 data->ssh_options->knownhosts_file = tmp_knownhost_file;
+              else
+                g_warning ("authorize challenge reported key for %s:%u which is not known to cockpit_is_host_known()", host, port);
             }
           else
             goto out;

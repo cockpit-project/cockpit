@@ -32,6 +32,7 @@
 #include <string.h>
 #include <sys/prctl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 
 #define TIMEOUT 120
 
@@ -49,6 +50,9 @@ typedef struct {
   /* setup_mock_sshd */
   GPid mock_sshd;
   guint16 ssh_port;
+  gchar *home_dir;
+  gchar *home_ssh_dir;
+  gchar *home_knownhosts_file;
 } TestCase;
 
 typedef struct {
@@ -57,6 +61,7 @@ typedef struct {
     const char *client_password;
     const char *username;
     const char *knownhosts_file;
+    const char *knownhosts_home;
     const char *knownhosts_sssd;
     const char *knownhosts_sssd_host;
     const char *config;
@@ -253,6 +258,30 @@ setup (TestCase *tc,
     host = g_strdup ("127.0.0.1");
   argv[1] = host;
 
+  /* run our tests with temp home dir, to avoid influence from the real ~/.ssh */
+  tc->home_dir = g_dir_make_tmp ("home.XXXXXX", NULL);
+  g_assert (tc->home_dir != NULL);
+  env = g_environ_setenv (env, "HOME", tc->home_dir, TRUE);
+
+  if (fixture && fixture->knownhosts_home)
+    {
+      gchar *content;
+
+      tc->home_ssh_dir = g_build_filename (tc->home_dir, ".ssh", NULL);
+      g_assert (tc->home_ssh_dir != NULL);
+      tc->home_knownhosts_file = g_build_filename (tc->home_ssh_dir, "known_hosts", NULL);
+      g_assert (tc->home_knownhosts_file != NULL);
+      g_assert_cmpint (mkdir (tc->home_ssh_dir, 0700), ==, 0);
+
+      content = g_strdup_printf ("[127.0.0.1]:%d %s\n",
+                                 (int)tc->ssh_port,
+                                 fixture->knownhosts_home);
+
+      g_assert (g_file_set_contents (tc->home_knownhosts_file, content, -1, NULL));
+
+      g_free (content);
+    }
+
   if (fixture && fixture->knownhosts_sssd)
     {
       g_assert (fixture->knownhosts_sssd_host != NULL);
@@ -280,6 +309,19 @@ static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
+  if (tc->home_knownhosts_file)
+    {
+      unlink (tc->home_knownhosts_file);
+      g_free (tc->home_knownhosts_file);
+    }
+  if (tc->home_ssh_dir)
+    {
+      rmdir (tc->home_ssh_dir);
+      g_free (tc->home_ssh_dir);
+    }
+  rmdir (tc->home_dir);
+  g_free (tc->home_dir);
+
   WAIT_UNTIL (tc->closed == TRUE);
   g_object_add_weak_pointer (G_OBJECT (tc->transport), (gpointer*)&tc->transport);
   g_object_unref (tc->transport);
@@ -706,6 +748,12 @@ static const TestFixture fixture_knownhost_sssd_badkey = {
   .knownhosts_sssd_host = "127.0.0.1",
   .knownhosts_file = "/dev/null",
   .problem = "invalid-hostkey"
+};
+
+static const TestFixture fixture_known_host_home = {
+  .knownhosts_file = "/dev/null",
+  .knownhosts_home = MOCK_RSA_KEY,
+  .ssh_command = BUILDDIR "/mock-echo"
 };
 
 static const TestFixture fixture_knownhost_challenge_preconnect = {
@@ -1292,6 +1340,8 @@ main (int argc,
               setup, test_knownhost_data_prompt, teardown);
   g_test_add ("/ssh-bridge/knownhost-invalid", TestCase, &fixture_host_key_invalid,
               setup, test_invalid_knownhost, teardown);
+  g_test_add ("/ssh-bridge/knownhost-home", TestCase, &fixture_known_host_home,
+              setup, test_echo_and_close, teardown);
   g_test_add ("/ssh-bridge/knownhost-sssd-known", TestCase, &fixture_knownhost_sssd_known,
               setup, test_echo_and_close, teardown);
   g_test_add ("/ssh-bridge/knownhost-sssd-known-multi-key", TestCase, &fixture_knownhost_sssd_known_multi_key,

@@ -73,6 +73,17 @@ user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
       for the hosts running Cockpit, and in some cases the <code>HTTP</code> service as well.
       When joining an IPA domain, this is enabled by default.</para>
 
+    <para>Domain admins (usually the <code>admins@example.com</code> group) should normally
+      also be able to administer any joined machine. Enable sudo access for that group
+      with the following commands, as a domain admin on any joined machine:</para>
+
+<programlisting>
+ipa sudorule-add --hostcat=all --cmdcat=all All
+ipa sudorule-add-user --groups=admins All
+</programlisting>
+
+    <para>Note that this does not change security properties; domain admins can give this
+      privilege to themselves, so it is safe to enable by default.</para>
   </section>
 
   <section id="sso-client">

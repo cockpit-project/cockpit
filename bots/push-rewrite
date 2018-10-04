@@ -1,0 +1,64 @@
+#! /usr/bin/python3
+
+# push-rewrite -- Force push to a PR after rewriting history, with benefits.
+#
+# This tool force pushes your local changes to origin but only if that
+# doesn't change any files.  If that is the case, the tool will also
+# copy the test results over.
+#
+# The idea is that you use this tool after squashing fixups in a pull
+# request or after other similar last minute rewriting activity before
+# merging a pull request.  Then you can merge the PR using the GitHub
+# UI and get a nice "merged" label for it, and the tests will still be
+# green.
+
+import subprocess
+import argparse
+import sys
+
+from task import github
+
+def execute(*args):
+    try:
+        sys.stderr.write("+ " + " ".join(args) + "\n")
+        output = subprocess.check_output(args, universal_newlines=True)
+    except subprocess.CalledProcessError as ex:
+        sys.exit(ex.returncode)
+    return output
+
+def git(*args):
+    return execute("git", *args).strip()
+
+def main():
+    parser = argparse.ArgumentParser(description='Force push after a rewrite')
+    parser.add_argument('--repo', help="The GitHub repository to work with", default="cockpit-project/cockpit")
+    parser.add_argument('remote', help='The remote to push to')
+    parser.add_argument('branch', nargs='?',  help='The branch to push')
+    opts = parser.parse_args()
+
+    if not opts.branch:
+        opts.branch = git("rev-parse", "--abbrev-ref", "HEAD")
+
+    local = git("rev-parse", opts.branch)
+    remote = git("rev-parse", opts.remote + "/" + opts.branch)
+
+    if local == remote:
+        sys.stderr.write("Nothing to push.\n")
+        return 0
+
+    if git("diff", "--stat", local, remote) != "":
+        sys.stderr.write("You have local changes, aborting.\n")
+        return 1
+
+    api = github.GitHub(repo=opts.repo)
+    old_statuses = api.statuses(remote)
+
+    git("push", "--force-with-lease=" + opts.branch + ":" + remote, opts.remote, opts.branch + ":" + opts.branch)
+
+    for key in old_statuses:
+        if old_statuses[key]["state"] != "pending":
+            print("Copying results for %s" % old_statuses[key]["context"])
+            api.post("statuses/" + local, old_statuses[key])
+
+if __name__ == '__main__':
+    sys.exit(main())

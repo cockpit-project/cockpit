@@ -36,6 +36,7 @@ import {
     GET_ALL_VMS,
     GET_HYPERVISOR_MAX_VCPU,
     GET_OS_INFO_LIST,
+    GET_NETWORKS,
     GET_STORAGE_POOLS,
     GET_STORAGE_VOLUMES,
     GET_VM,
@@ -111,6 +112,10 @@ export function getHypervisorMaxVCPU(connectionName) {
 
 export function getOsInfoList() {
     return virt(GET_OS_INFO_LIST);
+}
+
+export function getNetworks(connectionName) {
+    return virt(GET_NETWORKS, { connectionName });
 }
 
 export function getStoragePools(connectionName) {

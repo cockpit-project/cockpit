@@ -30,6 +30,7 @@ import {
     UNDEFINE_VM,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
+    UPDATE_NETWORKS,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_POOLS,
     UPDATE_STORAGE_VOLUMES,
@@ -81,6 +82,26 @@ function lazyComposedReducer({ parentReducer, getSubreducer, getSubstate, setSub
         }
         return newState;
     };
+}
+
+function networks(state, action) {
+    state = state || { };
+    /* Example:
+    state = { "connectionNameA": [vnet0, vnet1],
+              "connectionNameB": [vnet2]
+       }
+    */
+    switch (action.type) {
+    case UPDATE_NETWORKS: {
+        const { connectionName, networks } = action.payload;
+        const newState = Object.assign({}, state);
+
+        newState[connectionName] = networks;
+        return newState;
+    }
+    default:
+        return state;
+    }
 }
 
 function vms(state, action) {
@@ -351,6 +372,7 @@ export default combineReducers({
         getSubstate: (state) => state.providerState,
         setSubstate: (state, subState) => Object.assign({}, state, { providerState: subState }),
     }),
+    networks,
     vms,
     systemInfo,
     storagePools,

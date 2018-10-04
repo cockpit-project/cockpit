@@ -614,8 +614,7 @@ set_knownhosts_file (CockpitSshData *data,
   host_known = cockpit_is_host_known (data->ssh_options->knownhosts_file, host, port);
 
   /* if we check the default system known hosts file (i. e. not during the test suite), also check
-   * the legacy file in /var/lib/cockpit and the user's ssh; we need to do that even with
-   * allow_unknown_hosts as subsequent code relies on knownhosts_file */
+   * the legacy file in /var/lib/cockpit */
   if (!host_known && strcmp (data->ssh_options->knownhosts_file, cockpit_get_default_knownhosts ()) == 0)
     {
       host_known = cockpit_is_host_known (LEGACY_KNOWN_HOSTS, host, port);
@@ -627,15 +626,15 @@ set_knownhosts_file (CockpitSshData *data,
                    LEGACY_KNOWN_HOSTS);
           data->ssh_options->knownhosts_file = LEGACY_KNOWN_HOSTS;
         }
+    }
 
-      /* check ~/.ssh/known_hosts, unless we are running as a system user ($HOME == "/"); this is not
-       * a security check (if one can write /.ssh/known_hosts then we have to trust them), just caution */
-      if (!host_known && g_strcmp0 (g_get_home_dir (), "/") != 0)
-        {
-          host_known = cockpit_is_host_known (data->user_known_hosts, host, port);
-          if (host_known)
-            data->ssh_options->knownhosts_file = data->user_known_hosts;
-        }
+  /* check ~/.ssh/known_hosts, unless we are running as a system user ($HOME == "/"); this is not
+   * a security check (if one can write /.ssh/known_hosts then we have to trust them), just caution */
+  if (!host_known && g_strcmp0 (g_get_home_dir (), "/") != 0)
+    {
+      host_known = cockpit_is_host_known (data->user_known_hosts, host, port);
+      if (host_known)
+        data->ssh_options->knownhosts_file = data->user_known_hosts;
     }
 
   /* last (most expensive) fallback is to ask sssd's ssh known_hosts proxy */

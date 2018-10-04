@@ -427,7 +427,7 @@ LIBVIRT_DBUS_PROVIDER = {
     GET_STORAGE_POOLS({
         connectionName
     }) {
-        let flags = Enum.VIRCONNECT_LIST_STORAGE_POOLS_ACTIVE | Enum.VIRCONNECT_LIST_STORAGE_POOLS_DIR;
+        let flags = Enum.VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE | Enum.VIR_CONNECT_LIST_STORAGE_POOLS_DIR;
         return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [flags], TIMEOUT)
                 .done(objPaths => {
                     let pools = [];

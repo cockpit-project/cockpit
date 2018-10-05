@@ -1094,12 +1094,12 @@ class VirtMachine(Machine):
             while pid == 0:
                 if message:
                     try:
-                        self.execute("true", quiet=True)
+                        with stdchannel_redirected(sys.stderr, os.devnull):
+                            Machine.wait_boot(self)
                         sys.stderr.write(message)
-                        self.disconnect()
-                        message = None
-                    except subprocess.CalledProcessError:
+                    except (Failure, subprocess.CalledProcessError):
                         pass
+                    message = None
                 (pid, ret) = os.waitpid(proc.pid, message and os.WNOHANG or 0)
 
             try:

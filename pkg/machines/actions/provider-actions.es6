@@ -23,6 +23,7 @@ import { logDebug } from '../helpers.es6';
 import { virt } from '../provider.es6';
 import {
     ATTACH_DISK,
+    CHANGE_NETWORK_SETTINGS,
     CHANGE_NETWORK_STATE,
     CHECK_LIBVIRT_STATUS,
     CONSOLE_VM,
@@ -63,6 +64,19 @@ import {
  */
 export function attachDisk({ connectionName, diskFileName, target, permanent, hotplug, vmName, vmId }) {
     return virt(ATTACH_DISK, { connectionName, diskFileName, target, permanent, hotplug, vmName, vmId });
+}
+
+export function changeNetworkSettings({ vm, macAddress, networkType, networkSource, networkModel }) {
+    return virt(CHANGE_NETWORK_SETTINGS, {
+        id: vm.id,
+        name: vm.name,
+        connectionName: vm.connectionName,
+        networkType,
+        networkSource,
+        networkModel,
+        macAddress,
+        isRunning: vm.state == 'running'
+    });
 }
 
 export function changeNetworkState(vm, networkMac, state) {

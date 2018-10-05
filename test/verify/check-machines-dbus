@@ -24,6 +24,20 @@ import subprocess
 from testlib import *
 import machineslib
 
+TEST_NETWORK_XML="""
+    <network>
+      <name>test_network</name>
+      <forward mode='nat'/>
+      <bridge name='virbr1' stp='on' delay='0'/>
+      <mac address='52:54:00:bc:93:8e'/>
+      <ip address='192.168.123.1' netmask='255.255.255.0'>
+        <dhcp>
+          <range start='192.168.123.2' end='192.168.123.254'/>
+        </dhcp>
+      </ip>
+    </network>
+"""
+
 
 class TestMachinesDBus(machineslib.TestMachines):
 
@@ -89,6 +103,74 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#vm-subVmTest1-disks-vdc-detach") # button
         b.click("#vm-subVmTest1-disks-vdc-detach")
         b.wait_not_present("vm-subVmTest1-disks-vdc-target")
+
+    def testNetworkSettings(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        # Create dummy network
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK_XML))
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        b.wait_present("#vm-subVmTest1-networks") # wait for the tab
+        b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
+
+        # Wait for the edit button
+        b.wait_present("#vm-subVmTest1-network-1-edit-dialog")
+        b.click("#vm-subVmTest1-network-1-edit-dialog")
+
+        # Make sure the footer warning does not appear until we change something
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
+
+        # Cancel dialog
+        b.click("#vm-subVmTest1-network-1-edit-dialog-cancel")
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
+
+        # Fetch current NIC model type
+        current_model_type =  b.text("#vm-subVmTest1-network-1-model");
+
+        # Reopen dialog modal
+        b.wait_present("#vm-subVmTest1-network-1-edit-dialog")
+        b.click("#vm-subVmTest1-network-1-edit-dialog")
+
+        # Change network model type of a running domain
+        self._selectFromDropdown("#vm-subVmTest1-network-1-select-model", "e1000e")
+        # Wait for the footer warning to appear
+        b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
+        # Change network type and source of a running domain
+        self._selectFromDropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        self._selectFromDropdown("#vm-subVmTest1-network-1-select-source", "test_network")
+        # Save the network settings
+        b.click("#vm-subVmTest1-network-1-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
+        # Wait for the tooltips to appear next to the elements we changed
+        b.wait_in_text("#vm-subVmTest1-network-1-model", current_model_type)
+        b.wait_present("#vm-subVmTest1-network-1-model-tooltip")
+        b.wait_in_text("#vm-subVmTest1-network-1-type", 'network')
+        b.wait_in_text("#vm-subVmTest1-network-1-source", 'default')
+        b.wait_present("#vm-subVmTest1-network-1-source-tooltip")
+
+        # Shut off domain and check changes are applied
+        b.click("#vm-subVmTest1-off-caret")
+        b.wait_visible("#vm-subVmTest1-forceOff")
+        b.click("#vm-subVmTest1-forceOff")
+        b.wait_in_text("#vm-subVmTest1-state", "shut off")
+        b.wait_in_text("#vm-subVmTest1-network-1-model", "e1000e")
+        b.wait_not_present("#vm-subVmTest1-network-1-model-tooltip")
+        b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
+        b.wait_not_present("#vm-subVmTest1-network-1-type-tooltip")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
+        b.wait_not_present("#vm-subVmTest1-network-1-source-tooltip")
 
 
 if __name__ == '__main__':

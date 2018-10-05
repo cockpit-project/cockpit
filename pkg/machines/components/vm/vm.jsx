@@ -40,7 +40,7 @@ const _ = cockpit.gettext;
 /** One VM in the list (a row)
  */
 const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
+              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks }) => {
     const defaultTabName = 'overview';
     const stateAlert = (
         vm.errorMessages &&
@@ -60,7 +60,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
         {name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch }},
         {name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive'},
         {name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch }, presence: 'onlyActive'},
-        {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, hostDevices }},
+        {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, config, hostDevices, networks }},
         {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
     ];
 
@@ -125,6 +125,7 @@ Vm.propTypes = {
     onUsageStopPolling: PropTypes.func.isRequired,
     onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
+    networks: PropTypes.object.isRequired,
 };
 
 export default Vm;

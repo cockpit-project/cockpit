@@ -1,0 +1,42 @@
+/* Standard dialog is too narrow and wide dialog is too wide */
+.nic-edit > .modal-dialog {
+    width: 70rem;
+}
+
+/* Form has double padding; remove it, except for the last in row */
+.nic-edit .form-group > :not(:last-child) {
+    padding-right: 0;
+}
+
+.nic-edit-idle-message {
+    align-items: center;
+    display: flex;
+    float: left;
+    line-height: 24px; /* Same height as a button */
+}
+
+.pficon-pending {
+    color: #ec7a08; /* pf-orange-400 */
+    font-size: 16px;
+}
+
+.machines-network-list .pficon-pending {
+    margin-left: 0.5rem;
+}
+
+.nic-edit .pficon-pending {
+    line-height: inherit;
+    margin-right: 0.5rem;
+}
+
+/* FIXME: This CSS should be moved upstream. */
+.form-text {
+    /* Set size similar to a widget; like control-label, but no alignment */
+    display: inline-block;
+    padding-top: 3px;
+    margin-bottom: 0;
+}
+.modal-body + .modal-footer {
+    /* Remove unneeded margin when there's a modal body and footer */
+    margin-top: 0;
+}

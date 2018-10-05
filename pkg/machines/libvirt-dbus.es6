@@ -182,28 +182,30 @@ LIBVIRT_DBUS_PROVIDER = {
     }) {
         return dispatch => {
             call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .done(domXml => {
+                    .then(domXml => {
                         let updatedXml = updateNetworkIfaceState(domXml[0], networkMac, state);
                         if (!updatedXml) {
                             dispatch(vmActionFailed({
                                 name,
                                 connectionName,
-                                message: _("VM CHANGE_NETWORK_STATE action failed: updated device XML couldn't not be generated"),
+                                message: _("VM CHANGE_NETWORK_STATE action failed"),
+                                detail: { exception: "Updated device XML couldn't not be generated" },
+                                tab: 'network',
                             }));
                         } else {
-                            call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT)
-                                    .done(() => {
-                                        dispatch(getVm({connectionName, id:objPath}));
-                                    })
-                                    .fail(exception => dispatch(vmActionFailed({
-                                        name,
-                                        connectionName,
-                                        message: _("VM CHANGE_NETWORK_STATE action failed"),
-                                        detail: {exception}
-                                    })));
+                            return call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT);
                         }
                     })
-                    .fail(ex => console.error("VM GetXMLDesc method for domain %s failed: %s", name, JSON.stringify(ex)));
+                    .catch(exception => dispatch(vmActionFailed({
+                        name,
+                        connectionName,
+                        message: _("VM CHANGE_NETWORK_STATE action failed"),
+                        detail: {exception},
+                        tab: 'network',
+                    })))
+                    .then(() => {
+                        dispatch(getVm({connectionName, id:objPath}));
+                    });
         };
     },
 

@@ -41,7 +41,13 @@ const _ = cockpit.gettext;
  */
 const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onForceoff, onReboot, onForceReboot,
               onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch }) => {
-    const stateAlert = vm.lastMessage && (<span className='pficon-warning-triangle-o machines-status-alert' />);
+    const defaultTabName = 'overview';
+    const stateAlert = (
+        vm.errorMessages &&
+        vm.errorMessages[defaultTabName] &&
+        vm.errorMessages[defaultTabName].lastMessage &&
+        (<span className='pficon-warning-triangle-o machines-status-alert' />)
+    );
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
     const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);

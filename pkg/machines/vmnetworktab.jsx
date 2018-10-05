@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 import { changeNetworkState } from "./actions/provider-actions.es6";
+import VmLastMessage from './components/vmLastMessage.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { rephraseUI, vmId } from "./helpers.es6";
 

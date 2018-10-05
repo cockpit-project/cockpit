@@ -102,9 +102,9 @@ export function deleteUnlistedVMs(connectionName, vmNames, vmIds) {
     };
 }
 
-export function deleteVmMessage({ name, connectionName }) {
+export function deleteVmMessage({ name, connectionName, tab }) {
     // recently there's just the last error message kept so we can reuse the code
-    return vmActionFailed({ name, connectionName, message: null, detail: null, extraPayload: null });
+    return vmActionFailed({ name, connectionName, message: null, detail: null, extraPayload: null, tab });
 }
 
 export function setHypervisorMaxVCPU({ count, connectionName }) {
@@ -190,7 +190,7 @@ export function updateVm(props) {
     };
 }
 
-export function vmActionFailed({ name, connectionName, message, detail, extraPayload }) {
+export function vmActionFailed({ name, connectionName, message, detail, extraPayload, tab = 'overview' }) {
     return {
         type: VM_ACTION_FAILED,
         payload: {
@@ -199,6 +199,7 @@ export function vmActionFailed({ name, connectionName, message, detail, extraPay
             message,
             detail,
             extraPayload,
+            tab,
         },
     };
 }

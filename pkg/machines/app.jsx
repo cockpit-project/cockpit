@@ -24,7 +24,7 @@ import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { createVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 
 const App = ({ store }) => {
-    const { vms, config, storagePools, systemInfo, ui } = store.getState();
+    const { vms, config, storagePools, systemInfo, ui, networks } = store.getState();
     const dispatch = store.dispatch;
 
     if (systemInfo.libvirtService.activeState !== 'running') {
@@ -37,6 +37,7 @@ const App = ({ store }) => {
         ui={ui}
         storagePools={storagePools}
         dispatch={dispatch}
+        networks={networks}
         actions={createVmAction({ dispatch, systemInfo })} />);
 };
 App.propTypes = {

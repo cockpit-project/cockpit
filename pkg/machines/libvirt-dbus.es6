@@ -169,6 +169,41 @@ LIBVIRT_DBUS_PROVIDER = {
         return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
     },
 
+    CHANGE_NETWORK_SETTINGS({
+        name,
+        id: objPath,
+        connectionName,
+        macAddress,
+        networkType,
+        networkSource,
+        networkModel,
+    }) {
+        /*
+         * 0 -> VIR_DOMAIN_AFFECT_CURRENT
+         * 1 -> VIR_DOMAIN_AFFECT_LIVE
+         * 2 -> VIR_DOMAIN_AFFECT_CONFIG
+         */
+        let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
+        flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+
+        // Error handling inside the modal dialog this function is called
+        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXml = updateNetworkIface({
+                        domXml: domXml[0],
+                        networkMac: macAddress,
+                        networkType,
+                        networkSource,
+                        networkModelType: networkModel
+                    });
+                    if (!updatedXml) {
+                        return Promise.reject(new Error("VM CHANGE_NETWORK_SETTINGS action failed: updated device XML couldn't not be generated"));
+                    } else {
+                        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, flags], TIMEOUT);
+                    }
+                });
+    },
+
     CHANGE_NETWORK_STATE({
         connectionName,
         id: objPath,
@@ -179,7 +214,7 @@ LIBVIRT_DBUS_PROVIDER = {
         return dispatch => {
             call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
                     .then(domXml => {
-                        let updatedXml = updateNetworkIfaceState(domXml[0], networkMac, state);
+                        let updatedXml = updateNetworkIface({ domXml: domXml[0], networkMac, networkState: state });
                         if (!updatedXml) {
                             dispatch(vmActionFailed({
                                 name,
@@ -371,10 +406,10 @@ LIBVIRT_DBUS_PROVIDER = {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 dbus_client(connectionName);
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
-                doGetAllVms(dispatch, connectionName);
                 dispatch(getStoragePools(connectionName));
                 dispatch(getNetworks(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
+                doGetAllVms(dispatch, connectionName);
             };
         }
 
@@ -942,7 +977,7 @@ function call(connectionName, objectPath, iface, method, args, opts) {
  * @param  {String} state       Desired state; one of up/down.
  * @return {String}             Updated XML description of the device we will update or null on error.
  */
-function updateNetworkIfaceState(domXml, networkMac, state) {
+function updateNetworkIface({ domXml, networkMac, networkState, networkModelType, networkType, networkSource }) {
     let parser = new DOMParser();
     const xmlDoc = parser.parseFromString(domXml, "application/xml");
 
@@ -966,16 +1001,33 @@ function updateNetworkIfaceState(domXml, networkMac, state) {
             if (mac !== networkMac)
                 continue;
 
-            let linkElem = getSingleOptionalElem(interfaceElem, 'link');
-            if (linkElem === undefined) {
-                let doc = document.implementation.createDocument('', '', null);
-                linkElem = doc.createElement('link');
-                interfaceElem.appendChild(linkElem);
+            if (networkState) {
+                let linkElem = getSingleOptionalElem(interfaceElem, 'link');
+                if (linkElem === undefined) {
+                    let doc = document.implementation.createDocument('', '', null);
+                    linkElem = doc.createElement('link');
+                    interfaceElem.appendChild(linkElem);
+                }
+                linkElem.setAttribute('state', networkState);
             }
-            linkElem.setAttribute('state', state);
+
+            if (networkType) {
+                interfaceElem.setAttribute('type', networkType);
+            }
+
+            if (networkSource && networkType) {
+                let sourceElem = getSingleOptionalElem(interfaceElem, 'source');
+                sourceElem.setAttribute(networkType, networkSource);
+            }
+
+            if (networkModelType) {
+                let modelElem = getSingleOptionalElem(interfaceElem, 'model');
+                modelElem.setAttribute('type', networkModelType);
+            }
+
             let returnXML = (new XMLSerializer()).serializeToString(interfaceElem);
 
-            logDebug(`updateNetworkIfaceState: Updated XML: "${returnXML}"`);
+            logDebug(`updateNetworkIface: Updated XML: "${returnXML}"`);
 
             return returnXML;
         }

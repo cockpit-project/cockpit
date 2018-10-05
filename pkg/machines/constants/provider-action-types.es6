@@ -19,6 +19,7 @@
 
 // --- Provider actions -----------------------------------------
 export const ATTACH_DISK = "ATTACH_DISK";
+export const CHANGE_NETWORK_SETTINGS = "CHANGE_NETWORK_SETTINGS";
 export const CHANGE_NETWORK_STATE = "CHANGE_NETWORK_STATE";
 export const CHECK_LIBVIRT_STATUS = "CHECK_LIBVIRT_STATUS";
 export const CONSOLE_VM = "CONSOLE_VM";

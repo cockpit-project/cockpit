@@ -26,89 +26,109 @@ TRAINING_DATA = "tests-train-1.jsonl.gz"
 # independently.
 SINCE = 21
 
-import gzip
 import os
+import socket
 import subprocess
 import sys
-import tempfile
 import time
+import urllib
 
 sys.dont_write_bytecode = True
 
 import task
-import learn.data
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
 DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
-def run(training_data, verbose=False, dry=False, **kwargs):
-    upload = [ os.path.join(BOTS, "image-upload"), "--state" ]
-
+def run(url_or_file, verbose=False, dry=False, **kwargs):
     # Default set of training data, retrieve it and use from DATA directory
-    if not training_data:
-        training_data = TRAINING_DATA
-    if "/" not in training_data and not os.path.exists(training_data):
+    if not url_or_file:
+        url_or_file = TRAINING_DATA
+
+    # A URL was provided directly, just use it
+    if url_or_file.startswith("http"):
+        filename = os.path.basename(url_or_file)
+        url = url_or_file
+
+    else:
+        host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST")
+        if not host:
+            raise RuntimeError("no learn host environment variable: $COCKPIT_LEARN_SERVICE_HOST")
+        port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "8080")
+        url = "http://{0}:{1}/train/{2}".format(host, port, os.path.basename(url_or_file))
+        filename = url_or_file
+
+    if "/" not in filename and not os.path.exists(filename):
         if not dry:
-            subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", training_data ])
-        training_data = os.path.join(DATA, training_data)
-    items = loader(training_data, verbose)
+            subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", filename ])
+        filename = os.path.join(DATA, filename)
+    train(filename, url, verbose)
 
-    # Train for the second model
-    path = train(items, verbose)
+# Does 'tail -F' on an HTTP URL
+def tail(url, until, verbose=False):
+    stop = False
+    at = 0
 
-    # Or do the upload if a real run
-    if not dry:
-        subprocess.check_call(upload + [ path ])
+    while True:
+        time.sleep(10)
 
+        try:
+            req = urllib.request.Request(url, headers={ "Range": "bytes={0}-".format(at) })
+            with urllib.request.urlopen(req) as f:
+                while True:
+                    data = f.read(2048)
+                    if not data:
+                        break
+                    at += len(data)
+                    if verbose:
+                        sys.stderr.buffer.write(data)
+        except urllib.error.HTTPError as ex:
+            if ex.code != 404 and ex.code != 416:
+                sys.stderr.write("{0}: {1}\n".format(url, ex))
+        except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
+            sys.stderr.write("{0}: {1}\n".format(url, ex))
 
-# Load jsonl style data into items, or if no file specified
-# then just run tests-data to retrieve live data
-def loader(training_data, verbose):
-    items = [ ]
+        if stop:
+            break
 
-    # The input file exists
-    exists = training_data and os.path.exists(training_data)
+        # Note that we do one more loop after we stop, to make sure to get all of url
+        stop = until()
 
-    # Dry mode just read a file
-    proc = None
-    if not exists:
-        raise RuntimeError("learn-tests: the input file doesn't exist: {0}".format(training_data))
-    inp = gzip.open(training_data, 'rb')
+def train(filename, url, verbose=False):
     if verbose:
-        sys.stderr.write("Loading tests data\n")
+        sys.stderr.write(" ^ {0}\n".format(url))
 
-    since = time.strftime("%Y-%m-%d", time.gmtime(time.time() - (86400 * SINCE)))
-
-    def only(item):
-        if not learn.data.failures(item):
-            return False
-        date = item.get("date", "")
-        return date > since
-
-    try:
-        items = list(learn.data.load(inp, only=only, verbose=verbose))
-    finally:
-        if proc:
-            proc.wait()
-            if proc.returncode != 0:
-                raise RuntimeError("tests-data command failed")
-        inp.close()
-
-    return items
-
-def train(items, verbose):
-    import learn.cluster
-    model = learn.cluster.Model(verbose=verbose)
-    model.train(items)
-
-    directory = tempfile.mkdtemp(prefix="clusters-")
+    cmd = [ "curl", "--fail", "--upload-file", filename ]
     if verbose:
-        sys.stderr.write("{0}: Dumping clusters\n".format(directory))
-    model.dump(directory)
-    for filename in os.listdir(directory):
-        task.attach(os.path.join(directory, filename))
+        cmd.append("--progress-bar")
+    cmd.append(url)
 
-    return learn.cluster.save(DATA, model)
+    # Passing through a non terminal stdout is necessary to make progress work
+    curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    cat = subprocess.Popen(["cat"], stdin=curl.stdout)
+    curl.stdout.close()
+    ret = curl.wait()
+    cat.wait()
+    if ret != 0:
+        raise RuntimeError("{0}: couldn't push training data to learn service".format(url))
+
+    # We run until the file disappears, which means training has taken place
+    def until():
+        try:
+            req = urllib.request.Request(url, method="HEAD")
+            with urllib.request.urlopen(req) as f:
+                f.read()
+        except urllib.error.HTTPError as ex:
+            if ex.code == 404:
+                return True
+            sys.stderr.write("{0}: {1}\n".format(url, ex))
+        except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
+            sys.stderr.write("{0}: {1}\n".format(url, ex))
+        return False
+
+    # Now tail the logs until above happens
+    log = urllib.parse.urljoin(url, "../log")
+    tail(log, until, verbose)
 
 if __name__ == '__main__':
     task.main(function=run, title="Learn from testing data", verbose=True)

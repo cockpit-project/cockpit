@@ -21,15 +21,18 @@
 import argparse
 import datetime
 import fnmatch
+import json
 import re
 import os
 import socket
 import sys
 import time
 import traceback
-import warnings
+import urllib
 
 sys.dont_write_bytecode = True
+
+FLAKE_THRESHOLD = 0.4
 
 from task import github
 try:
@@ -45,10 +48,12 @@ def main():
     script = os.path.basename(__file__)
     parser = argparse.ArgumentParser(description='Check a traceback for a known issue')
     parser.add_argument('-o', "--offline", action='store_true',
-            help="Work offline, don't fetch new data from origin for rebase")
+            help="Work offline, don't fetch new data or contact servers")
     parser.add_argument("--simple", action="store_true",
             default=(script == "image-naughty"),
             help="Just print out a known issue number")
+    parser.add_argument("-v", "--verbose", action="store_true",
+            help="Print out more verbose logging info")
     parser.add_argument('context', help="The image to check against")
     opts = parser.parse_args()
 
@@ -91,10 +96,8 @@ def main():
             output = filterSkip(output, "# SKIP Known issue #{0}".format(number))
         elif checkRetry(output):
             output = filterRetry(output, "# RETRY due to failure of test harness or framework")
-        else:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore",category=DeprecationWarning)
-                output = guessFlake(output, context)
+        elif not opts.offline:
+            output = guessFlake(output, context, opts.verbose)
 
         sys.stdout.write(output)
         return 0
@@ -140,15 +143,7 @@ def parseName(output):
 # -----------------------------------------------------------------------------
 # Flakiness Checks
 
-def guessFlake(output, context):
-    try:
-        import learn.cluster
-    except ImportError:
-        return output
-
-    # The two different models we're using
-    model = learn.cluster.load(DATA)
-
+def guessFlake(output, context, verbose=False):
     # Build up an item just like in tests-data
     item = {
         "pull": None,
@@ -162,22 +157,51 @@ def guessFlake(output, context):
         "log": output
     }
 
-    # The new model
+    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST")
+    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "80")
+    response = { }
     flake = False
-    if model:
-        result = model.predict([ item ])[0]
-        if result:
-            cluster = model.clusters[result[0]]
-            analysis = cluster.analyze(model.features)
-            merged = analysis["merged"]
-            if merged > learn.cluster.FLAKE_THRESHOLD:
-                output += "\n# Flake likely: {0:.3f} (clustering). Please file issue if this not a flake\n".format(merged)
-                flake = True
-            else:
-                output += "\n# Flake probability: {0:.3f} (clustering)\n".format(merged)
-            if analysis["trackers"]:
-                tracker = analysis["trackers"][0]
-                output += "# Flake tracked {0} likelihood {1:.3f}\n".format(tracker[0], tracker[1])
+
+    if host:
+        url = "http://{0}:{1}/predict".format(host, port)
+        jsonl = json.dumps(item) + "\n"
+        try:
+            data = urllib.request.urlopen(url, data=jsonl.encode('utf-8')).read()
+        except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
+            sys.stderr.write("{0}: {1}\n".format(url, ex))
+            data = "{ }"
+        try:
+            response = json.loads(data.decode('utf-8'))
+        except ValueError as ex:
+            sys.stderr.write("{0}: {1}\n".format(url, ex))
+
+    if verbose and response:
+        sys.stderr.write(json.dumps(response, indent=4) + "\n")
+
+    def count(record, field, only):
+        values = record.get(field, [])
+        for value, count in values:
+            if value != only:
+                continue
+            return count
+        return 0
+
+    merged = count(response, "merged", True)
+    not_merged = count(response, "merged", False)
+    null_merged = count(response, "merged", None)
+
+    score = 0
+    total = merged + not_merged + null_merged
+    if total:
+        score = (merged / total)
+    if score > FLAKE_THRESHOLD:
+        output += "\n# Flake likely: {0:.3f} (clustering). Please file issue if this not a flake\n".format(score)
+        flake = True
+    elif merged > 0:
+        output += "\n# Flake probability: {0:.3f} (clustering)\n".format(score)
+        if "trackers" in response:
+            tracker = response["trackers"][0]
+            output += "# Flake tracked {0} likelihood {1:.3f}\n".format(tracker[0], tracker[1])
 
     if flake:
         output = filterRetry(output, "# RETRY due to flakiness")

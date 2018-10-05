@@ -131,10 +131,12 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
     ];
 
     let networkId = 1;
-    detailMap = detailMap.filter(target => !target.hidden);
+    const currentTab = 'network';
+    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
 
     return (
         <div className="machines-network-list">
+            {message}
             <Listing columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
                 {vm.interfaces.sort().map(target => {
                     const columns = detailMap.map(d => {

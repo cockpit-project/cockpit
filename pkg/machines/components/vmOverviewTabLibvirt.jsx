@@ -38,7 +38,8 @@ function getBootOrder(vm) {
 
 const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
     const idPrefix = vmId(vm.name);
-    const message = (<VmLastMessage vm={vm} dispatch={dispatch} />);
+    const currentTab = 'overview';
+    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
 
     const handleOpenModal = function () {
         config.provider.openVCPUModal(

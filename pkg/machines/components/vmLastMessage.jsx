@@ -21,20 +21,22 @@ import { vmId } from '../helpers.es6';
 import { deleteVmMessage } from '../actions/store-actions.es6';
 import { Alert } from './notification/inlineNotification.jsx';
 
-const VmLastMessage = ({ vm, dispatch }) => {
-    if (!vm.lastMessage) {
+const VmLastMessage = ({ vm, dispatch, tab }) => {
+    if (!(vm.errorMessages && vm.errorMessages[tab] && vm.errorMessages[tab].lastMessage)) {
         return null;
     }
 
     const textId = `${vmId(vm.name)}-last-message`;
-    let detail = (vm.lastMessageDetail && vm.lastMessageDetail.exception) ? vm.lastMessageDetail.exception : undefined;
+    let detail = (vm.errorMessages[tab].lastMessageDetail &&
+                  vm.errorMessages[tab].lastMessageDetail.exception) ? vm.errorMessages[tab].lastMessageDetail.exception : undefined;
+
     detail = detail ? (detail.toString ? detail.toString() : detail) : undefined;
 
     const onDismiss = () => {
-        dispatch(deleteVmMessage({ name: vm.name, connectionName: vm.connectionName }));
+        dispatch(deleteVmMessage({ name: vm.name, connectionName: vm.connectionName, tab }));
     };
 
-    return (<Alert text={vm.lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
+    return (<Alert text={vm.errorMessages[tab].lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
 };
 
 export default VmLastMessage;

@@ -143,14 +143,18 @@ function vms(state, action) {
     }
     case VM_ACTION_FAILED: {
         const indexedVm = findVmToUpdate(state, action.payload);
+        let tab = action.payload.tab || 'overview';
         if (!indexedVm) { // already logged
             return state;
         }
-        const updatedVm = Object.assign(indexedVm.vmCopy, {
-            lastMessage: action.payload.message,
-            lastMessageDetail: action.payload.detail,
-        });
+        if (!indexedVm.vmCopy.errorMessages)
+            indexedVm.vmCopy.errorMessages = {};
 
+        let updatedVm = Object.assign({}, indexedVm.vmCopy);
+        updatedVm.errorMessages = Object.assign({}, indexedVm.vmCopy.errorMessages);
+        updatedVm.errorMessages[tab] = Object.assign({}, indexedVm.vmCopy.errorMessages[tab]);
+        updatedVm.errorMessages[tab].lastMessage = action.payload.message;
+        updatedVm.errorMessages[tab].lastMessageDetail = action.payload.detail;
         return replaceVm({ state, updatedVm, index: indexedVm.index });
     }
     case UNDEFINE_VM: {

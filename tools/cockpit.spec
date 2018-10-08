@@ -306,8 +306,9 @@ touch kubernetes.list
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static systemd tuned users; do
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
+    rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
-for data in applications doc locale man metainfo pixmaps; do
+for data in applications doc locale man pixmaps; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 for lib in systemd tmpfiles.d firewalld; do
@@ -319,6 +320,7 @@ done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
 rm %{buildroot}/usr/bin/cockpit-bridge %{buildroot}/usr/sbin/remotectl
 rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
+rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 %endif
 
 # when not building optional packages, remove their files
@@ -332,6 +334,8 @@ rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets %{buildroot}/%{_sysco
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -kubernetes
 rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth %{buildroot}/%{_libexecdir}/cockpit-kube-launch %{buildroot}/%{_libexecdir}/cockpit-stub
+# files from -machines
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 %endif
 
 sed -i "s|%{buildroot}||" *.list

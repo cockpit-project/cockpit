@@ -22,7 +22,6 @@
 
     var cockpit = require("cockpit");
 
-    var mustache = require("mustache");
     var service = require("service");
     var moment = require("moment");
     moment.locale(cockpit.language);
@@ -167,7 +166,7 @@
             type = _("Logical Volume (Snapshot)");
         else
             type = _("Logical Volume");
-        return mustache.render('{{Type}} "{{Name}}"', { Type: type, Name: lvol.Name });
+        return cockpit.format('$0 "$1"', type, lvol.Name);
     };
 
     utils.drive_name = function drive_name(drive) {

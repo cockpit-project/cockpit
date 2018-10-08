@@ -324,7 +324,7 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#user-group")
         b.wait_not_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "MD5 Fingerprint")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
         b.set_val('#conversation-input', 'foobar')
         b.click('#login-button')
@@ -347,16 +347,19 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#user-group")
         b.wait_not_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "MD5 Fingerprint")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
 
+        match = re.match(r'(MD5|SHA256) Fingerprint \(ssh-(.*)\):', b.text("#conversation-prompt"))
+        assert match
+        (hash_fn, algo) = match.groups()
         try:
-            algo = re.sub(r'MD5 Fingerprint \(ssh-(.*)\):', r'\1', b.text("#conversation-prompt"))
-            line = m2.execute("ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_%s_key.pub" % algo, quiet=True)
+            line = m2.execute("ssh-keygen -l -E %s -f /etc/ssh/ssh_host_%s_key.pub" % (hash_fn, algo.lower()), quiet=True)
+            # SHA256 base64 fingerprints include an "SHA256:" prefix, but MD5 hex FPs don't
             fp = line.split(" ")[1].replace('MD5:', '')
             self.assertEqual(b.val('#conversation-input'), fp)
-        # ssh-keygen doesn't support -E, just make sure we have a fp
         except subprocess.CalledProcessError:
+            # ssh-keygen doesn't support -E, just make sure we have a fp
             self.assertTrue(b.val('#conversation-input'))
 
         b.click('#login-button')
@@ -411,7 +414,7 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#user-group")
         b.wait_not_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "MD5 Fingerprint")
+        b.wait_in_text("#conversation-prompt", "Fingerprint")
         b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
         b.click('#login-button')
         b.expect_load()

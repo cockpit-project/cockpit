@@ -609,7 +609,13 @@ test_echo_large (TestCase *tc,
 
 #define MOCK_RSA_KEY "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCYzo07OA0H6f7orVun9nIVjGYrkf8AuPDScqWGzlKpAqSipoQ9oY/mwONwIOu4uhKh7FTQCq5p+NaOJ6+Q4z++xBzSOLFseKX+zyLxgNG28jnF06WSmrMsSfvPdNuZKt9rZcQFKn9fRNa8oixa+RsqEEVEvTYhGtRf7w2wsV49xIoIza/bln1ABX1YLaCByZow+dK3ZlHn/UU0r4ewpAIZhve4vCvAsMe5+6KJH8ft/OKXXQY06h6jCythLV4h18gY/sYosOa+/4XgpmBiE7fDeFRKVjP3mvkxMpxce+ckOFae2+aJu51h513S9kxY2PmKaV/JU9HBYO+yO4j+j24v"
 
+#if HAVE_DECL_SSH_PUBLICKEY_HASH_SHA256
+static const gchar MOCK_RSA_FP[] = "SHA256:XQ8a7zGxMFstDrGecBRUP9OMnOUXd/T3vkNGtYShs2w";
+#define SSH_PUBLICKEY_HASH_NAME "SHA256"
+#else
 static const gchar MOCK_RSA_FP[] = "0e:6a:c8:b1:07:72:e2:04:95:9f:0e:b3:56:af:48:e2";
+#define SSH_PUBLICKEY_HASH_NAME "MD5"
+#endif
 
 #define MOCK_DSA_PUB_KEY "ssh-dss AAAAB3NzaC1kc3MAAACBAIK3RTEWBw+rAPcYUM2Qq4kEw59gXpUQ/WvkdeY7QDO64MHaaorySj8xsraNudmQFh4xb/i5Q1EMnNchOFxtilfU5bUJgdTvetyZEWFL+2HxqBs8GaWRyB1vtSFAw3GO8VUEnjF844N3dNyLoc0NX8IvzwNIaQho6KTsueQlG1X9AAAAFQCXUl4a5UvElL4thi/8QlxR5PtEewAAAIBqNpl5MTBxKQu5jT0+WASa7pAqwT53ofv7ZTDIEokYRb57/nwzDgkcs1fsBRrI6eczJ/VlXWwKbsgkx2Nh3ZiWYwC+HY5uqRpDaj3HERC6LMn4dzdcl29fYeziEibCbRjJX5lZF2vIaA1Ewv8yT0UlunyHZRiyw4WlEglkf/NITAAAAIBxLsdBBXn+8qEYwWK9KT+arRqNXC/lrl0Fp5YyxGNGCv82JcnuOShGGTzhYf8AtTCY1u5oixiW9kea6KXGAKgTjfJShr7n47SZVfOPOrBT3VLhRdGGO3GblDUppzfL8wsEdoqXjzrJuxSdrGnkFu8S9QjkPn9dCtScvWEcluHqMw=="
 
@@ -681,7 +687,7 @@ do_hostkey_conversation (TestCase *tc,
                                  (int)tc->ssh_port, MOCK_RSA_FP,
                                  (int)tc->ssh_port, MOCK_RSA_KEY);
 
-  do_auth_conversation (tc->transport, "MD5 Fingerprint (ssh-rsa):",
+  do_auth_conversation (tc->transport, SSH_PUBLICKEY_HASH_NAME " Fingerprint (ssh-rsa):",
                         expect_json, response, add_header);
   g_free (expect_json);
 }

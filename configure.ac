@@ -132,6 +132,8 @@ if test "$enable_ssh" != "no"; then
     AC_DEFINE_UNQUOTED(HAVE_SSH_GET_SERVER_PUBLICKEY, 1, Whether ssh_get_server_publickey is available)
   ])
 
+  AC_CHECK_DECLS([SSH_PUBLICKEY_HASH_SHA256, ssh_get_fingerprint_hash], [], [], [[#include <libssh/libssh.h>]])
+
   COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"
   COCKPIT_SSH_SESSION_LIBS="$COCKPIT_LIBS $LIBSSH_LIBS $KRB5_LIBS"
   AC_SUBST(COCKPIT_SSH_SESSION_LIBS)

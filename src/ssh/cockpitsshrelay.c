@@ -52,6 +52,15 @@
 #include <fcntl.h>
 #include <time.h>
 
+/* libssh 0.8 offers SHA256 fingerprints, use them if available */
+#if HAVE_DECL_SSH_PUBLICKEY_HASH_SHA256
+#define SSH_PUBLICKEY_HASH SSH_PUBLICKEY_HASH_SHA256
+#define SSH_PUBLICKEY_HASH_NAME "SHA256"
+#else
+#define SSH_PUBLICKEY_HASH SSH_PUBLICKEY_HASH_MD5
+#define SSH_PUBLICKEY_HASH_NAME "MD5"
+#endif
+
 /* we had a private one before moving to /etc/ssh/ssh_known_hosts */
 #define LEGACY_KNOWN_HOSTS PACKAGE_LOCALSTATE_DIR "/known_hosts"
 
@@ -505,7 +514,7 @@ prompt_for_host_key (CockpitSshData *data)
 
   message = g_strdup_printf ("The authenticity of host '%s:%d' can't be established. Do you want to proceed this time?",
                              host, port);
-  prompt = g_strdup_printf ("MD5 Fingerprint (%s):", data->host_key_type);
+  prompt = g_strdup_printf (SSH_PUBLICKEY_HASH_NAME " Fingerprint (%s):", data->host_key_type);
 
   reply = prompt_with_authorize (data, prompt, message, data->host_fingerprint, data->host_key, TRUE);
 
@@ -756,7 +765,7 @@ verify_knownhost (CockpitSshData *data,
       goto done;
     }
 
-  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH_MD5, &hash, &len) < 0)
+  if (ssh_get_publickey_hash (key, SSH_PUBLICKEY_HASH, &hash, &len) < 0)
     {
       g_warning ("Couldn't hash ssh public key");
       ret = "internal-error";
@@ -764,7 +773,11 @@ verify_knownhost (CockpitSshData *data,
     }
   else
     {
+#if HAVE_DECL_SSH_GET_FINGERPRINT_HASH
+      data->host_fingerprint = ssh_get_fingerprint_hash (SSH_PUBLICKEY_HASH, hash, len);
+#else
       data->host_fingerprint = ssh_get_hexa (hash, len);
+#endif
       ssh_clean_pubkey_hash (&hash);
     }
 

@@ -111,7 +111,6 @@ json-glib \
 kexec-tools \
 atomic-openshift-clients \
 libssh \
-libvirt \
 libvirt-client \
 NetworkManager-team \
 openssl \
@@ -161,6 +160,9 @@ if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
+if [ "$IMAGE" == "rhel-7.5" ] || [ "$IMAGE" == "rhel-7.6" ] || [ "$IMAGE" == "centos-7" ]; then
+    COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
+fi
 if [ "$IMAGE" = "rhel-x" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     TEST_PACKAGES="${TEST_PACKAGES} dnf-automatic"
@@ -170,6 +172,8 @@ if [ "$IMAGE" = "rhel-x" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
     # docker is not a rhel-x thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
+    COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-daemon-kvm"
+    TEST_PACKAGES="${TEST_PACKAGES} libvirt-daemon-config-network"
 fi
 
 COCKPIT_DEPS="$COCKPIT_DEPS"

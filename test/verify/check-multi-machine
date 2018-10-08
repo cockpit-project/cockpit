@@ -109,7 +109,7 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     error = None
     while (time.time() - start_time) < timeout_sec:
         try:
-            machine.execute("true", quiet=True)
+            machine.execute("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {0} {1} 2>&1 | grep -q 'Permission denied'".format(port, address), quiet=True)
             return
         except Exception as e:
             error = e

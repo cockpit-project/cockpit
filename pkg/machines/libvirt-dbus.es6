@@ -500,52 +500,54 @@ LIBVIRT_DBUS_PROVIDER = {
         id: objPath,
         connectionName
     }) {
+        let props = {};
+        let domainXML;
+
         return dispatch => {
             call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .done(domXml => {
-                        call(connectionName, objPath, 'org.libvirt.Domain', 'GetState', [0], TIMEOUT)
-                                .done(state => {
-                                    let DOMAINSTATE = [
-                                        "no state",
-                                        "running",
-                                        "blocked",
-                                        "paused",
-                                        "shutdown",
-                                        "shut off",
-                                        "crashed",
-                                        "pmsuspended",
-                                    ];
-                                    let stateStr = DOMAINSTATE[state[0][0]];
-                                    let props = {
-                                        connectionName,
-                                        id: objPath,
-                                        state: stateStr,
-                                    };
-                                    if (!LIBVIRT_DBUS_PROVIDER.isRunning(stateStr))
-                                        props.actualTimeInMs = -1;
-
-                                    call(connectionName, objPath, "org.freedesktop.DBus.Properties", "GetAll", ["org.libvirt.Domain"], TIMEOUT)
-                                            .done(function(returnProps) {
-                                                /* Sometimes not all properties are returned, for example when some domain got deleted while part
-                                                 * of the properties got fetched from libvirt. Make sure that there is check before reading the attributes.
-                                                 */
-                                                if ("Name" in returnProps[0])
-                                                    props.name = returnProps[0].Name.v.v;
-                                                if ("Persistent" in returnProps[0])
-                                                    props.persistent = returnProps[0].Persistent.v.v;
-                                                if ("Autostart" in returnProps[0])
-                                                    props.autostart = returnProps[0].Autostart.v.v;
-
-                                                logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
-
-                                                let dumpxmlParams = parseDumpxml(dispatch, connectionName, domXml[0], objPath);
-                                                dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
-                                            })
-                                            .fail(function(ex) { console.warn("failed waiting for Domain proxy to get ready", ex) });
-                                })
-                                .fail(function(ex) { console.warn("GetState method failed for path", objPath, ex) });
+                    .then(domXml => {
+                        domainXML = domXml[0];
+                        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetState', [0], TIMEOUT);
                     })
-                    .fail(function(ex) { console.warn("GetXMLDesc method failed for path", objPath, ex) });
+                    .then(state => {
+                        let DOMAINSTATE = [
+                            "no state",
+                            "running",
+                            "blocked",
+                            "paused",
+                            "shutdown",
+                            "shut off",
+                            "crashed",
+                            "pmsuspended",
+                        ];
+                        let stateStr = DOMAINSTATE[state[0][0]];
+                        props = {
+                            connectionName,
+                            id: objPath,
+                            state: stateStr,
+                        };
+                        if (!LIBVIRT_DBUS_PROVIDER.isRunning(stateStr))
+                            props.actualTimeInMs = -1;
+
+                        return call(connectionName, objPath, "org.freedesktop.DBus.Properties", "GetAll", ["org.libvirt.Domain"], TIMEOUT);
+                    })
+                    .then(function(returnProps) {
+                        /* Sometimes not all properties are returned, for example when some domain got deleted while part
+                         * of the properties got fetched from libvirt. Make sure that there is check before reading the attributes.
+                         */
+                        if ("Name" in returnProps[0])
+                            props.name = returnProps[0].Name.v.v;
+                        if ("Persistent" in returnProps[0])
+                            props.persistent = returnProps[0].Persistent.v.v;
+                        if ("Autostart" in returnProps[0])
+                            props.autostart = returnProps[0].Autostart.v.v;
+
+                        logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
+
+                        let dumpxmlParams = parseDumpxml(dispatch, connectionName, domainXML, objPath);
+                        dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
+                    })
+                    .catch(function(ex) { console.warn("GET_VM action failed failed for path", objPath, ex) });
         };
     },
 

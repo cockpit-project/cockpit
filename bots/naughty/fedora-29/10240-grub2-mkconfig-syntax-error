@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "test/verify/check-kdump", line *, in testBasic
+    self.enableKdump()
+  File "test/verify/check-kdump", line *, in enableKdump
+    self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
+*
+subprocess.CalledProcessError: Command 'grub2-mkconfig -o /boot/grub2/grub.cfg' returned non-zero exit status 1.

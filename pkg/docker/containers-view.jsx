@@ -390,6 +390,8 @@ var ImageDetails = createReactClass({
 
         var repotags = image.RepoTags || [];
 
+        var author = (image.Labels && image.Labels.maintainer) || image.Author;
+
         return (
             <div className='listing-ct-body'>
                 <dl>
@@ -398,7 +400,7 @@ var ImageDetails = createReactClass({
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>
                     <dt>{_("Command")}</dt>    <dd>{ util.quote_cmdline(command) }</dd>
                     <dt>{_("Created")}</dt>    <dd title={ created.toLocaleString() }>{ created.calendar() }</dd>
-                    <dt>{_("Author")}</dt>     <dd>{ image.Author}</dd>
+                    <dt>{_("Author")}</dt>     <dd>{ author }</dd>
                     <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ') }</dd>
                 </dl>
             </div>

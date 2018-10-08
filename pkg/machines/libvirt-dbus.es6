@@ -508,6 +508,11 @@ LIBVIRT_DBUS_PROVIDER = {
             call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
                     .then(domXml => {
                         domainXML = domXml[0];
+                        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [Enum.VIR_DOMAIN_XML_INACTIVE], TIMEOUT);
+                    })
+                    .then(domInactiveXml => {
+                        let dumpInactiveXmlParams = parseDumpxml(dispatch, connectionName, domInactiveXml[0], objPath);
+                        props.inactiveXML = dumpInactiveXmlParams;
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'GetState', [0], TIMEOUT);
                     })
                     .then(state => {
@@ -522,11 +527,12 @@ LIBVIRT_DBUS_PROVIDER = {
                             "pmsuspended",
                         ];
                         let stateStr = DOMAINSTATE[state[0][0]];
-                        props = {
+                        props = Object.assign(props, {
                             connectionName,
                             id: objPath,
                             state: stateStr,
-                        };
+                        });
+
                         if (!LIBVIRT_DBUS_PROVIDER.isRunning(stateStr))
                             props.actualTimeInMs = -1;
 

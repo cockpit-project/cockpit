@@ -834,6 +834,9 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1571377
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { .* } for .* path="/dev/random" .*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* name="random" .*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="sshd" name="motd".*')
 
         if self.image == 'rhel-x':
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820

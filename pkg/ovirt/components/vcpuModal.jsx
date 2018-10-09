@@ -63,7 +63,7 @@ class VCPUModalBody extends React.Component {
                             <InfoRecord descr={_("Cores per socket")} value={
                                 <input id='coresInput' value={this.state.cores.toString()} onChange={this.handleChange("cores")} disabled={this.props.isRunning} />
                             } />
-                            <InfoRecord descr={_("Threads per cores")} value={
+                            <InfoRecord descr={_("Threads per core")} value={
                                 <input id='threadsInput' value={this.state.threads.toString()} onChange={this.handleChange("threads")} disabled={this.props.isRunning} />
                             } />
                         </table>

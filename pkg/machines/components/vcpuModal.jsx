@@ -187,7 +187,7 @@ class VCPUModalBody extends React.Component {
                             <InfoRecord descr={_("Cores per socket")} value={
                                 <Select id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
                             } />
-                            <InfoRecord descr={_("Threads per cores")} value={
+                            <InfoRecord descr={_("Threads per core")} value={
                                 <Select id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
                             } />
                         </table>

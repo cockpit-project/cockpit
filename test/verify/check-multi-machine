@@ -260,27 +260,6 @@ class TestMultiMachine(MachineCase):
             b.wait_not_present("a[href='/dashboard']")
         b.logout()
 
-        # Falls back to legacy /var/lib/cockpit/known_hosts
-        m.execute("mkdir -p /var/lib/cockpit; mv /etc/ssh/ssh_known_hosts /var/lib/cockpit/known_hosts")
-        b.open("{0}=10.111.113.2".format(root))
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
-        b.click('#login-button')
-        b.expect_load()
-        b.logout()
-
-        # /etc/ssh/ssh_known_hosts trumps legacy /var/lib/cockpit/known_hosts; break key in the latter
-        m.execute("cp /var/lib/cockpit/known_hosts /etc/ssh/ssh_known_hosts; sed -i 's/AAA/BBB/' /var/lib/cockpit/known_hosts")
-        b.open("{0}=10.111.113.2".format(root))
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
-        b.click('#login-button')
-        b.expect_load()
-        b.logout()
-        m.execute("rm /var/lib/cockpit/known_hosts")
-
         # Bad host key
         m.execute("echo '10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts")
         b.open("{0}=10.111.113.2".format(root))

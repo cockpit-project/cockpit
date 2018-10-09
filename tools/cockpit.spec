@@ -52,7 +52,7 @@
 
 # on RHEL 7.x we build subscriptions; superseded later by
 # external subscription-manager-cockpit
-%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
+%if (0%{?rhel} >= 7 && 0%{?rhel} < 8) && 0%{?centos} == 0
 %define build_subscriptions 1
 %endif
 
@@ -140,7 +140,7 @@ Recommends: (cockpit-docker if /usr/bin/docker)
 Recommends: (cockpit-networkmanager if NetworkManager)
 Recommends: (cockpit-storaged if udisks2)
 Recommends: cockpit-packagekit
-%if 0%{?rhel} >= 8
+%if 0%{?rhel} >= 8 && 0%{?centos} == 0
 Recommends: subscription-manager-cockpit
 %endif
 Suggests: cockpit-pcp

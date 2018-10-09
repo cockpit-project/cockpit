@@ -160,7 +160,7 @@ if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
-if [ "$IMAGE" == "rhel-7.5" ] || [ "$IMAGE" == "rhel-7.6" ] || [ "$IMAGE" == "centos-7" ]; then
+if [ "$IMAGE" == "rhel-7-5" ] || [ "$IMAGE" == "rhel-7-6" ] || [ "$IMAGE" == "centos-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
 fi
 if [ "$IMAGE" = "rhel-x" ]; then

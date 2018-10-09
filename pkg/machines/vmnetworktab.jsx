@@ -64,7 +64,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
     </table>);
 
     // Network data mapping to rows
-    let detailMap = [
+    const detailMap = [
         { name: _("Type"), value: (network, networkId) => <div id={`${id}-network-${networkId}-type`}>{rephraseUI('networkType', network.type)}</div>, header: true },
         { name: _("Model type"), value: 'model' },
         { name: _("MAC Address"), value: 'mac' },

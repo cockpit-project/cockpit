@@ -828,25 +828,12 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
 
         if self.image in ['fedora-29']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1608030
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .* comm="ebtables".*firewalld_t.*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1571377
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { .* } for .* path="/dev/random" .*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* name="random" .*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="sshd" name="motd".*')
 
         if self.image == 'rhel-x':
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1559820
-            # this affects every boot (so naughty override causes too much spamming)
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for  pid=1 comm="systemd" name="bpf".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1573501
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { create } for .*comm="nft" .*firewalld_t.*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1571377
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { .* } for .* path="/dev/random" .*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* name="random" .*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="sshd" name="motd".*')

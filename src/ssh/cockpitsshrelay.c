@@ -61,9 +61,6 @@
 #define SSH_PUBLICKEY_HASH_NAME "MD5"
 #endif
 
-/* we had a private one before moving to /etc/ssh/ssh_known_hosts */
-#define LEGACY_KNOWN_HOSTS PACKAGE_LOCALSTATE_DIR "/known_hosts"
-
 typedef struct {
   const gchar *logname;
   gchar *initial_auth_data;
@@ -626,21 +623,6 @@ set_knownhosts_file (CockpitSshData *data,
 
   /* first check the default global ssh file */
   host_known = cockpit_is_host_known (data->ssh_options->knownhosts_file, host, port);
-
-  /* if we check the default system known hosts file (i. e. not during the test suite), also check
-   * the legacy file in /var/lib/cockpit */
-  if (!host_known && strcmp (data->ssh_options->knownhosts_file, cockpit_get_default_knownhosts ()) == 0)
-    {
-      host_known = cockpit_is_host_known (LEGACY_KNOWN_HOSTS, host, port);
-      if (host_known)
-        {
-          g_debug ("%s: not known in %s but in legacy file %s",
-                   data->logname,
-                   data->ssh_options->knownhosts_file,
-                   LEGACY_KNOWN_HOSTS);
-          data->ssh_options->knownhosts_file = LEGACY_KNOWN_HOSTS;
-        }
-    }
 
   /* check ~/.ssh/known_hosts, unless we are running as a system user ($HOME == "/"); this is not
    * a security check (if one can write /.ssh/known_hosts then we have to trust them), just caution */

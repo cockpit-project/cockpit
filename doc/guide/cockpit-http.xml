@@ -19,7 +19,9 @@ http = cockpit.http(options)
 </programlisting>
 
     <para>Create a new HTTP client. The <code>endpoint</code> can be a file path starting with
-      <code>/</code> to connect to a unix socket, or it can be a port number to connect to.</para>
+      <code>/</code> to connect to a unix socket, or it can be a port number to connect to.
+      The optional <code>options</code> argument is a javascript plain object, and may
+      include:</para>
 
     <variablelist>
       <varlistentry>
@@ -33,6 +35,14 @@ http = cockpit.http(options)
         <listitem><para>A connection identifier. Subsequent channel requests with the same
           identifier will try to use the same connection if it is still open.</para></listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><code>"headers"</code></term>
+        <listitem><para>Additional HTTP headers to include with the HTTP request. This is a plain
+          javascript object with each key as a header name, and each value as the header
+          value.</para></listitem>
+      </varlistentry>
+
       <varlistentry>
         <term><code>"superuser"</code></term>
         <listitem><para>Set to <code>"require"</code> to open this channel as root. If the
@@ -43,7 +53,60 @@ http = cockpit.http(options)
         <para>Set to <code>"try"</code> to try to make the request as root, but if that fails,
           fall back to perform an unprivileged request.</para></listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term><code>"tls"</code></term>
+        <listitem>
+          <para>If set to a plain javascript object, then the connection will be an HTTPS
+            connection and include TLS encryption. The fields of the <code>tls</code> object
+            declare various TLS configuration and data. All fields are optional:</para>
+          <itemizedlist>
+            <listitem><para><code>"authority"</code>: Certificate authority(s) to expect as signers
+              of the server's TLS certificate, represented as a plain javascript object.
+              It should have either a <code>"file"</code> field containing a
+              readable PEM file on the system containing authorities, or a <code>"data"</code> with
+              PEM encoded certificate data.</para></listitem>
+            <listitem><para><code>"certificate"</code>: A client certificate to use, represented as
+              a plain javascript object. It should have either a <code>"file"</code> field containing a
+              readable PEM file on the system to use as a certificate, or a <code>"data"</code> with
+              PEM encoded certificate data.</para></listitem>
+            <listitem><para><code>"key"</code>: A client key to use, represented as
+              a plain javascript object. It should have either a <code>"file"</code> field containing a
+              readable PEM file on the system to use as a key, or a <code>"data"</code> with
+              PEM encoded key data.</para></listitem>
+            <listitem><para><code>"validate"</code>: A boolean that describes whether to validate
+              the server's TLS certificate or not. By default local connections are not validated,
+              and remote connections are validated.</para></listitem>
+          </itemizedlist>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
+
+    <para>Here is a somewhat complex example of using most of the above <code>options</code> when
+      when calling <code>cockpit.http()</code>:</para>
+
+<programlisting>
+http = cockpit.http({
+    "address": "localhost",
+    "headers": {
+        "Authorization": "Basic dXNlcjpwYXNzd29yZA=="
+    },
+    "port": 443,
+    "tls": {
+        "validate": true,
+        "authority": {
+            "file": "/etc/pki/tls/certs/ca-bundle.crt",
+        },
+        "certificate": {
+            "data": "-----BEGIN CERTIFICATE-----\nMIIDsDCCA..."
+        },
+        "key": {
+            "data": "-----BEGIN RSA PRIVATE KEY-----\nMIIEogIBA..."
+        }
+    }
+});
+</programlisting>
 
   </refsection>
 

@@ -9,3 +9,7 @@ rpm --erase --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
 
 # HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1624862
 rm /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-AUX-2018
+
+# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1637875: net.ifnames=0 is ignored
+touch /etc/udev/rules.d/80-net-setup-link.rules
+dracut --force

@@ -19,8 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
-import time
 import unittest
 
 from kubelib import *
@@ -37,23 +35,6 @@ def wait_healthz(openshift):
     healthz = "curl -sk --stderr - https://localhost:8443/healthz/ready || true"
     wait(lambda: "ok" == openshift.execute(healthz), delay=5, tries=150)
 
-def wait_project(machine, project):
-    i = 0
-    found = True
-    while True:
-        try:
-            output = machine.execute("oc get projects")
-            if project not in output:
-                if not found:
-                    sys.stderr.write(output)
-                found = True
-                raise Exception(output)
-            break
-        except:
-            if i > 60:
-                raise
-            i = i + 1
-            time.sleep(2)
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "rhel-x", "fedora-30")
@@ -77,7 +58,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.execute("chown -R admin:admin /home/admin/.kube")
 
         wait_healthz(self.openshift)
-        wait_project(self.openshift, "marmalade")
+        wait(lambda: "marmalade" in self.openshift.execute("oc get projects"), delay=5)
 
         self.openshift.execute("oc project default")
 
@@ -424,7 +405,7 @@ class TestRegistry(MachineCase, RegistryTests):
         with open(tmpfile, "r") as f:
             self.machine.execute("mkdir -p /home/admin/.kube && cat > /home/admin/.kube/config", input=f.read())
         wait_healthz(self.openshift)
-        wait_project(self.openshift, "marmalade")
+        wait(lambda: "marmalade" in self.openshift.execute("oc get projects"), delay=5)
         self.openshift.execute("oc project default")
 
         self.browser.wait_timeout(120)

@@ -685,11 +685,9 @@ Requires: libvirt
 Requires: (libvirt-daemon-kvm or libvirt)
 %endif
 Requires: libvirt-client
-%if 0%{?fedora}
-Requires: libvirt-dbus
-%endif
-# Optional components
 %if 0%{?fedora} || 0%{?rhel} >= 8
+Requires: libvirt-dbus >= 1.2.0
+# Optional components
 Recommends: virt-install
 %endif
 

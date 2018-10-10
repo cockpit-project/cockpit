@@ -373,7 +373,7 @@ function UpdatesList(props) {
                     <th>{_("Details")}</th>
                 </tr>
             </thead>
-            { updates.map(id => <UpdateItem pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }
+            { updates.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }
         </table>
     );
 }

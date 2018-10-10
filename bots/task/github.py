@@ -167,7 +167,7 @@ class GitHub(object):
             "data": response.read().decode('utf-8')
         }
 
-    def get(self, resource):
+    def get(self, resource, verbose = True):
         headers = { }
         qualified = self.qualify(resource)
         cached = self.cache.read(qualified)
@@ -187,7 +187,8 @@ class GitHub(object):
             self.cache.write(qualified, cached)
             return json.loads(cached['data'] or "null")
         elif response['status'] < 200 or response['status'] >= 300:
-            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
+            if verbose:
+                sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
             raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or response['status']))
         else:
             self.cache.write(qualified, response)

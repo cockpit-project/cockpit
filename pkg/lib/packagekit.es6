@@ -323,7 +323,7 @@ export function watchRedHatSubscription(callback) {
             .done(result => callback(validSubscriptionStates.indexOf(result[0]) >= 0))
             .fail(ex => {
                 if (ex.problem != "not-found")
-                    console.warn("Failed to query RHEL subscription status:", ex);
+                    console.warn("Failed to query RHEL subscription status:", JSON.stringify(ex));
             }
             );
 }

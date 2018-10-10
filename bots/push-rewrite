@@ -15,6 +15,7 @@
 import subprocess
 import argparse
 import sys
+import time
 
 from task import github
 
@@ -54,6 +55,16 @@ def main():
     old_statuses = api.statuses(remote)
 
     git("push", "--force-with-lease=" + opts.branch + ":" + remote, opts.remote, opts.branch + ":" + opts.branch)
+
+    for n in range(100,0,-1):
+        try:
+            if api.get("commits/%s" % local, verbose=False):
+                break
+        except RuntimeError as e:
+            if not "Unprocessable Entity" in str(e) or n <= 1:
+                raise
+            print("(new commits not yet in the GiHub API...please stand by. *beep*)")
+        time.sleep(1)
 
     for key in old_statuses:
         if old_statuses[key]["state"] != "pending":

@@ -97,7 +97,7 @@ class NetworkCase(MachineCase):
 
     def iface_con_id(self, iface):
         con_id = self.machine.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
-        if con_id == "--":
+        if con_id == "" or con_id == "--":
             return None
         else:
             return con_id

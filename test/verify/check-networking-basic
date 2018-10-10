@@ -55,7 +55,7 @@ class TestNetworking(NetworkCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("#network-interface .panel:contains('%s')" % iface, "1.2.3.4/18")
 
-        con_id = self.iface_con_id(iface)
+        con_id = wait(lambda: self.iface_con_id(iface))
 
         # Disconnect
         #

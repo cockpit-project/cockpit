@@ -214,10 +214,14 @@ def finish(publishing, ret, name, context, issue):
         checklist.check(item, ret and "FAIL" or True)
 
         number = issue["number"]
+
+        # The sink wants us to escape colons :S
+        body = checklist.body.replace(':', '::')
+
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
-            "data": { "title": issue["title"], "body": checklist.body }
+            "data": { "title": issue["title"], "body": body }
         } ]
 
         # Close the issue if it's not a pull request, successful, and all tasks done

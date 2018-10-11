@@ -262,6 +262,8 @@ setup (TestCase *tc,
   tc->home_dir = g_dir_make_tmp ("home.XXXXXX", NULL);
   g_assert (tc->home_dir != NULL);
   env = g_environ_setenv (env, "HOME", tc->home_dir, TRUE);
+  /* use preload library to bend getpwuid_r home dir to the temporary one */
+  env = g_environ_setenv (env, "LD_PRELOAD", BUILDDIR "/libpreload-temp-home.so", TRUE);
 
   if (fixture && fixture->knownhosts_home)
     {

@@ -247,6 +247,15 @@ nodist_noinst_SCRIPTS += \
 	src/common/mock-locale/zh_CN/LC_MESSAGES/test.mo \
 	$(NULL)
 
+# preload wrapper library for unit tests that need a temp home dir
+# we don't use libtool, so build this manually
+nodist_noinst_DATA += libpreload-temp-home.so
+EXTRA_DIST += src/common/preload-temp-home.c
+
+libpreload-temp-home.so: src/common/preload-temp-home.c
+	$(AM_V_CCLD) $(CC) $(CFLAGS) -fPIC -shared -o $@ $^
+
 CLEANFILES += \
 	$(test_locale_MO) \
+	libpreload-temp-home.so \
 	$(NULL)

@@ -161,6 +161,7 @@ class TestAccounts(MachineCase):
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
+        self.allow_journal_messages("passwd: user.*does not exist")
 
     def accountExpiryInfo(self, account, field):
         for line in self.machine.execute("LC_ALL=C chage -l {0}".format(account)).split("\n"):

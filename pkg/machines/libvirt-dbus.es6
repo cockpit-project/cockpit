@@ -162,18 +162,8 @@ LIBVIRT_DBUS_PROVIDER = {
 
         let xmlDesc = getDiskXML(diskFileName, target);
 
-        return dispatch => {
-            call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT)
-                    .fail(exception => {
-                        console.error("ATTACH_DISK failed for diskFileName", diskFileName, JSON.stringify(exception));
-                        dispatch(vmActionFailed({
-                            name: vmName,
-                            connectionName,
-                            message: _("VM ATTACH_DISK action failed"),
-                            detail: { exception }
-                        }));
-                    });
-        };
+        // Error handling is done from the calling side
+        return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
     },
 
     CHANGE_NETWORK_STATE({

@@ -52,7 +52,7 @@ unit-tests-container:
 	sudo docker tag  cockpit/unit-tests:i386 docker.io/cockpit/unit-tests:i386
 
 unit-tests-container-run:
-	sudo docker run -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests
+	sudo docker run --shm-size=512M -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests
 
 unit-tests-container-shell:
-	sudo docker run -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests /bin/bash
+	sudo docker run --shm-size=512M -ti --rm -v $(abs_srcdir):/source:ro cockpit/unit-tests /bin/bash

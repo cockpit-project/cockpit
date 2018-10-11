@@ -26,7 +26,7 @@ Tests in that container for the default configuration get started with
 
 or equivalently with
 
-    $ sudo docker run -ti --volume `pwd`:/source:ro cockpit/unit-tests
+    $ sudo docker run --shm-size=512M -ti --volume `pwd`:/source:ro cockpit/unit-tests
 
 You can pass `--env=CC=clang` to build with Clang instead of gcc, or run
 `cockpit/unit-tests:i386` to run on a 32 bit architecture.

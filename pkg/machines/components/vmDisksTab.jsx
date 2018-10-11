@@ -24,6 +24,7 @@ import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
 import RemoveDiskAction from './diskRemove.jsx';
+import VmLastMessage from './vmLastMessage.jsx';
 
 const _ = cockpit.gettext;
 
@@ -59,6 +60,8 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
     let notification = null;
     const columnTitles = [_("Device"), _("Target")];
     let renderCapacityUsed, renderReadOnly;
+    const currentTab = 'disk';
+    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
 
     if (disks && disks.length > 0) {
         renderCapacityUsed = !!disks.find(disk => (!!disk.used));
@@ -85,6 +88,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
     return (
         <div>
             {notification}
+            {message}
             <Listing columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;

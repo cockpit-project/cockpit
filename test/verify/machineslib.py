@@ -1479,7 +1479,9 @@ class TestMachines(MachineCase):
             b = self.browser
             vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
-            b.wait_present(vm_delete_button)
+            # Wait for the VM to get out from `in transition` state
+            with self.browser.wait_timeout(20):
+                b.wait_present(vm_delete_button)
             b.click(vm_delete_button)
             b.wait_present("#cockpit_modal_dialog")
             b.click("#cockpit_modal_dialog button:contains(Delete)")

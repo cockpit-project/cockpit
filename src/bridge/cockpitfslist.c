@@ -101,7 +101,7 @@ on_files_listed (GObject *source_object,
           cockpit_channel_close (COCKPIT_CHANNEL (self), "internal-error");
         }
       g_clear_error (&error);
-      return;
+      goto out;
     }
 
   CockpitFslist *self = COCKPIT_FSLIST (user_data);
@@ -118,7 +118,7 @@ on_files_listed (GObject *source_object,
           cockpit_channel_control (COCKPIT_CHANNEL (self), "done", NULL);
           cockpit_channel_close (COCKPIT_CHANNEL (self), NULL);
         }
-      return;
+      goto out;
     }
 
   for (GList *l = files; l; l = l->next)
@@ -146,7 +146,9 @@ on_files_listed (GObject *source_object,
                                       G_PRIORITY_DEFAULT,
                                       self->cancellable,
                                       on_files_listed,
-                                      self);
+                                      g_object_ref (self));
+out:
+  g_object_unref (user_data);
 }
 
 static void
@@ -175,7 +177,7 @@ on_enumerator_ready (GObject *source_object,
           cockpit_channel_close (COCKPIT_CHANNEL (self), problem ? problem : "internal-error");
         }
       g_clear_error (&error);
-      return;
+      goto out;
     }
 
   CockpitFslist *self = COCKPIT_FSLIST (user_data);
@@ -185,7 +187,9 @@ on_enumerator_ready (GObject *source_object,
                                       G_PRIORITY_DEFAULT,
                                       self->cancellable,
                                       on_files_listed,
-                                      self);
+                                      g_object_ref (self));
+out:
+  g_object_unref (user_data);
 }
 
 static void
@@ -251,7 +255,7 @@ cockpit_fslist_prepare (CockpitChannel *channel)
                                    G_PRIORITY_DEFAULT,
                                    self->cancellable,
                                    on_enumerator_ready,
-                                   self);
+                                   g_object_ref (self));
 out:
   g_clear_error (&error);
   if (file)

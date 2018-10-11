@@ -396,7 +396,9 @@ def logs(revision):
             # not entire test suite statuses
             if status["state"] in [ "pending" ]:
                 continue
-            target = status["target_url"]
+            target = status.get("target_url")
+            if not target:
+                continue
             if target.endswith(".html"):
                 target = target[:-5]
             if target in SEEDED:

@@ -93,16 +93,21 @@ def main():
 
     for result in scan(opts.verbose):
         if not kvm and contains_any(result, KVM_TASKS):
+            sys.stderr.write("issue-scan: skipping (no kvm): {0}\n".format(result))
             continue
         elif not redhat and contains_any(result, REDHAT_TASKS):
+            sys.stderr.write("issue-scan: skipping (outside redhat): {0}\n".format(result))
             continue
         elif contains_any(result, WINDOWS_TASKS):
+            sys.stderr.write("issue-scan: skipping (windows task): {0}\n".format(result))
             continue
         elif contains_any(result, KUBERNETES_TASKS):
             if not namespace:
+                sys.stderr.write("issue-scan: skipping (not in kubernetes): {0}\n".format(result))
                 continue
             url = namespace + KUBERNETES_TASKS[0]
             if url not in result:
+                sys.stderr.write("issue-scan: skipping (not same namespace): {0}\n".format(result))
                 continue
         sys.stdout.write(result + "\n")
 

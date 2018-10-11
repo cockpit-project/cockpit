@@ -216,45 +216,16 @@ LIBVIRT_DBUS_PROVIDER = {
     }) {
         let volXmlDesc = getVolumeXML(volumeName, size, format, target);
 
-        return dispatch => {
-            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
-                    .done((storagePoolPath) => {
-                        call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT)
-                                .done((storageVolumePath) => {
-                                    call(connectionName, storageVolumePath[0], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.StorageVol", "Path"], TIMEOUT)
-                                            .done((volPath) => {
-                                                return dispatch(attachDisk({ connectionName, diskFileName: volPath[0].v, target, vmId, permanent, hotplug }))
-                                                        .then(() => {
-                                                            // force reload of VM data, events are not reliable (i.e. for a down VM)
-                                                            dispatch(getVm({connectionName, id:vmId}));
-                                                        }, (exception) => dispatch(vmActionFailed({
-                                                            name: vmName,
-                                                            connectionName,
-                                                            message: _("CREATE_AND_ATTACH_VOLUME action failed"),
-                                                            detail: {exception}
-                                                        })));
-                                            })
-                                            .fail(exception => dispatch(vmActionFailed({
-                                                name: vmName,
-                                                connectionName,
-                                                message: _("CREATE_AND_ATTACH_VOLUME action failed"),
-                                                detail: {exception}
-                                            })));
-                                })
-                                .fail(exception => dispatch(vmActionFailed({
-                                    name: vmName,
-                                    connectionName,
-                                    message: _("CREATE_AND_ATTACH_VOLUME action failed"),
-                                    detail: {exception}
-                                })));
-                    })
-                    .fail(exception => dispatch(vmActionFailed({
-                        name: vmName,
-                        connectionName,
-                        message: _("CREATE_AND_ATTACH_VOLUME action failed"),
-                        detail: {exception}
-                    })));
-        };
+        return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
+                .then((storagePoolPath) => {
+                    return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT);
+                })
+                .then((storageVolumePath) => {
+                    return call(connectionName, storageVolumePath[0], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.StorageVol", "Path"], TIMEOUT);
+                })
+                .then((volPath) => {
+                    return dispatch(attachDisk({ connectionName, diskFileName: volPath[0].v, target, vmId, permanent, hotplug }));
+                });
     },
 
     DELETE_VM({

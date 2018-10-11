@@ -1305,7 +1305,8 @@ class TestMachines(MachineCase):
 
                 if "CPU is incompatible with host CPU" not in error_message and \
                                 "unsupported configuration: CPU mode" not in error_message and \
-                                "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
+                                "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" and \
+                                "Domain installation does not appear to have been successful" not in error_message:
                     raise original_exception
 
             b.click(".modal-footer button:contains(Create)")

@@ -593,7 +593,12 @@ prepend_host_port (const gchar *host,
   GString *result = g_string_new (NULL);
 
   for (line = lines; *line; ++line)
-    g_string_append_printf (result, "[%s]:%d %s\n", host, port, *line);
+    {
+      if (port == 22)
+        g_string_append_printf (result, "%s %s\n", host, *line);
+      else
+        g_string_append_printf (result, "[%s]:%d %s\n", host, port, *line);
+    }
 
   g_strfreev (lines);
   return g_string_free (result, FALSE);

@@ -151,7 +151,7 @@ LIBVIRT_PROVIDER = {
      * @param VM name
      * @returns {Function}
      */
-    GET_VM ({ name, connectionName }) {
+    GET_VM ({ name, connectionName, updateOnly }) {
         logDebug(`${this.name}.GET_VM()`);
         let xmlDesc;
 
@@ -165,9 +165,14 @@ LIBVIRT_PROVIDER = {
                             let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
                             let domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
 
-                            dispatch(updateOrAddVm(
-                                Object.assign({}, dumpxmlParams, domInfoParams)
-                            ));
+                            if (updateOnly)
+                                dispatch(updateVm(
+                                    Object.assign({}, dumpxmlParams, domInfoParams)
+                                ));
+                            else
+                                dispatch(updateOrAddVm(
+                                    Object.assign({}, dumpxmlParams, domInfoParams)
+                                ));
                         }); // end of GET_VM return
             }
         };
@@ -627,7 +632,7 @@ function handleEvent(dispatch, connectionName, line) {
 
         case 'Stopped':
             // there might be changes between live and permanent domain definition, so full reload
-            dispatch(getVm({connectionName, name}));
+            dispatch(getVm({connectionName, name, updateOnly: true}));
 
             // transient VMs don't have a separate Undefined event, so remove them on stop
             dispatch(undefineVm({connectionName, name, transientOnly: true}));

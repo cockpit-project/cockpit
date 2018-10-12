@@ -498,7 +498,8 @@ LIBVIRT_DBUS_PROVIDER = {
      */
     GET_VM({
         id: objPath,
-        connectionName
+        connectionName,
+        updateOnly,
     }) {
         let props = {};
         let domainXML;
@@ -545,7 +546,10 @@ LIBVIRT_DBUS_PROVIDER = {
                         logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
 
                         let dumpxmlParams = parseDumpxml(dispatch, connectionName, domainXML, objPath);
-                        dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
+                        if (updateOnly)
+                            dispatch(updateVm(Object.assign({}, props, dumpxmlParams)));
+                        else
+                            dispatch(updateOrAddVm(Object.assign({}, props, dumpxmlParams)));
                     })
                     .catch(function(ex) { console.warn("GET_VM action failed failed for path", objPath, ex) });
         };
@@ -848,7 +852,8 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
             case domainEvent["Stopped"]:
                 dispatch(getVm({
                     connectionName,
-                    id: objPath
+                    id: objPath,
+                    updateOnly: true,
                 }));
                 // transient VMs don't have a separate Undefined event, so remove them on stop
                 dispatch(undefineVm({connectionName, id: objPath, transientOnly: true}));

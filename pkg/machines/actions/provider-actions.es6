@@ -126,11 +126,12 @@ export function getStorageVolumes(connectionName, poolName) {
     return virt(GET_STORAGE_VOLUMES, { connectionName, poolName });
 }
 
-export function getVm({connectionName, name, id}) {
+export function getVm({connectionName, name, id, updateOnly = false}) {
     return virt(GET_VM, {
         connectionName,
         name,
-        id
+        id,
+        updateOnly,
     });
 }
 

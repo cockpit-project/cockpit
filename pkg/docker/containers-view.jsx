@@ -20,7 +20,6 @@
 'use strict';
 
 var React = require('react');
-var createReactClass = require('create-react-class');
 
 var cockpit = require('cockpit');
 var _ = cockpit.gettext;
@@ -37,23 +36,22 @@ var moment = require('moment');
 
 moment.locale(cockpit.language);
 
-var Dropdown = createReactClass({
-    getDefaultProps: function () {
-        return {
-            actions: [ { label: '' } ]
-        };
-    },
+class Dropdown extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
 
-    handleClick: function (event) {
+    handleClick(event) {
         if (event.button !== 0)
             return;
 
         var action = this.props.actions[event.currentTarget.getAttribute('data-value')];
         if (!action.disabled && action.onActivate)
             action.onActivate();
-    },
+    }
 
-    render: function () {
+    render() {
         return (
             <div className="btn-group">
                 <button className="btn btn-default" type="button" data-value="0" onClick={this.handleClick}>
@@ -76,30 +74,37 @@ var Dropdown = createReactClass({
             </div>
         );
     }
-});
+}
+Dropdown.defaultProps = {
+    actions: [ { label: '' } ]
+};
 
-var ContainerHeader = createReactClass({
-    getInitialState: function () {
-        return {
+class ContainerHeader extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             filter: 'running',
             filterText: ''
         };
-    },
+        this.filterChanged = this.filterChanged.bind(this);
+        this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
+    }
 
-    filterChanged: function () {
+    filterChanged() {
         if (this.props.onFilterChanged)
             this.props.onFilterChanged(this.state.filter, this.state.filterText);
-    },
+    }
 
-    handleFilterChange: function (value) {
+    handleFilterChange(value) {
         this.setState({ filter: value }, this.filterChanged);
-    },
+    }
 
-    handleFilterTextChange: function () {
+    handleFilterTextChange() {
         this.setState({ filterText: this.refs.filterTextInput.value }, this.filterChanged);
-    },
+    }
 
-    render: function () {
+    render() {
         return (
             <div>
                 <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
@@ -115,10 +120,10 @@ var ContainerHeader = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ContainerDetails = createReactClass({
-    render: function () {
+class ContainerDetails extends React.Component {
+    render() {
         var container = this.props.container;
         return (
             <div className='listing-ct-body'>
@@ -133,14 +138,19 @@ var ContainerDetails = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ContainerProblems = createReactClass({
-    onItemClick: function (event) {
+class ContainerProblems extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onItemClick = this.onItemClick.bind(this);
+    }
+
+    onItemClick(event) {
         cockpit.jump(event.currentTarget.dataset.url, cockpit.transport.host);
-    },
+    }
 
-    render: function () {
+    render() {
         var problem = this.props.problem;
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
@@ -156,41 +166,37 @@ var ContainerProblems = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ContainerList = createReactClass({
-    getDefaultProps: function () {
-        return {
-            client: {},
-            onlyShowRunning: true,
-            filterText: ''
-        };
-    },
-
-    getInitialState: function () {
-        return {
+class ContainerList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             containers: [],
             problems: {}
         };
-    },
+        this.containersChanged = this.containersChanged.bind(this);
+        this.setNewProblem = this.setNewProblem.bind(this);
+        this.newProblemOccurred = this.newProblemOccurred.bind(this);
+    }
 
-    navigateToContainer: function (container) {
+    navigateToContainer(container) {
         cockpit.location.go([ container.Id ]);
-    },
+    }
 
-    startContainer: function (container) {
+    startContainer(container) {
         this.props.client.start(container.Id).fail(util.show_unexpected_error);
-    },
+    }
 
-    stopContainer: function (container) {
+    stopContainer(container) {
         this.props.client.stop(container.Id).fail(util.show_unexpected_error);
-    },
+    }
 
-    restartContainer: function (container) {
+    restartContainer(container) {
         this.props.client.restart(container.Id).fail(util.show_unexpected_error);
-    },
+    }
 
-    deleteContainer: function (container, event) {
+    deleteContainer(container, event) {
         if (event.button !== 0)
             return;
 
@@ -201,9 +207,9 @@ var ContainerList = createReactClass({
                     util.docker_container_delete(this.props.client, container.Id,
                                                  function() { }, function () { });
                 }.bind(this));
-    },
+    }
 
-    containersChanged: function () {
+    containersChanged() {
         var containers = Object.keys(this.props.client.containers).map(function (id) {
             return this.props.client.containers[id];
         }.bind(this));
@@ -213,9 +219,9 @@ var ContainerList = createReactClass({
         });
 
         this.setState({ containers: containers });
-    },
+    }
 
-    setNewProblem: function (c_id, url, message) {
+    setNewProblem(c_id, url, message) {
         /* New problem is always displayed, no matter if the same problem is
          * already shown. It is because user may be interested into dynamic
          * watching of the problems occurring. After refreshing the site, only
@@ -227,13 +233,13 @@ var ContainerList = createReactClass({
         else
             known_problems[c_id] = [[url, message]];
         this.setState({ problems: known_problems });
-    },
+    }
 
-    newProblemOccurred: function (event, problem_path) {
+    newProblemOccurred(event, problem_path) {
         util.find_container_log(this.problems_client, problem_path, this.setNewProblem);
-    },
+    }
 
-    componentDidMount: function () {
+    componentDidMount() {
         var self = this;
         this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
         this.service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
@@ -252,16 +258,16 @@ var ContainerList = createReactClass({
         this.service.addEventListener("Crash", this.newProblemOccurred);
 
         util.find_all_problems(this.problems, this.problems_client, this.service, self.setNewProblem);
-    },
+    }
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
         $(this.props.client).off('container.containers', this.containersChanged);
         $(this.props.client).off('container.container-details', this.containersChanged);
         this.service.removeEventListener("Crash", this.newProblemOccurred);
         this.problems_client.close();
-    },
+    }
 
-    render: function () {
+    render() {
         var filtered = this.state.containers.filter(function (container) {
             if (this.props.onlyShowRunning && !container.State.Running)
                 return false;
@@ -372,10 +378,15 @@ var ContainerList = createReactClass({
             </Listing.Listing>
         );
     }
-});
+}
+ContainerList.defaultProps = {
+    client: {},
+    onlyShowRunning: true,
+    filterText: ''
+};
 
-var ImageDetails = createReactClass({
-    render: function () {
+class ImageDetails extends React.Component {
+    render() {
         var image = this.props.image;
         var created = moment.unix(image.Created);
         var entrypoint = '';
@@ -406,10 +417,10 @@ var ImageDetails = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ImageSecurity = createReactClass({
-    render: function () {
+class ImageSecurity extends React.Component {
+    render() {
         var info = this.props.info;
         var text, rows;
         var args = {
@@ -448,28 +459,30 @@ var ImageSecurity = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ImageInline = createReactClass({
-    getInitialState: function () {
-        return {
+class ImageInline extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             vulnerableInfos: {}
         };
-    },
+        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
+    }
 
-    vulnerableInfoChanged: function(event, infos) {
+    vulnerableInfoChanged(event, infos) {
         this.setState({ vulnerableInfos: infos });
-    },
+    }
 
-    componentDidMount: function () {
+    componentDidMount() {
         atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    },
+    }
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
         atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    },
+    }
 
-    render: function() {
+    render() {
         var image = this.props.image;
 
         if (!image) {
@@ -503,38 +516,37 @@ var ImageInline = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ImageList = createReactClass({
-    getDefaultProps: function () {
-        return {
-            client: {},
-            filterText: ''
-        };
-    },
-
-    getInitialState: function () {
-        return {
+class ImageList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             images: [],
             pulling: [],
             vulnerableInfos: {}
         };
-    },
+        this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
+        this.imagesChanged = this.imagesChanged.bind(this);
+        this.pullingChanged = this.pullingChanged.bind(this);
+        this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
+        this.renderRow = this.renderRow.bind(this);
+    }
 
-    navigateToImage: function (image) {
+    navigateToImage(image) {
         cockpit.location.go([ 'image', image.Id ]);
-    },
+    }
 
-    handleSearchImageClick: function (event) {
+    handleSearchImageClick(event) {
         if (event.button !== 0)
             return;
 
         searchImage(this.props.client).then(function (repo, tag, registry) {
             this.props.client.pull(repo, tag, registry);
         }.bind(this));
-    },
+    }
 
-    deleteImage: function (image, event) {
+    deleteImage(image, event) {
         if (event.button !== 0)
             return;
         util.delete_image_confirm(this.props.client, image).done(
@@ -545,14 +557,14 @@ var ImageList = createReactClass({
                         util.show_unexpected_error(ex);
                     }));
             });
-    },
+    }
 
-    showRunImageDialog: function (event) {
+    showRunImageDialog(event) {
         $('#containers_run_image_dialog').modal('show', event.currentTarget);
         event.stopPropagation();
-    },
+    }
 
-    imagesChanged: function () {
+    imagesChanged() {
         var images = Object.keys(this.props.client.images).map(function (id) {
             return this.props.client.images[id];
         }.bind(this));
@@ -562,31 +574,31 @@ var ImageList = createReactClass({
         });
 
         this.setState({ images: images });
-    },
+    }
 
-    pullingChanged: function () {
+    pullingChanged() {
         this.setState({ pulling: this.props.client.pulling });
-    },
+    }
 
-    vulnerableInfoChanged: function (event, infos) {
+    vulnerableInfoChanged(event, infos) {
         this.setState({ vulnerableInfos: infos });
-    },
+    }
 
-    componentDidMount: function () {
+    componentDidMount() {
         $(this.props.client).on('image.containers', this.imagesChanged);
         $(this.props.client).on('pulling.containers', this.pullingChanged);
 
         atomic.addEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    },
+    }
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
         $(this.props.client).off('image.containers', this.imagesChanged);
         $(this.props.client).off('pulling.containers', this.pullingChanged);
 
         atomic.removeEventListener('vulnerableInfoChanged', this.vulnerableInfoChanged);
-    },
+    }
 
-    renderRow: function (image) {
+    renderRow(image) {
         var vulnerabilityColumn = '';
 
         var vulnerableInfo = this.state.vulnerableInfos[image.Id.replace(/^sha256:/, '')];
@@ -654,9 +666,9 @@ var ImageList = createReactClass({
                                    tabRenderers={tabs}
                                    navigateToItem={ this.navigateToImage.bind(this, image) }
                                    listingActions={actions} />;
-    },
+    }
 
-    render: function () {
+    render() {
         var filtered = this.state.images.filter(function (image) {
             return (image.RepoTags &&
                     image.RepoTags[0].toLowerCase().indexOf(this.props.filterText.toLowerCase()) >= 0);
@@ -706,7 +718,11 @@ var ImageList = createReactClass({
             </div>
         );
     }
-});
+}
+ImageList.defaultProps = {
+    client: {},
+    filterText: ''
+};
 
 module.exports = {
     ContainerHeader: ContainerHeader,

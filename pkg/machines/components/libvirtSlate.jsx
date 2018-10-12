@@ -30,41 +30,22 @@ import './libvirtSlate.css';
 
 const _ = cockpit.gettext;
 
-const ENABLED = 'enabled';
-
 class LibvirtSlate extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            libvirtEnabled: this.isUnitStateEnabled(),
-            userActivityFlag: false,
+            libvirtEnabled: true,
         };
 
         this.onLibvirtEnabledChanged = this.onLibvirtEnabledChanged.bind(this);
-        this.isUnitStateEnabled = this.isUnitStateEnabled.bind(this);
         this.startService = this.startService.bind(this);
         this.goToServicePage = this.goToServicePage.bind(this);
-    }
-
-    componentWillReceiveProps() {
-        // unitState will be usually received after this component was created
-        // but, do not update from backend after the user decides to change it (is fired by the update loop)
-        if (!this.state.userActivityFlag) {
-            this.setState({
-                libvirtEnabled: this.isUnitStateEnabled(),
-            });
-        }
-    }
-
-    isUnitStateEnabled() {
-        return this.props.libvirtService.unitState === ENABLED;
     }
 
     onLibvirtEnabledChanged(e) {
         if (e && e.target && typeof e.target.checked === "boolean") {
             this.setState({
                 libvirtEnabled: e.target.checked,
-                userActivityFlag: true,
             });
         }
     }
@@ -72,10 +53,7 @@ class LibvirtSlate extends React.Component {
     startService() {
         const service = this.props.libvirtService;
 
-        if (this.state.libvirtEnabled !== (this.isUnitStateEnabled())) {
-            // different from original
-            this.props.dispatch(enableLibvirt(this.state.libvirtEnabled, service.name));
-        }
+        this.props.dispatch(enableLibvirt(this.state.libvirtEnabled, service.name));
         this.props.dispatch(startLibvirt(service.name));
     }
 

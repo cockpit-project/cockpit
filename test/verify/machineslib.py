@@ -402,8 +402,7 @@ class TestMachines(MachineCase):
 
         b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
-        b.wait_present("#enable-libvirt:not(:checked)")
-        b.click("#enable-libvirt") # check it ; TODO: fix this, do not assume initial state of the checkbox
+        b.wait_present("#enable-libvirt:checked")
         b.click("#start-libvirt")
 
         b.wait_in_text("body", "Virtual Machines")

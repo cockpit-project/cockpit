@@ -25,7 +25,6 @@
 
     var React = require("react");
     var ReactDOM = require("react-dom");
-    var createReactClass = require('create-react-class');
 
     var dialog_view = require("cockpit-components-dialog.jsx");
 
@@ -103,33 +102,42 @@
      *           the "Add" button is clicked.
      *
      */
-    var DriveBox = createReactClass({
-        getInitialState: function () {
-            return {
+    class DriveBox extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
                 drives: this.props.model.extra_devices,
                 checked: { }
             };
-        },
-        onModelChanged: function () {
+            this.onModelChanged = this.onModelChanged.bind(this);
+            this.driveChecked = this.driveChecked.bind(this);
+            this.toggleDrive = this.toggleDrive.bind(this);
+            this.onButtonClicked = this.onButtonClicked.bind(this);
+        }
+
+        onModelChanged() {
             this.setState({ drives: this.props.model.extra_devices });
-        },
-        componentDidMount: function () {
+        }
+
+        componentDidMount() {
             $(this.props.model).on("changed", this.onModelChanged);
             this.onModelChanged();
-        },
-        componentWillUnmount: function () {
-            $(this.props.model).off("changed", this.onModelChanged);
-        },
+        }
 
-        driveChecked: function (drive) {
+        componentWillUnmount() {
+            $(this.props.model).off("changed", this.onModelChanged);
+        }
+
+        driveChecked(drive) {
             return !!this.state.checked[drive.path];
-        },
-        toggleDrive: function (drive) {
+        }
+
+        toggleDrive(drive) {
             this.state.checked[drive.path] = !this.state.checked[drive.path];
             this.setState({ checked: this.state.checked });
-        },
+        }
 
-        onButtonClicked: function () {
+        onButtonClicked() {
             var self = this;
             if (self.props.callback) {
                 var drives = [ ];
@@ -145,9 +153,9 @@
                 self.setState({ checked: { } });
                 self.props.callback(drives, self.props.model);
             }
-        },
+        }
 
-        render: function() {
+        render() {
             var self = this;
             var i;
 
@@ -213,30 +221,35 @@
                 </div>
             );
         }
-    });
+    }
 
     /* A list of drives in the Docker storage pool.
      *
      * model: The model as returned by get_storage_model.
      */
-    var PoolBox = createReactClass({
-        getInitialState: function () {
-            return {
+    class PoolBox extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
                 drives: [ ]
             };
-        },
-        onModelChanged: function () {
+            this.onModelChanged = this.onModelChanged.bind(this);
+        }
+
+        onModelChanged() {
             this.setState({ drives: this.props.model.pool_devices });
-        },
-        componentDidMount: function () {
+        }
+
+        componentDidMount() {
             $(this.props.model).on("changed", this.onModelChanged);
             this.onModelChanged();
-        },
-        componentWillUnmount: function () {
-            $(this.props.model).off("changed", this.onModelChanged);
-        },
+        }
 
-        render: function() {
+        componentWillUnmount() {
+            $(this.props.model).off("changed", this.onModelChanged);
+        }
+
+        render() {
             var self = this;
 
             function render_drive_rows() {
@@ -257,7 +270,7 @@
                     </tbody>
                 </table>);
         }
-    });
+    }
 
     /* An overview of the Docker Storage pool size and how much is used.
      *
@@ -266,24 +279,32 @@
      * small: If true, a small version is rendered
      *        with a link to the setup page.
      */
-    var OverviewBox = createReactClass({
-        getInitialState: function () {
-            return { total: 0, used: 0 };
-        },
-        onModelChanged: function () {
+    class OverviewBox extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                total: 0,
+                used: 0
+            };
+            this.onModelChanged = this.onModelChanged.bind(this);
+        }
+
+        onModelChanged() {
             this.setState({ error: this.props.model.error,
                             total: this.props.model.total,
                             used: this.props.model.used });
-        },
-        componentDidMount: function () {
+        }
+
+        componentDidMount() {
             $(this.props.model).on("changed", this.onModelChanged);
             this.onModelChanged();
-        },
-        componentWillUnmount: function () {
-            $(this.props.model).off("changed", this.onModelChanged);
-        },
+        }
 
-        render: function() {
+        componentWillUnmount() {
+            $(this.props.model).off("changed", this.onModelChanged);
+        }
+
+        render() {
             var self = this;
 
             if (!self.state.total) {
@@ -336,7 +357,7 @@
                     </div>);
             }
         }
-    });
+    }
 
     function add_storage(client, drives, model) {
         function render_drive_rows() {

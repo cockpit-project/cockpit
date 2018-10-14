@@ -22,7 +22,6 @@ var cockpit = require("cockpit");
 
 var React = require("react");
 var ReactDOM = require("react-dom");
-var createReactClass = require('create-react-class');
 var Mustache = require("mustache");
 var authorized_keys = require("./authorized-keys");
 
@@ -44,20 +43,20 @@ function update_accounts_privileged() {
             permission.user ? permission.user.name : '')
     );
     $(".accounts-privileged").find("input")
-        .attr('disabled', permission.allowed === false);
+            .attr('disabled', permission.allowed === false);
 
     // enable fields for current account.
     $(".accounts-current-account").update_privileged(
         {allowed: true}, ""
     );
     $(".accounts-current-account").find("input")
-        .attr('disabled', false);
+            .attr('disabled', false);
 
     if ($('#account-user-name').text() === 'root' && permission.allowed) {
         $("#account-delete").update_privileged({allowed: false},
-                                      _("Unable to delete root account"));
+                                               _("Unable to delete root account"));
         $("#account-real-name-wrapper").update_privileged({allowed: false},
-                                      _("Unable to rename root account"));
+                                                          _("Unable to rename root account"));
         $("#account-real-name").prop('disabled', true);
     }
 }
@@ -87,44 +86,45 @@ function passwd_self(old_pass, new_pass) {
     }, 10 * 1000);
 
     proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: [ "LC_ALL=C" ], err: "out" })
-        .always(function() {
-            window.clearInterval(timeout);
-        })
-        .done(function() {
-            dfd.resolve();
-        })
-        .fail(function(ex) {
-            if (ex.exit_status)
-                ex = new Error(failure);
-            dfd.reject(ex);
-        })
-        .stream(function(data) {
-            buffer += data;
-            for (i = 0; i < old_exps.length; i++) {
-                if (old_exps[i].test(buffer)) {
-                    buffer = "";
-                    this.input(old_pass + "\n", true);
-                    return;
+            .always(function() {
+                window.clearInterval(timeout);
+            })
+            .done(function() {
+                dfd.resolve();
+            })
+            .fail(function(ex) {
+                if (ex.exit_status)
+                    ex = new Error(failure);
+                dfd.reject(ex);
+            })
+            .stream(function(data) {
+                buffer += data;
+                for (i = 0; i < old_exps.length; i++) {
+                    if (old_exps[i].test(buffer)) {
+                        buffer = "";
+                        this.input(old_pass + "\n", true);
+                        return;
+                    }
                 }
-            }
 
-            for (i = 0; i < new_exps.length; i++) {
-                if (new_exps[i].test(buffer)) {
-                    buffer = "";
-                    this.input(new_pass + "\n", true);
-                    failure = _("Failed to change password");
-                    sent_new = true;
-                    return;
+                for (i = 0; i < new_exps.length; i++) {
+                    if (new_exps[i].test(buffer)) {
+                        buffer = "";
+                        this.input(new_pass + "\n", true);
+                        failure = _("Failed to change password");
+                        sent_new = true;
+                        return;
+                    }
                 }
-            }
 
-            for (i = 0; sent_new && i < bad_exps.length; i++) {
-                if (bad_exps[i].test(buffer)) {
-                    failure = _("New password was not accepted");
-                    return;
-                }
-            }
-        });
+                if (sent_new)
+                    for (i = 0; i < bad_exps.length; i++) {
+                        if (bad_exps[i].test(buffer)) {
+                            failure = _("New password was not accepted");
+                            return;
+                        }
+                    }
+            });
 
     return dfd.promise();
 }
@@ -132,21 +132,21 @@ function passwd_self(old_pass, new_pass) {
 function passwd_change(user, new_pass) {
     var dfd = cockpit.defer();
 
-    cockpit.spawn([ "chpasswd" ], {superuser: "require", err: "out" })
-        .input(user + ":" + new_pass)
-        .done(function() {
-            dfd.resolve();
-        })
-        .fail(function(ex, response) {
-            if (ex.exit_status) {
-                console.log(ex);
-                if (response)
-                    ex = new Error(response);
-                else
-                    ex = new Error(_("Failed to change password"));
-            }
-            dfd.reject(ex);
-        });
+    cockpit.spawn([ "chpasswd" ], { superuser: "require", err: "out" })
+            .input(user + ":" + new_pass)
+            .done(function() {
+                dfd.resolve();
+            })
+            .fail(function(ex, response) {
+                if (ex.exit_status) {
+                    console.log(ex);
+                    if (response)
+                        ex = new Error(response);
+                    else
+                        ex = new Error(_("Failed to change password"));
+                }
+                dfd.reject(ex);
+            });
 
     return dfd.promise();
 }
@@ -170,12 +170,12 @@ function chain(functions) {
         }
 
         (functions[i])()
-            .done(function() {
-                step();
-            })
-            .fail(function(ex) {
-                dfd.reject(ex);
-            });
+                .done(function() {
+                    step();
+                })
+                .fail(function(ex) {
+                    dfd.reject(ex);
+                });
 
         i += 1;
     }
@@ -195,7 +195,7 @@ function parse_passwd_content(content) {
     var column;
 
     for (var i = 0; i < lines.length; i++) {
-        if (! lines[i])
+        if (!lines[i])
             continue;
         column = lines[i].split(':');
         ret.push({
@@ -224,7 +224,7 @@ function parse_group_content(content) {
     var column;
 
     for (var i = 0; i < lines.length; i++) {
-        if (! lines[i])
+        if (!lines[i])
             continue;
         column = lines[i].split(':');
         ret.push({
@@ -242,24 +242,24 @@ function password_quality(password) {
     var dfd = cockpit.defer();
 
     cockpit.spawn('/usr/bin/pwscore', { "err": "message" })
-       .input(password)
-       .done(function(content) {
-           var quality = parseInt(content, 10);
-           if (quality === 0) {
-               dfd.reject(new Error(_("Password is too weak")));
-           } else if (quality <= 33) {
-               dfd.resolve("weak");
-           } else if (quality <= 66) {
-               dfd.resolve("okay");
-           } else if (quality <= 99) {
-               dfd.resolve("good");
-           } else {
-               dfd.resolve("excellent");
-           }
-       })
-       .fail(function(ex) {
-           dfd.reject(new Error(ex.message || _("Password is not acceptable")));
-       });
+            .input(password)
+            .done(function(content) {
+                var quality = parseInt(content, 10);
+                if (quality === 0) {
+                    dfd.reject(new Error(_("Password is too weak")));
+                } else if (quality <= 33) {
+                    dfd.resolve("weak");
+                } else if (quality <= 66) {
+                    dfd.resolve("okay");
+                } else if (quality <= 99) {
+                    dfd.resolve("good");
+                } else {
+                    dfd.resolve("excellent");
+                }
+            })
+            .fail(function(ex) {
+                dfd.reject(new Error(ex.message || _("Password is not acceptable")));
+            });
 
     return dfd.promise();
 }
@@ -273,30 +273,37 @@ function is_user_in_group(user, group) {
     return false;
 }
 
-var AccountItem = createReactClass({
-    displayName: 'AccountItem',
-    click: function(ev) {
+class AccountItem extends React.Component {
+    constructor(props) {
+        super(props);
+        this.click = this.click.bind(this);
+    }
+
+    click(ev) {
         if (ev && ev.button === 0)
             cockpit.location.go([this.props.name]);
-    },
-    render: function() {
-        return React.createElement('div', {className: "cockpit-account", onClick: this.click },
-            React.createElement('div', {className: "cockpit-account-pic pficon pficon-user"}),
-            React.createElement('div', {className: "cockpit-account-real-name"}, this.props.gecos),
-            React.createElement('div', {className: "cockpit-account-user-name"}, this.props.name)
+    }
+
+    render() {
+        return React.createElement('div', { className: "cockpit-account", onClick: this.click },
+                                   React.createElement('div', {className: "cockpit-account-pic pficon pficon-user"}),
+                                   React.createElement('div', {className: "cockpit-account-real-name"}, this.props.gecos),
+                                   React.createElement('div', {className: "cockpit-account-user-name"}, this.props.name)
         );
     }
-});
+}
+AccountItem.displayName = 'AccountItem';
 
-var AccountList = createReactClass({
-    displayName: 'AccountList',
-    render: function() {
-        var i, items = [];
+class AccountList extends React.Component {
+    render() {
+        var i;
+        var items = [];
         for (i in this.props.accounts)
             items.push(React.createElement(AccountItem, this.props.accounts[i]));
         return React.createElement('div', null, items);
     }
-});
+}
+AccountList.displayName = 'AccountList';
 
 function log_unexpected_error(error) {
     console.warn("Unexpected error", error);
@@ -315,7 +322,7 @@ PageAccounts.prototype = {
     },
 
     setup: function() {
-        $('#accounts-create').on('click', $.proxy (this, "create"));
+        $('#accounts-create').on('click', $.proxy(this, "create"));
     },
 
     enter: function() {
@@ -326,11 +333,11 @@ PageAccounts.prototype = {
             self.update();
         }
 
-        this.handle_passwd =  cockpit.file('/etc/passwd');
+        this.handle_passwd = cockpit.file('/etc/passwd');
 
         this.handle_passwd.read()
-           .done(parse_accounts)
-           .fail(log_unexpected_error);
+                .done(parse_accounts)
+                .fail(log_unexpected_error);
 
         this.handle_passwd.watch(parse_accounts);
     },
@@ -343,16 +350,16 @@ PageAccounts.prototype = {
     },
 
     update: function() {
-        this.accounts.sort (function (a, b) {
-                                if (! a["gecos"]) return -1;
-                                else if (! b["gecos"]) return 1;
-                                else return a["gecos"].localeCompare(b["gecos"]);
-                            });
+        this.accounts.sort(function (a, b) {
+            if (!a["gecos"]) return -1;
+            else if (!b["gecos"]) return 1;
+            else return a["gecos"].localeCompare(b["gecos"]);
+        });
 
         var accounts = this.accounts.filter(function(account) {
             return !((account["uid"] < 1000 && account["uid"] !== 0) ||
-                     account["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
-                     account["shell"] === '/bin/false');
+                account["shell"].match(/^(\/usr)?\/sbin\/nologin/) ||
+                account["shell"] === '/bin/false');
         });
 
         ReactDOM.render(
@@ -408,7 +415,8 @@ PageAccountsCreate.prototype = {
     },
 
     validate: function() {
-        var ex, fails = [];
+        var ex;
+        var fails = [];
         var pw = $('#accounts-create-pw1').val();
         if ($('#accounts-create-pw2').val() != pw) {
             ex = new Error(_("The passwords do not match"));
@@ -434,27 +442,27 @@ PageAccountsCreate.prototype = {
             dfd.resolve();
 
         var promise_password = password_quality(pw)
-            .fail(function(ex) {
-                ex.target = "#accounts-create-pw2";
-            })
-            .always(function(arg) {
-                var strength = this.state() == "resolved" ? arg : "weak";
-                var meter = $("#accounts-create-password-meter")
-                    .removeClass("weak okay good excellent");
-                if (pw)
-                    meter.addClass(strength);
-                var message = $("#accounts-create-password-meter-message");
-                if (strength == "excellent") {
-                    message.text(_("Excellent password"));
-                } else {
-                    message.text("");
-                }
-            });
+                .fail(function(ex) {
+                    ex.target = "#accounts-create-pw2";
+                })
+                .always(function(arg) {
+                    var strength = this.state() == "resolved" ? arg : "weak";
+                    var meter = $("#accounts-create-password-meter")
+                            .removeClass("weak okay good excellent");
+                    if (pw)
+                        meter.addClass(strength);
+                    var message = $("#accounts-create-password-meter-message");
+                    if (strength == "excellent") {
+                        message.text(_("Excellent password"));
+                    } else {
+                        message.text("");
+                    }
+                });
 
         var promise_username = this.check_username()
-            .fail(function(ex) {
-                ex.target = "#accounts-create-user-name";
-            });
+                .fail(function(ex) {
+                    ex.target = "#accounts-create-user-name";
+                });
 
         return cockpit.all(dfd, promise_password, promise_username);
     },
@@ -491,23 +499,23 @@ PageAccountsCreate.prototype = {
         });
 
         var promise = this.validate()
-            .fail(function(ex) {
-                $("#accounts-create-password-meter-message").hide();
-                $("#accounts-create-dialog").dialog("failure", ex);
-            })
-            .done(function() {
-                promise = chain(tasks);
-                $("#accounts-create-dialog").dialog("promise", promise);
-            });
+                .fail(function(ex) {
+                    $("#accounts-create-password-meter-message").hide();
+                    $("#accounts-create-dialog").dialog("failure", ex);
+                })
+                .done(function() {
+                    promise = chain(tasks);
+                    $("#accounts-create-dialog").dialog("promise", promise);
+                });
 
         $("#accounts-create-dialog").dialog("wait", promise);
     },
 
     is_valid_char_username: function(c) {
         return (c >= 'a' && c <= 'z') ||
-               (c >= 'A' && c <= 'Z') ||
-               (c >= '0' && c <= '9') ||
-               c == '.' || c == '_' || c == '-';
+            (c >= 'A' && c <= 'Z') ||
+            (c >= '0' && c <= '9') ||
+            c == '.' || c == '_' || c == '-';
     },
 
     check_username: function() {
@@ -515,9 +523,9 @@ PageAccountsCreate.prototype = {
         var username = $('#accounts-create-user-name').val();
 
         for (var i = 0; i < username.length; i++) {
-            if (! this.is_valid_char_username(username[i])) {
+            if (!this.is_valid_char_username(username[i])) {
                 dfd.reject(new Error(
-                  _("The user name can only consist of letters from a-z, digits, dots, dashes and underscores.")
+                    _("The user name can only consist of letters from a-z, digits, dots, dashes and underscores.")
                 ));
                 return dfd.promise();
             }
@@ -539,31 +547,31 @@ PageAccountsCreate.prototype = {
 
         function remove_diacritics(str) {
             var translate_table = {
-               'a' :  '[àáâãäå]',
-               'ae':  'æ',
-               'c' :  'čç',
-               'd' :  'ď',
-               'e' :  '[èéêë]',
-               'i' :  '[íìïî]',
-               'l' :  '[ĺľ]',
-               'n' :  '[ňñ]',
-               'o' :  '[òóôõö]',
-               'oe':  'œ',
-               'r' :  '[ŕř]',
-               's' :  'š',
-               't' :  'ť',
-               'u' :  '[ùúůûűü]',
-               'y' :  '[ýÿ]',
-               'z' :  'ž',
+                'a' :  '[àáâãäå]',
+                'ae':  'æ',
+                'c' :  'čç',
+                'd' :  'ď',
+                'e' :  '[èéêë]',
+                'i' :  '[íìïî]',
+                'l' :  '[ĺľ]',
+                'n' :  '[ňñ]',
+                'o' :  '[òóôõö]',
+                'oe':  'œ',
+                'r' :  '[ŕř]',
+                's' :  'š',
+                't' :  'ť',
+                'u' :  '[ùúůûűü]',
+                'y' :  '[ýÿ]',
+                'z' :  'ž',
             };
             for (var i in translate_table)
                 str = str.replace(new RegExp(translate_table[i], 'g'), i);
 
-            for (var k = 0; k < str.length; ) {
-                if (! self.is_valid_char_username(str[k]))
+            for (var k = 0; k < str.length;) {
+                if (!self.is_valid_char_username(str[k]))
                     str = str.substr(0, k) + str.substr(k + 1);
                 else
-                   k++;
+                    k++;
             }
 
             return str;
@@ -582,7 +590,7 @@ PageAccountsCreate.prototype = {
         }
 
         if (this.username_dirty)
-           return;
+            return;
 
         var username = make_username($('#accounts-create-real-name').val());
         $('#accounts-create-user-name').val(username);
@@ -624,13 +632,13 @@ PageAccount.prototype = {
             cockpit.location.go('/');
         });
 
-        $('#account-real-name').on('change', $.proxy (this, "change_real_name"));
-        $('#account-real-name').on('keydown', $.proxy (this, "real_name_edited"));
-        $('#account-set-password').on('click', $.proxy (this, "set_password"));
-        $('#account-delete').on('click', $.proxy (this, "delete_account"));
-        $('#account-logout').on('click', $.proxy (this, "logout_account"));
-        $('#account-locked').on('change', $.proxy (this, "change_locked", true, null));
-        $('#add-authorized-key').on('click', $.proxy (this, "add_key"));
+        $('#account-real-name').on('change', $.proxy(this, "change_real_name"));
+        $('#account-real-name').on('keydown', $.proxy(this, "real_name_edited"));
+        $('#account-set-password').on('click', $.proxy(this, "set_password"));
+        $('#account-delete').on('click', $.proxy(this, "delete_account"));
+        $('#account-logout').on('click', $.proxy(this, "logout_account"));
+        $('#account-locked').on('change', $.proxy(this, "change_locked", true, null));
+        $('#add-authorized-key').on('click', $.proxy(this, "add_key"));
         $('#add-authorized-key-dialog').on('hidden.bs.modal', function () {
             $("#authorized-keys-text").val("");
         });
@@ -653,10 +661,10 @@ PageAccount.prototype = {
         var key = $(ev.target).data("raw");
         $(".account-remove-key").prop('disabled', true);
         this.authorized_keys.remove_key(key)
-            .fail(show_unexpected_error)
-            .always(function () {
-                $(".account-remove-key").prop('disabled', false);
-            });
+                .fail(show_unexpected_error)
+                .always(function () {
+                    $(".account-remove-key").prop('disabled', false);
+                });
     },
 
     add_key: function () {
@@ -671,8 +679,8 @@ PageAccount.prototype = {
     },
 
     get_user: function() {
-       var self = this;
-       function parse_user(content) {
+        var self = this;
+        function parse_user(content) {
             var accounts = parse_passwd_content(content);
 
             for (var i = 0; i < accounts.length; i++) {
@@ -685,8 +693,8 @@ PageAccount.prototype = {
                 return;
             }
 
-           /* no such account find, clear it */
-           self.account = null;
+            /* no such account find, clear it */
+            self.account = null;
         }
 
         this.handle_passwd = cockpit.file('/etc/passwd');
@@ -694,8 +702,8 @@ PageAccount.prototype = {
         var saw_shadow = false;
 
         this.handle_passwd.read()
-           .done(parse_user)
-           .fail(log_unexpected_error);
+                .done(parse_user)
+                .fail(log_unexpected_error);
 
         this.handle_passwd.watch(function(content) {
             parse_user(content);
@@ -742,8 +750,8 @@ PageAccount.prototype = {
         this.handle_groups = cockpit.file('/etc/group');
 
         this.handle_groups.read()
-           .done(parse_groups)
-           .fail(log_unexpected_error);
+                .done(parse_groups)
+                .fail(log_unexpected_error);
 
         this.handle_groups.watch(parse_groups);
     },
@@ -752,26 +760,25 @@ PageAccount.prototype = {
         var self = this;
 
         function parse_last_login(data) {
-           data = data.split('\n')[1]; // throw away header
-           if (data.length === 0) return null;
-           data =  data.split('   '); // get last column - separated by spaces
+            data = data.split('\n')[1]; // throw away header
+            if (data.length === 0) return null;
+            data = data.split('   '); // get last column - separated by spaces
 
-           if (data[data.length - 1].indexOf('**Never logged in**') > -1)
-               return null;
-           else
-               return new Date(data[data.length - 1]);
+            if (data[data.length - 1].indexOf('**Never logged in**') > -1)
+                return null;
+            else
+                return new Date(data[data.length - 1]);
         }
 
-        cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id],
-                      { "environ": ["LC_ALL=C"] })
-           .done(function (data) {
-               self.lastLogin = parse_last_login(data);
-               self.update();
-           })
-           .fail(function() {
-               self.lastLogin = null;
-               self.update();
-           });
+        cockpit.spawn(["/usr/bin/lastlog", "-u", self.account_id], { "environ": ["LC_ALL=C"] })
+                .done(function (data) {
+                    self.lastLogin = parse_last_login(data);
+                    self.update();
+                })
+                .fail(function() {
+                    self.lastLogin = null;
+                    self.update();
+                });
     },
 
     get_locked: function(update_display) {
@@ -785,15 +792,14 @@ PageAccount.prototype = {
             return status && (status == "LK" || status == "L");
         }
 
-        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id],
-                      { "environ": [ "LC_ALL=C" ], "superuser": "require" })
-            .done(function(content) {
+        cockpit.spawn(["/usr/bin/passwd", "-S", self.account_id], { "environ": [ "LC_ALL=C" ], "superuser": "require" })
+                .done(function(content) {
                     self.locked = parse_locked(content);
                     if (update_display)
                         self.update();
                     dfd.resolve(self.locked);
                 })
-            .fail(function(error) {
+                .fail(function(error) {
                     dfd.reject(error);
                 });
 
@@ -810,15 +816,15 @@ PageAccount.prototype = {
 
         function parse_logged(content) {
             self.logged = content.length > 0;
-            if (! self.logged)
-               self.get_last_login();
+            if (!self.logged)
+                self.get_last_login();
             else
-               self.update();
+                self.update();
         }
 
         cockpit.spawn(["/usr/bin/w", "-sh", self.account_id])
-           .done(parse_logged)
-           .fail(log_unexpected_error);
+                .done(parse_logged)
+                .fail(log_unexpected_error);
     },
 
     get_expire: function() {
@@ -852,7 +858,7 @@ PageAccount.prototype = {
                         account_expiration = cockpit.format(_("Lock account on $0"), line[1]);
                     }
                 } else if (line[0] && line[0].indexOf("Maximum number of days between password change") === 0) {
-                        password_days = line[1];
+                    password_days = line[1];
                 }
             }
 
@@ -867,12 +873,12 @@ PageAccount.prototype = {
 
         cockpit.spawn(["/usr/bin/chage", "-l", self.account_id],
                       { "environ": [ "LC_ALL=C" ], "err": "message", "superuser": "try" })
-           .done(function(data) {
-               parse_expire(data);
-           })
-           .fail(function(ex) {
-               parse_expire("");
-           });
+                .done(function(data) {
+                    parse_expire(data);
+                })
+                .fail(function(ex) {
+                    parse_expire("");
+                });
     },
 
     enter: function(account_id) {
@@ -892,26 +898,25 @@ PageAccount.prototype = {
 
     leave: function() {
         if (this.handle_passwd) {
-           this.handle_passwd.close();
-           this.handle_passwd = null;
+            this.handle_passwd.close();
+            this.handle_passwd = null;
         }
 
         if (this.handle_groups) {
-           this.handle_groups.close();
-           this.handle_groups = null;
+            this.handle_groups.close();
+            this.handle_groups = null;
         }
 
         if (this.authorized_keys) {
-           $(this.authorized_keys).off();
-           this.authorized_keys.close();
-           this.authorized_keys = null;
+            $(this.authorized_keys).off();
+            this.authorized_keys.close();
+            this.authorized_keys = null;
         }
 
         $('#account-failure').hide();
     },
 
     update: function() {
-
         if (this.account) {
             $('#account').show();
             $('#account-failure').hide();
@@ -931,7 +936,7 @@ PageAccount.prototype = {
 
             if (this.logged)
                 $('#account-last-login').text(_("Logged In"));
-            else if (! this.lastLogin)
+            else if (!this.lastLogin)
                 $('#account-last-login').text(_("Never"));
             else
                 $('#account-last-login').text(this.lastLogin.toLocaleString());
@@ -954,7 +959,7 @@ PageAccount.prototype = {
                 });
                 $('#account-authorized-keys-list').html(keys_html);
                 $(".account-remove-key")
-                    .on("click", $.proxy (this, "remove_key"));
+                        .on("click", $.proxy(this, "remove_key"));
                 $('#account-authorized-keys').show();
             } else {
                 $('#account-authorized-keys').hide();
@@ -964,20 +969,24 @@ PageAccount.prototype = {
                 var html = Mustache.render(this.role_template,
                                            { "roles": this.roles, "changed": this.roles_changed });
                 $('#account-change-roles-roles').html(html);
-                $('#account-roles').parents('tr').show();
-                $('#account-roles [data-toggle="tooltip"]').tooltip();
+                $('#account-roles').parents('tr')
+                        .show();
+                $('#account-roles [data-toggle="tooltip"]')
+                        .tooltip();
                 $("#account-change-roles-roles :input")
-                    .on("change", $.proxy (this, "change_role"));
+                        .on("change", $.proxy(this, "change_role"));
             } else {
-                $('#account-roles').parents('tr').hide();
+                $('#account-roles')
+                        .parents('tr')
+                        .hide();
             }
-            $('#account .breadcrumb .active').text(title_name);
+            $('#account .breadcrumb .active')
+                    .text(title_name);
 
             // check accounts-self-privileged whether account is the same as currently logged in user
-            $(".accounts-self-privileged").
-                toggleClass("accounts-current-account",
-                            this.user.id == this.account["uid"]);
-
+            $(".accounts-self-privileged")
+                    .toggleClass("accounts-current-account",
+                                 this.user.id == this.account["uid"]);
         } else {
             $('#account').hide();
             $('#account-failure').show();
@@ -1012,7 +1021,7 @@ PageAccount.prototype = {
         }
 
         proc.then(function(data) {
-            if(!data && checked)
+            if (!data && checked)
                 data = "Added " + self.account["name"] + " to group " + name;
             else if (!data && !checked)
                 data = "Removed " + self.account["name"] + " from group " + name;
@@ -1030,7 +1039,7 @@ PageAccount.prototype = {
 
     check_role_for_self_mod: function () {
         return (this.account["name"] == this.user.name ||
-                permission.allowed !== false);
+            permission.allowed !== false);
     },
 
     change_real_name: function() {
@@ -1039,8 +1048,8 @@ PageAccount.prototype = {
         var name = $("#account-real-name");
         name.attr("data-dirty", "true");
 
-        if (!self.check_role_for_self_mod ()) {
-            self.update ();
+        if (!self.check_role_for_self_mod()) {
+            self.update();
             return;
         }
 
@@ -1050,52 +1059,54 @@ PageAccount.prototype = {
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
         cockpit.spawn(["/usr/sbin/usermod", self.account["name"], "--comment", value],
-                      { "superuser": "try", err: "message"})
-           .done(function(data) {
-               self.account["gecos"] = value;
-               self.update();
-               name.removeAttr("data-dirty");
-           })
-           .fail(show_unexpected_error).finally(function() {
-               input_elements.prop('disabled', false);
-           });
+                      { "superuser": "try", err: "message" })
+                .done(function(data) {
+                    self.account["gecos"] = value;
+                    self.update();
+                    name.removeAttr("data-dirty");
+                })
+                .fail(show_unexpected_error)
+                .finally(function() {
+                    input_elements.prop('disabled', false);
+                });
     },
 
     change_locked: function(verify_status, desired_lock_state) {
-        desired_lock_state = desired_lock_state !== null ?
-            desired_lock_state : $('#account-locked').prop('checked');
+        desired_lock_state = desired_lock_state !== null
+            ? desired_lock_state : $('#account-locked').prop('checked');
         var self = this;
         var input_elements =
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
         input_elements.prop('disabled', true);
         cockpit.spawn(["/usr/sbin/usermod",
-                       this.account["name"],
-                       desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require", err: "message"})
-            .done(function() {
-                self.get_locked(false)
-                    .done(function(locked) {
-                        /* if we care about what the lock state should be and it doesn't match, try to change again
-                           this is a workaround for different ways of handling a locked account
-                           https://github.com/cockpit-project/cockpit/issues/1216
-                           https://bugzilla.redhat.com/show_bug.cgi?id=853153
-                           This seems to be fixed in fedora 23 (usermod catches the different locking behavior)
-                        */
-                        if (verify_status && desired_lock_state !== locked) {
-                            console.log("Account locked state doesn't match desired value, trying again.");
-                            // only retry once to avoid uncontrolled recursion
-                            self.change_locked(false, desired_lock_state);
-                        } else {
-                            self.update();
-                        }
-                    });
+            this.account["name"],
+            desired_lock_state ? "--lock" : "--unlock"], { "superuser": "require", err: "message" })
+                .done(function() {
+                    self.get_locked(false)
+                            .done(function(locked) {
+                                /* if we care about what the lock state should be and it doesn't match, try to change again
+                                   this is a workaround for different ways of handling a locked account
+                                   https://github.com/cockpit-project/cockpit/issues/1216
+                                   https://bugzilla.redhat.com/show_bug.cgi?id=853153
+                                   This seems to be fixed in fedora 23 (usermod catches the different locking behavior)
+                                   */
+                                if (verify_status && desired_lock_state !== locked) {
+                                    console.log("Account locked state doesn't match desired value, trying again.");
+                                    // only retry once to avoid uncontrolled recursion
+                                    self.change_locked(false, desired_lock_state);
+                                } else {
+                                    self.update();
+                                }
+                            });
                 })
-           .fail(show_unexpected_error).finally(function() {
-               input_elements.prop('disabled', false);
-           });
+                .fail(show_unexpected_error)
+                .finally(function() {
+                    input_elements.prop('disabled', false);
+                });
     },
 
     set_password: function() {
-        if (!this.check_role_for_self_mod ())
+        if (!this.check_role_for_self_mod())
             return;
 
         PageAccountSetPassword.user_name = this.account["name"];
@@ -1112,14 +1123,15 @@ PageAccount.prototype = {
     logout_account: function() {
         var input_elements =
             $('#account button:not([disabled]), #account input:not([disabled]), #account a:not([disabled])');
-        input_elements.prop('disabled', true);
+        input_elements
+                .prop('disabled', true);
         cockpit.spawn(["/usr/bin/loginctl", "terminate-user", this.account["name"]],
-                      { "superuser": "try", err: "message"})
-           .done($.proxy (this, "get_logged"))
-           .fail(show_unexpected_error).finally(function() {
-               input_elements.prop('disabled', false);
-           });
-
+                      { "superuser": "try", err: "message" })
+                .done($.proxy(this, "get_logged"))
+                .fail(show_unexpected_error)
+                .finally(function() {
+                    input_elements.prop('disabled', false);
+                });
     },
 };
 
@@ -1156,11 +1168,11 @@ PageAccountConfirmDelete.prototype = {
         prog.push(PageAccountConfirmDelete.user_name);
 
         cockpit.spawn(prog, { "superuser": "require", err: "message" })
-           .done(function () {
-              $('#account-confirm-delete-dialog').modal('hide');
-               cockpit.location.go("/");
-           })
-           .fail(show_unexpected_error);
+                .done(function () {
+                    $('#account-confirm-delete-dialog').modal('hide');
+                    cockpit.location.go("/");
+                })
+                .fail(show_unexpected_error);
     }
 };
 
@@ -1187,7 +1199,8 @@ function AccountExpiration() {
 
     $('#account-expiration .btn-primary').on('click', function() {
         var date, value;
-        var ex, promise = null;
+        var ex;
+        var promise = null;
 
         /* Parse the dialog data and validate */
         if ($('#account-expiration-expires').prop('checked')) {
@@ -1263,10 +1276,13 @@ function PasswordExpiration() {
     });
 
     $('#password-expiration .btn-primary').on('click', function() {
-        var days, ex, promise = null;
+        var days, ex;
+        var promise = null;
 
         if ($('#password-expiration-expires').prop('checked'))
-            days = parseInt($('#password-expiration-input').val().trim(), 10);
+            days = parseInt($('#password-expiration-input')
+                    .val()
+                    .trim(), 10);
         if ($('#password-expiration-never').prop('checked'))
             days = never;
 
@@ -1279,8 +1295,8 @@ function PasswordExpiration() {
         var account_id = $("#password-expiration").data("account-id");
 
         if (!promise) {
-            promise = cockpit.spawn(["/usr/bin/passwd", "-x", String(days), account_id ],
-                { "superuser": true, "err": "message" });
+            promise = cockpit.spawn([ "/usr/bin/passwd", "-x", String(days), account_id ],
+                                    { "superuser": true, "err": "message" });
         }
 
         $("#password-expiration").dialog("promise", promise);
@@ -1304,7 +1320,7 @@ function PasswordReset() {
     $("#password-reset .btn-primary").on("click", function() {
         var account_id = $("#password-reset").data("account-id");
         var promise = cockpit.spawn(["/usr/bin/passwd", "-e", account_id],
-                               { "superuser" : true, "err": "message" });
+                                    { "superuser" : true, "err": "message" });
         $("#password-reset").dialog("promise", promise);
     });
 }
@@ -1317,11 +1333,17 @@ PageAccountSetPassword.prototype = {
 
     show: function() {
         if (this.user.name !== PageAccountSetPassword.user_name) {
-            $('#account-set-password-old').parents('tr').toggle(false);
-            $('#account-set-password-pw1').focus();
+            $('#account-set-password-old')
+                    .parents('tr')
+                    .toggle(false);
+            $('#account-set-password-pw1')
+                    .focus();
         } else {
-            $('#account-set-password-old').parents('tr').toggle(true);
-            $('#account-set-password-old').focus();
+            $('#account-set-password-old')
+                    .parents('tr')
+                    .toggle(true);
+            $('#account-set-password-old')
+                    .focus();
         }
     },
 
@@ -1356,22 +1378,22 @@ PageAccountSetPassword.prototype = {
             dfd.resolve();
 
         var promise = password_quality(pw)
-            .fail(function(ex) {
-                ex.target = "#account-set-password-pw2";
-            })
-            .always(function(arg) {
-                var strength = (this.state() == "resolved") ? arg : "weak";
-                var meter = $("#account-set-password-meter")
-                    .removeClass("weak okay good excellent");
-                if (pw)
-                    meter.addClass(strength);
-                var message = $("#account-set-password-meter-message");
-                if (strength == "excellent") {
-                    message.text(_("Excellent password"));
-                } else {
-                    message.text("");
-                }
-            });
+                .fail(function(ex) {
+                    ex.target = "#account-set-password-pw2";
+                })
+                .always(function(arg) {
+                    var strength = (this.state() == "resolved") ? arg : "weak";
+                    var meter = $("#account-set-password-meter")
+                            .removeClass("weak okay good excellent");
+                    if (pw)
+                        meter.addClass(strength);
+                    var message = $("#account-set-password-meter-message");
+                    if (strength == "excellent") {
+                        message.text(_("Excellent password"));
+                    } else {
+                        message.text("");
+                    }
+                });
 
         return cockpit.all(dfd, promise);
     },
@@ -1380,21 +1402,21 @@ PageAccountSetPassword.prototype = {
         var self = this;
 
         var promise = this.validate()
-            .done(function() {
-                var user = PageAccountSetPassword.user_name;
-                var password = $('#account-set-password-pw1').val();
+                .done(function() {
+                    var user = PageAccountSetPassword.user_name;
+                    var password = $('#account-set-password-pw1').val();
 
-                if (self.user.name === user)
-                    promise = passwd_self($('#account-set-password-old').val(), password);
-                else
-                    promise = passwd_change(user, password);
+                    if (self.user.name === user)
+                        promise = passwd_self($('#account-set-password-old').val(), password);
+                    else
+                        promise = passwd_change(user, password);
 
-                $("#account-set-password-dialog").dialog("promise", promise);
-            })
-            .fail(function(ex) {
-                $("#account-set-password-meter-message").hide();
-                $("#account-set-password-dialog").dialog("failure", ex);
-            });
+                    $("#account-set-password-dialog").dialog("promise", promise);
+                })
+                .fail(function(ex) {
+                    $("#account-set-password-meter-message").hide();
+                    $("#account-set-password-dialog").dialog("failure", ex);
+                });
         $("#account-set-password-dialog").dialog("wait", promise);
     }
 };
@@ -1432,10 +1454,10 @@ function show_unexpected_error(error) {
 
 function dialog_setup(d) {
     d.setup();
-    $('#' + d.id).
-        on('show.bs.modal', function () { d.enter() }).
-        on('shown.bs.modal', function () { d.show() }).
-        on('hidden.bs.modal', function () { d.leave() });
+    $('#' + d.id)
+            .on('show.bs.modal', function () { d.enter() })
+            .on('shown.bs.modal', function () { d.show() })
+            .on('hidden.bs.modal', function () { d.leave() });
 }
 
 function page_show(p, arg) {
@@ -1489,9 +1511,9 @@ function init() {
         dialog_setup(new PageAccountConfirmDelete());
         dialog_setup(new PageAccountSetPassword(user));
 
-        new AccountExpiration();
-        new PasswordExpiration();
-        new PasswordReset();
+        AccountExpiration();
+        PasswordExpiration();
+        PasswordReset();
 
         $(cockpit).on("locationchanged", navigate);
         navigate();

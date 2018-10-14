@@ -148,7 +148,7 @@ var info = {
         ],
 
         "users/users": [
-            "users/local.js",
+            "users/local.es6",
             "users/users.css",
         ]
     },

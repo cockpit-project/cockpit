@@ -21,17 +21,17 @@
     "use strict";
 
     var React = require("react");
-    var createReactClass = require('create-react-class');
 
     var Select = require("cockpit-components-select.jsx");
 
     /* Sample dialog body
      */
-    var PatternDialogBody = createReactClass({
-        selectChanged: function(value) {
+    class PatternDialogBody extends React.Component {
+        selectChanged(value) {
             console.log("new value: " + value);
-        },
-        render: function() {
+        }
+
+        render() {
             return (
                 <div className="modal-body">
                     <table className="form-table-ct">
@@ -101,7 +101,7 @@
                 </div>
             );
         }
-    });
+    }
 
     module.exports = PatternDialogBody;
 }());

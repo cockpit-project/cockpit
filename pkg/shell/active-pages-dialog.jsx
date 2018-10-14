@@ -18,7 +18,6 @@
  */
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var _ = cockpit.gettext;
@@ -32,8 +31,8 @@ var ListingRow = listingPattern.ListingRow;
  *  - iframes          iframe elements on page to list
  *  - selectionChanged callback when the select state changed, parameters: frame object, new value
  */
-var ActivePagesDialogBody = createReactClass({
-    render: function() {
+class ActivePagesDialogBody extends React.Component {
+    render() {
         var self = this;
         var frames = self.props.iframes.map(function(frame) {
             var badge;
@@ -63,6 +62,6 @@ var ActivePagesDialogBody = createReactClass({
             </div>
         );
     }
-});
+}
 
 module.exports = ActivePagesDialogBody;

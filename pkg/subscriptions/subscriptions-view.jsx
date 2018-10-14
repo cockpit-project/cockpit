@@ -18,7 +18,6 @@
  */
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var _ = cockpit.gettext;
@@ -26,8 +25,8 @@ var _ = cockpit.gettext;
 var cockpitListing = require("cockpit-components-listing.jsx");
 
 // Show details for an installed product
-var SubscriptionProductDetails = createReactClass({
-    render: function() {
+class SubscriptionProductDetails extends React.Component {
+    render() {
         return (
             <table key={this.props.productId}>
                 <tbody>
@@ -42,7 +41,7 @@ var SubscriptionProductDetails = createReactClass({
             </table>
         );
     }
-});
+}
 
 /* 'Curtains' implements a subset of the PatternFly Empty State pattern
  * https://www.patternfly.org/patterns/empty-state/
@@ -50,8 +49,8 @@ var SubscriptionProductDetails = createReactClass({
  *   - 'waiting' - display spinner
  *   - 'error'   - display error icon
  */
-var Curtains = createReactClass({
-    render: function() {
+class Curtains extends React.Component {
+    render() {
         var description = null;
         if (this.props.description)
             description = <h1>{this.props.description}</h1>;
@@ -78,21 +77,27 @@ var Curtains = createReactClass({
             </div>
         );
     }
-});
+}
 
 /* Component to show a dismissable error, message as child text
  * dismissError callback function triggered when the close button is pressed
  */
-var DismissableError = createReactClass({
-    handleDismissError: function(e) {
+class DismissableError extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleDismissError = this.handleDismissError.bind(this);
+    }
+
+    handleDismissError(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
         if (this.props.dismissError)
             this.props.dismissError();
         e.stopPropagation();
-    },
-    render: function() {
+    }
+
+    render() {
         return (
             <div className="alert alert-danger alert-dismissable alert-ct-top">
                 <span className="pficon pficon-error-circle-o" />
@@ -103,7 +108,7 @@ var DismissableError = createReactClass({
             </div>
         );
     }
-});
+}
 
 /* Show subscriptions status of the system, offer to register/unregister the system
  * Expected properties:
@@ -113,22 +118,30 @@ var DismissableError = createReactClass({
  * register     callback, triggered when user clicks on register
  * unregister   callback, triggered when user clicks on unregister
  */
-var SubscriptionStatus = createReactClass({
-    handleRegisterSystem: function(e) {
+class SubscriptionStatus extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleRegisterSystem = this.handleRegisterSystem.bind(this);
+        this.handleUnregisterSystem = this.handleUnregisterSystem.bind(this);
+    }
+
+    handleRegisterSystem(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
         this.props.register();
         e.stopPropagation();
-    },
-    handleUnregisterSystem: function(e) {
+    }
+
+    handleUnregisterSystem(e) {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
         this.props.unregister();
         e.stopPropagation();
-    },
-    render: function() {
+    }
+
+    render() {
         var errorMessage;
         if (this.props.error) {
             errorMessage = (
@@ -169,7 +182,7 @@ var SubscriptionStatus = createReactClass({
             </div>
         );
     }
-});
+}
 
 /* Show subscriptions status of the system and registered products, offer to register/unregister the system
  * Expected properties:
@@ -180,8 +193,14 @@ var SubscriptionStatus = createReactClass({
  * register     callback, triggered when user clicks on register
  * unregister   callback, triggered when user clicks on unregister
  */
-var SubscriptionsPage = createReactClass({
-    renderCurtains: function() {
+class SubscriptionsPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.renderCurtains = this.renderCurtains.bind(this);
+        this.renderSubscriptions = this.renderSubscriptions.bind(this);
+    }
+
+    renderCurtains() {
         var icon;
         var description;
         var message;
@@ -204,8 +223,9 @@ var SubscriptionsPage = createReactClass({
                 description={description}
                 message={message} />
         );
-    },
-    renderSubscriptions: function() {
+    }
+
+    renderSubscriptions() {
         var entries = this.props.products.map(function(itm) {
             var tabRenderers = [
                 {
@@ -229,8 +249,9 @@ var SubscriptionsPage = createReactClass({
                 </cockpitListing.Listing>
             </div>
         );
-    },
-    render: function() {
+    }
+
+    render() {
         if (this.props.status === undefined ||
             this.props.status == 'not-found' ||
             this.props.status == 'access-denied') {
@@ -239,7 +260,7 @@ var SubscriptionsPage = createReactClass({
             return this.renderSubscriptions();
         }
     }
-});
+}
 
 module.exports = {
     page: SubscriptionsPage,

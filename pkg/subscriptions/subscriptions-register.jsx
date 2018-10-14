@@ -18,7 +18,6 @@
  */
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var _ = cockpit.gettext;
@@ -44,8 +43,8 @@ function defaultRegisterDialogSettings() {
  *   - onChange  callback to signal when the data has changed
  *   - properties as in defaultRegisterDialogSettings()
  */
-var PatternDialogBody = createReactClass({
-    render: function() {
+class PatternDialogBody extends React.Component {
+    render() {
         var customURL;
         if (this.props.url == 'custom') {
             customURL = (
@@ -191,7 +190,7 @@ var PatternDialogBody = createReactClass({
             </div>
         );
     }
-});
+}
 
 module.exports = {
     defaultSettings: defaultRegisterDialogSettings,

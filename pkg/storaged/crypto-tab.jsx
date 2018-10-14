@@ -29,12 +29,10 @@ import { FormatButton, crypto_options_dialog_fields, crypto_options_dialog_optio
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
-var createReactClass = require('create-react-class');
-
 var _ = cockpit.gettext;
 
-var CryptoTab = createReactClass({
-    render: function () {
+class CryptoTab extends React.Component {
+    render() {
         var self = this;
         var client = self.props.client;
         var block = self.props.block;
@@ -147,8 +145,8 @@ var CryptoTab = createReactClass({
                 <CryptoKeyslots client={client} block={block} />
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     CryptoTab: CryptoTab

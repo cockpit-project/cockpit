@@ -20,15 +20,14 @@
 "use strict";
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 
 var _ = cockpit.gettext;
 
-var PartitionTab = createReactClass({
-    render: function () {
+class PartitionTab extends React.Component {
+    render() {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
@@ -55,8 +54,8 @@ var PartitionTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     PartitionTab: PartitionTab

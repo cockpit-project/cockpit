@@ -20,7 +20,6 @@
 "use strict";
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 var cockpit = require("cockpit");
 
 var FormatDialog = require("./format-dialog.jsx");
@@ -29,8 +28,8 @@ var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var UnrecognizedTab = createReactClass({
-    render: function () {
+class UnrecognizedTab extends React.Component {
+    render() {
         return (
             <div>
                 <div className="tab-actions">
@@ -50,8 +49,8 @@ var UnrecognizedTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     UnrecognizedTab: UnrecognizedTab

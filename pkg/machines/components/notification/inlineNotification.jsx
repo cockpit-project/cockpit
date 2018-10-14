@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { mouseClick } from '../../helpers.es6';
-import { Notification } from "./notification.jsx";
+import { Alert } from 'patternfly-react';
 import './inlineNotification.css';
 
 const _ = cockpit.gettext;
@@ -74,23 +74,19 @@ InlineNotification.propTypes = {
     textId: PropTypes.string, // optional, element id for the text
 };
 
-export const Alert = ({ onDismiss, text, textId, detail }) => {
+export const WarningAlert = ({ onDismiss, text, textId, detail }) => {
     return (
-        <Notification onDismiss={onDismiss}
-                      notificationClass='alert alert-warning'
-                      iconClass='pficon pficon-warning-triangle-o'>
+        <Alert type='warning' onDismiss={onDismiss}>
             <InlineNotification text={text} textId={textId} detail={detail} />
-        </Notification>
+        </Alert>
 
     );
 };
 
 export const Info = ({ onDismiss, text, textId, detail }) => {
     return (
-        <Notification onDismiss={onDismiss}
-                      notificationClass='alert alert-info'
-                      iconClass='pficon pficon-info'>
+        <Alert type='info' onDismiss={onDismiss} >
             <InlineNotification text={text} textId={textId} detail={detail} />
-        </Notification>
+        </Alert>
     );
 };

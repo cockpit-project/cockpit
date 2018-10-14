@@ -19,7 +19,7 @@
 import React from "react";
 import { vmId } from '../helpers.es6';
 import { deleteVmMessage } from '../actions/store-actions.es6';
-import { Alert } from './notification/inlineNotification.jsx';
+import { WarningAlert } from './notification/inlineNotification.jsx';
 
 const VmLastMessage = ({ vm, dispatch, tab }) => {
     if (!(vm.errorMessages && vm.errorMessages[tab] && vm.errorMessages[tab].lastMessage)) {
@@ -36,7 +36,7 @@ const VmLastMessage = ({ vm, dispatch, tab }) => {
         dispatch(deleteVmMessage({ name: vm.name, connectionName: vm.connectionName, tab }));
     };
 
-    return (<Alert text={vm.errorMessages[tab].lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
+    return (<WarningAlert text={vm.errorMessages[tab].lastMessage} textId={textId} detail={detail} onDismiss={onDismiss} />);
 };
 
 export default VmLastMessage;

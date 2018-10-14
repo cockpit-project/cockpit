@@ -21,7 +21,6 @@ var cockpit = require("cockpit");
 var React = require("react");
 var ReactDOM = require("react-dom");
 var PropTypes = require("prop-types");
-var createReactClass = require('create-react-class');
 
 var _ = cockpit.gettext;
 
@@ -49,16 +48,10 @@ require("cockpit-components-dialog.css");
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
-var DialogFooter = createReactClass({
-    propTypes: {
-        cancel_clicked: PropTypes.func,
-        cancel_caption: PropTypes.string,
-        actions: PropTypes.array,
-        static_error: PropTypes.string,
-        dialog_done: PropTypes.func,
-    },
-    getInitialState: function() {
-        return {
+class DialogFooter extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             action_in_progress: false,
             action_in_progress_promise: null,
             action_progress_message: '',
@@ -66,25 +59,33 @@ var DialogFooter = createReactClass({
             action_canceled: false,
             error_message: null,
         };
-    },
-    keyUpHandler: function(e) {
+        this.keyUpHandler = this.keyUpHandler.bind(this);
+        this.update_progress = this.update_progress.bind(this);
+        this.cancel_click = this.cancel_click.bind(this);
+    }
+
+    keyUpHandler(e) {
         if (e.keyCode == 27) {
             this.cancel_click();
             e.stopPropagation();
         }
-    },
-    componentDidMount: function() {
+    }
+
+    componentDidMount() {
         document.body.classList.add("modal-in");
         document.addEventListener('keyup', this.keyUpHandler);
-    },
-    componentWillUnmount: function() {
+    }
+
+    componentWillUnmount() {
         document.body.classList.remove("modal-in");
         document.removeEventListener('keyup', this.keyUpHandler);
-    },
-    update_progress: function(msg, cancel) {
+    }
+
+    update_progress(msg, cancel) {
         this.setState({ action_progress_message: msg, action_progress_cancel: cancel });
-    },
-    action_click: function(handler, e) {
+    }
+
+    action_click(handler, e) {
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
@@ -122,8 +123,9 @@ var DialogFooter = createReactClass({
 
         if (e)
             e.stopPropagation();
-    },
-    cancel_click: function(e) {
+    }
+
+    cancel_click(e) {
         // only consider clicks with the primary button
         if (e && e.button !== 0)
             return;
@@ -147,8 +149,9 @@ var DialogFooter = createReactClass({
             this.props.dialog_done(false);
         if (e)
             e.stopPropagation();
-    },
-    render: function() {
+    }
+
+    render() {
         var cancel_caption, cancel_style;
         if ('cancel_caption' in this.props)
             cancel_caption = this.props.cancel_caption;
@@ -232,7 +235,14 @@ var DialogFooter = createReactClass({
             </div>
         );
     }
-});
+}
+DialogFooter.PropTypes = {
+    cancel_clicked: PropTypes.func,
+    cancel_caption: PropTypes.string,
+    actions: PropTypes.array,
+    static_error: PropTypes.string,
+    dialog_done: PropTypes.func,
+};
 
 /*
  * React template for a Cockpit dialog
@@ -249,21 +259,14 @@ var DialogFooter = createReactClass({
  *  - footer (react element, top element should be of class modal-footer)
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  */
-var Dialog = createReactClass({
-    propTypes: {
-        // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
-        title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
-        no_backdrop: PropTypes.bool,
-        body: PropTypes.element, // is effectively required, see above
-        footer: PropTypes.element, // is effectively required, see above
-        id: PropTypes.string
-    },
-    componentDidMount: function() {
+class Dialog extends React.Component {
+    componentDidMount() {
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)
             document.activeElement.blur();
-    },
-    render: function() {
+    }
+
+    render() {
         var backdrop;
         if (!this.props.no_backdrop) {
             backdrop = <div className="modal-backdrop fade in" />;
@@ -285,7 +288,15 @@ var Dialog = createReactClass({
             </div>
         );
     }
-});
+}
+Dialog.PropTypes = {
+    // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
+    title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
+    no_backdrop: PropTypes.bool,
+    body: PropTypes.element, // is effectively required, see above
+    footer: PropTypes.element, // is effectively required, see above
+    id: PropTypes.string
+};
 
 /* Create and show a dialog
  * For this, create a containing DOM node at the body level

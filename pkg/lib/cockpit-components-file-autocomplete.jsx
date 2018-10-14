@@ -22,23 +22,16 @@
 var cockpit = require("cockpit");
 var React = require("react");
 var PropTypes = require("prop-types");
-var createReactClass = require('create-react-class');
 
 var _ = cockpit.gettext;
 require("./cockpit-components-file-autocomplete.css");
 
-var FileAutoComplete = createReactClass({
-    propTypes: {
-        id: PropTypes.string,
-        placeholder: PropTypes.string,
-        value: PropTypes.string,
-        superuser: PropTypes.string,
-        onChange: PropTypes.func,
-    },
-    getInitialState () {
-        var value = this.props.value || "";
+class FileAutoComplete extends React.Component {
+    constructor(props) {
+        super(props);
+        var value = props.value || "";
         this.updateFiles(value);
-        return {
+        this.state = {
             value: value,
             directory: '/',
             directoryFiles: null,
@@ -46,9 +39,20 @@ var FileAutoComplete = createReactClass({
             open: false,
             error: null,
         };
-    },
+        this.onChange = this.onChange.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onChangeCallback = this.onChangeCallback.bind(this);
+        this.onBlur = this.onBlur.bind(this);
+        this.delayedOnChange = this.delayedOnChange.bind(this);
+        this.updateFiles = this.updateFiles.bind(this);
+        this.updateIfDirectoryChanged = this.updateIfDirectoryChanged.bind(this);
+        this.finishUpdate = this.finishUpdate.bind(this);
+        this.filterFiles = this.filterFiles.bind(this);
+        this.showAllOptions = this.showAllOptions.bind(this);
+        this.selectItem = this.selectItem.bind(this);
+    }
 
-    getDirectoryForValue: function(value) {
+    getDirectoryForValue(value) {
         var dir = "";
         var last;
         if (value) {
@@ -63,9 +67,9 @@ var FileAutoComplete = createReactClass({
             dir = "/" + dir;
 
         return dir;
-    },
+    }
 
-    onChange: function(value) {
+    onChange(value) {
         if (value && value.indexOf("/") !== 0)
             value = "/" + value;
 
@@ -81,13 +85,14 @@ var FileAutoComplete = createReactClass({
         this.onChangeCallback(value, {
             error: stateUpdate.error,
         });
-    },
-    onChangeCallback: function(value, options) {
+    }
+
+    onChangeCallback(value, options) {
         if (this.props.onChange)
             this.props.onChange(value, options);
-    },
+    }
 
-    onMouseDown: function (ev) {
+    onMouseDown(ev) {
         // only consider clicks with the primary button
         if (ev && ev.button !== 0)
             return;
@@ -97,9 +102,9 @@ var FileAutoComplete = createReactClass({
                 selecting: true,
             });
         }
-    },
+    }
 
-    onBlur: function() {
+    onBlur() {
         if (this.state.selecting)
             return;
 
@@ -109,9 +114,9 @@ var FileAutoComplete = createReactClass({
         this.setState({
             open: false,
         });
-    },
+    }
 
-    delayedOnChange: function(ev) {
+    delayedOnChange(ev) {
         var self = this;
         var value = ev.currentTarget.value;
         if (this.timer)
@@ -122,9 +127,9 @@ var FileAutoComplete = createReactClass({
                 self.onChange(value);
                 self.timer = null;
             }, 250);
-    },
+    }
 
-    updateFiles: function(path) {
+    updateFiles(path) {
         var self = this;
         var channel = cockpit.channel({ payload: "fslist1",
                                         path: path || "/",
@@ -154,9 +159,9 @@ var FileAutoComplete = createReactClass({
                 channel.close();
             }
         });
-    },
+    }
 
-    updateIfDirectoryChanged: function(value) {
+    updateIfDirectoryChanged(value) {
         var directory = this.getDirectoryForValue(value);
         var changed = directory !== this.state.directory;
         if (changed && this.state.directoryFiles !== null) {
@@ -169,9 +174,9 @@ var FileAutoComplete = createReactClass({
             this.updateFiles(directory);
         }
         return changed;
-    },
+    }
 
-    finishUpdate: function(results, error) {
+    finishUpdate(results, error) {
         results = results.sort(function(a, b) {
             return a.path.localeCompare(b.path, { sensitivity: 'base' });
         });
@@ -185,9 +190,9 @@ var FileAutoComplete = createReactClass({
             directoryFiles: results,
             error: error,
         });
-    },
+    }
 
-    filterFiles: function(value) {
+    filterFiles(value) {
         var inputValue = value.trim().toLowerCase();
         var dirLength = this.state.directory.length;
         var matches = [];
@@ -214,9 +219,9 @@ var FileAutoComplete = createReactClass({
             open: true,
             error,
         };
-    },
+    }
 
-    showAllOptions: function (ev) {
+    showAllOptions(ev) {
         // only consider clicks with the primary button
         if (ev && ev.button !== 0)
             return;
@@ -225,9 +230,9 @@ var FileAutoComplete = createReactClass({
             open: !this.state.open,
             displayFiles: this.state.directoryFiles || [],
         });
-    },
+    }
 
-    selectItem: function (ev) {
+    selectItem(ev) {
         // only consider clicks with the primary button
         if (ev && ev.button !== 0)
             return;
@@ -253,17 +258,17 @@ var FileAutoComplete = createReactClass({
             this.refs.input.focus();
             this.updateIfDirectoryChanged(value);
         }
-    },
+    }
 
-    renderError: function(error) {
+    renderError(error) {
         return (
             <li key="error" className="alert alert-warning">
                 {error}
             </li>
         );
-    },
+    }
 
-    render: function() {
+    render() {
         var placeholder = this.props.placeholder || _("Path to file");
         var controlClasses = "form-control-feedback ";
         var classes = "input-group";
@@ -300,7 +305,14 @@ var FileAutoComplete = createReactClass({
             </div>
         );
     }
-});
+}
+FileAutoComplete.PropTypes = {
+    id: PropTypes.string,
+    placeholder: PropTypes.string,
+    value: PropTypes.string,
+    superuser: PropTypes.string,
+    onChange: PropTypes.func,
+};
 
 module.exports = {
     FileAutoComplete: FileAutoComplete,

@@ -23,7 +23,6 @@
     var React = require("react");
     var ReactDOM = require("react-dom");
     var PropTypes = require("prop-types");
-    var createReactClass = require('create-react-class');
 
     var Term = require("term");
 
@@ -44,15 +43,21 @@
      *
      * Call focus() to set the input focus on the terminal.
      */
-    var Terminal = createReactClass({
-        propTypes: {
-            cols: PropTypes.number,
-            rows: PropTypes.number,
-            channel: PropTypes.object.isRequired,
-            onTitleChanged: PropTypes.func
-        },
+    class Terminal extends React.Component {
+        constructor(props) {
+            super(props);
+            this.onChannelMessage = this.onChannelMessage.bind(this);
+            this.onChannelClose = this.onChannelClose.bind(this);
+            this.onWindowResize = this.onWindowResize.bind(this);
+            this.connectChannel = this.connectChannel.bind(this);
+            this.disconnectChannel = this.disconnectChannel.bind(this);
+            this.focus = this.focus.bind(this);
+            this.onWindowResize = this.onWindowResize.bind(this);
+            this.onFocusIn = this.onFocusIn.bind(this);
+            this.onFocusOut = this.onFocusOut.bind(this);
+        }
 
-        componentWillMount: function () {
+        componentWillMount() {
             var term = new Term({
                 cols: this.props.cols || 80,
                 rows: this.props.rows || 25,
@@ -68,9 +73,9 @@
                 term.on('title', this.props.onTitleChanged);
 
             this.setState({ terminal: term });
-        },
+        }
 
-        componentDidMount: function () {
+        componentDidMount() {
             this.state.terminal.open(this.refs.terminal);
             this.connectChannel();
 
@@ -78,9 +83,9 @@
                 window.addEventListener('resize', this.onWindowResize);
                 this.onWindowResize();
             }
-        },
+        }
 
-        componentWillUpdate: function (nextProps, nextState) {
+        componentWillUpdate(nextProps, nextState) {
             if (nextState.cols !== this.state.cols || nextState.rows !== this.state.rows) {
                 this.state.terminal.resize(nextState.cols, nextState.rows);
                 this.props.channel.control({
@@ -95,9 +100,9 @@
                 this.state.terminal.reset();
                 this.disconnectChannel();
             }
-        },
+        }
 
-        componentDidUpdate: function (prevProps) {
+        componentDidUpdate(prevProps) {
             if (prevProps.channel !== this.props.channel) {
                 this.connectChannel();
                 this.props.channel.control({
@@ -107,55 +112,55 @@
                     }
                 });
             }
-        },
+        }
 
-        render: function () {
+        render() {
             // ensure react never reuses this div by keying it with the terminal widget
             return <div ref="terminal"
                         key={this.state.terminal}
                         className="console-ct"
                         onFocus={this.onFocusIn}
                         onBlur={this.onFocusOut} />;
-        },
+        }
 
-        componentWillUnmount: function () {
+        componentWillUnmount() {
             this.disconnectChannel();
             this.state.terminal.destroy();
             window.removeEventListener('resize', this.onWindowResize);
-        },
+        }
 
-        onChannelMessage: function (event, data) {
+        onChannelMessage(event, data) {
             this.state.terminal.write(data);
-        },
+        }
 
-        onChannelClose: function (event, options) {
+        onChannelClose(event, options) {
             var term = this.state.terminal;
             term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
             term.cursorHidden = true;
             term.refresh(term.y, term.y);
-        },
+        }
 
-        connectChannel: function () {
+        connectChannel() {
             var channel = this.props.channel;
             if (channel && channel.valid) {
                 channel.addEventListener('message', this.onChannelMessage.bind(this));
                 channel.addEventListener('close', this.onChannelClose.bind(this));
             }
-        },
+        }
 
-        disconnectChannel: function () {
+        disconnectChannel() {
             if (this.props.channel) {
                 this.props.channel.removeEventListener('message', this.onChannelMessage);
                 this.props.channel.removeEventListener('close', this.onChannelClose);
             }
-        },
+        }
 
-        focus: function () {
+        focus() {
             if (this.state.terminal)
                 this.state.terminal.focus();
-        },
+        }
 
-        onWindowResize: function () {
+        onWindowResize() {
             var padding = 2 * 11;
             var node = ReactDOM.findDOMNode(this);
             var terminal = this.refs.terminal.querySelector('.terminal');
@@ -171,9 +176,9 @@
                 rows: Math.floor((node.parentElement.clientHeight - padding) / rect.height),
                 cols: Math.floor((node.parentElement.clientWidth - padding) / rect.width)
             });
-        },
+        }
 
-        onBeforeUnload: function (event) {
+        onBeforeUnload(event) {
             // Firefox requires this when the page is in an iframe
             event.preventDefault();
 
@@ -181,16 +186,22 @@
             // https://developer.mozilla.org/en-US/docs/Web/Events/beforeunload
             event.returnValue = '';
             return '';
-        },
+        }
 
-        onFocusIn: function () {
+        onFocusIn() {
             window.addEventListener('beforeunload', this.onBeforeUnload);
-        },
+        }
 
-        onFocusOut: function () {
+        onFocusOut() {
             window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
-    });
+    }
+    Terminal.PropTypes = {
+        cols: PropTypes.number,
+        rows: PropTypes.number,
+        channel: PropTypes.object.isRequired,
+        onTitleChanged: PropTypes.func
+    };
 
     module.exports = { Terminal: Terminal };
 }());

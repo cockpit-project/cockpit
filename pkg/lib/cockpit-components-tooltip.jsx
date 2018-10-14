@@ -20,7 +20,6 @@
 "use strict";
 
 var React = require('react');
-var createReactClass = require('create-react-class');
 
 require('./tooltip.css');
 
@@ -39,17 +38,23 @@ require('./tooltip.css');
  * outermost element of the tooltip.
  */
 
-var Tooltip = createReactClass({
-    getInitialState: function () {
-        return { open: false, pos: "top" };
-    },
-    onMouseEnter: function () {
+class Tooltip extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { open: false, pos: "top" };
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
+    }
+
+    onMouseEnter() {
         this.setState({ open: true });
-    },
-    onMouseLeave: function () {
+    }
+
+    onMouseLeave() {
         this.setState({ open: false });
-    },
-    render: function () {
+    }
+
+    render() {
         var self = this;
 
         if (!self.props.tip)
@@ -157,7 +162,7 @@ var Tooltip = createReactClass({
             </div>
         );
     }
-});
+}
 
 module.exports = {
     Tooltip: Tooltip,

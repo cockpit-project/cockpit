@@ -23,31 +23,32 @@
     var React = require("react");
     var ReactDOM = require("react-dom");
     var PropTypes = require("prop-types");
-    var createReactClass = require('create-react-class');
 
     var cockpitListing = require("cockpit-components-listing.jsx");
 
     /* Sample tab renderer for listing pattern
      * Shows a caption and the time it was instantiated
      */
-    var DemoListingTab = createReactClass({
-        propTypes: {
-            description: PropTypes.string.isRequired,
-        },
-        getInitialState: function() {
-            return {
+    class DemoListingTab extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
                 initTime: new Date().toLocaleString(),
             };
-        },
-        render: function() {
+        }
+
+        render() {
             return (<div>
                 <span>This is a listing tab</span><br />
                 <span>{this.props.description}</span><br />
                 <span>Initialized at: {this.state.initTime}</span>
             </div>
             );
-        },
-    });
+        }
+    }
+    DemoListingTab.PropTypes = {
+        description: PropTypes.string.isRequired,
+    };
 
     var showListingDemo = function(rootElement, rootElementSelectable, rootElementEmptyList) {
         var navigateToItem = function(msg) {

@@ -19,24 +19,29 @@
 
 var React = require("react");
 var ReactDOM = require("react-dom");
-var createReactClass = require('create-react-class');
 
 var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
 
-var OnOffDemo = createReactClass({
-    getInitialState: function() {
-        return {
+class OnOffDemo extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             onOffA: true,
             onOffB: false
         };
-    },
-    onChangeA: function(val) {
+        this.onChangeA = this.onChangeA.bind(this);
+        this.onChangeB = this.onChangeB.bind(this);
+    }
+
+    onChangeA(val) {
         this.setState({onOffA: val});
-    },
-    onChangeB: function(val) {
+    }
+
+    onChangeB(val) {
         this.setState({onOffB: val});
-    },
-    render: function() {
+    }
+
+    render() {
         return (
             <table>
                 <tr>
@@ -58,7 +63,7 @@ var OnOffDemo = createReactClass({
             </table>
         );
     }
-});
+}
 
 var showOnOffDemo = function(rootElement) {
     ReactDOM.render(<OnOffDemo />, rootElement);

@@ -20,7 +20,6 @@
 import { dialog_open, TextInput } from "./dialog.jsx";
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
@@ -35,17 +34,25 @@ var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var FilesystemTab = createReactClass({
-    onSamplesChanged: function () {
+class FilesystemTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onSamplesChanged = this.onSamplesChanged.bind(this);
+    }
+
+    onSamplesChanged() {
         this.setState({});
-    },
-    componentDidMount: function () {
+    }
+
+    componentDidMount() {
         $(this.props.client.fsys_sizes).on("changed", this.onSamplesChanged);
-    },
-    componentWillUnmount: function () {
+    }
+
+    componentWillUnmount() {
         $(this.props.client.fsys_sizes).off("changed", this.onSamplesChanged);
-    },
-    render: function () {
+    }
+
+    render() {
         var self = this;
         var block = self.props.block;
         var block_fsys = block && self.props.client.blocks_fsys[block.path];
@@ -212,8 +219,8 @@ var FilesystemTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     FilesystemTab: FilesystemTab

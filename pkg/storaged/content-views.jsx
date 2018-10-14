@@ -25,7 +25,6 @@ import {
 import utils from "./utils.js";
 
 import React from "react";
-import createReactClass from 'create-react-class';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
@@ -610,8 +609,8 @@ function vgroup_rows(client, vgroup) {
     return rows;
 }
 
-var VGroup = createReactClass({
-    render: function () {
+class VGroup extends React.Component {
+    render() {
         var self = this;
         var vgroup = this.props.vgroup;
 
@@ -700,7 +699,7 @@ var VGroup = createReactClass({
             </Listing>
         );
     }
-});
+}
 
 module.exports = {
     Block: Block,

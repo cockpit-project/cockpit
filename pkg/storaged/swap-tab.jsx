@@ -20,7 +20,6 @@
 "use strict";
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
 var $ = require("jquery");
@@ -33,17 +32,25 @@ var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var SwapTab = createReactClass({
-    onSamplesChanged: function () {
+class SwapTab extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onSamplesChanged = this.onSamplesChanged.bind(this);
+    }
+
+    onSamplesChanged() {
         this.setState({});
-    },
-    componentDidMount: function () {
+    }
+
+    componentDidMount() {
         $(this.props.client.swap_sizes).on("changed", this.onSamplesChanged);
-    },
-    componentWillUnmount: function () {
+    }
+
+    componentWillUnmount() {
         $(this.props.client.swap_sizes).off("changed", this.onSamplesChanged);
-    },
-    render: function () {
+    }
+
+    render() {
         var self = this;
         var block_swap = self.props.client.blocks_swap[self.props.block.path];
         var is_active = block_swap && block_swap.Active;
@@ -86,8 +93,8 @@ var SwapTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     SwapTab: SwapTab

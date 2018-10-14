@@ -20,7 +20,6 @@
 "use strict";
 
 var React = require("react");
-var createReactClass = require('create-react-class');
 
 var cockpit = require("cockpit");
 var utils = require("./utils.js");
@@ -31,8 +30,8 @@ var FormatButton = FormatDialog.FormatButton;
 
 var _ = cockpit.gettext;
 
-var PVolTab = createReactClass({
-    render: function () {
+class PVolTab extends React.Component {
+    render() {
         var block_pvol = this.props.client.blocks_pvol[this.props.block.path];
         var vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
 
@@ -59,11 +58,11 @@ var PVolTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
-var MDRaidMemberTab = createReactClass({
-    render: function () {
+class MDRaidMemberTab extends React.Component {
+    render() {
         var mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
 
         return (
@@ -85,11 +84,11 @@ var MDRaidMemberTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
-var VDOBackingTab = createReactClass({
-    render: function () {
+class VDOBackingTab extends React.Component {
+    render() {
         var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
 
         return (
@@ -111,8 +110,8 @@ var VDOBackingTab = createReactClass({
                 </table>
             </div>
         );
-    },
-});
+    }
+}
 
 module.exports = {
     PVolTab:         PVolTab,

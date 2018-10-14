@@ -20,7 +20,6 @@
 var cockpit = require("cockpit");
 var React = require("react");
 var PropTypes = require("prop-types");
-var createReactClass = require('create-react-class');
 
 var _ = cockpit.gettext;
 
@@ -33,16 +32,8 @@ var _ = cockpit.gettext;
  *  - description
  *  - click (callback function)
  */
-var TunedDialogProfile = createReactClass({
-    propTypes: {
-        name: PropTypes.string.isRequired,
-        recommended: PropTypes.bool.isRequired,
-        selected: PropTypes.bool.isRequired,
-        title: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
-        click: PropTypes.func.isRequired,
-    },
-    render: function() {
+class TunedDialogProfile extends React.Component {
+    render() {
         var classes = "list-group-item";
         if (this.props.selected)
             classes += " active";
@@ -57,7 +48,15 @@ var TunedDialogProfile = createReactClass({
             </div>
         );
     }
-});
+}
+TunedDialogProfile.PropTypes = {
+    name: PropTypes.string.isRequired,
+    recommended: PropTypes.bool.isRequired,
+    selected: PropTypes.bool.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    click: PropTypes.func.isRequired,
+};
 
 /* dialog body with list of performance profiles
  * Expected props:
@@ -70,24 +69,22 @@ var TunedDialogProfile = createReactClass({
  *    - title (string)
  *    - description (string)
  */
-var TunedDialogBody = createReactClass({
-    propTypes: {
-        active_profile: PropTypes.string.isRequired,
-        change_selected: PropTypes.func.isRequired,
-        profiles: PropTypes.array.isRequired,
-    },
-    getInitialState: function() {
-        return {
+class TunedDialogBody extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
             selected_profile: this.props.active_profile,
         };
-    },
-    handleProfileClick: function(profile) {
+    }
+
+    handleProfileClick(profile) {
         if (profile != this.state.selected_profile) {
             this.setState({ selected_profile: profile });
             this.props.change_selected(profile);
         }
-    },
-    render: function() {
+    }
+
+    render() {
         var self = this;
         var profiles = this.props.profiles.map(function(itm) {
             itm.active = (self.props.active_profile == itm.profile);
@@ -103,10 +100,15 @@ var TunedDialogBody = createReactClass({
             </div>
         );
     }
-});
+}
+TunedDialogBody.propTypes = {
+    active_profile: PropTypes.string.isRequired,
+    change_selected: PropTypes.func.isRequired,
+    profiles: PropTypes.array.isRequired,
+};
 
-var TunedLink = createReactClass({
-    render: function() {
+class TunedLink extends React.Component {
+    render() {
         var self = this;
 
         var text = self.props.active;
@@ -131,7 +133,7 @@ var TunedLink = createReactClass({
 
         return <a className={ classes } {...opts}>{ text }</a>;
     }
-});
+}
 
 module.exports = {
     dialog: TunedDialogBody,

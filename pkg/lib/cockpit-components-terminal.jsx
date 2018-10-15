@@ -196,7 +196,8 @@
             window.removeEventListener('beforeunload', this.onBeforeUnload);
         }
     }
-    Terminal.PropTypes = {
+
+    Terminal.propTypes = {
         cols: PropTypes.number,
         rows: PropTypes.number,
         channel: PropTypes.object.isRequired,

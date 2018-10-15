@@ -306,7 +306,7 @@ class FileAutoComplete extends React.Component {
         );
     }
 }
-FileAutoComplete.PropTypes = {
+FileAutoComplete.propTypes = {
     id: PropTypes.string,
     placeholder: PropTypes.string,
     value: PropTypes.string,

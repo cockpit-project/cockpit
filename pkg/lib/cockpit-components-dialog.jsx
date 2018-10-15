@@ -236,10 +236,11 @@ class DialogFooter extends React.Component {
         );
     }
 }
-DialogFooter.PropTypes = {
+
+DialogFooter.propTypes = {
     cancel_clicked: PropTypes.func,
     cancel_caption: PropTypes.string,
-    actions: PropTypes.array,
+    actions: PropTypes.array.isRequired,
     static_error: PropTypes.string,
     dialog_done: PropTypes.func,
 };
@@ -289,7 +290,7 @@ class Dialog extends React.Component {
         );
     }
 }
-Dialog.PropTypes = {
+Dialog.propTypes = {
     // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
     title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
     no_backdrop: PropTypes.bool,

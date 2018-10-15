@@ -49,7 +49,7 @@ class TunedDialogProfile extends React.Component {
         );
     }
 }
-TunedDialogProfile.PropTypes = {
+TunedDialogProfile.propTypes = {
     name: PropTypes.string.isRequired,
     recommended: PropTypes.bool.isRequired,
     selected: PropTypes.bool.isRequired,

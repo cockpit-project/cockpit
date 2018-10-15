@@ -46,7 +46,7 @@
             );
         }
     }
-    DemoListingTab.PropTypes = {
+    DemoListingTab.propTypes = {
         description: PropTypes.string.isRequired,
     };
 

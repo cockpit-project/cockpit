@@ -504,7 +504,7 @@ elif test "$enable_debug" = "no"; then
   NODE_ENV="production"
 else
   debug_status="default"
-  NODE_ENV="production"
+  NODE_ENV="${NODE_ENV:-production}"
 fi
 AM_CONDITIONAL(WITH_DEBUG, test "$enable_debug" = "yes")
 AC_MSG_RESULT($debug_status)
@@ -591,6 +591,7 @@ echo "
         Maintainer mode:            ${USE_MAINTAINER_MODE}
         Building docs:              ${enable_doc}
         Debug mode:                 ${debug_status}
+        Node environment:           ${NODE_ENV}
         With coverage:              ${enable_coverage}
         With address sanitizer:     ${asan_status}
         With PCP:                   ${enable_pcp}

@@ -216,7 +216,7 @@ export default function ({ vm, dispatch, config }) {
     return show_modal_dialog(
         {
             title: cockpit.format(_("$0 vCPU Details"), vm.name),
-            body: (<VCPUModalBody vcpus={vm.vcpus} cpu={vm.cpu} onChange={onStateChange} isRunning={vm.state == 'running'} hypervisorMax={config.hypervisorMaxVCPU[vm.connectionName]} />),
+            body: (<VCPUModalBody vcpus={vm.vcpus} cpu={vm.cpu} onChange={onStateChange} isRunning={vm.state == 'running'} hypervisorMax={parseInt(config.hypervisorMaxVCPU[vm.connectionName])} />),
             id: "machines-vcpu-modal-dialog"
         },
         { actions: [

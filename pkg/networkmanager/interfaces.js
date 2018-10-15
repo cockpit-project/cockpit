@@ -1773,8 +1773,12 @@ PageNetworking.prototype = {
         self.model.list_interfaces().forEach(function (iface) {
 
             function has_master(iface) {
-                return ((iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Master) ||
-                        (iface.MainConnection && iface.MainConnection.Masters.length > 0));
+                return ((iface.Device &&
+                         iface.Device.ActiveConnection &&
+                         iface.Device.ActiveConnection.Master &&
+                         iface.Device.ActiveConnection.Master.Slaves.length > 0) ||
+                        (iface.MainConnection &&
+                         iface.MainConnection.Masters.length > 0));
             }
 
             // Skip loopback

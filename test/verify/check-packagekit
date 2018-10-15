@@ -643,6 +643,7 @@ class TestUpdates(PackageCase):
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
         self.allow_journal_messages("Process .* dumped core.*")
+        self.allow_journal_messages("Stack trace of thread")
 
     def testNoPackageKit(self):
         b = self.browser

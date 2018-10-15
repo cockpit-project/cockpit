@@ -182,6 +182,7 @@
                 drive_rows.push(
                     <tr key={drive.path} onClick={self.toggleDrive.bind(self, drive)}>
                         <td><input type="checkbox"
+                                   onChange={ () => null /* click handled by parent element, silence React warning */ }
                                    checked={self.driveChecked(drive)} />
                         </td>
                         <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>

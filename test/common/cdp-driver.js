@@ -70,6 +70,7 @@ var unhandledExceptions = [];
 // when encountering a log message that contains any of these strings, fail the test
 const fatalLogs = [
     /^Warning: Failed prop type:/,
+    /^Warning: Component.*declared.*instead of.*propTypes.*/,
 ];
 
 function setupLogging(client) {

@@ -201,7 +201,7 @@ class AddServicesDialogBody extends React.Component {
                                     <input id={s.id}
                                            type="checkbox"
                                            checked={this.state.selected.has(s.id)}
-                                           onClick={this.onToggleService} />
+                                           onChange={this.onToggleService} />
                                     &nbsp;
                                     <span>{s.name}</span>
                                 </label>

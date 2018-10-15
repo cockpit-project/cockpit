@@ -642,6 +642,7 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#app .container-fluid", "PackageKit crashed")
 
         self.allow_journal_messages(".*org.freedesktop.PackageKit.*Error.NoReply.*")
+        self.allow_journal_messages("Process .* dumped core.*")
 
     def testNoPackageKit(self):
         b = self.browser

@@ -279,12 +279,12 @@ ListingRow.propTypes = {
 };
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/list-view/
- * Properties:
+ * Properties (all optional):
  * - title
- * - fullWidth optional: set width to 100% of parent, defaults to true
- * - emptyCaption header caption to show if list is empty, defaults to "No entries"
+ * - fullWidth: set width to 100% of parent, defaults to true
+ * - emptyCaption: header caption to show if list is empty
  * - columnTitles: array of column titles, as strings
- * - columnTitleClick: optional callback for clicking on column title (for sorting)
+ * - columnTitleClick: callback for clicking on column title (for sorting)
  *                     receives the column index as argument
  * - actions: additional listing-wide actions (displayed next to the list's title)
  */
@@ -346,6 +346,7 @@ export const Listing = (props) => {
 Listing.defaultProps = {
     title: '',
     fullWidth: true,
+    emptyCaption: '',
     columnTitles: [],
     actions: []
 };
@@ -353,7 +354,7 @@ Listing.defaultProps = {
 Listing.propTypes = {
     title: PropTypes.string,
     fullWidth: PropTypes.bool,
-    emptyCaption: PropTypes.string.isRequired,
+    emptyCaption: PropTypes.node,
     columnTitles: PropTypes.arrayOf(
         PropTypes.oneOfType([
             PropTypes.string,

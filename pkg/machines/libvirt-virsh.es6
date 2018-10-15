@@ -154,16 +154,24 @@ LIBVIRT_PROVIDER = {
     GET_VM ({ name, connectionName, updateOnly }) {
         logDebug(`${this.name}.GET_VM()`);
         let xmlDesc;
+        let xmlInactiveDesc;
 
         return dispatch => {
             if (!isEmpty(name)) {
-                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name}).then(domXml => {
-                    xmlDesc = domXml;
-                    return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
-                })
+                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name})
+                        .then(domXml => {
+                            xmlDesc = domXml;
+                            return spawnVirshReadOnly({connectionName, method: 'dumpxml', params: '--inactive', name});
+                        })
+                        .then(domInactiveXml => {
+                            xmlInactiveDesc = domInactiveXml;
+                            return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
+                        })
                         .then(domInfo => {
                             let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
                             let domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
+
+                            dumpxmlParams.inactiveXML = parseDumpxml(dispatch, connectionName, xmlInactiveDesc);
 
                             if (updateOnly)
                                 dispatch(updateVm(
@@ -449,8 +457,10 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
     });
 }
 
-function spawnVirshReadOnly({connectionName, method, name, failHandler}) {
-    return spawnVirsh({connectionName, method, args: ['-r', method, name], failHandler});
+function spawnVirshReadOnly({connectionName, method, name, params, failHandler}) {
+    let args = params ? ['-r', method, params, name] : ['-r', method, name];
+
+    return spawnVirsh({connectionName, method, args, failHandler});
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

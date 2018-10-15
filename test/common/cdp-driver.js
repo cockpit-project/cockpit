@@ -67,6 +67,11 @@ var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
 
+// when encountering a log message that contains any of these strings, fail the test
+const fatalLogs = [
+    /^Warning: Failed prop type:/,
+];
+
 function setupLogging(client) {
     client.Runtime.enable();
 
@@ -74,6 +79,10 @@ function setupLogging(client) {
         let msg = info.args.map(v => (v.value || "").toString()).join(" ");
         messages.push([ info.type, msg ]);
         process.stderr.write("> " + info.type + ": " + msg + "\n")
+
+        if (fatalLogs.find(pattern => pattern.test(msg)))
+            unhandledExceptions.push(msg);
+
         resolveLogPromise();
     });
 
@@ -91,7 +100,10 @@ function setupLogging(client) {
             details.exception.description.indexOf("/kubernetes.js") >= 0)
             return;
 
-        unhandledExceptions.push(details)
+        unhandledExceptions.push(details.exception.message ||
+                                 details.exception.description ||
+                                 details.exception.value ||
+                                 JSON.stringify(details.exception));
     });
 
     client.Log.enable();
@@ -314,11 +326,7 @@ CDP.New(options)
                                 if (unhandledExceptions.length === 0) {
                                     success(reply);
                                 } else {
-                                    let details = unhandledExceptions[0];
-                                    let message = details.exception.message ||
-                                                  details.exception.description ||
-                                                  details.exception.value ||
-                                                  JSON.stringify(details.exception);
+                                    let message = unhandledExceptions[0];
                                     fail(message.split("\n")[0]);
                                     unhandledExceptions.length = 0;
                                 }

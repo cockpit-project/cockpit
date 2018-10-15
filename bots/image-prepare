@@ -149,7 +149,12 @@ def build_and_install(build_image, build_results, skips, args):
     completed = False
 
     # While the machine is booting, make a tarball
-    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ], universal_newlines=True).strip()
+    # Do a development build on the latest Fedora image so that we can spot React and other dev-only warnings
+    env = os.environ.copy()
+    if os.path.basename(build_image) == "fedora-29":
+        env["NODE_ENV"] = "development"
+    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ],
+                                     universal_newlines=True, env=env).strip()
     machine.start()
     completed = False
 

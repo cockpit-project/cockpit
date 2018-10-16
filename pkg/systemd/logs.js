@@ -556,8 +556,7 @@ $(function() {
             $.each(problem_details_elems, function(i, key) {
                 if (key in args){
                     val = problem_render_callbacks[key](args[key]);
-                    pd.append(
-                        $('<tr>').append(
+                    $('.panel-group', pd).append(
                         $('<div class="panel panel-default">')
                             .css("border-width", "0px 0px 2px 0px")
                             .css("margin-bottom", "0px")
@@ -573,7 +572,7 @@ $(function() {
                             .attr('id', key)
                             .append(
                               $('<div class="panel-body">')
-                                    .html(val)))));
+                                    .html(val))));
                 }
             });
         });

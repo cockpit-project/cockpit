@@ -344,5 +344,12 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
+    def testReactPatterns(self):
+        b = self.browser
+        self.login_and_go("/playground/react-patterns")
+        # "initially expanded" entry in demo listing
+        b.wait_present("#demo-listing tbody.open th")
+        b.wait_text("#demo-listing tbody.open th", "initially expanded")
+
 if __name__ == '__main__':
     test_main()

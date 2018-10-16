@@ -44,22 +44,24 @@ class OnOffDemo extends React.Component {
     render() {
         return (
             <table>
-                <tr>
-                    <td><span>Regular</span></td>
-                    <td><OnOffSwitch state={this.state.onOffA} onChange={this.onChangeA} /></td>
-                </tr>
-                <tr>
-                    <td><span>Regular</span></td>
-                    <td><OnOffSwitch state={this.state.onOffB} onChange={this.onChangeB} /></td>
-                </tr>
-                <tr>
-                    <td><span>Disabled On</span></td>
-                    <td><OnOffSwitch state enabled={false} /></td>
-                </tr>
-                <tr>
-                    <td><span>Disabled Off</span></td>
-                    <td><OnOffSwitch state={false} enabled={false} /></td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td><span>Regular</span></td>
+                        <td><OnOffSwitch state={this.state.onOffA} onChange={this.onChangeA} /></td>
+                    </tr>
+                    <tr>
+                        <td><span>Regular</span></td>
+                        <td><OnOffSwitch state={this.state.onOffB} onChange={this.onChangeB} /></td>
+                    </tr>
+                    <tr>
+                        <td><span>Disabled On</span></td>
+                        <td><OnOffSwitch state enabled={false} /></td>
+                    </tr>
+                    <tr>
+                        <td><span>Disabled Off</span></td>
+                        <td><OnOffSwitch state={false} enabled={false} /></td>
+                    </tr>
+                </tbody>
             </table>
         );
     }

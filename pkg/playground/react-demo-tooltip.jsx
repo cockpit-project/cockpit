@@ -30,23 +30,25 @@ import { Tooltip } from "cockpit-components-tooltip.jsx";
 
         var tooltip = (
             <table width="100%">
-                <tr>
-                    <td className="text-left">
-                        <Tooltip tip={tip} pos="top">
-                            <button className="btn btn-default">Too</button>
-                        </Tooltip> close to left edge
-                    </td>
-                    <td className="text-center">
-                        <Tooltip tip={tip} pos="top">
-                            <button className="btn btn-default">Enough space all around</button>
-                        </Tooltip>
-                    </td>
-                    <td className="text-right">
-                        Too close to right <Tooltip tip={tip} pos="top">
-                            <button className="btn btn-default">edge</button>
-                        </Tooltip>
-                    </td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td className="text-left">
+                            <Tooltip tip={tip} pos="top">
+                                <button className="btn btn-default">Too</button>
+                            </Tooltip> close to left edge
+                        </td>
+                        <td className="text-center">
+                            <Tooltip tip={tip} pos="top">
+                                <button className="btn btn-default">Enough space all around</button>
+                            </Tooltip>
+                        </td>
+                        <td className="text-right">
+                            Too close to right <Tooltip tip={tip} pos="top">
+                                <button className="btn btn-default">edge</button>
+                            </Tooltip>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         );
 

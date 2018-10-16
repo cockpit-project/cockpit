@@ -64,7 +64,7 @@ class Dropdown extends React.Component {
                     {
                         this.props.actions.map(function (action, index) {
                             return (
-                                <li className={ action.disabled ? 'disabled' : '' }>
+                                <li key={index} className={ action.disabled ? 'disabled' : '' }>
                                     <a data-value={index} role="link" tabIndex="0" onClick={this.handleClick}>{action.label}</a>
                                 </li>
                             );
@@ -154,7 +154,7 @@ class ContainerProblems extends React.Component {
         var problem = this.props.problem;
         var problem_cursors = [];
         for (var i = 0; i < problem.length; i++) {
-            problem_cursors.push(<a data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
+            problem_cursors.push(<a key={i} data-url={problem[i][0]} className='list-group-item' role="link" tabIndex="0" onClick={this.onItemClick}>
                 <span className="pficon pficon-warning-triangle-o fa-lg" />
                 {problem[i][1]}
             </a>);
@@ -320,17 +320,19 @@ class ContainerList extends React.Component {
                 disabled: !isRunning
             });
 
-            var actions = [
-                <button className="btn btn-danger btn-delete pficon pficon-delete"
-                        onClick={ this.deleteContainer.bind(this, container) } />,
-                <button className="btn btn-default"
-                        disabled={isRunning}
-                        data-container-id={container.Id}
-                        data-toggle="modal" data-target="#container-commit-dialog">
-                    {_("Commit")}
-                </button>,
-                <Dropdown actions={startStopActions} />
-            ];
+            var actions = (
+                <React.Fragment>
+                    <button className="btn btn-danger btn-delete pficon pficon-delete"
+                            onClick={ this.deleteContainer.bind(this, container) } />
+                    <button className="btn btn-default"
+                            disabled={isRunning}
+                            data-container-id={container.Id}
+                            data-toggle="modal" data-target="#container-commit-dialog">
+                        {_("Commit")}
+                    </button>
+                    <Dropdown actions={startStopActions} />
+                </React.Fragment>
+            );
 
             var tabs = [
                 {
@@ -440,7 +442,8 @@ class ImageSecurity extends React.Component {
 
             rows = info.vulnerabilities.map(function (vulnerability) {
                 return (
-                    <div className="vulnerability-row-ct-docker" title={vulnerability.description}>
+                    <div key={vulnerability.description}
+                         className="vulnerability-row-ct-docker" title={vulnerability.description}>
                         <span>{vulnerability.title}</span>
                         <span className="pull-right">{vulnerability.severity}</span>
                     </div>

@@ -158,6 +158,18 @@ export function getDomainElem(domXml) {
     return xmlDoc.getElementsByTagName("domain")[0];
 }
 
+function getStoragePoolElem(poolXml) {
+    let parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(poolXml, "application/xml");
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${poolXml}"`);
+        return;
+    }
+
+    return xmlDoc.getElementsByTagName("pool")[0];
+}
+
 export function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional
@@ -490,6 +502,31 @@ export function parseOsInfoList(dispatch, osList) {
     });
 
     dispatch(updateOsInfoList(parsedList));
+}
+
+export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overwrite) {
+    const storagePoolElem = getStoragePoolElem(storagePoolXml);
+    if (!storagePoolElem) {
+        return;
+    }
+    const type = storagePoolElem.getAttribute('type');
+    const name = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
+    const id = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
+    let path;
+
+    // Fetch path property if target is contained for this type of pool
+    if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(type) > -1) {
+        const targetElem = storagePoolElem.getElementsByTagName('target')[0];
+        path = getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue;
+    }
+
+    return {
+        connectionName,
+        name,
+        id,
+        type,
+        path,
+    };
 }
 
 export function resolveUiState(dispatch, name) {

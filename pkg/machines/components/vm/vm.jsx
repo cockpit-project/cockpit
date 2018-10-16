@@ -114,7 +114,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
 Vm.propTypes = {
     vm: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
-    storagePools: PropTypes.object.isRequired,
+    storagePools: PropTypes.array.isRequired,
     hostDevices: PropTypes.object.isRequired,
     onStart: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,

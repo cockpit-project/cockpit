@@ -37,6 +37,7 @@ import html.parser
 sys.dont_write_bytecode = True
 
 import task
+import task.tap
 
 # The number of days of previous closed pull requests to learn from
 SINCE_DAYS = 120
@@ -78,10 +79,10 @@ def run(filename, verbose=False, dry=False, **kwargs):
         for (context, created, url, log) in logs(commit):
             if verbose:
                 sys.stderr.write("  - {0} {1}\n".format(created, context))
-            for (status, name, body, tracker) in tap(log):
+            for (status, name, body, tracker) in task.tap.parse(log):
                 write(pull=pull, revision=commit, status=status,
                       context=context, date=created, merged=merged,
-                      test=name, url=url, tracker=tracker, log=body)
+                      test=name, url=url, tracker=qualify(tracker), log=body)
                 logged = True
 
             # Nothing found for this log
@@ -415,63 +416,6 @@ def logs(revision):
             if log is not None:
                 yield (status["context"], status["created_at"], target, log)
 
-
-# Generate (status, name, body, tracker) for each Test Anything Protocol test
-# in the content.
-#
-# status: possible values "success", "failure", "skip"
-# name: the name of the test
-# body: full log of the test
-# tracker: url tracking the failure, or None
-def tap(content):
-    name = status = tracker = None
-    prefix = None
-    body = [ ]
-    blocks = False
-    for line in content.split('\n'):
-        # The test intro, everything before here is fluff
-        if not prefix and line.startswith("1.."):
-            prefix = line
-            body = [ ]
-            name = status = tracker = None
-
-        # A TAP test status line
-        elif line.startswith("ok ") or line.startswith("not ok "):
-            body.append(line)
-            # Parse out the status
-            if line.startswith("not ok "):
-                status = "failure"
-                line = line[7:]
-            else:
-                line = line[3:]
-                if "# SKIP KNOWN ISSUE" in line.upper():
-                    status = "failure"
-                    (unused, delim, issue) = line.partition("#")
-                    tracker = qualify("issues/{0}".format(issue))
-                if "# SKIP" in line.upper():
-                    status = "skip"
-                else:
-                    status = "success"
-            # Parse out the name
-            while line[0].isspace() or line[0].isdigit():
-                line = line[1:]
-            (name, delim, directive) = line.partition("#")
-            (name, delim, directive) = name.partition("duration")
-            name = name.strip()
-            # Old Cockpit tests had strange blocks
-            if not blocks:
-                yield (status, name, "\n".join(body), tracker)
-                status = name = tracker = None
-                body = [ ]
-        else:
-            # Old Cockpit tests didn't separate bound their stuff properly
-            if line.startswith("# --------------------"):
-                blocks = True
-                if status:
-                    yield (status, name, "\n".join(body), tracker)
-                name = status = tracker = None
-                body = [ ]
-            body.append(line)
 
 # Qualify a URL into the GitHub repository
 def qualify(path):

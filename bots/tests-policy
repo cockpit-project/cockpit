@@ -32,6 +32,8 @@ import warnings
 sys.dont_write_bytecode = True
 
 from task import github
+from task import tap
+
 try:
     from machine.testvm import get_test_image
 except ImportError:
@@ -124,19 +126,6 @@ def filterRetry(output, retry):
             lines[i] = line + " " + retry
     return "\n".join(lines)
 
-# Figure out the name from a failed test
-def parseName(output):
-    for line in output.split("\n"):
-        if line.startswith("not ok "):
-            line = line[7:]
-            while line[0].isspace() or line[0].isdigit():
-                line = line[1:]
-            (name, delim, directive) = line.partition("#")
-            (name, delim, directive) = name.partition("duration")
-            name = name.strip()
-            return name
-    return ""
-
 # -----------------------------------------------------------------------------
 # Flakiness Checks
 
@@ -147,22 +136,27 @@ def guessFlake(output, context):
         return output
 
     # The two different models we're using
-    model = learn.cluster.load(DATA)
+    for (status, name, body, tracker) in tap.parse(output, prefix="1..", blocks=True):
+        break
+    else:
+        return output
 
     # Build up an item just like in tests-data
     item = {
         "pull": None,
         "revision": os.environ.get("TEST_REVISION"),
-        "status": "failure",
+        "status": status,
         "context": context,
         "date": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "merged": None,
-        "test": parseName(output),
+        "test": name,
+        "tracker": tracker,
         "url": None,
-        "log": output
+        "log": body,
     }
 
-    # The new model
+    model = learn.cluster.load(DATA)
+
     flake = False
     if model:
         result = model.predict([ item ])[0]

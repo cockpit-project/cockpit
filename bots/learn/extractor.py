@@ -43,20 +43,30 @@ IGNORE_THRESHHOLD = 0.07
 # some cluster seeds
 TRACKER_SPARSE = 100
 
-# TODO: We should be able to detect these automatically and ignore them
-# But for now this is a pragmatic hack to reduce noise and processing time
-NOISE = {
-    "Wrote file": re.compile("Wrote.*\.(png|html|log)"),
-    "Journal extracted": re.compile("Journal extracted to.*\.log"),
-    "Core dumps downloaded": re.compile("Core dumps downloaded to.*\.core"),
-    "not ok": re.compile("^not ok.*"),
-    "ok": re.compile("^ok.*"),
-    "# Flake": re.compile("# Flake.*"),
-    'File "\\1"': re.compile('File "/[^"]+/([^/]+)"'),
-    "### ": re.compile('#{3,80}\s+'),
-}
+NUMBERS = (
+    # 512 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{128}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{128}')),
 
-DIGITS = re.compile('\d+')
+    # 256 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('/[0-9a-f]{64}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('/[0-9A-F]{64}')),
+
+    # 160 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{40}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{40}')),
+
+    # 128 bit hashes
+    ("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", re.compile('[0-9a-f]{32}')),
+    ("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", re.compile('[0-9A-F]{32}')),
+
+    # GUIDs
+    ('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        re.compile('[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}')),
+
+    # Digits
+    ('000', re.compile('\d+'))
+)
 
 # Various features extracted
 FEATURE_LOG = 0                # string: The normalized and collapsed log extracted
@@ -105,10 +115,9 @@ class Extractor():
         value = item["log"] or ""
         for line in value.replace('\r\n', '\n').replace('\r', '\n').split('\n'):
             line = line.strip()
-            for substitute, pattern in NOISE.items():
+            for (substitute, pattern) in NUMBERS:
                 line = pattern.sub(substitute, line)
-            else:
-                result.append(DIGITS.sub('000', line))
+            result.append(line)
         return result
 
     def fit(self, items, tokenized=None):
@@ -161,20 +170,27 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Look for noise lines in input jsonl")
     parser.add_argument("--only", action="append", help="Only analyze these statuses")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print verbose progress output")
-    parser.add_argument("filename", help="The filename in JSONL gzip format")
+    parser.add_argument("-t", "--tokenize", action="store_true", help="Just tokenize a raw file")
+    parser.add_argument("filename", help="The filename in JSONL gzip format or raw file for --tokenize")
     opts = parser.parse_args()
 
-    # The kind of statuses to inlcude
-    if not opts.only:
-        only = None
+    if opts.tokenize:
+        with open(opts.filename, "r") as fp:
+            contents = fp.read()
+            print("\n".join(Extractor.tokenize({ "log": contents })))
+
     else:
-        only = lambda item: item.get("status") in opts.only
+        # The kind of statuses to inlcude
+        if not opts.only:
+            only = None
+        else:
+            only = lambda item: item.get("status") in opts.only
 
-    # Load the actual data
-    items = data.load(opts.filename, only=only, verbose=opts.verbose)
+        # Load the actual data
+        items = data.load(opts.filename, only=only, verbose=opts.verbose)
 
-    # Print out all lines we think are stop lines in the data
-    extract = Extractor()
-    extract.fit(items)
-    for stop in extract.stop_tokens():
-        print(stop)
+        # Print out all lines we think are stop lines in the data
+        extract = Extractor()
+        extract.fit(items)
+        for stop in extract.stop_tokens():
+            print(stop)

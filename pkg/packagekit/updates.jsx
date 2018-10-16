@@ -495,7 +495,9 @@ class ApplyUpdates extends React.Component {
                     }}>
                         <div id="update-log" className="update-log-content">
                             <table>
-                                {logRows}
+                                <tbody>
+                                    {logRows}
+                                </tbody>
                             </table>
                         </div>
                     </Expander>

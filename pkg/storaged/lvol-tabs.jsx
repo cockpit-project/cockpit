@@ -374,29 +374,31 @@ class PoolVolTab extends React.Component {
         return (
             <div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Name")}</td>
-                        <td>
-                            <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>{_("Size")}</td>
-                        <td>
-                            {utils.fmt_size(this.props.lvol.Size)}
-                            <div className="tab-row-actions">
-                                <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>{_("Data Used")}</td>
-                        <td>{perc(this.props.lvol.DataAllocatedRatio)}</td>
-                    </tr>
-                    <tr>
-                        <td>{_("Metadata Used")}</td>
-                        <td>{perc(this.props.lvol.MetadataAllocatedRatio)}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Name")}</td>
+                            <td>
+                                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{_("Size")}</td>
+                            <td>
+                                {utils.fmt_size(this.props.lvol.Size)}
+                                <div className="tab-row-actions">
+                                    <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{_("Data Used")}</td>
+                            <td>{perc(this.props.lvol.DataAllocatedRatio)}</td>
+                        </tr>
+                        <tr>
+                            <td>{_("Metadata Used")}</td>
+                            <td>{perc(this.props.lvol.MetadataAllocatedRatio)}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

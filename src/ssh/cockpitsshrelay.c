@@ -560,11 +560,11 @@ session_has_known_host_in_file (const gchar *file,
 #endif
   /* HACK: https://bugs.libssh.org/T108 */
   if (!file)
-    g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == SSH_OK);
+    g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == 0);
 #if LIBSSH_085
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS, file) == SSH_OK);
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS, file) == 0);
 #else
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == SSH_OK);
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == 0);
 #endif
   return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
 }
@@ -745,7 +745,7 @@ verify_knownhost (CockpitSshData *data,
    */
 #if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
   if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       data->ssh_options->knownhosts_file) != SSH_OK)
+                       data->ssh_options->knownhosts_file) != 0)
     {
       g_warning ("Couldn't set knownhosts file location");
       ret = "internal-error";

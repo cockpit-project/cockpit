@@ -17,14 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var React = require("react");
+import React from "react";
 
-var cockpit = require("cockpit");
-var _ = cockpit.gettext;
+import cockpit from "cockpit";
 
-var listingPattern = require("cockpit-components-listing.jsx");
-var Listing = listingPattern.Listing;
-var ListingRow = listingPattern.ListingRow;
+import { Listing, ListingRow } from "cockpit-components-listing.jsx";
+
+const _ = cockpit.gettext;
 
 /* Dialog body to show active Cockpit pages
  * Props:

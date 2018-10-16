@@ -19,12 +19,12 @@
 
 "use strict";
 
-var cockpit = require("cockpit");
-var React = require("react");
-var PropTypes = require("prop-types");
+import cockpit from "cockpit";
+import React from "react";
+import PropTypes from "prop-types";
+import "./cockpit-components-file-autocomplete.css";
 
-var _ = cockpit.gettext;
-require("./cockpit-components-file-autocomplete.css");
+const _ = cockpit.gettext;
 
 class FileAutoComplete extends React.Component {
     constructor(props) {

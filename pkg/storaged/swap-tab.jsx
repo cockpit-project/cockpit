@@ -19,18 +19,15 @@
 
 "use strict";
 
-var React = require("react");
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
-var $ = require("jquery");
+import React from "react";
+import cockpit from "cockpit";
+import utils from "./utils.js";
+import $ from "jquery";
 
-var StorageControls = require("./storage-controls.jsx");
-var FormatDialog = require("./format-dialog.jsx");
+import { StorageButton } from "./storage-controls.jsx";
+import { FormatButton } from "./format-dialog.jsx";
 
-var StorageButton = StorageControls.StorageButton;
-var FormatButton = FormatDialog.FormatButton;
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class SwapTab extends React.Component {
     constructor(props) {

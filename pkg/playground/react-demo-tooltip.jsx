@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+import ReactDOM from "react-dom";
+
+import { Tooltip } from "cockpit-components-tooltip.jsx";
+
 (function() {
     "use strict";
-
-    var React = require("react");
-    var ReactDOM = require("react-dom");
-
-    var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
 
     function showTooltipDemo (element, top_element) {
         var tip = <span>The user <b>junior</b> is not permitted to manage storage</span>;

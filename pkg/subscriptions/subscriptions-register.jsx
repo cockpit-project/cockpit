@@ -17,12 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var React = require("react");
+import React from "react";
 
-var cockpit = require("cockpit");
-var _ = cockpit.gettext;
+import cockpit from "cockpit";
 
-var Select = require("cockpit-components-select.jsx");
+import * as Select from "cockpit-components-select.jsx";
+
+const _ = cockpit.gettext;
 
 function defaultRegisterDialogSettings() {
     return {

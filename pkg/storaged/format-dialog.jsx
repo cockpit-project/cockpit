@@ -19,20 +19,20 @@
 
 "use strict";
 
+import React from "react";
+
+import cockpit from "cockpit";
+import utils from "./utils.js";
+
 import {
     dialog_open,
     TextInput, PassInput, CheckBox, SelectOne, TextInputChecked, SizeSlider,
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
-var React = require("react");
+import StorageControls from "./storage-controls.jsx";
 
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
-
-var StorageControls = require("./storage-controls.jsx");
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 function parse_options(options) {
     if (options)

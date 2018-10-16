@@ -17,19 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+
+import cockpit from "cockpit";
+import utils from "./utils.js";
+import $ from "jquery";
+
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
+import { dialog_open } from "./dialog.jsx";
+import { Tooltip } from "cockpit-components-tooltip.jsx";
 import { fmt_to_fragments } from "./utilsx.jsx";
 
-var React = require("react");
-
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
-var $ = require("jquery");
-
-var dialog_open = require("./dialog.jsx").dialog_open;
-var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 /* StorageControl - a button or similar that triggers
  *                  a privileged action.

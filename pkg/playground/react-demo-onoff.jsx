@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var React = require("react");
-var ReactDOM = require("react-dom");
+import React from "react";
+import ReactDOM from "react-dom";
 
-var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 class OnOffDemo extends React.Component {
     constructor(props) {

@@ -21,8 +21,8 @@ import cockpit from 'cockpit';
 import {proxy as serviceProxy} from 'service';
 import {ConfigFile} from './config-client.es6';
 
-const crashKernelScript = require('raw!./crashkernel.sh');
-const testWritableScript = require('raw!./testwritable.sh');
+import crashKernelScript from 'raw!./crashkernel.sh';
+import testWritableScript from 'raw!./testwritable.sh';
 const _ = cockpit.gettext;
 
 const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blacklist"];

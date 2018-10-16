@@ -19,16 +19,14 @@
 
 "use strict";
 
-var React = require("react");
+import React from "react";
 
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
+import cockpit from "cockpit";
+import utils from "./utils.js";
 
-var FormatDialog = require("./format-dialog.jsx");
+import { FormatButton } from "./format-dialog.jsx";
 
-var FormatButton = FormatDialog.FormatButton;
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class PVolTab extends React.Component {
     render() {

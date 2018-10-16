@@ -19,12 +19,12 @@
 
 "use strict";
 
-var cockpit = require("cockpit");
-var React = require("react");
+import cockpit from "cockpit";
+import React from "react";
 
-var _ = cockpit.gettext;
+import "./cockpit-components-onoff.css";
 
-require("./cockpit-components-onoff.css");
+const _ = cockpit.gettext;
 
 /* Component to show an on/off switch
  * state      boolean value (off or on)

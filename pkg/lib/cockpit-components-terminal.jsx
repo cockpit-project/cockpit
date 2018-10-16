@@ -17,16 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
+import Term from "term";
+import "console.css";
+
 (function() {
     "use strict";
-
-    var React = require("react");
-    var ReactDOM = require("react-dom");
-    var PropTypes = require("prop-types");
-
-    var Term = require("term");
-
-    require("console.css");
 
     /*
      * A terminal component that communicates over a cockpit channel.

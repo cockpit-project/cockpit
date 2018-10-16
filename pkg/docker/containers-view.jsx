@@ -19,21 +19,20 @@
 
 'use strict';
 
-var React = require('react');
+import React from 'react';
+import cockpit from 'cockpit';
 
-var cockpit = require('cockpit');
-var _ = cockpit.gettext;
+import $ from "jquery";
+import docker from './docker';
+import atomic from './atomic';
+import util from './util';
+import searchImage from "./search";
 
-var $ = require("jquery");
-var docker = require('./docker');
-var atomic = require('./atomic');
-var util = require('./util');
-var searchImage = require("./search");
+import * as Listing from 'cockpit-components-listing.jsx';
+import * as Select from 'cockpit-components-select.jsx';
+import moment from 'moment';
 
-var Listing = require('cockpit-components-listing.jsx');
-var Select = require('cockpit-components-select.jsx');
-var moment = require('moment');
-
+const _ = cockpit.gettext;
 moment.locale(cockpit.language);
 
 class Dropdown extends React.Component {

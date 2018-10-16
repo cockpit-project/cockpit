@@ -17,12 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+import * as Select from "cockpit-components-select.jsx";
+
 (function() {
     "use strict";
-
-    var React = require("react");
-
-    var Select = require("cockpit-components-select.jsx");
 
     /* Sample dialog body
      */

@@ -17,22 +17,17 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+
+import cockpit from "cockpit";
+import utils from "./utils.js";
+import $ from "jquery";
+
 import { dialog_open, TextInput } from "./dialog.jsx";
+import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import FormatDialog from "./format-dialog.jsx";
 
-var React = require("react");
-
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
-var $ = require("jquery");
-
-var StorageControls = require("./storage-controls.jsx");
-var FormatDialog = require("./format-dialog.jsx");
-
-var StorageButton = StorageControls.StorageButton;
-var StorageLink = StorageControls.StorageLink;
-var FormatButton = FormatDialog.FormatButton;
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class FilesystemTab extends React.Component {
     constructor(props) {
@@ -150,7 +145,7 @@ class FilesystemTab extends React.Component {
         return (
             <div>
                 <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
+                    <FormatDialog.FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
                     <tbody>

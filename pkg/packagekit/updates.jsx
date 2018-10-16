@@ -29,7 +29,7 @@ import AutoUpdates from "./autoupdates.jsx";
 
 import * as PK from "packagekit.es6";
 
-require("listing.less");
+import "listing.less";
 
 const _ = cockpit.gettext;
 

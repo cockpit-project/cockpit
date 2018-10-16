@@ -17,14 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import React from "react";
+import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
+
+import * as cockpitListing from "cockpit-components-listing.jsx";
+
 (function() {
     "use strict";
-
-    var React = require("react");
-    var ReactDOM = require("react-dom");
-    var PropTypes = require("prop-types");
-
-    var cockpitListing = require("cockpit-components-listing.jsx");
 
     /* Sample tab renderer for listing pattern
      * Shows a caption and the time it was instantiated

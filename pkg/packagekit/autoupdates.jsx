@@ -324,7 +324,7 @@ export default class AutoUpdates extends React.Component {
 
                         <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
                                        onChange={ t => this.handleChange(null, null, null, t) }>
-                            { hours.map(h => <Select.SelectEntry data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
+                            { hours.map(h => <Select.SelectEntry key={h} data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
                         </Select.Select>
                     </span>
 

@@ -222,7 +222,7 @@ class UpdateItem extends React.Component {
         if (info.bug_urls && info.bug_urls.length) {
             // we assume a bug URL ends with a number; if not, show the complete URL
             bugs = insertCommas(info.bug_urls.map(url => (
-                <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={url}>
+                <a key={url} rel="noopener" referrerPolicy="no-referrer" target="_blank" href={url}>
                     {url.match(/[0-9]+$/) || url}
                 </a>)
             ));
@@ -231,7 +231,7 @@ class UpdateItem extends React.Component {
         var cves = null;
         if (info.cve_urls && info.cve_urls.length) {
             cves = insertCommas(info.cve_urls.map(url => (
-                <a href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
+                <a key={url} href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -240,7 +240,7 @@ class UpdateItem extends React.Component {
         var errata = null;
         if (info.vendor_urls) {
             errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
-                <a href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
+                <a key={url} href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -268,7 +268,7 @@ class UpdateItem extends React.Component {
                 </React.Fragment>);
         }
 
-        var pkgList = this.props.pkgNames.map(n => (<Tooltip tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
+        var pkgList = this.props.pkgNames.map(n => (<Tooltip key={n} tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
         var pkgs = insertCommas(pkgList);
         var pkgsTruncated = pkgs;
         if (pkgList.length > 4)
@@ -391,7 +391,7 @@ function UpdateHistory(props) {
     function formatPkgs(pkgs) {
         let names = Object.keys(pkgs).filter(i => i != "_time");
         names.sort();
-        return names.map(n => <Tooltip tip={ n + " " + pkgs[n] }><li>{n}</li></Tooltip>);
+        return names.map(n => <Tooltip key={n} tip={ n + " " + pkgs[n] }><li>{n}</li></Tooltip>);
     }
 
     let history = props.history;
@@ -399,7 +399,7 @@ function UpdateHistory(props) {
         history = history.slice(0, props.limit);
 
     var paragraphs = history.map(pkgs => (
-        <React.Fragment>
+        <React.Fragment key={pkgs["_time"]}>
             <p>{formatHeading(pkgs["_time"])}</p>
             <ul className='flow-list'>{formatPkgs(pkgs)}</ul>
         </React.Fragment>
@@ -465,7 +465,7 @@ class ApplyUpdates extends React.Component {
                     &nbsp;{lastAction.package}
                 </React.Fragment>);
             logRows = this.state.actions.slice(0, -1).map(action => (
-                <tr>
+                <tr key={action.package}>
                     <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
                     <td>{action.package}</td>
                 </tr>));
@@ -868,7 +868,7 @@ class OsUpdates extends React.Component {
 
         case "loadError":
         case "updateError":
-            return this.state.errorMessages.map(m => <pre>{m}</pre>);
+            return this.state.errorMessages.map(m => <pre key={m}>{m}</pre>);
 
         case "applying":
             return <ApplyUpdates transaction={this.state.applyTransaction} />;

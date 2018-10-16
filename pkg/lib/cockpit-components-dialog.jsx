@@ -17,15 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var React = require("react");
-var ReactDOM = require("react-dom");
-var PropTypes = require("prop-types");
+import cockpit from "cockpit";
+import React from "react";
+import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
 
-var _ = cockpit.gettext;
+import "page.css";
+import "cockpit-components-dialog.css";
 
-require("page.css");
-require("cockpit-components-dialog.css");
+const _ = cockpit.gettext;
 
 /*
  * React template for a Cockpit dialog footer

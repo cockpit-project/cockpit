@@ -17,13 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var _ = cockpit.gettext;
+import cockpit from "cockpit";
 
-var React = require("react");
+import React from "react";
 
-var cockpitListing = require("cockpit-components-listing.jsx");
-var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
+import * as cockpitListing from "cockpit-components-listing.jsx";
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
+const _ = cockpit.gettext;
 
 /* Show details for an alert, including possible solutions
  * Props correspond to an item in the setroubleshoot dataStore

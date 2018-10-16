@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var React = require("react");
+import React from "react";
 
-var cockpit = require("cockpit");
-var _ = cockpit.gettext;
+import cockpit from "cockpit";
+import * as cockpitListing from "cockpit-components-listing.jsx";
 
-var cockpitListing = require("cockpit-components-listing.jsx");
+const _ = cockpit.gettext;
 
 // Show details for an installed product
 class SubscriptionProductDetails extends React.Component {

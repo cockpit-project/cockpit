@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var React = require("react");
-var ReactDOM = require("react-dom");
+import React from "react";
+import ReactDOM from "react-dom";
 
-var FileAutoComplete = require("cockpit-components-file-autocomplete.jsx").FileAutoComplete;
+import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 
 var showFileAcDemo = function(rootElement) {
     ReactDOM.render(<FileAutoComplete />, rootElement);

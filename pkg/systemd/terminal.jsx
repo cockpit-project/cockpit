@@ -1,13 +1,14 @@
+import cockpit from "cockpit";
+
+import React from "react";
+import ReactDOM from "react-dom";
+
+import componentsTerminal from "cockpit-components-terminal.jsx";
+
+const _ = cockpit.gettext;
+
 (function() {
     "use strict";
-
-    var cockpit = require("cockpit");
-    var _ = cockpit.gettext;
-
-    var React = require("react");
-    var ReactDOM = require("react-dom");
-
-    var componentsTerminal = require("cockpit-components-terminal.jsx");
 
     cockpit.translate();
 

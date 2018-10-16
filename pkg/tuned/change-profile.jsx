@@ -17,11 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var React = require("react");
-var PropTypes = require("prop-types");
+import cockpit from "cockpit";
+import React from "react";
+import PropTypes from "prop-types";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 /* Performance profile entry
  * Expected props:

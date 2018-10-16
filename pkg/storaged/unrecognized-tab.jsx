@@ -19,14 +19,12 @@
 
 "use strict";
 
-var React = require("react");
-var cockpit = require("cockpit");
+import React from "react";
+import cockpit from "cockpit";
 
-var FormatDialog = require("./format-dialog.jsx");
+import { FormatButton } from "./format-dialog.jsx";
 
-var FormatButton = FormatDialog.FormatButton;
-
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class UnrecognizedTab extends React.Component {
     render() {

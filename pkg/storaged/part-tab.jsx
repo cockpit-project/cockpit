@@ -19,12 +19,12 @@
 
 "use strict";
 
-var React = require("react");
+import React from "react";
 
-var cockpit = require("cockpit");
-var utils = require("./utils.js");
+import cockpit from "cockpit";
+import utils from "./utils.js";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class PartitionTab extends React.Component {
     render() {

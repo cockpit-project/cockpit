@@ -19,9 +19,9 @@
 
 "use strict";
 
-var React = require('react');
+import React from 'react';
 
-require('./tooltip.css');
+import './tooltip.css';
 
 /* A tooltip, styled via Patternfly/Bootstrap.
  *

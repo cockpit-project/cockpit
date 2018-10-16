@@ -17,21 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import $ from "jquery";
+import cockpit from "cockpit";
+
+import React from "react";
+import ReactDOM from "react-dom";
+
+import dialog_view from "cockpit-components-dialog.jsx";
+
+import * as python from "python.jsx";
+import cockpit_atomic_storage from "raw!./cockpit-atomic-storage";
+
 (function() {
     "use strict";
 
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
-
-    var React = require("react");
-    var ReactDOM = require("react-dom");
-
-    var dialog_view = require("cockpit-components-dialog.jsx");
-
-    var python = require("python.jsx");
-    var cockpit_atomic_storage = require("raw!./cockpit-atomic-storage");
-
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
 
     function init_model() {
         var process;

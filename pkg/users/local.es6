@@ -17,19 +17,19 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from 'jquery';
+import cockpit from 'cockpit';
 
-var React = require("react");
-var ReactDOM = require("react-dom");
-var Mustache = require("mustache");
-var authorized_keys = require("./authorized-keys");
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Mustache from 'mustache';
+import authorized_keys from './authorized-keys';
 
-require("patterns");
-require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
+import 'patterns';
+import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
 
-var _ = cockpit.gettext;
-var C_ = cockpit.gettext;
+const _ = cockpit.gettext;
+const C_ = cockpit.gettext;
 
 var permission = cockpit.permission({ admin: true });
 $(permission).on("changed", update_accounts_privileged);

@@ -17,14 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var _ = cockpit.gettext;
+import cockpit from "cockpit";
 
-var React = require("react");
-var OnOffSwitch = require("cockpit-components-onoff.jsx").OnOffSwitch;
-var Select = require("cockpit-components-select.jsx");
-var dialogPattern = require("cockpit-components-dialog.jsx");
-var Tooltip = require("cockpit-components-tooltip.jsx").Tooltip;
+import React from "react";
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import * as Select from "cockpit-components-select.jsx";
+import dialogPattern from "cockpit-components-dialog.jsx";
+import { Tooltip } from "cockpit-components-tooltip.jsx";
+
+const _ = cockpit.gettext;
 
 /* kdump: dump target dialog body
  * Expected props:

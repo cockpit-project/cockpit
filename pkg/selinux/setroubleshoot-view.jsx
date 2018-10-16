@@ -436,7 +436,7 @@ class SETroubleshootPage extends React.Component {
                         columns={columns}
                         tabRenderers={tabRenderers}
                         listingDetail={listingDetail}
-                        listingActions={ [dismissAction] } />
+                        listingActions={dismissAction} />
                 );
             });
         }

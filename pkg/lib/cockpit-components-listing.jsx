@@ -270,7 +270,7 @@ ListingRow.propTypes = {
     tabRenderers: PropTypes.array,
     navigateToItem: PropTypes.func,
     listingDetail: PropTypes.node,
-    listingActions: PropTypes.arrayOf(PropTypes.node),
+    listingActions: PropTypes.node,
     selectChanged: PropTypes.func,
     selected: PropTypes.bool,
     initiallyExpanded: PropTypes.bool,

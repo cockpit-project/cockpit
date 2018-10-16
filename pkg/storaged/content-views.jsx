@@ -307,7 +307,7 @@ function create_tabs(client, target, is_partition) {
 
     return {
         renderers: tabs,
-        actions: [ <div key="actions" >{tab_actions}</div> ],
+        actions: <React.Fragment>{tab_actions}</React.Fragment>,
         row_action: row_action,
     };
 }

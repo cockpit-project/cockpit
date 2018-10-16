@@ -658,10 +658,10 @@ class ImageList extends React.Component {
             });
         }
 
-        var actions = [
-            <button key="delete" className="btn btn-danger btn-delete pficon pficon-delete"
+        var actions = (
+            <button className="btn btn-danger btn-delete pficon pficon-delete"
                     onClick={ this.deleteImage.bind(this, image) } />
-        ];
+        );
 
         return <Listing.ListingRow key={image.Id}
                                    rowId={image.Id}

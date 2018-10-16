@@ -246,7 +246,12 @@ const Row = ({ tag, title, errors, options, children }) => {
 
         if (title || title == "") {
             if (options.widest_title)
-                title = [ <div className="widest-title">{options.widest_title}</div>, <div>{title}</div> ];
+                title = (
+                    <React.Fragment>
+                        <div className="widest-title">{options.widest_title}</div>
+                        <div>{title}</div>
+                    </React.Fragment>
+                );
             return (
                 <tr>
                     <td className="top">{title}</td>
@@ -371,7 +376,11 @@ export const dialog_open = (def) => {
         </div>;
 
         return {
-            idle_message: running_promise ? [ <div className="spinner spinner-sm" />, <span>{running_title}</span> ] : null,
+            idle_message: (running_promise
+                ? <React.Fragment>
+                    <div className="spinner spinner-sm" /><span>{running_title}</span>
+                </React.Fragment>
+                : null),
             extra_element: extra,
             actions: actions,
             cancel_caption: def.Action ? _("Cancel") : _("Close")
@@ -550,7 +559,7 @@ export const SelectOneRadio = (tag, title, options) => {
             return (
                 <span className="radio radio-horizontal" data-field={tag} data-field-type="select-radio" >
                     { options.choices.map(c => (
-                        <label>
+                        <label key={c.value}>
                             <input type="radio" checked={val == c.value} data-data={c.value}
                                      onChange={event => change(c.value)} />{c.title}
                         </label>))
@@ -572,7 +581,7 @@ export const SelectRow = (tag, headers, options) => {
             return (
                 <table data-field={tag} data-field-type=" select-row" className="dialog-select-row-table">
                     <thead>
-                        <tr>{headers.map(h => <th>{h}</th>)}</tr>
+                        <tr>{headers.map(h => <th key={h}>{h}</th>)}</tr>
                     </thead>
                     <tbody>
                         { options.choices.map(row => {
@@ -580,7 +589,7 @@ export const SelectRow = (tag, headers, options) => {
                                 <tr key={row.value}
                                     onMouseDown={ev => { if (ev && ev.button === 0) change(row.value); }}
                                     className={row.value == val ? "highlight-ct" : ""}>
-                                    {row.columns.map(c => <td>{c}</td>)}
+                                    {row.columns.map(c => <td key={c}>{c}</td>)}
                                 </tr>
                             );
                         })

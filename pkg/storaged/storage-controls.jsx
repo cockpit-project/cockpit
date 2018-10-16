@@ -18,6 +18,7 @@
  */
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { fmt_to_fragments } from "./utilsx.jsx";
 
 var React = require("react");
 
@@ -158,14 +159,12 @@ class StorageBlockNavLink extends React.Component {
         var parts = utils.get_block_link_parts(client, block.path);
 
         var link = (
-            // There is only one element in the array produced by fmt_to_array below, but
-            // React wants it to have a unique key anyway, so we give it one.
-            <a key="key" role="link" tabIndex="0" onClick={() => { cockpit.location.go(parts.location) }}>
+            <a role="link" tabIndex="0" onClick={() => { cockpit.location.go(parts.location) }}>
                 {parts.link}
             </a>
         );
 
-        return <span>{utils.fmt_to_array(parts.format, link)}</span>;
+        return <span>{fmt_to_fragments(parts.format, link)}</span>;
     }
 }
 

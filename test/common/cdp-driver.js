@@ -74,6 +74,7 @@ const fatalLogs = [
     /^Warning: Invalid DOM property/,
     /^Warning: Received the .* for the .* attribute/,
     /^Warning: validateDOMNesting/,
+    /^Warning: .*unique "key" prop.*/,
 ];
 
 function setupLogging(client) {

@@ -30,23 +30,23 @@ cd $BASE
 # Configure the source for making a tarball in a temporary directory, unless
 # the source has already been configured
 if test ! -f Makefile; then
-    rm -rf tmp-dist
-    mkdir -p tmp-dist
+    BUILD=${TEST_DATA:-$BASE}/tmp/dist
+    rm -rf $BUILD
+    mkdir -p $BUILD
     if [ -f .tarball ]; then
-        (cd tmp-dist && ../configure) 1>&2
+        (cd $BUILD && $BASE/configure) 1>&2
     else
-        (cd tmp-dist && NOREDIRECTMAKEFILE=t ../autogen.sh) 1>&2
+        (cd $BUILD && NOREDIRECTMAKEFILE=t $BASE/autogen.sh) 1>&2
     fi
-    builddir=tmp-dist
 else
-    builddir=.
+    BUILD=.
 fi
 
-make -j8 -C "$builddir" --silent $TARGET 1>&2
+make -j8 -C "$BUILD" V=1 $TARGET 1>&2
 
 # Output the gzip name if requested
 if [ "$TARGET" = "dist-gzip" ]; then
-    make -C "$builddir" --silent dump-dist-gzip
+    make -C "$BUILD" --silent dump-dist-gzip
 else
-    echo "$builddir"
+    echo "$BUILD"
 fi

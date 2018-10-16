@@ -364,7 +364,7 @@
         function render_drive_rows() {
             return drives.map(function (drive) {
                 return (
-                    <tr>
+                    <tr key={drive.name}>
                         <td>{cockpit.format_bytes(drive.size)}</td>
                         <td><img role="presentation" src="images/drive-harddisk-symbolic.svg" /></td>
                         <td>{drive.name}</td>

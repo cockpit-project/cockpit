@@ -261,6 +261,7 @@ export class ListingRow extends React.Component {
 
 ListingRow.defaultProps = {
     tabRenderers: [],
+    selected: undefined,
     navigateToItem: null,
 };
 

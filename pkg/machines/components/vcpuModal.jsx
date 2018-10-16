@@ -33,7 +33,7 @@ const clamp = (value, max, min) => {
 const Select = function ({ id, items, onChange, value }) {
     return (<SelectComponent.Select id={id} initial={value} onChange={onChange}>
         {items.map((t) => (
-            <SelectComponent.SelectEntry data={t}>{t}</SelectComponent.SelectEntry>
+            <SelectComponent.SelectEntry key={t} data={t}>{t}</SelectComponent.SelectEntry>
         ))}
     </SelectComponent.Select>);
 };

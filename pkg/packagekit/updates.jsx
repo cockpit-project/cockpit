@@ -222,7 +222,7 @@ class UpdateItem extends React.Component {
         if (info.bug_urls && info.bug_urls.length) {
             // we assume a bug URL ends with a number; if not, show the complete URL
             bugs = insertCommas(info.bug_urls.map(url => (
-                <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={url}>
+                <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={url}>
                     {url.match(/[0-9]+$/) || url}
                 </a>)
             ));
@@ -231,7 +231,7 @@ class UpdateItem extends React.Component {
         var cves = null;
         if (info.cve_urls && info.cve_urls.length) {
             cves = insertCommas(info.cve_urls.map(url => (
-                <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
+                <a href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -240,7 +240,7 @@ class UpdateItem extends React.Component {
         var errata = null;
         if (info.vendor_urls) {
             errata = insertCommas(info.vendor_urls.filter(url => url.indexOf("/errata/") > 0).map(url => (
-                <a href={url} rel="noopener" referrerpolicy="no-referrer" target="_blank">
+                <a href={url} rel="noopener" referrerPolicy="no-referrer" target="_blank">
                     {url.match(/[^/=]+$/)}
                 </a>)
             ));
@@ -254,7 +254,7 @@ class UpdateItem extends React.Component {
         var type;
         if (info.severity === PK.Enum.INFO_SECURITY) {
             if (secSeverityURL)
-                secSeverityURL = <a rel="noopener" referrerpolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
+                secSeverityURL = <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
                 <React.Fragment>
                     <span className={iconClasses}>&nbsp;</span>

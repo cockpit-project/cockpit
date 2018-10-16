@@ -71,6 +71,7 @@ var unhandledExceptions = [];
 const fatalLogs = [
     /^Warning: Failed prop type:/,
     /^Warning: Component.*declared.*instead of.*propTypes.*/,
+    /^Warning: Invalid DOM property/,
 ];
 
 function setupLogging(client) {

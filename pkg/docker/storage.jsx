@@ -383,7 +383,9 @@
                                             <div className="modal-body">
                                                 <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
                                                 <table className="drive-list">
-                                                    { render_drive_rows() }
+                                                    <tbody>
+                                                        { render_drive_rows() }
+                                                    </tbody>
                                                 </table>
                                             </div>),
         },

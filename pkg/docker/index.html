@@ -143,91 +143,93 @@
       </div>
       <div class="panel-body">
         <table class="info-table-ct">
-          <tr>
-            <td translate>Id:</td>
-            <td colspan="3" id="container-details-id"></td>
-          </tr>
-          <tr>
-            <td translate>Created:</td>
-            <td colspan="3" id="container-details-created"></td>
-          </tr>
-          <tr>
-            <td translate>Image:</td>
-            <td colspan="3">
-            <div id="container-details-image"></div>
-            <div id="container-details-image-id"></div>
-            </td>
-          </tr>
-          <tr>
-            <td translate>Command:</td>
-            <td colspan="3" id="container-details-command"></td>
-          </tr>
-          <tr>
-            <td translate>State:</td>
-            <td colspan="3" id="container-details-state"></td>
-          </tr>
-          <tr>
-            <td translate>Restart Policy:</td>
-            <td colspan="3" id="container-details-restart-policy"></td>
-          </tr>
-          <tr>
-            <td translatable="yes">IP Address:</td>
-            <td colspan="3" id="container-details-ipaddr"></td>
-          </tr>
-          <tr>
-            <td translatable="yes">IP Prefix Length:</td>
-            <td colspan="3" id="container-details-ipprefixlen"></td>
-          </tr>
-          <tr>
-            <td translatable="yes">Gateway:</td>
-            <td colspan="3" id="container-details-gateway"></td>
-          </tr>
-          <tr>
-            <td translatable="yes">MAC Address:</td>
-            <td colspan="3" id="container-details-macaddr"></td>
-          </tr>
-          <tr id="container-details-ports-row" hidden>
-            <td translate>Ports:</td>
-            <td colspan="3" id="container-details-ports"></td>
-          </tr>
-          <tr id="container-details-links-row" hidden>
-            <td translate>Links:</td>
-            <td colspan="3" id="container-details-links"></td>
-          </tr>
-          <tr id="container-details-volumes-row" hidden>
-            <td translate>Volumes:</td>
-            <td colspan="3" id="container-details-volumes"></td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>
-              <!-- hidden bar-row to help set a minimum limit for memory -->
-              <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
-            </td>
-          </tr>
-          <tr id="container-details-memory-row" class="interactive" hidden>
-            <td translate>Memory usage:</td>
-            <td colspan="2" id="container-details-memory">
-              <div class="bar-row" graph="container-details"></div>
-            </td>
-            <td class="shrink resource-value" id="container-details-memory-text"></td>
-          </tr>
-          <tr id="container-details-cpu-row" class="interactive" hidden>
-            <td translate>CPU usage:</td>
-            <td colspan="2">
-              <span class="cpu-usage"></span>
-            </td>
-            <td class="shrink resource-value">
-              <span class="cpu-shares"></span>
-            </td>
-          </tr>
-          <tr id="container-details-resource-row" hidden>
-            <td></td>
-            <td>
-              <button class="btn btn-default resource-button" data-toggle="modal"
-                      data-target="#container-resources-dialog" translate>Change resource limits</button>
-            </td>
-          </tr>
+          <tbody>
+            <tr>
+              <td translate>Id:</td>
+              <td colspan="3" id="container-details-id"></td>
+            </tr>
+            <tr>
+              <td translate>Created:</td>
+              <td colspan="3" id="container-details-created"></td>
+            </tr>
+            <tr>
+              <td translate>Image:</td>
+              <td colspan="3">
+              <div id="container-details-image"></div>
+              <div id="container-details-image-id"></div>
+              </td>
+            </tr>
+            <tr>
+              <td translate>Command:</td>
+              <td colspan="3" id="container-details-command"></td>
+            </tr>
+            <tr>
+              <td translate>State:</td>
+              <td colspan="3" id="container-details-state"></td>
+            </tr>
+            <tr>
+              <td translate>Restart Policy:</td>
+              <td colspan="3" id="container-details-restart-policy"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">IP Address:</td>
+              <td colspan="3" id="container-details-ipaddr"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">IP Prefix Length:</td>
+              <td colspan="3" id="container-details-ipprefixlen"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">Gateway:</td>
+              <td colspan="3" id="container-details-gateway"></td>
+            </tr>
+            <tr>
+              <td translatable="yes">MAC Address:</td>
+              <td colspan="3" id="container-details-macaddr"></td>
+            </tr>
+            <tr id="container-details-ports-row" hidden>
+              <td translate>Ports:</td>
+              <td colspan="3" id="container-details-ports"></td>
+            </tr>
+            <tr id="container-details-links-row" hidden>
+              <td translate>Links:</td>
+              <td colspan="3" id="container-details-links"></td>
+            </tr>
+            <tr id="container-details-volumes-row" hidden>
+              <td translate>Volumes:</td>
+              <td colspan="3" id="container-details-volumes"></td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td>
+                <!-- hidden bar-row to help set a minimum limit for memory -->
+                <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+              </td>
+            </tr>
+            <tr id="container-details-memory-row" class="interactive" hidden>
+              <td translate>Memory usage:</td>
+              <td colspan="2" id="container-details-memory">
+                <div class="bar-row" graph="container-details"></div>
+              </td>
+              <td class="shrink resource-value" id="container-details-memory-text"></td>
+            </tr>
+            <tr id="container-details-cpu-row" class="interactive" hidden>
+              <td translate>CPU usage:</td>
+              <td colspan="2">
+                <span class="cpu-usage"></span>
+              </td>
+              <td class="shrink resource-value">
+                <span class="cpu-shares"></span>
+              </td>
+            </tr>
+            <tr id="container-details-resource-row" hidden>
+              <td></td>
+              <td>
+                <button class="btn btn-default resource-button" data-toggle="modal"
+                        data-target="#container-resources-dialog" translate>Change resource limits</button>
+              </td>
+            </tr>
+          </tbody>
         </table>
         <div id="container-terminal" hidden></div>
       </div>
@@ -424,136 +426,137 @@
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
-            <tr>
-              <td><label class="control-label"
-                         translatable="yes">Image</label></td>
-              <td colspan="4">
-                <span id="containers-run-image"></span>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="containers-run-image-name"
-                         translatable="yes">Container Name</label></td>
-              <td colspan="4">
-                <input class="form-control" type="text" id="containers-run-image-name"/>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="containers-run-image-command"
-                         translatable="yes">Command</label></td>
-              <td colspan="4">
-                <input class="form-control" type="text" id="containers-run-image-command"/>
-              </td>
-            </tr>
-            <tr id="containers-run-image-memory">
-              <td><label class="control-label" translatable="yes">Memory limit</label></td>
-              <td class="shrink">
-                <input type="checkbox" />
-              </td>
-              <td>
-                <div class="slider" disabled='true' value="2">
-                  <div class="slider-bar">
-                    <div class="slider-thumb"></div>
+            <tbody>
+              <tr>
+                <td><label class="control-label"
+                           translatable="yes">Image</label></td>
+                <td colspan="4">
+                  <span id="containers-run-image"></span>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="containers-run-image-name"
+                           translatable="yes">Container Name</label></td>
+                <td colspan="4">
+                  <input class="form-control" type="text" id="containers-run-image-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="containers-run-image-command"
+                           translatable="yes">Command</label></td>
+                <td colspan="4">
+                  <input class="form-control" type="text" id="containers-run-image-command"/>
+                </td>
+              </tr>
+              <tr id="containers-run-image-memory">
+                <td><label class="control-label" translatable="yes">Memory limit</label></td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="2">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td class="shrink">
-                <input class="form-control size-text-ct" type='text'/>
-              </td>
-              <td class="shrink" translatable="yes">MiB</td>
-            </tr>
-            <tr id="containers-run-image-cpu">
-              <td><label class="control-label" translatable="yes">CPU priority</label></td>
-              <td class="shrink">
-                <input type="checkbox" />
-              </td>
-              <td>
-                <div class="slider" disabled='true' value="1024">
-                  <div class="slider-bar">
-                    <div class="slider-thumb"></div>
+                </td>
+                <td class="shrink">
+                  <input class="form-control size-text-ct" type='text'/>
+                </td>
+                <td class="shrink" translatable="yes">MiB</td>
+              </tr>
+              <tr id="containers-run-image-cpu">
+                <td><label class="control-label" translatable="yes">CPU priority</label></td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="1024">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td class="shrink">
-                <input class="form-control size-text-ct" type='text'/>
-              </td>
-              <td  class="shrink" translatable="yes">shares</td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="containers-run-image-with-terminal"
-                         translatable="yes">With terminal</label></td>
-              <td class="shrink">
-                <input type="checkbox" id="containers-run-image-with-terminal" checked />
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
-              <td colspan="4">
-                <label>
-                  <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
-                  <span translate>Link to another container</span>
-                </label>
-                <div id="select-linked-containers" class="containers-run-inline">
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
-              <td colspan="4">
-                <label>
-                  <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
-                  <span translatable="yes">Expose container ports</span>
-                </label>
-                <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="mount-volumes" translatable="yes">Volumes</label></td>
-              <td colspan="4">
-                <label>
-                  <input type="checkbox" name="mount-volumes" id="mount-volumes" checked="false"/>
-                  <span translatable="yes">Mount container volumes</span>
-                </label>
-                <div id="select-mounted-volumes" class="containers-run-volumemount containers-run-inline">
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="claim-envvars" translatable="yes">Environment</label></td>
-              <td colspan="4">
-                <label>
-                  <input type="checkbox" name="claim-envvars" id="claim-envvars" checked="false"/>
-                  <span translatable="yes">Set container environment variables</span>
-                </label>
-                <div id="select-claimed-envvars" class="containers-run-envvarclaim containers-run-inline">
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
-              <td colspan="3">
-                <div class="form-inline form-group">
-                  <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
-                    <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                      <span class="pull-left" translatable="yes" data-value="no">No</span>
-                      <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" id="restart-policy-dropdown">
-                      <li><a translatable="yes" data-value="no">No</a></li>
-                      <li><a translatable="yes" data-value="on-failure">On Failure</a></li>
-                      <li><a translatable="yes" data-value="always">Always</a></li>
-                      <li><a translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
-                    </ul>
+                </td>
+                <td class="shrink">
+                  <input class="form-control size-text-ct" type='text'/>
+                </td>
+                <td  class="shrink" translatable="yes">shares</td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="containers-run-image-with-terminal"
+                           translatable="yes">With terminal</label></td>
+                <td class="shrink">
+                  <input type="checkbox" id="containers-run-image-with-terminal" checked />
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="link-containers" translatable="yes">Links</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="link-containers" id="link-containers" checked="false"/>
+                    <span translate>Link to another container</span>
+                  </label>
+                  <div id="select-linked-containers" class="containers-run-inline">
                   </div>
-                  <div id="restart-policy-retries-container" class="hidden">
-                    <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
-                    <input id="restart-policy-retries" class="form-control" type="number" value="0" min="0" name="restart-policy-retries">
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="expose-ports" translatable="yes">Ports</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="expose-ports" id="expose-ports" checked="false"/>
+                    <span translatable="yes">Expose container ports</span>
+                  </label>
+                  <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
                   </div>
-                </div>
-              </td>
-            </tr>
-
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="mount-volumes" translatable="yes">Volumes</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="mount-volumes" id="mount-volumes" checked="false"/>
+                    <span translatable="yes">Mount container volumes</span>
+                  </label>
+                  <div id="select-mounted-volumes" class="containers-run-volumemount containers-run-inline">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="claim-envvars" translatable="yes">Environment</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="claim-envvars" id="claim-envvars" checked="false"/>
+                    <span translatable="yes">Set container environment variables</span>
+                  </label>
+                  <div id="select-claimed-envvars" class="containers-run-envvarclaim containers-run-inline">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="restart-policy" translatable="yes">Restart Policy</label></td>
+                <td colspan="3">
+                  <div class="form-inline form-group">
+                    <div class="btn-group bootstrap-select dropdown form-control" id="restart-policy-select">
+                      <button aria-expanded="false" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span class="pull-left" translatable="yes" data-value="no">No</span>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" id="restart-policy-dropdown">
+                        <li><a translatable="yes" data-value="no">No</a></li>
+                        <li><a translatable="yes" data-value="on-failure">On Failure</a></li>
+                        <li><a translatable="yes" data-value="always">Always</a></li>
+                        <li><a translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
+                      </ul>
+                    </div>
+                    <div id="restart-policy-retries-container" class="hidden">
+                      <label class="control-label" for="restart-policy-retries" translatable="yes">Retries:</label>
+                      <input id="restart-policy-retries" class="form-control" type="number" value="0" min="0" name="restart-policy-retries">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div class="modal-footer">
@@ -610,46 +613,48 @@
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
-            <tr>
-              <td><label class="control-label" translatable="yes">Container Name</label></td>
-              <td colspan="3">
-                <span class="container-name"></span>
-              </td>
-            </tr>
-            <tr class="memory-slider">
-              <td><label class="control-label" translatable="yes">Memory limit</label></td>
-              <td class="shrink">
-                <input type="checkbox" />
-              </td>
-              <td>
-                <div class="slider" disabled='true' value="2">
-                  <div class="slider-bar">
-                    <div class="slider-thumb"></div>
+            <tbody>
+              <tr>
+                <td><label class="control-label" translatable="yes">Container Name</label></td>
+                <td colspan="3">
+                  <span class="container-name"></span>
+                </td>
+              </tr>
+              <tr class="memory-slider">
+                <td><label class="control-label" translatable="yes">Memory limit</label></td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="2">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td class="shrink">
-                <input class="form-control size-text-ct" type='text'/>
-              </td>
-              <td class="shrink" translatable="yes">MiB</td>
-            </tr>
-            <tr class="cpu-slider">
-              <td><label class="control-label" translatable="yes">CPU priority</label></td>
-              <td class="shrink">
-                <input type="checkbox" />
-              </td>
-              <td>
-                <div class="slider" disabled='true' value="1024">
-                  <div class="slider-bar">
-                    <div class="slider-thumb"></div>
+                </td>
+                <td class="shrink">
+                  <input class="form-control size-text-ct" type='text'/>
+                </td>
+                <td class="shrink" translatable="yes">MiB</td>
+              </tr>
+              <tr class="cpu-slider">
+                <td><label class="control-label" translatable="yes">CPU priority</label></td>
+                <td class="shrink">
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <div class="slider" disabled='true' value="1024">
+                    <div class="slider-bar">
+                      <div class="slider-thumb"></div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td class="shrink">
-                <input class="form-control size-text-ct" type='text'/>
-              </td>
-              <td  class="shrink" translatable="yes">shares</td>
-            </tr>
+                </td>
+                <td class="shrink">
+                  <input class="form-control size-text-ct" type='text'/>
+                </td>
+                <td  class="shrink" translatable="yes">shares</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div class="modal-footer">
@@ -672,36 +677,38 @@
         </div>
         <div class="modal-body">
           <table class="form-table-ct">
-            <tr>
-              <td><label class="control-label" translatable="yes">Container Name</label></td>
-              <td colspan="3">
-                <span class="container-name"/>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" translatable="yes">Repository</label></td>
-              <td colspan="3">
-                <input class="form-control container-repository" type="text"/>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" translatable="yes">Tag</label></td>
-              <td colspan="3">
-                <input class="form-control container-tag" type="text"/>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" translatable="yes">Author</label></td>
-              <td colspan="3">
-                <input class="form-control container-author" type="text"/>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" translatable="yes">Command</label></td>
-              <td colspan="3">
-                <input class="form-control container-command" type="text"/>
-              </td>
-            </tr>
+            <tbody>
+              <tr>
+                <td><label class="control-label" translatable="yes">Container Name</label></td>
+                <td colspan="3">
+                  <span class="container-name"/>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" translatable="yes">Repository</label></td>
+                <td colspan="3">
+                  <input class="form-control container-repository" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" translatable="yes">Tag</label></td>
+                <td colspan="3">
+                  <input class="form-control container-tag" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" translatable="yes">Author</label></td>
+                <td colspan="3">
+                  <input class="form-control container-author" type="text"/>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" translatable="yes">Command</label></td>
+                <td colspan="3">
+                  <input class="form-control container-command" type="text"/>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div class="modal-footer">

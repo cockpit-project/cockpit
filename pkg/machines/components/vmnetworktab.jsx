@@ -59,8 +59,10 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
         };
     };
     const addressPortSource = (source, networkId) => (<table id={`${id}-network-${networkId}-source`}>
-        <tr><td className='machines-network-source-descr'>{_("Address")}</td><td className='machines-network-source-value'>{source.address}</td></tr>
-        <tr><td className='machines-network-source-descr'>{_("Port")}</td><td className='machines-network-source-value'>{source.port}</td></tr>
+        <tbody>
+            <tr><td className='machines-network-source-descr'>{_("Address")}</td><td className='machines-network-source-value'>{source.address}</td></tr>
+            <tr><td className='machines-network-source-descr'>{_("Port")}</td><td className='machines-network-source-value'>{source.port}</td></tr>
+        </tbody>
     </table>);
 
     // Network data mapping to rows

@@ -45,30 +45,36 @@ class VCPUModalBody extends React.Component {
     render () {
         return (<div className="modal-body">
             <table className="vcpu-detail-modal-table">
-                <tr>
-                    <td>
-                        <table className='form-table-ct'>
-                            <InfoRecord
-                                descr={_("vCPU Count")}
-                                tooltip={_("Number of virtual CPUs that gonna be used.")}
-                                value={<input id="machines-vcpu-count-field" type="number" className="form-control" value={this.state.count} disabled />}
-                            />
-                        </table>
-                    </td>
-                    <td>
-                        <table className='form-table-ct vcpu-detail-modal-right'>
-                            <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
-                                <input id='socketsInput' value={this.state.sockets.toString()} onChange={this.handleChange("sockets")} disabled={this.props.isRunning} />
-                            } />
-                            <InfoRecord descr={_("Cores per socket")} value={
-                                <input id='coresInput' value={this.state.cores.toString()} onChange={this.handleChange("cores")} disabled={this.props.isRunning} />
-                            } />
-                            <InfoRecord descr={_("Threads per core")} value={
-                                <input id='threadsInput' value={this.state.threads.toString()} onChange={this.handleChange("threads")} disabled={this.props.isRunning} />
-                            } />
-                        </table>
-                    </td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td>
+                            <table className='form-table-ct'>
+                                <tbody>
+                                    <InfoRecord
+                                        descr={_("vCPU Count")}
+                                        tooltip={_("Number of virtual CPUs that gonna be used.")}
+                                        value={<input id="machines-vcpu-count-field" type="number" className="form-control" value={this.state.count} disabled />}
+                                    />
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>
+                            <table className='form-table-ct vcpu-detail-modal-right'>
+                                <tbody>
+                                    <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
+                                        <input id='socketsInput' value={this.state.sockets.toString()} onChange={this.handleChange("sockets")} disabled={this.props.isRunning} />
+                                    } />
+                                    <InfoRecord descr={_("Cores per socket")} value={
+                                        <input id='coresInput' value={this.state.cores.toString()} onChange={this.handleChange("cores")} disabled={this.props.isRunning} />
+                                    } />
+                                    <InfoRecord descr={_("Threads per core")} value={
+                                        <input id='threadsInput' value={this.state.threads.toString()} onChange={this.handleChange("threads")} disabled={this.props.isRunning} />
+                                    } />
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>);
     }

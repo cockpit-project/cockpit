@@ -28,12 +28,12 @@ import "cockpit-components-install-dialog.css";
 const _ = cockpit.gettext;
 
 // TODO - generalize this to arbitrary number of arguments (when needed)
-function format_to_array(fmt, arg) {
+function format_to_fragments(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
-        return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
+        return <React.Fragment>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</React.Fragment>;
     else
-        return [ fmt ];
+        return fmt;
 }
 
 /* Calling install_dialog will open a dialog that lets the user
@@ -71,7 +71,7 @@ export function install_dialog(pkg) {
             extra_details = (
                 <div className="scale-up-ct">
                     {_("Additional packages:")}
-                    <ul className="package-list-ct">{data.extra_names.map(id => <li>{id}</li>)}</ul>
+                    <ul className="package-list-ct">{data.extra_names.map(id => <li key={id}>{id}</li>)}</ul>
                 </div>
             );
 
@@ -79,7 +79,7 @@ export function install_dialog(pkg) {
             remove_details = (
                 <div className="scale-up-ct">
                     <span className="pficon pficon-warning-triangle-o" /> {_("Removals:")}
-                    <ul className="package-list">{data.remove_names.map(id => <li>{id}</li>)}</ul>
+                    <ul className="package-list">{data.remove_names.map(id => <li key={id}>{id}</li>)}</ul>
                 </div>
             );
 
@@ -93,7 +93,7 @@ export function install_dialog(pkg) {
         else if (data && data.download_size) {
             footer_message = (
                 <div>
-                    { format_to_array(_("Total size: $0"), <strong>{cockpit.format_bytes(data.download_size)}</strong>) }
+                    { format_to_fragments(_("Total size: $0"), <strong>{cockpit.format_bytes(data.download_size)}</strong>) }
                 </div>
             );
         }
@@ -103,7 +103,7 @@ export function install_dialog(pkg) {
             title: _("Install Software"),
             body: (
                 <div className="modal-body scroll">
-                    <p>{ format_to_array(_("$0 will be installed."), missing_name) }</p>
+                    <p>{ format_to_fragments(_("$0 will be installed."), missing_name) }</p>
                     { remove_details }
                     { extra_details }
                 </div>
@@ -181,7 +181,7 @@ export function install_dialog(pkg) {
                                                 fmt = _("Removing $0");
                                             else
                                                 fmt = _("Installing $0");
-                                            text = format_to_array(fmt, <strong>{p.package}</strong>);
+                                            text = format_to_fragments(fmt, <strong>{p.package}</strong>);
                                         }
                                         dfd.notify(text, p.cancel);
                                     })

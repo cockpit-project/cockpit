@@ -306,7 +306,7 @@ class UpdateItem extends React.Component {
                             </dl>
 
                             <p />
-                            <p className="changelog">{description}</p>
+                            {description}
                         </div>
                     </td>
                 </tr>

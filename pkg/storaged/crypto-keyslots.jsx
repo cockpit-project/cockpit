@@ -28,7 +28,8 @@ import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { decode_filename, block_name, fmt_to_array } from "./utils.js";
+import { decode_filename, block_name } from "./utils.js";
+import { fmt_to_fragments } from "./utilsx.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 
 import luksmeta_monitor_hack_py from "raw!./luksmeta-monitor-hack.py";
@@ -316,7 +317,7 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
                   Body: (
                       <div>
                           <div>{_("Make sure the key hash from the Tang server matches:")}</div>
-                          { sigkey_thps.map(s => <div className="sigkey-hash">{s}</div>) }
+                          { sigkey_thps.map(s => <div key={s} className="sigkey-hash">{s}</div>) }
                           <br />
                           <div>{_("Manually check with SSH: ")}<pre className="inline-pre">{cmd}</pre></div>
                           <br />
@@ -350,9 +351,9 @@ const RemovePassphraseField = (tag, key, dev) => {
             return (
                 <div data-field={tag}>
                     <h3>
-                        { fmt_to_array(_("Remove passphrase in $0?"), <b>{key_slot}</b>) }
+                        { fmt_to_fragments(_("Remove passphrase in $0?"), <b>{key_slot}</b>) }
                     </h3>
-                    <p>{ fmt_to_array(_("Passphrase removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
+                    <p>{ fmt_to_fragments(_("Passphrase removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
 
                     <form name="remove-passphrase" className="progressive-disclosure">
                         <div className="form-group">
@@ -369,7 +370,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                             <label>
                                 <input type="radio" checked={val === false}
                                        onChange={event => change(false)} />
-                                { fmt_to_array(_("Force remove passphrase in $0"), <b>{key_slot}</b>) }
+                                { fmt_to_fragments(_("Force remove passphrase in $0"), <b>{key_slot}</b>) }
                             </label>
                             <p className="slot-warning" hidden={val !== false}>
                                 Removing a passphrase without confirmation can be dangerous.
@@ -410,8 +411,8 @@ const RemoveClevisField = (tag, key, dev) => {
         render: (val, change) => {
             return (
                 <div data-field={tag}>
-                    <h3>{ fmt_to_array(_("Remove $0?"), <b>{key.url}</b>) }</h3>
-                    <p>{ fmt_to_array(_("Keyserver removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
+                    <h3>{ fmt_to_fragments(_("Remove $0?"), <b>{key.url}</b>) }</h3>
+                    <p>{ fmt_to_fragments(_("Keyserver removal may prevent unlocking $0."), <b>{dev}</b>) }</p>
                 </div>
             );
         }

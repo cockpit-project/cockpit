@@ -34,6 +34,9 @@ class TestKdump(MachineCase):
             contents = self.machine.execute(command="cat /boot/grub2/grub.cfg", quiet=True)
             self.assertIn("crashkernel=auto", contents)
             self.machine.write("/boot/grub2/grub.cfg", contents.replace("crashkernel=auto", "crashkernel=256M"))
+        elif self.machine.image in ["rhel-x"]:
+            # these images use BootLoaderSpec and grubenv
+            self.machine.execute("sed -i '/^kernelopts=/ { s/crashkernel=[^ ]*//; s/$/ crashkernel=256M/; }' /boot/grub2/grubenv")
         else:
             lines = self.machine.execute(command="cat /etc/default/grub", quiet=True).split("\n")
             lines = map(lambda line: self.rreplace(line, '"', ' crashkernel=256M"', 1) if line.startswith("GRUB_CMDLINE_LINUX") else line, lines)

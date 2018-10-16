@@ -299,7 +299,8 @@ class AccountList extends React.Component {
         var i;
         var items = [];
         for (i in this.props.accounts)
-            items.push(React.createElement(AccountItem, this.props.accounts[i]));
+            items.push(React.createElement(AccountItem, Object.assign({ "key": this.props.accounts[i].name },
+                                                                      this.props.accounts[i])));
         return React.createElement('div', null, items);
     }
 }

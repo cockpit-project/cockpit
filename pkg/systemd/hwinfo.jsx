@@ -83,7 +83,7 @@ class HardwareInfo extends React.Component {
             pci = (
                 <Listing title={ _("PCI") } columnTitles={ [ _("Class"), _("Model"), _("Vendor"), _("Slot") ] }
                          columnTitleClick={ index => this.setState({ sortBy: this.sortColumnFields[index] }) } >
-                    { sortedPci.map(dev => <ListingRow columns={[ dev.cls, dev.model, dev.vendor, dev.slot ]} />) }
+                    { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[ dev.cls, dev.model, dev.vendor, dev.slot ]} />) }
                 </Listing>
             );
         }

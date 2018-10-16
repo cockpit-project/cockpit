@@ -69,18 +69,18 @@ export function install_dialog(pkg) {
 
         if (data && data.extra_names.length > 0)
             extra_details = (
-                <p className="scale-up-ct">
+                <div className="scale-up-ct">
                     {_("Additional packages:")}
                     <ul className="package-list-ct">{data.extra_names.map(id => <li>{id}</li>)}</ul>
-                </p>
+                </div>
             );
 
         if (data && data.remove_names.length > 0)
             remove_details = (
-                <p className="scale-up-ct">
+                <div className="scale-up-ct">
                     <span className="pficon pficon-warning-triangle-o" /> {_("Removals:")}
                     <ul className="package-list">{data.remove_names.map(id => <li>{id}</li>)}</ul>
-                </p>
+                </div>
             );
 
         if (progress_message)

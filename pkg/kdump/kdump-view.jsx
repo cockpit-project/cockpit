@@ -434,9 +434,9 @@ class KdumpPage extends React.Component {
             );
         } else if (this.props.reservedMemory == 0) {
             // nothing reserved, give hint
-            reservedMemory = [
+            reservedMemory = (
                 <span>{_("None")} </span>
-            ];
+            );
         } else if (this.props.reservedMemory == "error") {
             // error while reading
         } else {

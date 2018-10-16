@@ -27,10 +27,11 @@ import {
     attachDisk,
     checkLibvirtStatus,
     delayPolling,
+    getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
     getNetworks,
-    getStoragePools,
+    getStoragePool,
     getStorageVolumes,
     getVm,
 } from './actions/provider-actions.es6';
@@ -40,7 +41,7 @@ import {
     undefineVm,
     updateNetworks,
     updateOrAddVm,
-    updateStoragePools,
+    updateOrAddStoragePool,
     updateStorageVolumes,
     updateVm,
     setHypervisorMaxVCPU,
@@ -72,6 +73,7 @@ import {
     getSingleOptionalElem,
     isRunning,
     parseDumpxml,
+    parseStoragePoolDumpxml,
     resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
@@ -390,6 +392,18 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    GET_ALL_STORAGE_POOLS({
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [0], TIMEOUT)
+                    .then(objPaths => {
+                        return cockpit.all(objPaths[0].map((path) => dispatch(getStoragePool({connectionName, id:path}))));
+                    })
+                    .fail(ex => console.warn('GET_ALL_STORAGE_POOLS action failed:', JSON.stringify(ex)));
+        };
+    },
+
     /*
      * Initiate read of all VMs
      *
@@ -404,7 +418,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 dbus_client(connectionName);
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
-                dispatch(getStoragePools(connectionName));
+                dispatch(getAllStoragePools(connectionName));
                 dispatch(getNetworks(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 doGetAllVms(dispatch, connectionName);
@@ -459,36 +473,43 @@ LIBVIRT_DBUS_PROVIDER = {
                 .fail(ex => console.error("ListNetworks failed:", JSON.stringify(ex)));
     },
 
-    /**
-     * Retrieves list of libvirt "storage pools" for particular connection.
+    /*
+     * Read Storage Pool properties of a single storage Pool
+     *
+     * @param Pool object path
+     * @returns {Function}
      */
-    GET_STORAGE_POOLS({
-        connectionName
+    GET_STORAGE_POOL({
+        id: objPath,
+        connectionName,
     }) {
-        let flags = Enum.VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE | Enum.VIR_CONNECT_LIST_STORAGE_POOLS_DIR;
-        return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListStoragePools', [flags], TIMEOUT)
-                .done(objPaths => {
-                    let pools = [];
-                    let storagePoolsPropsPromises = [];
+        let dumpxmlParams;
+        let props = {};
 
-                    logDebug(`GET_STORAGE_POOLS: object paths: ${JSON.stringify(objPaths)}`);
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.StoragePool', 'GetXMLDesc', [0], TIMEOUT)
+                    .then(poolXml => {
+                        dumpxmlParams = parseStoragePoolDumpxml(connectionName, poolXml[0], objPath);
 
-                    for (let i = 0; i < objPaths[0].length; i++) {
-                        storagePoolsPropsPromises.push(call(connectionName, objPaths[0][i], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.StoragePool", "Name"], TIMEOUT));
-                    }
-                    Promise.all(storagePoolsPropsPromises).then(poolNames => {
-                        for (let i = 0; i < poolNames.length; i++) {
-                            pools.push(poolNames[i][0].v);
-                        }
-                        dispatch(updateStoragePools({
-                            connectionName,
-                            pools,
-                        }));
-                        const promises = pools.map(poolName => dispatch(getStorageVolumes(connectionName, poolName)));
-                        return cockpit.all(promises);
-                    });
-                })
-                .fail(ex => console.error("ListStoragePools failed:", JSON.stringify(ex)));
+                        return call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.StoragePool'], TIMEOUT);
+                    })
+                    .then((resultProps) => {
+                        props.active = resultProps[0].Active.v.v;
+                        props.persistent = resultProps[0].Persistent.v.v;
+                        props.autostart = resultProps[0].Autostart.v.v;
+
+                        return call(connectionName, objPath, 'org.libvirt.StoragePool', 'GetInfo', [], TIMEOUT);
+                    })
+                    .then(poolInfo => {
+                        props.capacity = poolInfo[0][1];
+                        props.allocation = poolInfo[0][2];
+                        props.available = poolInfo[0][3];
+
+                        dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, props)));
+                        dispatch(getStorageVolumes({ connectionName, poolName: dumpxmlParams.name }));
+                    })
+                    .catch(ex => console.warn('GET_STORAGE_POOL action failed failed for path', objPath, ex));
+        };
     },
 
     GET_STORAGE_VOLUMES({ connectionName, poolName }) {

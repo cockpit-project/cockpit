@@ -124,7 +124,7 @@ HostVmsList.propTypes = {
     vms: PropTypes.array.isRequired,
     config: PropTypes.object.isRequired,
     ui: PropTypes.object.isRequired,
-    storagePools: PropTypes.object.isRequired,
+    storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.object.isRequired,
 };

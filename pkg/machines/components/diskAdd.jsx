@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from './notification/inlineNotification.jsx';
 import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
-import { volumeCreateAndAttach, attachDisk, getVm, getStoragePools } from '../actions/provider-actions.es6';
+import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.es6';
 
 import './diskAdd.css';
 
@@ -277,7 +277,7 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
 };
 
 function getDiskFileName(storagePools, vm, poolName, volumeName) {
-    const vmStoragePools = storagePools[vm.connectionName];
+    const vmStoragePools = storagePools;
     let volume;
     if (vmStoragePools && vmStoragePools[poolName]) {
         volume = vmStoragePools[poolName].find(volume => volume.name === volumeName);
@@ -301,7 +301,7 @@ export class AddDiskAction extends React.Component {
         // Refresh storage volume list before displaying the dialog.
         // There are recently no Libvirt events for storage volumes and polling is ugly.
         // https://bugzilla.redhat.com/show_bug.cgi?id=1578836
-        this.props.dispatch(getStoragePools(this.props.vm.connectionName))
+        this.props.dispatch(getAllStoragePools(this.props.vm.connectionName))
                 .then(() => {
                     this.setState({ showModal: true });
                 });
@@ -310,13 +310,23 @@ export class AddDiskAction extends React.Component {
     render() {
         const { vm, storagePools, provider, dispatch } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
+        /*
+         * For now only Storage Pools of dir type are supported.
+         * TODO: Add support for other Storage Pool types.
+         */
+        const filteredStoragePools = storagePools
+                .filter(pool => pool.connectionName == vm.connectionName && pool.active && pool.type == 'dir')
+                .reduce((result, filter) => {
+                    result[filter.name] = filter.volumes;
+                    return result;
+                }, {});
 
         return (
             <div id={`${idPrefix}-add-dialog-full`}>
                 <Button id={`${idPrefix}`} bsStyle='primary' onClick={this.open} className='pull-right' >
                     {_("Add Disk")}
                 </Button>
-                { this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={this.props.idPrefix} vm={vm} storagePools={storagePools} provider={provider} /> }
+                { this.state.showModal && <AddDiskModalBody close={this.close} dispatch={dispatch} idPrefix={this.props.idPrefix} vm={vm} storagePools={filteredStoragePools} provider={provider} /> }
             </div>
         );
     }
@@ -337,7 +347,7 @@ class AddDiskModalBody extends React.Component {
         const availableTargets = getAvailableTargets(vm);
 
         return {
-            storagePoolName: storagePools && storagePools[vm.connectionName] && Object.getOwnPropertyNames(storagePools[vm.connectionName]).sort()[0],
+            storagePoolName: storagePools && Object.getOwnPropertyNames(storagePools).sort()[0],
             mode: CREATE_NEW,
             volumeName: undefined,
             existingVolumeName: undefined,
@@ -353,8 +363,7 @@ class AddDiskModalBody extends React.Component {
 
     getDefaultVolumeName(poolName) {
         const { storagePools, vm } = this.props;
-        const vmStoragePools = storagePools[vm.connectionName];
-        const vmStoragePool = vmStoragePools[poolName];
+        const vmStoragePool = storagePools[poolName];
         const filteredVolumes = getFilteredVolumes(vmStoragePool, vm.disks);
         return filteredVolumes[0] && filteredVolumes[0].name;
     }
@@ -426,7 +435,7 @@ class AddDiskModalBody extends React.Component {
     render() {
         const { vm, storagePools, provider } = this.props;
         const idPrefix = `${this.props.idPrefix}-adddisk`;
-        const vmStoragePools = storagePools[vm.connectionName];
+        const vmStoragePools = storagePools;
 
         const defaultBody = (
             <div className='modal-body add-disk-dialog'>

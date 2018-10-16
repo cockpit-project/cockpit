@@ -26,8 +26,8 @@ import {
     updateVm,
     updateOrAddVm,
     undefineVm,
+    updateOrAddStoragePool,
     deleteUnlistedVMs,
-    updateStoragePools,
     updateStorageVolumes,
     setHypervisorMaxVCPU,
 } from './actions/store-actions.es6';
@@ -36,9 +36,10 @@ import {
     attachDisk,
     checkLibvirtStatus,
     delayPolling,
+    getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
-    getStoragePools,
+    getStoragePool,
     getStorageVolumes,
     getVm,
 } from './actions/provider-actions.es6';
@@ -62,6 +63,7 @@ import {
     createTempFile,
     isRunning,
     parseDumpxml,
+    parseStoragePoolDumpxml,
     resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
@@ -186,6 +188,22 @@ LIBVIRT_PROVIDER = {
         };
     },
 
+    GET_ALL_STORAGE_POOLS({ connectionName }) {
+        const connection = VMS_CONFIG.Virsh.connections[connectionName];
+
+        return dispatch => spawnScript({
+            script: `virsh ${connection.params.join(' ')} -r pool-list --all | awk 'NR>2 {print $1}'`
+        }).then(output => {
+            const storagePoolNames = output.trim().split(/\r?\n/);
+            storagePoolNames.forEach((storagePoolName, index) => {
+                storagePoolNames[index] = storagePoolName.trim();
+            });
+            logDebug(`GET_ALL_STORAGE_POOLS: vmNames: ${JSON.stringify(storagePoolNames)}`);
+
+            return cockpit.all(storagePoolNames.map((name) => dispatch(getStoragePool({connectionName, name}))));
+        });
+    },
+
     /**
      * Initiate read of all VMs
      *
@@ -198,7 +216,7 @@ LIBVIRT_PROVIDER = {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 doGetAllVms(dispatch, connectionName);
-                dispatch(getStoragePools(connectionName));
+                dispatch(getAllStoragePools(connectionName));
             };
         }
 
@@ -206,28 +224,29 @@ LIBVIRT_PROVIDER = {
     },
 
     /**
-     * Retrieves list of libvirt "storage pools" for particular connection.
+     * Read properties of a single Storage Pool (virsh)
+     *
+     * @param Storage Pool name
+     * @returns {Function}
      */
-    GET_STORAGE_POOLS({ connectionName }) {
-        logDebug(`${this.name}.GET_STORAGE_POOLS(connectionName='${connectionName}')`);
+    GET_STORAGE_POOL({ name, connectionName }) {
+        let dumpxmlParams;
 
-        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
-        // Workaround: virsh v1.3.1 in ubuntu-1604 does not support '--name' parameter
-        const command = `virsh ${connection} -r pool-list --type dir | grep active | awk '{print $1 }'`;
-        let poolList = '';
-        // TODO: add support for other pool types then just the "directory"
-        return dispatch => cockpit
-                .script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
-                .stream(output => { poolList += output })
-                .then(() => { // so far only pool names are needed, extend here otherwise
-                    const promises = parseStoragePoolList(dispatch, connectionName, poolList)
-                            .map(poolName => dispatch(getStorageVolumes(connectionName, poolName)));
+        return dispatch => {
+            if (!isEmpty(name)) {
+                return spawnVirshReadOnly({connectionName, method: 'pool-dumpxml', name})
+                        .then(storagePoolXml => {
+                            dumpxmlParams = parseStoragePoolDumpxml(connectionName, storagePoolXml);
+                            return spawnVirshReadOnly({connectionName, method: 'pool-info', name});
+                        })
+                        .then(poolInfo => {
+                            const poolInfoParams = parseStoragePoolInfo(poolInfo);
 
-                    return cockpit.all(promises);
-                })
-                .fail((exception, data) => {
-                    console.error('Failed to get list of Libvirt storage pools for connection ', connectionName, ': ', data, exception);
-                });
+                            dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, poolInfoParams)));
+                            dispatch(getStorageVolumes({ connectionName, poolName: name }));
+                        });
+            }
+        };
     },
 
     GET_STORAGE_VOLUMES({ connectionName, poolName }) {
@@ -528,19 +547,13 @@ function parseDomstatsForDisks(domstatsLines) {
     return disksStats;
 }
 
-function parseStoragePoolList(dispatch, connectionName, poolList) {
-    logDebug('parsePoolList(), input: ', poolList);
-    const pools = poolList.trim()
-            .split('\n')
-            .map(rawPoolName => rawPoolName.trim())
-            .filter(rawPoolName => !!rawPoolName); // non-empty only, if pool list is de-facto empty
+function parseStoragePoolInfo(poolInfo) {
+    const lines = parseLines(poolInfo);
+    const active = getValueFromLine(lines, 'State:') == 'running';
+    const autostart = getValueFromLine(lines, 'Autostart:') == 'yes';
+    const persistent = getValueFromLine(lines, 'Persistent:') == 'yes';
 
-    dispatch(updateStoragePools({
-        connectionName,
-        pools,
-    }));
-
-    return pools; // return pools to simplify further processing
+    return {active, persistent, autostart};
 }
 
 function parseStorageVolumes(dispatch, connectionName, poolName, volumes) {

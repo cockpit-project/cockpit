@@ -27,11 +27,11 @@ import {
     SET_LOGGED_IN_USER,
     SET_PROVIDER,
     UNDEFINE_VM,
+    UPDATE_ADD_STORAGE_POOL,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
     UPDATE_OS_INFO_LIST,
     UPDATE_NETWORKS,
-    UPDATE_STORAGE_POOLS,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
     UPDATE_VM,
@@ -152,6 +152,13 @@ export function updateLibvirtState(state) {
     };
 }
 
+export function updateOrAddStoragePool(props) {
+    return {
+        type: UPDATE_ADD_STORAGE_POOL,
+        payload: { storagePool: props },
+    };
+}
+
 export function updateOrAddVm(props) {
     return {
         type: UPDATE_ADD_VM,
@@ -172,16 +179,6 @@ export function updateNetworks({ connectionName, networks }) {
         payload: {
             connectionName,
             networks,
-        }
-    };
-}
-
-export function updateStoragePools({ connectionName, pools }) {
-    return {
-        type: UPDATE_STORAGE_POOLS,
-        payload: {
-            connectionName,
-            pools,
         }
     };
 }

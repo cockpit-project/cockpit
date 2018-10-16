@@ -380,7 +380,7 @@ class SETroubleshootPage extends React.Component {
                 );
             }
         } else {
-            entries = this.props.entries.map(function(itm) {
+            entries = this.props.entries.map(function(itm, index) {
                 itm.runFix = self.props.runFix;
                 var listingDetail;
                 if (itm.details && 'firstSeen' in itm.details) {
@@ -433,6 +433,7 @@ class SETroubleshootPage extends React.Component {
                 }
                 return (
                     <cockpitListing.ListingRow
+                        key={itm.details.localId || index}
                         columns={columns}
                         tabRenderers={tabRenderers}
                         listingDetail={listingDetail}

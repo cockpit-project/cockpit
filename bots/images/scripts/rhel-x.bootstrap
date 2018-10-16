@@ -7,4 +7,4 @@ if [ -z "$SUBSCRIPTION_PATH" ] && [ -e ~/.rhel/login ]; then
 fi
 
 BASE=$(dirname $0)
-$BASE/virt-install-fedora "$1" x86_64 "http://download.eng.bos.redhat.com/nightly/latest-RHEL-8/compose/BaseOS/x86_64/os/" $SUBSCRIPTION_PATH
+$BASE/virt-install-fedora "$1" x86_64 "http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8/compose/BaseOS/x86_64/os/" $SUBSCRIPTION_PATH

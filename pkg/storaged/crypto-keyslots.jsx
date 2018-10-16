@@ -358,7 +358,7 @@ const RemovePassphraseField = (tag, key, dev) => {
                         <div className="form-group">
                             <label>
                                 <input type="radio" checked={val !== false}
-                                       autoFocus="true"
+                                       autoFocus
                                        onChange={event => change("")} />
                                 {_("Confirm removal with passphrase")}
                             </label>

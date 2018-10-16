@@ -73,6 +73,7 @@ const fatalLogs = [
     /^Warning: Component.*declared.*instead of.*propTypes.*/,
     /^Warning: Invalid DOM property/,
     /^Warning: Received the .* for the .* attribute/,
+    /^Warning: validateDOMNesting/,
 ];
 
 function setupLogging(client) {

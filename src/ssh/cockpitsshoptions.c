@@ -21,7 +21,6 @@
 
 #include "cockpitsshoptions.h"
 
-static const gchar *default_knownhosts = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
 static const gchar *default_command = "cockpit-bridge";
 
 static gboolean
@@ -100,8 +99,7 @@ cockpit_ssh_options_from_env (gchar **env)
 {
 
   CockpitSshOptions *options = g_new0 (CockpitSshOptions, 1);
-  options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE",
-                                                  default_knownhosts);
+  options->knownhosts_file = get_environment_val (env, "COCKPIT_SSH_KNOWN_HOSTS_FILE", NULL);
   options->command = get_environment_val (env, "COCKPIT_SSH_BRIDGE_COMMAND", default_command);
   options->remote_peer = get_environment_val (env, "COCKPIT_REMOTE_PEER", "localhost");
   options->connect_to_unknown_hosts = get_connect_to_unknown_hosts (env);
@@ -128,10 +126,4 @@ cockpit_ssh_options_to_env (CockpitSshOptions *options,
     }
 
   return env;
-}
-
-const gchar *
-cockpit_get_default_knownhosts (void)
-{
-  return default_knownhosts;
 }

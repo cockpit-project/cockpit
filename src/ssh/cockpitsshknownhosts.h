@@ -26,6 +26,8 @@
 
 G_BEGIN_DECLS
 
+#define SSH_OPTIONS_GLOBAL_KNOWNHOSTS SSH_OPTIONS_KNOWNHOSTS
+
 /* translate to old ssh_server_known_e enum for deprecated ssh_is_server_known() API */
 enum ssh_known_hosts_e {
     SSH_KNOWN_HOSTS_ERROR = -2,

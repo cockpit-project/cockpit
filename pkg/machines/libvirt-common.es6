@@ -203,8 +203,6 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         osVariant,
     };
 
-    const ui = resolveUiState(dispatch, name);
-
     return {
         connectionName,
         name,
@@ -220,7 +218,6 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         displays,
         interfaces,
         metadata,
-        ui,
     };
 }
 

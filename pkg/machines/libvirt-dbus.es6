@@ -74,6 +74,7 @@ import {
     getSingleOptionalElem,
     isRunning,
     parseDumpxml,
+    resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
     updateVCPUSettings,
@@ -548,6 +549,7 @@ LIBVIRT_DBUS_PROVIDER = {
                             props.persistent = returnProps[0].Persistent.v.v;
                         if ("Autostart" in returnProps[0])
                             props.autostart = returnProps[0].Autostart.v.v;
+                        props.ui = resolveUiState(dispatch, props.name);
 
                         logDebug(`${this.name}.GET_VM(${objPath}, ${connectionName}): update props ${JSON.stringify(props)}`);
 

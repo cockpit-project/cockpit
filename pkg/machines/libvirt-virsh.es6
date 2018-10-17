@@ -64,6 +64,7 @@ import {
     createTempFile,
     isRunning,
     parseDumpxml,
+    resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
     updateVCPUSettings,
@@ -171,6 +172,7 @@ LIBVIRT_PROVIDER = {
                             let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
                             let domInfoParams = parseDominfo(dispatch, connectionName, name, domInfo);
 
+                            dumpxmlParams.ui = resolveUiState(dispatch, name);
                             dumpxmlParams.inactiveXML = parseDumpxml(dispatch, connectionName, xmlInactiveDesc);
 
                             if (updateOnly)

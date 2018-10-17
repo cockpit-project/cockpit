@@ -128,6 +128,9 @@ if test "$enable_ssh" != "no"; then
 
   AC_DEFINE_UNQUOTED(WITH_COCKPIT_SSH, 1, [Build cockpit-ssh and include libssh dependency])
 
+  PKG_CHECK_MODULES(LIBSSH_SAFE_PROXY_COMMANDS, [libssh >= 0.8.5],
+    [AC_DEFINE_UNQUOTED(HAVE_SAFE_PROXY_COMMANDS, [1], [Proxy commands break cockpit pre libssh-0.8.5])], [0])
+
   AC_CHECK_LIB(ssh, ssh_get_server_publickey, [
     AC_DEFINE_UNQUOTED(HAVE_SSH_GET_SERVER_PUBLICKEY, 1, Whether ssh_get_server_publickey is available)
   ])

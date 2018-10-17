@@ -192,6 +192,28 @@ class TestMultiMachineAdd(MachineCase):
                                     ".*: bridge failed: .*",
                                     ".*: bridge program failed: Child process exited with code .*")
 
+    @skipImage("Newer version (>= 0.8.5) of libssh required", "debian-stable", "debian-testing",
+               "ubuntu-1804", "ubuntu-stable", "fedora-atomic", "rhel-atomic", "continuous-atomic",
+               "rhel-x", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
+    def testGlobalSSHConfig(self):
+        b = self.browser
+        m = self.machine
+        m3 = self.machine3
+
+        change_ssh_port(m3, "10.111.113.3", 2222)
+        m.execute("echo -e 'Host m2\n\tHostName 10.111.113.2\n' >> /etc/ssh/ssh_config")
+        m.execute("echo -e 'Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n' >> /etc/ssh/ssh_config")
+
+        self.login_and_go(None)
+        add_machine(b, "m2")
+        add_machine(b, "m3")
+
+        b.go("/dashboard")
+        b.enter_page("/dashboard")
+        b.wait_present("#dashboard-hosts a[data-address='m2'] img")
+        b.wait_attr("#dashboard-hosts a[data-address='m2'] img", 'src', '../shell/images/server-small.png')
+        b.wait_present("#dashboard-hosts a[data-address='m3'] img")
+        b.wait_attr("#dashboard-hosts a[data-address='m3'] img", 'src', '../shell/images/server-small.png')
 
 class TestMultiMachine(MachineCase):
     provision = {

@@ -484,6 +484,10 @@ PageAccountsCreate.prototype = {
             }
         ];
 
+        tasks.push(function change_passwd() {
+            return passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val());
+        });
+
         if ($('#accounts-create-locked').prop('checked')) {
             tasks.push(function adjust_locked() {
                 return cockpit.spawn([
@@ -493,10 +497,6 @@ PageAccountsCreate.prototype = {
                 ], { superuser: "require", err: "message" });
             });
         }
-
-        tasks.push(function change_passwd() {
-            return passwd_change($('#accounts-create-user-name').val(), $('#accounts-create-pw1').val());
-        });
 
         var promise = this.validate()
                 .fail(function(ex) {

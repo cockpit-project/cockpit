@@ -138,7 +138,7 @@ import * as cockpitListing from "cockpit-components-listing.jsx";
                     columns={ [ { name: "not selected by default", 'header': true }, 'aoeuaoeu', '127.30.168.11', 'Running' ] }
                     selected={false} />
                 <cockpitListing.ListingRow
-                    columns={ [ { name: "no selected entry", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] } />
+                    columns={ [ { name: "not selectable", 'header': true }, 'aoeuaoeu', '127.30.168.12', rowAction ] } />
             </cockpitListing.Listing>
         );
         ReactDOM.render(listing, rootElementSelectable);

@@ -41,7 +41,8 @@ import './listing.less';
  * listingDetail optional: text rendered next to action buttons, similar style to the tab headers
  * listingActions optional: buttons that are presented as actions for the expanded item
  * selectChanged optional: callback will be used when the "selected" state changes
- * selected optional: true if the item is selected, can't be true if row has navigation or expansion
+ * selected optional: true if the item is selected, false if it unselected but selectable,
+ *                    not set if it is not selectable. Can't be set if row has navigation or expansion
  * initiallyExpanded optional: the entry will be initially rendered as expanded, but then behaves normally
  * expandChanged optional: callback will be used if the row is either expanded or collapsed passing single `isExpanded` boolean argument
  */
@@ -295,26 +296,10 @@ export const Listing = (props) => {
         bodyClasses.push("listing-ct-wide");
     let headerClasses;
     let headerRow;
-    let selectableRows;
     if (!props.children || props.children.length === 0) {
         headerClasses = "listing-ct-empty";
         headerRow = <tr><td>{props.emptyCaption}</td></tr>;
     } else if (props.columnTitles.length) {
-        // check if any of the children are selectable
-        selectableRows = false;
-        props.children.forEach(function(r) {
-            if (r.props.selected !== undefined)
-                selectableRows = true;
-        });
-
-        if (selectableRows) {
-            // now make sure that if one is set, it's available on all items
-            props.children.forEach(function(r) {
-                if (r.props.selected === undefined)
-                    r.props.selected = false;
-            });
-        }
-
         headerRow = (
             <tr>
                 <th key="empty" className="listing-ct-toggle" />

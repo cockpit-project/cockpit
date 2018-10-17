@@ -877,43 +877,46 @@
         '$scope',
         'projectData',
         'projectPolicy',
+        'kubeLoader',
         'kubeSelect',
         'fields',
         'gettextCatalog',
-        function($q, $scope, projectData, projectPolicy, kselect, fields, gettextCatalog) {
+        function($q, $scope, projectData, projectPolicy, loader, kselect, fields, gettextCatalog) {
             var _ = gettextCatalog.getString.bind(gettextCatalog);
             var selectMember = _("Select Member");
             var NAME_RE = /^[a-z0-9_.]([-a-z0-9@._:]*[a-z0-9._:])?$/;
             var selectRole = _("Select Role");
 
+            loader.watch("User", $scope);
+            loader.watch("Group", $scope);
+
             $scope.selected = {
                 member: selectMember,
-                members: getAllMembers(),
+                getMembers: getAllMembers,
                 displayRole: selectRole,
                 roles: projectData.getRegistryRolesMap(),
                 kind: "",
                 ocRole: "",
             };
             $scope.itemTracker= function(item) {
-              return item.kind + "/" + item.name;
+              return item.kind + "/" + item.metadata.name;
             };
             var namespace = fields.namespace;
 
+            /*
+             * This function is called during Angular rendering. Make sure we
+             * use the same array over and over again, so angular doesn't
+             * try to digest again.
+             */
             function getAllMembers() {
                 var users = kselect().kind("User");
                 var groups = kselect().kind("Group");
                 var members = [];
                 angular.forEach(users, function(user) {
-                    members.push({
-                        kind: user.kind,
-                        name: user.metadata.name,
-                    });
+                    members.push(user);
                 });
                 angular.forEach(groups, function(group) {
-                    members.push({
-                        kind: group.kind,
-                        name: group.metadata.name,
-                    });
+                    members.push(group);
                 });
                 return members;
             }
@@ -953,7 +956,7 @@
                 if (memberName && memberName === member) {
                     //dropdown value selected
                     memberObj = $scope.selected.memberObj;
-                    memberName = memberObj.name;
+                    memberName = memberObj.metadata.name;
                     kind = memberObj.kind;
                 } else if (memberName && member === selectMember) {
                     //input field has value
@@ -1161,6 +1164,8 @@
         "gettextCatalog",
         function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields, gettextCatalog) {
             var _ = gettextCatalog.getString.bind(gettextCatalog);
+            loader.watch("Group", $scope);
+            loader.watch("Project", $scope);
 
             function getMembers() {
                 var members = [];
@@ -1185,7 +1190,7 @@
             };
             $scope.selected = {
                 member: _("Select Member"),
-                members: getMembers,
+                getMembers: getMembers,
                 roles: projectData.getRegistryRolesMap,
                 role: _("Select Role"),
             };
@@ -1295,6 +1300,7 @@
     .controller('GroupChangeCtrl', [
         '$q',
         '$scope',
+        'kubeLoader',
         'kubeSelect',
         "kubeMethods",
         'projectData',
@@ -1302,7 +1308,12 @@
         'projectPolicy',
         '$location',
         "fields",
-        function($q, $scope, kselect, methods, projectData, memberActions, projectPolicy, $location, fields) {
+        'gettextCatalog',
+        function($q, $scope, loader, kselect, methods, projectData, memberActions, projectPolicy, $location, fields, gettextCatalog) {
+            var _ = gettextCatalog.getString.bind(gettextCatalog);
+            loader.watch("User", $scope);
+            loader.watch("Project", $scope);
+
             function getUsers() {
                 return kselect().kind("User");
             }
@@ -1310,8 +1321,8 @@
                 return kselect().kind("Project");
             }
             $scope.select = {
-                member: 'Select Member',
-                members: getUsers(),
+                member: _("Select Member"),
+                getMembers: getUsers,
             };
             angular.extend($scope, projectData);
             $scope.fields = fields;

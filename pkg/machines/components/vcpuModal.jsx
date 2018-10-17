@@ -5,7 +5,7 @@ import cockpit from 'cockpit';
 import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
-import { Alert } from './notification/inlineNotification.jsx';
+import { Alert } from 'patternfly-react';
 import { setVCPUSettings } from "../actions/provider-actions.es6";
 
 const _ = cockpit.gettext;
@@ -157,7 +157,9 @@ class VCPUModalBody extends React.Component {
             caution = (
                 <tr>
                     <td colSpan={2} className="machines-vcpu-caution">
-                        <Alert text={_("All changes will take effect only after stopping and starting the VM.")} />
+                        <Alert type='warning'>
+                            {_("All changes will take effect only after stopping and starting the VM.")}
+                        </Alert>
                     </td>
                 </tr>);
         }

@@ -20,8 +20,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { mouseClick } from "../../helpers.es6";
-
 import './notification.css';
 
 export const NotificationMessage = ({ description, message }) => {
@@ -42,44 +40,4 @@ export const NotificationMessage = ({ description, message }) => {
 NotificationMessage.propTypes = {
     description: PropTypes.string,
     message: PropTypes.string,
-};
-
-export const Notification = ({ notificationClass, iconClass, onDismiss, id, children }) => {
-    if (React.Children.count(children) === 0) {
-        return null;
-    }
-
-    const dismissableClass = onDismiss ? ' alert-dismissable' : '';
-    let closeButton = null;
-
-    const identifier = id ? `${id}-close` : null;
-
-    if (onDismiss) {
-        // do not use "data-dismiss='alert'" to close the notification
-        closeButton = (
-            <button id={identifier} type='button' className='close' aria-hidden='true' onClick={mouseClick(onDismiss)}>
-                <span className='pficon pficon-close' />
-            </button>
-        );
-    }
-
-    return (
-        <div className={notificationClass + dismissableClass} id={id}>
-            {closeButton}
-            <span className={iconClass} />
-            {children}
-        </div>
-    );
-};
-
-Notification.propTypes = {
-    notificationClass: PropTypes.string, // classname for the notification type; see defaultProps
-    iconClass: PropTypes.string, // classname for the icon; see defaultProps
-    onDismiss: PropTypes.func, // callback to be called when 'close-button' is clicked. If undefined, then the button (means "cross") is not rendered.
-    id: PropTypes.string,
-};
-
-Notification.defaultProps = {
-    notificationClass: 'alert alert-info',
-    iconClass: 'pficon pficon-info',
 };

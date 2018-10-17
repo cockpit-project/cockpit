@@ -428,7 +428,7 @@ export const createVmDialog = (dispatch, osInfoList) => {
 
 export function createVmAction({ dispatch, systemInfo }) {
     return (
-        <a key='create-vm-action' className="card-pf-link-with-icon pull-right" id="create-new-vm"
+        <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
             onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList))}>
             <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
         </a>

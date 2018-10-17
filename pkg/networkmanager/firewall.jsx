@@ -301,12 +301,12 @@ export class Firewall extends React.Component {
         var addServiceAction;
         if (this.state.firewall.readonly) {
             addServiceAction = (
-                <Tooltip key="" className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
+                <Tooltip className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
                     <button className="btn btn-primary" disabled> {_("Add Services…")} </button>
                 </Tooltip>
             );
         } else {
-            addServiceAction = <button key="" className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;
+            addServiceAction = <button className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;
         }
 
         var services = [...this.state.firewall.enabledServices].map(id => this.state.firewall.services[id]);
@@ -329,7 +329,7 @@ export class Firewall extends React.Component {
                 <Listing title={_("Allowed Services")}
                          columnTitles={[ _("Service"), _("TCP"), _("UDP"), "" ]}
                          emptyCaption={_("No open ports")}
-                         actions={[ addServiceAction ]}>
+                         actions={addServiceAction}>
                     {
                         services.map(s => <ServiceRow key={s.id}
                                                       service={s}

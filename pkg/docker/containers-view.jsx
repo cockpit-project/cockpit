@@ -678,7 +678,7 @@ class ImageList extends React.Component {
 
         var imageRows = filtered.map(this.renderRow, this);
 
-        var getNewImageAction = <a key="new" role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+        var getNewImageAction = <a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
             <span className="pficon pficon-add-circle-o" />{_("Get new image")}
         </a>;
 
@@ -713,7 +713,7 @@ class ImageList extends React.Component {
                 <Listing.Listing title={_("Images")}
                     columnTitles={columnTitles}
                     emptyCaption={emptyCaption}
-                    actions={[ getNewImageAction ]}>
+                    actions={getNewImageAction}>
                     {imageRows}
                 </Listing.Listing>
                 {pendingRows}

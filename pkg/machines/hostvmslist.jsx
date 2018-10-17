@@ -81,18 +81,13 @@ class HostVmsList extends React.Component {
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
-        let allActions = [];
-        if (actions) {
-            allActions = allActions.concat(actions);
-        }
-
         return (<div className='container-fluid'>
             <NotificationArea id={"notification-area"}
                 notifications={ui.notifications}
                 onDismiss={(id) => dispatch(clearNotification(id))} />
             <Listing title={_("Virtual Machines")}
                 columnTitles={[_("Name"), _("Connection"), _("State")]}
-                actions={allActions}
+                actions={actions}
                 emptyCaption={_("No VM is running or defined on this host")}>
                 {combinedVms
                         .sort(sortFunction)

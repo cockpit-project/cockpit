@@ -737,8 +737,6 @@ check_host_key_values (TestCase *tc,
   g_assert_cmpstr (json_object_get_string_member (init, "host-fingerprint"),
                    ==, MOCK_RSA_FP);
 
-  g_assert (json_object_has_member (init, "invalid-hostkey-file") == FALSE);
-
   g_free (knownhosts);
 }
 
@@ -833,9 +831,6 @@ test_invalid_knownhost (TestCase *tc,
   do_auth_response (tc->transport, "*", "");
 
   init = wait_until_transport_init (tc->transport, "invalid-hostkey");
-
-  g_assert_cmpstr (json_object_get_string_member (init, "invalid-hostkey-file"),
-                   ==, fix->knownhosts_file);
 
   json_object_unref (init);
 }

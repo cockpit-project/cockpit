@@ -569,20 +569,15 @@
             var options = {};
             var match_problem = problem;
             var fp;
-            var path = machines.known_hosts_path;
 
             if (error_options) {
                 key = error_options["host-key"];
                 fp = error_options["host-fingerprint"];
-                if (error_options["invalid-hostkey-file"])
-                    path = error_options["invalid-hostkey-file"];
             }
 
             dialog.render({
                 'context_title' : dialog.context_title,
-                'path' : path,
                 'key' : fp,
-                'key_host' : key ? key.split(' ')[0] : null,
             });
 
             if (!key) {

@@ -6,13 +6,6 @@
         <i class="fa fa-ban"></i>
     </div>
     <p translatable="yes">The key of {{#strong}}{{host}}{{/strong}} does not match the key previously in use. Unless this machine was recently replaced, it is likely that someone is trying to attack your connection to this machine.</p>
-
-    {{#key_host}}
-    <p translatable="yes">You can remove the previously stored key by running the following command</p>
-
-    <pre class="center">ssh-keygen -R {{ key_host }} -f {{ path }}</pre>
-    {{/key_host}}
-
 </div>
 
 <div class="modal-footer">

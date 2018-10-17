@@ -690,7 +690,7 @@ class MachineCase(unittest.TestCase):
     def tearDown(self):
         if self.checkSuccess() and self.machine.ssh_reachable:
             self.check_journal_messages()
-            self.check_browser_messages()
+            self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True):
@@ -699,6 +699,7 @@ class MachineCase(unittest.TestCase):
 
     allow_core_dumps = False
 
+    # Whitelist of allowed journal messages during tests; these need to match the *entire* message
     allowed_messages = [
         # This is a failed login, which happens every time
         "Returning error-response 401 with reason `Sorry'",
@@ -760,8 +761,14 @@ class MachineCase(unittest.TestCase):
         "Failed to send coredump datagram:.*",
     ]
 
+    # Whitelist of allowed console.error() messages during tests; these match substrings
+    allowed_console_errors = [
+        # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
+        "Warning: .* setState.*on an unmounted component",
+    ]
+
     def allow_journal_messages(self, *patterns):
-        """Don't fail if the journal contains a entry matching the given regexp"""
+        """Don't fail if the journal contains a entry completely matching the given regexp"""
         for p in patterns:
             self.allowed_messages.append(p)
 
@@ -860,11 +867,22 @@ class MachineCase(unittest.TestCase):
             self.copy_cores("FAIL")
             raise Error(first)
 
-    def check_browser_messages(self):
+    def allow_browser_errors(self, *patterns):
+        """Don't fail if the test caused a console error contains the given regexp"""
+        for p in patterns:
+            self.allowed_console_errors.append(p)
+
+    def check_browser_errors(self):
         if not self.browser:
             return
         for log in self.browser.get_js_log():
-            if log.startswith("error: uncaught"):
+            if not log.startswith("error: "):
+                continue
+            # errors are fatal in general; they need to be explicitly whitelisted
+            for p in self.allowed_console_errors:
+                if re.search(p, log):
+                    break
+            else:
                 raise Error(log)
 
     def check_axe(self, label=None, suffix=""):

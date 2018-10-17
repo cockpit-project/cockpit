@@ -654,6 +654,8 @@ class TestUpdates(PackageCase):
                      rm /usr/share/dbus-1/system-services/org.freedesktop.PackageKit.service
                      systemctl daemon-reload''')
 
+        self.allow_browser_errors("loading available updates failed:.*not-found")
+
         m.start_cockpit()
         b.login_and_go("/updates")
 

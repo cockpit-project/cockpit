@@ -67,16 +67,6 @@ var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
 
-// when encountering a log message that contains any of these strings, fail the test
-const fatalLogs = [
-    /^Warning: Failed prop type:/,
-    /^Warning: Component.*declared.*instead of.*propTypes.*/,
-    /^Warning: Invalid DOM property/,
-    /^Warning: Received the .* for the .* attribute/,
-    /^Warning: validateDOMNesting/,
-    /^Warning: .*unique "key" prop.*/,
-];
-
 function setupLogging(client) {
     client.Runtime.enable();
 
@@ -84,9 +74,6 @@ function setupLogging(client) {
         let msg = info.args.map(v => (v.value || "").toString()).join(" ");
         messages.push([ info.type, msg ]);
         process.stderr.write("> " + info.type + ": " + msg + "\n")
-
-        if (fatalLogs.find(pattern => pattern.test(msg)))
-            unhandledExceptions.push(msg);
 
         resolveLogPromise();
     });

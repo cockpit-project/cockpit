@@ -626,7 +626,7 @@ export const SelectSpaces = (tag, title, options) => {
                         };
 
                         return (
-                            <li key={spc.desc} className="list-group-item">
+                            <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <div className="checkbox">
                                     <label>
                                         <input type="checkbox" checked={selected} onChange={on_change} />
@@ -665,7 +665,7 @@ export const SelectSpace = (tag, title, options) => {
                         };
 
                         return (
-                            <li key={spc.desc} className="list-group-item">
+                            <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <div className="radio">
                                     <label>
                                         <input type="radio" checked={val == spc} onChange={on_change} />

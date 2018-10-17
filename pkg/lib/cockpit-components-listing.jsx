@@ -347,5 +347,5 @@ Listing.propTypes = {
             PropTypes.element,
         ])),
     columnTitleClick: PropTypes.func,
-    actions: PropTypes.arrayOf(PropTypes.node)
+    actions: PropTypes.node
 };

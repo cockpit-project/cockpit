@@ -235,19 +235,22 @@ export class IscsiPanel extends React.Component {
         var sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)
                 .map(make_session);
 
-        var actions = [
-            sessions.length > 0
-                ? <button key="armed" className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
-                    onClick={toggle_armed} /> : null,
-            "\n",
-            <StorageButton key="edit-iscsi" onClick={iscsi_change_name} id="edit-iscsi">
-                <span className="pficon pficon-edit" />
-            </StorageButton>,
-            "\n",
-            <StorageButton key="add-iscsi-portal" kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
-                <span className="fa fa-plus" />
-            </StorageButton>
-        ];
+        var actions = (
+            <React.Fragment>
+                { sessions.length > 0
+                    ? <button className={"btn btn-default fa fa-check" + (this.state.armed ? " active" : "")}
+                  onClick={toggle_armed} /> : null
+                }
+                { "\n" }
+                <StorageButton onClick={iscsi_change_name} id="edit-iscsi">
+                    <span className="pficon pficon-edit" />
+                </StorageButton>
+                { "\n" }
+                <StorageButton kind="primary" onClick={iscsi_discover} id="add-iscsi-portal">
+                    <span className="fa fa-plus" />
+                </StorageButton>
+            </React.Fragment>
+        );
 
         var iscsi_feature = {
             is_enabled: () => client.features.iscsi

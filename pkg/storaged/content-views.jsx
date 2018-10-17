@@ -529,7 +529,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     var format_disk_btn = null;
     if (allow_partitions)
         format_disk_btn = (
-            <div className="pull-right" key="create-partition-table">
+            <div className="pull-right">
                 <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
                     {_("Create partition table")}
                 </StorageButton>
@@ -537,7 +537,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
 
     return (
         <Listing title={_("Content")}
-                 actions={[ format_disk_btn ]}
+                 actions={format_disk_btn}
                  emptyCaption="">
             { block_rows(client, block) }
         </Listing>
@@ -682,7 +682,7 @@ class VGroup extends React.Component {
         var excuse = vgroup.FreeSize == 0 && _("No free space");
 
         var new_volume_link = (
-            <div className="pull-right" key="new-logical-volume">
+            <div className="pull-right">
                 <StorageLink onClick={create_logical_volume}
                              excuse={excuse}>
                     <span className="pficon pficon-add-circle-o" />
@@ -693,7 +693,7 @@ class VGroup extends React.Component {
 
         return (
             <Listing title="Logical Volumes"
-                     actions={[ new_volume_link ]}
+                     actions={new_volume_link}
                      emptyCaption={_("No Logical Volumes")}>
                 { vgroup_rows(self.props.client, vgroup) }
             </Listing>

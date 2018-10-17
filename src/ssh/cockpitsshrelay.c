@@ -1336,7 +1336,7 @@ cockpit_ssh_connect (CockpitSshData *data,
   gboolean host_is_whitelisted;
   const gchar *problem;
 
-  guint port = 22;
+  guint port = 0;
   gchar *host;
 
   ssh_channel channel;
@@ -1358,10 +1358,22 @@ cockpit_ssh_connect (CockpitSshData *data,
       goto out;
     }
 
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
-  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
-
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
+#if HAVE_SAFE_PROXY_COMMANDS
+    g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
+#endif
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);
+  if (port != 0)
+    g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_PORT, &port) == 0);
+
+  /* Parsing the config might have changed the host or port */
+  gchar *new_host;
+  if (ssh_options_get (data->session, SSH_OPTIONS_HOST, &new_host) == 0)
+    {
+      g_free (host);
+      host = new_host;
+    }
+  g_warn_if_fail (ssh_options_get_port (data->session, &port) == 0);
 
   /* This is a single host, for which we have been told to ignore the host key */
   ignore_hostkey = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");

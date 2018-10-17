@@ -556,12 +556,16 @@ session_has_known_host_in_file (const gchar *file,
                                 const guint port)
 {
 #if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-  shim_set_knownhosts_file(file);
+  shim_set_knownhosts_file (file ?: data->user_known_hosts);
 #endif
   /* HACK: https://bugs.libssh.org/T108 */
   if (!file)
-      g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == SSH_OK);
+    g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == SSH_OK);
+#if LIBSSH_085
+  g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_GLOBAL_KNOWNHOSTS, file) == SSH_OK);
+#else
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == SSH_OK);
+#endif
   return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
 }
 
@@ -584,17 +588,24 @@ set_knownhosts_file (CockpitSshData *data,
   gchar *serr = NULL;
   gchar *authorize_knownhosts_data = NULL;
 
-  /* first check the global ssh file or file set by COCKPIT_SSH_KNOWN_HOSTS_FILE */
-  host_known = session_has_known_host_in_file (data->ssh_options->knownhosts_file, data, host, port);
+  /* first check the libssh defaults including local and global file */
+  host_known = session_has_known_host_in_file (NULL, data, host, port);
+#if !LIBSSH_085
+  if (host_known)
+    data->ssh_options->knownhosts_file = data->user_known_hosts;
 
-  /* check ~/.ssh/known_hosts, unless we are running as a system user ($HOME == "/"); this is not
-   * a security check (if one can write /.ssh/known_hosts then we have to trust them), just caution */
-  if (!host_known && g_strcmp0 (g_get_home_dir (), "/") != 0)
+  if (!host_known && !data->ssh_options->knownhosts_file)
     {
-      host_known = session_has_known_host_in_file (data->user_known_hosts, data, host, port);
+      host_known = session_has_known_host_in_file (PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts", data, host, port);
       if (host_known)
-        data->ssh_options->knownhosts_file = data->user_known_hosts;
+        data->ssh_options->knownhosts_file = PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts";
     }
+#endif
+
+  /* check file set by COCKPIT_SSH_KNOWN_HOSTS_FILE */
+  if (!host_known)
+    host_known = session_has_known_host_in_file (data->ssh_options->knownhosts_file, data, host, port);
+
 
   /* last (most expensive) fallback is to ask sssd's ssh known_hosts proxy */
   if (!host_known && tmp_knownhost_file == NULL)
@@ -1352,7 +1363,7 @@ cockpit_ssh_connect (CockpitSshData *data,
     }
 
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_HOST, host) == 0);
-#if HAVE_SAFE_PROXY_COMMANDS
+#if LIBSSH_085
     g_warn_if_fail (ssh_options_parse_config (data->session, NULL) == 0);
 #endif
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_USER, data->username) == 0);

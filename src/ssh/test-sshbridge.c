@@ -283,7 +283,7 @@ setup (TestCase *tc,
       g_free (content);
     }
 
-#if HAVE_SAFE_PROXY_COMMANDS
+#if LIBSSH_085
   if (fixture && fixture->test_home_ssh_config)
     {
       gchar *content;

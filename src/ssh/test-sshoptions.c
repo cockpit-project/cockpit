@@ -35,7 +35,7 @@ test_ssh_options (void)
 
   options = cockpit_ssh_options_from_env (env);
   g_assert_cmpstr (options->remote_peer, ==, "localhost");
-  g_assert_cmpstr (options->knownhosts_file, ==, PACKAGE_SYSCONF_DIR "/ssh/ssh_known_hosts");
+  g_assert_cmpstr (options->knownhosts_file, ==, NULL);
   g_assert_cmpstr (options->command, ==, "cockpit-bridge");
 
   options->knownhosts_file = "other-known";

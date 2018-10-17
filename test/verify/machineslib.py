@@ -1514,8 +1514,8 @@ class TestMachines(MachineCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present("#notification-area-notification-1-close"):
-                b.click("#notification-area-notification-1-close")
+            if b.is_present("#notification-area-notification-1 .close"):
+                b.click("#notification-area-notification-1 .close")
 
             b.wait_not_present("#notification-area")
 

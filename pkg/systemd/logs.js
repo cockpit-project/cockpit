@@ -403,7 +403,7 @@ $(function() {
         function switch_tab(new_tab, new_content) {
             out.find('li').removeClass('active');
             new_tab.addClass('active');
-            out.find('div').first().replaceWith(new_content);
+            out.find('tbody.tab').first().replaceWith(new_content);
         }
 
         $('#journal-entry-message').text('');
@@ -412,13 +412,14 @@ $(function() {
         var pi_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem info"))));
         var pd_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem details"))));
 
-        var ge = $('<div>');
-        var pi = $('<div>');
-        var pd = $('<div class="panel-group" id="accordion-markup">');
+        var ge = $('<tbody>').addClass('tab');
+        var pi = $('<tbody>').addClass('tab');
+        var pd = $('<tbody>').addClass('tab').append(
+            $('<tr>').append($('<div class="panel-group" id="accordion-markup">')));
+
         var tab = $('<ul class="nav nav-tabs nav-tabs-pf">');
 
-        var d_btn =  $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
-
+        var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
         var r_btn = $();
         if (problem.IsReported){
             for (var pid = 0; pid < problem.Reports.length; pid++) {
@@ -501,13 +502,11 @@ $(function() {
         tab.append(d_btn);
         tab.append(r_btn);
 
-        var body = $('<th>');
-        body.append(tab);
-        body.append(ge);
+        var header = $('<tr>').append(
+            $('<th colspan=2>').append(tab));
 
-        out.html($('<tr>').append(body));
+        out.html(header).append(ge);
         out.css("margin-bottom", "0px");
-
         create_problem_details(problem, pi, pd);
     }
 
@@ -517,7 +516,7 @@ $(function() {
             // Render first column of problem info
             var c1 = $('<table>').css('display', 'inline-block')
                                .css('padding-right', '200px')
-                               .css('vertical-align', 'top');
+                               .css('vertical-align', 'top').addClass('info-table-ct');
             pi.append(c1);
             for (i = 0; i < problem_info_1.length; i++) {
                 elem = problem_info_1[i];
@@ -533,7 +532,7 @@ $(function() {
 
             // Render second column of problem info
             var c2 = $('<table>').css('display', 'inline-block')
-                               .css('vertical-align', 'top');
+                               .css('vertical-align', 'top').addClass('info-table-ct');
             pi.append(c2);
             for (i = 0; i < problem_info_2.length; i++) {
                 elem = problem_info_2[i];
@@ -557,9 +556,10 @@ $(function() {
             $.each(problem_details_elems, function(i, key) {
                 if (key in args){
                     val = problem_render_callbacks[key](args[key]);
-                    pd.append(
+                    $('.panel-group', pd).append(
                         $('<div class="panel panel-default">')
                             .css("border-width", "0px 0px 2px 0px")
+                            .css("margin-bottom", "0px")
                             .append(
                           $('<div class="panel-heading problem-panel">')
                             .attr('data-toggle', 'collapse')
@@ -588,7 +588,7 @@ $(function() {
 
     function render_table(orig, delimiter) {
         var lines = orig[2].split('\n');
-        var result;
+        var result = '<table class="detail_table">';
 
         for (var i = 0; i < lines.length - 1; i++) {
             var line = lines[i].split(delimiter);
@@ -597,6 +597,7 @@ $(function() {
             result += '</tr>';
         }
 
+        result += '</table>';
         return result;
     }
 
@@ -608,7 +609,7 @@ $(function() {
     function render_multitable(orig, delimiter) {
         var rendered = orig.replace(RegExp(delimiter, 'g'), '</td><td>');
         rendered = rendered.replace(/\n/g, '</td></tr><tr><td>');
-        return '<tr><td>' + rendered + '</td></tr>';
+        return '<table class="detail_table"><tr><td>' + rendered + '</td></tr></table>';
     }
 
     function render_dso_list(orig) {

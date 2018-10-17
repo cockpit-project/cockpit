@@ -104,9 +104,16 @@ class TestAccounts(MachineCase):
         b.wait_popdown('accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
+        def is_locked():
+            return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in [ "L", "LK" ]
+
+        def is_admin():
+            return "jussi" in m.execute("getent group %s" % m.get_admin_group())
+
         admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
         b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
-        b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        b.wait(lambda: not is_admin())
+        b.wait(is_locked)
 
         # Unlock it and make it an admin
         b.go("#/jussi")
@@ -114,15 +121,16 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-user-name", "jussi")
         b.wait_present('#account-locked:not([disabled])')
         b.set_checked('#account-locked', False)
+        b.wait(lambda: not is_locked())
         b.wait_present(admin_role_sel + ":not(:checked):not([disabled])")
         b.set_checked(admin_role_sel, True)
-        b.wait(lambda: "jussi" in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        b.wait(is_admin)
         # An alert which shows up once we've changed things
         if m.image != 'rhel-7-5-distropkg':
             b.wait_present("#account-roles .alert-info")
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
         b.set_checked(admin_role_sel, False)
-        b.wait(lambda: "jussi" not in m.execute("grep %s /etc/group" % m.get_admin_group()))
+        b.wait(lambda: not is_admin())
         m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
 

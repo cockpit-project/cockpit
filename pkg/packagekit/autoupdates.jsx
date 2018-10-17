@@ -215,7 +215,7 @@ function getBackend(forceReinit) {
         let dfd = cockpit.defer();
         getBackend.promise = dfd.promise();
 
-        cockpit.script(["command -v dnf yum apt | head -n1 | xargs basename"], [], { err: "message" })
+        cockpit.spawn(["bash", "-ec", "command -v dnf yum apt | head -n1 | xargs basename"], [], { err: "message" })
                 .done(output => {
                     output = output.trim();
                     debug("getBackend(): detection finished, output", output);
@@ -235,7 +235,7 @@ function getBackend(forceReinit) {
                         dfd.resolve(null);
                 })
                 .fail(error => {
-                // the detection shell script is supposed to always succeed
+                    // the detection shell script is supposed to always succeed
                     console.error("automatic updates getBackend() detection failed:", error);
                     dfd.resolve(null);
                 });

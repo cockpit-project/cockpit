@@ -12,13 +12,25 @@ port=${port:-9090}
 # hostname from cmdline, then `hostname -f`
 hostname=${2:-$(hostname -f)}
 
+# determine the first interface with a default route
+interface6=${3:-$(ip -o -6 route get :: 2>/dev/null | sed -e 's/.*dev \([^ ]*\) .*/\1/')}
+# use the interface to determine the global ip6 address
+if [ ! -z $interface6 ]; then
+    ip6=${3:-$(ip -o -6 addr show dev $interface6 scope global | sed -e 's/.*inet6 \([^ ]*\) .*/\1/' | sed -e 's/\/.*//')}
+fi
+
 # ip addr from cmdline, then default route source addr
-ip=${3:-$(ip -o route get 255.0 2>/dev/null | sed -e 's/.*src \([^ ]*\) .*/\1/')}
+ip4=${3:-$(ip -o route get 255.0 2>/dev/null | sed -e 's/.*src \([^ ]*\) .*/\1/')}
 
 # protocol from cmdline, then https
 protocol=${4:-https}
 
 hostname_url="${protocol}://${hostname}:${port}/"
-ip_url="${ip:+ or ${protocol}://${ip}:${port}/}"
+# if a ip6 global address is present use it for ip_url otherwise display the ip4 address
+if [ -z $ip6 ]; then
+    ip_url="${ip4:+ or ${protocol}://${ip4}:${port}/}"
+else
+    ip_url="${ip6:+ or ${protocol}://[${ip6}]:${port}/}"
+fi
 
 printf 'Web console: %s%s\n\n' "${hostname_url}" "${ip_url}"  > /run/cockpit/active.motd

@@ -842,6 +842,9 @@ class MachineCase(unittest.TestCase):
         for m in messages:
             # remove leading/trailing whitespace
             m = m.strip()
+            # Ignore empty lines
+            if not m:
+                continue
             found = False
             for p in self.allowed_messages:
                 match = re.match(p, m)

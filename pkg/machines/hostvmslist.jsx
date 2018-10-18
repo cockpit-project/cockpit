@@ -81,7 +81,7 @@ class HostVmsList extends React.Component {
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
-        return (<div className='container-fluid'>
+        return (<div id='virtual-machines-listing' className='container-fluid'>
             <NotificationArea id={"notification-area"}
                 notifications={ui.notifications}
                 onDismiss={(id) => dispatch(clearNotification(id))} />

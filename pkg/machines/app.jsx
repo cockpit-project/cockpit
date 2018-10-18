@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import HostVmsList from "./hostvmslist.jsx";
+import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 
@@ -33,13 +34,18 @@ const App = ({ store }) => {
     }
 
     // pass ui object
-    return (<HostVmsList vms={vms}
-        config={config}
-        ui={ui}
-        storagePools={storagePools}
-        dispatch={dispatch}
-        networks={networks}
-        actions={createVmAction} />);
+    return (
+        <div>
+            <HostVmsList vms={vms}
+                config={config}
+                ui={ui}
+                storagePools={storagePools}
+                dispatch={dispatch}
+                networks={networks}
+                actions={createVmAction} />
+            { config.provider.name == 'LibvirtDBus' && <StoragePoolList storagePools={storagePools} /> }
+        </div>
+    );
 };
 App.propTypes = {
     store: PropTypes.object.isRequired,

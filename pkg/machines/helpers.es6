@@ -297,6 +297,10 @@ export function vmId(vmName) {
     return `vm-${vmName}`;
 }
 
+export function storagePoolId(poolName, connectionName) {
+    return `pool-${poolName}-${connectionName}`;
+}
+
 export function mouseClick(fun) {
     return function (event) {
         if (!event || event.button !== 0)

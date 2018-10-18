@@ -73,8 +73,12 @@
     padding-left: 20px;
 }
 
-.cockpit-log-panel .cockpit-logline:hover {
-    background-color: #edf8ff;
+.cockpit-log-panel > .cockpit-logline:hover {
+    background-color: #def3ff; /* pf-blue-50 */
+}
+
+.cockpit-log-panel > .cockpit-logline:hover .cockpit-log-message {
+    color: #0088ce; /* pf-blue-400 */
 }
 
 .cockpit-log-panel > .cockpit-logline:hover {

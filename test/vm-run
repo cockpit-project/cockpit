@@ -71,6 +71,7 @@ parser.add_argument('-m', '--maintain', action='store_true', help='Changes are p
 parser.add_argument('-M', '--memory', default=None, type=int, help='Memory (in MiB) of the target machine')
 parser.add_argument('-G', '--graphics', action='store_true', help='Display a graphics console')
 parser.add_argument('-C', '--cpus', default=None, type=int, help='Number of cpus in the target machine')
+parser.add_argument('-S', '--storage', default=None, type=str, help='Add a second qcow2 disk at this path')
 parser.add_argument('--network', action='store_true', help='Setup a bridged network for running machines')
 parser.add_argument('--no-network', action='store_true', help='Do not connect the machine to the Internet')
 
@@ -125,6 +126,9 @@ try:
                 sys.exit(ret)
 
     machine.start()
+
+    if args.storage:
+        machine.add_disk(path=args.storage, type='qcow2')
 
     # for a bridged network, up its interface with DHCP and show it in the console message
     message = ""

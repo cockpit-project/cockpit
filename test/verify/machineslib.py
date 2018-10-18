@@ -225,10 +225,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
@@ -245,10 +245,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
         b.wait_present("#vm-subVmTest1-vcpus")
@@ -306,9 +306,9 @@ class TestMachines(MachineCase):
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.click("#app .listing-ct tbody:nth-of-type(2) th") # click on the row header
+        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.wait_present("#vm-subVmTest2-state")
         b.wait_in_text("#vm-subVmTest2-state", "running")
         b.wait_present("#vm-subVmTest2-vcpus")
@@ -324,20 +324,20 @@ class TestMachines(MachineCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
-        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(1) th")
+        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
+        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         b.wait_present("#vm-subVmTest2-state")
         b.wait_in_text("#vm-subVmTest2-state", "running")
 
         # stop second VM, event handling should still work
-        b.wait_present("#app .listing-ct tbody:nth-of-type(2) th")
-        b.wait_in_text("#app .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.click("#app .listing-ct tbody:nth-of-type(2) th") # click on the row header
+        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
+        b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
+        b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.click("#vm-subVmTest2-off-caret")
         b.wait_visible("#vm-subVmTest2-forceOff")
         b.click("#vm-subVmTest2-forceOff")
@@ -396,8 +396,8 @@ class TestMachines(MachineCase):
         self.login_and_go("/machines")
 
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl disable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
@@ -412,8 +412,8 @@ class TestMachines(MachineCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: checkLibvirtEnabled())
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
         b.wait_present("#slate-header")
@@ -426,8 +426,8 @@ class TestMachines(MachineCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: not checkLibvirtEnabled())
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
@@ -449,10 +449,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
@@ -532,10 +532,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
@@ -665,10 +665,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
@@ -700,9 +700,9 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
-        b.click("tbody tr th") # click on the row header
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
 
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
@@ -827,10 +827,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
 
@@ -854,10 +854,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
 
@@ -878,12 +878,12 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", name)
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", name)
 
         m.execute("test -f {0}".format(img2))
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete".format(name))
 
@@ -907,10 +907,10 @@ class TestMachines(MachineCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", name)
+        b.wait_present("tbody tr[data-row-id=vm-{0}] th".format(name))
+        b.wait_in_text("tbody tr[data-row-id=vm-{0}] th".format(name), name)
 
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
         b.wait_present("#vm-{0}-state".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
 
@@ -1526,8 +1526,8 @@ class TestMachines(MachineCase):
 
         def checkEnvIsEmpty(self):
             b = self.browser
-            b.wait_present("thead tr td")
-            b.wait_in_text("thead tr td", "No VM is running")
+            b.wait_present("#virtual-machines-listing thead tr td")
+            b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
             # wait for the vm and disks to be deleted
             b.wait(lambda: self.machine.execute("virsh list --all | wc -l") == '3\n')
             b.wait(lambda: self.machine.execute(

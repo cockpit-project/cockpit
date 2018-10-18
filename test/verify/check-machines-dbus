@@ -76,11 +76,11 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
-        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
+        b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         # Test detaching non permanent disk of a running domain
-        b.click("tbody tr th") # click on the row header
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 

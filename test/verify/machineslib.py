@@ -1466,9 +1466,7 @@ class TestMachines(MachineCase):
             b.wait_present("#vm-{0}-install".format(name))
             # should fail because of memory error
             b.click("#vm-{0}-install".format(name))
-            # install script redefines vm
-            self.assertVmStates(self, name, "shut off", "creating VM installation", "shut off")
-            # install
+            b.wait_in_text("#vm-{0}-state".format(name), "shut off")
             b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
             b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", name)
             b.wait_present("#app .listing-ct tbody:nth-of-type(1) tr td span span.pficon-warning-triangle-o")

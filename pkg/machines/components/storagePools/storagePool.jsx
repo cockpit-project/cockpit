@@ -31,13 +31,15 @@ import {
     storagePoolId,
     units
 } from '../../helpers.es6';
+import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
 export const StoragePool = ({ storagePool }) => {
+    const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
     const name = (
-        <span id={`${storagePoolId(storagePool.name, storagePool.connectionName)}-name`}>
+        <span id={`${idPrefix}-name`}>
             { storagePool.name }
         </span>);
     const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
@@ -58,7 +60,7 @@ export const StoragePool = ({ storagePool }) => {
         </span>
     );
     const state = (
-        <span id={`${storagePoolId(storagePool.name, storagePool.connectionName)}-state`}>
+        <span id={`${idPrefix}-state`}>
             { storagePool.active ? _("active") : _("inactive") }
         </span>);
     const cols = [
@@ -68,9 +70,19 @@ export const StoragePool = ({ storagePool }) => {
         state,
     ];
 
+    const overviewTabName = (
+        <div id={`${idPrefix}-overview`}>
+            {_("Overview")}
+        </div>
+    );
+    let tabRenderers = [
+        {name: overviewTabName, renderer: StoragePoolOverviewTab, data: { storagePool }},
+    ];
+
     return (
-        <ListingRow rowId={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
-            columns={cols} />
+        <ListingRow rowId={`${idPrefix}`}
+            columns={cols}
+            tabRenderers={tabRenderers} />
     );
 };
 StoragePool.propTypes = {

@@ -20,11 +20,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row } from 'patternfly-react';
 
+import { storagePoolId } from '../../helpers.es6';
+
 export const StoragePoolOverviewTab = ({ storagePool }) => {
+    const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
+
     return (
         <Col lg={12} md={12} sm={12}>
             { storagePool.path && <Row>
-                <Col lg={6} md={6} sm={6}>
+                <Col lg={6} md={6} sm={6} id={`${idPrefix}-path`}>
                     <dl>
                         <dt> Path: </dt>
                         <dd> { storagePool.path } </dd>
@@ -32,7 +36,7 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
                 </Col>
             </Row> }
             <Row>
-                <Col lg={6} md={6} sm={6}>
+                <Col lg={6} md={6} sm={6} id={`${idPrefix}-persistent`}>
                     <dl>
                         <dt> Persistent: </dt>
                         <dd> { storagePool.persistent ? 'yes' : 'no' } </dd>
@@ -40,7 +44,7 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
                 </Col>
             </Row>
             <Row>
-                <Col lg={6} md={6} sm={6}>
+                <Col lg={6} md={6} sm={6} id={`${idPrefix}-autostart`}>
                     <dl>
                         <dt> Autostart: </dt>
                         <dd> { storagePool.autostart ? 'yes' : 'no' } </dd>
@@ -48,7 +52,7 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
                 </Col>
             </Row>
             <Row>
-                <Col lg={6} md={6} sm={6}>
+                <Col lg={6} md={6} sm={6} id={`${idPrefix}-type`}>
                     <dl>
                         <dt> Type: </dt>
                         <dd> { storagePool.type } </dd>

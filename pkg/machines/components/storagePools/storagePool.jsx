@@ -32,6 +32,7 @@ import {
     units
 } from '../../helpers.es6';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
+import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
@@ -75,12 +76,18 @@ export const StoragePool = ({ storagePool }) => {
             {_("Overview")}
         </div>
     );
+    const storageVolsTabName = (
+        <div id={`${idPrefix}-storage-volumes`}>
+            {_("Storage Volumes")}
+        </div>
+    );
     let tabRenderers = [
         {name: overviewTabName, renderer: StoragePoolOverviewTab, data: { storagePool }},
+        {name: storageVolsTabName, renderer: StoragePoolVolumesTab, data: { storagePool }},
     ];
 
     return (
-        <ListingRow rowId={`${idPrefix}`}
+        <ListingRow rowId={idPrefix}
             columns={cols}
             tabRenderers={tabRenderers} />
     );

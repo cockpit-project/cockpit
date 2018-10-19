@@ -45,8 +45,8 @@ def main():
     items = [
         "tests-data " + TRAINING_DATA,
         # We want this to run in both namespaces
-        "learn-tests https://cockpit-learn.cockpit.svc.cluster.local:8080/train/" + TRAINING_DATA,
-        "learn-tests https://cockpit-learn.verify.svc.cluster.local:8080/train/" + TRAINING_DATA,
+        "learn-tests http://cockpit-learn.cockpit.svc.cluster.local/train/" + TRAINING_DATA,
+        "learn-tests http://cockpit-learn.verify.svc.cluster.local/train/" + TRAINING_DATA,
     ]
     issue = task.issue(title, body, items[1], items=items, state="all", since=since)
 

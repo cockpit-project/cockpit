@@ -184,7 +184,7 @@ class TestNetworking(NetworkCase):
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tbond')", ip)
 
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
     def testBondingMain(self):
         b = self.browser
         m = self.machine
@@ -215,7 +215,7 @@ class TestNetworking(NetworkCase):
         b.wait_not_present("#networking-interfaces tr[data-interface='tbond']")
         b.wait_present("#networking-interfaces tr[data-interface='%s']" % iface)
 
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
     def testBondingMainSlowly(self):
         b = self.browser
         m = self.machine

@@ -423,7 +423,7 @@ class TestMultiMachine(MachineCase):
         add_machine(b, "10.111.113.2")
         self.checkDirectLogin('/');
 
-    @skipImage("test VM image does not have FIPS support", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable", "fedora-atomic")
+    @skipImage("test VM image does not have FIPS support", "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable", "fedora-atomic")
     def testFIPS(self):
         b = self.browser
 
@@ -839,7 +839,7 @@ class TestMultiMachine(MachineCase):
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog .btn-primary')
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        if m1.image not in ['rhel-7-5', 'rhel-7-6', 'rhel-7-5-distropkg', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1604', 'ubuntu-stable']:
+        if m1.image not in ['rhel-7-5', 'rhel-7-6', 'rhel-7-5-distropkg', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1604', 'ubuntu-1804', 'ubuntu-stable']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
             b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")

@@ -23,6 +23,7 @@ import datetime
 import parent
 from testlib import *
 
+@skipImage("Don't run upstream tests against distro packages", "rhel-7-5-distropkg", "rhel-7-6-distropkg")
 class TestAccounts(MachineCase):
     def testBasic(self):
         b = self.browser
@@ -67,11 +68,9 @@ class TestAccounts(MachineCase):
         b.wait_present("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
-        # (un)locking root account introduced in version 161
-        if m.image != 'rhel-7-5-distropkg':
-            # now lock account
-            b.set_checked("#account-locked", True)
-            b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
+        # now lock account
+        b.set_checked("#account-locked", True)
+        b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
 
         # go back to accounts overview, check breadcrumb
         b.click("#account .breadcrumb a")
@@ -126,8 +125,7 @@ class TestAccounts(MachineCase):
         b.set_checked(admin_role_sel, True)
         b.wait(is_admin)
         # An alert which shows up once we've changed things
-        if m.image != 'rhel-7-5-distropkg':
-            b.wait_present("#account-roles .alert-info")
+        b.wait_present("#account-roles .alert-info")
         b.wait_present(admin_role_sel + ":checked:not([disabled])")
         b.set_checked(admin_role_sel, False)
         b.wait(lambda: not is_admin())

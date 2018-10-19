@@ -675,7 +675,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28", "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28", "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": { "address": "10.111.113.2/20", "dns": "10.111.113.2" },
@@ -1063,7 +1063,7 @@ class TestAutoUpdates(PackageCase):
             self.assertFalse(b.is_present('#automatic'))
 
     @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604",
-               "ubuntu-stable", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
+               "ubuntu-1804", "ubuntu-stable", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     def testInstall(self):
         b = self.browser
         m = self.machine

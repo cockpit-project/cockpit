@@ -130,7 +130,7 @@ class TestStorage(StorageCase):
 
     @skipImage("No clevis/tang",
                "rhel-7-5", "rhel-7-5-distropkg",
-               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
@@ -229,7 +229,7 @@ class TestStorage(StorageCase):
 
     @skipImage("No clevis/tang",
                "rhel-7-5", "rhel-7-5-distropkg",
-               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-stable")
+               "debian-stable", "debian-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
     def testSlots(self):
         self.allow_journal_messages("Device is not initialized.*")
         m = self.machine

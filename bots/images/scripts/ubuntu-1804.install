@@ -1,0 +1,12 @@
+#! /bin/bash
+
+set -e
+
+/var/lib/testvm/debian.install "$@"
+
+# HACK: With our restricted network during tests, systemd-networkd-wait-online
+# takes ages and waits for two minutes. This makes waiting for docker.service time out.
+systemctl mask systemd-networkd-wait-online.service
+
+# HACK: broken virt-builder image; locale defaults to en_US (which is ISO-8859-1)
+update-locale LANG=C.UTF-8

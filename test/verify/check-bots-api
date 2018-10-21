@@ -114,17 +114,19 @@ class TestImageCustomize(unittest.TestCase):
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
 class TestBotsVM(unittest.TestCase):
-    def testBasic(self):
+    def setUp(self):
         dest = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, dest)
-        img = os.path.join(dest, os.environ["TEST_OS"])
+        self.img = os.path.join(dest, os.environ["TEST_OS"])
+
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
             subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
-                                   "echo hello > /var/custom-test", img ])
+                                   "echo hello > /var/custom-test", self.img ])
 
-        # boot it and wait for RUNNING marker, parse out ssh and cockpit addresses
+    def testBasic(self):
+        # boot image and wait for RUNNING marker, parse out ssh and cockpit addresses
         with testvm.Timeout(seconds=300, error_message="Timed out waiting for testvm.py to boot VM"):
-            vm = subprocess.Popen(["bots/machine/testvm.py", img],
+            vm = subprocess.Popen(["bots/machine/testvm.py", self.img],
                                   stdout=subprocess.PIPE, universal_newlines=True)
             # first line should be the SSH command
             ssh_command = vm.stdout.readline().split()
@@ -146,6 +148,24 @@ class TestBotsVM(unittest.TestCase):
         with testvm.Timeout(seconds=60, error_message="Timed out waiting for script to terminate"):
             self.assertEqual(vm.wait(), 0)
 
+    def testBackground(self):
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for testvm.py to boot VM"):
+            out = subprocess.check_output(["bots/machine/testvm.py", "--background", self.img], universal_newlines=True)
+        (ssh_command, cockpit_address, domain) = out.strip().splitlines()
+        ssh_command = ssh_command.split()
+
+        self.assertTrue(cockpit_address.startswith("http://127.0.0.2:9"), cockpit_address)
+
+        # test SSH command and that we have the expected flag file
+        self.assertEqual(ssh_command[0], "ssh")
+        with testvm.Timeout(seconds=30, error_message="Timed out waiting for ssh command"):
+            out = subprocess.check_output(ssh_command + ["cat", "/var/custom-test"])
+
+        # destroy the domain
+        self.assertIn("127.0.0.2", domain)
+        self.assertIn(os.environ["TEST_OS"], domain)
+        with testvm.Timeout(seconds=30, error_message="Timed out waiting for virsh destroy"):
+            subprocess.check_call(["virsh", "destroy", domain])
 
 if __name__ == '__main__':
     test_main()

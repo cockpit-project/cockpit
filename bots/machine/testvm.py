@@ -206,7 +206,7 @@ class Machine:
             return
         print(" ".join(args))
 
-    def start(self):
+    def start(self, autodestroy=True):
         """Overridden by machine classes to start the machine"""
         self.message("Assuming machine is already running")
 
@@ -1008,7 +1008,7 @@ class VirtMachine(Machine):
             connection = open_function(hypervisor)
         return connection
 
-    def _start_qemu(self):
+    def _start_qemu(self, autodestroy):
         self._cleanup()
 
         try:
@@ -1067,9 +1067,12 @@ class VirtMachine(Machine):
         test_domain_desc = TEST_DOMAIN_XML.format(**keys)
 
         # add the virtual machine
+        flags = 0
+        if autodestroy:
+            flags |= libvirt.VIR_DOMAIN_START_AUTODESTROY
         try:
             # print >> sys.stderr, test_domain_desc
-            self._domain = self.virt_connection.createXML(test_domain_desc, libvirt.VIR_DOMAIN_START_AUTODESTROY)
+            self._domain = self.virt_connection.createXML(test_domain_desc, flags)
         except libvirt.libvirtError as le:
             if 'already exists with uuid' in str(le):
                 raise RepeatableFailure("libvirt domain already exists: " + str(le))
@@ -1149,11 +1152,11 @@ class VirtMachine(Machine):
                     raise
         return image_file
 
-    def start(self):
+    def start(self, autodestroy=True):
         tries = 0
         while True:
             try:
-                self._start_qemu()
+                self._start_qemu(autodestroy)
                 if not self._domain.isActive():
                     self._domain.start()
             except RepeatableFailure:
@@ -1373,12 +1376,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a VM image until SIGTERM or SIGINT")
     parser.add_argument("--memory", type=int, default=1024,
                         help="Memory in MiB to allocate to the VM (default: %(default)s)")
+    parser.add_argument("-b", "--background", action='store_true',
+                        help="Start VM in the background and exit when it is ready; print libvirt domain name instead of RUNNING")
     parser.add_argument("image", help="Image name")
     args = parser.parse_args()
 
     network = VirtNetwork(0)
     machine = VirtMachine(image=args.image, networking=network.host(), memory_mb=args.memory)
-    machine.start()
+    machine.start(autodestroy=not args.background)
     machine.wait_boot()
 
     # run a command to force starting the SSH master
@@ -1389,11 +1394,17 @@ if __name__ == "__main__":
           (machine.ssh_master, machine.ssh_port, machine.ssh_user, machine.ssh_address))
     # print Cockpit web address
     print("http://%s:%s" % (machine.web_address, machine.web_port))
-    # print marker that the VM is ready; tests can poll for this to wait for the VM
-    print("RUNNING")
 
-    signal.signal(signal.SIGTERM, lambda sig, frame: machine.stop())
-    try:
-        signal.pause()
-    except KeyboardInterrupt:
-        machine.stop()
+    if args.background:
+        print(machine._domain.name())
+        # remove the transient image already, as nothing will do it after we exit
+        os.unlink(machine._transient_image)
+    else:
+        # print marker that the VM is ready; tests can poll for this to wait for the VM
+        print("RUNNING")
+
+        signal.signal(signal.SIGTERM, lambda sig, frame: machine.stop())
+        try:
+            signal.pause()
+        except KeyboardInterrupt:
+            machine.stop()

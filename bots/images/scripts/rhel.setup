@@ -172,6 +172,7 @@ if [ "$IMAGE" = "rhel-x" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
     # docker is not a rhel-x thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
+    COCKPIT_DEPS="${COCKPIT_DEPS} podman"
     COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-daemon-kvm libvirt-dbus"
     TEST_PACKAGES="${TEST_PACKAGES} libvirt-daemon-config-network"
 fi
@@ -311,8 +312,8 @@ if [ "$IMAGE" = "rhel-x" ]; then
     systemctl disable dnf-makecache.timer
 fi
 
-# Install node for external Composer tests, they use our rhel-7-6 image
-if [ "$IMAGE" = "rhel-7-6" ]; then
+# Install node for external Composer tests, they use our rhel-* images
+if [ "$IMAGE" = "rhel-7-6" ] || [ "$IMAGE" = "rhel-x" ]; then
     NODE_VERSION="8.12.0"
     # key 7E37093B: public key "Christopher Dickinson <christopher.s.dickinson@gmail.com>" imported
     # key DBE9B9C5: public key "Colin Ihrig <cjihrig@gmail.com>" imported

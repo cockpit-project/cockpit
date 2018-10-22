@@ -17,21 +17,6 @@ handleFailure(){
     exit $1
 }
 
-spiceSupported(){
-    # map system architecture to qemu-system-* command
-    ARCH=$(uname -m)
-    case "$ARCH" in
-        i?86) QEMU=qemu-system-i386 ;;
-        ppc64*) QEMU=qemu-system-ppc64 ;;
-        *) QEMU=qemu-system-$ARCH;
-    esac
-
-    # if qemu-system-* is missing, SPICE is disabled by default
-    type -P $QEMU > /dev/null && \
-        printf '{"execute":"qmp_capabilities"}\n{"execute":"query-spice"}\n{"execute":"quit"}' | \
-            $QEMU --qmp stdio --nographic -nodefaults  | grep -q '"enabled":'
-}
-
 # prepare virt-install parameters
 COMPARISON=$(awk 'BEGIN{ print "'$STORAGE_SIZE'"<=0 }')
 if [ "$COMPARISON" -eq 1 ]; then
@@ -41,9 +26,16 @@ else
     DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
 fi
 
-GRAPHICS_PARAM="--graphics vnc,listen=127.0.0.1"
-if spiceSupported; then
+DOM_GRAPHICS_CAPABILITIES="$(virsh domcapabilities | awk "/<graphics supported='yes'/ {flag=1; next}; /<\/graphics/ {flag=0}; flag")"
+GRAPHICS_PARAM=""
+if echo "$DOM_GRAPHICS_CAPABILITIES" | grep -q vnc; then
+    GRAPHICS_PARAM="--graphics vnc,listen=127.0.0.1"
+fi
+if echo "$DOM_GRAPHICS_CAPABILITIES" | grep -q spice; then
     GRAPHICS_PARAM="--graphics spice,listen=127.0.0.1 $GRAPHICS_PARAM"
+fi
+if [ -z "$GRAPHICS_PARAM" ]; then
+    GRAPHICS_PARAM="--graphics none"
 fi
 
 if [ "$OS" = "other-os" -o  -z "$OS" ]; then

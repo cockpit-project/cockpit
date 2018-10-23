@@ -46,17 +46,18 @@ table.listing-ct thead th {
 }
 
 tr.listing-ct-item {
-    td {
-        vertical-align: baseline;
+    td, th {
+        /* We *should* align to baseline, but names wrap */
+        /* Padding and text side is the same, so top works here */
+        /* Too bad table doesn't align to "first baseline", like flex/grid */
+        vertical-align: top;
+    }
+    td:not(:first-child) {
         padding-left: 0;
+    }
 
-        &.listing-ct-toggle {
-            position: relative;
-            top: 2px;
-        }
-        &:last-child {
-            text-align: left;
-        }
+    th:last-child {
+        text-align: left;
     }
 
     @media screen and (min-width: 641px) {
@@ -74,7 +75,7 @@ tr.listing-ct-item {
                 overflow: visible;
 
                 .truncating {
-                    background: linear-gradient(to left, rgba(222, 243, 255, 0), rgb(222, 243, 255) 3em);
+                    background: linear-gradient(to left, rgba(237, 248, 255, 0), rgb(237, 248, 255) 3em);
                     position: relative;
                     padding: 0.5em 4em 0.5em 0;
                 }
@@ -97,6 +98,11 @@ tr.listing-ct-item {
         vertical-align: top;
         text-align: left;
 
+        * {
+            display: inline;
+            font: inherit;
+        }
+
         &, p {
             max-width: 60vw;
             margin-bottom: 0;  // counter-act <Markdown>
@@ -105,16 +111,6 @@ tr.listing-ct-item {
             text-overflow: ellipsis;
         }
     }
-}
-tbody.open {
-    td.version:hover .truncating {
-        /* Adapt background color for version expansion when row is expanded */
-        background: linear-gradient(to left, rgba(237, 237, 237, 0), rgb(237, 237, 237) 3em);
-    }
-}
-
-.listing-ct .security td.version:hover .truncating {
-    background: #fbf0f0;
 }
 
 .severity-critical {
@@ -159,6 +155,12 @@ tr.security.listing-ct-item {
     background-color: #fbf0f0 !important;  /* keep red background when expanded */
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
+
+    @media screen and (min-width: 641px) {
+        td.version:hover .truncating {
+            background: linear-gradient(to left, rgba(251, 240, 240, 0), rgb(251, 240, 240) 3em);
+        }
+    }
 }
 
 

@@ -378,7 +378,7 @@ export function parseDumpxmlForDisks(devicesElem) {
                     file: sourceElem ? sourceElem.getAttribute('file') : undefined, // optional file name of the disk
                     dev: sourceElem ? sourceElem.getAttribute('dev') : undefined,
                     pool: sourceElem ? sourceElem.getAttribute('pool') : undefined,
-                    volume: sourceElem ? sourceElem.getAttribute('volumne') : undefined,
+                    volume: sourceElem ? sourceElem.getAttribute('volume') : undefined,
                     protocol: sourceElem ? sourceElem.getAttribute('protocol') : undefined,
                     host: {
                         name: sourceHostElem ? sourceHostElem.getAttribute('name') : undefined,

@@ -132,7 +132,7 @@ class TestRealms(MachineCase):
             self.machine.execute("authselect enable-feature with-sudo")
 
         # the following requires the "ipa" tool and fixed "admin" permission check (PR #9127)
-        if m.image not in ["rhel-7-5-distropkg", "ubuntu-1604"]:
+        if m.image not in ["rhel-7-5-distropkg"]:
             # validate Kerberos setup for ws
             m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
             m.execute(script=WAIT_KRB_SCRIPT.format("admin@cockpit.lan"), timeout=300)

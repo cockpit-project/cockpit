@@ -75,20 +75,6 @@ case "$RELEASE" in
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
-    xenial)
-        # these packages are not in Ubuntu 16.04
-        COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
-        COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
-        # keep in sync with allowed messages in test/common/testlib.py
-        COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
-
-        # NFS and NetworkManager don't work together
-        TEST_PACKAGES="${TEST_PACKAGES/nfs-server /}"
-        # 16.04's pbuilder-satisfydepends-classic does not correctly resolve
-        # our alternative debhelper build dependency
-        PBUILDER_EXTRA="dh-systemd"
-        ;;
-
     testing)
         COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-dbus"
         ;;

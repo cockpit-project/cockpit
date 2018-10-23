@@ -841,7 +841,7 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
 
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
-        if self.image in ["ubuntu-1604", "debian-stable"]:
+        if self.image in ["debian-stable"]:
             self.allowed_messages.append('com.redhat.tuned: .*org.freedesktop.DBus.Error.ServiceUnknown.*')
 
         all_found = True

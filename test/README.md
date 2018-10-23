@@ -73,7 +73,8 @@ You can set these environment variables to configure the test suite:
                   "rhel-7-5"
                   "rhel-7-5-distropkg"
                   "rhel-7-6"
-                  "ubuntu-1604"
+                  "ubuntu-1804"
+                  "ubuntu-stable"
                "fedora-28" is the default (testvm.py)
 
     TEST_DATA  Where to find and store test machine images.  The

@@ -26,7 +26,7 @@
     var React = require("react");
     var ReactDOM = require("react-dom");
 
-    var plot = require("plot");
+    var plot = require("plot.es6");
     var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
 
     var util = require("./util");
@@ -79,7 +79,7 @@
                                       autoHighlight: false
                                     });
 
-        var cpu_plot = plot.plot($("#containers-cpu-graph"), 300);
+        var cpu_plot = new plot.Plot($("#containers-cpu-graph"), 300);
         cpu_plot.set_options(cpu_options);
         cpu_plot.start_walking();
 
@@ -136,7 +136,7 @@
             $("#containers-mem-unit").text(plot.bytes_tick_unit(axes.yaxis));
         };
 
-        var mem_plot = plot.plot($("#containers-mem-graph"), 300);
+        var mem_plot = new plot.Plot($("#containers-mem-graph"), 300);
         mem_plot.set_options(mem_options);
         mem_series = mem_plot.add_metrics_stacked_instances_series(mem_data, { });
         $(mem_series).on("value", function(ev, value) {

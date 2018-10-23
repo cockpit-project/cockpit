@@ -25,7 +25,7 @@ var utils = require('./utils');
 var service = require('service');
 
 var Mustache = require('mustache');
-var plot = require('plot');
+var plot = require('plot.es6');
 var journal = require('journal');
 
 /* jQuery extensions */
@@ -1677,7 +1677,7 @@ PageNetworking.prototype = {
                                         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#networking-rx-unit");
-        this.rx_plot = plot.plot($("#networking-rx-graph"), 300);
+        this.rx_plot = new plot.Plot($("#networking-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
         this.rx_plot.start_walking();
@@ -1699,7 +1699,7 @@ PageNetworking.prototype = {
                                         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#networking-tx-unit");
-        this.tx_plot = plot.plot($("#networking-tx-graph"), 300);
+        this.tx_plot = new plot.Plot($("#networking-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
         this.tx_plot.start_walking();
@@ -2249,7 +2249,7 @@ PageNetworkInterface.prototype = {
                                         });
         rx_plot_options.setup_hook = network_plot_setup_hook;
         rx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-rx-unit");
-        this.rx_plot = plot.plot($("#network-interface-rx-graph"), 300);
+        this.rx_plot = new plot.Plot($("#network-interface-rx-graph"), 300);
         this.rx_plot.set_options(rx_plot_options);
         this.rx_series = this.rx_plot.add_metrics_stacked_instances_series(rx_plot_data, { });
         this.rx_plot.start_walking();
@@ -2270,7 +2270,7 @@ PageNetworkInterface.prototype = {
                                         });
         tx_plot_options.setup_hook = network_plot_setup_hook;
         tx_plot_options.post_hook = make_network_plot_post_hook("#network-interface-tx-unit");
-        this.tx_plot = plot.plot($("#network-interface-tx-graph"), 300);
+        this.tx_plot = new plot.Plot($("#network-interface-tx-graph"), 300);
         this.tx_plot.set_options(tx_plot_options);
         this.tx_series = this.tx_plot.add_metrics_stacked_instances_series(tx_plot_data, { });
         this.tx_plot.start_walking();

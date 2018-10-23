@@ -25,7 +25,7 @@ var packagekit = require("packagekit.es6");
 var install_dialog = require("cockpit-components-install-dialog.jsx").install_dialog;
 
 var Mustache = require("mustache");
-var plot = require("plot");
+var plot = require("plot.es6");
 var service = require("service");
 
 /* These add themselves to jQuery so just including is enough */
@@ -542,7 +542,7 @@ PageServer.prototype = {
         $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
                                       max: 100
                                     });
-        self.cpu_plot = plot.plot($("#server_cpu_graph"), 300);
+        self.cpu_plot = new plot.Plot($("#server_cpu_graph"), 300);
         self.cpu_plot.set_options(cpu_options);
         // This is added to the plot once we have the machine info, see below.
 
@@ -563,7 +563,7 @@ PageServer.prototype = {
             $('#server_memory_unit').text(plot.bytes_tick_unit(axes.yaxis));
         };
 
-        self.memory_plot = plot.plot($("#server_memory_graph"), 300);
+        self.memory_plot = new plot.Plot($("#server_memory_graph"), 300);
         self.memory_plot.set_options(memory_options);
         self.memory_plot.add_metrics_difference_series(memory_data, { });
 
@@ -593,7 +593,7 @@ PageServer.prototype = {
             $('#server_network_traffic_unit').text(plot.bits_per_sec_tick_unit(axes.yaxis));
         };
 
-        self.network_plot = plot.plot($("#server_network_traffic_graph"), 300);
+        self.network_plot = new plot.Plot($("#server_network_traffic_graph"), 300);
         self.network_plot.set_options(network_options);
         self.network_plot.add_metrics_sum_series(network_data, { });
 
@@ -623,7 +623,7 @@ PageServer.prototype = {
             $('#server_disk_io_unit').text(plot.bytes_per_sec_tick_unit(axes.yaxis));
         };
 
-        self.disk_plot = plot.plot($("#server_disk_io_graph"), 300);
+        self.disk_plot = new plot.Plot($("#server_disk_io_graph"), 300);
         self.disk_plot.set_options(disk_options);
         self.disk_plot.add_metrics_sum_series(disk_data, { });
 

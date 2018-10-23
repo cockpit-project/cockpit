@@ -22,7 +22,6 @@ class SosReportingTab(SeleniumTest):
         process.run("systemctl start docker", shell=True)
 
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Diagnostic Report', cond=clickable))
         self.wait_frame("sosreport")
         self.wait_text("This tool will collect system configuration and diagnostic")

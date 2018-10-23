@@ -258,11 +258,13 @@ parameters:
     def mainframe(self):
         self.driver.switch_to_default_content()
 
-    def login(self, tmpuser=user, tmppasswd=passwd):
+    def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True):
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
         self.send_keys(self.wait_id('login-password-input'), tmppasswd)
         self.check_box(self.wait_id('authorized-input'))
         self.click(self.wait_id("login-button", cond=clickable))
+        if wait_hostapp:
+            self.wait_id("host-apps")
 
     def logout(self):
         self.driver.switch_to_default_content()

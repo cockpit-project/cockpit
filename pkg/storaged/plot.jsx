@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import $ from "jquery";
 
-import plot from "plot";
+import * as plot from "plot.es6";
 import { decode_filename } from "./utils.js";
 
 const _ = cockpit.gettext;
@@ -178,7 +178,7 @@ class StoragePlot extends React.Component {
             });
             plot_options.setup_hook = setup_hook;
             plot_options.post_hook = post_hook;
-            self.plot = plot.plot($(element), 300);
+            self.plot = new plot.Plot($(element), 300);
             self.plot_element = element;
             self.plot.set_options(plot_options);
             self.series = self.plot.add_metrics_stacked_instances_series(self.props.data, { });

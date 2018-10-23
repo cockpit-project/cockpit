@@ -21,7 +21,7 @@ var $ = require("jquery");
 var cockpit = require("cockpit");
 
 var Mustache = require("mustache");
-var plot = require("plot");
+var plot = require("plot.es6");
 
 var machines = require("machines");
 var mdialogs = require("machine-dialogs");
@@ -515,7 +515,7 @@ PageDashboard.prototype = {
                 var options = $.extend({ setup_hook: setup_hook },
                                        common_plot_options,
                                        rm.options);
-                var pl = plot.plot($(rm.selector));
+                var pl = new plot.Plot($(rm.selector));
                 pl.set_options(options);
                 self.plots.push(pl);
             });

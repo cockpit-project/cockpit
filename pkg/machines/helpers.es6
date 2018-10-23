@@ -348,3 +348,10 @@ export function timeoutedPromise(promise, delay, afterTimeoutHandler, afterTimeo
 
     return deferred.promise;
 }
+
+/**
+ * @returns a shell compatible format of a given string
+ */
+export function shellEscape(cmd) {
+    return `'${cmd.replace(/'/g, `'\\''`)}'`;
+}

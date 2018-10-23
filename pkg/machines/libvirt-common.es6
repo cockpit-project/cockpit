@@ -26,6 +26,7 @@ import {
     fileDownload,
     rephraseUI,
     units,
+    shellEscape,
 } from './helpers.es6';
 
 import {
@@ -600,6 +601,21 @@ export function CHECK_LIBVIRT_STATUS({ serviceName }) {
 
         return dfd.promise();
     };
+}
+
+export function virtBuildXML(resource, args) {
+    const reducer = (acc, arg) => acc + `${arg.option}=${arg.value},`;
+    const params = shellEscape(args.reduce(reducer, ''));
+    const command = `virt-xml --build-xml --${resource} ${params}`;
+
+    return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+}
+
+export function virtEditXML(connectionName, vmName, extraArgs) {
+    const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+    const command = `virt-xml ${connection} --print-xml --edit ${shellEscape(extraArgs)} ${shellEscape(vmName)}`;
+
+    return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
 }
 
 /*

@@ -48,10 +48,10 @@ function getAvailableTargets(vm) {
 
 function getFilteredVolumes(vmStoragePool, disks) {
     const usedDiskPaths = Object.getOwnPropertyNames(disks)
-            .filter(target => disks[target].source && disks[target].source.file)
-            .map(target => disks[target].source.file);
+            .filter(target => disks[target].source && (disks[target].source.file || disks[target].source.volume))
+            .map(target => (disks[target].source && (disks[target].source.file || disks[target].source.volume)));
 
-    const filteredVolumes = vmStoragePool.filter(volume => !usedDiskPaths.includes(volume.path));
+    const filteredVolumes = vmStoragePool.filter(volume => !usedDiskPaths.includes(volume.path) && !usedDiskPaths.includes(volume.name));
 
     const filteredVolumesSorted = filteredVolumes.sort(function(a, b) {
         return a.name.localeCompare(b.name);
@@ -276,15 +276,6 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
     );
 };
 
-function getDiskFileName(storagePools, vm, poolName, volumeName) {
-    const vmStoragePools = storagePools[vm.connectionName];
-    let volume;
-    if (vmStoragePools && vmStoragePools[poolName]) {
-        volume = vmStoragePools[poolName].find(volume => volume.name === volumeName);
-    }
-    return volume && volume.path;
-}
-
 export class AddDiskAction extends React.Component {
     constructor(props) {
         super(props);
@@ -384,7 +375,7 @@ class AddDiskModalBody extends React.Component {
     }
 
     onAddClicked() {
-        const { vm, dispatch, storagePools } = this.props;
+        const { vm, dispatch } = this.props;
 
         if (this.state.mode === CREATE_NEW) {
             // validate
@@ -415,7 +406,8 @@ class AddDiskModalBody extends React.Component {
 
         // use existing volume
         return dispatch(attachDisk({ connectionName: vm.connectionName,
-                                     diskFileName: getDiskFileName(storagePools, vm, this.state.storagePoolName, this.state.existingVolumeName),
+                                     poolName: this.state.storagePoolName,
+                                     volumeName: this.state.existingVolumeName,
                                      target: this.state.target,
                                      permanent: this.state.permanent,
                                      hotplug: this.state.hotplug,

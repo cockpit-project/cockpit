@@ -66,6 +66,7 @@ import {
     serialConsoleCommand,
     unknownConnectionName,
     updateVCPUSettings,
+    virtBuildXML,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -257,18 +258,29 @@ LIBVIRT_PROVIDER = {
         return dispatch => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
                 .then(diskFileName => {
                     logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName, ', diskFileName: ', diskFileName);
-                    return dispatch(attachDisk({ connectionName, diskFileName: diskFileName.trim(), target, vmName, permanent, hotplug }));
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }));
                 });
     },
 
-    ATTACH_DISK({ connectionName, diskFileName, target, vmName, permanent, hotplug }) {
-        logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', diskFileName, '", "', target, '", "', vmName, '"');
-        const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
-        let scope = permanent ? '--config' : '';
-        scope = scope + (hotplug ? ' --live' : '');
-        const command = `virsh ${connection} attach-disk ${vmName} ${diskFileName} ${target} ${scope}`;
-        logDebug('ATTACH_DISK command: ', command);
-        return () => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+    ATTACH_DISK({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }) {
+        logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', poolName, '", "', volumeName, '", "', target, '", "', vmName, '"');
+        const resource = 'disk';
+        const args = [
+            { option: 'target', value: target },
+            { option: 'source_pool', value: poolName },
+            { option: 'source_volume', value: volumeName }
+        ];
+
+        return virtBuildXML(resource, args)
+                .then(xmlDisk => createTempFile(xmlDisk))
+                .then(tempFileName => {
+                    const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
+                    let scope = permanent ? '--config' : '';
+                    scope = scope + (hotplug ? ' --live' : '');
+                    const command = `virsh ${connection} attach-device ${scope} ${vmName} ${tempFileName}`;
+
+                    return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+                });
     },
 
     SHUTDOWN_VM ({ name, connectionName }) {

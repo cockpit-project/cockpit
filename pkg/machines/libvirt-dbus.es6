@@ -48,7 +48,6 @@ import {
 } from './actions/store-actions.es6';
 
 import {
-    getDiskXML,
     getVolumeXML
 } from './xmlCreator.es6';
 
@@ -76,6 +75,7 @@ import {
     serialConsoleCommand,
     unknownConnectionName,
     updateVCPUSettings,
+    virtBuildXML,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
     CREATE_VM,
@@ -148,23 +148,28 @@ LIBVIRT_DBUS_PROVIDER = {
 
     ATTACH_DISK({
         connectionName,
-        diskFileName,
+        poolName,
+        volumeName,
         target,
         vmId,
         vmName,
         permanent,
         hotplug
     }) {
+        const resource = 'disk';
+        const args = [
+            { option: 'target', value: target },
+            { option: 'source_pool', value: poolName },
+            { option: 'source_volume', value: volumeName }
+        ];
         let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
         if (hotplug)
             flags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
         if (permanent)
             flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
-
-        let xmlDesc = getDiskXML(diskFileName, target);
-
         // Error handling is done from the calling side
-        return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
+        return virtBuildXML(resource, args)
+                .then(xmlDesc => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT));
     },
 
     CHANGE_NETWORK_SETTINGS({
@@ -181,25 +186,21 @@ LIBVIRT_DBUS_PROVIDER = {
          * 1 -> VIR_DOMAIN_AFFECT_LIVE
          * 2 -> VIR_DOMAIN_AFFECT_CONFIG
          */
+
         let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
         flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+        const resource = 'network';
+        const args = [
+            { option: 'mac', value: macAddress },
+            { option: 'model', value: networkModel },
+            { option: 'type', value: networkType }
+        ];
 
-        // Error handling inside the modal dialog this function is called
-        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                .then(domXml => {
-                    let updatedXml = updateNetworkIface({
-                        domXml: domXml[0],
-                        networkMac: macAddress,
-                        networkType,
-                        networkSource,
-                        networkModelType: networkModel
-                    });
-                    if (!updatedXml) {
-                        return Promise.reject(new Error("VM CHANGE_NETWORK_SETTINGS action failed: updated device XML couldn't not be generated"));
-                    } else {
-                        return clientLibvirt[connectionName].call(objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, flags], TIMEOUT);
-                    }
-                });
+        if (networkSource) {
+            args.push({ option: 'source', value: networkSource });
+        }
+        return dispatch => virtBuildXML(resource, args)
+                .then(xmlDesc => call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [xmlDesc, flags], TIMEOUT));
     },
 
     CHANGE_NETWORK_STATE({
@@ -256,11 +257,8 @@ LIBVIRT_DBUS_PROVIDER = {
                 .then((storagePoolPath) => {
                     return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT);
                 })
-                .then((storageVolumePath) => {
-                    return call(connectionName, storageVolumePath[0], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.StorageVol", "Path"], TIMEOUT);
-                })
-                .then((volPath) => {
-                    return dispatch(attachDisk({ connectionName, diskFileName: volPath[0].v, target, vmId, permanent, hotplug }));
+                .then((volName) => {
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, target, vmId, permanent, hotplug }));
                 });
     },
 
@@ -972,10 +970,10 @@ function call(connectionName, objectPath, iface, method, args, opts) {
  * Returns updated XML description of the network interface specified by mac address.
  * @param  {String} domXml      Domain XML description.
  * @param  {String} networkMac  MAC Address of the network interface we will update.
- * @param  {String} state       Desired state; one of up/down.
+ * @param  {String} networkState       Desired state; one of up/down.
  * @return {String}             Updated XML description of the device we will update or null on error.
  */
-function updateNetworkIface({ domXml, networkMac, networkState, networkModelType, networkType, networkSource }) {
+function updateNetworkIface({ domXml, networkMac, networkState }) {
     let parser = new DOMParser();
     const xmlDoc = parser.parseFromString(domXml, "application/xml");
 
@@ -1008,21 +1006,6 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
                 }
                 linkElem.setAttribute('state', networkState);
             }
-
-            if (networkType) {
-                interfaceElem.setAttribute('type', networkType);
-            }
-
-            if (networkSource && networkType) {
-                let sourceElem = getSingleOptionalElem(interfaceElem, 'source');
-                sourceElem.setAttribute(networkType, networkSource);
-            }
-
-            if (networkModelType) {
-                let modelElem = getSingleOptionalElem(interfaceElem, 'model');
-                modelElem.setAttribute('type', networkModelType);
-            }
-
             let returnXML = (new XMLSerializer()).serializeToString(interfaceElem);
 
             logDebug(`updateNetworkIface: Updated XML: "${returnXML}"`);

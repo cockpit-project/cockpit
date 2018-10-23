@@ -1,23 +1,3 @@
-export function getDiskXML(diskFileName, target) {
-    var doc = document.implementation.createDocument('', '', null);
-
-    var diskElem = doc.createElement('disk');
-    diskElem.setAttribute('type', 'file');
-    diskElem.setAttribute('device', 'disk');
-
-    var sourceElem = doc.createElement('source');
-    sourceElem.setAttribute('file', diskFileName);
-    diskElem.appendChild(sourceElem);
-
-    var targetElem = doc.createElement('target');
-    targetElem.setAttribute('dev', target);
-    diskElem.appendChild(targetElem);
-
-    doc.appendChild(diskElem);
-
-    return new XMLSerializer().serializeToString(doc.documentElement);
-}
-
 export function getVolumeXML(volumeName, size, format, target) {
     var doc = document.implementation.createDocument('', '', null);
 

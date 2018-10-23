@@ -631,7 +631,14 @@ class Machine:
         os.chmod(identity, 0o600)
         return identity
 
-    def journal_messages(self, syslog_ids, log_level):
+    def journal_cursor(self):
+        """Return current journal cursor
+
+        This can be passed to journal_messages() or audit_messages().
+        """
+        return self.execute("journalctl --show-cursor -n0 -o cat | sed 's/^.*cursor: *//'")
+
+    def journal_messages(self, syslog_ids, log_level, cursor=None):
         """Return interesting journal messages"""
 
         # Journald does not always set trusted fields like
@@ -646,7 +653,12 @@ class Machine:
         # exit status and including error messages from journalctl
         # itself in the returned messages.
 
-        cmd = "journalctl 2>&1 -o cat -p %d %s || true" % (log_level, matches)
+        if cursor:
+            cursor_arg = "--cursor '%s'" % cursor
+        else:
+            cursor_arg = ""
+
+        cmd = "journalctl 2>&1 %s -o cat -p %d %s || true" % (cursor_arg, log_level, matches)
         messages = self.execute(cmd).splitlines()
         if len(messages) == 1 and ("Cannot assign requested address" in messages[0]
                                    or "-- No entries --" in messages[0]):
@@ -655,8 +667,13 @@ class Machine:
         else:
             return messages
 
-    def audit_messages(self, type_pref):
-        cmd = "journalctl -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (type_pref, )
+    def audit_messages(self, type_pref, cursor=None):
+        if cursor:
+            cursor_arg = "--cursor '%s'" % cursor
+        else:
+            cursor_arg = ""
+
+        cmd = "journalctl %s -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (cursor_arg, type_pref, )
         messages = self.execute(cmd).splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             messages = [ ]

@@ -523,6 +523,7 @@ class MachineCase(unittest.TestCase):
     machine_class = None
     browser = None
     network = None
+    journal_start = None
 
     # provision is a dictionary of dictionaries, one for each additional machine to be created, e.g.:
     # provision = { 'openshift' : { 'image': 'openshift', 'memory_mb': 1024 } }
@@ -676,6 +677,7 @@ class MachineCase(unittest.TestCase):
                 machine.dhcp_server()
 
         if self.machine:
+            self.journal_start = self.machine.journal_cursor()
             self.browser = self.new_browser()
         self.tmpdir = tempfile.mkdtemp()
 
@@ -819,12 +821,14 @@ class MachineCase(unittest.TestCase):
     def check_journal_messages(self, machine=None):
         """Check for unexpected journal entries."""
         machine = machine or self.machine
+        # on main machine, only consider journal entries since test case start
+        cursor = (machine == self.machine) and self.journal_start or None
         syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
         if not self.allow_core_dumps:
             syslog_ids += [ "systemd-coredump" ]
-        messages = machine.journal_messages(syslog_ids, 5)
+        messages = machine.journal_messages(syslog_ids, 5, cursor=cursor)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
-            messages += machine.audit_messages("14") # 14xx is selinux
+            messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1557913
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143

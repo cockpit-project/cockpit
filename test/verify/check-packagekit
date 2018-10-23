@@ -546,9 +546,8 @@ class TestUpdates(PackageCase):
 
         b.wait_in_text("#state", "Applying updates failed")
 
-        # expecting one error message, so this should be unique
         b.wait_present("#app .container-fluid pre")
-        self.assertRegexpMatches(b.text("#app .container-fluid pre"), "missing|downloading|not.*available|No such file or directory")
+        self.assertRegexpMatches(b.text("#app .container-fluid pre:first-of-type"), "missing|downloading|not.*available|No such file or directory")
 
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))

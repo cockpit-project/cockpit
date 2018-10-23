@@ -23,7 +23,6 @@ from testlib import *
 from storagelib import *
 from packagelib import *
 
-@skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
 class TestStorage(StorageCase):
     def testNfsClient(self):
         m = self.machine
@@ -201,7 +200,6 @@ class TestStorage(StorageCase):
 
         b.wait_present("#detail-header button:contains(Mount)")
 
-@skipImage("NetworkManager and NFS don't work together", "ubuntu-1604")
 class TestStoragePackages(StorageCase, PackageCase):
 
     def testNfsMissingPackages(self):

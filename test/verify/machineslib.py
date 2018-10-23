@@ -151,13 +151,10 @@ class TestMachines(MachineCase):
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
 
-    def getLibvirtName(self):
-        return "libvirt-bin.service" if self.machine.image == "ubuntu-1604" else "libvirtd.service"
-
     def startLibvirt(self):
         m = self.machine
         # Ensure everything has started correctly
-        m.execute("systemctl start {0}".format(self.getLibvirtName()))
+        m.execute("systemctl start libvirtd.service")
         # Wait until we can get a list of domains
         wait(lambda: m.execute("virsh list"))
         # Wait for the network 'default' to become active
@@ -317,10 +314,10 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
 
         # restart libvirtd
-        m.execute("systemctl stop {0}".format(self.getLibvirtName()))
+        m.execute("systemctl stop libvirtd.service")
         b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
-        m.execute("systemctl start {0}".format(self.getLibvirtName()))
+        m.execute("systemctl start libvirtd.service")
         b.wait_in_text("body", "Virtual Machines")
         b.wait_present("tbody tr th")
         b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
@@ -381,7 +378,7 @@ class TestMachines(MachineCase):
         b = self.browser
         m = self.machine
 
-        libvirtServiceName = self.getLibvirtName()
+        libvirtServiceName = "libvirtd.service"
 
         def checkLibvirtEnabled():
             try:

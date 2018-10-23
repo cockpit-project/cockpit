@@ -228,7 +228,6 @@ class TestUpdates(PackageCase):
             b.wait_text("#system_information_updates_text", "System Up To Date")
             self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
-    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testInfoSecurity(self):
         b = self.browser
@@ -426,7 +425,6 @@ class TestUpdates(PackageCase):
 
         self.allow_restart_journal_messages()
 
-    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testSecurityOnly(self):
         b = self.browser
@@ -469,7 +467,6 @@ class TestUpdates(PackageCase):
             # secnocve should be displayed properly
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
-    @skipImage("Ubuntu 16.04 PackageKit does not support changelogs", "ubuntu-1604")
     @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testInfoTruncation(self):
         b = self.browser
@@ -675,7 +672,7 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28", "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1604", "ubuntu-1804", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28", "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": { "address": "10.111.113.2/20", "dns": "10.111.113.2" },
@@ -1062,7 +1059,7 @@ class TestAutoUpdates(PackageCase):
             # on-demand installation isn't supported
             self.assertFalse(b.is_present('#automatic'))
 
-    @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing", "ubuntu-1604",
+    @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing",
                "ubuntu-1804", "ubuntu-stable", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
     def testInstall(self):
         b = self.browser

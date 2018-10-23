@@ -34,7 +34,7 @@ class TestNetworking(NetworkCase):
 
         self.login_and_go("/network")
 
-        can_add_teams = m.image not in [ "continuous-atomic", "rhel-atomic", "ubuntu-1604" ]
+        can_add_teams = m.image not in [ "continuous-atomic", "rhel-atomic" ]
 
         b.wait_attr("#networking-add-team", "data-test-stable", "yes")
         if not can_add_teams:
@@ -89,7 +89,7 @@ class TestNetworking(NetworkCase):
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")
 
-    @skipImage("No teams",  "continuous-atomic", "rhel-atomic", "ubuntu-1604")
+    @skipImage("No teams",  "continuous-atomic", "rhel-atomic")
     def testTeamActive(self):
         b = self.browser
 

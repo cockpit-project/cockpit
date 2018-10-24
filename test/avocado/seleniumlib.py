@@ -55,17 +55,31 @@ class SeleniumTest(Test):
     :avocado: disable
     """
     def setUp(self):
-        selenium_hub = os.environ["HUB"] if os.environ.has_key("HUB") else "localhost"
-        browser = os.environ["BROWSER"] if os.environ.has_key("BROWSER") else "firefox"
+        selenium_hub = os.environ.get("HUB", "localhost")
+        browser = os.environ.get("BROWSER", "firefox")
+        guest_machine = os.environ.get("GUEST", "localhost")
+        network_port = int(os.environ.get("PORT", "9090"))
+        url_base = os.environ.get("URL_BASE", "http")
+        local_testing = os.environ.get("LOCAL", "no")  # use "yes" to test via local browsers
         if browser == 'edge':
             browser = 'MicrosoftEdge'
-        guest_machine = os.environ["GUEST"]
-        @Retry(attempts = 3, timeout = 30,
-               exceptions = (WebDriverException,),
-               error = Exception('Timeout: Unable to attach remote Browser on hub'))
-        def connectbrowser():
-            self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub, desired_capabilities={'browserName': browser})
-        connectbrowser()
+        # allow_localhost testing
+        if local_testing == "yes":
+            if browser == "firefox":
+                self.driver = selenium.webdriver.Firefox()
+            elif browser == "chrome":
+                self.driver = selenium.webdriver.Chrome()
+            elif browser == 'MicrosoftEdge':
+                self.driver = selenium.webdriver.Edge()
+        else:
+            @Retry(attempts=3, timeout=30,
+                   exceptions=(WebDriverException,),
+                   error=Exception('Timeout: Unable to attach remote Browser on hub'))
+            def connect_browser():
+                self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub,
+                                                        desired_capabilities={'browserName': browser})
+
+            connect_browser()
         self.driver.set_window_size(1400, 1200)
         try:
             self.driver.set_page_load_timeout(90)
@@ -79,15 +93,17 @@ class SeleniumTest(Test):
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM
-        self.element_wait_functions = { }
+        self.element_wait_functions = {}
         # self.default_explicit_wait is time for waiting for element
         # default_explicit_wait * default_try = max time for waiting for element
         self.default_explicit_wait = 1
-        @Retry(attempts = 3, timeout = 30,
-               exceptions = (WebDriverException,),
-               error = Exception('Timeout: Unable to get page'))
+
+        @Retry(attempts=3, timeout=30,
+               exceptions=(WebDriverException,),
+               error=Exception('Timeout: Unable to get page'))
         def connectwebpage():
-            self.driver.get('http://%s:9090' % guest_machine)
+            self.driver.get('%s://%s:%s' % (url_base, guest_machine, network_port))
+
         connectwebpage()
 
         # if self.error evaluates to True when a test finishes,

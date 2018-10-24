@@ -29,7 +29,6 @@ typedef struct {
   const gchar *command;
   const gchar *remote_peer;
   gboolean connect_to_unknown_hosts;
-  gboolean challenge_unknown_host_preconnect;
 } CockpitSshOptions;
 
 CockpitSshOptions * cockpit_ssh_options_from_env   (gchar **env);

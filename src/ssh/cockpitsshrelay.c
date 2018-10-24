@@ -641,7 +641,7 @@ set_knownhosts_file (CockpitSshData *data,
         }
     }
 
-  if (!host_known && data->ssh_options->challenge_unknown_host_preconnect)
+  if (!host_known)
     {
       authorize_knownhosts_data = challenge_for_knownhosts_data (data);
       if (authorize_knownhosts_data)

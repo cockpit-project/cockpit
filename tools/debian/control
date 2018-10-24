@@ -55,8 +55,8 @@ Depends: ${misc:Depends},
          ${shlibs:Depends},
          glib-networking
 Provides: cockpit-ssh
-Breaks: cockpit-dashboard (<< 170.x)
-Replaces: cockpit-dashboard (<< 170.x)
+Breaks: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
+Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
 Description: Cockpit bridge server-side component
  The Cockpit bridge component installed server side and runs commands on
  the system on behalf of the web based user interface.

@@ -155,31 +155,39 @@ mv /etc/resolv2.conf /etc/resolv.conf
 """
 
 class Machine:
-    def __init__(self, address="127.0.0.1", image=None, verbose=False, label=None, browser=None):
+    def __init__(self, address="127.0.0.1", image="unknown", verbose=False, label=None, browser=None,
+                 user="root", identity_file=None, arch="x86_64", ssh_port=22, web_port=9090):
         self.verbose = verbose
 
         # Currently all images are x86_64. When that changes we will have
         # an override file for those images that are not
-        self.arch = "x86_64"
-
-        self.image = image or "unknown"
+        self.arch = arch
+        self.image = image
         self.atomic_image = self.image in ATOMIC_IMAGES
-        self.ssh_user = "root"
+        self.ssh_user = user
+        self.identity_file = identity_file or os.path.join(BOTS_DIR, "machine", "identity")
+        if identity_file is None:
+            os.chmod(self.identity_file, 0o600)
         if ":" in address:
             (self.ssh_address, unused, self.ssh_port) = address.rpartition(":")
         else:
             self.ssh_address = address
-            self.ssh_port = 22
+            self.ssh_port = ssh_port
         if not browser:
             browser = address
         if ":" in browser:
             (self.web_address, unused, self.web_port) = browser.rpartition(":")
         else:
-            self.web_address = browser
-            self.web_port = 9090
-        self.label = label or self.image + "-" + self.ssh_address + "-" + self.ssh_port
-        self.ssh_master = None
+            self.web_address = browser or self.ssh_address
+            self.web_port = web_port
+        if label:
+            self.label = label
+        elif self.image is not "unknown":
+            self.label = self.image + "-" + self.ssh_address + "-" + self.ssh_port
+        else:
+            self.label = "{}@{}:{}".format(self.ssh_user, self.ssh_address, self.ssh_port)
 
+        self.ssh_master = None
         self.ssh_process = None
         self.ssh_reachable = False
 
@@ -311,7 +319,7 @@ class Machine:
         cmd = [
             "ssh",
             "-p", str(self.ssh_port),
-            "-i", self._calc_identity(),
+            "-i", self.identity_file,
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-o", "BatchMode=yes",
@@ -434,7 +442,7 @@ class Machine:
         ]
 
         if direct:
-            cmd += [ "-i", self._calc_identity() ]
+            cmd += [ "-i", self.identity_file ]
         else:
             cmd += [ "-o", "ControlPath=" + self.ssh_master ]
 
@@ -625,11 +633,6 @@ class Machine:
             The pid of the /bin/sh process that executes the command.
         """
         return int(self.execute("{ (%s) >/var/log/%s 2>&1 & }; echo $!" % (shell_cmd, log_id)))
-
-    def _calc_identity(self):
-        identity = os.path.join(BOTS_DIR, "machine", "identity")
-        os.chmod(identity, 0o600)
-        return identity
 
     def journal_cursor(self):
         """Return current journal cursor

@@ -407,6 +407,8 @@ Requires: glib-networking
 Provides: cockpit-ssh = %{version}-%{release}
 # cockpit-ssh moved from dashboard to bridge in 171
 Conflicts: cockpit-dashboard < 170.x
+# PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
+Conflicts: cockpit-ws < 181.x
 %endif
 
 %description bridge
@@ -741,11 +743,13 @@ Summary: Cockpit remote servers and dashboard
 Provides: cockpit-ssh = %{version}-%{release}
 # nothing depends on the dashboard, but we can't use it with older versions of the bridge
 Conflicts: cockpit-bridge < 135
+# PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
+Conflicts: cockpit-ws < 173.1
 %else
 BuildArch: noarch
 Requires: cockpit-ssh >= 135
-%endif
 Conflicts: cockpit-ws < 135
+%endif
 
 %description -n cockpit-dashboard
 Cockpit support for connecting to remote servers (through ssh),

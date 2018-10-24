@@ -84,16 +84,6 @@ test_ssh_options (void)
   options = cockpit_ssh_options_from_env (env);
   g_assert_false (options->connect_to_unknown_hosts);
   g_free (options);
-
-  env = g_environ_setenv (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT", "", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_false (options->challenge_unknown_host_preconnect);
-  g_free (options);
-
-  env = g_environ_setenv (env, "COCKPIT_SSH_CHALLENGE_UNKNOWN_HOST_PRECONNECT", "yes", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->challenge_unknown_host_preconnect);
-  g_free (options);
   g_strfreev (env);
 
   env = g_environ_setenv (NULL, "COCKPIT_REMOTE_PEER", "127.0.0.1", TRUE);
@@ -118,17 +108,14 @@ test_ssh_options_deprecated (void)
   env = g_environ_setenv (NULL, "COCKPIT_SSH_ALLOW_UNKNOWN", "yes", TRUE);
   options = cockpit_ssh_options_from_env (env);
   g_assert_true (options->connect_to_unknown_hosts);
-  g_assert_false (options->challenge_unknown_host_preconnect);
   g_free (options);
 
   env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "authorize", TRUE);
   options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->challenge_unknown_host_preconnect);
   g_free (options);
 
   env = g_environ_setenv (env, "COCKPIT_SSH_KNOWN_HOSTS_DATA", "", TRUE);
   options = cockpit_ssh_options_from_env (env);
-  g_assert_false (options->challenge_unknown_host_preconnect);
   g_free (options);
 
   g_strfreev (env);

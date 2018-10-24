@@ -417,7 +417,8 @@ table.listing-ct tbody.open {
 }
 
 /* By default these are hidden */
-tbody tr.listing-ct-head,
+/* (HACK: Special-case the user auth dialog) */
+tbody:not(.ssh-key-body) tr.listing-ct-head,
 tbody tr.listing-ct-panel,
 tbody tr.listing-ct-body {
     display: none;

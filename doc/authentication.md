@@ -102,6 +102,30 @@ has the same options as the other authentication sections with the following add
  * ```connectToUnknownHosts```. By default cockpit will refuse to connect to any machines that
  are not already present in ssh's global known_hosts file (usually ```/etc/ssh/ssh_known_hosts```). Set this to ```true``` is to allow those connections to proceed.
 
+This uses the [cockpit-ssh](https://github.com/cockpit-project/cockpit/tree/master/src/ssh)
+bridge. After the user authentication with the `"*"` challenge, if the remote
+host is not already present in any local `known_hosts` file, this will send an
+`"x-host-key"` challenge:
+
+```
+{
+    "command": "authorize",
+    "challenge": "x-host-key"
+    "cookie": "cookie",
+}
+```
+
+The caller responds to that with either a valid key like below, or an empty
+string response if there is no available key.
+
+```
+{
+    "command": "authorize",
+    "cookie": "cookie",
+    "response": "ssh-rsa AAAA1234...",
+}
+```
+
 # Actions
 
 Setting an action can modify the behavior for an auth scheme. Currently two actions

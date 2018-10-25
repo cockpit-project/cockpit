@@ -780,6 +780,21 @@ on_transport_control (CockpitTransport *transport,
     }
   else if (g_str_equal (command, "authorize"))
     {
+      const gchar *challenge;
+
+      /* handle x-host-key challenge */
+      if (cockpit_json_get_string (options, "challenge", NULL, &challenge) && g_strcmp0 (challenge, "x-host-key") == 0)
+        {
+          const gchar *cookie;
+          g_return_val_if_fail (cockpit_json_get_string (options, "cookie", NULL, &cookie), FALSE);
+
+          /* return a negative answer; we handle unknown hosts interactively, or want to fail on them */
+          g_debug ("received x-host-key authorize challenge");
+          send_authorize_reply (session->transport, cookie, "");
+          return TRUE;
+        }
+
+      /* handle login ("*") challenge */
       g_debug ("received authorize challenge");
       if (session->authorize)
         json_object_unref (session->authorize);

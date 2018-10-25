@@ -23,22 +23,20 @@ class BasicTestSuite(SeleniumTest):
 
     def test20Login(self):
         self.login()
-        self.wait_id("host-apps")
         user_element = self.wait_id("content-user-name")
         self.assertEqual(user_element.text, user)
         self.logout()
         self.wait_id('server-name')
-        self.login("baduser", "badpasswd")
+        self.login("baduser", "badpasswd", wait_hostapp=False)
         message_element = self.wait_id('login-error-message')
         self.assertTrue("Wrong" in message_element.text)
         self.login()
         username_element = self.wait_id("content-user-name")
         self.assertEqual(username_element.text, user)
-        self.error=False
+        self.error = False
 
     def test30ChangeTabServices(self):
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Services', cond=clickable))
         self.wait_frame("services")
         self.wait_id("services-list-enabled")
@@ -56,11 +54,10 @@ class BasicTestSuite(SeleniumTest):
 
     def test50ChangeTabLogs(self):
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Logs', cond=clickable))
         self.wait_frame("logs")
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.wait_id("journal-prio")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Error and above"))
@@ -68,63 +65,63 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_xpath(
             "//a[@data-prio='*' and contains(text(), '%s')]" % "Everything"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Everything"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='0' and contains(text(), '%s')]" % "Only Emergency"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Only Emergency"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='1' and contains(text(), '%s')]" % "Alert and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Alert and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='2' and contains(text(), '%s')]" % "Critical and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Critical and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='3' and contains(text(), '%s')]" % "Error and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Error and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='4' and contains(text(), '%s')]" % "Warning and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Warning and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='5' and contains(text(), '%s')]" % "Notice and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Notice and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='6' and contains(text(), '%s')]" % "Info and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Info and above"))
         self.wait_id("prio-lists")
         self.click(self.wait_xpath(
             "//a[@data-prio='7' and contains(text(), '%s')]" % "Debug and above"))
         self.wait_id("journal")
-        self.wait_id("journal-current-day")
+        self.wait_id("journal-current-day-menu")
         self.click(self.wait_xpath(
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Debug and above"))
         self.wait_id("prio-lists")
@@ -137,7 +134,6 @@ class BasicTestSuite(SeleniumTest):
 
     def test70ChangeTabNetworking(self):
         self.login()
-        self.wait_id("host-apps")
         out = process.run("ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
@@ -151,7 +147,6 @@ class BasicTestSuite(SeleniumTest):
 
     def test80ChangeTabTools(self):
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Accounts', cond=clickable))
         self.wait_frame("users")
         self.click(self.wait_xpath(

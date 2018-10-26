@@ -62,10 +62,14 @@ class TestUpdates(PackageCase):
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
-                self.assertEqual(b.text(row + "th > div:nth-of-type(%i) span" % idx), pkg)
+                self.assertEqual(b.text(row + "th > span:nth-of-type(%i)" % idx), pkg)
         else:
             self.assertEqual(b.text(row +"th span"), pkgname)
-            self.assertEqual(b.text(row + "th .tooltip-inner"), "dummy " + pkgname)
+            b.mouse(row +"th span", "mouseover")
+            b.wait_present("div.tooltip")
+            b.wait_text("div.tooltip", "dummy " + pkgname)
+            b.mouse(row +"th span", "mouseout")
+            b.wait_not_present("div.tooltip")
         self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
         # verify type
         self.assertTrue(b.is_present(row + "td:nth-of-type(3) span." + severity_to_icon[severity]))
@@ -342,7 +346,7 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
 
         def assertHistory(path, updates):
-            selector = path + " .tooltip-ct-outer:nth-child({0}) li"
+            selector = path + " li:nth-child({0})"
             b.wait_present(path)
             b.wait_present(selector.format(len(updates)))
             for index, pkg in enumerate(updates, start=1):

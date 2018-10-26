@@ -18,6 +18,7 @@
  */
 
 import React from "react";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from "cockpit";
 import utils from "./utils.js";
@@ -26,7 +27,6 @@ import $ from "jquery";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 import { dialog_open } from "./dialog.jsx";
-import { Tooltip } from "cockpit-components-tooltip.jsx";
 import { fmt_to_fragments } from "./utilsx.jsx";
 
 const _ = cockpit.gettext;
@@ -78,9 +78,9 @@ class StorageControl extends React.Component {
         }
 
         return (
-            <Tooltip tip={excuse}>
+            <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
                 { this.props.content(excuse) }
-            </Tooltip>
+            </OverlayTrigger>
         );
     }
 }

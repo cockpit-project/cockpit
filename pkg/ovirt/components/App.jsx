@@ -18,9 +18,9 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import cockpit from 'cockpit';
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 
-import { Tooltip } from "cockpit-components-tooltip.jsx";
+import cockpit from 'cockpit';
 
 import HostVmsList from '../../machines/hostvmslist.jsx';
 import ClusterVms from './ClusterVms.jsx';
@@ -153,12 +153,12 @@ const createOvirtVmAction = () => {
 
     return (
         <div className='card-pf-link-with-icon pull-right' key='create-vm-ovirt'>
-            <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
-                <span className="pficon pficon-add-circle-o" />
-                <Tooltip tip={tip} pos="top">
+            <OverlayTrigger overlay={ <Tooltip id="tip-create">{tip}</Tooltip> } placement="bottom">
+                <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
+                    <span className="pficon pficon-add-circle-o" />
                     {_("Create New VM")}
-                </Tooltip>
-            </a>
+                </a>
+            </OverlayTrigger>
         </div>
     );
 };

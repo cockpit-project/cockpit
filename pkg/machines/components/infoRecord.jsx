@@ -19,7 +19,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import { Tooltip } from "cockpit-components-tooltip.jsx";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 const InfoRecord = ({id, descr, value, descrClass, valueClass, tooltip}) => {
     return (<tr>
@@ -31,9 +31,9 @@ const InfoRecord = ({id, descr, value, descrClass, valueClass, tooltip}) => {
         <td id={id} className={valueClass}>
             {value}
         </td>
-        {tooltip && (<td><Tooltip tip={tooltip} pos="top">
+        {tooltip && (<td><OverlayTrigger overlay={ <Tooltip id="tip-inforec">{tooltip}</Tooltip> } placement="top">
             <span className="fa fa-lg fa-info-circle" />
-        </Tooltip></td>)}
+        </OverlayTrigger></td>)}
     </tr>);
 };
 

@@ -23,7 +23,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 
 import moment from "moment";
-import { Tooltip } from "cockpit-components-tooltip.jsx";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 
@@ -268,7 +268,11 @@ class UpdateItem extends React.Component {
                 </React.Fragment>);
         }
 
-        var pkgList = this.props.pkgNames.map(n => (<Tooltip key={n} tip={packageSummaries[n]}><span>{n}</span></Tooltip>));
+        var pkgList = this.props.pkgNames.map(n => (
+            <OverlayTrigger key={n} overlay={ <Tooltip id="tip-summary">{packageSummaries[n]}</Tooltip> } placement="top">
+                <span>{n}</span>
+            </OverlayTrigger>)
+        );
         var pkgs = insertCommas(pkgList);
         var pkgsTruncated = pkgs;
         if (pkgList.length > 4)
@@ -391,7 +395,11 @@ function UpdateHistory(props) {
     function formatPkgs(pkgs) {
         let names = Object.keys(pkgs).filter(i => i != "_time");
         names.sort();
-        return names.map(n => <Tooltip key={n} tip={ n + " " + pkgs[n] }><li>{n}</li></Tooltip>);
+        return names.map(n => (
+            <OverlayTrigger key={n} overlay={ <Tooltip id="tip-history">{ n + " " + pkgs[n] }</Tooltip> } placement="top">
+                <li>{n}</li>
+            </OverlayTrigger>)
+        );
     }
 
     let history = props.history;

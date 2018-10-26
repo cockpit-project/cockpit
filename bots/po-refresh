@@ -59,14 +59,12 @@ def run(context, verbose=False, **kwargs):
     cwd = os.path.abspath(line.strip())
 
     # Do the various updates
-    cmd = [ "make", "upload-pot", "download-po" ]
-    if verbose:
-        sys.stderr.write("+ " + " ".join(cmd) + "\n")
-    subprocess.check_call(cmd, cwd=cwd)
+    execute("make", "upload-pot", "download-po")
 
     # Here we have logic to only include files that actually
     # changed translations, and reset all the remaining ones
-    files = output("git", "ls-files", "--modified", "po/")
+    files = output("git", "ls-files", "--modified", "po/*")
+    sys.stderr.write("{0}\n".format(files))
     for name in files.split("\n"):
         if name.endswith(".po"):
             if changed(name):

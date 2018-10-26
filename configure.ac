@@ -144,6 +144,10 @@ fi
 
 AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
 
+# HACK: https://bugs.libssh.org/T117: libssh 0.8.4 breaks interactive keyboard auth on server side, i. e. our mock-ssh for unit tests
+PKG_CHECK_MODULES(LIBSSH_BROKEN_KBDINT, [libssh = 0.8.4], [broken_ssh_kbdint=yes], [broken_ssh_kbdint=no])
+AM_CONDITIONAL(HAVE_BROKEN_SSH_KBDINT, test "$broken_ssh_kbdint" = "yes")
+
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]

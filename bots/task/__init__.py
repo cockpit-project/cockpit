@@ -181,7 +181,7 @@ def begin(publish, name, context, issue):
     }
 
     publishing = sink.Sink(publish, identifier, status)
-    sys.stdout.write("# Task: {0} {1}\n# Host: {2}\n\n".format(name, context or "", hostname))
+    sys.stderr.write("# Task: {0} {1}\n# Host: {2}\n\n".format(name, context or "", hostname))
 
     # For statistics
     publishing.start = time.time()
@@ -203,7 +203,7 @@ def finish(publishing, ret, name, context, issue):
         result = "Failed"
 
     duration = int(time.time() - publishing.start)
-    sys.stdout.write("\n# Result: {0}\n# Duration: {1}s\n".format(result, duration))
+    sys.stderr.write("\n# Result: {0}\n# Duration: {1}s\n".format(result, duration))
 
     if issue:
         # Note that we check whether pass or fail ... this is because

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import OnOffSwitch from "cockpit-components-onoff.jsx";
+import { Switch } from "patternfly-react";
 import * as Select from "cockpit-components-select.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 
@@ -340,15 +340,16 @@ export default class AutoUpdates extends React.Component {
             <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
                 <h2 className="pk-updates--header--heading">{_("Automatic Updates")}</h2>
                 <div className="pk-updates--header--actions">
-                    <OnOffSwitch.OnOffSwitch state={onOffState} enabled={!this.state.pending}
-                                             onChange={e => {
-                                                 if (!this.state.backend.installed) {
-                                                     install_dialog(this.state.backend.packageName)
-                                                             .then(() => { this.initializeBackend(true).then(() => { this.handleChange(e, null, null, null) }) }, () => null);
-                                                 } else {
-                                                     this.handleChange(e, null, null, null);
-                                                 }
-                                             }} />
+                    <Switch value={onOffState} disabled={this.state.pending}
+                         onChange={ev => {
+                             if (!this.state.backend.installed) {
+                                 install_dialog(this.state.backend.packageName)
+                                         .then(() => { this.initializeBackend(true).then(() => { this.handleChange(ev.state.value, null, null, null) }) }, () => null);
+                             } else {
+                                 this.handleChange(ev.state.value, null, null, null);
+                             }
+                         }}
+                    />
                 </div>
                 {autoConfig}
             </div>);

@@ -90,7 +90,7 @@ const VmNetworkTab = function ({ vm, dispatch, hostDevices }) {
         { name: _("State"), value: (network, networkId) => {
             return <span className='machines-network-state' id={`${id}-network-${networkId}-state`}>{rephraseUI('networkState', network.state)}</span>;
         }},
-        { name: _(""), value: (network, networkId) => {
+        { name: "", value: (network, networkId) => {
             const isUp = network.state === 'up';
 
             return (<div className='machines-network-state' id={`${id}-network-${networkId}-state-btn`}>

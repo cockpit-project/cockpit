@@ -29,7 +29,6 @@
 
     var demoDialog = require("./react-demo-dialog.jsx");
     var demoListing = require("./react-demo-listing.jsx");
-    var demoTooltip = require("./react-demo-tooltip.jsx");
     var demoOnOff = require("./react-demo-onoff.jsx");
 
     var demoFileAC = require("./react-demo-file-autocomplete.jsx");
@@ -127,9 +126,6 @@
         demoListing.demo(document.getElementById('demo-listing'),
             document.getElementById('demo-listing-selectable'),
             document.getElementById('demo-listing-empty'));
-
-        /* Tooltip */
-        demoTooltip.demo(document.getElementById('demo-tooltip'), document.getElementById('demo-tooltip-top'));
 
         // OnOff
         demoOnOff.demo(document.getElementById('demo-onoff'));

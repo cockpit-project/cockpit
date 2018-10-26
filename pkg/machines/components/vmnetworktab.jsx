@@ -18,13 +18,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { OverlayTrigger, Tooltip } from "patternfly-react";
+
 import cockpit from 'cockpit';
 import { changeNetworkState } from "../actions/provider-actions.es6";
 import VmLastMessage from './vmLastMessage.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { rephraseUI, vmId } from "../helpers.es6";
 import EditNICAction from './nicEdit.jsx';
-import { Tooltip } from 'cockpit-components-tooltip.jsx';
 import './nicEdit.css';
 
 const _ = cockpit.gettext;
@@ -34,9 +35,9 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
 
     const warningInactive = (id) => {
         return (
-            <Tooltip tip={_("Changes will apply on VM shutdown")} pos='top'>
+            <OverlayTrigger overlay={ <Tooltip id="tip-network">{ _("Changes will apply on VM shutdown") }</Tooltip> } placement='top'>
                 <i id={id} className='pficon pficon-pending' />
-            </Tooltip>
+            </OverlayTrigger>
         );
     };
 

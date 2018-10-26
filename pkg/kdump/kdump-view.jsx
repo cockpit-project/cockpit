@@ -21,9 +21,10 @@ import cockpit from "cockpit";
 
 import React from "react";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
+
 import * as Select from "cockpit-components-select.jsx";
 import dialogPattern from "cockpit-components-dialog.jsx";
-import { Tooltip } from "cockpit-components-tooltip.jsx";
 
 const _ = cockpit.gettext;
 
@@ -467,22 +468,22 @@ class KdumpPage extends React.Component {
             else
                 serviceDescription = <span>{_("More details")}</span>;
             if (this.props.reservedMemory == 0) {
+                const tooltip = _("No memory reserved. Append a crashkernel option to the kernel command line (e.g. in /etc/default/grub) to reserve memory at boot time. Example: crashkernel=512M");
                 serviceHint = (
-                    <div className="popover-ct-kdump">
-                        <Tooltip tip={_("No memory reserved. Append a crashkernel option to the kernel command line (e.g. in /etc/default/grub) to reserve memory at boot time. Example: crashkernel=512M")} pos="top">
-                            <span className="fa fa-lg fa-info-circle" />
-                        </Tooltip>
-                    </div>
+                    <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
+                        <span className="popover-ct-kdump fa fa-lg fa-info-circle" />
+                    </OverlayTrigger>
                 );
             }
-            kdumpServiceDetails = <a href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
+            kdumpServiceDetails = <a className="popover-ct-kdump" href="#" tabIndex="0" onClick={this.handleServiceDetailsClick}>{serviceDescription}{serviceHint}</a>;
         } else if (this.props.kdumpStatus && !this.props.kdumpStatus.installed) {
+            const tooltip = _("Kdump service not installed. Please ensure package kexec-tools is installed.");
             kdumpServiceDetails = (
-                <a className="popover-ct-kdump">
-                    <Tooltip tip={_("Kdump service not installed. Please ensure package kexec-tools is installed.")} pos="top">
+                <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
+                    <a className="popover-ct-kdump">
                         <span className="fa fa-lg fa-info-circle" />
-                    </Tooltip>
-                </a>
+                    </a>
+                </OverlayTrigger>
             );
         }
         var serviceWaiting;
@@ -497,14 +498,16 @@ class KdumpPage extends React.Component {
                 </button>
             );
         } else {
+            const tooltip = _("Test is only available while the kdump service is running.");
             testButton = (
-                <Tooltip tip={_("Test is only available while the kdump service is running.")} pos="top">
+                <OverlayTrigger overlay={ <Tooltip id="tip-test">{tooltip}</Tooltip> } placement="top">
                     <button className="btn btn-default disabled">
                         {_("Test Configuration")}
                     </button>
-                </Tooltip>
+                </OverlayTrigger>
             );
         }
+        const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
         return (
             <div className="container-fluid">
                 <table className="form-table-ct">
@@ -535,9 +538,9 @@ class KdumpPage extends React.Component {
                             <td>
                                 {testButton}
                                 <a className="popover-ct-kdump">
-                                    <Tooltip tip={_("This will test the kdump configuration by crashing the kernel.")} pos="top">
+                                    <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
                                         <span className="fa fa-lg fa-info-circle" />
-                                    </Tooltip>
+                                    </OverlayTrigger>
                                 </a>
                             </td>
                         </tr>

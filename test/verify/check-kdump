@@ -84,7 +84,15 @@ class TestKdump(MachineCase):
             self.browser.wait_in_text(onOffSelectorActive, "On")
         else:
             # right now we have no memory reserved
-            self.browser.wait_in_text("#app", "No memory reserved.")
+            if self.machine.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+                # Old cockpit-system versions used custom Tooltip component
+                self.browser.wait_in_text("#app", "No memory reserved.")
+            else:
+                self.browser.wait_present("#app span.popover-ct-kdump")
+                self.browser.mouse("#app span.popover-ct-kdump", "mouseover")
+                self.browser.wait_present("div.tooltip")
+                self.browser.wait_in_text("div.tooltip", "No memory reserved.")
+                self.browser.mouse("#app span.popover-ct-kdump", "mouseout")
             # service should indicate an error and the button should be off
             self.browser.wait_in_text("#app", "Service has an error")
             self.browser.wait_in_text(onOffSelectorActive, "Off")

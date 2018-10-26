@@ -21,13 +21,13 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import firewall from "./firewall-client.es6";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import { Tooltip } from "cockpit-components-tooltip.jsx";
 
 import "table.css";
 import "./networking.css";
@@ -62,9 +62,10 @@ function ServiceRow(props) {
     var deleteButton;
     if (props.readonly) {
         deleteButton = (
-            <Tooltip className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
+            <OverlayTrigger className="pull-right" placement="top"
+                            overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
                 <button className="btn btn-danger pficon pficon-delete" disabled />
-            </Tooltip>
+            </OverlayTrigger>
         );
     } else {
         deleteButton = <button className="btn btn-danger pficon pficon-delete" onClick={onRemoveService} />;
@@ -301,9 +302,10 @@ export class Firewall extends React.Component {
         var addServiceAction;
         if (this.state.firewall.readonly) {
             addServiceAction = (
-                <Tooltip className="pull-right" tip={_("You are not authorized to modify the firewall.")}>
+                <OverlayTrigger className="pull-right" placement="top"
+                                overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
                     <button className="btn btn-primary" disabled> {_("Add Services…")} </button>
-                </Tooltip>
+                </OverlayTrigger>
             );
         } else {
             addServiceAction = <button className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;

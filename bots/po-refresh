@@ -52,17 +52,14 @@ def run(context, verbose=False, **kwargs):
         return msgstr
 
     # Make a tree with source ... outputs working directory
-    cmd = [ "bots/make-source", "po/cockpit.pot" ]
-    if verbose:
-        sys.stderr.write("+ " + " ".join(cmd) + "\n")
-    line = subprocess.check_output(cmd, cwd=BASE, universal_newlines=True)
-    cwd = os.path.abspath(line.strip())
+    line = output("bots/make-source", "po/cockpit.pot")
+    work = os.path.abspath(line.strip())
 
     # Do the various updates
     cmd = [ "make", "upload-pot", "download-po" ]
     if verbose:
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
-    subprocess.check_call(cmd, cwd=cwd)
+    subprocess.check_call(cmd, cwd=work)
 
     # Here we have logic to only include files that actually
     # changed translations, and reset all the remaining ones

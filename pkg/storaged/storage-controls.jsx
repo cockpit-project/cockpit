@@ -18,12 +18,11 @@
  */
 
 import React from "react";
+import { Switch } from "patternfly-react";
 
 import cockpit from "cockpit";
 import utils from "./utils.js";
 import $ from "jquery";
-
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 import { dialog_open } from "./dialog.jsx";
 import { Tooltip } from "cockpit-components-tooltip.jsx";
@@ -180,7 +179,8 @@ class StorageOnOff extends React.Component {
     render() {
         var self = this;
 
-        function onChange(val) {
+        function onChange(ev) {
+            var val = ev.state.value;
             var promise = self.props.onChange(val);
             if (promise) {
                 promise.always(() => { self.setState({ promise: null }) });
@@ -197,11 +197,11 @@ class StorageOnOff extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                <OnOffSwitch state={this.state.promise
+                                <Switch value={this.state.promise
                                     ? this.state.promise_goal_state
                                     : this.props.state}
-                                                 enabled={!excuse && !this.state.promise}
-                                                 onChange={onChange} />
+                                        disabled={excuse || this.state.promise}
+                                        onChange={onChange} />
                             )} />
         );
     }

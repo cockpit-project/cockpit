@@ -20,9 +20,9 @@
 import cockpit from "cockpit";
 
 import React from "react";
+import { Switch } from "patternfly-react";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 const _ = cockpit.gettext;
 
@@ -297,7 +297,8 @@ class SELinuxStatus extends React.Component {
                 <h2>{_("SELinux Policy")}</h2>
                 {errorMessage}
                 <label>{_("Enforce policy:")}
-                    <OnOffSwitch state={this.props.selinuxStatus.enforcing} onChange={this.props.changeSelinuxMode} />
+                    <Switch value={this.props.selinuxStatus.enforcing}
+                            onChange={ ev => this.props.changeSelinuxMode(ev.state.value) } />
                 </label>
                 {note}
             </div>

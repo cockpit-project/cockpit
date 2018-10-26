@@ -20,7 +20,8 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "patternfly-react";
+
 import * as Select from "cockpit-components-select.jsx";
 import dialogPattern from "cockpit-components-dialog.jsx";
 import { Tooltip } from "cockpit-components-tooltip.jsx";
@@ -513,8 +514,8 @@ class KdumpPage extends React.Component {
                             <td><label className="control-label">{_("kdump status")}</label></td>
                             <td colSpan="2">
                                 <div>
-                                    <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
-                                        enabled={(!this.props.stateChanging).toString()} />
+                                    <Switch value={serviceRunning} onChange={ev => this.props.onSetServiceState(ev.state.value)}
+                                        disabled={this.props.stateChanging} />
                                     {serviceWaiting}
                                     {kdumpServiceDetails}
                                 </div>

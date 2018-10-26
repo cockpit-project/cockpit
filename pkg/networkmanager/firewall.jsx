@@ -21,11 +21,11 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
+import { Switch } from "patternfly-react";
 
 import firewall from "./firewall-client.es6";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { Tooltip } from "cockpit-components-tooltip.jsx";
 
@@ -238,10 +238,10 @@ export class Firewall extends React.Component {
         });
     }
 
-    onSwitchChanged(value) {
-        this.setState({ pendingTarget: value });
+    onSwitchChanged(ev) {
+        this.setState({ pendingTarget: ev.state.value });
 
-        if (value)
+        if (ev.state.value)
             firewall.enable();
         else
             firewall.disable();
@@ -322,9 +322,9 @@ export class Firewall extends React.Component {
                 </ol>
                 <h1>
                     {_("Firewall")}
-                    <OnOffSwitch state={enabled}
-                                 enabled={this.state.pendingTarget === null}
-                                 onChange={this.onSwitchChanged} />
+                    <Switch value={enabled}
+                            disabled={this.state.pendingTarget !== null}
+                            onChange={this.onSwitchChanged} />
                 </h1>
                 <Listing title={_("Allowed Services")}
                          columnTitles={[ _("Service"), _("TCP"), _("UDP"), "" ]}

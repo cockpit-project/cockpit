@@ -76,18 +76,22 @@ class TestKdump(MachineCase):
 
         self.browser.wait_visible("#app")
 
-        onOffSelectorActive = "div.btn-onoff-ct label.active"
+        def check_status(expected):
+            if self.machine.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+                self.browser.wait_in_text("div.btn-onoff-ct label.active", expected and "On" or "Off")
+            else:
+                self.browser.wait_present(".bootstrap-switch-" + (expected and "on" or "off"))
 
         if self.machine.image in ["rhel-x"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             self.browser.wait_in_text("#app", "Service is running")
-            self.browser.wait_in_text(onOffSelectorActive, "On")
+            check_status(True)
         else:
             # right now we have no memory reserved
             self.browser.wait_in_text("#app", "No memory reserved.")
             # service should indicate an error and the button should be off
             self.browser.wait_in_text("#app", "Service has an error")
-            self.browser.wait_in_text(onOffSelectorActive, "Off")
+            check_status(False)
 
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(self.machine.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
@@ -100,7 +104,7 @@ class TestKdump(MachineCase):
         self.browser.wait_in_text("#app", "256 MiB")
         # service should start up properly and the button should be on
         self.browser.wait_in_text("#app", "Service is running")
-        self.browser.wait_in_text(onOffSelectorActive, "On")
+        check_status(True)
 
         customPath = "/var/crash2"
         # try to change the path to a directory that doesn't exist
@@ -128,7 +132,7 @@ class TestKdump(MachineCase):
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
         self.browser.wait_in_text("#app", "Service is running")
-        self.browser.wait_in_text(onOffSelectorActive, "On")
+        check_status(True)
 
         # crash the kernel and make sure it wrote a report into the right directory
         self.browser.click("button.btn-default")

@@ -849,8 +849,8 @@ class TestAutoUpdates(PackageCase):
 
         def wait_pending():
             # the controls get disabled while applying the config changes is in progress; wait for both transitions
-            b.wait_present("#automatic .disabled")
-            b.wait_not_present("#automatic .disabled")
+            b.wait_present("#automatic .bootstrap-switch-disabled")
+            b.wait_not_present("#automatic .bootstrap-switch-disabled")
 
         def assertTimerDnf(time, dow):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
@@ -898,15 +898,14 @@ class TestAutoUpdates(PackageCase):
 
         # automatic updates are supported, but off
         b.wait_present("#automatic h2")
-        b.wait_present("#automatic div.btn-onoff-ct label.active")
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .bootstrap-switch-off")
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
         # enable
-        b.click("#automatic div.btn-onoff-ct label.active span")
+        b.click("#automatic .bootstrap-switch-default")
         wait_pending()
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
+        b.wait_present("#automatic .bootstrap-switch-on")
         assertTimer("06:00")
         assertType("all")
         b.wait_present("#auto-update-type button")
@@ -962,9 +961,9 @@ class TestAutoUpdates(PackageCase):
         assertTimer("21:00")
 
         # disable
-        b.click("#automatic div.btn-onoff-ct label.active span")
+        b.click("#automatic .bootstrap-switch-primary")
         wait_pending()
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .bootstrap-switch-off")
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
@@ -986,13 +985,12 @@ class TestAutoUpdates(PackageCase):
             return
 
         b.wait_present("#automatic")
-        b.wait_present("#automatic div.btn-onoff-ct label.active")
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .bootstrap-switch-off")
         self.assertFalse(b.is_present("#auto-update-type"))
 
         # enable
-        b.click("#automatic div.btn-onoff-ct label.active span")
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
+        b.click("#automatic .bootstrap-switch-default")
+        b.wait_present("#automatic .bootstrap-switch-on")
         b.wait_present("#auto-update-type")
 
         if self.backend == 'dnf':
@@ -1039,8 +1037,7 @@ class TestAutoUpdates(PackageCase):
         b.login_and_go("/updates")
         b.wait_present("#available")
         if self.backend == 'dnf':
-            b.wait_present('#automatic')
-            b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'Off')
+            b.wait_present('#automatic .bootstrap-switch-off')
         else:
             # on-demand installation isn't supported, switch to enable it isn't visible
             self.assertFalse(b.is_present("#automatic"))
@@ -1091,8 +1088,8 @@ WantedBy=basic.target
         b.login_and_go('/updates')
 
         # click through install dialog
-        b.wait_present('#automatic div.btn-onoff-ct > .btn.active')
-        b.click('#automatic div.btn-onoff-ct > .btn.active > span')
+        b.wait_present('#automatic .bootstrap-switch-off')
+        b.click('#automatic .bootstrap-switch-default')
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')
         b.wait_not_attr('#dialog button.apply', 'disabled', '')
@@ -1100,7 +1097,7 @@ WantedBy=basic.target
 
         # as dnf-automatic isn't actually installed DnfImpl.setConfig will fail,
         # but we can check that the backend is now enabled
-        b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'On')
+        b.wait_present('#automatic .bootstrap-switch-on')
 
 if __name__ == '__main__':
     test_main()

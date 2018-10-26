@@ -23,30 +23,48 @@ import HostVmsList from "./hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
+import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
 
-const App = ({ store }) => {
-    const { vms, config, storagePools, systemInfo, ui, networks } = store.getState();
-    const dispatch = store.dispatch;
-    const createVmAction = (<CreateVmAction dispatch={dispatch} systemInfo={systemInfo} />);
-
-    if (systemInfo.libvirtService.activeState !== 'running') {
-        return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            activeTab: 1
+        };
+        this.changeActiveList = this.changeActiveList.bind(this);
     }
 
-    // pass ui object
-    return (
-        <div>
-            <HostVmsList vms={vms}
-                config={config}
-                ui={ui}
-                storagePools={storagePools}
-                dispatch={dispatch}
-                networks={networks}
-                actions={createVmAction} />
-            { config.provider.name == 'LibvirtDBus' && <StoragePoolList storagePools={storagePools} /> }
-        </div>
-    );
-};
+    changeActiveList(tabId) {
+        this.setState({ activeTab: tabId });
+    }
+
+    render() {
+        const { vms, config, storagePools, systemInfo, ui, networks } = this.props.store.getState();
+        const dispatch = this.props.store.dispatch;
+        const createVmAction = (<CreateVmAction dispatch={dispatch} systemInfo={systemInfo} />);
+
+        if (systemInfo.libvirtService.activeState !== 'running') {
+            return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
+        }
+
+        return (
+            <div>
+                { config.provider.name === 'LibvirtDBus' && this.state.activeTab == 1 &&
+                <AggregateStatusCards vms={vms} storagePools={storagePools} changeActiveList={this.changeActiveList} />
+                }
+                { this.state.activeTab == 1 && <HostVmsList vms={vms}
+                    config={config}
+                    ui={ui}
+                    storagePools={storagePools}
+                    dispatch={dispatch}
+                    networks={networks}
+                    actions={createVmAction} />
+                }
+                { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools} changeActiveList={this.changeActiveList} /> }
+            </div>
+        );
+    }
+}
 App.propTypes = {
     store: PropTypes.object.isRequired,
 };

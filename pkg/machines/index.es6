@@ -56,7 +56,7 @@ function detectLibvirtProvider() {
 
 function render() {
     ReactDOM.render(
-        React.createElement(App, {store: store}),
+        <App store={store} />,
         document.getElementById('app')
     );
 }

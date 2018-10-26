@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Breadcrumb } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
@@ -32,23 +33,34 @@ export class StoragePoolList extends React.Component {
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
 
         return (
-            <div id='storage-pools-listing' className='container-fluid'>
-                <Listing title={_("Storage Pools")}
-                    columnTitles={[_("Name"), _("Size"), _("Connection"), _("State")]}
-                    emptyCaption={_("No storage pool is defined on this host")}>
-                    {storagePools
-                            .sort(sortFunction)
-                            .map(storagePool => {
-                                return (
-                                    <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`} storagePool={storagePool} />
-                                );
-                            })
-                    }
-                </Listing>
+            <div>
+                <Breadcrumb className='storage-pool-listing-breadcrumb' title>
+                    <Breadcrumb.Item onClick={() => this.props.changeActiveList(1)}>
+                        {_("Virtual Machines")}
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item active>
+                        {_("Storage Pools")}
+                    </Breadcrumb.Item>
+                </Breadcrumb>
+                <div id='storage-pools-listing' className='container-fluid'>
+                    <Listing title={_("Storage Pools")}
+                        columnTitles={[_("Name"), _("Size"), _("Connection"), _("State")]}
+                        emptyCaption={_("No storage pool is defined on this host")}>
+                        {storagePools
+                                .sort(sortFunction)
+                                .map(storagePool => {
+                                    return (
+                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`} storagePool={storagePool} />
+                                    );
+                                })
+                        }
+                    </Listing>
+                </div>
             </div>
         );
     }
 }
 StoragePoolList.propTypes = {
     storagePools: PropTypes.array.isRequired,
+    changeActiveList: PropTypes.func.isRequired,
 };

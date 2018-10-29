@@ -293,7 +293,7 @@ export class Firewall extends React.Component {
         if (!this.state.firewall.installed) {
             return (
                 <EmptyState title={_("Firewall is not available")} icon="fa fa-exclamation-circle">
-                    <p>{cockpit.format(_("Please install the {0} package"), "firewalld")}</p>
+                    <p>{cockpit.format(_("Please install the $0 package"), "firewalld")}</p>
                 </EmptyState>
             );
         }

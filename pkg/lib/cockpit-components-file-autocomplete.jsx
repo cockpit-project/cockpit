@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 class FileAutoComplete extends React.Component {
     constructor(props) {
         super(props);
-        var value = props.value || "";
+        const value = props.value || "";
         this.updateFiles(value);
         this.state = {
             value: value,
@@ -117,20 +117,18 @@ class FileAutoComplete extends React.Component {
     }
 
     delayedOnChange(ev) {
-        var self = this;
-        var value = ev.currentTarget.value;
+        const value = ev.currentTarget.value;
         if (this.timer)
             window.clearTimeout(this.timer);
 
         if (this.state.value !== value)
-            this.timer = window.setTimeout(function() {
-                self.onChange(value);
-                self.timer = null;
+            this.timer = window.setTimeout(() => {
+                this.onChange(value);
+                this.timer = null;
             }, 250);
     }
 
     updateFiles(path) {
-        var self = this;
         var channel = cockpit.channel({ payload: "fslist1",
                                         path: path || "/",
                                         superuser: this.props.superuser });
@@ -138,16 +136,16 @@ class FileAutoComplete extends React.Component {
         var results = [];
         var error = null;
 
-        channel.addEventListener("ready", function () {
-            self.finishUpdate(results, null);
+        channel.addEventListener("ready", () => {
+            this.finishUpdate(results, null);
         });
 
-        channel.addEventListener("close", function (ev, data) {
-            self.finishUpdate(results, error || cockpit.format(cockpit.message(data)));
+        channel.addEventListener("close", (ev, data) => {
+            this.finishUpdate(results, error || cockpit.format(cockpit.message(data)));
         });
 
-        channel.addEventListener("message", function (ev, data) {
-            var item = JSON.parse(data);
+        channel.addEventListener("message", (ev, data) => {
+            let item = JSON.parse(data);
             if (item && item.path) {
                 if (item.type == "directory")
                     item.path = item.path + "/";
@@ -162,8 +160,8 @@ class FileAutoComplete extends React.Component {
     }
 
     updateIfDirectoryChanged(value) {
-        var directory = this.getDirectoryForValue(value);
-        var changed = directory !== this.state.directory;
+        const directory = this.getDirectoryForValue(value);
+        const changed = directory !== this.state.directory;
         if (changed && this.state.directoryFiles !== null) {
             this.setState({
                 displayFiles: [],
@@ -177,9 +175,7 @@ class FileAutoComplete extends React.Component {
     }
 
     finishUpdate(results, error) {
-        results = results.sort(function(a, b) {
-            return a.path.localeCompare(b.path, { sensitivity: 'base' });
-        });
+        results = results.sort((a, b) => a.path.localeCompare(b.path, { sensitivity: 'base' }));
 
         this.onChangeCallback(this.state.value, {
             error,
@@ -194,19 +190,16 @@ class FileAutoComplete extends React.Component {
 
     filterFiles(value) {
         var inputValue = value.trim().toLowerCase();
-        var dirLength = this.state.directory.length;
+        const dirLength = this.state.directory.length;
         var matches = [];
-        var inputLength;
 
         inputValue = inputValue.slice(dirLength);
-        inputLength = inputValue.length;
+        const inputLength = inputValue.length;
 
         var error;
 
         if (this.state.directoryFiles !== null) {
-            matches = this.state.directoryFiles.filter(function (v) {
-                return v.path.toLowerCase().slice(0, inputLength) === inputValue;
-            });
+            matches = this.state.directoryFiles.filter(v => v.path.toLowerCase().slice(0, inputLength) === inputValue);
 
             if (matches.length < 1)
                 error = _("No matching files found");
@@ -269,7 +262,7 @@ class FileAutoComplete extends React.Component {
     }
 
     render() {
-        var placeholder = this.props.placeholder || _("Path to file");
+        const placeholder = this.props.placeholder || _("Path to file");
         var controlClasses = "form-control-feedback ";
         var classes = "input-group";
         if (this.state.open)

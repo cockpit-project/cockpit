@@ -117,7 +117,7 @@ class Retry(object):
                         if not self.inverse:
                             return output
 
-                    except (self.exceptions + (TimeoutError,)) as e:
+                    except (self.exceptions + (TimeoutError,)):
                         if self.inverse:
                             return True
 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     try:
         do_something1(2, 4, 6, d = 97)
 
-    except IFailedError as e:
+    except IFailedError:
         retry = do_something1.func_closure[1].cell_contents
 
         assert len(white_horse) == 5
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     try:
         do_something2(1, 2)
 
-    except IFailedError as e:
+    except IFailedError:
         retry = do_something2.func_closure[1].cell_contents
 
         assert not len(brown_horse)
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     try:
         do_something3()
 
-    except IndexError as e:
+    except IndexError:
         retry = do_something3.func_closure[1].cell_contents
 
         assert retry.failed_attempts == 1
@@ -215,7 +215,7 @@ if __name__ == '__main__':
 
         do_something5()
 
-    except IFailedError as e:
+    except IFailedError:
         end_time = time.time()
 
         retry = do_something5.func_closure[1].cell_contents
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     try:
         do_something6()
 
-    except IndexError as e:
+    except IndexError:
         retry = do_something6.func_closure[1].cell_contents
 
         assert retry.failed_attempts == 1

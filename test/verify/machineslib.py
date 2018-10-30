@@ -1228,7 +1228,7 @@ class TestMachines(MachineCase):
                     b.wait_visible(system_item_selector)
                 # os found which is not ok
                 raise AssertionError("{0} was not filtered".format(self.os_name))
-            except AssertionError as e:
+            except AssertionError:
                 raise
             except Exception:
                 # os not found which is ok

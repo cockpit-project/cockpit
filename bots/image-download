@@ -239,7 +239,7 @@ def wait_lock(target):
         try:
             fcntl.flock(wait_lock.f, fcntl.LOCK_NB | fcntl.LOCK_EX)
             return
-        except BlockingIOError as e:
+        except BlockingIOError:
             if retry == 0:
                 print("Waiting for concurrent image-download of %s..." % os.path.basename(target))
             time.sleep(10)

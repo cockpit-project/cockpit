@@ -43,7 +43,6 @@ class FileAutoComplete extends React.Component {
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onChangeCallback = this.onChangeCallback.bind(this);
         this.onBlur = this.onBlur.bind(this);
-        this.delayedOnChange = this.delayedOnChange.bind(this);
         this.updateFiles = this.updateFiles.bind(this);
         this.updateIfDirectoryChanged = this.updateIfDirectoryChanged.bind(this);
         this.finishUpdate = this.finishUpdate.bind(this);
@@ -67,24 +66,6 @@ class FileAutoComplete extends React.Component {
             dir = "/" + dir;
 
         return dir;
-    }
-
-    onChange(value) {
-        if (value && value.indexOf("/") !== 0)
-            value = "/" + value;
-
-        var stateUpdate;
-        if (!this.updateIfDirectoryChanged(value))
-            stateUpdate = this.filterFiles(value);
-        else
-            stateUpdate = {};
-
-        stateUpdate.value = value;
-        this.setState(stateUpdate);
-
-        this.onChangeCallback(value, {
-            error: stateUpdate.error,
-        });
     }
 
     onChangeCallback(value, options) {
@@ -116,16 +97,27 @@ class FileAutoComplete extends React.Component {
         });
     }
 
-    delayedOnChange(ev) {
-        const value = ev.currentTarget.value;
+    onChange(ev) {
+        var value = ev.currentTarget.value;
+
+        if (value && value.indexOf("/") !== 0)
+            value = "/" + value;
+
         if (this.timer)
             window.clearTimeout(this.timer);
 
         if (this.state.value !== value)
             this.timer = window.setTimeout(() => {
-                this.onChange(value);
                 this.timer = null;
+
+                if (!this.updateIfDirectoryChanged(value)) {
+                    var stateUpdate = this.filterFiles(value);
+                    this.setState(stateUpdate);
+                    this.onChangeCallback(value, { error: stateUpdate.error });
+                }
             }, 250);
+
+        this.setState({ value });
     }
 
     updateFiles(path) {
@@ -289,7 +281,7 @@ class FileAutoComplete extends React.Component {
         return (
             <div className="combobox-container file-autocomplete-ct" id={this.props.id}>
                 <div className={classes}>
-                    <input ref="input" autoComplete="false" placeholder={placeholder} className="combobox form-control" type="text" onChange={this.delayedOnChange} value={this.state.value} onBlur={this.onBlur} />
+                    <input ref="input" autoComplete="false" placeholder={placeholder} className="combobox form-control" type="text" onChange={this.onChange} value={this.state.value} onBlur={this.onBlur} />
                     <span onClick={this.showAllOptions} className={controlClasses} />
                     <ul onMouseDown={this.onMouseDown} onClick={this.selectItem} className="typeahead typeahead-long dropdown-menu">
                         {listItems}

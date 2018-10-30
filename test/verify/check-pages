@@ -123,14 +123,13 @@ OnCalendar=daily
 
         b.switch_to_top()
 
-        if m.image != "rhel-7-5-distropkg":
-            # The top bar should not be visible on fedora-atomic because no dashboards
-            b.wait_present(".area-ct-body")
-            if "atomic" in m.image:
-                b.wait_present(".area-ct-body.single-nav")
-            else:
-                b.wait_not_present(".area-ct-body.single-nav")
-            b.wait_present("#host-nav")
+        # The top bar should not be visible on fedora-atomic because no dashboards
+        b.wait_present(".area-ct-body")
+        if "atomic" in m.image:
+            b.wait_present(".area-ct-body.single-nav")
+        else:
+            b.wait_not_present(".area-ct-body.single-nav")
+        b.wait_present("#host-nav")
 
         # Lets try changing the language
 
@@ -158,11 +157,10 @@ OnCalendar=daily
         # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
 
         # BIOS date parsing using moment
-        if m.image != 'rhel-7-5-distropkg':
-            b.go("/system/hwinfo")
-            b.enter_page("/system/hwinfo")
-            b.wait_present("#hwinfo .info-table-ct")
-            b.wait_in_text("#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td", ".20")
+        b.go("/system/hwinfo")
+        b.enter_page("/system/hwinfo")
+        b.wait_present("#hwinfo .info-table-ct")
+        b.wait_in_text("#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td", ".20")
 
         # Check the playground page
         b.switch_to_top()
@@ -328,7 +326,6 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
-    @skipImage("Shell too old", "rhel-7-5-distropkg")
     def testShellReload(self):
         b = self.browser
         m = self.machine

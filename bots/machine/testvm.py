@@ -53,7 +53,7 @@ def get_build_image(image):
     if test_os == "fedora-atomic":
         image = "fedora-28"
     elif test_os == "rhel-atomic":
-        image = "rhel-7-5"
+        image = "rhel-7-6"
     elif test_os == "continuous-atomic":
         image = "centos-7"
     return image

@@ -45,12 +45,11 @@ class TestMenu(MachineCase):
 
         self.check_axe("Test-navigation")
 
-        # Check that we can use a link with a hash in it (fixed in Cockpit 170)
-        if m.image != 'rhel-7-5-distropkg':
-            b.switch_to_top()
-            b.click("a[href='/system/#/memory']")
-            b.enter_page("/system")
-            b.wait_visible("#memory_status")
+        # Check that we can use a link with a hash in it
+        b.switch_to_top()
+        b.click("a[href='/system/#/memory']")
+        b.enter_page("/system")
+        b.wait_visible("#memory_status")
 
         # Ensure that our tests pick up unhandled JS exceptions
         b.switch_to_top()

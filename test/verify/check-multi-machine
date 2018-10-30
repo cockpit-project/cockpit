@@ -361,7 +361,7 @@ class TestMultiMachine(MachineCase):
         b.click('#login-button')
         b.wait_visible("#login-error-message")
 
-        if m.image in ['rhel-7-5-distropkg', 'rhel-7-6-distropkg']:
+        if m.image in ['rhel-7-6-distropkg']:
             login_options = '#option-group span'
         else:
             login_options = '#show-other-login-options'
@@ -500,7 +500,6 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/cockpit-new/');
         self.allow_hostkey_messages()
 
-    @skipImage("cockpit-ws too old", "rhel-7-5-distropkg")
     def testUrlRootWithQuery(self):
         b = self.browser
         m = self.machine
@@ -839,7 +838,7 @@ class TestMultiMachine(MachineCase):
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog .btn-primary')
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        if m1.image not in ['rhel-7-5', 'rhel-7-6', 'rhel-7-5-distropkg', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1804']:
+        if m1.image not in ['rhel-7-6', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1804']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
             b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")

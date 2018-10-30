@@ -44,15 +44,15 @@ set -x
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
 
-    if [ "$IMAGE" = "rhel-7-6" ]; then
+    if [ "$IMAGE" = "rhel-7-7" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
-[EXTRAS-7.6-LATEST]
+[EXTRAS-7.7-LATEST]
 name=rhel-extras-compose
-baseurl=http://download.devel.redhat.com/nightly/EXTRAS-RHEL-7.6/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
+baseurl=http://download.devel.redhat.com/nightly/EXTRAS-RHEL-7.7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/os/
 enabled=1
 gpgcheck=0
 
-[RHEL-7.6-NIGHTLY]
+[RHEL-7.7-NIGHTLY]
 name=base-rhel
 baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x86_64/os
 enabled=1

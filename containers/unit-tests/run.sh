@@ -31,7 +31,9 @@ case $ARCH in
         exit 1
 esac
 
-bots/test-bots
+if [ -d bots ]; then
+    bots/test-bots
+fi
 
 # bots/ is by and large an independent project, and for supporting stable
 # ranches, we want build/check/dist to work without it; so run everything

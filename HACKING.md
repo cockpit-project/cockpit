@@ -88,6 +88,11 @@ which will output a URL to connect to with a browser, such as
 `http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path
 for different tests and inspect the results there.
 
+You can also run individual tests by specifying the `TESTS` environment
+variable:
+
+    $ make check TESTS=dist/base1/test-chan.html
+
 ## Running the integration test suite
 
 Refer to the [testing README](test/README.md) for details on running

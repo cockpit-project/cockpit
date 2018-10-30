@@ -70,9 +70,8 @@ You can set these environment variables to configure the test suite:
                   "fedora-29"
                   "fedora-atomic"
                   "fedora-testing"
-                  "rhel-7-5"
-                  "rhel-7-5-distropkg"
                   "rhel-7-6"
+                  "rhel-7-6-distropkg"
                   "ubuntu-1804"
                   "ubuntu-stable"
                "fedora-28" is the default (testvm.py)

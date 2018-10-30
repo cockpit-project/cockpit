@@ -148,10 +148,7 @@ class TestConnection(MachineCase):
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode(b"admin:foobar").decode(), ))
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
-        if m.image in ["rhel-7-5-distropkg"]:
-            self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 ws: wss", headers)
-        else:
-            self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
+        self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
         self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
 
         self.allow_journal_messages(
@@ -182,13 +179,13 @@ class TestConnection(MachineCase):
     def testSocket(self):
         m = self.machine
 
-        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+        if m.image not in ["rhel-7-6-distropkg"]:
             self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit()
 
-        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+        if m.image not in ["rhel-7-6-distropkg"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
@@ -200,7 +197,7 @@ class TestConnection(MachineCase):
         m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+        if m.image not in ["rhel-7-6-distropkg"]:
             self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
             self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
@@ -208,7 +205,7 @@ class TestConnection(MachineCase):
         m.start_cockpit(tls=True)
 
         # cockpit-ws from base package
-        if not m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
+        if m.image not in ["rhel-7-6-distropkg"]:
             self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
             self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
             self.assertIn("443", m.execute("cat /etc/issue.d/cockpit.issue"))
@@ -278,7 +275,6 @@ class TestConnection(MachineCase):
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
-    @skipImage("Fixed in Cockpit 173", "rhel-7-5-distropkg")
     def testFlowControl(self):
         m = self.machine
         b = self.browser

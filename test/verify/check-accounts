@@ -23,7 +23,7 @@ import datetime
 import parent
 from testlib import *
 
-@skipImage("Don't run upstream tests against distro packages", "rhel-7-5-distropkg", "rhel-7-6-distropkg")
+@skipImage("Don't run upstream tests against distro packages", "rhel-7-6-distropkg")
 class TestAccounts(MachineCase):
     def testBasic(self):
         b = self.browser

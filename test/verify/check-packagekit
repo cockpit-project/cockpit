@@ -110,11 +110,10 @@ class TestUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/system")
-        if m.image != "rhel-7-5-distropkg":
-            # status on /system front page: no repos at all, thus no updates
-            self.wait_checking_updates()
-            b.wait_text("#system_information_updates_text", "System Up To Date")
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        # status on /system front page: no repos at all, thus no updates
+        self.wait_checking_updates()
+        b.wait_text("#system_information_updates_text", "System Up To Date")
+        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -151,20 +150,19 @@ class TestUpdates(PackageCase):
         self.check_nth_update(1, "chocolate", "2.0-2")
         self.check_nth_update(2, "vanilla", "1.0-2")
 
-        if m.image != "rhel-7-5-distropkg":
-            # updates are shown on system page
-            b.go("/system")
-            b.enter_page("/system")
-            self.wait_checking_updates()
-            # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-            if self.backend == "dnf":
-                b.wait_text("#system_information_updates_text", "Updates Available")
-            else:
-                b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-            self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
-            # should be a link, click on it to go to /updates
-            b.click("#system_information_updates_text a")
-            b.enter_page("/updates")
+        # updates are shown on system page
+        b.go("/system")
+        b.enter_page("/system")
+        self.wait_checking_updates()
+        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+        if self.backend == "dnf":
+            b.wait_text("#system_information_updates_text", "Updates Available")
+        else:
+            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+        # should be a link, click on it to go to /updates
+        b.click("#system_information_updates_text a")
+        b.enter_page("/updates")
 
         # old versions are still installed
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
@@ -220,13 +218,12 @@ class TestUpdates(PackageCase):
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
-        if m.image != "rhel-7-5-distropkg":
-            # system page has current state as well
-            b.go("/system")
-            b.enter_page("/system")
-            self.wait_checking_updates()
-            b.wait_text("#system_information_updates_text", "System Up To Date")
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        # system page has current state as well
+        b.go("/system")
+        b.enter_page("/system")
+        self.wait_checking_updates()
+        b.wait_text("#system_information_updates_text", "System Up To Date")
+        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
     @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-x")
     def testInfoSecurity(self):
@@ -309,26 +306,25 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.text(sel + " .listing-ct-body em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " .listing-ct-body a:first-of-type", "href"), "http://unicorn.example.com")
 
-        if m.image != "rhel-7-5-distropkg":
-            # updates are shown on system page
-            b.go("/system")
-            b.enter_page("/system")
-            self.wait_checking_updates()
-            if self.backend == 'dnf':
-                # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
-                b.wait_text("#system_information_updates_text", "Updates Available")
-                self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
-            elif self.backend == 'apt':
-                # PackageKit's deb backend always reports "normal"
-                b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-                self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
-            else:
-                b.wait_text("#system_information_updates_text", "Security Updates Available")
-                self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
+        # updates are shown on system page
+        b.go("/system")
+        b.enter_page("/system")
+        self.wait_checking_updates()
+        if self.backend == 'dnf':
+            # PackageKit's dnf backend mis-parses severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+            b.wait_text("#system_information_updates_text", "Updates Available")
+            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
+        elif self.backend == 'apt':
+            # PackageKit's deb backend always reports "normal"
+            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+            self.assertIn("bug", b.attr("#system_information_updates_icon", "class"))
+        else:
+            b.wait_text("#system_information_updates_text", "Security Updates Available")
+            self.assertIn("security", b.attr("#system_information_updates_icon", "class"))
 
-            # should be a link, click on it to go to back to /updates
-            b.click("#system_information_updates_text a")
-            b.enter_page("/updates")
+        # should be a link, click on it to go to back to /updates
+        b.click("#system_information_updates_text a")
+        b.enter_page("/updates")
 
         # install only security updates
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
@@ -661,13 +657,12 @@ class TestUpdates(PackageCase):
         b.wait_present("#app pre")
         b.wait_in_text("#app pre", "PackageKit is not installed")
 
-        if m.image != "rhel-7-5-distropkg":
-            # update status on front page should be invisible
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_present("#system_information_updates_text")
-            b.wait_not_visible("#system_information_updates_text")
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        # update status on front page should be invisible
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_present("#system_information_updates_text")
+        b.wait_not_visible("#system_information_updates_text")
+        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
@@ -715,11 +710,10 @@ class TestUpdatesSubscriptions(PackageCase):
         # fresh machine, no updates available; by default our rhel-* images are not registered
         m.start_cockpit()
         b.login_and_go("/system")
-        if m.image != "rhel-7-5-distropkg":
-            # show unregistered status on system front page
-            b.wait_present("#system_information_updates_text")
-            b.wait_in_text("#system_information_updates_text", "Not Registered")
-            self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        # show unregistered status on system front page
+        b.wait_present("#system_information_updates_text")
+        b.wait_in_text("#system_information_updates_text", "Not Registered")
+        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
 
         # and also on software updates page
         b.go("/updates")
@@ -746,13 +740,12 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present(".container-fluid div.blank-slate-pf")
         b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
 
-        if m.image != "rhel-7-5-distropkg":
-            # same on system page
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_present("#system_information_updates_text")
-            b.wait_text("#system_information_updates_text", "System Up To Date")
-            self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+        # same on system page
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_present("#system_information_updates_text")
+        b.wait_text("#system_information_updates_text", "System Up To Date")
+        self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
     @skipImage("HACK: subscription-manager cockpit needs to be installed and fixed on rhel-x", "rhel-x")
     def testAvailableUpdates(self):
@@ -767,14 +760,13 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
 
         b.login_and_go("/system")
-        if m.image != "rhel-7-5-distropkg":
-            # by default our rhel-* images are not registered; show warning on system page
-            b.wait_present("#system_information_updates_text")
-            b.wait_in_text("#system_information_updates_text", "Not Registered")
-            self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
-            # should be a link leading to subscriptions page
-            b.click("#system_information_updates_text a")
-            b.enter_page("/subscriptions")
+        # by default our rhel-* images are not registered; show warning on system page
+        b.wait_present("#system_information_updates_text")
+        b.wait_in_text("#system_information_updates_text", "Not Registered")
+        self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
+        # should be a link leading to subscriptions page
+        b.click("#system_information_updates_text a")
+        b.enter_page("/subscriptions")
 
         # /updates should show available update and unregistered warning, but no other action buttons
         b.go("/updates")
@@ -812,13 +804,12 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present("#app .container-fluid button")
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
 
-        if m.image != "rhel-7-5-distropkg":
-            # show available updates on system page too
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_present("#system_information_updates_text")
-            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
-            self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
+        # show available updates on system page too
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_present("#system_information_updates_text")
+        b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+        self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
@@ -1059,7 +1050,7 @@ class TestAutoUpdates(PackageCase):
             self.assertFalse(b.is_present('#automatic'))
 
     @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing",
-               "ubuntu-1804", "ubuntu-stable", "rhel-7-5", "rhel-7-5-distropkg", "rhel-7-6", "rhel-7-6-distropkg")
+               "ubuntu-1804", "ubuntu-stable", "rhel-7-6", "rhel-7-6-distropkg")
     def testInstall(self):
         b = self.browser
         m = self.machine

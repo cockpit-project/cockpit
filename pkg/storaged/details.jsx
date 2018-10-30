@@ -152,8 +152,12 @@ export function init(client) {
     var page = document.getElementById("storage-detail");
 
     function show(type, name, name2) {
-        ReactDOM.render(<Details client={client} type={type} name={name} name2={name2} />, page);
+        // We show the page before rendering anything so that no
+        // React component is instantiated while it is still
+        // invisible.  Some don't like that, like the Patternfly
+        // Switch.
         page.style.display = "block";
+        ReactDOM.render(<Details client={client} type={type} name={name} name2={name2} />, page);
     }
 
     function hide() {

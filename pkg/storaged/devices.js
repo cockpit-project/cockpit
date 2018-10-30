@@ -48,6 +48,13 @@
         function navigate() {
             var path = cockpit.location.path;
 
+            // We show the body before rendering anything so that no
+            // React component is instantiated while it is still
+            // invisible.  Some don't like that, like the Patternfly
+            // Switch.
+
+            $("body").show();
+
             if (path.length === 0) {
                 details_page.hide();
                 overview_page.show();
@@ -70,7 +77,6 @@
                 console.warn("not a storage location: " + path);
                 cockpit.location = '';
             }
-            $("body").show();
         }
 
         client.init(function () {

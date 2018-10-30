@@ -152,8 +152,12 @@ export function init(client, jobs) {
     var page = document.getElementById("storage");
 
     function show() {
-        ReactDOM.render(<Overview client={client} jobs={jobs} />, page);
+        // We show the page before rendering anything so that no
+        // React component is instantiated while it is still
+        // invisible.  Some don't like that, like the Patternfly
+        // Switch.
         page.style.display = "block";
+        ReactDOM.render(<Overview client={client} jobs={jobs} />, page);
     }
 
     function hide() {

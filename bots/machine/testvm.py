@@ -812,6 +812,7 @@ TEST_DOMAIN_XML="""
     <rng model='virtio'>
       <backend model='random'>/dev/urandom</backend>
     </rng>
+    {bridgedev}
   </devices>
   <qemu:commandline>
     {ethernet}
@@ -844,10 +845,11 @@ TEST_MCAST_XML="""
 """
 
 TEST_BRIDGE_XML="""
-    <qemu:arg value='-netdev'/>
-    <qemu:arg value='bridge,br={bridge},id=bridge0'/>
-    <qemu:arg value='-device'/>
-    <qemu:arg value='rtl8139,netdev=bridge0,mac={mac},bus=pci.0,addr=0x0f'/>
+    <interface type="bridge">
+      <source bridge="{bridge}"/>
+      <mac address="{mac}"/>
+      <model type="rtl8139"/>
+    </interface>
 """
 
 # Used to access SSH from the main host into the virtual machines
@@ -943,12 +945,15 @@ class VirtNetwork:
 
         if isolate:
             result["bridge"] = ""
+            result["bridgedev"] = ""
             result["ethernet"] = ""
         elif self.bridge:
             result["bridge"] = self.bridge
-            result["ethernet"] = TEST_BRIDGE_XML.format(**result)
+            result["bridgedev"] = TEST_BRIDGE_XML.format(**result)
+            result["ethernet"] = ""
         else:
             result["bridge"] = ""
+            result["bridgedev"] = ""
             result["ethernet"] = TEST_MCAST_XML.format(**result)
         result["forwards"] = ",".join(forwards)
         result["redir"] = TEST_REDIR_XML.format(**result)

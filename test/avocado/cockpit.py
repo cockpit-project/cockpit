@@ -21,8 +21,9 @@ import os
 import re
 import subprocess
 import shutil
-
 from avocado.utils import process
+
+import parent
 from testlib import Browser
 
 class Cockpit():

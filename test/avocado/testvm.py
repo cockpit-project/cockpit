@@ -1,1 +1,0 @@
-../../bots/machine/testvm.py

@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """ SETUP tasks
 
 # workaround for RHEL7
@@ -35,6 +34,9 @@ import time
 from avocado import Test
 from timeoutlib import Retry
 
+import parent
+from machine_core import ssh_connection
+
 user = "test"
 passwd = "superhardpasswordtest5554"
 
@@ -61,6 +63,11 @@ class SeleniumTest(Test):
         network_port = int(os.environ.get("PORT", "9090"))
         url_base = os.environ.get("URL_BASE", "http")
         local_testing = os.environ.get("LOCAL", "no")  # use "yes" to test via local browsers
+        identity_file = os.environ.get("SSH_IDENTITY")
+        self.guest_machine = ssh_connection.SSHConnection(user=user,
+                                                       address=guest_machine,
+                                                       ssh_port=22,
+                                                       identity_file=identity_file)
         if browser == 'edge':
             browser = 'MicrosoftEdge'
         # allow_localhost testing
@@ -97,7 +104,6 @@ class SeleniumTest(Test):
             self.driver.get('%s://%s:%s' % (url_base, guest_machine, network_port))
 
         connectwebpage()
-
         # if self.error evaluates to True when a test finishes,
         # an error is raised and a screenshot generated
         self.error = True
@@ -137,6 +143,9 @@ class SeleniumTest(Test):
                         self.log.info("      {0}".format(line))
         except WebDriverException as e:
             self.log.info("ERR: Unable to get logs: " + e.msg)
+
+    def execute(self, *args, **kwargs):
+        self.guest_machine.execute(*args, **kwargs)
 
     def everything_loaded(self, element):
         """

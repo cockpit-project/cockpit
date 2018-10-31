@@ -245,30 +245,30 @@
         </div>
     </div>
 
-    <div id="cpu_status" hidden>
-        <div id="cpu_status_title">Yo!</div>
+    <div class="server-graph-container" id="cpu_status" hidden>
+        <div class="server-graph-title" id="cpu_status_title">&nbsp;</div>
         <ul class="server-graph-legend">
-            <li class="cpu-io-wait">
+            <li class="cpu-nice">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">I/O Wait</span>
-            </li>
-            <li class="cpu-kernel">
-                <i class="fa fa-square"></i>
-                <span translatable="yes">Kernel</span>
+                <span translatable="yes">Nice</span>
             </li>
             <li class="cpu-user">
                 <i class="fa fa-square"></i>
                 <span translatable="yes">User</span>
             </li>
-            <li class="cpu-nice">
+            <li class="cpu-kernel">
                 <i class="fa fa-square"></i>
-                <span translatable="yes">Nice</span>
+                <span translatable="yes">Kernel</span>
+            </li>
+            <li class="cpu-io-wait">
+                <i class="fa fa-square"></i>
+                <span translatable="yes">I/O Wait</span>
             </li>
         </ul>
-        <div id="cpu_status_graph"></div>
+        <div class="server-graph-graph" id="cpu_status_graph"></div>
     </div>
 
-    <div id="memory_status" hidden>
+    <div class="server-graph-container" id="memory_status" hidden>
         <ul class="server-graph-legend">
             <li class="memory-swap">
                 <i class="fa fa-square"></i>
@@ -283,7 +283,7 @@
                 <span translatable="yes">Used</span>
             </li>
         </ul>
-        <div id="memory_status_graph"></div>
+        <div class="server-graph-graph" id="memory_status_graph"></div>
     </div>
 
     <div class="modal" id="system_information_ssh_keys" tabindex="-1"

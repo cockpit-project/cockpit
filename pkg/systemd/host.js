@@ -1448,7 +1448,7 @@ PageCpuStatus.prototype = {
 
         var options = {
             series: {shadowSize: 0,
-                     lines: {lineWidth: 0, fill: true}
+                     lines: {lineWidth: 0, fill: 1}
                     },
             yaxis: {min: 0,
                     max: n_cpus * 1000,
@@ -1472,10 +1472,10 @@ PageCpuStatus.prototype = {
         ];
 
         var series = [
-            { color: "#e41a1c", label: _("I/O Wait") },
-            { color: "#ff7f00", label: _("Kernel") },
-            { color: "#377eb8", label: _("User") },
-            { color: "#4daf4a", label: _("Nice") },
+            { color: "#cc0000", label: _("I/O Wait") },
+            { color: "#f5c12e", label: _("Kernel") },
+            { color: "#8461f7", label: _("User") },
+            { color: "#6eb664", label: _("Nice") },
         ];
 
         self.channel = cockpit.metrics(1000, {
@@ -1543,7 +1543,7 @@ PageMemoryStatus.prototype = {
             var options = {
                 series: {
                     shadowSize: 0, // drawing is faster without shadows
-                    lines: {lineWidth: 0.0, fill: true}
+                    lines: {lineWidth: 0.0, fill: 1}
                 },
                 yaxis: {
                     min: 0,
@@ -1569,7 +1569,7 @@ PageMemoryStatus.prototype = {
             ];
             var series = [
                 { color: "#0088ce", label: _("Used") },
-                { color: "#ff7f00", label: _("Cached") },
+                { color: "#e4f5bc", label: _("Cached") },
             ];
 
             if (info.swap) {

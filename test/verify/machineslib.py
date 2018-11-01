@@ -876,11 +876,11 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete".format(name))
 
-        b.wait_present("#cockpit_modal_dialog")
-        b.wait_present("#cockpit_modal_dialog div:contains(The VM is running)")
-        b.wait_present("#cockpit_modal_dialog tr:contains({0})".format(img2))
-        b.click("#cockpit_modal_dialog button:contains(Delete)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.wait_present("#vm-{0}-delete-modal-dialog".format(name))
+        b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
+        b.wait_present("#vm-{1}-delete-modal-dialog tr:contains({0})".format(img2, name))
+        b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
+        b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 
         b.wait_not_present("#vm-{0}-row".format(name))
 
@@ -1477,9 +1477,9 @@ class TestMachines(MachineCase):
 
             b.wait_present(vm_delete_button)
             b.click(vm_delete_button)
-            b.wait_present("#cockpit_modal_dialog")
-            b.click("#cockpit_modal_dialog button:contains(Delete)")
-            b.wait_not_present("#cockpit_modal_dialog")
+            b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
+            b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
+            b.wait_not_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.wait_not_present("vm-{0}-row".format(dialog.name))
 
             return self

@@ -546,8 +546,8 @@ class TestMachines(MachineCase):
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "qcow2") # and switch it back
         # keep "Attach permanently" un-checked (by default)
         b.wait_in_text("#vm-subVmTest1-state", "running") # re-check
-        b.click(".modal-footer button:contains(Add)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
+        b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vde-target") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vde-target", "vde")
         b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
@@ -562,8 +562,8 @@ class TestMachines(MachineCase):
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vda")
         self._setVal("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
         self._setVal("#vm-subVmTest1-disks-adddisk-new-size", 2) # keep GiB and qcow2 format
-        b.click(".modal-footer button:contains(Add)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
+        b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vda-target") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vda-target", "vda")
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
@@ -576,8 +576,8 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)") # since both disks are already attached
-        b.click(".modal-footer button:contains(Cancel)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
+        b.wait_not_present("#add-disk-dialog")
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
@@ -588,8 +588,8 @@ class TestMachines(MachineCase):
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_permanent")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdd")
-        b.click(".modal-footer button:contains(Add)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
+        b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vdd-target") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdd-target", "vdd")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
@@ -620,8 +620,8 @@ class TestMachines(MachineCase):
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdc")
-        b.click(".modal-footer button:contains(Add)")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
+        b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vdc-target") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdc-target", "vdc")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")

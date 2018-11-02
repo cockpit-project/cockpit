@@ -21,11 +21,12 @@ import PropTypes from 'prop-types';
 
 import HostVmsList from "./hostvmslist.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
-import { createVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
+import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 
 const App = ({ store }) => {
     const { vms, config, storagePools, systemInfo, ui, networks } = store.getState();
     const dispatch = store.dispatch;
+    const createVmAction = (<CreateVmAction dispatch={dispatch} systemInfo={systemInfo} />);
 
     if (systemInfo.libvirtService.activeState !== 'running') {
         return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
@@ -38,7 +39,7 @@ const App = ({ store }) => {
         storagePools={storagePools}
         dispatch={dispatch}
         networks={networks}
-        actions={createVmAction({ dispatch, systemInfo })} />);
+        actions={createVmAction} />);
 };
 App.propTypes = {
     store: PropTypes.object.isRequired,

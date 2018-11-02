@@ -1185,7 +1185,7 @@ class TestMachines(MachineCase):
 
             b.wait_present("#create-new-vm")
             b.click("#create-new-vm")
-            b.wait_present("#cockpit_modal_dialog")
+            b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
             if self.os_name != TestMachines.TestCreateConfig.OTHER_OS and self.os_vendor != TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR:
@@ -1288,9 +1288,9 @@ class TestMachines(MachineCase):
 
         def cancel(self, force=False):
             b = self.browser
-            if b.is_present("#cockpit_modal_dialog"):
+            if b.is_present("#create-vm-dialog"):
                 b.click(".modal-footer button:contains(Cancel)")
-                b.wait_not_present("#cockpit_modal_dialog")
+                b.wait_not_present("#create-vm-dialog")
             elif force:
                 raise Exception("There is no dialog to cancel")
             return self
@@ -1302,7 +1302,7 @@ class TestMachines(MachineCase):
             second_state = "running" if self.start_vm else "shut off"
 
             TestMachines.CreateVmRunner.assertVmStates(self, self.name, None, init_state, second_state)
-            b.wait_not_present("#cockpit_modal_dialog")
+            b.wait_not_present("#create-vm-dialog")
             return self
 
         def createAndExpectError(self, errors, ui_validation):
@@ -1345,7 +1345,7 @@ class TestMachines(MachineCase):
 
                     # dialog can complete if the error was not returned immediately
                 except Exception as x1:
-                    if b.is_present("#cockpit_modal_dialog"):
+                    if b.is_present("#create-vm-dialog"):
                         # allow CPU errors in the dialog
                         allowBugErrors(error_location, x1)
                     else:

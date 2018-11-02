@@ -19,8 +19,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Alert, Button, Modal } from 'patternfly-react';
+
 import cockpit from 'cockpit';
-import DialogPattern from 'cockpit-components-dialog.jsx';
 import * as Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.es6';
@@ -30,7 +31,6 @@ import {
     convertToUnit,
     timeoutedPromise,
     units,
-    mouseClick,
 } from "../../helpers.es6";
 
 import {
@@ -399,78 +399,133 @@ function validateParams(vmParams) {
     }
 }
 
-export const createVmDialog = (dispatch, osInfoList, loggedUser) => {
-    const vmParams = {
-        'vmName': '',
-        'connection': LIBVIRT_SYSTEM_CONNECTION,
-        "sourceType": COCKPIT_FILESYSTEM_SOURCE,
-        'source': '',
-        'vendor': NOT_SPECIFIED,
-        "os": OTHER_OS_SHORT_ID,
-        'memorySize': 1024, // MiB
-        'storageSize': 10, // GiB
-        'startVm': false,
-        'error': null,
-    };
+class CreateVmModal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            'inProgress': false,
+            'vmName': '',
+            'connection': LIBVIRT_SYSTEM_CONNECTION,
+            "sourceType": COCKPIT_FILESYSTEM_SOURCE,
+            'source': '',
+            'vendor': NOT_SPECIFIED,
+            "os": OTHER_OS_SHORT_ID,
+            'memorySize': 1024, // MiB
+            'storageSize': 10, // GiB
+            'startVm': false,
+            'error': null,
+        };
+        this.onValueChanged = this.onValueChanged.bind(this);
+        this.onCreateClicked = this.onCreateClicked.bind(this);
+        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
+    }
 
-    const changeParams = (key, value) => {
-        vmParams[key] = value;
-    };
+    onValueChanged(key, value) {
+        const stateDelta = { [key]: value };
+        this.setState(stateDelta);
+    }
 
-    const vendors = prepareVendors(osInfoList);
+    dialogErrorDismiss() {
+        this.setState({ dialogError: undefined });
+    }
 
-    const dialogBody = (
-        <CreateVM vmParams={vmParams}
-                  familyList={vendors.familyList}
-                  familyMap={vendors.familyMap}
-                  vendorMap={vendors.vendorMap}
-                  valuesChanged={changeParams}
-                  loggedUser={loggedUser} />
-    );
+    onCreateClicked() {
+        const { dispatch } = this.props;
+        const vmParams = this.state;
+        const error = validateParams(vmParams);
 
-    const dialogProps = {
-        'title': _("Create New Virtual Machine"),
-        'body': dialogBody,
-    };
+        if (error) {
+            this.setState({ inProgress: false, dialogError: error });
+        } else {
+            // leave dialog open to show immediate errors from the backend
+            // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
+            // then show errors in the notification area
+            this.setState({ inProgress: true });
+            return timeoutedPromise(
+                dispatch(createVm(vmParams)),
+                VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
+                () => this.props.close(),
+                (exception) => {
+                    dispatch(addErrorNotification({
+                        message: cockpit.format(_("Creation of vm $0 failed"), vmParams.vmName),
+                        description: exception,
+                    }));
+                    this.props.close();
+                });
+        }
+    }
 
-    // also test modifying properties in subsequent render calls
-    const footerProps = {
-        'actions': [
-            {
-                'clicked': () => {
-                    const error = validateParams(vmParams);
-                    if (error) {
-                        return cockpit.defer().reject(error).promise;
-                    } else {
-                        // leave dialog open to show immediate errors from the backend
-                        // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
-                        // then show errors in the notification area
-                        return timeoutedPromise(
-                            dispatch(createVm(vmParams)),
-                            VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
-                            null,
-                            (exception) => {
-                                dispatch(addErrorNotification({
-                                    message: cockpit.format(_("Creation of vm $0 failed"), vmParams.vmName),
-                                    description: exception,
-                                }));
-                            });
-                    }
-                },
-                'caption': _("Create"),
-                'style': 'primary',
-            },
-        ],
-    };
+    render() {
+        const { osInfoList, loggedUser } = this.props;
+        const vendors = prepareVendors(osInfoList);
+        const vmParams = this.state;
+        const dialogBody = (
+            <CreateVM vmParams={vmParams}
+                familyList={vendors.familyList}
+                familyMap={vendors.familyMap}
+                vendorMap={vendors.vendorMap}
+                valuesChanged={this.onValueChanged}
+                loggedUser={loggedUser} />
+        );
 
-    DialogPattern.show_modal_dialog(dialogProps, footerProps);
-};
+        return (
+            <Modal id='create-vm-dialog' show onHide={ this.props.close }>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={ this.props.close } />
+                    <Modal.Title> {`Create New Virtual Machine`} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {dialogBody}
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.dialogError && (<Alert onDismiss={this.dialogErrorDismiss}> {this.state.dialogError} </Alert>)}
+                    {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
+                    <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
+                        {_("Cancel")}
+                    </Button>
+                    <Button bsStyle='primary' onClick={this.onCreateClicked}>
+                        {_("Create")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+}
 
-export function createVmAction({ dispatch, systemInfo }) {
-    return (
-        <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-            onClick={mouseClick(() => createVmDialog(dispatch, systemInfo.osInfoList, systemInfo.loggedUser))}>
-            <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
-        </a>
-    );
+export class CreateVmAction extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { showModal: false };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    // That will stop any state setting on unmounted/unmounting components
+    componentWillUnmount() {
+        this.isClosed = true;
+    }
+
+    close() {
+        !this.isClosed && this.setState({ showModal: false });
+    }
+
+    open() {
+        !this.isClosed && this.setState({ showModal: true });
+    }
+
+    render() {
+        return (
+            <div>
+                <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
+                    onClick={this.open}>
+                    <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
+                </a>
+                { this.state.showModal &&
+                <CreateVmModal
+                    close={this.close} dispatch={this.props.dispatch}
+                    osInfoList={this.props.systemInfo.osInfoList}
+                    loggedUser={this.props.systemInfo.loggedUser} /> }
+            </div>
+        );
+    }
 }

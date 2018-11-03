@@ -719,8 +719,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#threadsSelect button", "2")
 
         # Save
-        b.click(".apply")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#machines-vcpu-modal-dialog-apply")
+        b.wait_not_present("#machines-vcpu-modal-dialog")
 
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-off-caret")
@@ -754,8 +754,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#coresSelect button", "1")
         b.wait_in_text("#threadsSelect button", "2")
 
-        b.click(".cancel")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#machines-vcpu-modal-dialog-cancel")
+        b.wait_not_present("#machines-vcpu-modal-dialog")
 
         # Shut off VM
         b.click("#vm-subVmTest1-off-caret")
@@ -781,8 +781,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#threadsSelect button", "1")
 
         # Save
-        b.click(".apply")
-        b.wait_not_present("#cockpit_modal_dialog")
+        b.click("#machines-vcpu-modal-dialog-apply")
+        b.wait_not_present("#machines-vcpu-modal-dialog")
 
         wait(lambda: m.execute("virsh dumpxml subVmTest1 | tee /tmp/subVmTest1.xml | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
 

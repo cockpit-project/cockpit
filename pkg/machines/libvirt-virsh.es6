@@ -50,8 +50,6 @@ import {
     logDebug,
 } from './helpers.es6';
 
-import VCPUModal from './components/vcpuModal.jsx';
-
 import {
     buildFailHandler,
     canConsole,
@@ -123,8 +121,6 @@ LIBVIRT_PROVIDER = {
         // The method is here for reference only.
         return true; // or Promise
     },
-
-    openVCPUModal: (params) => VCPUModal(params),
 
     /* Start of common provider functions */
     canConsole,

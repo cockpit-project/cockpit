@@ -22,6 +22,7 @@ import cockpit from 'cockpit';
 
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
+import { VCPUModal } from './vcpuModal.jsx';
 
 import { rephraseUI, vmId } from "../helpers.es6";
 
@@ -36,38 +37,50 @@ function getBootOrder(vm) {
     return bootOrder;
 }
 
-const VmOverviewTabLibvirt = ({ vm, config, dispatch }) => {
-    const idPrefix = vmId(vm.name);
-    const currentTab = 'overview';
-    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
+class VmOverviewTabLibvirt extends React.Component {
+    constructor(props) {
+        super(props);
 
-    const handleOpenModal = function () {
-        config.provider.openVCPUModal(
-            {
-                vm,
-                dispatch,
-                config,
-            },
-            config.providerState
+        this.state = { showModal: false };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    close() {
+        this.setState({ showModal: false });
+    }
+
+    open() {
+        this.setState({ showModal: true });
+    }
+
+    render() {
+        const { vm, dispatch, config } = this.props;
+        const idPrefix = vmId(vm.name);
+        const currentTab = 'overview';
+        const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
+        const memoryLink = (<a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.open}>{vm.vcpus.count}</a>);
+
+        let items = [
+            { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },
+            { title: _("Emulated Machine:"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
+            { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
+            { title: _("Boot Order:"), value: getBootOrder(vm), idPostfix: 'bootorder' },
+            { title: _("CPU Type:"), value: vm.cpu.model, idPostfix: 'cputype' },
+            { title: _("Autostart:"), value: rephraseUI('autostart', vm.autostart), idPostfix: 'autostart' },
+        ];
+
+        return (
+            <div>
+                <VmOverviewTab message={message}
+                    idPrefix={idPrefix}
+                    items={items}
+                    extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />
+                { this.state.showModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
+            </div>
         );
-    };
-
-    const memoryLink = (<a id={`${vmId(vm.name)}-vcpus-count`} data-toggle="modal" data-target={`${vmId(vm.name)}-vcpu-modal`} onClick={handleOpenModal}>{vm.vcpus.count}</a>);
-
-    let items = [
-        { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },
-        { title: _("Emulated Machine:"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
-        { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
-        { title: _("Boot Order:"), value: getBootOrder(vm), idPostfix: 'bootorder' },
-        { title: _("CPU Type:"), value: vm.cpu.model, idPostfix: 'cputype' },
-        { title: _("Autostart:"), value: rephraseUI('autostart', vm.autostart), idPostfix: 'autostart' },
-    ];
-
-    return (<VmOverviewTab message={message}
-                           idPrefix={idPrefix}
-                           items={items}
-                           extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />);
-};
+    }
+}
 
 VmOverviewTabLibvirt.propTypes = {
     vm: PropTypes.object.isRequired,

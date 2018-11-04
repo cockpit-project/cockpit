@@ -486,7 +486,7 @@ test_content_encoding (TestCase *tc,
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_SENT);
 
   g_assert_cmpstr (resp, ==, "HTTP/1.1 200 OK\r\nContent-Encoding: blah\r\n"
-                   "Content-Length: 50\r\nTransfer-Encoding: chunked\r\n"
+                   "Transfer-Encoding: chunked\r\n"
                    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
                    "26\r\nCockpit is perfect for new sysadmins, \r\n0\r\n\r\n");
 }
@@ -544,7 +544,7 @@ test_pressure (TestCase *tc,
   g_signal_connect (tc->response, "pressure", G_CALLBACK (on_pressure_set_throttle), &throttle);
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_READY);
 
-  cockpit_web_response_headers (tc->response, 200, "OK", 11, NULL);
+  cockpit_web_response_headers (tc->response, 200, "OK", -1, NULL);
 
   g_assert_cmpint (cockpit_web_response_get_state (tc->response), ==, COCKPIT_WEB_RESPONSE_QUEUING);
 

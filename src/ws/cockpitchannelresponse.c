@@ -175,8 +175,10 @@ cockpit_channel_response_finalize (GObject *object)
 static gboolean
 ensure_headers (CockpitChannelResponse *self,
                 guint status,
-                const gchar *reason)
+                const gchar *reason,
+                gsize length)
 {
+
   if (cockpit_web_response_get_state (self->response) == COCKPIT_WEB_RESPONSE_READY)
     {
       if (self->inject && self->inject->service)
@@ -185,7 +187,7 @@ ensure_headers (CockpitChannelResponse *self,
           cockpit_channel_inject_perform (self->inject, self->response,
                                           cockpit_channel_get_transport (COCKPIT_CHANNEL (self)));
         }
-      cockpit_web_response_headers_full (self->response, status, reason, -1, self->headers);
+      cockpit_web_response_headers_full (self->response, status, reason, length, self->headers);
       return TRUE;
     }
 
@@ -207,7 +209,7 @@ cockpit_channel_response_close (CockpitChannel *channel,
       /* Closed without any data */
       if (state == COCKPIT_WEB_RESPONSE_READY)
         {
-          ensure_headers (self, 204, "OK");
+          ensure_headers (self, 204, "OK", 0);
           cockpit_web_response_complete (self->response);
           g_debug ("%s: no content in external channel", self->logname);
         }
@@ -286,8 +288,10 @@ static gboolean
 parse_httpstream_response (CockpitChannelResponse *self,
                            JsonObject *object,
                            gint64 *status,
-                           const gchar **reason)
+                           const gchar **reason,
+                           gssize *length)
 {
+  const gchar *content_length = NULL;
   JsonNode *node;
 
   if (!cockpit_json_get_int (object, "status", 200, status) ||
@@ -308,6 +312,22 @@ parse_httpstream_response (CockpitChannelResponse *self,
       json_object_foreach_member (json_node_get_object (node), object_to_headers, self->headers);
     }
 
+
+  /* Default to unknown length */
+  *length = -1;
+
+  content_length = g_hash_table_lookup (self->headers, "Content-Length");
+  if (content_length)
+    {
+      gchar *endptr = NULL;
+      gint64 result = g_ascii_strtoll (content_length, &endptr, 10);
+      if (result > 0 && result <= G_MAXSIZE && endptr && *endptr == '\0')
+        *length = (gssize)result;
+
+      /* We don't relay Content-Length directly, but expect CockpitWebResponse to set it again */
+      g_hash_table_remove (self->headers, "Content-Length");
+    }
+
   return TRUE;
 }
 
@@ -319,6 +339,7 @@ process_httpstream1_recv (CockpitChannelResponse *self,
   JsonObject *object;
   gint64 status;
   const gchar *reason;
+  gssize length;
 
   g_return_if_fail (cockpit_web_response_get_state (self->response) == COCKPIT_WEB_RESPONSE_READY);
 
@@ -331,9 +352,9 @@ process_httpstream1_recv (CockpitChannelResponse *self,
       return;
     }
 
-  if (parse_httpstream_response (self, object, &status, &reason))
+  if (parse_httpstream_response (self, object, &status, &reason, &length))
     {
-      if (!ensure_headers (self, status, reason))
+      if (!ensure_headers (self, status, reason, length))
         g_return_if_reached ();
     }
   else
@@ -358,7 +379,7 @@ cockpit_channel_response_recv (CockpitChannel *channel,
       return;
     }
 
-  ensure_headers (self, 200, "OK");
+  ensure_headers (self, 200, "OK", -1);
   cockpit_web_response_queue (self->response, payload);
 }
 
@@ -370,14 +391,15 @@ cockpit_channel_response_control (CockpitChannel *channel,
   CockpitChannelResponse *self = COCKPIT_CHANNEL_RESPONSE (channel);
   gint64 status;
   const gchar *reason;
+  gssize length;
 
   if (self->http_stream2)
     {
       if (g_str_equal (command, "response"))
         {
-          if (parse_httpstream_response (self, options, &status, &reason))
+          if (parse_httpstream_response (self, options, &status, &reason, &length))
             {
-              if (!ensure_headers (self, status, reason))
+              if (!ensure_headers (self, status, reason, length))
                 g_return_val_if_reached (FALSE);
             }
           else
@@ -390,7 +412,7 @@ cockpit_channel_response_control (CockpitChannel *channel,
 
   if (g_str_equal (command, "done"))
     {
-      ensure_headers (self, 200, "OK");
+      ensure_headers (self, 200, "OK", 0);
       cockpit_web_response_complete (self->response);
       return TRUE;
     }

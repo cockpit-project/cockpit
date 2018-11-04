@@ -75,6 +75,7 @@ struct _CockpitWebResponse {
   GPollableOutputStream *out;
   GQueue *queue;
   gsize out_queued;
+  gsize out_queueable;
   gsize partial_offset;
   GSource *source;
 
@@ -107,6 +108,7 @@ static void
 cockpit_web_response_init (CockpitWebResponse *self)
 {
   self->queue = g_queue_new ();
+  self->out_queueable = G_MAXSIZE;
   self->cache_type = COCKPIT_WEB_RESPONSE_CACHE_UNSET;
 }
 
@@ -517,6 +519,13 @@ queue_block (CockpitWebResponse *self,
   if (length == 0)
     return;
 
+  if (self->out_queueable < length)
+    {
+      g_critical ("Too much data queuing in HTTP response. This is a programmer error.");
+      return;
+    }
+
+  self->out_queueable -= length;
   g_debug ("%s: queued %d bytes", self->logname, (int)length);
 
   if (!self->chunked)
@@ -773,8 +782,12 @@ append_header (GString *string,
     return HEADER_DNS_PREFETCH_CONTROL;
   if (g_ascii_strcasecmp ("Referrer-Policy", name) == 0)
     return HEADER_REFERRER_POLICY;
-  else if (g_ascii_strcasecmp ("Connection", name) == 0)
-    g_critical ("Don't set Connection header manually. This is a programmer error.");
+  if (g_ascii_strcasecmp ("Content-Length", name) == 0 ||
+      g_ascii_strcasecmp ("Transfer-Encoding", name) == 0 ||
+      g_ascii_strcasecmp ("Connection", name) == 0)
+    {
+      g_critical ("Don't set %s header manually. This is a programmer error.", name);
+    }
   return 0;
 }
 
@@ -837,9 +850,6 @@ finish_headers (CockpitWebResponse *self,
 
   if (status != 304)
     {
-      if (length >= 0 && !self->filters)
-        g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
-
       if (length < 0 || seen & HEADER_CONTENT_ENCODING || self->filters)
         {
           self->chunked = TRUE;
@@ -848,6 +858,15 @@ finish_headers (CockpitWebResponse *self,
       else
         {
           self->chunked = FALSE;
+          if (length >= 0)
+            {
+              g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+              self->out_queueable = length;
+            }
+          else
+            {
+              self->keep_alive = FALSE;
+            }
         }
     }
 

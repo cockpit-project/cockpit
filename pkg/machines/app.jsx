@@ -50,7 +50,7 @@ class App extends React.Component {
         return (
             <div>
                 { config.provider.name === 'LibvirtDBus' && this.state.activeTab == 1 &&
-                <AggregateStatusCards vms={vms} storagePools={storagePools} changeActiveList={this.changeActiveList} />
+                <AggregateStatusCards networks={networks} storagePools={storagePools} changeActiveList={this.changeActiveList} />
                 }
                 { this.state.activeTab == 1 && <HostVmsList vms={vms}
                     config={config}

@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { vmId } from '../helpers.es6';
-import AddDiskAction from './diskAdd.jsx';
+import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import DiskSourceCell from './vmDiskSourceCell.jsx';
 

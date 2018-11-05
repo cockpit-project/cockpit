@@ -125,7 +125,7 @@ Vm.propTypes = {
     onUsageStopPolling: PropTypes.func.isRequired,
     onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
-    networks: PropTypes.object.isRequired,
+    networks: PropTypes.array.isRequired,
 };
 
 export default Vm;

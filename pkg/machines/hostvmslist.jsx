@@ -126,7 +126,7 @@ HostVmsList.propTypes = {
     ui: PropTypes.object.isRequired,
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
-    networks: PropTypes.object.isRequired,
+    networks: PropTypes.array.isRequired,
 };
 
 export default HostVmsList;

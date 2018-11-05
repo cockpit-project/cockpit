@@ -34,12 +34,13 @@ import {
     ENABLE_LIBVIRT,
     FORCEOFF_VM,
     FORCEREBOOT_VM,
+    GET_ALL_NETWORKS,
     GET_ALL_STORAGE_POOLS,
     GET_ALL_VMS,
     GET_HYPERVISOR_MAX_VCPU,
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
-    GET_NETWORKS,
+    GET_NETWORK,
     GET_STORAGE_POOL,
     GET_STORAGE_VOLUMES,
     GET_VM,
@@ -113,6 +114,10 @@ export function forceVmOff(vm) {
     return virt(FORCEOFF_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
+export function getAllNetworks(connectionName) {
+    return virt(GET_ALL_NETWORKS, { connectionName });
+}
+
 export function getAllStoragePools(connectionName) {
     return virt(GET_ALL_STORAGE_POOLS, { connectionName });
 }
@@ -138,8 +143,8 @@ export function getOsInfoList() {
     return virt(GET_OS_INFO_LIST);
 }
 
-export function getNetworks(connectionName) {
-    return virt(GET_NETWORKS, { connectionName });
+export function getNetwork({ connectionName, id, name }) {
+    return virt(GET_NETWORK, { connectionName, id, name });
 }
 
 export function getStoragePool({ connectionName, id, name }) {

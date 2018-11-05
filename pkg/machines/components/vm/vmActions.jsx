@@ -25,7 +25,7 @@ import {
     mouseClick,
 } from "../../helpers.es6";
 
-import { deleteDialog } from "../deleteDialog.jsx";
+import { DeleteDialog } from "../deleteDialog.jsx";
 import DropdownButtons from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
@@ -94,10 +94,7 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
     let deleteAction = null;
     if (state !== undefined && config.provider.canDelete && config.provider.canDelete(state, vm.id, config.providerState)) {
         deleteAction = (
-            <button key='action-delete' className="btn btn-danger" id={`${id}-delete`}
-                    onClick={mouseClick(() => deleteDialog(vm, dispatch))}>
-                {_("Delete")}
-            </button>
+            <DeleteDialog key='action-delete' vm={vm} dispatch={dispatch} />
         );
     }
 

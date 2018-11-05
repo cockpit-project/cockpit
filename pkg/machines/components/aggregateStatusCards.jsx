@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {
     Card,
@@ -58,7 +59,30 @@ export class AggregateStatusCards extends React.Component {
                                         </AggregateStatusNotification>
                                         <AggregateStatusNotification>
                                             <Icon type='fa' name='arrow-circle-o-down' />
-                                            { this.props.vms.filter(pool => pool && !pool.active).length }
+                                            { this.props.storagePools.filter(pool => pool && !pool.active).length }
+                                        </AggregateStatusNotification>
+                                    </AggregateStatusNotifications>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                        <Col sm={6} md={6}>
+                            <Card accented aggregated>
+                                <CardTitle>
+                                    <Icon type='pf' name='network' />
+                                    <AggregateStatusCount>
+                                        { this.props.networks.length }
+                                    </AggregateStatusCount>
+                                    Networks
+                                </CardTitle>
+                                <CardBody>
+                                    <AggregateStatusNotifications>
+                                        <AggregateStatusNotification>
+                                            <Icon type='fa' name='arrow-circle-o-up' />
+                                            { this.props.networks.filter(network => network && network.active).length }
+                                        </AggregateStatusNotification>
+                                        <AggregateStatusNotification>
+                                            <Icon type='fa' name='arrow-circle-o-down' />
+                                            { this.props.networks.filter(network => network && !network.active).length }
                                         </AggregateStatusNotification>
                                     </AggregateStatusNotifications>
                                 </CardBody>
@@ -70,3 +94,8 @@ export class AggregateStatusCards extends React.Component {
         );
     }
 }
+AggregateStatusCards.propTypes = {
+    networks: PropTypes.array.isRequired,
+    storagePools: PropTypes.array.isRequired,
+    changeActiveList: PropTypes.func.isRequired,
+};

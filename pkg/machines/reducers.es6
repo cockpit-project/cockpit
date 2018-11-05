@@ -29,10 +29,10 @@ import {
     SET_PROVIDER,
     SET_LOGGED_IN_USER,
     UNDEFINE_VM,
+    UPDATE_ADD_NETWORK,
     UPDATE_ADD_VM,
     UPDATE_ADD_STORAGE_POOL,
     UPDATE_LIBVIRT_STATE,
-    UPDATE_NETWORKS,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -86,19 +86,26 @@ function lazyComposedReducer({ parentReducer, getSubreducer, getSubstate, setSub
 }
 
 function networks(state, action) {
-    state = state || { };
-    /* Example:
-    state = { "connectionNameA": [vnet0, vnet1],
-              "connectionNameB": [vnet2]
-       }
-    */
-    switch (action.type) {
-    case UPDATE_NETWORKS: {
-        const { connectionName, networks } = action.payload;
-        const newState = Object.assign({}, state);
+    state = state || [];
 
-        newState[connectionName] = networks;
-        return newState;
+    function replaceNetwork({ state, updatedNetwork, index }) {
+        return state.slice(0, index)
+                .concat(updatedNetwork)
+                .concat(state.slice(index + 1));
+    }
+
+    switch (action.type) {
+    case UPDATE_ADD_NETWORK: {
+        const { network } = action.payload;
+        const connectionName = network.connectionName;
+        const index = network.id ? getFirstIndexOfResource(state, 'id', network.id, connectionName)
+            : getFirstIndexOfResource(state, 'name', network.name, connectionName);
+        if (index < 0) { // add
+            return [...state, network];
+        }
+
+        const updatedNetwork = Object.assign({}, state[index], network);
+        return replaceNetwork({ state, updatedNetwork, index });
     }
     default:
         return state;

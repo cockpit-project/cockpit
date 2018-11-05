@@ -98,7 +98,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
 
     if (dialogValues.networkType == 'network')
-        availableNetworkSources = networks[connectionName];
+        availableNetworkSources = networks.map(network => network.name);
     if (availableNetworkSources.length > 0) {
         defaultNetworkSource = defaultNetworkSource == undefined ? availableNetworkSources[0] : defaultNetworkSource;
         networkSourcesContent = availableNetworkSources
@@ -233,13 +233,14 @@ export class EditNICAction extends React.Component {
 
     render() {
         const { idPrefix, vm, network, networks } = this.props;
+        const networksFiltered = networks.filter(network => network.connectionName == vm.connectionName);
         const defaultBody = (
             <Form horizontal>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
                                          network={network}
-                                         networks={networks}
+                                         networks={networksFiltered}
                                          connectionName={vm.connectionName}
                                          isRunning={vm.state == 'running'} />
                 <NetworkModelRow idPrefix={idPrefix}
@@ -302,7 +303,7 @@ EditNICAction.propTypes = {
     idPrefix: PropTypes.string.isRequired,
     vm: PropTypes.object.isRequired,
     network: PropTypes.object.isRequired,
-    networks: PropTypes.object.isRequired,
+    networks: PropTypes.array.isRequired,
 };
 
 export default EditNICAction;

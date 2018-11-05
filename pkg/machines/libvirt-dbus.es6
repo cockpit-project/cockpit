@@ -27,10 +27,11 @@ import {
     attachDisk,
     checkLibvirtStatus,
     delayPolling,
+    getAllNetworks,
     getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
-    getNetworks,
+    getNetwork,
     getStoragePool,
     getStorageVolumes,
     getVm,
@@ -39,7 +40,7 @@ import {
 import {
     deleteUnlistedVMs,
     undefineVm,
-    updateNetworks,
+    updateOrAddNetwork,
     updateOrAddVm,
     updateOrAddStoragePool,
     updateStorageVolumes,
@@ -393,6 +394,18 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    GET_ALL_NETWORKS({
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNetworks', [0], TIMEOUT)
+                    .then(objPaths => {
+                        return cockpit.all(objPaths[0].map((path) => dispatch(getNetwork({connectionName, id:path}))));
+                    })
+                    .fail(ex => console.warn('GET_ALL_NETWORKS action failed:', JSON.stringify(ex)));
+        };
+    },
+
     GET_ALL_STORAGE_POOLS({
         connectionName,
     }) {
@@ -420,7 +433,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 dbus_client(connectionName);
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 dispatch(getAllStoragePools(connectionName));
-                dispatch(getNetworks(connectionName));
+                dispatch(getAllNetworks(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 doGetAllVms(dispatch, connectionName);
             };
@@ -444,34 +457,31 @@ LIBVIRT_DBUS_PROVIDER = {
         return unknownConnectionName(setHypervisorMaxVCPU);
     },
 
-    /**
-     * Retrieves list of libvirt "networks" for particular connection.
+    /*
+     * Read properties of a single Network
+     *
+     * @param Network object path
      */
-    GET_NETWORKS({
-        connectionName
+    GET_NETWORK({
+        id: objPath,
+        connectionName,
     }) {
-        let flags = Enum.VIR_CONNECT_LIST_NETWORKS_ACTIVE;
-        return dispatch => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNetworks', [flags], TIMEOUT)
-                .done(objPaths => {
-                    let networks = [];
-                    let networksPropsPromises = [];
+        let props = {};
 
-                    logDebug(`GET_NETWORKS: object paths: ${JSON.stringify(objPaths)}`);
+        return dispatch => {
+            call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.Network'], TIMEOUT)
+                    .then((resultProps) => {
+                        props.active = resultProps[0].Active.v.v;
+                        props.persistent = resultProps[0].Persistent.v.v;
+                        props.autostart = resultProps[0].Autostart.v.v;
+                        props.name = resultProps[0].Name.v.v;
+                        props.id = objPath;
+                        props.connectionName = connectionName;
 
-                    for (let i = 0; i < objPaths[0].length; i++) {
-                        networksPropsPromises.push(call(connectionName, objPaths[0][i], "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.Network", "Name"], TIMEOUT));
-                    }
-                    Promise.all(networksPropsPromises).then(networkNames => {
-                        for (let i = 0; i < networkNames.length; i++) {
-                            networks.push(networkNames[i][0].v);
-                        }
-                        dispatch(updateNetworks({
-                            connectionName,
-                            networks,
-                        }));
-                    });
-                })
-                .fail(ex => console.error("ListNetworks failed:", JSON.stringify(ex)));
+                        dispatch(updateOrAddNetwork(Object.assign({}, props)));
+                    })
+                    .catch(ex => console.warn('GET_NETWORK action failed failed for path', objPath, ex));
+        };
     },
 
     /*

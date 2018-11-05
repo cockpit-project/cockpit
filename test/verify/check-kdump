@@ -41,6 +41,12 @@ class TestKdump(MachineCase):
             self.machine.execute("grub2-mkconfig -o /boot/grub2/grub.cfg")
         self.machine.execute("mkdir -p /var/crash")
 
+    def enableLocalSsh(self):
+        self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
+        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
+        self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
+
+
     def rebootMachine(self):
         # Now reboot things
         self.machine.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
@@ -92,25 +98,58 @@ class TestKdump(MachineCase):
         self.enableKdump()
         self.rebootMachine()
         self.browser.wait_visible("#app")
+        self.enableLocalSsh()
+
+        if self.machine.image not in ["rhel-7-6-distropkg"]:
+            # generate a valid kdump config with ssh target
+            settingsLink = "a:contains('locally in /var/crash')"
+            self.browser.wait_present(settingsLink)
+            self.browser.wait_visible(settingsLink)
+            self.browser.click(settingsLink, True)
+            self.browser.wait_present("#kdump-settings-location")
+            self.browser.click("#kdump-settings-location")
+            self.browser.wait_present("a:contains('Remote over SSH')")
+            self.browser.click("a:contains('Remote over SSH')")
+            sshInput = "#kdump-settings-ssh-server"
+            self.browser.wait_present(sshInput)
+            self.browser.wait_visible(sshInput)
+            self._type_val(sshInput, "root@localhost")
+            sshKeyInput = "#kdump-settings-ssh-key"
+            self.browser.wait_present(sshKeyInput)
+            self.browser.wait_visible(sshKeyInput)
+            self._type_val(sshKeyInput, "/root/.ssh/id_rsa")
+            pathInput = "#kdump-settings-local-directory"
+            self.browser.wait_present(pathInput)
+            self.browser.wait_visible(pathInput)
+            self._type_val(pathInput, "/var/crash")
+            self.browser.click("button.btn-primary:contains('Apply')")
+            self.browser.wait_not_present(pathInput)
 
         # we should have the amount of memory reserved that we indicated
         self.browser.wait_in_text("#app", "256 MiB")
         # service should start up properly and the button should be on
         self.browser.wait_in_text("#app", "Service is running")
         self.browser.wait_in_text(onOffSelectorActive, "On")
+        self.browser.wait_in_text("#app", "Service is running")
 
-        customPath = "/var/crash2"
         # try to change the path to a directory that doesn't exist
-        settingsLink = "a:contains('locally in /var/crash')"
+        customPath = "/var/crash2"
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
+        if self.machine.image in ["rhel-7-6-distropkg"]:
+            return
+        else:
+            settingsLink = "a:contains('Remote over SSH')"
         self.browser.wait_present(settingsLink)
         self.browser.wait_visible(settingsLink)
         self.browser.click(settingsLink, True)
+        self.browser.wait_present("#kdump-settings-location")
+        self.browser.click("#kdump-settings-location")
+        self.browser.wait_present("a:contains('Local Filesystem')")
+        self.browser.click("a:contains('Local Filesystem')")
         pathInput = "#kdump-settings-local-directory"
         self.browser.wait_present(pathInput)
         self.browser.wait_visible(pathInput)
         self._type_val(pathInput, customPath)
-        # make sure the backend is updated before we try hitting apply
-        self.browser.wait_attr(pathInput, "data-stored", customPath)
         self.browser.click("button.btn-primary:contains('Apply')")
         # we should get an error
         self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")

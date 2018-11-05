@@ -147,15 +147,20 @@ export class KdumpClient {
             if (target.target != "unknown")
                 target.multipleTargets = true;
             target.target = "nfs";
-            target.mount = settings.nfs;
+            target.nfs = settings.nfs;
             if ("path" in settings)
                 target.path = settings.path;
         } else if ("ssh" in settings) {
             if (target.target != "unknown")
                 target.multipleTargets = true;
+            target.target = "ssh";
+            target.ssh = settings.ssh;
+            target.sshkey = settings.sshkey;
         } else if ("raw" in settings) {
             if (target.target != "unknown")
                 target.multipleTargets = true;
+            target.target = "raw";
+            target.raw = settings.raw;
         } else {
             // probably local, but we might also have a mount
             // check all keys against known keys, the ones left over may be a mount target
@@ -164,7 +169,7 @@ export class KdumpClient {
                 if (!key || key in knownKeys || key in deprecatedKeys)
                     return;
                 // if we have a UUID, LABEL or /dev in the value, we can be pretty sure it's a mount option
-                var value = String(settings[key]).toLowerCase();
+                var value = JSON.stringify(settings[key]).toLowerCase();
                 if (value.indexOf("uuid") > -1 || value.indexOf("label") > -1 || value.indexOf("/dev") > -1) {
                     if (target.target != "unknown")
                         target.multipleTargets = true;

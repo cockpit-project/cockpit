@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Alert, Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 
-import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
-import { Alert } from 'patternfly-react';
 import { setVCPUSettings } from "../actions/provider-actions.es6";
 
 const _ = cockpit.gettext;
@@ -38,30 +37,27 @@ const Select = function ({ id, items, onChange, value }) {
     </SelectComponent.Select>);
 };
 
-class VCPUModalBody extends React.Component {
+export class VCPUModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            sockets: props.cpu.topology.sockets || 1,
-            threads: props.cpu.topology.threads || 1,
-            cores: props.cpu.topology.cores || 1,
-            max: props.vcpus.max || 1,
-            count: parseInt(props.vcpus.count) || 1
+            sockets: props.vm.cpu.topology.sockets || 1,
+            threads: props.vm.cpu.topology.threads || 1,
+            cores: props.vm.cpu.topology.cores || 1,
+            max: props.vm.vcpus.max || 1,
+            count: parseInt(props.vm.vcpus.count) || 1
         };
         this.onMaxChange = this.onMaxChange.bind(this);
         this.onCountSelect = this.onCountSelect.bind(this);
         this.onSocketChange = this.onSocketChange.bind(this);
         this.onThreadsChange = this.onThreadsChange.bind(this);
         this.onCoresChange = this.onCoresChange.bind(this);
-        props.onChange(this.state);
-    }
 
-    componentWillUpdate (nextProps, nextState) {
-        this.props.onChange(nextState);
+        this.save = this.save.bind(this);
     }
 
     onMaxChange (e) {
-        const maxHypervisor = parseInt(this.props.hypervisorMax);
+        const maxHypervisor = parseInt(this.props.config.hypervisorMaxVCPU[this.props.vm.connectionName]);
         let maxValue = parseInt(e.target.value);
 
         // Check new value for limits
@@ -80,7 +76,7 @@ class VCPUModalBody extends React.Component {
         let divs = dividers(state.max);
 
         // If current sockets value is not in divisors array, then change it to max divisor
-        if (divs.indexOf(this.state.sockets) === -1 || (this.props.cpu.topology.sockets || 1) === this.state.sockets) {
+        if (divs.indexOf(this.state.sockets) === -1 || (this.props.vm.cpu.topology.sockets || 1) === this.state.sockets) {
             state.sockets = divs[divs.length - 1];
         }
 
@@ -150,10 +146,18 @@ class VCPUModalBody extends React.Component {
         this.setState(state);
     }
 
-    render () {
+    save() {
+        const { close, dispatch, vm } = this.props;
+
+        close();
+        return dispatch(setVCPUSettings(vm, this.state.max, this.state.count, this.state.sockets, this.state.threads, this.state.cores));
+    }
+
+    render() {
+        const { vm } = this.props;
         let caution = null;
 
-        if (this.props.isRunning) {
+        if (vm.state === 'running') {
             caution = (
                 <tr>
                     <td colSpan={2} className="machines-vcpu-caution">
@@ -161,80 +165,77 @@ class VCPUModalBody extends React.Component {
                             {_("All changes will take effect only after stopping and starting the VM.")}
                         </Alert>
                     </td>
-                </tr>);
+                </tr>
+            );
         }
 
-        return (<div className="modal-body">
-            <table className="vcpu-detail-modal-table">
-                <tbody>
-                    <tr>
-                        <td>
-                            <table className='form-table-ct'>
-                                <tbody>
-                                    <InfoRecord
-                                        descr={_("vCPU Count")}
-                                        tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
-                                        value={<input id="machines-vcpu-count-field" type="number" className="form-control" value={this.state.count} onChange={this.onCountSelect} />}
-                                    />
-                                    <InfoRecord
-                                        descr={_("vCPU Maximum")}
-                                        tooltip={cockpit.format(_("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"), this.props.hypervisorMax)}
-                                        value={<input id="machines-vcpu-max-field" type="number" className="form-control" onChange={this.onMaxChange} value={this.state.max} />}
-                                    />
-                                </tbody>
-                            </table>
-                        </td>
-                        <td>
-                            <table className='form-table-ct vcpu-detail-modal-right'>
-                                <tbody>
-                                    <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
-                                        <Select id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                    } />
-                                    <InfoRecord descr={_("Cores per socket")} value={
-                                        <Select id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                    } />
-                                    <InfoRecord descr={_("Threads per core")} value={
-                                        <Select id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                    } />
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    { caution }
-                </tbody>
-            </table>
-        </div>);
+        const defaultBody = (
+            <div className="modal-body">
+                <table className="vcpu-detail-modal-table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table className='form-table-ct'>
+                                    <tbody>
+                                        <InfoRecord
+                                            descr={_("vCPU Count")}
+                                            tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
+                                            value={<input id="machines-vcpu-count-field" type="number" className="form-control" value={this.state.count} onChange={this.onCountSelect} />}
+                                        />
+                                        <InfoRecord
+                                            descr={_("vCPU Maximum")}
+                                            tooltip={cockpit.format(_("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"), this.props.hypervisorMax)}
+                                            value={<input id="machines-vcpu-max-field" type="number" className="form-control" onChange={this.onMaxChange} value={this.state.max} />}
+                                        />
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                <table className='form-table-ct vcpu-detail-modal-right'>
+                                    <tbody>
+                                        <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
+                                            <Select id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                                        } />
+                                        <InfoRecord descr={_("Cores per socket")} value={
+                                            <Select id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                                        } />
+                                        <InfoRecord descr={_("Threads per core")} value={
+                                            <Select id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                                        } />
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        { caution }
+                    </tbody>
+                </table>
+            </div>
+        );
+
+        return (
+            <Modal id='machines-vcpu-modal-dialog' show onHide={this.props.close} >
+                <Modal.Header>
+                    <Modal.CloseButton onClick={this.props.close} />
+                    <Modal.Title> {`${vm.name} VCPU details`} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    { defaultBody }
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button id='machines-vcpu-modal-dialog-cancel' bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    <Button id='machines-vcpu-modal-dialog-apply' bsStyle='primary' onClick={this.save}>
+                        {_("Apply")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
     }
 }
-
-VCPUModalBody.propTypes = {
-    vcpus: PropTypes.object,
-    cpu: PropTypes.shape({
-        topology: PropTypes.object.isRequired
-    }).isRequired,
-    onChange: PropTypes.func.isRequired,
-    hypervisorMax: PropTypes.number
+VCPUModal.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    vm: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
+    close: PropTypes.func.isRequired,
 };
-
-export default function ({ vm, dispatch, config }) {
-    let state = {};
-    const onStateChange = (st) => {
-        state = Object.assign({}, st);
-    };
-    return show_modal_dialog(
-        {
-            title: cockpit.format(_("$0 vCPU Details"), vm.name),
-            body: (<VCPUModalBody vcpus={vm.vcpus} cpu={vm.cpu} onChange={onStateChange} isRunning={vm.state == 'running'} hypervisorMax={parseInt(config.hypervisorMaxVCPU[vm.connectionName])} />),
-            id: "machines-vcpu-modal-dialog"
-        },
-        { actions: [
-            {
-                caption: _("Apply"),
-                style: 'primary',
-                clicked: function () {
-                    return dispatch(setVCPUSettings(vm, state.max, state.count, state.sockets, state.threads, state.cores));
-                }
-            }
-        ]}
-    );
-}

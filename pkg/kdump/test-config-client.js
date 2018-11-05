@@ -40,7 +40,8 @@ var changedConfig = [
     "indented value",
     "",
     "#key value #comment",
-    "hooray value"
+    "hooray value",
+    ""
 ].join("\n");
 
 QUnit.asyncTest("config_update", function() {

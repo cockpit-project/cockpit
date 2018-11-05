@@ -128,7 +128,7 @@ export class ConfigFile {
         let linesToDelete = [];
         // first find the settings lines that have been disabled/deleted
         Object.keys(this._originalSettings).forEach((key) => {
-            if (!(key in settings)) {
+            if (!(key in settings) || !(key in settings && settings[key].value)) {
                 let origEntry = this._originalSettings[key];
                 // if the line had a comment, keep it, otherwise delete
                 if (origEntry.comment !== undefined)
@@ -137,6 +137,7 @@ export class ConfigFile {
                     linesToDelete.push(origEntry.index);
             }
         });
+
         // we take the lines from our last read operation and modify them with the new settings
         Object.keys(settings).forEach((key) => {
             let entry = settings[key];
@@ -158,7 +159,7 @@ export class ConfigFile {
                     lines.splice(lineIndex, 1);
                 });
 
-        return lines.join("\n");
+        return lines.join("\n") + "\n";
     }
 
     /* write settings back to file

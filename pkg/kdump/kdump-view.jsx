@@ -35,13 +35,11 @@ const _ = cockpit.gettext;
  *   - initialTarget      initial target, e.g. "local"
  *   - compressionEnabled whether compression is enabled for all targets
  *
- * Internally, the dialog has four modes, defined by target storage:
+ * Internally, the dialog has three modes, defined by target storage:
  *   - local
  *   - nfs
  *   - ssh
- *   - other This is used if the config file has no known target explicitly set
  *
- * nfs and ssh are disabled for now
  */
 
 class KdumpTargetBody extends React.Component {
@@ -54,19 +52,14 @@ class KdumpTargetBody extends React.Component {
     }
 
     changeLocation(target) {
-        // if previous dest wasn't "other", remove that
         // settings for the new target will be changed when the details are edited
-        if (this.state.storeDest != "other")
-            this.props.onChange(this.state.storeDest.target, undefined);
+        this.props.onChange("target", target);
         // depending on our chosen target, we should send the default values we show in the ui
         this.setState({ storeDest: target });
     }
 
     changeValue(key, e) {
-        if (this.props.onChange) {
-            if (e && e.target && e.target.value)
-                this.props.onChange(key, e.target.value);
-        }
+        this.props.onChange(key, e.target.value);
     }
 
     handleCompressionClick(e) {
@@ -81,10 +74,11 @@ class KdumpTargetBody extends React.Component {
             !("core_collector" in this.props.settings) ||
             (this.props.settings["core_collector"].value.trim().indexOf("makedumpfile") === 0)
         );
+        var directory = "";
+        if (this.props.settings && "path" in this.props.settings)
+            directory = this.props.settings["path"].value;
+
         if (this.state.storeDest == "local") {
-            var directory;
-            if (this.props.settings && "path" in this.props.settings)
-                directory = this.props.settings["path"].value;
             detailRows = (
                 <tr key="directory">
                     <td className="top">
@@ -101,7 +95,7 @@ class KdumpTargetBody extends React.Component {
                 </tr>
             );
         } else if (this.state.storeDest == "nfs") {
-            var nfs;
+            var nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings["nfs"].value;
             detailRows = (
@@ -121,10 +115,10 @@ class KdumpTargetBody extends React.Component {
                 </tr>
             );
         } else if (this.state.storeDest == "ssh") {
-            var ssh;
+            var ssh = "";
             if (this.props.settings && "ssh" in this.props.settings)
                 ssh = this.props.settings["ssh"].value;
-            var sshkey;
+            var sshkey = "";
             if (this.props.settings && "sshkey" in this.props.settings)
                 sshkey = this.props.settings["sshkey"].value;
             detailRows = [
@@ -135,11 +129,9 @@ class KdumpTargetBody extends React.Component {
                         </label>
                     </td>
                     <td>
-                        <label>
-                            <input id="kdump-settings-ssh-server" className="form-control" type="text"
-                                   placeholder="user@server.com" value={ssh}
-                                   onChange={this.changeValue.bind(this, "ssh")} />
-                        </label>
+                        <input id="kdump-settings-ssh-server" className="form-control" type="text"
+                               placeholder="user@server.com" value={ssh}
+                               onChange={this.changeValue.bind(this, "ssh")} />
                     </td>
                 </tr>),
                 (<tr key="ssh-key">
@@ -149,29 +141,34 @@ class KdumpTargetBody extends React.Component {
                         </label>
                     </td>
                     <td>
-                        <label>
-                            <input id="kdump-settings-ssh-server" className="form-control" type="text"
-                                   placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                                   onChange={this.changeValue.bind(this, "sshkey")} />
+                        <input id="kdump-settings-ssh-key" className="form-control" type="text"
+                               placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
+                               onChange={this.changeValue.bind(this, "sshkey")} />
+                    </td>
+                </tr>),
+                (<tr key="directory">
+                    <td className="top">
+                        <label className="control-label">
+                            {_("Directory")}
                         </label>
+                    </td>
+                    <td>
+                        <input id="kdump-settings-local-directory" className="form-control" type="text"
+                               placeholder="/var/crash" value={directory}
+                               data-stored={directory}
+                               onChange={this.changeValue.bind(this, "path")} />
                     </td>
                 </tr>),
             ];
         }
-        /* some options are disabled for now
-               <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
-               <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
-         */
+
         var targetDescription = {
             local: _("Local Filesystem"),
             nfs: _("Remote over NFS"),
             ssh: _("Remote over SSH"),
-            other: _("Use the setting in /etc/kdump.conf"),
         };
         // we don't support all known storage options currently
         var storageDest = this.state.storeDest;
-        if (["local", "other"].indexOf(this.state.storeDest) === -1)
-            storageDest = "other";
         return (
             <div className="modal-body">
                 <table className="form-table-ct">
@@ -186,7 +183,8 @@ class KdumpTargetBody extends React.Component {
                                 <Select.Select key='location' onChange={this.changeLocation}
                                                id="kdump-settings-location" initial={storageDest}>
                                     <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
-                                    <Select.SelectEntry data='other' key='other'>{targetDescription.other}</Select.SelectEntry>
+                                    <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
+                                    <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
                                 </Select.Select>
                             </td>
                         </tr>
@@ -251,18 +249,15 @@ class KdumpPage extends React.Component {
     changeSetting(key, value) {
         var settings = this.state.dialogSettings;
 
-        // is compression enabled in the current config?
-        var compressionEnabled = this.compressionStatus(this.props.kdumpStatus.config);
-
         // a few special cases, otherwise write to config directly
         if (key == "compression") {
-            if (value && !compressionEnabled) {
+            if (value) {
                 // enable compression
                 if ("core_collector" in settings)
                     settings["core_collector"].value = settings["core_collector"].value + " -c";
                 else
                     settings["core_collector"] = { value: "makedumpfile -c" };
-            } else if (!value && compressionEnabled) {
+            } else {
                 // disable compression
                 if ("core_collector" in this.props.kdumpStatus.config) {
                     // just remove all "-c" parameters
@@ -276,12 +271,37 @@ class KdumpPage extends React.Component {
                     // we can get rid of the entry altogether
                     delete settings["core_collector"];
                 }
-            } else {
-                console.log("not changing compression setting");
-                return;
+            }
+        } else if (key === "target") {
+            /* target changed, restore settings and wipe all settings associated
+             * with a target so no conflicting settings remain */
+            settings = {};
+            Object.keys(this.props.kdumpStatus.config).forEach((key) => {
+                settings[key] = cockpit.extend({}, this.props.kdumpStatus.config[key]);
+            });
+            Object.keys(this.props.kdumpStatus.target).forEach((key) => {
+                if (settings[key])
+                    delete settings[key];
+            });
+            if (value === "ssh")
+                settings.ssh = { value: "" };
+            else if (value === "nfs")
+                settings.nfs = { value: "" };
+
+            if ("core_collector" in settings &&
+                settings["core_collector"].value.includes("makedumpfile")) {
+                /* ssh target needs a flattened vmcore for transport */
+                if (value === "ssh" && !settings["core_collector"].value.includes("-F"))
+                    settings["core_collector"].value += " -F";
+                else if (settings["core_collector"].value.includes("-F"))
+                    settings["core_collector"].value =
+                        settings["core_collector"].value
+                                .split(" ")
+                                .filter(e => e != "-F")
+                                .join(" ");
             }
         } else if (key !== undefined) {
-            if (value === undefined) {
+            if (!value) {
                 if (settings[key])
                     delete settings[key];
             } else {
@@ -292,12 +312,11 @@ class KdumpPage extends React.Component {
             }
         }
         this.setState({ dialogSettings: settings });
-        this.state.dialogObj.updateDialogBody();
+        this.state.dialogObj.updateDialogBody(settings);
         this.state.dialogObj.render();
     }
 
     handleApplyClick() {
-        // TODO test settings (e.g. path writable, nfs mountable, ssh key works)
         var dfd = cockpit.defer();
         this.props.onApplySettings(this.state.dialogSettings)
                 .done(dfd.resolve)
@@ -361,12 +380,12 @@ class KdumpPage extends React.Component {
             title: _("Crash dump location"),
             id: "kdump-settings-dialog"
         };
-        var updateDialogBody = function() {
+        var updateDialogBody = function(newSettings) {
             dialogProps.body = React.createElement(KdumpTargetBody, {
-                settings: settings,
+                settings: newSettings || settings,
                 onChange: self.changeSetting,
                 initialTarget: self.props.kdumpStatus.target,
-                compressionEnabled: self.compressionStatus(settings)
+                compressionEnabled: self.compressionStatus(newSettings || settings)
             });
         };
         updateDialogBody();
@@ -382,7 +401,7 @@ class KdumpPage extends React.Component {
         };
         var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
-        this.setState({ dialogSettings: settings, dialogObj: dialogObj });
+        this.setState({ dialogSettings: settings, dialogTarget: self.props.kdumpStatus.target, dialogObj: dialogObj });
     }
 
     render() {
@@ -411,8 +430,12 @@ class KdumpPage extends React.Component {
                     kdumpLocation = _("Remote over NFS");
                 } else if (target.target == "raw") {
                     kdumpLocation = _("Raw to a device");
+                    targetCanChange = false;
                 } else if (target.target == "mount") {
+                    /* mount targets outside of nfs are too complex for the
+                     * current target dialog */
                     kdumpLocation = _("On a mounted device");
+                    targetCanChange = false;
                 } else {
                     kdumpLocation = _("No configuration found");
                     targetCanChange = false;

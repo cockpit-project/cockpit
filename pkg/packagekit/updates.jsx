@@ -257,13 +257,18 @@ class UpdateItem extends React.Component {
                 secSeverityURL = <a rel="noopener" referrerPolicy="no-referrer" target="_blank" href={secSeverityURL}>{secSeverity}</a>;
             type = (
                 <React.Fragment>
-                    <span className={iconClasses}>&nbsp;</span>
+                    <OverlayTrigger overlay={ <Tooltip id="tip-severity">{ secSeverity || _("security") }</Tooltip> } placement="top">
+                        <span className={iconClasses}>&nbsp;</span>
+                    </OverlayTrigger>
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </React.Fragment>);
         } else {
+            const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
             type = (
                 <React.Fragment>
-                    <span className={iconClasses}>&nbsp;</span>
+                    <OverlayTrigger overlay={ <Tooltip id="tip-severity">{tip}</Tooltip> } placement="top">
+                        <span className={iconClasses}>&nbsp;</span>
+                    </OverlayTrigger>
                     { bugs ? info.bug_urls.length : "" }
                 </React.Fragment>);
         }

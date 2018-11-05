@@ -289,7 +289,12 @@ class TestUpdates(PackageCase):
             self.assertIn("RHSA-2000:0001", details)
             self.assertIn("RHSA-2000:0002", details)
             # icon has critical class
-            self.assertIn("severity-critical", b.attr(sel + " td:nth-of-type(3) span.pficon", "class"))
+            self.assertIn("severity-critical", b.attr(sel + " td.type span", "class"))
+            b.mouse(sel + " td.type span", "mouseover")
+            b.wait_present("div.tooltip")
+            b.wait_text("div.tooltip", "critical")
+            b.mouse(sel + " td.type span", "mouseout")
+            b.wait_not_present("div.tooltip")
             # details has link to severity definition
             self.assertIn("access.redhat.com", b.attr(sel + " .listing-ct-body dd.severity a:first-of-type", "href"))
 
@@ -299,6 +304,13 @@ class TestUpdates(PackageCase):
         ch = b.eval_js('document.querySelector("%s").innerHTML' % (sel + " td.changelog"))
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
+        # should show bug fix icon and tooltip
+        self.assertIn("fa-bug", b.attr(sel + " td.type span", "class"))
+        b.mouse(sel + " td.type span", "mouseover")
+        b.wait_present("div.tooltip")
+        b.wait_text("div.tooltip", "bug fix")
+        b.mouse(sel + " td.type span", "mouseout")
+        b.wait_not_present("div.tooltip")
 
         # norefs: just changelog, show both binary packages
         sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,

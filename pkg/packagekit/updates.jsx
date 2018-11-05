@@ -787,6 +787,24 @@ class OsUpdates extends React.Component {
     renderContent() {
         var applySecurity, applyAll, unregisteredWarning;
 
+        if (this.state.unregistered) {
+            // always show empty state pattern, even if there are some repositories enabled that don't require subscriptions
+            return (
+                <div className="blank-slate-pf">
+                    <div className="blank-slate-pf-icon">
+                        <span className="fa fa-exclamation-circle" />
+                    </div>
+                    <h1>{_("This system is not registered")}</h1>
+                    <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
+                    <div className="blank-slate-pf-main-action">
+                        <button className="btn btn-lg btn-primary"
+                            onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
+                            {_("Register…")}
+                        </button>
+                    </div>
+                </div>);
+        }
+
         switch (this.state.state) {
         case "loading":
         case "refreshing":
@@ -803,25 +821,7 @@ class OsUpdates extends React.Component {
                 return <div className="spinner spinner-lg progress-main-view" />;
 
         case "available":
-            // when unregistered, hide the Apply buttons and show a warning
-            if (this.state.unregistered) {
-                unregisteredWarning = (
-                    <React.Fragment>
-                        <h2>{ _("Unregistered System") }</h2>
-                        <div className="alert alert-warning">
-                            <span className="pficon pficon-warning-triangle-o" />
-                            <span>
-                                <strong>{ _("Updates are disabled.") }</strong>
-                                    &nbsp;
-                                { _("You need to re-subscribe this system.") }
-                            </span>
-                            <button className="btn btn-primary pull-right"
-                                onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
-                                { _("View Registration Details") }
-                            </button>
-                        </div>
-                    </React.Fragment>);
-            } else {
+            {
                 let num_updates = Object.keys(this.state.updates).length;
                 let num_security_updates = count_security_updates(this.state.updates);
 
@@ -895,23 +895,6 @@ class OsUpdates extends React.Component {
                 </div>);
 
         case "uptodate":
-            if (this.state.unregistered) {
-                return (
-                    <div className="blank-slate-pf">
-                        <div className="blank-slate-pf-icon">
-                            <span className="fa fa-exclamation-circle" />
-                        </div>
-                        <h1>{_("This system is not registered")}</h1>
-                        <p>{_("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.")}</p>
-                        <div className="blank-slate-pf-main-action">
-                            <button className="btn btn-lg btn-primary"
-                                onClick={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }>
-                                {_("Register…")}
-                            </button>
-                        </div>
-                    </div>);
-            }
-
             return (
                 <React.Fragment>
                     <AutoUpdates onInitialized={ enabled => this.setState({ autoUpdatesEnabled: enabled }) } />

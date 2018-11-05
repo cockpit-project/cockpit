@@ -719,17 +719,16 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_in_text("#system_information_updates_text", "Not Registered")
         self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
 
-        # and also on software updates page
+        # software updates page also shows unregistered
         b.go("/updates")
         b.enter_page("/updates")
-
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf button")
         b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
-        # hides the header bar
-        self.assertFalse(b.is_present(".content-header-extra"))
+        # no header bar
+        b.wait_not_present(".content-header-extra")
 
-        # use the button to switch to Subscriptions
+        # test the button to switch to Subscriptions
         b.click(".container-fluid div.blank-slate-pf button")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/subscriptions"')
@@ -772,35 +771,27 @@ class TestUpdatesSubscriptions(PackageCase):
         b.click("#system_information_updates_text a")
         b.enter_page("/subscriptions")
 
-        # /updates should show available update and unregistered warning, but no other action buttons
+        # software updates page also shows unregistered
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_present(".alert-warning")
-        b.wait_in_text(".alert-warning", "subscribe")
-        b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "vanilla")
+
+        # empty state visible in main area
+        b.wait_present(".container-fluid div.blank-slate-pf button")
+        b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
+
         # should show header bar
         b.wait_present("#state")
-        self.assertEqual(b.text("#state"), "1 update")
-        b.wait_present(".content-header-extra")
+        b.wait_text("#state", "1 update")
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
-        # should be unique; no other action buttons
-        b.wait_present("button")
-        b.wait_in_text("button", "Registration")
 
-        # use the button to switch to Subscriptions
-        b.click("button")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname === "/subscriptions"')
-
-        # after registration it should show the usual "system is up to date"
+        # after registration it should show available updates
         self.register()
         b.go("/updates")
         b.enter_page("/updates")
-        b.wait_not_present(".alert-warning")
-        # no update history yet, no warning any more
+        b.wait_not_present(".container-fluid div.blank-slate-pf")
         b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
+        # no update history yet
         self.assertFalse(b.is_present("#history"))
 
         # has action buttons

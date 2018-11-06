@@ -33,7 +33,7 @@ export class StoragePoolList extends React.Component {
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
 
         return (
-            <div>
+            <React.Fragment>
                 <Breadcrumb className='storage-pool-listing-breadcrumb' title>
                     <Breadcrumb.Item onClick={() => this.props.changeActiveList(1)}>
                         {_("Virtual Machines")}
@@ -44,7 +44,7 @@ export class StoragePoolList extends React.Component {
                 </Breadcrumb>
                 <div id='storage-pools-listing' className='container-fluid'>
                     <Listing title={_("Storage Pools")}
-                        columnTitles={[_("Name"), _("Size"), _("Connection"), _("State")]}
+                        columnTitles={[_("Name"), _("Size"), "", _("Connection"), _("State")]}
                         emptyCaption={_("No storage pool is defined on this host")}>
                         {storagePools
                                 .sort(sortFunction)
@@ -56,7 +56,7 @@ export class StoragePoolList extends React.Component {
                         }
                     </Listing>
                 </div>
-            </div>
+            </React.Fragment>
         );
     }
 }

@@ -49,7 +49,6 @@ const MoreInformationContent = () => {
 
     return (
         <div>
-            <br />
             <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{__html: msg1}} />
             <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{__html: msg2}} />
 

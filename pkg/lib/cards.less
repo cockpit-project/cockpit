@@ -1,0 +1,86 @@
+@import "variables.less";
+
+/* Organize cards in a grid instead of BootStrap */
+.grid-cards-ct {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  padding: 20px;
+
+  > div {
+    /* No funky negative margins are needed for grid */
+    margin: 0;
+  }
+
+  &:first-child {
+    margin-top: ;
+  }
+}
+
+@media screen and (min-width: 60rem) {
+  /* Make a single card no longer than half the width */
+  .grid-cards-ct > div:first-child:last-child {
+    /* Remove 1/2 grid-gap to keep width the same */
+    max-width: calc(50% - 10px);
+  }
+}
+
+/* PatternFly overrides for hybrid style */
+.cards-ct-hybrid {
+  .card-pf {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0;
+  }
+
+  .card-pf-title,
+  .card-pf-body {
+    margin: 0;
+  }
+
+  .card-pf-title,
+  .card-pf-title a {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .card-pf-title {
+    flex: auto;
+    padding: 20px;
+    line-height: 16px; /* Same as icon */
+
+    a {
+      color: @color-pf-blue-400 !important;
+      margin: -20px;
+      padding: 20px;
+      text-align: left;
+      width: 100%;
+
+      &:hover {
+        text-decoration: none;
+
+        .card-pf-title-link {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .pficon,
+    .fa {
+      margin-right: 1rem
+    }
+
+  }
+
+  .card-pf-body {
+    flex: 0 auto;
+    padding: 10px 20px;
+  }
+
+  .card-pf-aggregate-status-count {
+    color: inherit;
+    padding: 0 .5rem 0;
+  }
+}

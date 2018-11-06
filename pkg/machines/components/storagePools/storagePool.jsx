@@ -18,11 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    Col,
-    UtilizationBar,
-    Tooltip
-} from 'patternfly-react';
+import { UtilizationBar, Tooltip } from 'patternfly-react';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -48,17 +44,19 @@ export const StoragePool = ({ storagePool }) => {
     const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
     const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
     const size = (
-        <span>
-            <Col className='col-no-padding' sm={6}>
-                <UtilizationBar
-                    now={allocation}
-                    max={capacity}
-                    availableTooltipFunction={availableTooltipFunction}
-                    usedTooltipFunction={usedTooltipFunction}
-                />
-            </Col>
+        <React.Fragment>
+            <UtilizationBar
+                now={allocation}
+                max={capacity}
+                availableTooltipFunction={availableTooltipFunction}
+                usedTooltipFunction={usedTooltipFunction}
+            />
+        </React.Fragment>
+    );
+    const sizeLabel = (
+        <React.Fragment>
             {`${allocation} / ${capacity} GB`}
-        </span>
+        </React.Fragment>
     );
     const state = (
         <span id={`${idPrefix}-state`}>
@@ -67,6 +65,7 @@ export const StoragePool = ({ storagePool }) => {
     const cols = [
         {name, 'header': true},
         size,
+        sizeLabel,
         rephraseUI('connections', storagePool.connectionName),
         state,
     ];

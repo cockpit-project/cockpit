@@ -1,5 +1,6 @@
 @import (less) "../lib/page.css";
 @import "../lib/listing.less";
+@import "../lib/cards.less";
 @import (less) "../lib/table.css";
 
 @import (less) "../../node_modules/c3/c3.css";
@@ -292,4 +293,14 @@ table.vcpu-detail-modal-right .btn-group.bootstrap-select.dropdown {
 
 .storage-pool-listing-breadcrumb {
     padding-left: 20px !important;
+}
+
+td > .utilization-bar-pf {
+    width: 100%;
+    min-width: 4em;
+
+    > .progress {
+        margin-bottom: 0;
+        height: 0.75rem;
+    }
 }

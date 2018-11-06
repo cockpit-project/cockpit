@@ -23,6 +23,7 @@ libpwquality-tools \
 libssh-4 \
 libteam-utils \
 libvirt-daemon-system \
+libvirt-dbus \
 libosinfo-bin \
 network-manager \
 pcp \
@@ -65,6 +66,7 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/pcp /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-dbus /}"
         # keep in sync with allowed messages in test/common/testlib.py
         COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
@@ -75,8 +77,9 @@ case "$RELEASE" in
         echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
-    testing)
-        COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-dbus"
+    bionic)
+        # these packages are not in Ubuntu 18.04
+        COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-dbus /}"
         ;;
 esac
 

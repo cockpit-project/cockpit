@@ -36,7 +36,7 @@ export const StoragePoolVolumesTab = ({ storagePool }) => {
 
     return (
         <div>
-            <Listing columnTitles={columnTitles} actions={null} emptyCaption=''>
+            <Listing compact columnTitles={columnTitles} actions={null} emptyCaption=''>
                 {storagePool.volumes.map(volume => {
                     const allocation = parseFloat(convertToUnit(volume.allocation, units.B, units.GiB).toFixed(2));
                     const capacity = parseFloat(convertToUnit(volume.capacity, units.B, units.GiB).toFixed(2));

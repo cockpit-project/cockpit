@@ -264,6 +264,10 @@ class TestDocker(MachineCase):
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
+        # HACK: port forwarding with our docker Debian 8 package on Debian 9 does not work with firewalld
+        if m.image == 'debian-stable':
+            m.execute("systemctl stop firewalld; systemctl restart docker")
+
         m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")

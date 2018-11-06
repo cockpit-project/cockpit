@@ -35,34 +35,40 @@ def wait_unit_state(machine, unit, state):
 
 
 @skipImage("firewalld not installed", "fedora-atomic", "rhel-atomic", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804")
+@skipImage("enabling firewall got fixed in PR #10511", "rhel-7-6-distropkg")
 class TestFirewall(MachineCase):
 
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl stop firewalld")
+
         self.login_and_go("/network")
         b.wait_visible("#networking-firewall")
-
-        m.execute("systemctl stop firewalld")
         b.wait_in_text("#networking-firewall-switch label.active", "Off")
-        m.execute("systemctl start firewalld")
-        b.wait_in_text("#networking-firewall-switch label.active", "On")
 
         # to toggle the switch, click on the non-active label, where the slider is
+        b.click("#networking-firewall-switch label:not(.active)")
+        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
+        b.wait_in_text("#networking-firewall-switch label.active", "On")
+        wait_unit_state(m, "firewalld", "active")
+        active_rules = m.execute("firewall-cmd --list-services").split()
+        b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
+
         b.click("#networking-firewall-switch label:not(.active)")
         b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
         b.wait_in_text("#networking-firewall-switch label.active", "Off")
         wait_unit_state(m, "firewalld", "inactive")
         b.wait_in_text("#networking-firewall-summary", "0 Active Rules")
 
-        b.click("#networking-firewall-switch label:not(.active)")
-        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
+        # toggle the service from CLI, page should react
+        m.execute("systemctl start firewalld")
         b.wait_in_text("#networking-firewall-switch label.active", "On")
-        wait_unit_state(m, "firewalld", "active")
-
-        active_rules = m.execute("firewall-cmd --list-services").split()
         b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
+        m.execute("systemctl stop firewalld")
+        b.wait_in_text("#networking-firewall-switch label.active", "Off")
+        b.wait_in_text("#networking-firewall-summary", "0 Active Rules")
 
         b.click("#networking-firewall-link")
         b.enter_page("/network/firewall")
@@ -70,13 +76,20 @@ class TestFirewall(MachineCase):
         b.click(".breadcrumb li:first a")
         b.enter_page("/network")
 
-
     def testFirewallPage(self):
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl stop firewalld")
         self.login_and_go("/network/firewall")
-        m.execute("systemctl start firewalld")
+
+        # to toggle the switch, click on the non-active label, where the slider is
+        b.wait_present(".btn-onoff-ct label.active")
+        b.wait_in_text(".btn-onoff-ct label.active", "Off")
+        b.click(".btn-onoff-ct label.active span")
+        b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
+        b.wait_in_text(".btn-onoff-ct label.active", "On")
+        wait_unit_state(m, "firewalld", "active")
 
         # ensure that pop3 is not enabled (shouldn't be on any of our images),
         # so that we can use it for testing
@@ -96,6 +109,12 @@ class TestFirewall(MachineCase):
         b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
         b.wait_not_present("tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
+
+        # switch service off again
+        b.click(".btn-onoff-ct label.active span")
+        b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
+        b.wait_in_text(".btn-onoff-ct label.active", "Off")
+        wait_unit_state(m, "firewalld", "inactive")
 
 
     def testAddServices(self):

@@ -29,6 +29,8 @@ import socket
 import sys
 import time
 import urllib.parse
+import subprocess
+import re
 
 from . import cache
 
@@ -81,13 +83,20 @@ class Logger(object):
         with open(self.path, 'a') as f:
             f.write(value)
 
+def get_origin_repo():
+    res = subprocess.check_output([ "git", "remote", "get-url", "origin" ])
+    url = res.decode('utf-8').strip()
+    m = re.fullmatch("(git@github.com:|https://github.com/)(.*?)(\\.git)?", url)
+    if m:
+        return m.group(2)
+    raise RuntimeError("Not a GitHub repo: %s" % url)
+
 class GitHub(object):
     def __init__(self, base=None, cacher=None, repo=None):
         if base is None:
-            if repo is None:
-                repo = os.environ.get("GITHUB_BASE", "cockpit-project/cockpit")
+            self.repo = repo or os.environ.get("GITHUB_BASE", None) or get_origin_repo()
             netloc = os.environ.get("GITHUB_API", "https://api.github.com")
-            base = "{0}/repos/{1}/".format(netloc, repo)
+            base = "{0}/repos/{1}/".format(netloc, self.repo)
         self.url = urllib.parse.urlparse(base)
         self.conn = None
         self.token = None

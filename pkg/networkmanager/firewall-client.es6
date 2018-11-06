@@ -32,10 +32,65 @@ var firewall = {
 cockpit.event_target(firewall);
 
 const firewalld_service = service.proxy('firewalld');
-const firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1');
+var firewalld_dbus = null;
+
+function initFirewalldDbus() {
+    firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1');
+
+    firewalld_dbus.addEventListener('owner', (event, owner) => {
+        firewall.enabled = !!owner;
+
+        firewall.services = {};
+        firewall.enabledServices = new Set();
+
+        if (!firewall.enabled) {
+            firewall.dispatchEvent('changed');
+            return;
+        }
+
+        firewalld_dbus.call('/org/fedoraproject/FirewallD1',
+                            'org.fedoraproject.FirewallD1.zone',
+                            'getServices', [''])
+                .then(reply => fetchServiceInfos(reply[0]))
+                .then(services => services.map(s => firewall.enabledServices.add(s.id)))
+                .then(() => firewall.dispatchEvent('changed'))
+                .catch(error => console.warn(error));
+    });
+
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'ServiceAdded'
+    }, (path, iface, signal, args) => {
+        const service = args[1];
+
+        fetchServiceInfos([service])
+                .then(info => {
+                    firewall.enabledServices.add(info[0].id);
+                    firewall.dispatchEvent('changed');
+                })
+                .catch(error => console.warn(error));
+    });
+
+    firewalld_dbus.subscribe({
+        interface: 'org.fedoraproject.FirewallD1.zone',
+        path: '/org/fedoraproject/FirewallD1',
+        member: 'ServiceRemoved'
+    }, (path, iface, signal, args) => {
+        const service = args[1];
+
+        firewall.enabledServices.delete(service);
+        firewall.dispatchEvent('changed');
+    });
+}
 
 firewalld_service.addEventListener('changed', () => {
     let installed = !!firewalld_service.exists;
+
+    /* HACK: cockpit.dbus() remains dead for non-activatable names, so reinitialize it if the service gets enabled and started
+     * See https://github.com/cockpit-project/cockpit/pull/9125 */
+    if (!firewall.enabled && firewalld_service.state == 'running')
+        initFirewalldDbus();
 
     if (firewall.installed == installed)
         return;
@@ -76,51 +131,7 @@ function fetchServiceInfos(services) {
     });
 }
 
-firewalld_dbus.addEventListener('owner', (event, owner) => {
-    firewall.enabled = !!owner;
-
-    firewall.services = {};
-    firewall.enabledServices = new Set();
-
-    if (!firewall.enabled) {
-        firewall.dispatchEvent('changed');
-        return;
-    }
-
-    firewalld_dbus.call('/org/fedoraproject/FirewallD1',
-                        'org.fedoraproject.FirewallD1.zone',
-                        'getServices', [''])
-            .then(reply => fetchServiceInfos(reply[0]))
-            .then(services => services.map(s => firewall.enabledServices.add(s.id)))
-            .then(() => firewall.dispatchEvent('changed'))
-            .catch(error => console.warn(error));
-});
-
-firewalld_dbus.subscribe({
-    interface: 'org.fedoraproject.FirewallD1.zone',
-    path: '/org/fedoraproject/FirewallD1',
-    member: 'ServiceAdded'
-}, (path, iface, signal, args) => {
-    const service = args[1];
-
-    fetchServiceInfos([service])
-            .then(info => {
-                firewall.enabledServices.add(info[0].id);
-                firewall.dispatchEvent('changed');
-            })
-            .catch(error => console.warn(error));
-});
-
-firewalld_dbus.subscribe({
-    interface: 'org.fedoraproject.FirewallD1.zone',
-    path: '/org/fedoraproject/FirewallD1',
-    member: 'ServiceRemoved'
-}, (path, iface, signal, args) => {
-    const service = args[1];
-
-    firewall.enabledServices.delete(service);
-    firewall.dispatchEvent('changed');
-});
+initFirewalldDbus();
 
 cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'])
         .done(() => {

@@ -284,6 +284,7 @@ ListingRow.propTypes = {
  * Properties (all optional):
  * - title
  * - fullWidth: set width to 100% of parent, defaults to true
+ * - compact: reduce spacing for each cell, defaults to false
  * - emptyCaption: header caption to show if list is empty
  * - columnTitles: array of column titles, as strings
  * - columnTitleClick: callback for clicking on column title (for sorting)
@@ -294,6 +295,8 @@ export const Listing = (props) => {
     let bodyClasses = ["listing", "listing-ct"];
     if (props.fullWidth)
         bodyClasses.push("listing-ct-wide");
+    if (props.compact)
+        bodyClasses.push("listing-ct-compact");
     let headerClasses;
     let headerRow;
     if (!props.children || props.children.length === 0) {
@@ -332,6 +335,7 @@ export const Listing = (props) => {
 Listing.defaultProps = {
     title: '',
     fullWidth: true,
+    compact: false,
     emptyCaption: '',
     columnTitles: [],
     actions: []
@@ -340,6 +344,7 @@ Listing.defaultProps = {
 Listing.propTypes = {
     title: PropTypes.string,
     fullWidth: PropTypes.bool,
+    compact: PropTypes.bool,
     emptyCaption: PropTypes.node,
     columnTitles: PropTypes.arrayOf(
         PropTypes.oneOfType([

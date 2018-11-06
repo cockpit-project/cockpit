@@ -339,6 +339,18 @@ def execute(*args):
     output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env, universal_newlines=True)
     sys.stderr.write(censored(output))
 
+def find_our_fork(user):
+    repos = api.get("/users/{0}/repos".format(user))
+    for r in repos:
+        if r["full_name"] == api.repo:
+            # We actually own the origin repo, so use that.
+            return api.repo
+        if r["fork"]:
+            full = api.get("/repos/{0}/{1}".format(user, r["name"]))
+            if full["parent"]["full_name"] == api.repo:
+                return full["full_name"]
+    raise RuntimeError("%s doesn't have a fork of %s" % (user, api.repo))
+
 def branch(context, message, pathspec=".", issue=None, **kwargs):
     current = time.strftime('%Y%m%d-%H%M%M')
     name = named(kwargs)
@@ -352,8 +364,10 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
         raise RuntimeError("Couldn't configure git config with our API token")
 
     user = api.get("/user")['login']
-    url = "https://github.com/{0}/cockpit".format(user)
-    clean = "https://github.com/{0}/cockpit".format(user)
+    fork_repo = find_our_fork(user)
+
+    url = "https://github.com/{0}".format(fork_repo)
+    clean = "https://github.com/{0}".format(fork_repo)
 
     if pathspec is not None:
         execute("git", "add", "--", pathspec)

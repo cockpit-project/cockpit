@@ -47,6 +47,12 @@ function getFirstIndexOfResource(state, field, value, connectionName) {
     });
 }
 
+function replaceResource({ state, updatedResource, index }) {
+    return state.slice(0, index)
+            .concat(updatedResource)
+            .concat(state.slice(index + 1));
+}
+
 // --- reducers ------------------
 function config(state, action) {
     state = state || {
@@ -88,12 +94,6 @@ function lazyComposedReducer({ parentReducer, getSubreducer, getSubstate, setSub
 function networks(state, action) {
     state = state || [];
 
-    function replaceNetwork({ state, updatedNetwork, index }) {
-        return state.slice(0, index)
-                .concat(updatedNetwork)
-                .concat(state.slice(index + 1));
-    }
-
     switch (action.type) {
     case UPDATE_ADD_NETWORK: {
         const { network } = action.payload;
@@ -105,7 +105,7 @@ function networks(state, action) {
         }
 
         const updatedNetwork = Object.assign({}, state[index], network);
-        return replaceNetwork({ state, updatedNetwork, index });
+        return replaceResource({ state, updatedNetwork, index });
     }
     default:
         return state;
@@ -133,12 +133,6 @@ function vms(state, action) {
         };
     }
 
-    function replaceVm({ state, updatedVm, index }) {
-        return state.slice(0, index)
-                .concat(updatedVm)
-                .concat(state.slice(index + 1));
-    }
-
     switch (action.type) {
     case UPDATE_ADD_VM: {
         const connectionName = action.vm.connectionName;
@@ -149,7 +143,7 @@ function vms(state, action) {
         }
 
         const updatedVm = Object.assign({}, state[index], action.vm);
-        return replaceVm({ state, updatedVm, index });
+        return replaceResource({ state, updatedResource: updatedVm, index });
     }
     case UPDATE_VM: {
         const indexedVm = findVmToUpdate(state, action.vm);
@@ -168,7 +162,7 @@ function vms(state, action) {
         }
 
         // replace whole object
-        return replaceVm({ state, updatedVm, index: indexedVm.index });
+        return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
     case VM_ACTION_FAILED: {
         const indexedVm = findVmToUpdate(state, action.payload);
@@ -184,7 +178,7 @@ function vms(state, action) {
         updatedVm.errorMessages[tab] = Object.assign({}, indexedVm.vmCopy.errorMessages[tab]);
         updatedVm.errorMessages[tab].lastMessage = action.payload.message;
         updatedVm.errorMessages[tab].lastMessageDetail = action.payload.detail;
-        return replaceVm({ state, updatedVm, index: indexedVm.index });
+        return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
     case UNDEFINE_VM: {
         if (action.id)
@@ -253,12 +247,6 @@ function storagePools(state, action) {
         };
     }
 
-    function replaceStoragePool({ state, updatedStoragePool, index }) {
-        return state.slice(0, index)
-                .concat(updatedStoragePool)
-                .concat(state.slice(index + 1));
-    }
-
     switch (action.type) {
     case UPDATE_ADD_STORAGE_POOL: {
         const { storagePool } = action.payload;
@@ -269,7 +257,7 @@ function storagePools(state, action) {
         }
         const updatedStoragePool = Object.assign({}, state[index], storagePool);
 
-        return replaceStoragePool({ state, updatedStoragePool, index });
+        return replaceResource({ state, updatedResource: updatedStoragePool, index });
     }
     case UPDATE_STORAGE_VOLUMES: {
         const { connectionName, poolName, volumes } = action.payload;
@@ -282,7 +270,7 @@ function storagePools(state, action) {
 
         updatedStoragePool.volumes = volumes;
 
-        return replaceStoragePool({ state, updatedStoragePool, index: indexedStoragePool.index });
+        return replaceResource({ state, updatedResource: updatedStoragePool, index: indexedStoragePool.index });
     }
     default:
         return state;

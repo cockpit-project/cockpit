@@ -170,6 +170,16 @@ function getStoragePoolElem(poolXml) {
     return xmlDoc.getElementsByTagName("pool")[0];
 }
 
+function getStorageVolumeElem(poolXml) {
+    let parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(poolXml, 'application/xml');
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${poolXml}"`);
+        return;
+    }
+    return xmlDoc.getElementsByTagName('volume')[0];
+}
+
 export function getSingleOptionalElem(parent, name) {
     const subElems = parent.getElementsByTagName(name);
     return subElems.length > 0 ? subElems[0] : undefined; // optional
@@ -526,6 +536,35 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         id,
         type,
         path,
+    };
+}
+
+export function parseStorageVolumeDumpxml(connectionName, storageVolumeXml, id_overwrite) {
+    const storageVolumeElem = getStorageVolumeElem(storageVolumeXml);
+    if (!storageVolumeElem) {
+        return;
+    }
+    const type = storageVolumeElem.getAttribute('type');
+    const name = storageVolumeElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
+    const id = id_overwrite || undefined;
+    const targetElem = storageVolumeElem.getElementsByTagName('target')[0];
+    const path = getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue;
+    const capacity = storageVolumeElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
+    const allocation = storageVolumeElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
+    const physicalElem = storageVolumeElem.getElementsByTagName('physical')[0];
+    const physical = physicalElem ? physicalElem.childNodes[0].nodeValue : NaN;
+    const formatElem = storageVolumeElem.getElementsByTagName('format')[0];
+    const format = formatElem.getAttribute('type');
+    return {
+        connectionName,
+        name,
+        id,
+        type,
+        path,
+        capacity,
+        allocation,
+        physical,
+        format,
     };
 }
 

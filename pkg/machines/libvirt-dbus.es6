@@ -74,6 +74,7 @@ import {
     isRunning,
     parseDumpxml,
     parseStoragePoolDumpxml,
+    parseStorageVolumeDumpxml,
     resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
@@ -521,17 +522,16 @@ LIBVIRT_DBUS_PROVIDER = {
                                 let storageVolumesPropsPromises = [];
 
                                 for (let i = 0; i < objPaths[0].length; i++) {
-                                    storageVolumesPropsPromises.push(call(connectionName, objPaths[0][i], "org.freedesktop.DBus.Properties", "GetAll", ["org.libvirt.StorageVol"], TIMEOUT));
+                                    const objPath = objPaths[0][i];
+
+                                    storageVolumesPropsPromises.push(call(connectionName, objPath, 'org.libvirt.StorageVol', 'GetXMLDesc', [0], TIMEOUT));
                                 }
-                                Promise.all(storageVolumesPropsPromises).then((resultProps) => {
-                                    for (let i = 0; i < resultProps.length; i++) {
-                                        let props = resultProps[i][0];
-                                        if (("Name" in props) && ("Path" in props)) {
-                                            volumes.push({
-                                                "name": props.Name.v.v,
-                                                "path": props.Path.v.v
-                                            });
-                                        }
+                                Promise.all(storageVolumesPropsPromises).then(volumeXmlList => {
+                                    for (let i = 0; i < volumeXmlList.length; i++) {
+                                        let volumeXml = volumeXmlList[i][0];
+                                        const dumpxmlParams = parseStorageVolumeDumpxml(connectionName, volumeXml);
+
+                                        volumes.push(dumpxmlParams);
                                     }
                                     return dispatch(updateStorageVolumes({
                                         connectionName,

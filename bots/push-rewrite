@@ -32,7 +32,7 @@ def git(*args):
 
 def main():
     parser = argparse.ArgumentParser(description='Force push after a rewrite')
-    parser.add_argument('--repo', help="The GitHub repository to work with", default="cockpit-project/cockpit")
+    parser.add_argument('--repo', help="The GitHub repository to work with", default=None)
     parser.add_argument('remote', help='The remote to push to')
     parser.add_argument('branch', nargs='?',  help='The branch to push')
     opts = parser.parse_args()

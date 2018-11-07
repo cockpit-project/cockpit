@@ -32,7 +32,7 @@ var initStore = function(rootElement) {
 
     dataStore.applySettings = function(settings) {
         var dfd = cockpit.defer();
-        dataStore.kdumpClient.testWriteLocation(settings)
+        dataStore.kdumpClient.validateSettings(settings)
             .done(function() {
                 dataStore.kdumpClient.writeSettings(settings)
                     .done(dfd.resolve)

@@ -101,6 +101,26 @@ class TestKdump(MachineCase):
         self.enableLocalSsh()
 
         if self.machine.image not in ["rhel-7-6-distropkg"]:
+            # minimal nfs validation
+            settingsLink = "a:contains('locally in /var/crash')"
+            self.browser.wait_present(settingsLink)
+            self.browser.wait_visible(settingsLink)
+            self.browser.click(settingsLink, True)
+            self.browser.wait_present("#kdump-settings-location")
+            self.browser.click("#kdump-settings-location")
+            self.browser.wait_present("a:contains('Remote over NFS')")
+            self.browser.click("a:contains('Remote over NFS')")
+            mountInput = "#kdump-settings-nfs-mount"
+            self.browser.wait_present(mountInput)
+            self.browser.wait_visible(mountInput)
+            self._type_val(mountInput, ":/var/crash")
+            self.browser.click("button.btn-primary:contains('Apply')")
+            self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
+            self._type_val(mountInput, "localhost:");
+            self.browser.click("button.btn-primary:contains('Apply')")
+            self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
+            self.browser.click("button.btn-default:contains('Cancel')")
+
             # generate a valid kdump config with ssh target
             settingsLink = "a:contains('locally in /var/crash')"
             self.browser.wait_present(settingsLink)

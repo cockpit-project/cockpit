@@ -516,10 +516,9 @@ export class CreateVmAction extends React.Component {
     render() {
         return (
             <div>
-                <a className="card-pf-link-with-icon pull-right" id="create-new-vm"
-                    onClick={this.open}>
-                    <span className="pficon pficon-add-circle-o" />{_("Create New VM")}
-                </a>
+                <Button className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
+                    {_("Create VM")}
+                </Button>
                 { this.state.showModal &&
                 <CreateVmModal
                     close={this.close} dispatch={this.props.dispatch}

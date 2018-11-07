@@ -456,3 +456,23 @@ cockpit_is_host_known (const gchar *known_hosts_file,
   /* we did not find anything, end of file*/
   return ret;
 }
+
+enum ssh_known_hosts_e
+ssh_session_is_known_server (ssh_session session)
+{
+    enum ssh_server_known_e result;
+
+    result = ssh_is_server_known (session);
+
+    switch(result)
+      {
+          case SSH_SERVER_ERROR: return SSH_KNOWN_HOSTS_ERROR;
+          case SSH_SERVER_FILE_NOT_FOUND: return SSH_KNOWN_HOSTS_NOT_FOUND;
+          case SSH_SERVER_NOT_KNOWN: return SSH_KNOWN_HOSTS_UNKNOWN;
+          case SSH_SERVER_KNOWN_OK: return SSH_KNOWN_HOSTS_OK;
+          case SSH_SERVER_KNOWN_CHANGED: return SSH_KNOWN_HOSTS_CHANGED;
+          case SSH_SERVER_FOUND_OTHER: return SSH_KNOWN_HOSTS_OTHER;
+      }
+
+    g_assert_not_reached ();
+}

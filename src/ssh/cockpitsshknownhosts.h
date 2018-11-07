@@ -26,7 +26,15 @@
 
 G_BEGIN_DECLS
 
-#define SSH_KNOWN_HOSTS_OK TRUE
+/* translate to old ssh_server_known_e enum for deprecated ssh_is_server_known() API */
+enum ssh_known_hosts_e {
+    SSH_KNOWN_HOSTS_ERROR = -2,
+    SSH_KNOWN_HOSTS_NOT_FOUND = -1,
+    SSH_KNOWN_HOSTS_UNKNOWN = 0,
+    SSH_KNOWN_HOSTS_OK,
+    SSH_KNOWN_HOSTS_CHANGED,
+    SSH_KNOWN_HOSTS_OTHER,
+};
 
 void            shim_set_knownhosts_file                   (const gchar *file);
 
@@ -39,6 +47,7 @@ gboolean        cockpit_is_host_known                      (const gchar *known_h
                                                             const gchar *host,
                                                             guint port);
 
+enum            ssh_known_hosts_e ssh_session_is_known_server (ssh_session session);
 
 G_END_DECLS
 

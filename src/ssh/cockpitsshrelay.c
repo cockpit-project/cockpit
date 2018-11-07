@@ -684,7 +684,7 @@ verify_knownhost (CockpitSshData *data,
   const gchar *ret = "invalid-hostkey";
   ssh_key key = NULL;
   unsigned char *hash = NULL;
-  int state;
+  enum ssh_known_hosts_e state;
   gsize len;
 
   g_warn_if_fail (ssh_session_export_known_hosts_entry(data->session, &data->host_key) == SSH_OK);
@@ -742,14 +742,14 @@ verify_knownhost (CockpitSshData *data,
     }
 #endif
 
-  state = ssh_is_server_known (data->session);
-  if (state == SSH_SERVER_KNOWN_OK)
+  state = ssh_session_is_known_server (data->session);
+  if (state == SSH_KNOWN_HOSTS_OK)
     {
       g_debug ("%s: verified host key", data->logname);
       ret = NULL; /* success */
       goto done;
     }
-  else if (state == SSH_SERVER_ERROR)
+  else if (state == SSH_KNOWN_HOSTS_ERROR)
     {
       g_warning ("%s: couldn't check host key: %s", data->logname,
                  ssh_get_error (data->session));
@@ -759,22 +759,22 @@ verify_knownhost (CockpitSshData *data,
 
   switch (state)
     {
-    case SSH_SERVER_KNOWN_OK:
-    case SSH_SERVER_ERROR:
+    case SSH_KNOWN_HOSTS_OK:
+    case SSH_KNOWN_HOSTS_ERROR:
       g_assert_not_reached ();
       break;
-    case SSH_SERVER_KNOWN_CHANGED:
+    case SSH_KNOWN_HOSTS_CHANGED:
       g_message ("%s: %s host key for server has changed to: %s",
                  data->logname, data->host_key_type, data->host_fingerprint);
       break;
-    case SSH_SERVER_FOUND_OTHER:
+    case SSH_KNOWN_HOSTS_OTHER:
       g_message ("%s: host key for this server changed key type: %s",
                  data->logname, data->host_key_type);
       break;
-    case SSH_SERVER_FILE_NOT_FOUND:
+    case SSH_KNOWN_HOSTS_NOT_FOUND:
       g_debug ("%s: Couldn't find the known hosts file", data->logname);
       /* fall through */
-    case SSH_SERVER_NOT_KNOWN:
+    case SSH_KNOWN_HOSTS_UNKNOWN:
       ret = prompt_for_host_key (data);
       if (ret)
         {

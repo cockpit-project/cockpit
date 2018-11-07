@@ -175,6 +175,55 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
         b.wait_not_present("#vm-subVmTest1-network-1-source-tooltip")
 
+    def testStoragePools(self):
+        b = self.browser
+        m = self.machine
+
+        # prepare libvirt storage pools
+        m.execute("mkdir /mnt/vm_one; mkdir /mnt/vm_two; chmod a+rwx /mnt/vm_one /mnt/vm_two")
+        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
+        m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
+
+        m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
+        wait(lambda: all(volume in m.execute("virsh vol-list myPoolTwo") for volume in ["VolumeOne", "VolumeTwo"]))
+
+        connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        # Click on Storage Pools card
+        b.wait_in_text(".cards-pf .card-pf-title-link", "Storage Pools")
+        b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
+
+        # Check that all defined pools are there
+        b.wait_in_text("body", "Storage Pools")
+        b.wait_present("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName))
+        b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName))
+
+        # Check basic pool properties
+        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+        b.wait_in_text("#pool-myPoolOne-{0}-path".format(connectionName), "/mnt/vm_one")
+        b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
+
+        # Check storage volumes of a pool
+        b.wait_present("#pool-myPoolOne-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolOne-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
+        b.wait_present("#pool-myPoolOne-{0}-storage-volumes-list".format(connectionName))
+        b.wait_in_text("#pool-myPoolOne-{0}-storage-volumes-list".format(connectionName), "No Storage Volumes defined for this Storage Pool")
+
+        # Close expanded row for this pool
+        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+
+        # Expand row for second storage pool and check list of storage volumes
+        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
+        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
+
 
 if __name__ == '__main__':
     test_main()

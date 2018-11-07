@@ -96,7 +96,7 @@ export class KdumpClient {
         return cockpit.script(crashKernelScript, [], { superuser: "require" });
     }
 
-    testWriteLocation(settings) {
+    validateSettings(settings) {
         var target = this.targetFromSettings(settings);
         var path;
         if (target && target.path)
@@ -106,14 +106,24 @@ export class KdumpClient {
             path = "/var/crash";
 
         var dfd = cockpit.defer();
-        if (!target || target.target != "local") {
-            dfd.resolve();
-        } else {
+        if (target.target === "local") {
             // local path, try to see if we can write
             cockpit.script(testWritableScript, [path], { superuser: "try" })
                     .done(dfd.resolve)
                     .fail(() => dfd.reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path)));
+            return dfd.promise();
+        } else if (target.target === "nfs") {
+            if (!target.nfs.value.match("\\S+:/.+"))
+                dfd.reject(_("nfs dump target isn't formated as server:path"));
+        } else if (target.target === "ssh") {
+            if (!target.ssh.value.trim())
+                dfd.reject(_("ssh server is empty"));
+            if (target.sshkey && !target.sshkey.value.match("/.+"))
+                dfd.reject(_("ssh key isn't a path"));
         }
+
+        /* no-op if already rejected  */
+        dfd.resolve();
         return dfd.promise();
     }
 

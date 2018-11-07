@@ -434,7 +434,7 @@ class SETroubleshootPage extends React.Component {
                 }
                 return (
                     <cockpitListing.ListingRow
-                        key={itm.details.localId || index}
+                        key={itm.details ? itm.details.localId : index}
                         columns={columns}
                         tabRenderers={tabRenderers}
                         listingDetail={listingDetail}

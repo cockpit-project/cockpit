@@ -183,9 +183,9 @@ different browsers:
 
     $ bots/image-download selenium
     $ bots/image-prepare fedora-28
-    $ TEST_OS=fedora-28 test/avocado/run-tests --selenium-tests --browser=firefox -v
+    $ TEST_OS=fedora-29 test/avocado/run-tests --selenium-tests --browser=firefox -v
 
-Currently, these tests run on Fedora 28. Other images don't have selenium and
+Currently, these tests run on Fedora 29. Other images don't have selenium and
 avocado installed.
 
 ## Debugging tests

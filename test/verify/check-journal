@@ -307,7 +307,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
@@ -347,7 +348,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("Newer version of ABRT required", "centos-7", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
@@ -385,7 +387,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_not_present("#journal-entry-fields .nav")
 
 
-    @skipImage("Newer version of ABRT required", "centos-7", "fedora-i386", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
+    @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtReport(self):
         self.allow_core_dumps = True

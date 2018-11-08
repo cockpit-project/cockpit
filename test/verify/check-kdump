@@ -68,147 +68,146 @@ class TestKdump(MachineCase):
         b.key_press(value)
 
     def testBasic(self):
-        self.browser.wait_timeout(120)
+        b = self.browser
+        m = self.machine
 
+        b.wait_timeout(120)
         self.allow_restart_journal_messages()
 
-        if not "atomic" in self.machine.image:
-            self.machine.execute("systemctl enable kdump && systemctl start kdump || true")
+        if not "atomic" in m.image:
+            m.execute("systemctl enable kdump && systemctl start kdump || true")
 
         self.login_and_go("/kdump")
 
-        self.browser.wait_visible("#app")
+        b.wait_visible("#app")
 
         onOffSelectorActive = "div.btn-onoff-ct label.active"
 
-        if self.machine.image in ["rhel-x"]:
+        if m.image in ["rhel-x"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
-            self.browser.wait_in_text("#app", "Service is running")
-            self.browser.wait_in_text(onOffSelectorActive, "On")
+            b.wait_in_text("#app", "Service is running")
+            b.wait_in_text(onOffSelectorActive, "On")
         else:
             # right now we have no memory reserved
-            self.browser.wait_in_text("#app", "No memory reserved.")
+            b.wait_in_text("#app", "No memory reserved.")
             # service should indicate an error and the button should be off
-            self.browser.wait_in_text("#app", "Service has an error")
-            self.browser.wait_in_text(onOffSelectorActive, "Off")
+            b.wait_in_text("#app", "Service has an error")
+            b.wait_in_text(onOffSelectorActive, "Off")
 
         # there shouldn't be any crash reports in the target directory
-        self.assertEqual(self.machine.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
+        self.assertEqual(m.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
 
         self.enableKdump()
         self.rebootMachine()
-        self.browser.wait_visible("#app")
+        b.wait_visible("#app")
         self.enableLocalSsh()
 
-        if self.machine.image not in ["rhel-7-6-distropkg"]:
+        if m.image not in ["rhel-7-6-distropkg"]:
             # minimal nfs validation
             settingsLink = "a:contains('locally in /var/crash')"
-            self.browser.wait_present(settingsLink)
-            self.browser.wait_visible(settingsLink)
-            self.browser.click(settingsLink, True)
-            self.browser.wait_present("#kdump-settings-location")
-            self.browser.click("#kdump-settings-location")
-            self.browser.wait_present("a:contains('Remote over NFS')")
-            self.browser.click("a:contains('Remote over NFS')")
+            b.wait_present(settingsLink)
+            b.click(settingsLink, True)
+            b.wait_present("#kdump-settings-location")
+            b.click("#kdump-settings-location")
+            b.wait_present("a:contains('Remote over NFS')")
+            b.click("a:contains('Remote over NFS')")
             mountInput = "#kdump-settings-nfs-mount"
-            self.browser.wait_present(mountInput)
-            self.browser.wait_visible(mountInput)
+            b.wait_present(mountInput)
             self._type_val(mountInput, ":/var/crash")
-            self.browser.click("button.btn-primary:contains('Apply')")
-            self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
+            b.click("button.btn-primary:contains('Apply')")
+            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
             self._type_val(mountInput, "localhost:");
-            self.browser.click("button.btn-primary:contains('Apply')")
-            self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
-            self.browser.click("button.btn-default:contains('Cancel')")
+            b.click("button.btn-primary:contains('Apply')")
+            b.wait_present("div.dialog-error:contains('Unable to apply settings')")
+            b.click("button.btn-default:contains('Cancel')")
+
+            # test compression
+            b.click(settingsLink, True)
+            b.wait_present("#kdump-settings-location")
+            b.click("#kdump-settings-compression")
+            pathInput = "#kdump-settings-local-directory"
+            b.click("button.btn-primary:contains('Apply')")
+            b.wait_not_present(pathInput)
+            m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
+
 
             # generate a valid kdump config with ssh target
-            settingsLink = "a:contains('locally in /var/crash')"
-            self.browser.wait_present(settingsLink)
-            self.browser.wait_visible(settingsLink)
-            self.browser.click(settingsLink, True)
-            self.browser.wait_present("#kdump-settings-location")
-            self.browser.click("#kdump-settings-location")
-            self.browser.wait_present("a:contains('Remote over SSH')")
-            self.browser.click("a:contains('Remote over SSH')")
+            b.wait_present(settingsLink)
+            b.click(settingsLink, True)
+            b.wait_present("#kdump-settings-location")
+            b.click("#kdump-settings-location")
+            b.wait_present("a:contains('Remote over SSH')")
+            b.click("a:contains('Remote over SSH')")
             sshInput = "#kdump-settings-ssh-server"
-            self.browser.wait_present(sshInput)
-            self.browser.wait_visible(sshInput)
+            b.wait_present(sshInput)
             self._type_val(sshInput, "root@localhost")
             sshKeyInput = "#kdump-settings-ssh-key"
-            self.browser.wait_present(sshKeyInput)
-            self.browser.wait_visible(sshKeyInput)
+            b.wait_present(sshKeyInput)
             self._type_val(sshKeyInput, "/root/.ssh/id_rsa")
-            pathInput = "#kdump-settings-local-directory"
-            self.browser.wait_present(pathInput)
-            self.browser.wait_visible(pathInput)
+            b.wait_present(pathInput)
             self._type_val(pathInput, "/var/crash")
-            self.browser.click("button.btn-primary:contains('Apply')")
-            self.browser.wait_not_present(pathInput)
+            b.click("button.btn-primary:contains('Apply')")
+            b.wait_not_present(pathInput)
 
         # we should have the amount of memory reserved that we indicated
-        self.browser.wait_in_text("#app", "256 MiB")
+        b.wait_in_text("#app", "256 MiB")
         # service should start up properly and the button should be on
-        self.browser.wait_in_text("#app", "Service is running")
-        self.browser.wait_in_text(onOffSelectorActive, "On")
-        self.browser.wait_in_text("#app", "Service is running")
+        b.wait_in_text("#app", "Service is running")
+        b.wait_in_text(onOffSelectorActive, "On")
+        b.wait_in_text("#app", "Service is running")
+
+        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
+        if m.image in ["rhel-7-6-distropkg"]:
+            return
 
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
-        # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
-        if self.machine.image in ["rhel-7-6-distropkg"]:
-            return
-        else:
-            settingsLink = "a:contains('Remote over SSH')"
-        self.browser.wait_present(settingsLink)
-        self.browser.wait_visible(settingsLink)
-        self.browser.click(settingsLink, True)
-        self.browser.wait_present("#kdump-settings-location")
-        self.browser.click("#kdump-settings-location")
-        self.browser.wait_present("a:contains('Local Filesystem')")
-        self.browser.click("a:contains('Local Filesystem')")
+        settingsLink = "a:contains('Remote over SSH')"
+        b.wait_present(settingsLink)
+        b.click(settingsLink, True)
+        b.wait_present("#kdump-settings-location")
+        b.click("#kdump-settings-location")
+        b.wait_present("a:contains('Local Filesystem')")
+        b.click("a:contains('Local Filesystem')")
         pathInput = "#kdump-settings-local-directory"
-        self.browser.wait_present(pathInput)
-        self.browser.wait_visible(pathInput)
+        b.wait_present(pathInput)
         self._type_val(pathInput, customPath)
-        self.browser.click("button.btn-primary:contains('Apply')")
+        b.click("button.btn-primary:contains('Apply')")
         # we should get an error
-        self.browser.wait_present("div.dialog-error:contains('Unable to apply settings')")
+        b.wait_present("div.dialog-error:contains('Unable to apply settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
-        self.machine.execute("mkdir -p {0}".format(customPath))
-        self.browser.click("button.btn-primary:contains('Apply')")
-        self.browser.wait_not_present(pathInput)
-        self.browser.wait_present("a:contains('locally in {0}')".format(customPath))
+        m.execute("mkdir -p {0}".format(customPath))
+        b.click("button.btn-primary:contains('Apply')")
+        b.wait_not_present(pathInput)
+        b.wait_present("a:contains('locally in {0}')".format(customPath))
 
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
-        self.browser.wait_in_text("#app", "Service is running")
-        self.browser.wait_in_text(onOffSelectorActive, "On")
+        b.wait_in_text("#app", "Service is running")
+        b.wait_in_text(onOffSelectorActive, "On")
 
         # crash the kernel and make sure it wrote a report into the right directory
-        self.browser.click("button.btn-default")
+        b.click("button.btn-default")
         # we should get a warning dialog, confirm
         crashButton = "button.btn-danger:contains('Crash system')"
-        self.browser.wait_present(crashButton)
-        self.browser.wait_visible(crashButton)
-        self.browser.click(crashButton)
+        b.wait_present(crashButton)
+        b.click(crashButton)
 
         # wait until we've actuall triggered a crash
-        self.browser.wait_present("div.spinner")
-        self.browser.wait_visible("div.spinner")
+        b.wait_present("div.spinner")
 
         # wait for disconnect and then try connecting again
-        self.browser.switch_to_top()
-        self.browser.wait_present("div.curtains-ct")
-        self.browser.wait_visible("div.curtains-ct")
-        self.browser.wait_in_text("div.curtains-ct h1", "Disconnected")
-        self.machine.disconnect()
-        self.machine.wait_boot(timeout_sec=300)
-        #self.browser.click("#machine-reconnect")
-        #self.browser.expect_load()
-        #self.browser.wait_visible("#login")
-        self.assertNotEqual(self.machine.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
+        b.switch_to_top()
+        b.wait_present("div.curtains-ct")
+        b.wait_in_text("div.curtains-ct h1", "Disconnected")
+        m.disconnect()
+        m.wait_boot(timeout_sec=300)
+        #b.click("#machine-reconnect")
+        #b.expect_load()
+        #b.wait_visible("#login")
+        self.assertNotEqual(m.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
 
 if __name__ == '__main__':
     test_main()

@@ -1,4 +1,4 @@
-FROM fedora:28
+FROM fedora:29
 LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
 
 ARG VERSION

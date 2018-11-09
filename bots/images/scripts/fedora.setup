@@ -115,6 +115,10 @@ dnf $DNF_OPTS -y upgrade
 dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT_PACKAGES
 
 if [ -n "$AVOCADO" ]; then
+
+    # enable python3 avocado support repository (avocado upstream)
+    curl -f -o /etc/yum.repos.d/avocado.repo https://avocado-project.org/data/repos/avocado-fedora.repo
+
     dnf $DNF_OPTS -y install \
         python2-avocado \
         python2-avocado-plugins-output-html \
@@ -122,7 +126,10 @@ if [ -n "$AVOCADO" ]; then
         fontconfig \
         npm \
         python2-selenium \
-        chromium-headless
+        chromium-headless \
+        python3-avocado \
+        python3-avocado-plugins-output-html \
+        python3-selenium
 
     npm -g install chrome-remote-interface
     echo 'NODE_PATH=/usr/lib/node_modules' >> /etc/environment

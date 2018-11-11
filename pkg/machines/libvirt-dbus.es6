@@ -451,7 +451,7 @@ LIBVIRT_DBUS_PROVIDER = {
                         let count = getDomainMaxVCPU(capsXML[0]);
                         dispatch(setHypervisorMaxVCPU({ count, connectionName }));
                     })
-                    .fail(ex => console.error("GetDomainCapabilities failed: %s", ex));
+                    .fail(ex => console.warn("GetDomainCapabilities failed: %s", ex));
         }
 
         return unknownConnectionName(setHypervisorMaxVCPU);
@@ -550,9 +550,9 @@ LIBVIRT_DBUS_PROVIDER = {
                                     }));
                                 });
                             })
-                            .fail(ex => console.error("ListStorageVolumes failed:", ex));
+                            .fail(ex => console.warn("ListStorageVolumes failed:", ex));
                 })
-                .fail(ex => console.error("StoragePoolLookupByName for pool %s failed: %s", poolName, JSON.stringify(ex)));
+                .fail(ex => console.warn("StoragePoolLookupByName for pool %s failed: %s", poolName, JSON.stringify(ex)));
     },
 
     /*
@@ -780,7 +780,7 @@ function calculateDiskStats(info) {
                 allocation,
             };
         } else {
-            console.error(`calculateDiskStats(): mandatory property is missing in info (block.${i}.name)`);
+            console.warn(`calculateDiskStats(): mandatory property is missing in info (block.${i}.name)`);
         }
     }
     return disksStats;

@@ -260,7 +260,7 @@ LIBVIRT_PROVIDER = {
                 .stream(output => { data += output })
                 .then(() => parseStorageVolumes(dispatch, connectionName, poolName, data))
                 .fail((exception, data) => {
-                    console.error('Failed to get list of Libvirt storage volumes for connection: ', connectionName, ', pool: ', poolName, ': ', data, exception);
+                    console.warn('Failed to get list of Libvirt storage volumes for connection: ', connectionName, ', pool: ', poolName, ': ', data, exception);
                 });
     },
 

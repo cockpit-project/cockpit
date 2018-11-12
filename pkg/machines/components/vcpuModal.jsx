@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button, Modal } from 'patternfly-react';
+import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 
 import * as SelectComponent from 'cockpit-components-select.jsx';
@@ -157,15 +157,18 @@ export class VCPUModal extends React.Component {
         const { vm } = this.props;
         let caution = null;
 
-        if (vm.state === 'running') {
+        if (vm.state === 'running' && (
+            this.state.sockets != (vm.cpu.topology.sockets || 1) ||
+            this.state.threads != (vm.cpu.topology.threads || 1) ||
+            this.state.cores != (vm.cpu.topology.cores || 1) ||
+            this.state.max != vm.vcpus.max ||
+            this.state.count != vm.vcpus.count)
+        ) {
             caution = (
-                <tr>
-                    <td colSpan={2} className="machines-vcpu-caution">
-                        <Alert type='warning'>
-                            {_("All changes will take effect only after stopping and starting the VM.")}
-                        </Alert>
-                    </td>
-                </tr>
+                <span className='idle-message'>
+                    <i className='pficon pficon-pending' />
+                    <span>{_("Changes will take effect after shutting down the VM")}</span>
+                </span>
             );
         }
 
@@ -206,7 +209,6 @@ export class VCPUModal extends React.Component {
                                 </table>
                             </td>
                         </tr>
-                        { caution }
                     </tbody>
                 </table>
             </div>
@@ -222,6 +224,7 @@ export class VCPUModal extends React.Component {
                     { defaultBody }
                 </Modal.Body>
                 <Modal.Footer>
+                    { caution }
                     <Button id='machines-vcpu-modal-dialog-cancel' bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>

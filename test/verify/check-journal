@@ -332,7 +332,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.click("li:contains(Problem info)")
         # HACK on fedora-29 crash_function is not present
-        if m.image in ["fedora-29"]:
+        if m.image in ["fedora-29", "fedora-testing"]:
             wait_field("reason", "killed by SIGSEGV")
         else:
             wait_field("crash_function", self.crash_fn)

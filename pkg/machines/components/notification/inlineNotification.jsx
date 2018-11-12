@@ -90,3 +90,14 @@ export const Info = ({ onDismiss, text, textId, detail }) => {
         </Alert>
     );
 };
+
+export const ModalError = ({ dialogError, dialogErrorDetail }) => {
+    return (
+        <Alert>
+            <strong>
+                {dialogError}
+            </strong>
+            { dialogErrorDetail && <p> Error message: <samp>{dialogErrorDetail}</samp> </p> }
+        </Alert>
+    );
+};

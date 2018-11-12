@@ -17,11 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Alert, Button, Modal } from 'patternfly-react';
+import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
-
+import { ModalError } from './notification/inlineNotification.jsx';
 import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
 import { volumeCreateAndAttach, attachDisk, getVm, getStoragePools } from '../actions/provider-actions.es6';
 
@@ -328,7 +328,6 @@ class AddDiskModalBody extends React.Component {
         this.state = this.initialState;
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
-        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
         this.onAddClicked = this.onAddClicked.bind(this);
         this.getDefaultVolumeName = this.getDefaultVolumeName.bind(this);
     }
@@ -375,12 +374,8 @@ class AddDiskModalBody extends React.Component {
         this.setState(stateDelta);
     }
 
-    dialogErrorSet(text) {
-        this.setState({ dialogError: text });
-    }
-
-    dialogErrorDismiss() {
-        this.setState({ dialogError: undefined });
+    dialogErrorSet(text, detail) {
+        this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
     onAddClicked() {
@@ -406,7 +401,7 @@ class AddDiskModalBody extends React.Component {
                                                     hotplug: this.state.hotplug,
                                                     vmName: vm.name,
                                                     vmId: vm.id }))
-                    .fail(exc => this.dialogErrorSet(_("Disk failed to be created with following error: ") + exc.message))
+                    .fail(exc => this.dialogErrorSet(_("Disk failed to be created"), exc.message))
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                         this.props.close();
                         return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
@@ -421,7 +416,7 @@ class AddDiskModalBody extends React.Component {
                                      hotplug: this.state.hotplug,
                                      vmName: vm.name,
                                      vmId: vm.id }))
-                .fail(exc => this.dialogErrorSet(_("Disk failed to be attached with following error: ") + exc.message))
+                .fail(exc => this.dialogErrorSet(_("Disk failed to be attached"), exc.message))
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     this.props.close();
                     return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
@@ -495,10 +490,10 @@ class AddDiskModalBody extends React.Component {
                     <Modal.Title> {`Add Disk`} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {this.state.dialogError && (<Alert onDismiss={this.dialogErrorDismiss}> {this.state.dialogError} </Alert>)}
                     {defaultBody}
                 </Modal.Body>
                 <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     <Button id={`${idPrefix}-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>

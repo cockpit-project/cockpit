@@ -96,8 +96,12 @@ def ensure_deps_installed(machine):
         machine.execute("python3 -c 'import selenium'", quiet=True)
     except subprocess.CalledProcessError:
         machine.execute("pip3 install selenium")
+    try:
+        machine.execute("python3 -c 'import libvirt'", quiet=True)
+    except subprocess.CalledProcessError:
+        machine.execute("dnf install -y python3-libvirt")
 
-def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
+def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
         run_avocado(machine,
@@ -109,15 +113,14 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
     """
     return_state = True
     ensure_deps_installed(machine)
-    cmd_parts = env + ["python3 -m avocado run",
+    cmd_parts = ["python3 -m avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"
                  ]
-
     # HACK override env for LC_ALL to utf, python3 avocado fails with LANG set to C
     try:
-        machine.execute(script=" ".join(cmd_parts), timeout=3600, environment=env)
+        machine.execute(" ".join(cmd_parts), timeout=3600, environment=env)
     except subprocess.CalledProcessError:
         if print_failed:
             # try to get the list of failed tests
@@ -233,9 +236,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             copy_avocado_logs(machine, "PASSED")
 
         if not success and sit:
-            sys.stderr.write(machine.diagnose() + "\n")
             testlib.sit()
-
         return success
     finally:
         machine.kill()

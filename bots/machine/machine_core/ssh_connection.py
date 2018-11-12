@@ -233,7 +233,8 @@ class SSHConnection(object):
             self._start_ssh_master()
 
     def execute(self, command=None, script=None, input=None, environment={},
-                stdout=None, quiet=False, direct=False, timeout=120):
+                stdout=None, quiet=False, direct=False, timeout=120,
+                ssh_env=["env", "-u", "LANGUAGE", "LC_ALL=C"]):
         """Execute a shell command in the test machine and return its output.
 
         Either specify @command or @script
@@ -253,29 +254,36 @@ class SSHConnection(object):
         if not direct:
             self._ensure_ssh_master()
 
-        # default to no translations; can be overridden in environment
-        cmd = [
-            "env", "-u", "LANGUAGE", "LC_ALL=C",
+        env_script = ""
+        env_command = []
+        if environment and isinstance(environment, dict):
+            for name, value in environment.items():
+                env_script += "%s='%s'\n" % (name, value)
+                env_script += "export %s\n" % name
+                env_command.append("{}={}".format(name, value))
+        elif environment == {}:
+            pass
+        else:
+            raise Exception("enviroment support dict or list items given: ".format(environment))
+        default_ssh_params = [
             "ssh",
             "-p", str(self.ssh_port),
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-o", "LogLevel=ERROR",
-            "-o", "BatchMode=yes"
-        ]
-
-        if direct:
-            cmd += [ "-i", self.identity_file ]
-        else:
-            cmd += [ "-o", "ControlPath=" + self.ssh_master ]
-
-        cmd += [
+            "-o", "BatchMode=yes",
             "-l", self.ssh_user,
             self.ssh_address
         ]
+        additional_ssh_params = []
+        cmd = []
+
+        if direct:
+            additional_ssh_params += ["-i", self.identity_file]
+        else:
+            additional_ssh_params += ["-o", "ControlPath=" + self.ssh_master]
 
         if command:
-            assert not environment, "Not yet supported"
             if getattr(command, "strip", None): # Is this a string?
                 cmd += [command]
                 if not quiet:
@@ -289,20 +297,17 @@ class SSHConnection(object):
             cmd += ["sh", "-s"]
             if self.verbose:
                 cmd += ["-x"]
-            input = ""
-            for name, value in environment.items():
-                input += "%s='%s'\n" % (name, value)
-                input += "export %s\n" % name
+            input = env_script
             input += script
             command = "<script>"
-
+        command_line = ssh_env + default_ssh_params + additional_ssh_params + env_command + cmd
         if stdout:
-            subprocess.call(cmd, stdout=stdout)
+            subprocess.call(command_line, stdout=stdout)
             return
 
         with timeoutlib.Timeout(seconds=timeout, error_message="Timed out on '%s'" % command, machine=self):
             output = ""
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc = subprocess.Popen(command_line, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdin_fd = proc.stdin.fileno()
             stdout_fd = proc.stdout.fileno()
             stderr_fd = proc.stderr.fileno()

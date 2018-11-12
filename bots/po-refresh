@@ -51,8 +51,8 @@ def run(context, verbose=False, **kwargs):
                 msgstr = True
         return msgstr
 
-    # Make a tree with source ... outputs working directory
-    line = output("bots/make-source", "po/cockpit.pot")
+    # Make a tree with source and run "update-po" in it... outputs working directory
+    line = output("bots/make-source", "update-po")
     work = os.path.abspath(line.strip())
 
     # Do the various updates

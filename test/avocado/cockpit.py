@@ -19,7 +19,6 @@
 
 import os
 import re
-import subprocess
 import shutil
 from avocado.utils import process
 
@@ -53,8 +52,9 @@ class Cockpit():
         #        state = self.get_state()
         self.label = ("avocado")
         self.browser = Browser("localhost", self.label)
-        self.journal_start = re.sub('.*cursor: ', '',
-                                    subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True).decode("utf-8"))
+        self.journal_start = re.sub('.*cursor: ', '', process.run("journalctl --show-cursor -n0 -o cat",
+                                                                  ignore_status=True,
+                                                                  shell=True).stdout.decode('utf-8'))
 
     def tearDown(self):
         pass
@@ -159,7 +159,7 @@ class Cockpit():
         cmd = "journalctl 2>&1 -c'%s' -o cat -p %d %s" % (
             self.journal_start, log_level, matches)
         out = process.run(cmd, shell=True, ignore_status=True)
-        messages = out.stdout.splitlines()
+        messages = out.stdout.decode('utf-8').splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             # No messages
             return []
@@ -170,7 +170,7 @@ class Cockpit():
         cmd = "journalctl -c'%s' -o cat SYSLOG_IDENTIFIER=kernel 2>&1 | grep 'type=%s.*audit' || true" % (
             self.journal_start, type_pref)
         out = process.run(cmd, shell=True)
-        messages = out.stdout.splitlines()
+        messages = out.stdout.decode('utf-8').splitlines()
         if len(messages) == 1 and "Cannot assign requested address" in messages[0]:
             messages = []
         return messages

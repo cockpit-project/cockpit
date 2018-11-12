@@ -513,6 +513,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
 
      # Test Add Disk via dialog
+    @skipImage("virt-xml >= 2.0.0 will configure the disk bus type as ide which is not hot-pluggable", "fedora-29", "rhel-x")
     def testAddDisk(self):
         b = self.browser
         m = self.machine

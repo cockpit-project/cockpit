@@ -264,7 +264,7 @@ export class EditNICAction extends React.Component {
                 this.state.networkModel !== network.model)
             ) {
                 return (
-                    <span id={`${idPrefix}-edit-dialog-idle-message`} className='nic-edit-idle-message'>
+                    <span id={`${idPrefix}-edit-dialog-idle-message`} className='idle-message'>
                         <i className='pficon pficon-pending' />
                         <span>{_("Changes will apply on VM shutdown")}</span>
                     </span>

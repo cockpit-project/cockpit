@@ -1,9 +1,0 @@
-#! /bin/bash
-
-BASE=$(dirname $0)
-# get the latest centos-7 virt-builder has to offer
-IMAGE_BASE=centos-7
-ARCH=x86_64
-CENTOS_LATEST=$(virt-builder -l | grep "$ARCH" | sort -r | grep -m 1 "$IMAGE_BASE" | cut -d" " -f1)
-
-$BASE/virt-builder-fedora "$1" "$CENTOS_LATEST" "$ARCH"

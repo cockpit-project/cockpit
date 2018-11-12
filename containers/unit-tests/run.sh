@@ -32,7 +32,9 @@ case $ARCH in
 esac
 
 if [ -d bots ]; then
-    bots/test-bots
+    # Set GITHUB_BASE so that "import task" works without failure.
+    # https://github.com/cockpit-project/cockpit/issues/10578
+    GITHUB_BASE=unused bots/test-bots
 fi
 
 # bots/ is by and large an independent project, and for supporting stable

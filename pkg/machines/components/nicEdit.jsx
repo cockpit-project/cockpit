@@ -20,13 +20,14 @@ import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
 import {
-    Alert,
     Form,
     FormGroup,
     Grid,
     Modal,
     Button
 } from 'patternfly-react';
+
+import { ModalError } from './notification/inlineNotification.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 import {
     changeNetworkSettings,
@@ -192,7 +193,6 @@ export class EditNICAction extends React.Component {
         this.save = this.save.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
         this.dialogErrorSet = this.dialogErrorSet.bind(this);
-        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
     }
 
     onValueChanged(key, value) {
@@ -201,17 +201,12 @@ export class EditNICAction extends React.Component {
         this.setState(stateDelta);
     }
 
-    dialogErrorSet(text) {
-        this.setState({ dialogError: text });
-    }
-
-    dialogErrorDismiss() {
-        this.setState({ dialogError: undefined });
+    dialogErrorSet(text, detail) {
+        this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
     close() {
-        this.setState({ showModal: false });
-        this.dialogErrorDismiss();
+        this.setState({ showModal: false, dialogError: undefined });
     }
 
     open() {
@@ -228,7 +223,7 @@ export class EditNICAction extends React.Component {
             networkSource: this.state.networkSource
         }))
                 .fail((exc) => {
-                    this.dialogErrorSet(_("Network settings failed to change with following error: ") + exc.message);
+                    this.dialogErrorSet(_("Network settings could not be saved"), exc.message);
                 })
                 .then(() => {
                     dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));
@@ -284,10 +279,10 @@ export class EditNICAction extends React.Component {
                         <Modal.Title> {`${network.mac} Virtual Network Interface Settings`} </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {this.state.dialogError && (<Alert onDismiss={this.dialogErrorDismiss}> {this.state.dialogError} </Alert>)}
                         {defaultBody}
                     </Modal.Body>
                     <Modal.Footer>
+                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                         { showFooterWarning() }
                         <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}

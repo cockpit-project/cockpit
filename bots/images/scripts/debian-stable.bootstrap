@@ -1,6 +1,0 @@
-#! /bin/sh -ex
-ARCH=x86_64
-DEBIAN_LATEST=$(virt-builder -l  | grep "$ARCH" | sort -r | grep -m1 '^debian-' | cut -d' ' -f1)
-exec $(dirname $0)/lib/debian.bootstrap "$1" "$2" "$DEBIAN_LATEST" "deb http://deb.debian.org/debian stable main
-deb http://deb.debian.org/debian stable-updates main
-deb http://security.debian.org/ stable/updates main"

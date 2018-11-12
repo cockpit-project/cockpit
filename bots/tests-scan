@@ -336,6 +336,8 @@ def cockpit_tasks(api, update, contexts, repo):
         def trigger_externals():
             if repo:  # already a non-cockpit project
                 return False
+            if base != "master":  # bots/ is always taken from master branch
+                return False
             if LABEL_TEST_EXTERNAL in labels():  # already checked before?
                 return True
 

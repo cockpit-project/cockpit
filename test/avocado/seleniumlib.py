@@ -81,15 +81,7 @@ class SeleniumTest(Test):
 
             connect_browser()
         self.driver.set_window_size(1400, 1200)
-        try:
-            self.driver.set_page_load_timeout(90)
-        except WebDriverException as e:
-            # HACK: this fails with python2-selenium < 3.9 and firefox:3 (https://bugzilla.redhat.com/show_bug.cgi?id=1629909)
-            if browser == 'firefox':
-                self.log.error("set_page_load_timeout() failed (known issue with firefox): " + str(e))
-            else:
-                raise
-
+        self.driver.set_page_load_timeout(90)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM

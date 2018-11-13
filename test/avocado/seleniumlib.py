@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """ SETUP tasks
 
 # workaround for RHEL7

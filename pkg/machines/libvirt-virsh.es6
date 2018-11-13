@@ -333,7 +333,6 @@ LIBVIRT_PROVIDER = {
                 .then((tempFilename) => {
                     return spawnVirsh({connectionName,
                                        method: 'SET_VCPU_SETTINGS',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("SET VCPU SETTINGS action failed") }),
                                        args: ['define', tempFilename.trim()]
                     });
                 });

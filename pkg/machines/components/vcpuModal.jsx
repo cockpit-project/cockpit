@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 
+import { ModalError } from './notification/inlineNotification.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
 import { setVCPUSettings } from "../actions/provider-actions.es6";
@@ -41,6 +42,8 @@ export class VCPUModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            dialogError: undefined,
+            dialogErrorDetail: undefined,
             sockets: props.vm.cpu.topology.sockets || 1,
             threads: props.vm.cpu.topology.threads || 1,
             cores: props.vm.cpu.topology.cores || 1,
@@ -53,7 +56,12 @@ export class VCPUModal extends React.Component {
         this.onThreadsChange = this.onThreadsChange.bind(this);
         this.onCoresChange = this.onCoresChange.bind(this);
 
+        this.dialogErrorSet = this.dialogErrorSet.bind(this);
         this.save = this.save.bind(this);
+    }
+
+    dialogErrorSet(text, detail) {
+        this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
     onMaxChange (e) {
@@ -149,8 +157,11 @@ export class VCPUModal extends React.Component {
     save() {
         const { close, dispatch, vm } = this.props;
 
-        close();
-        return dispatch(setVCPUSettings(vm, this.state.max, this.state.count, this.state.sockets, this.state.threads, this.state.cores));
+        return dispatch(setVCPUSettings(vm, this.state.max, this.state.count, this.state.sockets, this.state.threads, this.state.cores))
+                .fail((exc) => {
+                    this.dialogErrorSet(_("VCPU settings could not be saved"), exc.message);
+                })
+                .then(close);
     }
 
     render() {
@@ -224,6 +235,7 @@ export class VCPUModal extends React.Component {
                     { defaultBody }
                 </Modal.Body>
                 <Modal.Footer>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                     { caution }
                     <Button id='machines-vcpu-modal-dialog-cancel' bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}

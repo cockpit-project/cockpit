@@ -639,19 +639,11 @@ LIBVIRT_DBUS_PROVIDER = {
         threads,
         isRunning
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .done(domXml => {
-                        let updatedXML = updateVCPUSettings(domXml[0], count, max, sockets, cores, threads);
-                        call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT)
-                                .fail(exception => dispatch(vmActionFailed(
-                                    { name, connectionName, message: _("SET_VCPU_SETTINGS action failed"), detail: {exception} }
-                                )));
-                    })
-                    .fail(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("SET_VCPU_SETTINGS action failed"), detail: {exception} }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXML = updateVCPUSettings(domXml[0], count, max, sockets, cores, threads);
+                    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
+                });
     },
 
     SHUTDOWN_VM({

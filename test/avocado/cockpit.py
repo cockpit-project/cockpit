@@ -53,7 +53,7 @@ class Cockpit():
         self.label = ("avocado")
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
-                                    subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
+                                    subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True).decode("utf-8"))
 
     def tearDown(self):
         pass

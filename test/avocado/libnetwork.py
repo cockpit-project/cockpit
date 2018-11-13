@@ -43,7 +43,7 @@ class Network():
 
     def checkifbridgeexist(self):
         out = process.run("brctl show", shell=True)
-        if re.search('%s\s+' % self.brname ,out.stdout) is None:
+        if re.search('%s\s+' % self.brname ,out.stdout.decode("utf-8")) is None:
             return True
         else:
             return False
@@ -70,7 +70,7 @@ class Network():
     def isifinbridge(self,ifname):
         if self.brname:
             out = process.run("brctl show %s" % self.brname, shell=True)
-            if re.search('\s+%s$' % ifname ,out.stdout):
+            if re.search('\s+%s$' % ifname ,out.stdout.decode("utf-8")):
                 return True
         return False
 

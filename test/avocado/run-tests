@@ -22,6 +22,7 @@ import argparse
 import json
 import os
 import sys
+import subprocess
 
 # we use symlinked files
 # the directory structure breaks on the second run with .pyc files
@@ -64,7 +65,7 @@ def tap_output(machine):
     counter = 1
     for t in json_info['tests']:
         test_status = t['status']
-        test_name = os.path.basename(t['test'])
+        test_name = os.path.basename(t['id'])
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
         print("# ----------------------------------------------------------------------")
@@ -86,7 +87,7 @@ def tap_output(machine):
     else:
         print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
-def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
+def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
         run_avocado(machine,
@@ -97,15 +98,16 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
         If 'print_failed' is True, attempt to print a list of failed tests
     """
     return_state = True
-    cmd_parts = env + ["avocado run",
+    cmd_parts = ["avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"
                  ]
 
+    # HACK override env for LC_ALL to utf, python3 avocado fails with LANG set to C
     try:
-        machine.execute(" ".join(cmd_parts), timeout=3600)
-    except:
+        machine.execute(script=" ".join(cmd_parts), timeout=3600, environment=env)
+    except subprocess.CalledProcessError:
         if print_failed:
             # try to get the list of failed tests
             try:
@@ -118,12 +120,12 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                 for t in failed_tests['tests']:
                     test_status = t['status']
                     if test_status != 'PASS':
-                        test_name = t['test']
+                        test_id, test_name = t['id'].split("-", 1)
                         if test_name.startswith(machine_test_dir + '/'):
                             test_name = test_name[(len(machine_test_dir) + 1):]
                         fail_reason = t['fail_reason']
                         print("[" + test_status + "] " + test_name + " (" + fail_reason + ")")
-            except:
+            except subprocess.CalledProcessError:
                 print("Unable to show avocado test result summary")
         return_state = False
     tap_output(machine)
@@ -211,7 +213,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
 
         # Now actually run the tests
         selenium_address = "10.111.112.10" if selenium else ""
-        env = [ "HUB=" + selenium_address, "GUEST=10.111.113.1", "BROWSER=" + browser ]
+        env = {"HUB": selenium_address, "GUEST": "10.111.113.1", "BROWSER": browser}
         success = run_avocado_tests(machine, avocado_tests, env=env)
 
         if not success:

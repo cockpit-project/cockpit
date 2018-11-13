@@ -152,6 +152,15 @@
         }
 
         function css() {
+            /*
+             * Be certain to use parenthesis when checking CSS strings
+             * as Edge is oddly particular.
+             *
+             * Instead of "display: inline", use:
+             * "(display: inline)"
+             *        or
+             * "display", "inline"
+             */
             var args = [].join.call(arguments, ": ");
 
             if (!window.CSS.supports.apply(this, arguments)) {
@@ -171,7 +180,9 @@
                req("pushState", window.history) &&
                req("textContent", document) &&
                req("CSS", window) &&
-               req("supports", window.CSS);
+               req("supports", window.CSS) &&
+               css("display", "flex") &&
+               css("display", "grid");
     }
 
     function trim(s) {

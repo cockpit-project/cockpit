@@ -34,7 +34,7 @@ class Disc():
         self.targetlist=[]
         self.prefix = prefix
         tmp = process.run("cat /etc/iscsi/initiatorname.iscsi | sed -r 's/^.*=//'", shell = True)
-        self.initiatorname=str(tmp.stdout)
+        self.initiatorname=str(tmp.stdout.decode("utf-8"))
 
     def addtarget(self, name):
         process.run("targetcli /backstores/fileio/ create file_or_dev=/var/tmp/%s_%s.target size=10G sparse=true name=%s_%s" % (self.domain, name, self.domain, name), shell = True)
@@ -52,9 +52,9 @@ class Disc():
         process.run("iscsiadm -m discovery -t sendtargets -p %s" % self.ip, shell = True)
         process.run("iscsiadm -m node --targetname=%s.%s:%s --login" % (self.prefix, self.domain, targetsuffix), shell = True)
         tmp = process.run("iscsiadm -m node" , shell = True)
-        print(tmp.stdout)
+        print(tmp.stdout.decode("utf-8"))
         tmp = process.run("sleep 5; iscsiadm -m session -P 3 | tail -1" , shell = True)
-        tmp1 = re.search(r'Attached scsi disk\s+([a-z]*)\s+', tmp.stdout)
+        tmp1 = re.search(r'Attached scsi disk\s+([a-z]*)\s+', tmp.stdout.decode("utf-8"))
         return "/dev/%s" % str(tmp1.group(1))
 
     def deldisc(self, name):
@@ -79,14 +79,14 @@ class DiscSimple():
         process.run("dd if=/dev/zero of=%s bs=1M count=1 seek=%d" % (outfile, size), shell = True)
         process.run("sudo losetup -f %s; sleep 1" % outfile, shell = True)
         tmp = process.run("sudo losetup -j %s" % outfile, shell = True)
-        tmp1 = re.search(r'(/dev/loop[0-9]+):\s+', tmp.stdout)
+        tmp1 = re.search(r'(/dev/loop[0-9]+):\s+', tmp.stdout.decode("utf-8"))
         self.targetlist.append(name)
         return tmp1.group(1)
 
     def deldisc(self,name):
         outfile="%s%s" % (self.location, name)
         tmp = process.run("sudo losetup -j %s" % outfile, shell = True)
-        tmp1 = re.search(r'(/dev/loop[0-9]+):\s+', tmp.stdout)
+        tmp1 = re.search(r'(/dev/loop[0-9]+):\s+', tmp.stdout.decode("utf-8"))
         process.run("sudo losetup -d %s" % tmp1.group(1), shell = True)
         self.targetlist.remove(name)
 

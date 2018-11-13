@@ -9,7 +9,7 @@ if not machine_test_dir in sys.path:
 
 from avocado import main
 from avocado.utils import process
-from seleniumlib import *
+from seleniumlib import SeleniumTest, user, clickable, passwd
 
 class BasicTestSuite(SeleniumTest):
     """
@@ -18,7 +18,7 @@ class BasicTestSuite(SeleniumTest):
     def test10Base(self):
         out = process.run("hostname", shell=True)
         server_element = self.wait_id('server-name')
-        self.assertTrue(str(out.stdout)[:-1] in str(server_element.text))
+        self.assertTrue(str(out.stdout.decode("utf-8"))[:-1] in str(server_element.text))
         self.error=False
 
     def test20Login(self):
@@ -140,7 +140,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("networking-interfaces")
         self.wait_id("networking-tx-graph")
 
-        self.click(self.wait_xpath("//tr[@data-interface='%s']" % out.stdout[:-1],cond=clickable))
+        self.click(self.wait_xpath("//tr[@data-interface='%s']" % out.stdout.decode("utf-8")[:-1],cond=clickable))
         self.wait_text("Carrier", element="td")
         self.mainframe()
         self.error=False

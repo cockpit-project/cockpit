@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
 import os

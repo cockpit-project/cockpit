@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -98,7 +98,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
         If 'print_failed' is True, attempt to print a list of failed tests
     """
     return_state = True
-    cmd_parts = ["avocado run",
+    cmd_parts = ["python3 -m avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"

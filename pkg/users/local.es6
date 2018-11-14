@@ -23,7 +23,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Mustache from 'mustache';
-import authorized_keys from './authorized-keys';
+import authorized_keys from './authorized-keys.es6';
 
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';

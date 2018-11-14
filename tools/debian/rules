@@ -10,10 +10,9 @@ endif
 
 # newer firewalld ships cockpit.xml, but keep it for backports
 FIREWALLD_SERVICE = $(findstring $(shell . /etc/os-release; echo $$VERSION_ID),8 9 16.04 18.04)
-# enable this once firewalld 0.6.0 makes it into Debian testing
-#ifeq ($(FIREWALLD_SERVICE),)
-#	WS_CONFLICTS = firewalld (<< 0.6.0)
-#endif
+ifeq ($(FIREWALLD_SERVICE),)
+	WS_CONFLICTS = firewalld (<< 0.6.0)
+endif
 
 %:
 	dh $@ --with=systemd,autoreconf

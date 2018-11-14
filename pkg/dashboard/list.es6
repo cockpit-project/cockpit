@@ -17,19 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import Mustache from "mustache";
 
-var Mustache = require("mustache");
-var plot = require("plot.es6");
-
-var machines = require("machines");
-var mdialogs = require("machine-dialogs");
-var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
-
-require("patterns");
-
-var image_editor = require("./image-editor");
+import cockpit from "cockpit";
+import * as plot from "plot.es6";
+import machines from "machines";
+import * as mdialogs from "machine-dialogs";
+import { cpu_ram_info } from "machine-info.es6";
+import "patterns";
+import image_editor from "./image-editor.es6";
 
 var _ = cockpit.gettext;
 
@@ -48,11 +45,12 @@ var common_plot_options = {
     // no points are plotted.  We don't want any margin, so we set the
     // radius to zero.
     points: { radius: 0 },
-    grid: { borderWidth: 1,
-            borderColor: "#e1e6ed",
-            hoverable: true,
-            autoHighlight: false
-          }
+    grid: {
+        borderWidth: 1,
+        borderColor: "#e1e6ed",
+        hoverable: true,
+        autoHighlight: false
+    }
 };
 
 var resource_monitors = [
@@ -88,11 +86,13 @@ var resource_monitors = [
           ],
           units: "bytes",
       },
-      options: { yaxis: { ticks: plot.memory_ticks,
-                          tickColor: "#e1e6ed",
-                          tickFormatter: plot.format_bytes_tick
-                        }
-               },
+      options: {
+          yaxis: {
+              ticks: plot.memory_ticks,
+              tickColor: "#e1e6ed",
+              tickFormatter: plot.format_bytes_tick
+          }
+      },
       ymax_unit: 100000000
     },
     { selector: "#dashboard-plot-2",
@@ -108,10 +108,12 @@ var resource_monitors = [
           'omit-instances': [ "lo" ],
           derive: "rate"
       },
-      options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter: plot.format_bits_per_sec_tick
-                        }
-               },
+      options: {
+          yaxis: {
+              tickColor: "#e1e6ed",
+              tickFormatter: plot.format_bits_per_sec_tick
+          }
+      },
       ymax_min: 100000
     },
     { selector: "#dashboard-plot-3",
@@ -126,11 +128,13 @@ var resource_monitors = [
           units: "bytes",
           derive: "rate"
       },
-      options: { yaxis: { ticks: plot.memory_ticks,
-                          tickColor: "#e1e6ed",
-                          tickFormatter: plot.format_bytes_per_sec_tick
-                        }
-               },
+      options: {
+          yaxis: {
+              ticks: plot.memory_ticks,
+              tickColor: "#e1e6ed",
+              tickFormatter: plot.format_bytes_per_sec_tick
+          }
+      },
       ymax_min: 100000
     }
 ];
@@ -148,7 +152,9 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
 
     var can_change_user = machine.address != "localhost";
     var dlg = $("#host-edit-dialog");
-    $('#host-edit-fail').text("").hide();
+    $('#host-edit-fail')
+            .text("")
+            .hide();
     $('#host-edit-name').val(machine.label);
     $('#host-edit-name').prop('disabled', machine.state == "failed");
     $('#host-edit-user-row').toggle(machines.allow_connection_string);
@@ -188,20 +194,24 @@ function host_edit_dialog(machine_manager, machine_dialogs, host) {
     });
     $('#host-edit-avatar').off('click');
     $('#host-edit-avatar').on('click', function () {
-        $('#host-edit-fail').text("").hide();
-        avatar_editor.select_file().
-            done(function () {
-                $('#host-edit-avatar').off('click');
-                avatar_editor.changed = true;
-                avatar_editor.start_cropping();
-            });
+        $('#host-edit-fail')
+                .text("")
+                .hide();
+        avatar_editor.select_file()
+                .done(function () {
+                    $('#host-edit-avatar').off('click');
+                    avatar_editor.changed = true;
+                    avatar_editor.start_cropping();
+                });
     });
     dlg.modal('show');
     avatar_editor.stop_cropping();
-    avatar_editor.load_data(machine.avatar || "images/server-large.png").
-        fail(function () {
-            $('#host-edit-fail').text(_("Can't load image")).show();
-        });
+    avatar_editor.load_data(machine.avatar || "images/server-large.png")
+            .fail(function () {
+                $('#host-edit-fail')
+                        .text(_("Can't load image"))
+                        .show();
+            });
 }
 
 var permission = cockpit.permission({ admin: true });
@@ -274,31 +284,31 @@ PageDashboard.prototype = {
         plot.setup_plot_controls($('#dashboard'), $('#dashboard-toolbar'), self.plots);
 
         $("#dashboard-hosts")
-            .on("click", "a.list-group-item", function() {
-                if (self.edit_enabled)
+                .on("click", "a.list-group-item", function() {
+                    if (self.edit_enabled)
+                        return false;
+                })
+                .on("click", "button.pficon-delete", function() {
+                    var item = $(this).parent(".list-group-item");
+                    self.toggle_edit(false);
+                    var machine = self.machines.lookup(item.attr("data-address"));
+                    if (machine)
+                        self.machines.change(machine.key, { visible: false });
                     return false;
-            })
-            .on("click", "button.pficon-delete", function() {
-                var item = $(this).parent(".list-group-item");
-                self.toggle_edit(false);
-                var machine = self.machines.lookup(item.attr("data-address"));
-                if (machine)
-                    self.machines.change(machine.key, { visible: false });
-                return false;
-            })
-            .on("click", "button.pficon-edit", function() {
-                var item = $(this).parent(".list-group-item");
-                var host = item.attr("data-address");
-                self.toggle_edit(false);
-                host_edit_dialog(self.machines, self.mdialogs, host);
-                return false;
-            })
-            .on("mouseenter", "a.list-group-item", function() {
-                highlight($(this), true);
-            })
-            .on("mouseleave", "a.list-group-item", function() {
-                highlight($(this), false);
-            });
+                })
+                .on("click", "button.pficon-edit", function() {
+                    var item = $(this).parent(".list-group-item");
+                    var host = item.attr("data-address");
+                    self.toggle_edit(false);
+                    host_edit_dialog(self.machines, self.mdialogs, host);
+                    return false;
+                })
+                .on("mouseenter", "a.list-group-item", function() {
+                    highlight($(this), true);
+                })
+                .on("mouseleave", "a.list-group-item", function() {
+                    highlight($(this), false);
+                });
 
         var series = { };
 
@@ -321,10 +331,10 @@ PageDashboard.prototype = {
                 if (!info) {
                     self.infos[addr] = true;
                     cpu_ram_info(machine.connection_string)
-                        .done(function (info) {
-                            self.infos[addr] = info;
-                            update_series();
-                        });
+                            .done(function (info) {
+                                self.infos[addr] = info;
+                                update_series();
+                            });
                     return;
                 } else if (info === true) {
                     // still retrieving
@@ -337,10 +347,10 @@ PageDashboard.prototype = {
                 }
                 series[addr].forEach(function (s) {
                     $(s)
-                        .off('hover')
-                        .on('hover', function(event, val) {
-                            highlight(item, val);
-                        });
+                            .off('hover')
+                            .on('hover', function(event, val) {
+                                highlight(item, val);
+                            });
                     var color = machine.color;
                     if (s.options.color != color) {
                         refresh = true;
@@ -363,7 +373,7 @@ PageDashboard.prototype = {
             var ser = series[item.attr("data-address")];
             if (ser) {
                 ser.forEach(function (s) {
-                    s.options.lines.lineWidth = val? 3 : 2;
+                    s.options.lines.lineWidth = val ? 3 : 2;
                     if (val)
                         s.move_to_front();
                 });
@@ -428,7 +438,7 @@ PageDashboard.prototype = {
                     $(this).css("border-left-color", $(this).attr("data-color"));
                 });
                 $(".delete-localhost").tooltip({
-                      title : _("You are currently connected directly to this server. You cannot delete it.")
+                    title : _("You are currently connected directly to this server. You cannot delete it.")
                 });
                 $(".delete-localhost").toggleClass('disabled', true);
                 $(".delete-localhost").toggleClass('servers-privileged', false);
@@ -471,7 +481,7 @@ PageDashboard.prototype = {
                     var desc = rm.plot;
                     if (rm.plot.apply)
                         desc = rm.plot(info);
-                    series.push(self.plots[i].add_metrics_sum_series($.extend({ host: machine.connection_string},
+                    series.push(self.plots[i].add_metrics_sum_series($.extend({ host: machine.connection_string },
                                                                               desc),
                                                                      { color: machine.color,
                                                                        lines: {

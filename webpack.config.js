@@ -9,7 +9,7 @@ var info = {
         ],
 
         "dashboard/dashboard": [
-            "dashboard/list.js",
+            "dashboard/list.es6",
         ],
 
         "docker/docker": [

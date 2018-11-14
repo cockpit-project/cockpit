@@ -32,6 +32,7 @@ Vcs-Browser: https://salsa.debian.org/utopia-team/cockpit
 
 Package: cockpit
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          cockpit-bridge,
          cockpit-ws,
@@ -62,6 +63,7 @@ Description: Cockpit bridge server-side component
 
 Package: cockpit-dashboard
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          cockpit-bridge (>= 170.x),
@@ -75,6 +77,7 @@ Description: Cockpit remote servers and dashboard
 Package: cockpit-doc
 Section: doc
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Description: Cockpit deployment and developer guide
  The Cockpit Deployment and Developer Guide shows sysadmins how to deploy
@@ -83,6 +86,7 @@ Description: Cockpit deployment and developer guide
 
 Package: cockpit-docker
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          python3,
          cockpit-bridge (>= ${bridge:minversion}),
@@ -92,6 +96,7 @@ Description: Cockpit user interface for Docker containers
 
 Package: cockpit-machines
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          libvirt-daemon-system,
          libvirt-clients | libvirt-bin,
@@ -105,6 +110,7 @@ Description: Cockpit user interface for virtual machines
 
 Package: cockpit-networkmanager
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          cockpit-bridge (>= ${bridge:minversion}),
          network-manager
@@ -122,6 +128,7 @@ Description: Cockpit PCP integration
 
 Package: cockpit-packagekit
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          cockpit-bridge (>= ${bridge:minversion}),
          packagekit
@@ -130,6 +137,7 @@ Description: Cockpit user interface for packages
 
 Package: cockpit-storaged
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          udisks2,
          udisks2 (<< 2.7) | libblockdev-mdraid2,
@@ -141,6 +149,7 @@ Description: Cockpit user interface for storage
 
 Package: cockpit-system
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          cockpit-bridge (>= ${bridge:minversion}),
          libpwquality-tools,
@@ -159,6 +168,7 @@ Description: Cockpit admin interface for a system
 
 Package: cockpit-tests
 Architecture: any
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          cockpit-system (>= ${source:Version}),

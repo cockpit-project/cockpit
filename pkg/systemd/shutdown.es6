@@ -47,38 +47,37 @@ $('#shutdown-dialog .shutdown-date').datepicker({
 });
 
 $("#shutdown-dialog input")
-    .on('focusout', update)
-    .on('change', update);
+        .on('focusout', update)
+        .on('change', update);
 
 /* The delay in the dialog */
 var delay = 0;
 $("#shutdown-dialog .dropdown li")
-    .on("click", function(ev) {
-        delay = $(this).attr("value");
-        update();
-    });
+        .on("click", function(ev) {
+            delay = $(this).attr("value");
+            update();
+        });
 
 /* Prefilling the date if it's been set */
 var cached_date = null;
 $('#shutdown-dialog .shutdown-date')
-    .on('focusin', function() {
-        cached_date = $(this).val();
-    })
-    .on('focusout', function() {
-        if ($(this).val().length === 0)
-            $(this).val(cached_date);
-    });
+        .on('focusin', function() {
+            cached_date = $(this).val();
+        })
+        .on('focusout', function() {
+            if ($(this).val().length === 0)
+                $(this).val(cached_date);
+        });
 
 $("#shutdown-dialog").on("show.bs.modal", function(ev) {
-
     /* The date picker also triggers this event, since it is modal */
     if (ev.target.id !== "shutdown-dialog")
         return;
 
-    $("#shutdown-dialog textarea").
-        val("").
-        attr("placeholder", _("Message to logged in users")).
-        attr("rows", 5);
+    $("#shutdown-dialog textarea")
+            .val("")
+            .attr("placeholder", _("Message to logged in users"))
+            .attr("rows", 5);
 
     /* Track the value correctly */
     delay = $("#shutdown-dialog li:first-child").attr("value");
@@ -101,7 +100,9 @@ $("#shutdown-dialog").on("show.bs.modal", function(ev) {
 });
 
 function update() {
-    $("#shutdown-dialog input").parent().toggle(delay == "x");
+    $("#shutdown-dialog input")
+            .parent()
+            .toggle(delay == "x");
     $("#shutdown-dialog .dropdown button span").text($("#shutdown-dialog li[value='" + delay + "']").text());
 
     var val = parseInt($('#shutdown-dialog .shutdown-minutes').val(), 10);
@@ -122,7 +123,7 @@ function calculate() {
     var m = parseInt(minstr, 10);
 
     var time_error = false;
-    if (isNaN(h) || h < 0 || h > 23  ||
+    if (isNaN(h) || h < 0 || h > 23 ||
         isNaN(m) || m < 0 || m > 59) {
         time_error = true;
     }
@@ -137,9 +138,9 @@ function calculate() {
     if (time_error && date_error) {
         ex = new Error(_("Invalid date format and invalid time format"));
     } else if (time_error) {
-        ex = new Error (_("Invalid time format"));
+        ex = new Error(_("Invalid time format"));
     } else if (date_error) {
-        ex = new Error (_("Invalid date format"));
+        ex = new Error(_("Invalid date format"));
     }
 
     if (ex) {

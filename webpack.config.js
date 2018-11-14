@@ -119,14 +119,14 @@ var info = {
         ],
 
         "systemd/services": [
-            "systemd/init.js",
+            "systemd/init.es6",
             "systemd/services.css",
         ],
         "systemd/logs": [
             "systemd/logs.js",
         ],
         "systemd/system": [
-            "systemd/host.js",
+            "systemd/host.es6",
             "systemd/host.css",
         ],
         "systemd/terminal": [

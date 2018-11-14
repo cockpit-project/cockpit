@@ -35,7 +35,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
 
     const warningInactive = (id) => {
         return (
-            <OverlayTrigger overlay={ <Tooltip id="tip-network">{ _("Changes will apply on VM shutdown") }</Tooltip> } placement='top'>
+            <OverlayTrigger overlay={ <Tooltip id="tip-network">{ _("Changes will take effect after shutting down the VM") }</Tooltip> } placement='top'>
                 <i id={id} className='pficon pficon-pending' />
             </OverlayTrigger>
         );

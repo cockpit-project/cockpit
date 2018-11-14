@@ -23,12 +23,7 @@ import re
 import sys
 import time
 
-import parent
-
-try:
-    import testlib
-except ImportError:
-    from common import testlib
+import testlib
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -1661,5 +1656,3 @@ class RegistryTests(object):
         # also check with CLI
         testlib.wait(lambda: '2.11' in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
         testlib.wait(lambda: 'latest' not in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
-
-

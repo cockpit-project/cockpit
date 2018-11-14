@@ -95,13 +95,13 @@ class OCMachine(VirtMachine):
             self.execute(cmd)
 
         args = [
-            "-v", "COCKPIT_KUBE_INSECURE=true",
-            "-v", "COCKPIT_KUBE_URL=http://{}".format(self.forward["30000"]),
-            "-v", "OPENSHIFT_OAUTH_PROVIDER_URL=https://{}".format(self.forward["8443"])
+            "-p", "COCKPIT_KUBE_INSECURE=true",
+            "-p", "COCKPIT_KUBE_URL=http://{}".format(self.forward["30000"]),
+            "-p", "OPENSHIFT_OAUTH_PROVIDER_URL=https://{}".format(self.forward["8443"])
         ]
 
         if self.run_registry:
-            args += ["-v", "REGISTRY_ONLY=true"]
+            args += ["-p", "REGISTRY_ONLY=true"]
 
         # docker sets iptables FORWARD policy to DROP, which blocks outside requests from qemu user network
         self.execute("iptables -P FORWARD ACCEPT")

@@ -261,7 +261,7 @@ export class EditNICAction extends React.Component {
                 return (
                     <span id={`${idPrefix}-edit-dialog-idle-message`} className='idle-message'>
                         <i className='pficon pficon-pending' />
-                        <span>{_("Changes will apply on VM shutdown")}</span>
+                        <span>{_("Changes will take effect after shutting down the VM")}</span>
                     </span>
                 );
             }

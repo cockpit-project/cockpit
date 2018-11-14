@@ -34,7 +34,7 @@ var info = {
         ],
 
         "machines/machines": [
-            "machines/index.js",
+            "machines/index.es6",
             "machines/machines.less",
         ],
 

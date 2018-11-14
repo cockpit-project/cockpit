@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
+import $ from "jquery";
 
 /* Construct a simple image editor inside 'element'.  It can only crop
  * an image to a square region.
@@ -45,7 +45,7 @@ function image_editor(element, width, height) {
         changed: false
     };
 
-    var square_size = Math.min (width, height);
+    var square_size = Math.min(width, height);
     var initial_crop_size = square_size;
     var crop_handle_width = 20;
 
@@ -53,19 +53,19 @@ function image_editor(element, width, height) {
     var image_canvas, overlay_canvas;
     var image_2d, overlay_2d;
 
-
     function setup() {
-        element.empty().
-            css('width', width).
-            css('height', height).
-            css('position', 'relative').
-            append(
-                $image_canvas = $('<canvas>'),
-                $overlay_canvas = $('<canvas>').
-                    css('position', 'absolute').
-                    css('top', 0).
-                    css('left', 0).
-                    css('z-index', 10));
+        element
+                .empty()
+                .css('width', width)
+                .css('height', height)
+                .css('position', 'relative')
+                .append(
+                    $image_canvas = $('<canvas>'),
+                    $overlay_canvas = $('<canvas>')
+                            .css('position', 'absolute')
+                            .css('top', 0)
+                            .css('left', 0)
+                            .css('z-index', 10));
         $('body').append(
             $file_input = $('<input data-role="none" type="file">').hide());
 
@@ -84,7 +84,7 @@ function image_editor(element, width, height) {
 
     function start_cropping() {
         cropping = true;
-        set_crop ((width - initial_crop_size) / 2, (height - initial_crop_size) / 2, initial_crop_size, true);
+        set_crop((width - initial_crop_size) / 2, (height - initial_crop_size) / 2, initial_crop_size, true);
         $overlay_canvas.on('mousedown', mousedown);
     }
 
@@ -111,9 +111,9 @@ function image_editor(element, width, height) {
 
         if (fix) {
             // move it until it fits
-            s = clamp (min_s, s, square_size);
-            x = clamp (0, x, width - s);
-            y = clamp (0, y, height - s);
+            s = clamp(min_s, s, square_size);
+            x = clamp(0, x, width - s);
+            y = clamp(0, y, height - s);
         } else if (x < 0 || y < 0 || x + s > width || y + s > height || s < min_s)
             return;
 
@@ -121,17 +121,17 @@ function image_editor(element, width, height) {
         crop_y = y;
         crop_s = s;
 
-        draw_crop (x, y, x+s, y+s);
+        draw_crop(x, y, x + s, y + s);
     }
 
-    function draw_crop(x1,y1,x2,y2) {
+    function draw_crop(x1, y1, x2, y2) {
         var ctxt = overlay_2d;
 
-        function draw_box (x1, y1, x2, y2) {
+        function draw_box(x1, y1, x2, y2) {
             ctxt.strokeStyle = 'black';
-            ctxt.strokeRect(x1+0.5, y1+0.5, x2-x1-1, y2-y1-1);
+            ctxt.strokeRect(x1 + 0.5, y1 + 0.5, x2 - x1 - 1, y2 - y1 - 1);
             ctxt.strokeStyle = 'white';
-            ctxt.strokeRect(x1+1.5, y1+1.5, x2-x1-3, y2-y1-3);
+            ctxt.strokeRect(x1 + 1.5, y1 + 1.5, x2 - x1 - 3, y2 - y1 - 3);
         }
 
         ctxt.clearRect(0, 0, width, height);
@@ -140,11 +140,11 @@ function image_editor(element, width, height) {
         ctxt.clearRect(x1, y1, x2 - x1, y2 - y1);
 
         var h_w = crop_handle_width;
-        draw_box (x1, y1, x1+h_w, y1+h_w);
-        draw_box (x2-h_w, y1, x2, y1+h_w);
-        draw_box (x1, y2-h_w, x1+h_w, y2);
-        draw_box (x2-h_w, y2-h_w, x2, y2);
-        draw_box (x1, y1, x2, y2);
+        draw_box(x1, y1, x1 + h_w, y1 + h_w);
+        draw_box(x2 - h_w, y1, x2, y1 + h_w);
+        draw_box(x1, y2 - h_w, x1 + h_w, y2);
+        draw_box(x2 - h_w, y2 - h_w, x2, y2);
+        draw_box(x1, y1, x2, y2);
     }
 
     function mousedown(ev) {
@@ -164,10 +164,10 @@ function image_editor(element, width, height) {
             var x = ev.pageX - offset.left - xoff;
             var y = ev.pageY - offset.top - yoff;
             if (proj_sign === 0)
-                set_crop (x, y, orig_s, true);
+                set_crop(x, y, orig_s, true);
             else {
                 var d = Math.floor((x - orig_x + proj_sign * (y - orig_y)) / 2);
-                set_crop (orig_x + dx_sign*d, orig_y + dy_sign*d, orig_s + ds_sign*d, false);
+                set_crop(orig_x + dx_sign * d, orig_y + dy_sign * d, orig_s + ds_sign * d, false);
             }
             self.changed = true;
         }
@@ -222,10 +222,10 @@ function image_editor(element, width, height) {
             var dest_w, dest_h;
             if (img.width > img.height) {
                 dest_w = width;
-                dest_h = dest_w * (img.height/img.width);
+                dest_h = dest_w * (img.height / img.width);
             } else {
                 dest_h = height;
-                dest_w = dest_h * (img.width/img.height);
+                dest_w = dest_h * (img.width / img.height);
             }
             image_2d.fillStyle = 'rgb(255,255,255)';
             image_2d.fillRect(0, 0, width, height);
@@ -243,21 +243,20 @@ function image_editor(element, width, height) {
         dest.height = height;
         var ctxt = dest.getContext("2d");
         if (cropping) {
-            ctxt.drawImage (image_canvas,
-                            crop_x, crop_y, crop_s, crop_s,
-                            0, 0, width, height);
+            ctxt.drawImage(image_canvas,
+                           crop_x, crop_y, crop_s, crop_s,
+                           0, 0, width, height);
         } else {
-            ctxt.drawImage (image_canvas,
-                            0, 0, square_size, square_size,
-                            0, 0, width, height);
+            ctxt.drawImage(image_canvas,
+                           0, 0, square_size, square_size,
+                           0, 0, width, height);
         }
         return dest.toDataURL(format);
     }
 
     var select_dfd;
 
-    function load_file()
-    {
+    function load_file() {
         var files, file, reader;
         files = $file_input[0].files;
         if (files.length != 1) {
@@ -274,13 +273,13 @@ function image_editor(element, width, height) {
             select_dfd.reject();
         };
         reader.onload = function () {
-            load_data(reader.result).
-                done(function () {
-                    select_dfd.resolve();
-                }).
-                fail(function () {
-                    select_dfd.reject();
-                });
+            load_data(reader.result)
+                    .done(function () {
+                        select_dfd.resolve();
+                    })
+                    .fail(function () {
+                        select_dfd.reject();
+                    });
         };
         reader.readAsDataURL(file);
     }

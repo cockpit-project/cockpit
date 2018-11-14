@@ -42,7 +42,10 @@ import unittest
 import gzip
 
 import tap
-import testvm
+try:
+    from machine_core import testvm
+except ImportError:
+    import testvm
 import cdp
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
@@ -535,7 +538,10 @@ class MachineCase(unittest.TestCase):
         return label.replace(".", "-")
 
     def new_machine(self, image=None, forward={ }, **kwargs):
-        import testvm
+        try:
+            from machine_core import testvm
+        except ImportError:
+            import testvm
         machine_class = self.machine_class
         if image is None:
             image = self.image

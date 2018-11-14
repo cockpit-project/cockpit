@@ -16,26 +16,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import Mustache from "mustache";
+import $ from "jquery";
 
-require("polyfills.js");
-var $ = require("jquery");
-var cockpit = require("cockpit");
-var machine_info = require("machine-info.es6");
-var packagekit = require("packagekit.es6");
-var install_dialog = require("cockpit-components-install-dialog.jsx").install_dialog;
-
-var Mustache = require("mustache");
-var plot = require("plot.es6");
-var service = require("service");
+import "polyfills.js";
+import cockpit from "cockpit";
+import * as machine_info from "machine-info.es6";
+import * as packagekit from "packagekit.es6";
+import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import * as plot from "plot.es6";
+import * as service from "service.js";
+import shutdown from "./shutdown.es6";
+import host_keys_script from "raw!./ssh-list-host-keys.sh";
 
 /* These add themselves to jQuery so just including is enough */
-require("patterns");
-require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
-require("patternfly-bootstrap-combobox/js/bootstrap-combobox");
-
-var shutdown = require("./shutdown");
-
-var host_keys_script = require("raw!./ssh-list-host-keys.sh");
+import "patterns";
+import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
+import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -131,22 +128,25 @@ function ServerTime() {
 
     self.update = function update() {
         return cockpit.spawn(["date", "+%s:%:z"], { err: "message" })
-            .done(function(data) {
-                var parts = data.trim().split(":").map(function(x) {
-                    return parseInt(x, 10);
+                .done(function(data) {
+                    var parts = data
+                            .trim()
+                            .split(":")
+                            .map(function(x) {
+                                return parseInt(x, 10);
+                            });
+                    if (parts[1] < 0)
+                        parts[2] = -(parts[2]);
+                    var timems = parts[0] * 1000;
+                    var offsetms = (parts[1] * 3600000) + parts[2] * 60000;
+                    var now = new Date();
+                    time_offset = (timems - now.valueOf());
+                    remote_offset = offsetms;
+                    $(self).triggerHandler("changed");
+                })
+                .fail(function(ex) {
+                    console.log("Couldn't calculate server time offset: " + cockpit.message(ex));
                 });
-                if (parts[1] < 0)
-                    parts[2] = -(parts[2]);
-                var timems = parts[0] * 1000;
-                var offsetms = (parts[1] * 3600000) + parts[2] * 60000;
-                var now = new Date();
-                time_offset = (timems - now.valueOf());
-                remote_offset = offsetms;
-                $(self).triggerHandler("changed");
-            })
-            .fail(function(ex) {
-                console.log("Couldn't calculate server time offset: " + cockpit.message(ex));
-            });
     };
 
     self.change_time = function change_time(datestr, hourstr, minstr) {
@@ -159,38 +159,38 @@ function ServerTime() {
          * server ... the timezone is really server specific.
          */
         cockpit.spawn(["date", "--date=" + datestr + " " + hourstr + ":" + minstr, "+%s"])
-            .fail(function(ex) {
-                dfd.reject(ex);
-            })
-            .done(function(data) {
-                var seconds = parseInt(data.trim(), 10);
-                timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
-                    .fail(function(ex) {
-                        dfd.reject(ex);
-                    })
-                    .done(function() {
-                        self.update();
-                        dfd.resolve();
-                    });
-            });
+                .fail(function(ex) {
+                    dfd.reject(ex);
+                })
+                .done(function(data) {
+                    var seconds = parseInt(data.trim(), 10);
+                    timedate.call('SetTime', [seconds * 1000 * 1000, false, true])
+                            .fail(function(ex) {
+                                dfd.reject(ex);
+                            })
+                            .done(function() {
+                                self.update();
+                                dfd.resolve();
+                            });
+                });
 
         return dfd;
     };
 
     self.poll_ntp_synchronized = function poll_ntp_synchronized() {
         client.call(timedate.path,
-                    "org.freedesktop.DBus.Properties", "Get", [ "org.freedesktop.timedate1", "NTPSynchronized" ]).
-            fail(function (error) {
-                if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
-                    error.problem != "not-found")
-                    console.log("can't get NTPSynchronized property", error);
-            }).
-            done(function (result) {
-                var ifaces = { "org.freedesktop.timedate1": { NTPSynchronized: result[0].v } };
-                var data = { };
-                data[timedate.path] = ifaces;
-                client.notify(data);
-            });
+                    "org.freedesktop.DBus.Properties", "Get", [ "org.freedesktop.timedate1", "NTPSynchronized" ])
+                .fail(function(error) {
+                    if (error.name != "org.freedesktop.DBus.Error.UnknownProperty" &&
+                        error.problem != "not-found")
+                        console.log("can't get NTPSynchronized property", error);
+                })
+                .done(function(result) {
+                    var ifaces = { "org.freedesktop.timedate1": { NTPSynchronized: result[0].v } };
+                    var data = { };
+                    data[timedate.path] = ifaces;
+                    client.notify(data);
+                });
     };
 
     self.close = function close() {
@@ -221,7 +221,7 @@ PageServer.prototype = {
         var self = this;
         update_hostname_privileged();
 
-        cockpit.file("/etc/motd").watch(function (content) {
+        cockpit.file("/etc/motd").watch(function(content) {
             if (content)
                 content = $.trim(content);
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
@@ -234,7 +234,7 @@ PageServer.prototype = {
             $('#motd-box').attr('data-stable', 'yes');
         });
 
-        $('#motd-box button.close').click(function () {
+        $('#motd-box button.close').click(function() {
             cockpit.localStorage.setItem('dismissed-motd', $('#motd').text());
             $('#motd-box').hide();
         });
@@ -243,16 +243,16 @@ PageServer.prototype = {
             self.shutdown($(this).attr('data-action'));
         });
 
-        $('#system-ostree-version-link').on('click', function () {
+        $('#system-ostree-version-link').on('click', function() {
             cockpit.jump("/updates", cockpit.transport.host);
         });
 
-        $('#system_information_hostname_button').on('click', function () {
+        $('#system_information_hostname_button').on('click', function() {
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
         });
 
-        $('#system_information_systime_button').on('click', function () {
+        $('#system_information_systime_button').on('click', function() {
             change_systime_dialog.display(self.server_time);
         });
 
@@ -281,7 +281,6 @@ PageServer.prototype = {
         var $ntp_status = $('#system_information_systime_ntp_status');
 
         function update_ntp_status() {
-
             if (!self.server_time.timedate.NTP) {
                 $ntp_status.hide();
                 $ntp_status.attr("data-original-title", null);
@@ -329,11 +328,11 @@ PageServer.prototype = {
         /* NTPSynchronized needs to be polled so we just do that
          * always.
          */
-        window.setInterval(function () {
+        window.setInterval(function() {
             self.server_time.poll_ntp_synchronized();
         }, 5000);
 
-        $('#server').on('click', "[data-goto-service]", function () {
+        $('#server').on('click', "[data-goto-service]", function() {
             var service = $(this).attr("data-goto-service");
             cockpit.jump("/system/services/#/" + window.encodeURIComponent(service),
                          cockpit.transport.host);
@@ -370,16 +369,16 @@ PageServer.prototype = {
              */
             if (pmlogger_exists) {
                 cockpit.spawn([ "which", "pmlogger" ], { err: "ignore" })
-                    .fail(function () {
-                        pmlogger_exists = false;
-                    })
-                    .always(update_pmlogger_row);
+                        .fail(function() {
+                            pmlogger_exists = false;
+                        })
+                        .always(update_pmlogger_row);
             } else {
                 update_pmlogger_row();
             }
         }
 
-        packagekit.detect().then(function (exists) {
+        packagekit.detect().then(function(exists) {
             packagekit_exists = exists;
             update_pmlogger_row();
         });
@@ -390,18 +389,18 @@ PageServer.prototype = {
 
             if ($(this).onoff('value')) {
                 pmlogger_promise = cockpit.all(pmcd_service.enable(),
-                       pmcd_service.start(),
-                       pmlogger_service.enable(),
-                       pmlogger_service.start()).
-                    fail(function (error) {
-                        console.warn("Enabling pmlogger failed", error);
-                    });
+                                               pmcd_service.start(),
+                                               pmlogger_service.enable(),
+                                               pmlogger_service.start())
+                        .fail(function(error) {
+                            console.warn("Enabling pmlogger failed", error);
+                        });
             } else {
                 pmlogger_promise = cockpit.all(pmlogger_service.disable(),
-                       pmlogger_service.stop()).
-                    fail(function (error) {
-                        console.warn("Disabling pmlogger failed", error);
-                    });
+                                               pmlogger_service.stop())
+                        .fail(function(error) {
+                            console.warn("Disabling pmlogger failed", error);
+                        });
             }
             pmlogger_promise.always(function() {
                 pmlogger_promise = null;
@@ -461,8 +460,9 @@ PageServer.prototype = {
             var os_updates = { };
             self.os_updates = null;
 
-            packagekit.cancellableTransaction("GetUpdates", [0],
-                function (data) {
+            packagekit.cancellableTransaction(
+                "GetUpdates", [0],
+                function(data) {
                     // we are getting progress, so PackageKit works; show spinner
                     if (self.os_updates === null) {
                         self.os_updates = os_updates;
@@ -471,20 +471,20 @@ PageServer.prototype = {
                     }
                 },
                 {
-                    Package: function (info) {
+                    Package: function(info) {
                         // dnf backend yields wrong severity (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
                         if (info < packagekit.Enum.INFO_LOW || info > packagekit.Enum.INFO_SECURITY)
                             info = packagekit.Enum.INFO_UNKNOWN;
                         os_updates[info] = (os_updates[info] || 0) + 1;
                     }
                 })
-                .then(refresh_os_updates_state)
-                .catch(function (ex) {
-                    // if PackageKit is not available, hide the table line
-                    console.warn("Checking for available updates failed:", ex.toString());
-                    self.os_updates_icon.className = "";
-                    $("#system_information_updates_text").toggle(false);
-                });
+                    .then(refresh_os_updates_state)
+                    .catch(function(ex) {
+                        // if PackageKit is not available, hide the table line
+                        console.warn("Checking for available updates failed:", ex.toString());
+                        self.os_updates_icon.className = "";
+                        $("#system_information_updates_text").toggle(false);
+                    });
         }
 
         // check for updates now and on page switches, in case they get applied on /updates or terminal
@@ -492,7 +492,7 @@ PageServer.prototype = {
         check_for_updates();
 
         // check for unregistered system
-        packagekit.watchRedHatSubscription(function (subscribed) {
+        packagekit.watchRedHatSubscription(function(subscribed) {
             self.unregistered = !subscribed;
             refresh_os_updates_state();
         });
@@ -502,19 +502,22 @@ PageServer.prototype = {
         var self = this;
 
         var machine_id = cockpit.file("/etc/machine-id");
-        machine_id.read().done(function (content) {
-            $("#system_machine_id")
-                .text(content)
-                .tooltip({ title: content, placement: "bottom" });
-        }).fail(function (ex) {
-            console.error("Error reading machine id", ex);
-        }).always(function () {
-            machine_id.close();
-        });
+        machine_id.read()
+                .done(function(content) {
+                    $("#system_machine_id")
+                            .text(content)
+                            .tooltip({ title: content, placement: "bottom" });
+                })
+                .fail(function(ex) {
+                    console.error("Error reading machine id", ex);
+                })
+                .always(function() {
+                    machine_id.close();
+                });
 
         self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
                                           {"superuser" : true});
-        $(self.ostree_client).on("close", function () {
+        $(self.ostree_client).on("close", function() {
             self.ostree_client = null;
         });
 
@@ -525,7 +528,7 @@ PageServer.prototype = {
         self.client = cockpit.dbus('org.freedesktop.hostname1',
                                    {"superuser" : "try"});
         self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
-                                     '/org/freedesktop/hostname1');
+                                                '/org/freedesktop/hostname1');
         self.kernel_hostname = null;
 
         /* CPU graph */
@@ -535,13 +538,16 @@ PageServer.prototype = {
             internal: [ "cpu.basic.nice", "cpu.basic.user", "cpu.basic.system" ],
             units: "millisec",
             derive: "rate",
-            factor: 0.1  // millisec / sec -> percent
+            factor: 0.1 // millisec / sec -> percent
         };
 
         var cpu_options = plot.plot_simple_template();
-        $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
-                                      max: 100
-                                    });
+        $.extend(cpu_options.yaxis,
+                 {
+                     tickFormatter: function(v) { return v.toFixed(0) },
+                     max: 100
+                 }
+        );
         self.cpu_plot = new plot.Plot($("#server_cpu_graph"), 300);
         self.cpu_plot.set_options(cpu_options);
         // This is added to the plot once we have the machine info, see below.
@@ -555,9 +561,11 @@ PageServer.prototype = {
         };
 
         var memory_options = plot.plot_simple_template();
-        $.extend(memory_options.yaxis, { ticks: plot.memory_ticks,
-                                         tickFormatter: plot.format_bytes_tick_no_unit
-                                       });
+        $.extend(memory_options.yaxis,
+                 {
+                     ticks: plot.memory_ticks,
+                     tickFormatter: plot.format_bytes_tick_no_unit
+                 });
         memory_options.post_hook = function memory_post_hook(pl) {
             var axes = pl.getAxes();
             $('#server_memory_unit').text(plot.bytes_tick_unit(axes.yaxis));
@@ -578,8 +586,7 @@ PageServer.prototype = {
         };
 
         var network_options = plot.plot_simple_template();
-        $.extend(network_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit
-                                        });
+        $.extend(network_options.yaxis, { tickFormatter: plot.format_bits_per_sec_tick_no_unit });
         network_options.setup_hook = function network_setup_hook(pl) {
             var axes = pl.getAxes();
             if (axes.yaxis.datamax < 100000)
@@ -607,9 +614,11 @@ PageServer.prototype = {
         };
 
         var disk_options = plot.plot_simple_template();
-        $.extend(disk_options.yaxis, { ticks: plot.memory_ticks,
-                                       tickFormatter: plot.format_bytes_per_sec_tick_no_unit
-                                     });
+        $.extend(disk_options.yaxis,
+                 {
+                     ticks: plot.memory_ticks,
+                     tickFormatter: plot.format_bytes_per_sec_tick_no_unit
+                 });
         disk_options.setup_hook = function disk_setup_hook(pl) {
             var axes = pl.getAxes();
             if (axes.yaxis.datamax < 100000)
@@ -627,43 +636,43 @@ PageServer.prototype = {
         self.disk_plot.set_options(disk_options);
         self.disk_plot.add_metrics_sum_series(disk_data, { });
 
-        machine_info.cpu_ram_info().
-            done(function (info) {
-                $('#link-cpu').text(cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores",
-                                                                    info.cpus),
-                                                   info.cpus));
-                cpu_data.factor = 0.1 / info.cpus; // millisec / sec -> percent
-                self.cpu_plot.add_metrics_sum_series(cpu_data, { });
+        machine_info.cpu_ram_info()
+                .done(function(info) {
+                    $('#link-cpu').text(cockpit.format(cockpit.ngettext("of $0 CPU core", "of $0 CPU cores",
+                                                                        info.cpus),
+                                                       info.cpus));
+                    cpu_data.factor = 0.1 / info.cpus; // millisec / sec -> percent
+                    self.cpu_plot.add_metrics_sum_series(cpu_data, { });
 
-                if (info.swap) {
-                    memory_options.yaxis.max = info.memory + info.swap * 0.25;
-                    memory_options.yaxis.tickFormatter = function (v) {
-                        return v <= info.memory ? plot.format_bytes_tick_no_unit(v, memory_options.yaxis)
-                            : plot.format_bytes_tick_no_unit(v + (v - info.memory) * 4,memory_options.yaxis);
-                    };
-                    memory_options.colors[1] = "#CC0000";
-                    memory_options.grid.markings = [
-                        { yaxis: {from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed"}
-                    ];
-                    var swap_data = {
-                        internal: [ "memory.swap-used" ],
-                        units: "bytes",
-                        factor: 0.25,
-                        threshold: info.memory,
-                        offset: info.memory
-                    };
-                    self.memory_plot.add_metrics_sum_series(swap_data, { });
-                    $("#link-memory").hide();
-                    $("#link-memory-and-swap").show();
-                } else {
-                    memory_options.yaxis.max = info.memory;
-                }
-                self.memory_plot.set_options(memory_options);
-            });
+                    if (info.swap) {
+                        memory_options.yaxis.max = info.memory + info.swap * 0.25;
+                        memory_options.yaxis.tickFormatter = function(v) {
+                            return v <= info.memory ? plot.format_bytes_tick_no_unit(v, memory_options.yaxis)
+                                : plot.format_bytes_tick_no_unit(v + (v - info.memory) * 4, memory_options.yaxis);
+                        };
+                        memory_options.colors[1] = "#CC0000";
+                        memory_options.grid.markings = [
+                            { yaxis: { from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed" }
+                        ];
+                        var swap_data = {
+                            internal: [ "memory.swap-used" ],
+                            units: "bytes",
+                            factor: 0.25,
+                            threshold: info.memory,
+                            offset: info.memory
+                        };
+                        self.memory_plot.add_metrics_sum_series(swap_data, { });
+                        $("#link-memory").hide();
+                        $("#link-memory-and-swap").show();
+                    } else {
+                        memory_options.yaxis.max = info.memory;
+                    }
+                    self.memory_plot.set_options(memory_options);
+                });
 
         self.plot_controls.reset([ self.cpu_plot, self.memory_plot, self.network_plot, self.disk_plot ]);
 
-        $(window).on('resize.server', function () {
+        $(window).on('resize.server', function() {
             self.cpu_plot.resize();
             self.memory_plot.resize();
             self.network_plot.resize();
@@ -671,18 +680,18 @@ PageServer.prototype = {
         });
 
         machine_info.dmi_info()
-            .done(function(fields) {
-                $("#system_information_hardware_text")
-                    .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
-                    .text(fields.sys_vendor + " " + fields.product_name);
-                var present = !!(fields.product_serial || fields.chassis_serial);
-                $("#system_information_asset_tag_text")
-                    .text(fields.product_serial || fields.chassis_serial);
-                $("#system-info-asset-row").toggle(present);
-            })
-            .fail(function(ex) {
-                debug("couldn't read dmi info: " + ex);
-            });
+                .done(function(fields) {
+                    $("#system_information_hardware_text")
+                            .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
+                            .text(fields.sys_vendor + " " + fields.product_name);
+                    var present = !!(fields.product_serial || fields.chassis_serial);
+                    $("#system_information_asset_tag_text")
+                            .text(fields.product_serial || fields.chassis_serial);
+                    $("#system-info-asset-row").toggle(present);
+                })
+                .fail(function(ex) {
+                    debug("couldn't read dmi info: " + ex);
+                });
 
         function hostname_text() {
             if (!self.hostname_proxy)
@@ -705,14 +714,14 @@ PageServer.prototype = {
         }
 
         cockpit.spawn(["hostname"], { err: "ignore" })
-            .done(function(output) {
-                self.kernel_hostname = $.trim(output);
-                hostname_text();
-            })
-            .fail(function(ex) {
-                hostname_text();
-                debug("couldn't read kernel hostname: " + ex);
-            });
+                .done(function(output) {
+                    self.kernel_hostname = $.trim(output);
+                    hostname_text();
+                })
+                .fail(function(ex) {
+                    hostname_text();
+                    debug("couldn't read kernel hostname: " + ex);
+                });
         $(self.hostname_proxy).on("changed", hostname_text);
     },
 
@@ -771,55 +780,56 @@ PageServer.prototype = {
         var content = $("#system_information_ssh_keys .content");
         var error = $("#system_information_ssh_keys .alert");
 
-        cockpit.script(host_keys_script, [],{ "superuser": "try",
-                                              "err": "message" })
-            .done(function(data) {
-                var seen = {};
-                var arr = [];
-                var keys = {};
+        cockpit.script(host_keys_script, [], { "superuser": "try",
+                                               "err": "message" })
+                .done(function(data) {
+                    var seen = {};
+                    var arr = [];
+                    var keys = {};
 
-                var i, tmp, m;
-                var full = data.trim().split("\n");
-                for (i = 0; i < full.length; i++) {
-                    var line = full[i];
-                    if (!line)
-                        continue;
+                    var i, tmp, m;
+                    var full = data.trim().split("\n");
+                    for (i = 0; i < full.length; i++) {
+                        var line = full[i];
+                        if (!line)
+                            continue;
 
-                    var parts = line.trim().split(" ");
-                    var title, fp = parts[1];
-                    if (!seen[fp]) {
-                        seen[fp] = fp;
-                        title = parts[parts.length - 1];
-                        if (title) {
-                            m = title.match(parenthesis);
-                            if (m && m[1])
-                                title = m[1];
+                        var parts = line.trim().split(" ");
+                        var title;
+                        var fp = parts[1];
+                        if (!seen[fp]) {
+                            seen[fp] = fp;
+                            title = parts[parts.length - 1];
+                            if (title) {
+                                m = title.match(parenthesis);
+                                if (m && m[1])
+                                    title = m[1];
+                            }
+                            if (!keys[title])
+                                keys[title] = [];
+                            keys[title].push(fp);
                         }
-                        if (!keys[title])
-                            keys[title] = [];
-                        keys[title].push(fp);
                     }
-                }
 
-                arr = Object.keys(keys);
-                arr.sort();
-                arr = arr.map(function (k) {
-                    return { title: k, fps: keys[k] };
+                    arr = Object.keys(keys);
+                    arr.sort();
+                    arr = arr.map(function(k) {
+                        return { title: k, fps: keys[k] };
+                    });
+
+                    tmp = Mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
+                    content.html(tmp);
+                    spinner.toggle(false);
+                    error.toggle(false);
+                    content.toggle(true);
+                })
+                .fail(function(ex) {
+                    var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
+                    content.toggle(false);
+                    spinner.toggle(false);
+                    $("#system_information_ssh_keys .alert strong").text(msg);
+                    error.toggle(true);
                 });
-
-                tmp = Mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
-                content.html(tmp);
-                spinner.toggle(false);
-                error.toggle(false);
-                content.toggle(true);
-            })
-            .fail(function(ex) {
-                var msg = cockpit.format(_("failed to list ssh host keys: $0"), ex.message);
-                content.toggle(false);
-                spinner.toggle(false);
-                $("#system_information_ssh_keys .alert strong").text(msg);
-                error.toggle(true);
-            });
     },
 
     host_keys_hide: function() {
@@ -835,22 +845,21 @@ PageServer.prototype = {
             var version = "";
             self.ostree_client.call(self.sysroot.Booted,
                                     "org.freedesktop.DBus.Properties", "Get",
-                                    ['org.projectatomic.rpmostree1.OS',
-                                     "BootedDeployment"])
-                .done(function (result) {
-                    if (result && result[0]) {
-                        var deployment = result[0].v;
-                        if (deployment && deployment.version)
-                            version = deployment.version.v;
-                    }
-                })
-                .fail(function (ex) {
-                    console.log(ex);
-                })
-                .always(function () {
-                    $("#system-ostree-version").toggleClass("hidden", !version);
-                    $("#system-ostree-version-link").text(version);
-                });
+                                    ['org.projectatomic.rpmostree1.OS', "BootedDeployment"])
+                    .done(function(result) {
+                        if (result && result[0]) {
+                            var deployment = result[0].v;
+                            if (deployment && deployment.version)
+                                version = deployment.version.v;
+                        }
+                    })
+                    .fail(function(ex) {
+                        console.log(ex);
+                    })
+                    .always(function() {
+                        $("#system-ostree-version").toggleClass("hidden", !version);
+                        $("#system-ostree-version-link").text(version);
+                    });
         } else {
             $("#system-ostree-version").toggleClass("hidden", true);
             $("#system-ostree-version-link").text("");
@@ -918,7 +927,10 @@ PageSystemInformationChangeHostname.prototype = {
         if (this._always_update_from_pretty || this._initial_pretty_hostname != pretty_hostname) {
             var old_hostname = $("#sich-hostname").val();
             var first_dot = old_hostname.indexOf(".");
-            var new_hostname = pretty_hostname.toLowerCase().replace(/['".]+/g, "").replace(/[^a-zA-Z0-9]+/g, "-");
+            var new_hostname = pretty_hostname
+                    .toLowerCase()
+                    .replace(/['".]+/g, "")
+                    .replace(/[^a-zA-Z0-9]+/g, "-");
             new_hostname = new_hostname.substr(0, 64);
             if (first_dot >= 0)
                 new_hostname = new_hostname + old_hostname.substr(first_dot);
@@ -949,13 +961,13 @@ PageSystemInformationChangeHostname.prototype = {
         var validSubdomains = true;
         var periodCount = 0;
 
-        for(var i=0; i<$("#sich-hostname").val().length; i++) {
-            if($("#sich-hostname").val()[i] == '.')
+        for (var i = 0; i < $("#sich-hostname").val().length; i++) {
+            if ($("#sich-hostname").val()[i] == '.')
                 periodCount++;
             else
                 periodCount = 0;
 
-            if(periodCount > 1) {
+            if (periodCount > 1) {
                 validSubdomains = false;
                 break;
             }
@@ -978,12 +990,12 @@ PageSystemInformationChangeHostname.prototype = {
             $(note1).css("visibility", "hidden");
             $(note2).css("visibility", "hidden");
             $("#sich-hostname-error").removeClass("has-error");
-        } else if(!validLength && validName) {
+        } else if (!validLength && validName) {
             $("#sich-hostname-error").addClass("has-error");
             $(note1).text(lengthError);
             $(note1).css("visibility", "visible");
             $(note2).css("visibility", "hidden");
-        } else if(validLength && !validName) {
+        } else if (validLength && !validName) {
             $("#sich-hostname-error").addClass("has-error");
             $(note1).text(charError);
             $(note1).css("visibility", "visible");
@@ -991,9 +1003,9 @@ PageSystemInformationChangeHostname.prototype = {
         } else {
             $("#sich-hostname-error").addClass("has-error");
 
-            if($(note1).text() === lengthError)
+            if ($(note1).text() === lengthError)
                 $(note2).text(charError);
-            else if($(note1).text() === charError)
+            else if ($(note1).text() === charError)
                 $(note2).text(lengthError);
             else {
                 $(note1).text(lengthError);
@@ -1025,7 +1037,6 @@ PageSystemInformationChangeSystime.prototype = {
             $('#systime-apply-button').prop('disabled', false);
         }
 
-
         $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
 
         self.ntp_type = "manual_time";
@@ -1054,10 +1065,10 @@ PageSystemInformationChangeSystime.prototype = {
         self.ntp_servers_tmpl = $("#ntp-servers-tmpl").html();
         Mustache.parse(this.ntp_servers_tmpl);
 
-        $('#systime-ntp-servers').on('click', '[data-action="add"]', function () {
+        $('#systime-ntp-servers').on('click', '[data-action="add"]', function() {
             var index = $(this).attr('data-index');
             self.sync_ntp_servers();
-            self.custom_ntp_servers.splice(index+1, 0, "");
+            self.custom_ntp_servers.splice(index + 1, 0, "");
             self.update_ntp_servers();
 
             // HACK - without returning 'false' here, the dialog will
@@ -1066,7 +1077,7 @@ PageSystemInformationChangeSystime.prototype = {
             return false;
         });
 
-        $('#systime-ntp-servers').on('click', '[data-action="del"]', function () {
+        $('#systime-ntp-servers').on('click', '[data-action="del"]', function() {
             var index = $(this).attr('data-index');
             self.sync_ntp_servers();
             self.custom_ntp_servers.splice(index, 1);
@@ -1086,14 +1097,17 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-time-minutes').val(self.server_time.utc_fake_now.getUTCMinutes());
         $('#systime-time-hours').val(self.server_time.utc_fake_now.getUTCHours());
 
-        self.ntp_type = self.server_time.timedate.NTP ?
-                        (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time') : 'manual_time';
-        $('#change_systime [value="ntp_time"]').
-            toggleClass("disabled", !self.server_time.timedate.CanNTP);
-        $('#change_systime [value="ntp_time_custom"]').
-            toggleClass("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported));
-        $('#systime-parse-error').parents('tr').hide();
-        $('#systime-timezone-error').parents('tr').hide();
+        self.ntp_type = self.server_time.timedate.NTP ? (self.custom_ntp_enabled ? 'ntp_time_custom' : 'ntp_time') : 'manual_time';
+        $('#change_systime [value="ntp_time"]')
+                .toggleClass("disabled", !self.server_time.timedate.CanNTP);
+        $('#change_systime [value="ntp_time_custom"]')
+                .toggleClass("disabled", !(self.server_time.timedate.CanNTP && self.custom_ntp_supported));
+        $('#systime-parse-error')
+                .parents('tr')
+                .hide();
+        $('#systime-timezone-error')
+                .parents('tr')
+                .hide();
         $('#systime-apply-button').prop('disabled', false);
         $('#systime-timezones').prop('disabled', 'disabled');
 
@@ -1113,7 +1127,7 @@ PageSystemInformationChangeSystime.prototype = {
 
         self.server_time = server_time;
 
-        self.get_ntp_servers(function () {
+        self.get_ntp_servers(function() {
             $('#system_information_change_systime').modal('show');
         });
     },
@@ -1140,7 +1154,7 @@ PageSystemInformationChangeSystime.prototype = {
         }
 
         cockpit.spawn(["/usr/bin/timedatectl", "list-timezones"])
-           .done(parse_timezones);
+                .done(parse_timezones);
     },
 
     get_ntp_servers: function(callback) {
@@ -1170,7 +1184,6 @@ PageSystemInformationChangeSystime.prototype = {
 
         function check() {
             if ((timedate1.exists === false || timedate1.unit) && (timesyncd.exists !== null)) {
-
                 $([ timedate1, timesyncd ]).off(".get_ntp_servers");
 
                 if (!timedate1.exists || timedate1.unit.Id !== "systemd-timedated.service") {
@@ -1191,34 +1204,34 @@ PageSystemInformationChangeSystime.prototype = {
                     self.ntp_config_file = cockpit.file("/etc/systemd/timesyncd.conf.d/50-cockpit.conf",
                                                         { superuser: "try" });
 
-                self.ntp_config_file.read().
-                    done(function (text) {
-                        var ntp_line = "";
-                        self.ntp_servers = null;
-                        if (text) {
-                            self.custom_ntp_enabled = true;
-                            text.split("\n").forEach(function (line) {
-                                if (line.indexOf("NTP=") === 0) {
-                                    ntp_line = line.slice(4);
-                                    self.custom_ntp_enabled = true;
-                                } else if (line.indexOf("#NTP=") === 0) {
-                                    ntp_line = line.slice(5);
-                                    self.custom_ntp_enabled = false;
-                                }
-                            });
+                self.ntp_config_file.read()
+                        .done(function(text) {
+                            var ntp_line = "";
+                            self.ntp_servers = null;
+                            if (text) {
+                                self.custom_ntp_enabled = true;
+                                text.split("\n").forEach(function(line) {
+                                    if (line.indexOf("NTP=") === 0) {
+                                        ntp_line = line.slice(4);
+                                        self.custom_ntp_enabled = true;
+                                    } else if (line.indexOf("#NTP=") === 0) {
+                                        ntp_line = line.slice(5);
+                                        self.custom_ntp_enabled = false;
+                                    }
+                                });
 
-                            self.custom_ntp_servers = ntp_line.split(" ").filter(function (val) {
-                                return val !== "";
-                            });
-                            if (self.custom_ntp_servers.length === 0)
-                                self.custom_ntp_enabled = false;
-                        }
-                        callback();
-                    }).
-                    fail(function (error) {
-                        console.warn("failed to load time servers", error);
-                        callback();
-                    });
+                                self.custom_ntp_servers = ntp_line.split(" ").filter(function(val) {
+                                    return val !== "";
+                                });
+                                if (self.custom_ntp_servers.length === 0)
+                                    self.custom_ntp_enabled = false;
+                            }
+                            callback();
+                        })
+                        .fail(function(error) {
+                            console.warn("failed to load time servers", error);
+                            callback();
+                        });
             }
         }
 
@@ -1229,12 +1242,12 @@ PageSystemInformationChangeSystime.prototype = {
     set_ntp_servers: function(servers, enabled) {
         var self = this;
 
-        var text = cockpit.format("# This file is automatically generated by Cockpit\n\n[Time]\n${0}NTP=${1}\n",
-                                  enabled? "" : "#", servers.join(" "));
+        var text = `# This file is automatically generated by Cockpit\n\n[Time]\n${enabled ? "" : "#"}NTP=${servers.join(" ")}\n`;
 
-        return cockpit.spawn([ "mkdir", "-p", "/etc/systemd/timesyncd.conf.d" ], { superuser: "try" }).
-            then(function () {
-                return self.ntp_config_file.replace(text); });
+        return cockpit.spawn([ "mkdir", "-p", "/etc/systemd/timesyncd.conf.d" ], { superuser: "try" })
+                .then(function() {
+                    return self.ntp_config_file.replace(text);
+                });
     },
 
     show: function() {
@@ -1258,7 +1271,7 @@ PageSystemInformationChangeSystime.prototype = {
         var ntp_time_custom = self.ntp_type == 'ntp_time_custom';
 
         self.sync_ntp_servers();
-        var servers = self.custom_ntp_servers.filter(function (val) { return val !== "" });
+        var servers = self.custom_ntp_servers.filter(function(val) { return val !== "" });
 
         function target_error (msg, target) {
             var err = new Error(msg);
@@ -1287,11 +1300,11 @@ PageSystemInformationChangeSystime.prototype = {
         if (manual_time) {
             promises.push(
                 set_ntp(false)
-                    .then(function () {
-                        return self.server_time.change_time($("#systime-date-input").val(),
-                                                            $('#systime-time-hours').val(),
-                                                            $('#systime-time-minutes').val());
-                    }));
+                        .then(function() {
+                            return self.server_time.change_time($("#systime-date-input").val(),
+                                                                $('#systime-time-hours').val(),
+                                                                $('#systime-time-minutes').val());
+                        }));
         } else if (!self.custom_ntp_supported) {
             promises.push(
                 set_ntp(true));
@@ -1305,19 +1318,19 @@ PageSystemInformationChangeSystime.prototype = {
              */
             promises.push(
                 set_ntp(false)
-                    .then(function () {
-                        return self.server_time.timedate.call('SetTime', [ 1, true, true ]);
-                    })
-                    .then(function () {
-                        return self.set_ntp_servers(servers, ntp_time_custom);
-                    })
-                    .then(function() {
-                        // NTPSynchronized should be false now.  Make
-                        // sure we pick that up immediately.
-                        self.server_time.poll_ntp_synchronized();
+                        .then(function() {
+                            return self.server_time.timedate.call('SetTime', [ 1, true, true ]);
+                        })
+                        .then(function() {
+                            return self.set_ntp_servers(servers, ntp_time_custom);
+                        })
+                        .then(function() {
+                            // NTPSynchronized should be false now.  Make
+                            // sure we pick that up immediately.
+                            self.server_time.poll_ntp_synchronized();
 
-                        return set_ntp(true);
-                    }));
+                            return set_ntp(true);
+                        }));
         }
 
         $("#system_information_change_systime").dialog("promise", cockpit.all(promises));
@@ -1344,27 +1357,31 @@ PageSystemInformationChangeSystime.prototype = {
             date_error = true;
 
         if (time_error && date_error)
-           $('#systime-parse-error').text(_("Invalid date format and invalid time format"));
+            $('#systime-parse-error').text(_("Invalid date format and invalid time format"));
         else if (time_error)
-           $('#systime-parse-error').text(_("Invalid time format"));
+            $('#systime-parse-error').text(_("Invalid time format"));
         else if (date_error)
-           $('#systime-parse-error').text(_("Invalid date format"));
+            $('#systime-parse-error').text(_("Invalid date format"));
 
         if ($('#systime-timezones').val() === "") {
-           timezone_error = true;
-           $('#systime-timezone-error').css('visibility', 'visible');
+            timezone_error = true;
+            $('#systime-timezone-error').css('visibility', 'visible');
         } else {
-           $('#systime-timezone-error').css('visibility', 'hidden');
+            $('#systime-timezone-error').css('visibility', 'hidden');
         }
 
-        $('#systime-timezones').toggleClass("has-error", ! timezone_error);
-        $('#systime-time-hours').toggleClass("has-error", ! time_error);
-        $('#systime-time-minutes').toggleClass("has-error", ! time_error);
-        $('#systime-date-input').toggleClass("has-error", ! date_error);
+        $('#systime-timezones').toggleClass("has-error", !timezone_error);
+        $('#systime-time-hours').toggleClass("has-error", !time_error);
+        $('#systime-time-minutes').toggleClass("has-error", !time_error);
+        $('#systime-date-input').toggleClass("has-error", !date_error);
 
-        $('#systime-parse-error').parents('tr').toggleClass("has-error", time_error || date_error);
+        $('#systime-parse-error')
+                .parents('tr')
+                .toggleClass("has-error", time_error || date_error);
         $('#systime-parse-error').toggle(time_error || date_error);
-        $('#systime-timezone-error').parents('tr').toggle(timezone_error);
+        $('#systime-timezone-error')
+                .parents('tr')
+                .toggle(timezone_error);
 
         if (time_error || date_error || timezone_error) {
             $('#systime-apply-button').prop('disabled', true);
@@ -1389,9 +1406,11 @@ PageSystemInformationChangeSystime.prototype = {
     sync_ntp_servers: function() {
         var self = this;
 
-        self.custom_ntp_servers = $('#systime-ntp-servers input').map(function (i, elt) {
-            return $(elt).val();
-        }).get();
+        self.custom_ntp_servers = $('#systime-ntp-servers input')
+                .map(function(i, elt) {
+                    return $(elt).val();
+                })
+                .get();
     },
 
     update_ntp_servers: function() {
@@ -1401,11 +1420,11 @@ PageSystemInformationChangeSystime.prototype = {
             self.custom_ntp_servers = [ "" ];
 
         var model = {
-            NTPServers: self.custom_ntp_servers.map(function (val, i) {
+            NTPServers: self.custom_ntp_servers.map(function(val, i) {
                 return { index: i,
                          Value: val,
                          Placeholder: _("NTP Server")
-                       };
+                };
             })
         };
 
@@ -1449,18 +1468,18 @@ PageCpuStatus.prototype = {
         var options = {
             series: {shadowSize: 0,
                      lines: {lineWidth: 0, fill: 1}
-                    },
+            },
             yaxis: {min: 0,
                     max: n_cpus * 1000,
                     show: true,
                     ticks: 5,
                     tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" }},
             xaxis: {show: true,
-                    ticks: [[0.0*60, "5 min"],
-                            [1.0*60, "4 min"],
-                            [2.0*60, "3 min"],
-                            [3.0*60, "2 min"],
-                            [4.0*60, "1 min"]]},
+                    ticks: [[0.0 * 60, "5 min"],
+                        [1.0 * 60, "4 min"],
+                        [2.0 * 60, "3 min"],
+                        [3.0 * 60, "2 min"],
+                        [4.0 * 60, "1 min"]]},
             x_rh_stack_graphs: true
         };
 
@@ -1488,7 +1507,7 @@ PageCpuStatus.prototype = {
         self.grid = cockpit.grid(1000, -300, -0);
 
         var i;
-        for(i = 0; i < series.length; i++) {
+        for (i = 0; i < series.length; i++) {
             series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
         }
 
@@ -1498,16 +1517,16 @@ PageCpuStatus.prototype = {
 
         this.plot = plot.setup_complicated_plot("#cpu_status_graph", self.grid, series, options);
 
-        machine_info.cpu_ram_info().
-            done(function (info) {
-                // Setting n_cpus changes the tick labels, see tickFormatter above.
-                n_cpus = info.cpus;
-                self.plot.set_yaxis_max(n_cpus * 1000);
-                $("#cpu_status_title").text(cockpit.format(cockpit.ngettext("Usage of $0 CPU core",
-                                                                            "Usage of $0 CPU cores",
-                                                                            n_cpus),
-                                                           n_cpus));
-            });
+        machine_info.cpu_ram_info()
+                .done(function(info) {
+                    // Setting n_cpus changes the tick labels, see tickFormatter above.
+                    n_cpus = info.cpus;
+                    self.plot.set_yaxis_max(n_cpus * 1000);
+                    $("#cpu_status_title").text(cockpit.format(cockpit.ngettext("Usage of $0 CPU core",
+                                                                                "Usage of $0 CPU cores",
+                                                                                n_cpus),
+                                                               n_cpus));
+                });
     },
 
     show: function() {
@@ -1539,7 +1558,7 @@ PageMemoryStatus.prototype = {
         var dfd = cockpit.defer();
         self.setupPromise = dfd.promise;
 
-        machine_info.cpu_ram_info().done(function (info) {
+        machine_info.cpu_ram_info().done(function(info) {
             var options = {
                 series: {
                     shadowSize: 0, // drawing is faster without shadows
@@ -1549,17 +1568,17 @@ PageMemoryStatus.prototype = {
                     min: 0,
                     max: info.memory,
                     ticks: 5,
-                    tickFormatter: function (v) {
+                    tickFormatter: function(v) {
                         return cockpit.format_bytes(v);
                     }
                 },
                 xaxis: {
                     show: true,
                     ticks: [[0.0 * 60, _("5 min")],
-                            [1.0 * 60, _("4 min")],
-                            [2.0 * 60, _("3 min")],
-                            [3.0 * 60, _("2 min")],
-                            [4.0 * 60, _("1 min")]]
+                        [1.0 * 60, _("4 min")],
+                        [2.0 * 60, _("3 min")],
+                        [3.0 * 60, _("2 min")],
+                        [4.0 * 60, _("1 min")]]
                 },
                 x_rh_stack_graphs: true,
             };
@@ -1574,7 +1593,7 @@ PageMemoryStatus.prototype = {
 
             if (info.swap) {
                 options.yaxis.max = info.memory + info.swap * 0.25;
-                options.yaxis.tickFormatter = function (v) {
+                options.yaxis.tickFormatter = function(v) {
                     return v <= info.memory ? cockpit.format_bytes(v)
                         : cockpit.format_bytes(v + (v - info.memory) * 4);
                 };
@@ -1594,7 +1613,7 @@ PageMemoryStatus.prototype = {
             });
             /* The grid shows us the last five minutes */
             self.grid = cockpit.grid(1000, -300, -0);
-            for(var i = 0; i < series.length; i++)
+            for (var i = 0; i < series.length; i++)
                 series[i].row = self.grid.add(self.channel, [ metrics[i].name ]);
 
             /* Start pulling data, and make the grid follow the data */
@@ -1602,10 +1621,11 @@ PageMemoryStatus.prototype = {
             self.grid.walk();
             self.plot = plot.setup_complicated_plot("#memory_status_graph", self.grid, series, options);
             dfd.resolve();
-        }).fail(function(ex) {
-            debug("Couldn't read memory info: " + ex);
-            dfd.reject();
-        });
+        })
+                .fail(function(ex) {
+                    debug("Couldn't read memory info: " + ex);
+                    dfd.reject();
+                });
     },
 
     show: function() {
@@ -1659,7 +1679,6 @@ $("#system-information-enable-pcp-link").on("click", function() {
     install_dialog("cockpit-pcp");
 });
 
-
 /*
  * INITIALIZATION AND NAVIGATION
  *
@@ -1673,26 +1692,28 @@ $("#system-information-enable-pcp-link").on("click", function() {
 
 function dialog_setup(d) {
     d.setup();
-    $('#' + d.id).
-        on('show.bs.modal', function (event) {
-            if (event.target.id === d.id)
-                d.enter();
-        }).
-        on('shown.bs.modal', function (event) {
-            if (event.target.id === d.id)
-              d.show();
-        }).
-        on('hidden.bs.modal', function (event) {
-            if (event.target.id === d.id)
-              d.leave();
-        });
+    $('#' + d.id)
+            .on('show.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.enter();
+            })
+            .on('shown.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.show();
+            })
+            .on('hidden.bs.modal', function(event) {
+                if (event.target.id === d.id)
+                    d.leave();
+            });
 }
 
 function page_show(p, arg) {
     if (!p._entered_)
         p.enter(arg);
     p._entered_ = true;
-    $('#' + p.id).show().removeAttr("hidden");
+    $('#' + p.id)
+            .show()
+            .removeAttr("hidden");
     p.show();
 }
 

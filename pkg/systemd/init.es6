@@ -1,17 +1,14 @@
-var $ = require("jquery");
+import $ from "jquery";
+import * as mustache from "mustache";
+
+import cockpit from "cockpit";
+import moment from "moment";
+import journal from "journal";
+import "patterns";
+import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
+
 $(function() {
-    "use strict";
-
-    var cockpit = require("cockpit");
-
-    var mustache = require("mustache");
-    var moment = require("moment");
-    var journal = require("journal");
-
     /* These add themselves to jQuery so just including is enough */
-    require("patterns");
-    require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
-
     cockpit.translate();
     var _ = cockpit.gettext;
     moment.locale(cockpit.language);
@@ -84,7 +81,6 @@ $(function() {
      */
 
     function systemd_escape(str) {
-
         function name_esc(str) {
             var validchars = /[0-9a-zA-Z:-_.\\]/;
             var res = "";
@@ -224,22 +220,22 @@ $(function() {
         function refresh_properties(path, tweak_callback) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ]).
-                fail(function (error) {
-                    console.log(error);
-                }).
-                done(function (result) {
-                    var unit = get_unit(path);
-                    update_properties(unit, result[0]);
-                    if (tweak_callback)
-                        tweak_callback(unit);
-                    render();
-                });
+                                [ "org.freedesktop.systemd1.Unit" ])
+                    .fail(function(error) {
+                        console.log(error);
+                    })
+                    .done(function(result) {
+                        var unit = get_unit(path);
+                        update_properties(unit, result[0]);
+                        if (tweak_callback)
+                            tweak_callback(unit);
+                        render();
+                    });
         }
 
-        function add_timer_properties(timer_unit,unit) {
-            unit.LastTriggerTime = moment(timer_unit.LastTriggerUSec/1000).calendar();
-            var system_boot_time = clock_realtime_now.valueOf()*1000 - clock_monotonic_now;
+        function add_timer_properties(timer_unit, unit) {
+            unit.LastTriggerTime = moment(timer_unit.LastTriggerUSec / 1000).calendar();
+            var system_boot_time = clock_realtime_now.valueOf() * 1000 - clock_monotonic_now;
             if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0)
                 unit.LastTriggerTime = _("unknown");
             var next_run_time = 0;
@@ -253,7 +249,7 @@ $(function() {
                 else
                     next_run_time = timer_unit.NextElapseUSecRealtime;
             }
-            unit.NextRunTime = moment(next_run_time/1000).calendar();
+            unit.NextRunTime = moment(next_run_time / 1000).calendar();
             if (timer_unit.NextElapseUSecMonotonic <= 0 && timer_unit.NextElapseUSecRealtime <= 0)
                 unit.NextRunTime = _("unknown");
         }
@@ -266,7 +262,9 @@ $(function() {
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
-            var enabled = [ ], disabled = [ ], statics = [ ];
+            var enabled = [ ];
+            var disabled = [ ];
+            var statics = [ ];
             var header = {
                 Description: _("Description"),
                 Id: _("Id"),
@@ -279,7 +277,7 @@ $(function() {
                 $('#create-timer').show();
             else
                 $('#create-timer').hide();
-            sorted_keys.forEach(function (path) {
+            sorted_keys.forEach(function(path) {
                 var unit = units_by_path[path];
                 if (!(unit.Id && pattern && unit.Id.match(pattern)))
                     return;
@@ -391,11 +389,11 @@ $(function() {
                 if (path_by_id[name])
                     with_path(path_by_id[name]);
                 else {
-                    systemd_manager.LoadUnit(name).
-                        fail(function (error) {
-                            console.log(error);
-                        }).
-                        done(with_path);
+                    systemd_manager.LoadUnit(name)
+                            .fail(function(error) {
+                                console.log(error);
+                            })
+                            .done(with_path);
                 }
 
                 function with_path(path) {
@@ -419,38 +417,38 @@ $(function() {
                 }
             }
 
-            systemd_manager.ListUnits().
-                fail(fail).
-                done(function (result) {
-                    if (my_run != update_run)
-                        return;
-                    for (var i = 0; i < result.length; i++)
-                        record_unit_state(result[i]);
-                    systemd_manager.ListUnitFiles().
-                        fail(fail).
-                        done(function (result) {
-                            var i, keys;
-                            if (my_run != update_run)
-                                return;
-                            for (i = 0; i < result.length; i++)
-                                record_unit_file_state(result[i]);
-                            keys = Object.keys(units_by_path);
-                            for (i = 0; i < keys; i++) {
-                                if (!seen_ids[units_by_path[keys[i]].Id]) {
-                                    console.log("R", keys[i]);
-                                    delete units_by_path[keys[i]];
-                                }
-                            }
-                            render();
-                        });
-                });
+            systemd_manager.ListUnits()
+                    .fail(fail)
+                    .done(function(result) {
+                        if (my_run != update_run)
+                            return;
+                        for (var i = 0; i < result.length; i++)
+                            record_unit_state(result[i]);
+                        systemd_manager.ListUnitFiles()
+                                .fail(fail)
+                                .done(function(result) {
+                                    var i, keys;
+                                    if (my_run != update_run)
+                                        return;
+                                    for (i = 0; i < result.length; i++)
+                                        record_unit_file_state(result[i]);
+                                    keys = Object.keys(units_by_path);
+                                    for (i = 0; i < keys; i++) {
+                                        if (!seen_ids[units_by_path[keys[i]].Id]) {
+                                            console.log("R", keys[i]);
+                                            delete units_by_path[keys[i]];
+                                        }
+                                    }
+                                    render();
+                                });
+                    });
         }
 
-        $(systemd_manager).on("UnitNew", function (event, id, path) {
+        $(systemd_manager).on("UnitNew", function(event, id, path) {
             path_by_id[id] = path;
         });
 
-        $(systemd_manager).on("JobNew JobRemoved", function (event, number, path, unit_id, result) {
+        $(systemd_manager).on("JobNew JobRemoved", function(event, number, path, unit_id, result) {
             var unit_path = path_by_id[unit_id];
             if (unit_path)
                 refresh_properties(unit_path);
@@ -458,8 +456,8 @@ $(function() {
 
         systemd_client.subscribe({ 'interface': "org.freedesktop.DBus.Properties",
                                    'member': "PropertiesChanged"
-                                 },
-                                 function (path, iface, signal, args) {
+        },
+                                 function(path, iface, signal, args) {
                                      var unit = units_by_path[path];
                                      if (unit) {
                                          update_properties(unit, args[1]);
@@ -467,13 +465,17 @@ $(function() {
                                      }
                                  });
 
-        $(systemd_manager).on("UnitFilesChanged", function (event) {
+        $(systemd_manager).on("UnitFilesChanged", function(event) {
             update_all();
         });
 
-        $('#services-filter button').on('click', function () {
-            $('#services-filter button').removeClass('active').removeAttr('aria-current');
-            $(this).addClass('active').attr('aria-current', true);
+        $('#services-filter button').on('click', function() {
+            $('#services-filter button')
+                    .removeClass('active')
+                    .removeAttr('aria-current');
+            $(this)
+                    .addClass('active')
+                    .attr('aria-current', true);
             render();
         });
 
@@ -510,13 +512,13 @@ $(function() {
     var template_template = $("#service-template-tmpl").html();
     mustache.parse(template_template);
 
-    var unit_primary_actions = [                          // <method>:<mode>
-        { title: _("Start"),                 action: 'StartUnit' },
-        { title: _("Stop"),                  action: 'StopUnit' },
+    var unit_primary_actions = [ // <method>:<mode>
+        { title: _("Start"), action: 'StartUnit' },
+        { title: _("Stop"), action: 'StopUnit' },
     ];
     var unit_secondary_actions = [
-        { title: _("Restart"),               action: 'RestartUnit' },
-        { title: _("Reload"),                action: 'ReloadUnit' }
+        { title: _("Restart"), action: 'RestartUnit' },
+        { title: _("Reload"), action: 'ReloadUnit' }
     ];
 
     var permission = cockpit.permission({ admin: true });
@@ -524,33 +526,37 @@ $(function() {
 
     function unit_action() {
         /* jshint validthis:true */
-        var parsed_action = $(this).attr("data-action").split(":");
+        var parsed_action = $(this)
+                .attr("data-action")
+                .split(":");
         var method = parsed_action[0];
         var mode = parsed_action[1];
 
         if (cur_unit) {
-            systemd_manager.call(method, [ cur_unit_id, mode || "fail"]).
-                fail(function (error) {
-                    $('#service-error-dialog-message').text(error.toString());
-                    $('#service-error-dialog').modal('show');
-                });
+            systemd_manager.call(method, [ cur_unit_id, mode || "fail" ])
+                    .fail(function(error) {
+                        $('#service-error-dialog-message').text(error.toString());
+                        $('#service-error-dialog').modal('show');
+                    });
         }
     }
 
-    var file_actions = [                          // <method>:<force>
-        { title: _("Enable"),                action: 'EnableUnitFiles:false' },
-        { title: _("Enable Forcefully"),     action: 'EnableUnitFiles:true' },
-        { title: _("Disable"),               action: 'DisableUnitFiles' },
-        { title: _("Preset"),                action: 'PresetUnitFiles:false' },
-        { title: _("Preset Forcefully"),     action: 'PresetUnitFiles:true' },
-        { title: _("Mask"),                  action: 'MaskUnitFiles:false' },
-        { title: _("Mask Forcefully"),       action: 'MaskUnitFiles:true' },
-        { title: _("Unmask"),                action: 'UnmaskUnitFiles' }
+    var file_actions = [ // <method>:<force>
+        { title: _("Enable"), action: 'EnableUnitFiles:false' },
+        { title: _("Enable Forcefully"), action: 'EnableUnitFiles:true' },
+        { title: _("Disable"), action: 'DisableUnitFiles' },
+        { title: _("Preset"), action: 'PresetUnitFiles:false' },
+        { title: _("Preset Forcefully"), action: 'PresetUnitFiles:true' },
+        { title: _("Mask"), action: 'MaskUnitFiles:false' },
+        { title: _("Mask Forcefully"), action: 'MaskUnitFiles:true' },
+        { title: _("Unmask"), action: 'UnmaskUnitFiles' }
     ];
 
     function unit_file_action() {
         /* jshint validthis:true */
-        var parsed_action = $(this).attr("data-action").split(":");
+        var parsed_action = $(this)
+                .attr("data-action")
+                .split(":");
         var method = parsed_action[0];
         var force = parsed_action[1];
 
@@ -558,16 +564,16 @@ $(function() {
             var args = [ [ cur_unit_id ], false ];
             if (force !== undefined)
                 args.push(force == "true");
-            systemd_manager.call(method, args).
-                done(function (results) {
-                    if (results.length == 2 && !results[0])
-                        $('#service-no-install-info-dialog').modal('show');
-                    systemd_manager.Reload();
-                }).
-                fail(function(error) {
-                    $('#service-error-dialog-message').text(error.toString());
-                    $('#service-error-dialog').modal('show');
-                });
+            systemd_manager.call(method, args)
+                    .done(function(results) {
+                        if (results.length == 2 && !results[0])
+                            $('#service-no-install-info-dialog').modal('show');
+                        systemd_manager.Reload();
+                    })
+                    .fail(function(error) {
+                        $('#service-error-dialog-message').text(error.toString());
+                        $('#service-error-dialog').modal('show');
+                    });
         }
     }
 
@@ -624,7 +630,7 @@ $(function() {
             var timestamp;
             if (active_state == 'active' || active_state == 'reloading')
                 timestamp = cur_unit.ActiveEnterTimestamp;
-            else if (active_state == 'inactive' ||active_state == 'failed')
+            else if (active_state == 'inactive' || active_state == 'failed')
                 timestamp = cur_unit.InactiveEnterTimestamp;
             else if (active_state == 'activating')
                 timestamp = cur_unit.InactiveExitTimestamp;
@@ -633,7 +639,7 @@ $(function() {
 
             var since = "";
             if (timestamp)
-                since = cockpit.format(_("Since $0"), moment(timestamp/1000).format('LLL'));
+                since = cockpit.format(_("Since $0"), moment(timestamp / 1000).format('LLL'));
 
             var unit_action_btn = mustache.render(action_btn_template,
                                                   {
@@ -676,26 +682,26 @@ $(function() {
                                            FileButton: file_action_btn,
                                            NotMetConditions: not_met_conditions,
                                            Relationships: [
-                                               { Name: _("Requires"),               Units: cur_unit.Requires },
-                                               { Name: _("Requisite"),              Units: cur_unit.Requisite },
-                                               { Name: _("Wants"),                  Units: cur_unit.Wants },
-                                               { Name: _("Binds To"),               Units: cur_unit.BindsTo },
-                                               { Name: _("Part Of"),                Units: cur_unit.PartOf },
-                                               { Name: _("Required By"),            Units: cur_unit.RequiredBy },
-                                               { Name: _("Requisite Of"),           Units: cur_unit.RequisiteOf },
-                                               { Name: _("Wanted By"),              Units: cur_unit.WantedBy },
-                                               { Name: _("Bound By"),               Units: cur_unit.BoundBy },
-                                               { Name: _("Consists Of"),            Units: cur_unit.ConsistsOf },
-                                               { Name: _("Conflicts"),              Units: cur_unit.Conflicts },
-                                               { Name: _("Conflicted By"),          Units: cur_unit.ConflictedBy },
-                                               { Name: _("Before"),                 Units: cur_unit.Before },
-                                               { Name: _("After"),                  Units: cur_unit.After },
-                                               { Name: _("On Failure"),             Units: cur_unit.OnFailure },
-                                               { Name: _("Triggers"),               Units: cur_unit.Triggers },
-                                               { Name: _("Triggered By"),           Units: cur_unit.TriggeredBy },
-                                               { Name: _("Propagates Reload To"),   Units: cur_unit.PropagatesReloadTo },
+                                               { Name: _("Requires"), Units: cur_unit.Requires },
+                                               { Name: _("Requisite"), Units: cur_unit.Requisite },
+                                               { Name: _("Wants"), Units: cur_unit.Wants },
+                                               { Name: _("Binds To"), Units: cur_unit.BindsTo },
+                                               { Name: _("Part Of"), Units: cur_unit.PartOf },
+                                               { Name: _("Required By"), Units: cur_unit.RequiredBy },
+                                               { Name: _("Requisite Of"), Units: cur_unit.RequisiteOf },
+                                               { Name: _("Wanted By"), Units: cur_unit.WantedBy },
+                                               { Name: _("Bound By"), Units: cur_unit.BoundBy },
+                                               { Name: _("Consists Of"), Units: cur_unit.ConsistsOf },
+                                               { Name: _("Conflicts"), Units: cur_unit.Conflicts },
+                                               { Name: _("Conflicted By"), Units: cur_unit.ConflictedBy },
+                                               { Name: _("Before"), Units: cur_unit.Before },
+                                               { Name: _("After"), Units: cur_unit.After },
+                                               { Name: _("On Failure"), Units: cur_unit.OnFailure },
+                                               { Name: _("Triggers"), Units: cur_unit.Triggers },
+                                               { Name: _("Triggered By"), Units: cur_unit.TriggeredBy },
+                                               { Name: _("Propagates Reload To"), Units: cur_unit.PropagatesReloadTo },
                                                { Name: _("Reload Propagated From"), Units: cur_unit.ReloadPropagatedFrom },
-                                               { Name: _("Joins Namespace Of"),     Units: cur_unit.JoinsNamespaceOf }
+                                               { Name: _("Joins Namespace Of"), Units: cur_unit.JoinsNamespaceOf }
                                            ]
                                        });
             $('#service-unit').html(text);
@@ -742,33 +748,35 @@ $(function() {
             return;
         }
 
-        systemd_manager.LoadUnit(unit_id).
-            done(function (path) {
-                if (cur_unit_id == unit_id) {
-                    var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
-                    cur_unit = unit;
-                    unit.wait(function() {
-                        if (cur_unit == unit) {
-                            render();
-                            $(cur_unit).on('changed', render);
-                            $("#service-valid").show();
-                            $("#service").show();
-                        }
-                    });
-                }
-            }).
-            fail(function (error) {
-                $("#service-error-message").text(error.toString());
-                $("#service-invalid").show();
-                $("#service").show();
-            });
+        systemd_manager.LoadUnit(unit_id)
+                .done(function(path) {
+                    if (cur_unit_id == unit_id) {
+                        var unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
+                        cur_unit = unit;
+                        unit.wait(function() {
+                            if (cur_unit == unit) {
+                                render();
+                                $(cur_unit).on('changed', render);
+                                $("#service-valid").show();
+                                $("#service").show();
+                            }
+                        });
+                    }
+                })
+                .fail(function(error) {
+                    $("#service-error-message").text(error.toString());
+                    $("#service-invalid").show();
+                    $("#service").show();
+                });
 
         refresh_unit_file_state();
 
         cur_journal_watcher = journal.logbox([ "_SYSTEMD_UNIT=" + cur_unit_id, "+",
-                                              "COREDUMP_UNIT=" + cur_unit_id, "+",
-                                              "UNIT=" + cur_unit_id ], 10);
-        $('#service-log').empty().append(cur_journal_watcher);
+            "COREDUMP_UNIT=" + cur_unit_id, "+",
+            "UNIT=" + cur_unit_id ], 10);
+        $('#service-log')
+                .empty()
+                .append(cur_journal_watcher);
     }
 
     function unit_goto() {
@@ -781,7 +789,7 @@ $(function() {
             var tp = cur_unit_id.indexOf("@");
             var sp = cur_unit_id.lastIndexOf(".");
             if (tp != -1) {
-                var s = cur_unit_id.substring(0, tp+1);
+                var s = cur_unit_id.substring(0, tp + 1);
                 s = s + systemd_escape(param);
                 if (sp != -1)
                     s = s + cur_unit_id.substring(sp);
@@ -795,48 +803,48 @@ $(function() {
         if (unit) {
             systemd_client.call(unit.path,
                                 "org.freedesktop.DBus.Properties", "GetAll",
-                                [ "org.freedesktop.systemd1.Unit" ]).
-                fail(function (error) {
-                    console.log(error);
-                }).
-                done(function (result) {
-                    var props = { };
-                    for (var p in result[0])
-                        props[p] = result[0][p].v;
-                    var ifaces = { };
-                    ifaces["org.freedesktop.systemd1.Unit"] = props;
-                    var data = { };
-                    data[unit.path] = ifaces;
-                    systemd_client.notify(data);
-                });
+                                [ "org.freedesktop.systemd1.Unit" ])
+                    .fail(function(error) {
+                        console.log(error);
+                    })
+                    .done(function(result) {
+                        var props = { };
+                        for (var p in result[0])
+                            props[p] = result[0][p].v;
+                        var ifaces = { };
+                        ifaces["org.freedesktop.systemd1.Unit"] = props;
+                        var data = { };
+                        data[unit.path] = ifaces;
+                        systemd_client.notify(data);
+                    });
         }
     }
 
     function refresh_unit_file_state() {
         var unit_id = cur_unit_id;
         if (unit_id) {
-            systemd_manager.GetUnitFileState(unit_id).
-                done(function (state) {
-                    if (cur_unit_id == unit_id) {
-                        cur_unit_file_state = state;
-                        if (cur_unit)
-                            $(cur_unit).triggerHandler("changed");
-                    }
-                });
+            systemd_manager.GetUnitFileState(unit_id)
+                    .done(function(state) {
+                        if (cur_unit_id == unit_id) {
+                            cur_unit_file_state = state;
+                            if (cur_unit)
+                                $(cur_unit).triggerHandler("changed");
+                        }
+                    });
         }
     }
 
-    $(systemd_manager).on("Reloading", function (event, reloading) {
+    $(systemd_manager).on("Reloading", function(event, reloading) {
         if (!reloading)
             refresh_unit();
     });
 
-    $(systemd_manager).on("JobNew JobRemoved", function (event, number, path, unit_id, result) {
+    $(systemd_manager).on("JobNew JobRemoved", function(event, number, path, unit_id, result) {
         if (cur_unit_id == unit_id)
             refresh_unit();
     });
 
-    $(systemd_manager).on("UnitFilesChanged", function (event) {
+    $(systemd_manager).on("UnitFilesChanged", function(event) {
         refresh_unit_file_state();
     });
 
@@ -868,7 +876,7 @@ $(function() {
 
     $('body').on('click', "[data-goto-unit]", unit_goto);
 
-    $('#service-template').on('click', 'button', function () {
+    $('#service-template').on('click', 'button', function() {
         unit_instantiate($('#service-template input').val());
     });
 
@@ -900,28 +908,29 @@ $(function() {
     });
 
     function update_time() {
-        cockpit.spawn(["cat", "/proc/uptime"]).
-            fail(function (err) {
-                console.log(err);
-            }).
-            done(function (contents) {
-                // first number is time since boot in seconds with two fractional digits
-                var uptime = parseFloat(contents.split(' ')[0]);
-                clock_monotonic_now = parseInt(uptime * 1000000, 10);
-            });
-        cockpit.spawn(["date", "+%s"]).
-            fail(function (err) {
-                console.log(err);
-            }).
-            done(function (time) {
-                clock_realtime_now = moment.unix(parseInt(time));
-            });
+        cockpit.spawn(["cat", "/proc/uptime"])
+                .fail(function(err) {
+                    console.log(err);
+                })
+                .done(function(contents) {
+                    // first number is time since boot in seconds with two fractional digits
+                    var uptime = parseFloat(contents.split(' ')[0]);
+                    clock_monotonic_now = parseInt(uptime * 1000000, 10);
+                });
+        cockpit.spawn(["date", "+%s"])
+                .fail(function(err) {
+                    console.log(err);
+                })
+                .done(function(time) {
+                    clock_realtime_now = moment.unix(parseInt(time));
+                });
     }
     update_time();
     var timedate_client = cockpit.dbus('org.freedesktop.timedate1');
-    timedate_client.subscribe({ 'interface': "org.freedesktop.DBus.Properties",
-                                   'member': "PropertiesChanged"
-                                 }, update_time);
+    timedate_client.subscribe({
+        'interface': "org.freedesktop.DBus.Properties",
+        'member': "PropertiesChanged"
+    }, update_time);
     var timer_unit = { };
     var repeat_array = [ ];
     var error = false;
@@ -944,11 +953,11 @@ $(function() {
      * Repeat Yearly  : 525600 (60*24*365min)
      */
     var repeat_option = [
-        { index: 0,      render: "" },
-        { index: 60,     render: repeat_hourly_template },
-        { index: 1440,   render: repeat_daily_template },
-        { index: 10080,  render: repeat_weekly_template },
-        { index: 44640,  render: repeat_monthly_template },
+        { index: 0, render: "" },
+        { index: 60, render: repeat_hourly_template },
+        { index: 1440, render: repeat_daily_template },
+        { index: 10080, render: repeat_weekly_template },
+        { index: 44640, render: repeat_monthly_template },
         { index: 525600, render: repeat_yearly_template }
     ];
     // Removes error notification when user starts typing in the error-field.
@@ -959,11 +968,18 @@ $(function() {
         else if ($(this).attr("id") == "min")
             $("#min-error").text("");
         else if ($(this).attr("data-content") == "hours")
-            $(this).siblings("[data-content='hr-error']").text("");
+            $(this)
+                    .siblings("[data-content='hr-error']")
+                    .text("");
         else if ($(this).attr("data-content") == "minutes")
-            $(this).siblings("[data-content='min-error']").text("");
+            $(this)
+                    .siblings("[data-content='min-error']")
+                    .text("");
         else
-            $(this).parents("tr").next().hide();
+            $(this)
+                    .parents("tr")
+                    .next()
+                    .hide();
     });
     /* HACK - bootstrap datepicker positions itself incorrectly on modals
      * that has scroll bar. This hack finds how much user has scrolled
@@ -997,14 +1013,21 @@ $(function() {
 
     $(".form-table-ct").on("click", "[value]", ".btn-group.bootstrap-select.dropdown.form-control", function(ev) {
         var target = $(this).closest(".btn-group.bootstrap-select.dropdown.form-control");
-        $("span", target).first().text(ev.target.text);
-        $("span", target).first().attr("value", ev.currentTarget.value);
-        switch(target.attr('id')) {
-            case "boot-or-specific-time" : set_boot_or_calendar(Number(ev.currentTarget.value));
+        $("span", target)
+                .first()
+                .text(ev.target.text);
+        $("span", target)
+                .first()
+                .attr("value", ev.currentTarget.value);
+        switch (target.attr('id')) {
+        case "boot-or-specific-time":
+            set_boot_or_calendar(Number(ev.currentTarget.value));
             break;
-            case "drop-time" : set_boot_time_unit(Number(ev.currentTarget.value));
+        case "drop-time":
+            set_boot_time_unit(Number(ev.currentTarget.value));
             break;
-            case "drop-repeat" : repeat_options(Number(ev.currentTarget.value));
+        case "drop-repeat":
+            repeat_options(Number(ev.currentTarget.value));
             break;
         }
     });
@@ -1014,9 +1037,15 @@ $(function() {
         $("#description").val("");
         $("#servicename").val("");
         set_boot_or_calendar(1);
-        $("span", $("#boot-or-specific-time")).first().text(_("After system boot"));
-        $("span", $("#drop-time")).first().text(_("Seconds"));
-        $("span", $("#drop-time")).first().attr("value", "1");
+        $("span", $("#boot-or-specific-time"))
+                .first()
+                .text(_("After system boot"));
+        $("span", $("#drop-time"))
+                .first()
+                .text(_("Seconds"));
+        $("span", $("#drop-time"))
+                .first()
+                .attr("value", "1");
         $(".form-control").removeClass("has-error");
         $(".has-error").hide();
         repeat_array = [ ];
@@ -1035,7 +1064,7 @@ $(function() {
             $("#min").removeClass("has-error");
         }
         repeat_option.map(function(item) {
-            if(item.index === val)
+            if (item.index === val)
                 timer_unit.repeat = item;
         });
         if (val === 0) {
@@ -1099,7 +1128,7 @@ $(function() {
             var nowDate = new Date(clock_realtime_now);
             var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
             for (var i = 0; i < repeat_array.length; i++) {
-                $("[data-index='"+i+"'][data-content='datepicker']").datepicker({
+                $("[data-index='" + i + "'][data-content='datepicker']").datepicker({
                     autoclose: true,
                     todayHighlight: true,
                     format: 'yyyy-mm-dd',
@@ -1115,32 +1144,58 @@ $(function() {
         var i = 0;
         if (timer_unit.repeat["index"] === 60) {
             for (; i < repeat_array.length; i++) {
-                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
+                repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
+                        .val()
+                        .trim();
             }
         } else if (timer_unit.repeat["index"] === 1440) {
             for (; i < repeat_array.length; i++) {
-                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
-                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
+                repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
+                        .val()
+                        .trim();
+                repeat_array[i].hours = $("[data-index='" + i + "'][data-content='hours']")
+                        .val()
+                        .trim();
             }
         } else if (timer_unit.repeat["index"] === 10080) {
             for (; i < repeat_array.length; i++) {
-                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
-                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
-                repeat_array[i].days_text = $("span", $("[data-content='week-days'][data-index='"+i+"']")).first().text();
-                repeat_array[i].days_value = $("span", $("[data-content='week-days'][data-index='"+i+"']")).first().attr("value");
+                repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
+                        .val()
+                        .trim();
+                repeat_array[i].hours = $("[data-index='" + i + "'][data-content='hours']")
+                        .val()
+                        .trim();
+                repeat_array[i].days_text = $("span", $("[data-content='week-days'][data-index='" + i + "']"))
+                        .first()
+                        .text();
+                repeat_array[i].days_value = $("span", $("[data-content='week-days'][data-index='" + i + "']"))
+                        .first()
+                        .attr("value");
             }
         } else if (timer_unit.repeat["index"] === 44640) {
             for (; i < repeat_array.length; i++) {
-                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
-                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
-                repeat_array[i].days_text = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().text();
-                repeat_array[i].days_value = $("span", $("[data-content='month-days'][data-index='"+i+"']")).first().attr("value");
+                repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
+                        .val()
+                        .trim();
+                repeat_array[i].hours = $("[data-index='" + i + "'][data-content='hours']")
+                        .val()
+                        .trim();
+                repeat_array[i].days_text = $("span", $("[data-content='month-days'][data-index='" + i + "']"))
+                        .first()
+                        .text();
+                repeat_array[i].days_value = $("span", $("[data-content='month-days'][data-index='" + i + "']"))
+                        .first()
+                        .attr("value");
             }
         } else if (timer_unit.repeat["index"] === 525600) {
             for (; i < repeat_array.length; i++) {
-                repeat_array[i].minutes = $("[data-index='"+i+"'][data-content='minutes']").val().trim();
-                repeat_array[i].hours = $("[data-index='"+i+"'][data-content='hours']").val().trim();
-                repeat_array[i].date_to_parse = new Date($("[data-index='"+i+"'] .bootstrap-datepicker").val());
+                repeat_array[i].minutes = $("[data-index='" + i + "'][data-content='minutes']")
+                        .val()
+                        .trim();
+                repeat_array[i].hours = $("[data-index='" + i + "'][data-content='hours']")
+                        .val()
+                        .trim();
+                repeat_array[i].date_to_parse = new Date($("[data-index='" + i + "'] .bootstrap-datepicker").val());
                 repeat_array[i].date = moment(repeat_array[i].date_to_parse).format('YYYY-MM-DD');
             }
         }
@@ -1159,13 +1214,15 @@ $(function() {
             $("#boot-time").removeClass("has-error");
             timer_unit.Calendar_or_Boot = "Boot";
         } else if (value == 2) {
-            //calendar timer
+            // calendar timer
             $("#boot").hide();
             $("#boot-error-row").hide();
             $("#specific-time-error-row").hide();
             $("#repeat-options").show();
             repeat_options(0);
-            $("span", $("#drop-repeat")).first().text(_("Don't Repeat"));
+            $("span", $("#drop-repeat"))
+                    .first()
+                    .text(_("Don't Repeat"));
             timer_unit.Calendar_or_Boot = "Calendar";
         }
     }
@@ -1173,14 +1230,18 @@ $(function() {
     function set_boot_time_unit(value) {
         value = Number(value);
         switch (value) {
-            case 1 : timer_unit.boot_time_unit = "sec";
-                break;
-            case 60 : timer_unit.boot_time_unit = "min"; //60sec
-                break;
-            case 3600 : timer_unit.boot_time_unit = "hr"; //60*60sec
-                break;
-            case 604800 : timer_unit.boot_time_unit = "weeks";//7*24*60*60sec
-                break;
+        case 1:
+            timer_unit.boot_time_unit = "sec";
+            break;
+        case 60:
+            timer_unit.boot_time_unit = "min"; // 60sec
+            break;
+        case 3600:
+            timer_unit.boot_time_unit = "hr"; // 60*60sec
+            break;
+        case 604800:
+            timer_unit.boot_time_unit = "weeks"; // 7*24*60*60sec
+            break;
         }
     }
     // Validation of Inputs
@@ -1192,20 +1253,24 @@ $(function() {
             $("#servicename-error-row").show();
             $("#servicename").addClass('has-error');
             error = true;
-        } else if (! /^[a-zA-Z0-9:_.@-]+$/.test(str)) {
+        } else if (!/^[a-zA-Z0-9:_.@-]+$/.test(str)) {
             $("#servicename-error").text(_("Only alphabets, numbers, : , _ , . , @ , - are allowed."));
             $("#servicename-error-row").show();
             $("#servicename").addClass('has-error');
             error = true;
         }
-        str = $("#description").val().trim();
+        str = $("#description")
+                .val()
+                .trim();
         if (str.length < 1) {
             $("#description-error").text(_("This field cannot be empty."));
             $("#description-error-row").show();
             $("#description").addClass('has-error');
             error = true;
         }
-        str = $("#command").val().trim();
+        str = $("#command")
+                .val()
+                .trim();
         if (str.length < 1) {
             $("#command-error").text(_("This field cannot be empty."));
             $("#command-error-row").show();
@@ -1221,11 +1286,15 @@ $(function() {
                 error = true;
             }
         } else {
-            //Calendar timer cases
+            // Calendar timer cases
             var i = 0;
             if (timer_unit.repeat["index"] === 0) {
-                var hr = $("#hr").val().trim();
-                var min = $("#min").val().trim();
+                var hr = $("#hr")
+                        .val()
+                        .trim();
+                var min = $("#min")
+                        .val()
+                        .trim();
                 $("#hr-error").text("");
                 $("#min-error").text("");
                 if (!(/^[0-9]+$/.test(hr) && hr <= 23 && hr >= 0)) {
@@ -1270,7 +1339,6 @@ $(function() {
                     if (timer_unit.repeat["index"] === 44640 && repeat_array[i].days_value === '31')
                         $("[data-index='" + i + "'][data-content='day-error']").html(_("This day doesn't exist in all months.<br> The timer will only be executed in months that have 31st."));
                 }
-
             }
         }
         return error;
@@ -1281,40 +1349,46 @@ $(function() {
         var error = check_inputs();
         if (error)
             return false;
-        timer_unit.name = $("#servicename").val().replace(/\s/g, '');
+        timer_unit.name = $("#servicename")
+                .val()
+                .replace(/\s/g, '');
         timer_unit.Description = $("#description").val();
         timer_unit.Command = $("#command").val();
         timer_unit.boot_time = $("#boot-time").val();
 
         if (timer_unit.repeat["index"] === 0) {
-            timer_unit.repeat_hour = Number($("#hr").val().trim());
-            timer_unit.repeat_minute = Number($("#min").val().trim());
+            timer_unit.repeat_hour = Number($("#hr")
+                    .val()
+                    .trim());
+            timer_unit.repeat_minute = Number($("#min")
+                    .val()
+                    .trim());
             var today = new Date(clock_realtime_now);
-            timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
+            timer_unit.OnCalendar = "OnCalendar=" + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + timer_unit.repeat_hour + ":" + timer_unit.repeat_minute + ":00";
         } else if (timer_unit.repeat["index"] === 60) {
-            timer_unit.repeat_minute = repeat_array.map(function (item) {
+            timer_unit.repeat_minute = repeat_array.map(function(item) {
                 return Number(item.minutes);
             });
             timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute + ":00";
         } else if (timer_unit.repeat["index"] === 1440) {
-            timer_unit.OnCalendar = repeat_array.map(function (item) {
+            timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         } else if (timer_unit.repeat["index"] === 10080) {
-            timer_unit.OnCalendar = repeat_array.map(function (item) {
-                return "OnCalendar=" + item.days_text.slice(0,3) + " *-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
+            timer_unit.OnCalendar = repeat_array.map(function(item) {
+                return "OnCalendar=" + item.days_text.slice(0, 3) + " *-*-* " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         } else if (timer_unit.repeat["index"] === 44640) {
-            timer_unit.OnCalendar = repeat_array.map(function (item) {
+            timer_unit.OnCalendar = repeat_array.map(function(item) {
                 return "OnCalendar=*-*-" + item.days_value + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         } else if (timer_unit.repeat["index"] === 525600) {
-            timer_unit.OnCalendar = repeat_array.map(function (item) {
-                return "OnCalendar=*-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " +Number(item.hours) + ":" + Number(item.minutes) + ":00";
+            timer_unit.OnCalendar = repeat_array.map(function(item) {
+                return "OnCalendar=*-" + moment(item.date_to_parse).format('MM') + "-" + moment(item.date_to_parse).format('DD') + " " + Number(item.hours) + ":" + Number(item.minutes) + ":00";
             });
         }
         if (timer_unit.repeat["index"] !== 60)
-            timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g,"\n");
+            timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
         var invalid = create_timer_file();
         if (invalid)
             return false;
@@ -1329,10 +1403,9 @@ $(function() {
         var service_file = unit + timer_unit.Description + service + timer_unit.Command + "\n";
         var timer_file = " ";
         if (timer_unit.Calendar_or_Boot == "Boot") {
-            var boottimer = timer +"OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
+            var boottimer = timer + "OnBootSec=" + timer_unit.boot_time + timer_unit.boot_time_unit + "\n";
             timer_file = unit + timer_unit.Description + boottimer;
-        }
-        else if (timer_unit.Calendar_or_Boot == "Calendar") {
+        } else if (timer_unit.Calendar_or_Boot == "Calendar") {
             var calendartimer = timer + timer_unit.OnCalendar + "\n";
             timer_file = unit + timer_unit.Description + calendartimer;
         }
@@ -1340,36 +1413,36 @@ $(function() {
         // writing to file
         var service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
         var file = cockpit.file(service_path, { superuser: 'try' });
-        file.replace(service_file).
-            fail(function(error) {
-                console.log(error);
-            });
+        file.replace(service_file)
+                .fail(function(error) {
+                    console.log(error);
+                });
         var timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
         file = cockpit.file(timer_path, { superuser: 'try' });
-        file.replace(timer_file).
-            done(function(tag) {
-                // enable timer; LoadUnit() is unfortunately not sufficient
-                systemd_manager.Reload().
-                    done(function(unit) {
-                        systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false).
-                            fail(function(error) {
-                                console.warn("Failed to enable timer unit:", error);
+        file.replace(timer_file)
+                .done(function(tag) {
+                    // enable timer; LoadUnit() is unfortunately not sufficient
+                    systemd_manager.Reload()
+                            .done(function(unit) {
+                                systemd_manager.EnableUnitFiles([timer_unit.name + ".timer"], false, false)
+                                        .fail(function(error) {
+                                            console.warn("Failed to enable timer unit:", error);
+                                        });
+                                // start calendar timers
+                                if (timer_unit.Calendar_or_Boot == "Calendar") {
+                                    systemd_manager.StartUnit(timer_unit.name + ".timer", "replace")
+                                            .fail(function(error) {
+                                                console.warn("Failed to start timer unit:", error);
+                                            });
+                                }
+                            })
+                            .fail(function(error) {
+                                console.warn("Failed to reload systemd:", error);
                             });
-                        // start calendar timers
-                        if (timer_unit.Calendar_or_Boot == "Calendar") {
-                            systemd_manager.StartUnit(timer_unit.name + ".timer", "replace").
-                                fail(function(error) {
-                                    console.warn("Failed to start timer unit:", error);
-                                });
-                        }
-                    }).
-                    fail(function(error) {
-                        console.warn("Failed to reload systemd:", error);
-                    });
-            }).
-            fail(function(error) {
-                console.log(error);
-            });
+                })
+                .fail(function(error) {
+                    console.log(error);
+                });
     }
 
     /*
@@ -1378,12 +1451,12 @@ $(function() {
      * and update() is called.
      */
     systemd_manager.wait(function() {
-        systemd_manager.Subscribe().
-            fail(function (error) {
-                if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                    error.name != "org.freedesktop.DBus.Error.FileExists")
-                    console.warn("Subscribing to systemd signals failed", error);
-            });
+        systemd_manager.Subscribe()
+                .fail(function(error) {
+                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                        error.name != "org.freedesktop.DBus.Error.FileExists")
+                        console.warn("Subscribing to systemd signals failed", error);
+                });
         update();
     });
 });

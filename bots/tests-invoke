@@ -185,7 +185,8 @@ class PullTask(object):
         # Rebase this branch onto the base, but only if it's not already an ancestor
         try:
             if subprocess.call([ "git", "merge-base", "--is-ancestor", remote_base, "HEAD" ]) != 0:
-                sys.stderr.write("Rebasing onto " + remote_base + " ...\n")
+                sha = subprocess.check_output([ "git", "rev-parse", remote_base ], universal_newlines=True).strip()
+                sys.stderr.write("Rebasing onto {0} ({1}) ...\n".format(remote_base, sha))
                 subprocess.check_call([ "git", "reset", "HEAD" ])
                 subprocess.check_call([ "git", "rebase", remote_base ])
         except subprocess.CalledProcessError:

@@ -45,8 +45,8 @@ import tap
 import testvm
 import cdp
 
-TEST_DIR = testvm.TEST_DIR
-BOTS_DIR = testvm.BOTS_DIR
+TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
+BOTS_DIR = os.path.normpath(os.path.join(TEST_DIR, "..", "bots"))
 _PY3 = sys.version_info[0] >= 3
 
 os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST_DIR)

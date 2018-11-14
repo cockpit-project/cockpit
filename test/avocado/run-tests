@@ -32,7 +32,6 @@ import parent
 import testvm
 import testlib
 import subprocess
-import time
 machine_test_dir = "/tmp/avocado_tests"
 
 # this is where the avocado results on the test machine will be stored
@@ -87,20 +86,6 @@ def tap_output(machine):
     else:
         print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
-def ensure_deps_installed(machine):
-    try:
-        machine.execute("python3 -m avocado --help", quiet=True)
-    except subprocess.CalledProcessError:
-        machine.execute("pip3 install avocado-framework")
-    try:
-        machine.execute("python3 -c 'import selenium'", quiet=True)
-    except subprocess.CalledProcessError:
-        machine.execute("pip3 install selenium")
-    try:
-        machine.execute("python3 -c 'import libvirt'", quiet=True)
-    except subprocess.CalledProcessError:
-        machine.execute("dnf install -y python3-libvirt")
-
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
@@ -112,7 +97,6 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
         If 'print_failed' is True, attempt to print a list of failed tests
     """
     return_state = True
-    ensure_deps_installed(machine)
     cmd_parts = ["python3 -m avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),

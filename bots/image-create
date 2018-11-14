@@ -31,12 +31,11 @@ import sys
 import time
 import tempfile
 
-from machine import testvm
-
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 TEMP = os.path.join(os.environ.get("TEST_DATA", BASE), "tmp")
 
+from machine import testvm
 
 parser = argparse.ArgumentParser(description='Create a virtual machine image')
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')

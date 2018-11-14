@@ -22,14 +22,12 @@ import re
 import sys
 import subprocess
 
-from machine import testvm
-
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 TEST = os.path.join(BASE, "test")
 os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
-
+from machine import testvm
 
 parser = argparse.ArgumentParser(
         description='Run command inside or install packages into a Cockpit virtual machine',

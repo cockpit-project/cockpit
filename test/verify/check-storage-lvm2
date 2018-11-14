@@ -127,7 +127,7 @@ class TestStorage(StorageCase):
         self.dialog_wait_close()
 
         b.click('tr:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         # create a logical volume
         b.click("a:contains(Create new Logical Volume)")
@@ -248,7 +248,7 @@ class TestStorage(StorageCase):
 
         b.wait_in_text("#vgroups", "vgroup0")
         b.click('tr:contains("vgroup0")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         # Check the we are really using a partition on DISK1 now
         b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK1)")

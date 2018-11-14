@@ -74,7 +74,7 @@ class TestStorage(StorageCase):
 
         b.wait_in_text("#drives", "MYSERIAL")
         b.click('tr:contains("MYSERIAL")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
         wait_detail_row(5, "Device File")
         b.wait_in_text(detail_row_value(5), "/dev/sda")
 
@@ -96,14 +96,14 @@ class TestStorage(StorageCase):
         self.dialog_wait_close()
 
         b.go("#/sda")
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         # Switch on multipathd.  A primary device should appear.
-        b.wait_visible('#multipath-broken')
 
-        b.click('#activate-multipath')
+        b.wait_present('.alert-danger:contains(There are devices with multiple paths on the system, but)')
+        b.click('button:contains(Start Multipath)')
         b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
-        b.wait_not_visible('#multipath-broken')
+        b.wait_not_present('.alert-danger:contains(There are devices with multiple paths on the system, but)')
 
         # Check that (exactly) the primary device is offered as free
         b.go("#/")
@@ -113,7 +113,6 @@ class TestStorage(StorageCase):
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()
         self.dialog_wait_close()
-
 
 if __name__ == '__main__':
     test_main()

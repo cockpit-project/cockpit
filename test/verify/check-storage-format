@@ -43,7 +43,7 @@ class TestStorage(StorageCase):
         m.add_disk("5M", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         b.click('#drives tr:contains("DISK1")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         self.content_tab_action(1, 1, "Format")
         self.dialog_wait_open()
@@ -65,7 +65,7 @@ class TestStorage(StorageCase):
         m.add_disk("50M", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         b.click('#drives tr:contains("DISK1")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         def check_type(type, label_limit):
             self.content_tab_action(1, 1, "Format")

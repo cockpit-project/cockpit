@@ -56,7 +56,7 @@ class TestStorage(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('#drives tr:contains("MYDISK")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         # Format it
 
@@ -159,7 +159,7 @@ class TestStorage(StorageCase):
         m.add_disk("50M", serial="MYDISK")
         b.wait_in_text("#drives", "MYDISK")
         b.click('#drives tr:contains("MYDISK")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         # Open format dialog and play with the checkboxes
 

@@ -15,7 +15,7 @@ ifeq ($(FIREWALLD_SERVICE),)
 endif
 
 %:
-	dh $@ --with=systemd,autoreconf
+	dh $@
 
 # Apply patches using git in order to support binary patches. Note that
 # we also reset mtimes since patches should be "complete" and include both

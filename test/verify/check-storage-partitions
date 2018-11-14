@@ -46,7 +46,7 @@ class TestStorage(StorageCase):
 
         b.wait_present('tr:contains("%s")' % dev)
         b.click('tr:contains("%s")' % dev)
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
 
         b.wait_visible('button:contains(Create partition table)')
         b.click('button:contains(Create partition table)')

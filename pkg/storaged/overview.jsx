@@ -18,7 +18,6 @@
  */
 
 import React from "react";
-import ReactDOM from 'react-dom';
 
 import { fmt_rate } from "./utils.js";
 
@@ -107,19 +106,10 @@ export class OverviewSidePanelRow extends React.Component {
     }
 }
 
-class Overview extends React.Component {
+export class Overview extends React.Component {
     constructor() {
         super();
         this.state = { highlight: false };
-        this.on_client_changed = () => { this.setState({}) };
-    }
-
-    componentDidMount() {
-        this.props.client.addEventListener("changed", this.on_client_changed);
-    }
-
-    componentWillUnmount() {
-        this.props.client.removeEventListener("changed", this.on_client_changed);
     }
 
     render() {
@@ -146,20 +136,4 @@ class Overview extends React.Component {
             </div>
         );
     }
-}
-
-export function init(client, jobs) {
-    var page = document.getElementById("storage");
-
-    function show() {
-        ReactDOM.render(<Overview client={client} jobs={jobs} />, page);
-        page.style.display = "block";
-    }
-
-    function hide() {
-        // We don't unmount the page here in order to keep the plots alive.
-        page.style.display = "none";
-    }
-
-    return { show: show, hide: hide };
 }

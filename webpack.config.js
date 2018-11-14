@@ -110,7 +110,7 @@ var info = {
         ],
 
         "storaged/storage": [
-            "storaged/devices.js"
+            "storaged/devices.jsx"
         ],
 
         "subscriptions/subscriptions": [

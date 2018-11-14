@@ -19,7 +19,6 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from 'react-dom';
 
 import utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
@@ -71,20 +70,7 @@ export class StdDetailsLayout extends React.Component {
     }
 }
 
-class Details extends React.Component {
-    constructor() {
-        super();
-        this.on_client_changed = () => { this.setState({}) };
-    }
-
-    componentDidMount() {
-        this.props.client.addEventListener("changed", this.on_client_changed);
-    }
-
-    componentWillUnmount() {
-        this.props.client.removeEventListener("changed", this.on_client_changed);
-    }
-
+export class Details extends React.Component {
     render() {
         var client = this.props.client;
 
@@ -107,7 +93,7 @@ class Details extends React.Component {
                 name = utils.block_name(block);
                 body = <BlockDetails client={client} block={block} />;
             }
-        } else if (this.props.type == "vgroup") {
+        } else if (this.props.type == "vg") {
             var vgroup = client.vgnames_vgroup[this.props.name];
             if (vgroup) {
                 name = vgroup.Name;
@@ -135,7 +121,7 @@ class Details extends React.Component {
             body = <div className="col-md-12">{_("Not found")}</div>;
 
         return (
-            <div>
+            <div id="storage-detail">
                 <div className="col-md-12">
                     <ol className="breadcrumb">
                         <li><a role="link" tabIndex="0" onClick={go_up}>{_("Storage")}</a></li>
@@ -146,20 +132,4 @@ class Details extends React.Component {
             </div>
         );
     }
-}
-
-export function init(client) {
-    var page = document.getElementById("storage-detail");
-
-    function show(type, name, name2) {
-        ReactDOM.render(<Details client={client} type={type} name={name} name2={name2} />, page);
-        page.style.display = "block";
-    }
-
-    function hide() {
-        page.style.display = "none";
-        ReactDOM.unmountComponentAtNode(page);
-    }
-
-    return { show: show, hide: hide };
 }

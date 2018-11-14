@@ -52,7 +52,7 @@ class TestStorage(StorageCase):
         b.wait_in_text('#vgroups', "TEST")
 
         b.click('#vgroups tr:contains("TEST")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
         b.click("a:contains(Create new Logical Volume)")
         self.dialog({'purpose': "block",
                      'name': "lvol",
@@ -121,7 +121,7 @@ class TestStorage(StorageCase):
         b.wait_in_text('#mdraids', "ARR")
 
         b.click('#mdraids tr:contains("ARR")')
-        b.wait_visible('#storage-detail')
+        b.wait_present('#storage-detail')
         self.content_tab_action(1, 1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FS2",

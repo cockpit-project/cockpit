@@ -767,6 +767,7 @@ class MachineCase(unittest.TestCase):
     allowed_console_errors = [
         # HACK: These should be fixed, but debugging these is not trivial, and the impact is very low
         "Warning: .* setState.*on an unmounted component",
+        "Warning: Can't perform a React state update on an unmounted component."
     ]
 
     def allow_journal_messages(self, *patterns):

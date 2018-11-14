@@ -127,26 +127,41 @@
     }
 
     function requisites() {
+        function disableLogin(name) {
+            if (window.console)
+                console.warn(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
+            id("login").style.display = 'none';
+            id("login-details").style.display = 'none';
+            id("unsupported-browser").style.display = 'block';
+            document.body.className += " brand-unsupported-browser";
+        }
+
         function req(name, obj) {
             var ret;
             try {
                 ret = (obj[name]);
             } catch(ex) {
-                fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"),
-                             name));
+                fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"), name));
                 throw ex;
             }
             if (ret === undefined) {
-                if (window.console)
-                    console.warn(format(_("This web browser is too old to run Cockpit (missing $0)"), name));
-                id("login").style.display = 'none';
-                id("login-details").style.display = 'none';
-                id("unsupported-browser").style.display = 'block';
-                document.body.className += " brand-unsupported-browser";
+                disableLogin();
                 return false;
             }
             return true;
         }
+
+        function css() {
+            var args = [].join.call(arguments, ": ");
+
+            if (!window.CSS.supports.apply(this, arguments)) {
+                fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"), args));
+                disableLogin(args);
+                return false;
+            }
+            return true;
+        }
+
         return ("MozWebSocket" in window || req("WebSocket", window)) &&
                req("XMLHttpRequest", window) &&
                req("sessionStorage", window) &&

@@ -91,7 +91,7 @@ def run(package, verbose=False, **kwargs):
         random.shuffle(packages)
 
     def prefix(name, version):
-        if version[0].isalpha():
+        if not version[0].isdigit():
             return version
         if name == package or name not in FRAGILE:
             return "^" + version
@@ -104,9 +104,8 @@ def run(package, verbose=False, **kwargs):
 
     for package in packages:
 
-        # Don't try and upgrade http path specific dependencies
-        version = data["dependencies"][package]
-        if version[0].isalpha():
+        # Don't try and upgrade dependencies that are not purely numeric
+        if not before[package][0].isdigit():
             continue
 
         # Run npm upgrade for our package
@@ -114,8 +113,10 @@ def run(package, verbose=False, **kwargs):
 
         # Check if that did an upgrade
         update = package_json()
-        after = map_dict(update["dependencies"], lambda k, v: v.strip(" ^~=<>"))
-        if after != before:
+        after = update["dependencies"]
+        after[package] = after[package].strip(" ^~=<>")
+
+        if after[package] != before[package]:
 
             # Write out the cleaned up dependency versions
             update["dependencies"] = after

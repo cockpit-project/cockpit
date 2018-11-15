@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
 # nfs-mounts   --  Monitor and manage NFS mounts
 #

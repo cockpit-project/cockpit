@@ -22,10 +22,10 @@ import os
 # Images which are Atomic based
 ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
 
-MACHINE_DIR = os.path.dirname(os.path.realpath(__file__))
+MACHINE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 BOTS_DIR = os.path.dirname(MACHINE_DIR)
 TEST_DIR = os.path.join(os.path.dirname(BOTS_DIR), "test")
-DEFAULT_IDENTITY_FILE = os.path.join(BOTS_DIR, "identity")
+DEFAULT_IDENTITY_FILE = os.path.join(MACHINE_DIR, "identity")
 
 TEST_OS_DEFAULT = "fedora-28"
 DEFAULT_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)

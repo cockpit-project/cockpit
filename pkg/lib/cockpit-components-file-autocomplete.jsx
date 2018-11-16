@@ -138,7 +138,7 @@ class FileAutoComplete extends React.Component {
 
         channel.addEventListener("message", (ev, data) => {
             let item = JSON.parse(data);
-            if (item && item.path) {
+            if (item && item.path && item.event == 'present') {
                 if (item.type == "directory")
                     item.path = item.path + "/";
                 results.push(item);

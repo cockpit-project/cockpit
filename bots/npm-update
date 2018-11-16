@@ -52,12 +52,14 @@ import task
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 
-def package_json(data=None):
+def package_json(data=None, package=None, version=None):
     package_path = os.path.join(BASE, "package.json")
     if data is None:
         with open(package_path, "r") as f:
             return json.load(f, object_pairs_hook=collections.OrderedDict)
     else:
+        if package:
+            data = dict(data, "dependencies", dict(data["dependencies"], package, version))
         with open(package_path, "w") as f:
             json.dump(data, f, indent=2, separators=(',', ': '))
             f.write("\n")
@@ -82,12 +84,12 @@ def run(package, verbose=False, **kwargs):
     # Force all current dependencies in place
     execute("npm", "install")
 
-    data = package_json()
+    orig_package_json = package_json()
 
     if package:
         packages = [ package ]
     else:
-        packages = list(data["dependencies"].keys())
+        packages = list(orig_package_json["dependencies"].keys())
         random.shuffle(packages)
 
     def prefix(name, version):
@@ -97,29 +99,26 @@ def run(package, verbose=False, **kwargs):
             return "^" + version
         return "~" + version
 
-    # Add a char to all package.json dependencies
-    before = data["dependencies"].copy()
-    data["dependencies"] = map_dict(before, prefix)
-    package_json(data)
-
     for package in packages:
 
-        # Don't try and upgrade dependencies that are not purely numeric
-        if not before[package][0].isdigit():
+        orig_version = orig_package_json["dependencies"][package]
+        upgradeable_version = prefix(package, orig_version)
+
+        if orig_version == upgradeable_version:
             continue
 
         # Run npm upgrade for our package
+        #
+        package_json(orig_package_json, package, upgradeable_version)
         execute("npm", "upgrade", "--save", package)
 
         # Check if that did an upgrade
         new_version = package_json()["dependencies"][package].lstrip("^~")
 
-        if new_version != before[package]:
+        if new_version != orig_version:
 
             # Write out the original package.json with the updated version
-            before[package] = new_version
-            data["dependencies"] = before
-            package_json(data)
+            package_json(orig_package_json, package, new_version)
 
             # Create a pull request from these changes
             title = "package.json: Update {0} package dependency".format(package)
@@ -135,6 +134,9 @@ def run(package, verbose=False, **kwargs):
 
                 task.comment(pull, comment)
                 break
+
+    # Undo our changes
+    package_json(orig_package_json)
 
 if __name__ == '__main__':
     task.main(function=run, title="Upgrade a node dependency")

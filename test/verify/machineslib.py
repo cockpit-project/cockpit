@@ -549,8 +549,8 @@ class TestMachines(MachineCase):
 
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vde")
-        self._setVal("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_temporary")
-        self._setVal("#vm-subVmTest1-disks-adddisk-new-size", 2048)
+        b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_temporary")
+        b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2048")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "raw") # verify content of the dropdown box
@@ -571,8 +571,8 @@ class TestMachines(MachineCase):
         b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vda")
-        self._setVal("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
-        self._setVal("#vm-subVmTest1-disks-adddisk-new-size", 2) # keep GiB and qcow2 format
+        b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
+        b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2") # keep GiB and qcow2 format
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vda-target") # verify after modal dialog close
@@ -653,9 +653,6 @@ class TestMachines(MachineCase):
 
     def _selectFromDropdown(self, selector, value):
         selectFromDropdown(self.browser, selector, value)
-
-    def _setVal(self, selector, value):
-        setValToElement(self.browser, selector, value)
 
     def testNetworks(self):
         b = self.browser
@@ -1258,22 +1255,22 @@ class TestMachines(MachineCase):
 
         def fill(self):
             b = self.browser
-            self._setVal("#vm-name", self.name)
+            b.set_input_text("#vm-name", self.name)
 
             expected_source_type = 'Filesystem' if self.is_filesystem_location else 'URL'
             self._selectFromDropdown("#source-type", expected_source_type)
             if self.is_filesystem_location:
                 self._setFileAutocompleteVal("#source-file", self.location)
             else:
-                self._setVal("#source-url", self.location)
+                b.set_input_text("#source-url", self.location)
 
             self._selectFromDropdown("#vendor-select", self.os_vendor)
             self._selectFromDropdown("#system-select", self.os_name)
 
-            self._setVal("#memory-size", self.memory_size)
+            b.set_input_text("#memory-size", str(self.memory_size))
             self._selectFromDropdown("#memory-size-unit-select", self.memory_size_unit)
 
-            self._setVal("#storage-size", self.storage_size)
+            b.set_input_text("#storage-size", str(self.storage_size))
             self._selectFromDropdown("#storage-size-unit-select", self.storage_size_unit)
 
             b.wait_visible("#start-vm")
@@ -1383,9 +1380,6 @@ class TestMachines(MachineCase):
 
             b.wait_not_present(spinner_selector)
             b.wait_val(selector + " input", location)
-
-        def _setVal(self, selector, value):
-            setValToElement(self.browser, selector, value)
 
     class CreateVmRunner:
         def __init__(self, test_obj):
@@ -1551,17 +1545,6 @@ def selectFromDropdown(b, selector, value):
         b.wait_visible(item_selector)
         b.click(item_selector)
         b.wait_in_text(button_text_selector, value)
-
-def setValToElement(b, selector, value):
-    value = str(value)
-
-    b.wait_present(selector)
-    b.wait_visible(selector)
-    b.click(selector)
-    b.focus(selector)
-    b.set_val(selector, '')  # clear value
-    b.key_press(value)
-    b.wait_val(selector, value)
 
 if __name__ == '__main__':
     test_main()

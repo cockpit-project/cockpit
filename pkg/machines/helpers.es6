@@ -154,6 +154,7 @@ export function digitFilter(event, allowDots = false) {
                  event.key === 'Backspace' || event.key === 'Delete' || event.key === 'Tab' ||
                  event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
                  event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
+                 (event.key === 'a' && event.ctrlKey) ||
                  event.key === 'Home' || event.key === 'End';
 
     if (!accept)

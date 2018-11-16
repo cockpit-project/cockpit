@@ -360,7 +360,7 @@ OnCalendar=daily
             b.key_press(c)
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         time.sleep(1)
-        b.key_press([ " ", "Backspace" ])
+        b.key_press([ " ", "\b" ])
         b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
@@ -376,7 +376,7 @@ OnCalendar=daily
         m.execute("touch /tmp/stuff/file1.txt")
         b.focus(".file-autocomplete-ct input")
         time.sleep(1)
-        b.key_press([ " ", "Backspace" ])
+        b.key_press([ " ", "\b" ])
         b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         # this should still be unique
@@ -391,7 +391,7 @@ OnCalendar=daily
         m.execute("touch /tmp/stuff/other")
         b.focus(".file-autocomplete-ct input")
         # FIXME: need to tickle the widget to re-read the directory by changing out and back in
-        b.key_press([ "Backspace" ])
+        b.key_press([ "\b" ])
         time.sleep(1)
         b.key_press("/")
         time.sleep(1)

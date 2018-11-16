@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import time
 from testlib import *
 
 class TestPages(MachineCase):
@@ -343,10 +344,62 @@ OnCalendar=daily
 
     def testReactPatterns(self):
         b = self.browser
+        m = self.machine
+
+        # prepare a directory for testing file autocomplete widget
+        m.execute("mkdir -p /tmp/stuff/dir1; touch /tmp/stuff/file1.txt")
+
         self.login_and_go("/playground/react-patterns")
         # "initially expanded" entry in demo listing
         b.wait_present("#demo-listing tbody.open th")
         b.wait_text("#demo-listing tbody.open th", "initially expanded")
+
+        # test file completion widget
+        b.focus(".file-autocomplete-ct input")
+        for c in list("/tmp/stuff/"):
+            b.key_press(c)
+        # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
+        time.sleep(1)
+        b.key_press([ " ", "Backspace" ])
+        b.wait_present(".file-autocomplete-ct .dropdown-menu")
+        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
+        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
+        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
+        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='directory']")
+        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='directory']", "dir1/")
+        # no other items; b.text() removes newlines
+        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
+        b.blur(".file-autocomplete-ct input")
+        b.wait_not_visible(".file-autocomplete-ct .dropdown-menu")
+
+        # now update file1, check robustness with dynamic events
+        m.execute("touch /tmp/stuff/file1.txt")
+        b.focus(".file-autocomplete-ct input")
+        time.sleep(1)
+        b.key_press([ " ", "Backspace" ])
+        b.wait_present(".file-autocomplete-ct .dropdown-menu")
+        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
+        # this should still be unique
+        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
+        b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
+        # no other items
+        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
+        b.blur(".file-autocomplete-ct input")
+        b.wait_not_visible(".file-autocomplete-ct .dropdown-menu")
+
+        # add new file
+        m.execute("touch /tmp/stuff/other")
+        b.focus(".file-autocomplete-ct input")
+        # FIXME: need to tickle the widget to re-read the directory by changing out and back in
+        b.key_press([ "Backspace" ])
+        time.sleep(1)
+        b.key_press("/")
+        time.sleep(1)
+        b.key_press(" ")
+        b.wait_present(".file-autocomplete-ct .dropdown-menu")
+        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
+        b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
+
 
 if __name__ == '__main__':
     test_main()

@@ -112,15 +112,14 @@ def run(package, verbose=False, **kwargs):
         execute("npm", "upgrade", "--save", package)
 
         # Check if that did an upgrade
-        update = package_json()
-        after = update["dependencies"]
-        after[package] = after[package].strip(" ^~=<>")
+        new_version = package_json()["dependencies"][package].lstrip("^~")
 
-        if after[package] != before[package]:
+        if new_version != before[package]:
 
-            # Write out the cleaned up dependency versions
-            update["dependencies"] = after
-            package_json(update)
+            # Write out the original package.json with the updated version
+            before[package] = new_version
+            data["dependencies"] = before
+            package_json(data)
 
             # Create a pull request from these changes
             title = "package.json: Update {0} package dependency".format(package)

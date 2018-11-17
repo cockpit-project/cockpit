@@ -60,7 +60,11 @@ class App extends React.Component {
                     networks={networks}
                     actions={createVmAction} />
                 }
-                { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools} changeActiveList={this.changeActiveList} /> }
+                { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools}
+                    dispatch={dispatch}
+                    changeActiveList={this.changeActiveList}
+                    loggedUser={systemInfo.loggedUser} />
+                }
             </div>
         );
     }

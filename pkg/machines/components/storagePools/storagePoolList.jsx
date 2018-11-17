@@ -24,13 +24,15 @@ import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
 import { StoragePool } from './storagePool.jsx';
 import { storagePoolId } from '../../helpers.es6';
+import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 
 const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
     render() {
-        const { storagePools } = this.props;
+        const { storagePools, dispatch, loggedUser } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
+        const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} />);
 
         return (
             <React.Fragment>
@@ -45,7 +47,8 @@ export class StoragePoolList extends React.Component {
                 <div id='storage-pools-listing' className='container-fluid'>
                     <Listing title={_("Storage Pools")}
                         columnTitles={[_("Name"), _("Size"), "", _("Connection"), _("State")]}
-                        emptyCaption={_("No storage pool is defined on this host")}>
+                        emptyCaption={_("No storage pool is defined on this host")}
+                        actions={actions}>
                         {storagePools
                                 .sort(sortFunction)
                                 .map(storagePool => {

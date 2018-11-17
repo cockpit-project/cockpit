@@ -224,6 +224,156 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
 
+    def testStoragePoolsCreate(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("mkdir /tmp/my_dir_pool_one")
+        m.execute("mkdir /tmp/my_dir_pool_two")
+        m.execute("mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check)' > /etc/exports")
+        m.execute("systemctl restart nfs-server")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        # Click on Storage Pools card
+        b.wait_in_text(".cards-pf .card-pf-title-link", "Storage Pools")
+        b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
+
+        class StoragePoolCreateDialog(object):
+            def __init__(
+                self, test_obj, name, pool_type=None, target=None, source={},
+                autostart=None, xfail=False, xfail_error=None,
+            ):
+                self.test_obj = test_obj
+                self.name = name
+                self.pool_type = pool_type
+                self.target = target
+                self.source = source
+                self.autostart = autostart
+                self.xfail = xfail
+                self.xfail_error = xfail_error
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                if not self.xfail:
+                    self.verify_dialog()
+
+            def open(self):
+                b.wait_present("#create-storage-pool")
+                b.click("#create-storage-pool")
+                b.wait_present("#create-storage-pool-dialog")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Storage Pool")
+
+            def fill(self):
+                b.set_input_text("#storage-pool-dialog-name", self.name)
+
+                if self.pool_type:
+                    pool_type_mapping = {
+                        "dir": "Filesystem Directory",
+                        "netfs": "Network File System",
+                    }
+                    b.select_from_dropdown("#storage-pool-dialog-type", pool_type_mapping[self.pool_type])
+
+                if self.target:
+                    b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
+
+                if 'dirpath' in self.source:
+                    b.set_input_text("#storage-pool-dialog-source", self.source['dirpath'])
+
+                if 'host' in self.source:
+                    b.set_input_text("#storage-pool-dialog-host", self.source['host'])
+
+                if (self.autostart):
+                    b.click("storage-pool-dialog-autostart")
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present("#create-storage-pool-dialog")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Create)")
+
+                if (not self.xfail):
+                    b.wait_not_present("#create-storage-pool-dialog")
+                else:
+                    # Check incomplete dialog
+                    if (not self.name):
+                        b.wait_present("#create-storage-pool-dialog .modal-body form .has-error:nth-child(2)")
+
+                    if (not self.target):
+                        b.wait_present("#create-storage-pool-dialog .modal-body form .has-error:nth-child(4)")
+
+                    # Check errors from backend
+                    if self.xfail_error:
+                        error_location = "#create-storage-pool-dialog .modal-footer .alert-danger"
+                        b.wait_present(error_location)
+                        error_message = b.text(error_location)
+                        self.test_obj.assertIn(self.xfail_error, error_message)
+
+                    self.cancel()
+
+            def verify_dialog(self):
+                # Check that the defined pools is now visible
+                b.wait_in_text("body", "Storage Pools")
+                b.wait_present("tbody tr[data-row-id=pool-{0}-system] th".format(self.name))
+
+                # Verify libvirt XML
+                pool_xml = "virsh -c qemu:///system pool-dumpxml {0}".format(self.name)
+                xmllint_element = "{0} | xmllint --xpath 'string(//pool/{{prop}})' - 2>&1 || true".format(pool_xml)
+
+                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')))
+                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')) + '/')
+                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')))
+
+                host = m.execute(xmllint_element.format(prop='source/host/@name'))
+                if "host" in self.source:
+                    self.test_obj.assertEqual(self.source["host"], host)
+                else:
+                    self.test_obj.assertEqual("", host.rstrip())
+
+                source_path = m.execute(xmllint_element.format(prop="source/dir/@path"))
+                if "dirpath" in self.source:
+                    self.test_obj.assertEqual(self.source["dirpath"], source_path)
+                else:
+                    self.test_obj.assertEqual("", host.rstrip())
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_one",
+            pool_type="dir",
+            target="/tmp/my_dir_pool_one/",
+        ).execute()
+
+        # XFAIL: Try to create a pool with used name
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_one",
+            pool_type="dir",
+            target="/tmp/my_dir_pool_one/",
+            xfail=True,
+            xfail_error="pool 'my_dir_pool_one' already exists"
+        ).execute()
+
+        # XFAIL: Try to create a pool with incomplete modal dialog
+        StoragePoolCreateDialog(
+            self,
+            name="",
+            pool_type="dir",
+            target="",
+            xfail=True,
+        ).execute()
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_dir_pool_two",
+            pool_type="netfs",
+            target="/tmp/my_dir_pool_two/",
+            source={"host": "127.0.0.1", "dirpath": "/mnt/exports"}
+        ).execute()
+
 
 if __name__ == '__main__':
     test_main()

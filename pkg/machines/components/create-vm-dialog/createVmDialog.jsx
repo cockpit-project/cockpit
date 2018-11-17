@@ -31,6 +31,8 @@ import {
     convertToUnit,
     timeoutedPromise,
     units,
+    LIBVIRT_SYSTEM_CONNECTION,
+    LIBVIRT_SESSION_CONNECTION,
 } from "../../helpers.es6";
 
 import {
@@ -49,9 +51,6 @@ const _ = cockpit.gettext;
 
 const URL_SOURCE = 'url';
 const COCKPIT_FILESYSTEM_SOURCE = 'file';
-
-const LIBVIRT_SESSION_CONNECTION = 'session';
-const LIBVIRT_SYSTEM_CONNECTION = 'system';
 
 /* Create a virtual machine
  * props:

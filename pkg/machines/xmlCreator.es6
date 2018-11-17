@@ -45,3 +45,40 @@ export function getVolumeXML(volumeName, size, format, target) {
 
     return new XMLSerializer().serializeToString(doc.documentElement);
 }
+
+export function getPoolXML({ name, type, source, target }) {
+    let doc = document.implementation.createDocument('', '', null);
+
+    let poolElem = doc.createElement('pool');
+    poolElem.setAttribute('type', type);
+
+    let nameElem = doc.createElement('name');
+    nameElem.appendChild(doc.createTextNode(name));
+    poolElem.appendChild(nameElem);
+
+    let targetElem = doc.createElement('target');
+    let pathElem = doc.createElement('path');
+    pathElem.appendChild(doc.createTextNode(target));
+    targetElem.appendChild(pathElem);
+    poolElem.appendChild(targetElem);
+
+    let sourceElem = doc.createElement('source');
+    if (source.dir) {
+        let dirElem = doc.createElement('dir');
+
+        dirElem.setAttribute('path', source.dir);
+        sourceElem.appendChild(dirElem);
+    }
+    if (source.host) {
+        let hostElem = doc.createElement('host');
+
+        hostElem.setAttribute('name', source.host);
+        sourceElem.appendChild(hostElem);
+    }
+    if (source.host || source.dir)
+        poolElem.appendChild(sourceElem);
+
+    doc.appendChild(poolElem);
+
+    return new XMLSerializer().serializeToString(doc.documentElement);
+}

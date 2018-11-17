@@ -28,6 +28,7 @@ import {
     CHECK_LIBVIRT_STATUS,
     CONSOLE_VM,
     CREATE_AND_ATTACH_VOLUME,
+    CREATE_STORAGE_POOL,
     CREATE_VM,
     DELETE_VM,
     DETACH_DISK,
@@ -88,6 +89,10 @@ export function changeNetworkState(vm, networkMac, state) {
 
 export function checkLibvirtStatus(serviceName) {
     return virt(CHECK_LIBVIRT_STATUS, { serviceName });
+}
+
+export function createStoragePool({ connectionName, name, type, source, target, autostart }) {
+    return virt(CREATE_STORAGE_POOL, { connectionName, name, type, source, target, autostart });
 }
 
 export function createVm(vmParams) {

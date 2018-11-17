@@ -21,6 +21,9 @@ import VMS_CONFIG from './config.es6';
 
 const _ = cockpit.gettext;
 
+export const LIBVIRT_SESSION_CONNECTION = 'session';
+export const LIBVIRT_SYSTEM_CONNECTION = 'system';
+
 export function toReadableNumber(number) {
     if (number < 1) {
         return number.toFixed(2);

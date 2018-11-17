@@ -51,6 +51,7 @@ import {
 
 import {
     getDiskXML,
+    getPoolXML,
     getVolumeXML
 } from './xmlCreator.es6';
 
@@ -113,6 +114,7 @@ const Enum = {
     VIR_CONNECT_LIST_NETWORKS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64,
+    VIR_STORAGE_POOL_CREATE_NORMAL: 0,
     // Storage Pools Event Lifecycle Type
     VIR_STORAGE_POOL_EVENT_DEFINED: 0,
     VIR_STORAGE_POOL_EVENT_UNDEFINED: 1,
@@ -273,6 +275,29 @@ LIBVIRT_DBUS_PROVIDER = {
                 })
                 .then((volPath) => {
                     return dispatch(attachDisk({ connectionName, diskFileName: volPath[0].v, target, vmId, permanent, hotplug }));
+                });
+    },
+
+    CREATE_STORAGE_POOL({
+        connectionName,
+        name,
+        type,
+        source,
+        target,
+        autostart,
+    }) {
+        const poolXmlDesc = getPoolXML({name, type, source, target});
+        let storagePoolPath;
+
+        return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolDefineXML', [poolXmlDesc, 0], TIMEOUT)
+                .then(poolPath => {
+                    storagePoolPath = poolPath;
+                    return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
+                })
+                .then(() => {
+                    const args = ['org.libvirt.StoragePool', 'Autostart', cockpit.variant('b', autostart)];
+
+                    return call(connectionName, storagePoolPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
                 });
     },
 

@@ -22,13 +22,18 @@
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
-import { OverlayTrigger, Tooltip } from "patternfly-react";
+import {
+    Button,
+    Modal,
+    OverlayTrigger,
+    Tooltip
+} from "patternfly-react";
 
 import firewall from "./firewall-client.es6";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
+import "page.css";
 import "table.css";
 import "./networking.css";
 
@@ -118,7 +123,7 @@ class SearchInput extends React.Component {
     }
 }
 
-class AddServicesDialogBody extends React.Component {
+class AddServicesBody extends React.Component {
     constructor() {
         super();
 
@@ -128,8 +133,14 @@ class AddServicesDialogBody extends React.Component {
             filter: ""
         };
 
+        this.save = this.save.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
+    }
+
+    save() {
+        firewall.addServices([...this.state.selected]);
+        this.props.close();
     }
 
     componentDidMount() {
@@ -153,8 +164,6 @@ class AddServicesDialogBody extends React.Component {
             else
                 selected.delete(service);
 
-            this.props.selectionChanged(selected);
-
             return {
                 selected: selected
             };
@@ -162,55 +171,75 @@ class AddServicesDialogBody extends React.Component {
     }
 
     render() {
-        if (!this.state.services) {
-            return (
-                <div className="modal-body">
-                    <div className="spinner spinner-lg" />
-                </div>
-            );
-        }
-
-        var services;
-        if (this.state.filter)
+        let services;
+        if (this.state.filter && this.state.services)
             services = this.state.services.filter(s => s.name.toLowerCase().indexOf(this.state.filter) > -1);
         else
             services = this.state.services;
 
+        let body;
+        if (this.state.services) {
+            body = (
+                <Modal.Body id="add-services-dialog">
+                    <table className="form-table-ct">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label htmlFor="filter-services-input" className="control-label">
+                                        {_("Filter Services")}
+                                    </label>
+                                </td>
+                                <td>
+                                    <SearchInput id="filter-services-input"
+                                                 className="form-control"
+                                                 onChange={this.onFilterChanged} />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <ul className="list-group dialog-list-ct">
+                        {
+                            services.map(s => (
+                                <li key={s.id} className="list-group-item">
+                                    <label>
+                                        <input id={s.id}
+                                               type="checkbox"
+                                               checked={this.state.selected.has(s.id)}
+                                               onChange={this.onToggleService} />
+                                        &nbsp;
+                                        <span>{s.name}</span>
+                                    </label>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </Modal.Body>
+            );
+        } else {
+            body = (
+                <Modal.Body id="add-services-dialog">
+                    <div className="spinner spinner-lg" />
+                </Modal.Body>
+            );
+        }
+
         return (
-            <div id="add-services-dialog" className="modal-body">
-                <table className="form-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <label htmlFor="filter-services-input" className="control-label">
-                                    {_("Filter Services")}
-                                </label>
-                            </td>
-                            <td>
-                                <SearchInput id="filter-services-input"
-                                             className="form-control"
-                                             onChange={this.onFilterChanged} />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <ul className="list-group dialog-list-ct">
-                    {
-                        services.map(s => (
-                            <li key={s.id} className="list-group-item">
-                                <label>
-                                    <input id={s.id}
-                                           type="checkbox"
-                                           checked={this.state.selected.has(s.id)}
-                                           onChange={this.onToggleService} />
-                                    &nbsp;
-                                    <span>{s.name}</span>
-                                </label>
-                            </li>
-                        ))
-                    }
-                </ul>
-            </div>
+            <Modal id="add-services-dialog" show onHide={this.props.close}>
+                <Modal.Header>
+                    <Modal.Title> {`Add Services`} </Modal.Title>
+                </Modal.Header>
+                <div id="cockpit_modal_dialog">
+                    {body}
+                </div>
+                <Modal.Footer>
+                    <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
+                        {_("Cancel")}
+                    </Button>
+                    <Button bsStyle='primary' onClick={this.save}>
+                        {_("Add Services")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
@@ -220,14 +249,16 @@ export class Firewall extends React.Component {
         super();
 
         this.state = {
+            showModal: false,
             firewall,
             pendingTarget: null /* `null` for not pending */
         };
 
         this.onFirewallChanged = this.onFirewallChanged.bind(this);
         this.onSwitchChanged = this.onSwitchChanged.bind(this);
-        this.onAddServices = this.onAddServices.bind(this);
         this.onRemoveService = this.onRemoveService.bind(this);
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
     }
 
     onFirewallChanged() {
@@ -248,29 +279,6 @@ export class Firewall extends React.Component {
             firewall.disable();
     }
 
-    onAddServices() {
-        var services = [...this.state.firewall.services].map(id => this.state.firewall.services[id]);
-        services.sort((a, b) => a.name.localeCompare(b.name));
-
-        var selected = new Set();
-
-        show_modal_dialog(
-            {
-                title: _("Add Services"),
-                body: <AddServicesDialogBody selectionChanged={s => { selected = new Set(s) }} />
-            },
-            {
-                cancel_caption: _("Cancel"),
-                actions: [
-                    {
-                        caption: _("Add Services"),
-                        style: 'primary',
-                        clicked: () => firewall.addServices([...selected])
-                    }
-                ]
-            });
-    }
-
     onRemoveService(service) {
         firewall.removeService(service);
     }
@@ -281,6 +289,14 @@ export class Firewall extends React.Component {
 
     componentWillUnmount() {
         firewall.removeEventListener("changed", this.onFirewallChanged);
+    }
+
+    close() {
+        this.setState({ showModal: false });
+    }
+
+    open() {
+        this.setState({ showModal: true });
     }
 
     render() {
@@ -304,13 +320,15 @@ export class Firewall extends React.Component {
             addServiceAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                    <button className="btn btn-primary" disabled> {_("Add Services…")} </button>
+                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Services…")} </Button>
                 </OverlayTrigger>
             );
         } else {
-            addServiceAction = <button className="btn btn-primary pull-right"
-                                       onClick={this.onAddServices}
-                                       disabled={!this.state.firewall.enabled}>{_("Add Services…")}</button>;
+            addServiceAction = (
+                <Button bsStyle="primary" onClick={this.open} className="pull-right" disabled={!this.state.firewall.enabled}>
+                    {_("Add Services…")}
+                </Button>
+            );
         }
 
         var services = [...this.state.firewall.enabledServices].map(id => this.state.firewall.services[id]);
@@ -341,6 +359,7 @@ export class Firewall extends React.Component {
                                                       onRemoveService={this.onRemoveService} />)
                     }
                 </Listing>
+                { this.state.showModal && <AddServicesBody close={this.close} /> }
             </div>
         );
     }

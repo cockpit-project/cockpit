@@ -274,6 +274,9 @@ find %{buildroot}%{_datadir}/cockpit/ovirt -type f >> ovirt.list
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 
+echo '%dir %{_datadir}/cockpit/playground' > tests.list
+find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
+
 %ifarch x86_64 %{arm} aarch64 ppc64le i686 s390x
 %if 0%{?fedora} || 0%{?rhel} < 8
 echo '%dir %{_datadir}/cockpit/docker' > docker.list
@@ -671,9 +674,8 @@ Obsoletes: cockpit-test-assets < 132
 This package contains tests and files used while testing Cockpit.
 These files are not required for running Cockpit.
 
-%files -n cockpit-tests
+%files -n cockpit-tests -f tests.list
 %config(noreplace) %{_sysconfdir}/cockpit/cockpit.conf
-%{_datadir}/cockpit/playground
 %{_prefix}/%{__lib}/cockpit-test-assets
 
 %package -n cockpit-machines

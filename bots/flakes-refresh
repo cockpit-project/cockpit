@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
 #
@@ -64,35 +63,24 @@ def count(record, field, only):
 def slurp_one(url, n, logs):
     items_url = url + str(n) + "/items.jsonl"
     try:
-        req = urllib.request.Request(items_url)
-        with urllib.request.urlopen(req) as f:
+        with urllib.request.urlopen(items_url) as f:
             for line in f.readlines():
                 try:
                     record = json.loads(line.decode('utf-8'))
-                    urls = logs.get(record["test"], [ ])
-                    logs[record["test"]] = urls
-                    urls.append(record["url"])
+                    logs.setdefault(record["test"], [ ]).append(record["url"])
                 except ValueError as ex:
                     sys.stderr.write("{0}: {1}\n".format(url, ex))
-    except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
-        if ex.code != 404:
-            sys.stderr.write("{0}: {1}\n".format(items_url, ex))
-        return False
+    except urllib.error.URLError as ex:
+        if ex.code == 404:
+            return False
+        raise
     return True
 
-def slurp_failure_logs():
-    host = os.environ.get("COCKPIT_LEARN_SERVICE_HOST")
-    if not host:
-        raise RuntimeError("no learn host environment variable: $COCKPIT_LEARN_SERVICE_HOST")
-    port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "8080")
-    url = "http://{0}:{1}/active/".format(host, port)
-
+def slurp_failure_logs(url):
     logs = { }
-
     n = 0
     while slurp_one(url, n, logs):
         n = n + 1
-
     return logs
 
 def get_failure_logs(failure_logs, name, context):
@@ -117,25 +105,19 @@ def run(context, verbose=False, **kwargs):
     if not host:
         raise RuntimeError("no learn host environment variable: $COCKPIT_LEARN_SERVICE_HOST")
     port = os.environ.get("COCKPIT_LEARN_SERVICE_PORT", "8080")
-    url = "http://{0}:{1}/active/statistics.jsonl".format(host, port)
+    url = "http://{0}:{1}/active/".format(host, port)
 
-    statistics = [ ]
-
-    failure_logs = slurp_failure_logs()
+    failure_logs = slurp_failure_logs(url)
 
     # Retrieve the URL
-    try:
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as f:
-            for line in f.readlines():
-                try:
-                    record = json.loads(line.decode('utf-8'))
-                    statistics.append(record)
-                except ValueError as ex:
-                    sys.stderr.write("{0}: {1}\n".format(url, ex))
-    except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
-        sys.stderr.write("{0}: {1}\n".format(url, ex))
-        return False
+    statistics = [ ]
+    with urllib.request.urlopen(url + "statistics.jsonl") as f:
+        for line in f.readlines():
+            try:
+                record = json.loads(line.decode('utf-8'))
+                statistics.append(record)
+            except ValueError as ex:
+                sys.stderr.write("{0}: {1}\n".format(url, ex))
 
     tests = { }
 
@@ -145,15 +127,8 @@ def run(context, verbose=False, **kwargs):
         status = value(record, "status")
         tracker = value(record, "tracker")
 
-        # There should only be one of all of these values
-        if test is None or status is None:
-            continue
-
-        # XXX - check dates and ignore records that have nothing since
-        # WINDOW_DAYS ago.
-
         # Flaky tests only score on those that fail and are not tracked
-        if status == "failure" and not tracker:
+        if test is not None and status == "failure" and not tracker:
             merged = count(record, "merged", True)
             not_merged = count(record, "merged", False)
             null_merged = count(record, "merged", None)
@@ -161,10 +136,7 @@ def run(context, verbose=False, **kwargs):
 
             # And the key is that they were merged anyway
             if total > 10:
-                failures = tests.get(test)
-                if not failures:
-                    tests[test] = failures = [ ]
-                failures.append((merged / total, context, record))
+                tests.setdefault(test, [ ]).append((merged / total, context, record))
 
     scores = [ ]
 

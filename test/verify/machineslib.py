@@ -630,6 +630,7 @@ class TestMachines(MachineCase):
         b.click(".add-disk-dialog label:contains(Use Existing)")
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
+        b.wait_present('#vm-subVmTest1-disks-adddisk-existing-target')
         self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdc")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#add-disk-dialog")

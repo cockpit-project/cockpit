@@ -11,6 +11,11 @@
     system from a different point in time. If PCP is not available, then Cockpit
     gathers the metrics data itself, but archival features are not available.</para>
 
+  <para>Whether or not metrics are archived depends on whether the
+    <code>pmlogger.service</code> and <code>pmcd.service</code> systemd units
+    are running or not.  The "Store Performance Data" button in Cockpit
+    will enable and start these services.</para>
+
   <para>To see similar metrics data from the command line, you can use tools like
     <ulink url="https://pcp.io/books/PCP_UAG/html/LE38515-PARENT.html#LE91266-PARENT"><code>pmstat</code></ulink>
     or <ulink url="https://pcp.io/books/PCP_UAG/html/LE60452-PARENT.html"><code>pminfo</code></ulink>:</para>

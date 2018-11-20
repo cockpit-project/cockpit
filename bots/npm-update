@@ -59,7 +59,7 @@ def package_json(data=None, package=None, version=None):
             return json.load(f, object_pairs_hook=collections.OrderedDict)
     else:
         if package:
-            data = dict(data, dependencies=dict(data["dependencies"], **{ package, version }))
+            data = dict(data, dependencies=dict(data["dependencies"], **{ package: version }))
         with open(package_path, "w") as f:
             json.dump(data, f, indent=2, separators=(',', ': '))
             f.write("\n")

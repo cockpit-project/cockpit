@@ -517,7 +517,8 @@ LIBVIRT_DBUS_PROVIDER = {
                         props.available = poolInfo[0][3];
 
                         dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, props)));
-                        dispatch(getStorageVolumes({ connectionName, poolName: dumpxmlParams.name }));
+                        if (props.active)
+                            dispatch(getStorageVolumes({ connectionName, poolName: dumpxmlParams.name }));
                     })
                     .catch(ex => console.warn('GET_STORAGE_POOL action failed failed for path', objPath, ex));
         };

@@ -308,7 +308,9 @@ export class Firewall extends React.Component {
                 </OverlayTrigger>
             );
         } else {
-            addServiceAction = <button className="btn btn-primary pull-right" onClick={this.onAddServices}>{_("Add Services…")}</button>;
+            addServiceAction = <button className="btn btn-primary pull-right"
+                                       onClick={this.onAddServices}
+                                       disabled={!this.state.firewall.enabled}>{_("Add Services…")}</button>;
         }
 
         var services = [...this.state.firewall.enabledServices].map(id => this.state.firewall.services[id]);

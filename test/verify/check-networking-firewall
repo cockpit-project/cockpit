@@ -82,6 +82,9 @@ class TestFirewall(MachineCase):
         m.execute("systemctl stop firewalld")
         self.login_and_go("/network/firewall")
 
+        # "Add Services…" button should be disabled
+        b.wait_present("caption button.btn-primary:disabled")
+
         # to toggle the switch, click on the non-active label, where the slider is
         b.wait_present(".btn-onoff-ct label.active")
         b.wait_in_text(".btn-onoff-ct label.active", "Off")
@@ -89,6 +92,9 @@ class TestFirewall(MachineCase):
         b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
         b.wait_in_text(".btn-onoff-ct label.active", "On")
         wait_unit_state(m, "firewalld", "active")
+
+        # "Add Services…" button should be enabled
+        b.wait_present("caption button.btn-primary:enabled")
 
         # ensure that pop3 is not enabled (shouldn't be on any of our images),
         # so that we can use it for testing
@@ -114,6 +120,8 @@ class TestFirewall(MachineCase):
         b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
         b.wait_in_text(".btn-onoff-ct label.active", "Off")
         wait_unit_state(m, "firewalld", "inactive")
+        # "Add Services…" button should be disabled again
+        b.wait_present("caption button.btn-primary:disabled")
 
 
     def testAddServices(self):

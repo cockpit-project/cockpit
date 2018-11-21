@@ -63,6 +63,7 @@ function update_accounts_privileged() {
 
 function passwd_self(old_pass, new_pass) {
     var old_exps = [
+        /Current password: $/,
         /.*\(current\) UNIX password: $/,
     ];
     var new_exps = [

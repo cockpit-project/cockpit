@@ -27,5 +27,5 @@ BOTS_DIR = os.path.dirname(MACHINE_DIR)
 TEST_DIR = os.path.join(os.path.dirname(BOTS_DIR), "test")
 DEFAULT_IDENTITY_FILE = os.path.join(MACHINE_DIR, "identity")
 
-TEST_OS_DEFAULT = "fedora-28"
+TEST_OS_DEFAULT = "fedora-29"
 DEFAULT_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)

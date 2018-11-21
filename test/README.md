@@ -74,7 +74,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-7-6-distropkg"
                   "ubuntu-1804"
                   "ubuntu-stable"
-               "fedora-28" is the default (testvm.py)
+               "fedora-29" is the default (bots/machine/machine_core/constants.py)
 
     TEST_DATA  Where to find and store test machine images.  The
                default is the same directory that this README file is in.

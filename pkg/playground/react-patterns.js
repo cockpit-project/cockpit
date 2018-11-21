@@ -33,8 +33,7 @@
 
     var demoFileAC = require("./react-demo-file-autocomplete.jsx");
 
-
-    /*-----------------------------------------------------------------------------
+    /* -----------------------------------------------------------------------------
       Modal Dialog
       -----------------------------------------------------------------------------
      */
@@ -71,8 +70,8 @@
     };
 
     var onDialogDone = function(success) {
-        var result = success?"successful":"Canceled";
-        var action = success?lastAction:"no action";
+        var result = success ? "successful" : "Canceled";
+        var action = success ? lastAction : "no action";
         document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result + "(" + action + ")";
     };
 
@@ -84,19 +83,19 @@
         // also test modifying properties in subsequent render calls
         var footerProps = {
             'actions': [
-                  { 'clicked': onDialogStandardClicked.bind(null, 'standard action'),
-                    'caption': "OK",
-                    'style': 'primary',
-                  },
-                  { 'clicked': onDialogStandardClicked.bind(null, 'dangerous action'),
-                    'caption': "Danger",
-                    'style': 'danger',
-                  },
-                  { 'clicked': onDialogStandardClicked.bind(null, 'steps'),
-                    'caption': "Wait",
-                    'style': 'primary',
-                  },
-              ],
+                { 'clicked': onDialogStandardClicked.bind(null, 'standard action'),
+                  'caption': "OK",
+                  'style': 'primary',
+                },
+                { 'clicked': onDialogStandardClicked.bind(null, 'dangerous action'),
+                  'caption': "Danger",
+                  'style': 'danger',
+                },
+                { 'clicked': onDialogStandardClicked.bind(null, 'steps'),
+                  'caption': "Wait",
+                  'style': 'primary',
+                },
+            ],
             'static_error': staticError,
             'dialog_done': onDialogDone,
         };
@@ -105,10 +104,10 @@
         if (!dialogObj)
             return;
         footerProps.actions.push(
-                  { 'clicked': onDialogStandardClicked.bind(null, 'reject'),
-                    'caption': "Error",
-                    'style': 'primary',
-                  });
+            { 'clicked': onDialogStandardClicked.bind(null, 'reject'),
+              'caption': "Error",
+              'style': 'primary',
+            });
         dialogObj.setFooterProps(footerProps);
         dialogProps.title = "Example React Dialog";
         dialogObj.setProps(dialogProps);
@@ -118,14 +117,14 @@
         document.getElementById('demo-show-dialog').addEventListener("click", onStandardDemoClicked.bind(null, null), false);
         document.getElementById('demo-show-error-dialog').addEventListener("click", onStandardDemoClicked.bind(null, 'Some static error'), false);
 
-        /*-----------------------------------------------------------------------------
+        /* -----------------------------------------------------------------------------
           Listing Pattern
           -----------------------------------------------------------------------------
          */
         // create the listing
         demoListing.demo(document.getElementById('demo-listing'),
-            document.getElementById('demo-listing-selectable'),
-            document.getElementById('demo-listing-empty'));
+                         document.getElementById('demo-listing-selectable'),
+                         document.getElementById('demo-listing-empty'));
 
         // OnOff
         demoOnOff.demo(document.getElementById('demo-onoff'));
@@ -133,5 +132,4 @@
         // File autocomplete
         demoFileAC.demo(document.getElementById('demo-file-ac'));
     });
-
 }());

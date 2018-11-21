@@ -89,24 +89,24 @@ var initStore = function(rootElement) {
         };
         dataStore.render();
         dataStore.client.runFix(alertId, analysisId)
-            .done(function(output) {
-                 dataStore.entries[idx].fix = {
-                     plugin: analysisId,
-                     running: false,
-                     result: output,
-                     success: true,
-                 };
-                 dataStore.render();
-            })
-            .fail(function(error) {
-                 dataStore.entries[idx].fix = {
-                     plugin: analysisId,
-                     running: false,
-                     result: error,
-                     success: false,
-                 };
-                 dataStore.render();
-            });
+                .done(function(output) {
+                    dataStore.entries[idx].fix = {
+                        plugin: analysisId,
+                        running: false,
+                        result: output,
+                        success: true,
+                    };
+                    dataStore.render();
+                })
+                .fail(function(error) {
+                    dataStore.entries[idx].fix = {
+                        plugin: analysisId,
+                        running: false,
+                        result: error,
+                        success: false,
+                    };
+                    dataStore.render();
+                });
     };
 
     /* Delete an alert via the client
@@ -116,21 +116,21 @@ var initStore = function(rootElement) {
      */
     var deleteAlert = function(alertId) {
         dataStore.client.capabilities.deleteAlert(alertId)
-            .done(function() {
-                var idx;
-                for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
-                    if (dataStore.entries[idx].key == alertId)
-                        break;
-                }
-                if (idx < 0)
-                    return;
-                dataStore.entries.splice(idx, 1);
-                dataStore.render();
-            })
-            .fail(function(error) {
-                dataStore.error = error;
-                dataStore.render();
-            });
+                .done(function() {
+                    var idx;
+                    for (idx = dataStore.entries.length - 1; idx >= 0; --idx) {
+                        if (dataStore.entries[idx].key == alertId)
+                            break;
+                    }
+                    if (idx < 0)
+                        return;
+                    dataStore.entries.splice(idx, 1);
+                    dataStore.render();
+                })
+                .fail(function(error) {
+                    dataStore.error = error;
+                    dataStore.render();
+                });
     };
 
     var dismissError = function() {
@@ -141,18 +141,18 @@ var initStore = function(rootElement) {
     var render = function() {
         var enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
         ReactDOM.render(React.createElement(troubleshootView.SETroubleshootPage, {
-                connected: dataStore.connected,
-                connecting: dataStore.connecting,
-                error: dataStore.error,
-                dismissError: dismissError,
-                entries: dataStore.entries,
-                runFix: runFix,
-                deleteAlert: enableDeleteAlert?deleteAlert:undefined,
-                selinuxStatus: dataStore.selinuxStatus,
-                selinuxStatusError: dataStore.selinuxStatusError,
-                changeSelinuxMode: selinuxChangeMode,
-                dismissStatusError: selinuxStatusDismissError,
-            }), rootElement);
+            connected: dataStore.connected,
+            connecting: dataStore.connecting,
+            error: dataStore.error,
+            dismissError: dismissError,
+            entries: dataStore.entries,
+            runFix: runFix,
+            deleteAlert: enableDeleteAlert ? deleteAlert : undefined,
+            selinuxStatus: dataStore.selinuxStatus,
+            selinuxStatusError: dataStore.selinuxStatusError,
+            changeSelinuxMode: selinuxChangeMode,
+            dismissStatusError: selinuxStatusDismissError,
+        }), rootElement);
     };
     dataStore.render = render;
 
@@ -217,14 +217,14 @@ var initStore = function(rootElement) {
 
     var getAlertDetails = function(id) {
         dataStore.client.getAlert(id)
-            .done(function(details) {
-                maybeUpdateAlert(id, details.summary, details.reportCount, details);
-                render();
-            })
-            .fail(function(error) {
-                maybeUpdateAlert(id, undefined, undefined, null);
-                render();
-            });
+                .done(function(details) {
+                    maybeUpdateAlert(id, details.summary, details.reportCount, details);
+                    render();
+                })
+                .fail(function(error) {
+                    maybeUpdateAlert(id, undefined, undefined, null);
+                    render();
+                });
     };
     dataStore.getAlertDetails = getAlertDetails;
 
@@ -254,27 +254,27 @@ var initStore = function(rootElement) {
             render();
             // initialize our setroubleshootd client
             dataStore.client.init(capablitiesChanged)
-                .done(function(capablitiesChanged) {
-                    dataStore.connected = true;
-                    window.clearTimeout(dataStore.connecting);
-                    dataStore.connecting = null;
-                    render();
-                    // now register a callback to get new entries and get all existing ones
-                    // the order is important, since we don't want to miss an entry
-                    dataStore.client.handleAlert(dataStore.handleAlert);
-                    dataStore.client.getAlerts()
-                        .done(handleMultipleMessages)
-                        .fail(function() {
-                            console.error("Unable to get setroubleshootd messages");
-                            setDisconnected();
-                        });
-                })
-                .fail(function(error) {
-                    dataStore.connected = false;
-                    window.clearTimeout(dataStore.connecting);
-                    dataStore.connecting = null;
-                    render();
-                });
+                    .done(function(capablitiesChanged) {
+                        dataStore.connected = true;
+                        window.clearTimeout(dataStore.connecting);
+                        dataStore.connecting = null;
+                        render();
+                        // now register a callback to get new entries and get all existing ones
+                        // the order is important, since we don't want to miss an entry
+                        dataStore.client.handleAlert(dataStore.handleAlert);
+                        dataStore.client.getAlerts()
+                                .done(handleMultipleMessages)
+                                .fail(function() {
+                                    console.error("Unable to get setroubleshootd messages");
+                                    setDisconnected();
+                                });
+                    })
+                    .fail(function(error) {
+                        dataStore.connected = false;
+                        window.clearTimeout(dataStore.connecting);
+                        dataStore.connecting = null;
+                        render();
+                    });
         }
     };
 

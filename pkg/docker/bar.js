@@ -89,7 +89,7 @@
         /* Max gets rounded up to the nearest 100 MiB for sets of bar rows
          */
         if (graph) {
-            var bound = 100*1024*1024;
+            var bound = 100 * 1024 * 1024;
             max = max - (max % bound) + bound;
         }
 
@@ -110,9 +110,9 @@
                 }
                 $(this).css('visibility', 'visible');
                 bar_progress.css("width", ((limit / max) * 100) + "%");
-                $(this).data('bar-progress-bar').
-                    css('width', ((portion / limit) * 100) + "%").
-                    toggle(portion > 0);
+                $(this).data('bar-progress-bar')
+                        .css('width', ((portion / limit) * 100) + "%")
+                        .toggle(portion > 0);
             }
         });
     }
@@ -140,7 +140,6 @@
     }
 
     function setup_bar_graph(div) {
-
         /*
          * We consume <div class="bar-row"> elements and turn them into:
          *
@@ -151,12 +150,13 @@
          * </div>
          */
         var progress_bar = $("<div>").addClass("progress-bar");
-        var progress = $("<div>").addClass("progress").append(progress_bar);
-        $(div).
-            addClass('bar-row').
-            append(progress).
-            data('bar-progress', progress).
-            data('bar-progress-bar', progress_bar);
+        var progress = $("<div>").addClass("progress")
+                .append(progress_bar);
+        $(div)
+                .addClass('bar-row')
+                .append(progress)
+                .data('bar-progress', progress)
+                .data('bar-progress-bar', progress_bar);
 
         /* Public API */
         div.reflow = function() {
@@ -177,7 +177,8 @@
     /* Public API */
     module.exports = {
         create: function create(graph) {
-            var div = $("<div>").addClass('bar-row').attr('graph', graph);
+            var div = $("<div>").addClass('bar-row')
+                    .attr('graph', graph);
             setup_bar_graph(div);
             return div;
         },
@@ -187,5 +188,4 @@
             });
         }
     };
-
 }());

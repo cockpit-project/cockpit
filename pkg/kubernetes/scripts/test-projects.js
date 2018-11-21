@@ -62,11 +62,13 @@ function suite(fixtures) {
         "projectData",
         'kubeSelect',
         function(projectUtil, select) {
-            var user = select().kind("User").name("amanda");
+            var user = select().kind("User")
+                    .name("amanda");
             assert.equal(user.length, 1, "number of users");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
                          "finance", "number of groups");
-            user = select().kind("User").name("jay");
+            user = select().kind("User")
+                    .name("jay");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Groups'),
                          "4 Groups", "number of groups");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Users'),
@@ -79,8 +81,11 @@ function suite(fixtures) {
         "projectData",
         'kubeSelect',
         function(projectUtil, select) {
-            var user = select().kind("User").name("amanda");
-            var policybinding = select().kind("PolicyBinding").namespace("financeprj").name(":default");
+            var user = select().kind("User")
+                    .name("amanda");
+            var policybinding = select().kind("PolicyBinding")
+                    .namespace("financeprj")
+                    .name(":default");
             assert.equal(user.length, 1, "number of users");
             assert.equal(policybinding.length, 1, "number of policybinding");
             var rolesArray = projectUtil.getAllRoles("", "");
@@ -157,7 +162,7 @@ suite([
             "anypassword:abc123"
         ],
         "groups": [
-            "finance","admin","hr","dev"
+            "finance", "admin", "hr", "dev"
         ]
     },
     {
@@ -178,232 +183,232 @@ suite([
         ]
     },
     {
-      "kind": "PolicyBinding",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": ":default",
-        "namespace": "financeprj",
-        "selfLink": "/oapi/v1/namespaces/financeprj/policybindings/:default",
-        "uid": "d5a78dfc-e9e4-11e5-a1bd-3c970eb867f7",
-        "resourceVersion": "53908",
-        "creationTimestamp": "2016-03-14T13:01:15Z"
-      },
-      "lastModified": "2016-03-24T07:19:42Z",
-      "policyRef": {
-        "name": "default"
-      },
-      "roleBindings": [
-        {
-          "name": "admin",
-          "roleBinding": {
-            "metadata": {
-              "name": "admin",
-              "namespace": "financeprj",
-              "uid": "f33cbdd7-ea0e-11e5-ba57-3c970eb867f7",
-              "resourceVersion": "24003",
-              "creationTimestamp": "2016-03-14T18:02:43Z"
-            },
-            "userNames": null,
-            "groupNames": null,
-            "subjects": [
+        "kind": "PolicyBinding",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": ":default",
+            "namespace": "financeprj",
+            "selfLink": "/oapi/v1/namespaces/financeprj/policybindings/:default",
+            "uid": "d5a78dfc-e9e4-11e5-a1bd-3c970eb867f7",
+            "resourceVersion": "53908",
+            "creationTimestamp": "2016-03-14T13:01:15Z"
+        },
+        "lastModified": "2016-03-24T07:19:42Z",
+        "policyRef": {
+            "name": "default"
+        },
+        "roleBindings": [
+            {
+                "name": "admin",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "admin",
+                        "namespace": "financeprj",
+                        "uid": "f33cbdd7-ea0e-11e5-ba57-3c970eb867f7",
+                        "resourceVersion": "24003",
+                        "creationTimestamp": "2016-03-14T18:02:43Z"
+                    },
+                    "userNames": null,
+                    "groupNames": null,
+                    "subjects": [
 
-            ],
-            "roleRef": {
-              "name": "admin"
-            }
-          }
-        },
-        {
-          "name": "edit",
-          "roleBinding": {
-            "metadata": {
-              "name": "edit",
-              "namespace": "financeprj",
-              "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/edit",
-              "uid": "d5a340e0-e9e4-11e5-a1bd-3c970eb867f7",
-              "resourceVersion": "24002",
-              "creationTimestamp": "2016-03-14T13:01:15Z"
+                    ],
+                    "roleRef": {
+                        "name": "admin"
+                    }
+                }
             },
-            "userNames": [
-              "amanda"
-            ],
-            "groupNames": null,
-            "subjects": [
-              {
-                "kind": "User",
-                "name": "amanda"
-              }
-            ],
-            "roleRef": {
-              "name": "edit"
-            }
-          }
-        },
-        {
-          "name": "registry-admin",
-          "roleBinding": {
-            "metadata": {
-              "name": "registry-admin",
-              "namespace": "financeprj",
-              "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
-              "resourceVersion": "24005",
-              "creationTimestamp": "2016-03-23T13:47:15Z"
+            {
+                "name": "edit",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "edit",
+                        "namespace": "financeprj",
+                        "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/edit",
+                        "uid": "d5a340e0-e9e4-11e5-a1bd-3c970eb867f7",
+                        "resourceVersion": "24002",
+                        "creationTimestamp": "2016-03-14T13:01:15Z"
+                    },
+                    "userNames": [
+                        "amanda"
+                    ],
+                    "groupNames": null,
+                    "subjects": [
+                        {
+                            "kind": "User",
+                            "name": "amanda"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "edit"
+                    }
+                }
             },
-            "userNames": [
-              "amanda"
-            ],
-            "groupNames": null,
-            "subjects": [
-              {
-                "kind": "User",
-                "name": "amanda"
-              }
-            ],
-            "roleRef": {
-              "name": "registry-admin"
-            }
-          }
-        },
-        {
-          "name": "registry-editor",
-          "roleBinding": {
-            "metadata": {
-              "name": "registry-editor",
-              "namespace": "financeprj",
-              "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/registry-editor",
-              "uid": "c613716d-f0fd-11e5-b5cb-3c970eb867f7",
-              "resourceVersion": "24339",
-              "creationTimestamp": "2016-03-23T13:47:24Z"
+            {
+                "name": "registry-admin",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "registry-admin",
+                        "namespace": "financeprj",
+                        "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
+                        "resourceVersion": "24005",
+                        "creationTimestamp": "2016-03-23T13:47:15Z"
+                    },
+                    "userNames": [
+                        "amanda"
+                    ],
+                    "groupNames": null,
+                    "subjects": [
+                        {
+                            "kind": "User",
+                            "name": "amanda"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "registry-admin"
+                    }
+                }
             },
-            "userNames": [
-              "sunny",
-              "sam",
-              "janet"
-            ],
-            "groupNames": null,
-            "subjects": [
-              {
-                "kind": "User",
-                "name": "sunny"
-              },
-              {
-                "kind": "User",
-                "name": "sam"
-              },
-              {
-                "kind": "User",
-                "name": "janet"
-              }
-            ],
-            "roleRef": {
-              "name": "registry-editor"
-            }
-          }
-        },
-        {
-          "name": "registry-viewer",
-          "roleBinding": {
-            "metadata": {
-              "name": "registry-viewer",
-              "namespace": "financeprj",
-              "uid": "de6e0980-f0fd-11e5-b5cb-3c970eb867f7",
-              "resourceVersion": "24264",
-              "creationTimestamp": "2016-03-23T13:48:05Z"
+            {
+                "name": "registry-editor",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "registry-editor",
+                        "namespace": "financeprj",
+                        "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/registry-editor",
+                        "uid": "c613716d-f0fd-11e5-b5cb-3c970eb867f7",
+                        "resourceVersion": "24339",
+                        "creationTimestamp": "2016-03-23T13:47:24Z"
+                    },
+                    "userNames": [
+                        "sunny",
+                        "sam",
+                        "janet"
+                    ],
+                    "groupNames": null,
+                    "subjects": [
+                        {
+                            "kind": "User",
+                            "name": "sunny"
+                        },
+                        {
+                            "kind": "User",
+                            "name": "sam"
+                        },
+                        {
+                            "kind": "User",
+                            "name": "janet"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "registry-editor"
+                    }
+                }
             },
-            "userNames": [
-              "janet",
-              "sunny"
-            ],
-            "groupNames": null,
-            "subjects": [
-              {
-                "kind": "User",
-                "name": "janet"
-              },
-              {
-                "kind": "User",
-                "name": "sunny"
-              },
-              {
-                "kind": "SystemGroup",
-                "name": "system:unauthenticated"
-              }
-            ],
-            "roleRef": {
-              "name": "registry-viewer"
-            }
-          }
-        },
-        {
-          "name": "view",
-          "roleBinding": {
-            "metadata": {
-              "name": "view",
-              "namespace": "financeprj",
-              "uid": "07e34b4c-ea0f-11e5-ba57-3c970eb867f7",
-              "resourceVersion": "23860",
-              "creationTimestamp": "2016-03-14T18:03:18Z"
+            {
+                "name": "registry-viewer",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "registry-viewer",
+                        "namespace": "financeprj",
+                        "uid": "de6e0980-f0fd-11e5-b5cb-3c970eb867f7",
+                        "resourceVersion": "24264",
+                        "creationTimestamp": "2016-03-23T13:48:05Z"
+                    },
+                    "userNames": [
+                        "janet",
+                        "sunny"
+                    ],
+                    "groupNames": null,
+                    "subjects": [
+                        {
+                            "kind": "User",
+                            "name": "janet"
+                        },
+                        {
+                            "kind": "User",
+                            "name": "sunny"
+                        },
+                        {
+                            "kind": "SystemGroup",
+                            "name": "system:unauthenticated"
+                        }
+                    ],
+                    "roleRef": {
+                        "name": "registry-viewer"
+                    }
+                }
             },
-            "userNames": null,
-            "groupNames": null,
-            "subjects": [
+            {
+                "name": "view",
+                "roleBinding": {
+                    "metadata": {
+                        "name": "view",
+                        "namespace": "financeprj",
+                        "uid": "07e34b4c-ea0f-11e5-ba57-3c970eb867f7",
+                        "resourceVersion": "23860",
+                        "creationTimestamp": "2016-03-14T18:03:18Z"
+                    },
+                    "userNames": null,
+                    "groupNames": null,
+                    "subjects": [
 
-            ],
-            "roleRef": {
-              "name": "view"
+                    ],
+                    "roleRef": {
+                        "name": "view"
+                    }
+                }
             }
-          }
-        }
-      ]
+        ]
     },
     {
-      "kind": "RoleBinding",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "registry-admin",
-        "namespace": "financeprj",
-        "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/registry-admin",
-        "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
-        "resourceVersion": "24005",
-        "creationTimestamp": "2016-03-23T13:47:15Z"
-      },
-      "userNames": [
-        "amanda"
-      ],
-      "groupNames": null,
-      "subjects": [
-        {
-          "kind": "User",
-          "name": "amanda"
+        "kind": "RoleBinding",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "registry-admin",
+            "namespace": "financeprj",
+            "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/registry-admin",
+            "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
+            "resourceVersion": "24005",
+            "creationTimestamp": "2016-03-23T13:47:15Z"
+        },
+        "userNames": [
+            "amanda"
+        ],
+        "groupNames": null,
+        "subjects": [
+            {
+                "kind": "User",
+                "name": "amanda"
+            }
+        ],
+        "roleRef": {
+            "name": "registry-admin"
         }
-      ],
-      "roleRef": {
-        "name": "registry-admin"
-      }
     },
     {
-      "kind": "RoleBinding",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "admin",
-        "namespace": "financeprj",
-        "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/admin",
-        "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
-        "resourceVersion": "24005",
-        "creationTimestamp": "2016-03-23T13:47:15Z"
-      },
-      "userNames": [
-        "amanda"
-      ],
-      "groupNames": null,
-      "subjects": [
-        {
-          "kind": "User",
-          "name": "amanda"
+        "kind": "RoleBinding",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "admin",
+            "namespace": "financeprj",
+            "selfLink": "/oapi/v1/namespaces/financeprj/rolebindings/admin",
+            "uid": "c0746786-f0fd-11e5-b5cb-3c970eb867f7",
+            "resourceVersion": "24005",
+            "creationTimestamp": "2016-03-23T13:47:15Z"
+        },
+        "userNames": [
+            "amanda"
+        ],
+        "groupNames": null,
+        "subjects": [
+            {
+                "kind": "User",
+                "name": "amanda"
+            }
+        ],
+        "roleRef": {
+            "name": "admin"
         }
-      ],
-      "roleRef": {
-        "name": "admin"
-      }
     }
 ]);

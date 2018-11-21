@@ -70,11 +70,12 @@
     };
 
     utils.decode_filename = function decode_filename(encoded) {
-        return cockpit.utf8_decoder().decode(cockpit.base64_decode(encoded).slice(0,-1));
+        return cockpit.utf8_decoder().decode(cockpit.base64_decode(encoded).slice(0, -1));
     };
 
     utils.encode_filename = function encode_filename(decoded) {
-        return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded).concat([0]));
+        return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded)
+                .concat([0]));
     };
 
     utils.fmt_size = function fmt_size(bytes) {
@@ -127,7 +128,7 @@
             if (m[0].search(/\s+/) === -1)
                 return cockpit.format(_("Name cannot contain the character '$0'."), m[0]);
             else
-                    return cockpit.format(_("Name cannot contain whitespace."), m[0]);
+                return cockpit.format(_("Name cannot contain whitespace."), m[0]);
         }
     };
 
@@ -161,7 +162,7 @@
         if (lvol.Type == "pool")
             type = _("Pool for Thin Logical Volumes");
         else if (lvol.ThinPool != "/")
-            type =_("Thin Logical Volume");
+            type = _("Thin Logical Volume");
         else if (lvol.Origin != "/")
             type = _("Logical Volume (Snapshot)");
         else
@@ -288,7 +289,7 @@
                 // partition with udisks+libblockdev.  It leads to a 2
                 // MiB gap.)
 
-                if (size >= 3*1024*1024) {
+                if (size >= 3 * 1024 * 1024) {
                     result.push({ type: 'free', start: start, size: size });
                 }
             }
@@ -309,13 +310,13 @@
                 if (level == 1 && !is_contained)
                     continue;
 
-                if (start < container_start || start+size > container_start+container_size)
+                if (start < container_start || start + size > container_start + container_size)
                     continue;
 
                 append_free_space(last_end, start - last_end);
                 if (is_container) {
                     result.push({ type: 'container', block: block, size: size,
-                                  partitions: process_level(level+1, start, size) });
+                                  partitions: process_level(level + 1, start, size) });
                 } else {
                     result.push({ type: 'block', block: block });
                 }
@@ -382,7 +383,9 @@
             return { type: 'block', block: block, size: block.Size, desc: text };
         }
 
-        var spaces = Object.keys(client.blocks).filter(is_free).sort(utils.make_block_path_cmp(client)).map(make);
+        var spaces = Object.keys(client.blocks).filter(is_free)
+                .sort(utils.make_block_path_cmp(client))
+                .map(make);
 
         function add_free_spaces(block) {
             var parts = utils.get_partitions(client, block);
@@ -494,7 +497,6 @@
     }
 
     utils.get_active_usage = function get_active_usage(client, path) {
-
         function get_usage(path) {
             var block = client.blocks[path];
             var fsys = client.blocks_fsys[path];
@@ -509,26 +511,26 @@
                 usage.push({ usage: 'mounted',
                              block: block,
                              fsys: fsys
-                           });
+                });
 
             if (mdraid)
                 usage.push({ usage: 'mdraid-member',
                              block: block,
                              mdraid: mdraid
-                           });
+                });
 
             if (vgroup)
                 usage.push({ usage: 'pvol',
                              block: block,
                              pvol: pvol,
                              vgroup: vgroup
-                           });
+                });
 
             if (vdo)
                 usage.push({ usage: 'vdo-backing',
                              block: block,
                              vdo: vdo
-                           });
+                });
 
             return usage;
         }
@@ -611,7 +613,6 @@
     };
 
     utils.teardown_active_usage = function teardown_active_usage(client, usage) {
-
         // The code below is complicated by the fact that the last
         // physical volume of a volume group can not be removed
         // directly (even if it is completely empty).  We want to
@@ -651,7 +652,7 @@
                 // group, remove the whole volume group instead.
                 if (pvs.length == client.vgroups_pvols[p].length) {
                     return vg.Delete({ 'tear-down': { t: 'b', v: true }
-                                     });
+                    });
                 } else {
                     return cockpit.all(pvs.map(function (pv) {
                         return vg.RemoveDevice(pv.path, true, {});
@@ -664,15 +665,15 @@
         }
 
         return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
-                             mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
-                             pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
-                           ]);
+            mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
+            pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
+        ]);
     };
 
     utils.get_config = function get_config(name, def) {
         if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"]) {
             var val = cockpit.manifests["storage"]["config"][name];
-            return val !== undefined? val : def;
+            return val !== undefined ? val : def;
         } else {
             return def;
         }

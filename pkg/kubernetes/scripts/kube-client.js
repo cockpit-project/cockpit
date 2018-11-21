@@ -157,7 +157,7 @@
 
                 /* Calculate intersection */
                 } else {
-                    for (ri = 0, px = 0, rl = result.length; ri < rl; ) {
+                    for (ri = 0, px = 0, rl = result.length; ri < rl;) {
                         rv = result[ri];
                         pv = p[ri + px];
                         if (pv < rv) {
@@ -193,7 +193,8 @@
      * property that makes this work.
      */
 
-    var weak_property = Math.random().toString(36).slice(2);
+    var weak_property = Math.random().toString(36)
+            .slice(2);
     var local_seed = 1;
 
     function SimpleWeakMap() {
@@ -265,7 +266,6 @@
                 args = [ one.kind, one.name, one.namespace ];
             }
 
-
         /* Already a path */
         } else if (one && one[0] == '/') {
             return one;
@@ -304,14 +304,14 @@
      *  schema.global  Set to true if resource is not namespaced.
      */
 
-    .value("KUBE_SCHEMA", SCHEMA)
+            .value("KUBE_SCHEMA", SCHEMA)
 
     /**
      * KUBE_NAME_RE
      *
      * Regular Expression that names in kubernetes must match.
      */
-    .value("KUBE_NAME_RE", NAME_RE)
+            .value("KUBE_NAME_RE", NAME_RE)
 
     /**
      * kubeLoader
@@ -371,126 +371,126 @@
      * loaded for the watch, or rejected if the watch has failed.
      */
 
-    .factory("kubeLoader", [
-        "$q",
-        "$timeout",
-        "KubeWatch",
-        "KubeRequest",
-        "KUBE_SCHEMA",
-        function($q, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
-            var self;
+            .factory("kubeLoader", [
+                "$q",
+                "$timeout",
+                "KubeWatch",
+                "KubeRequest",
+                "KUBE_SCHEMA",
+                function($q, $timeout, KubeWatch, KubeRequest, KUBE_SCHEMA) {
+                    var self;
 
-            var callbacks = [];
-            var limits = { namespace: null };
+                    var callbacks = [];
+                    var limits = { namespace: null };
 
-            /* All the current watches */
-            var watching = { };
+                    /* All the current watches */
+                    var watching = { };
 
-            /* All the loaded objects */
-            var objects = { };
+                    /* All the loaded objects */
+                    var objects = { };
 
-            /* Timeout batching */
-            var batch = null;
-            var batchTimeout = null;
+                    /* Timeout batching */
+                    var batch = null;
+                    var batchTimeout = null;
 
-            function ensureWatch(what, namespace, increment) {
-                var schema = SCHEMA[what] || SCHEMA[""];
-                var watch, path = schema.api;
-                if (!schema.global && namespace)
-                    path += "/namespaces/" + namespace;
-                path += "/" + schema.type;
+                    function ensureWatch(what, namespace, increment) {
+                        var schema = SCHEMA[what] || SCHEMA[""];
+                        var watch, path = schema.api;
+                        if (!schema.global && namespace)
+                            path += "/namespaces/" + namespace;
+                        path += "/" + schema.type;
 
-                if (!(path in watching)) {
-                    watch = new KubeWatch(path, handleFrames);
-                    watch.what = what;
-                    watch.global = schema.global;
-                    watch.namespace = namespace;
-                    watch.cancelWatch = watch.cancel;
+                        if (!(path in watching)) {
+                            watch = new KubeWatch(path, handleFrames);
+                            watch.what = what;
+                            watch.global = schema.global;
+                            watch.namespace = namespace;
+                            watch.cancelWatch = watch.cancel;
 
-                    /* Replace the cancel function with one that does ref counting */
-                    watch.cancel = function() {
-                        var w = watching[path];
-                        if (w) {
-                            w.references -= 1;
-                            if (w.references <= 0) {
-                                w.cancelWatch();
-                                delete watching[path];
-                            }
+                            /* Replace the cancel function with one that does ref counting */
+                            watch.cancel = function() {
+                                var w = watching[path];
+                                if (w) {
+                                    w.references -= 1;
+                                    if (w.references <= 0) {
+                                        w.cancelWatch();
+                                        delete watching[path];
+                                    }
+                                }
+                            };
+                            watching[path] = watch;
                         }
-                    };
-                    watching[path] = watch;
-                }
 
-                /* Increase the references here */
-                watching[path].references += increment;
-                return watching[path];
-            }
+                        /* Increase the references here */
+                        watching[path].references += increment;
+                        return watching[path];
+                    }
 
-            function ensureWatches(what, increment) {
-                var namespace = limits.namespace;
-                if (!angular.isArray(namespace))
-                    return ensureWatch(what, namespace, increment);
+                    function ensureWatches(what, increment) {
+                        var namespace = limits.namespace;
+                        if (!angular.isArray(namespace))
+                            return ensureWatch(what, namespace, increment);
 
-                var parts = [];
-                angular.forEach(namespace, function(val) {
-                    parts.push(ensureWatch(what, val, increment));
-                });
-                var ret = $q.all(parts);
-                ret.cancel = function() {
-                    angular.forEach(parts, function(val) {
-                        val.cancel();
-                    });
-                };
-                return ret;
-            }
+                        var parts = [];
+                        angular.forEach(namespace, function(val) {
+                            parts.push(ensureWatch(what, val, increment));
+                        });
+                        var ret = $q.all(parts);
+                        ret.cancel = function() {
+                            angular.forEach(parts, function(val) {
+                                val.cancel();
+                            });
+                        };
+                        return ret;
+                    }
 
-            function handleFrames(frames) {
-                if (batch === null)
-                    batch = frames;
-                else
-                    batch.push.apply(batch, frames);
+                    function handleFrames(frames) {
+                        if (batch === null)
+                            batch = frames;
+                        else
+                            batch.push.apply(batch, frames);
 
-                /* When called with empty data, flush, don't wait */
-                if (frames.length > 0) {
-                    if (batchTimeout === null)
-                        batchTimeout = window.setTimeout(handleTimeout, 150);
-                    else
-                        return; /* called again later */
-                }
+                        /* When called with empty data, flush, don't wait */
+                        if (frames.length > 0) {
+                            if (batchTimeout === null)
+                                batchTimeout = window.setTimeout(handleTimeout, 150);
+                            else
+                                return; /* called again later */
+                        }
 
-                handleFlush(invokeCallbacks);
-            }
+                        handleFlush(invokeCallbacks);
+                    }
 
-            function resourceVersion(resource) {
-                var version;
-                if (resource && resource.metadata)
-                    version = parseInt(resource.metadata.resourceVersion, 10);
+                    function resourceVersion(resource) {
+                        var version;
+                        if (resource && resource.metadata)
+                            version = parseInt(resource.metadata.resourceVersion, 10);
 
-                if (!isNaN(version))
-                    return version;
-            }
+                        if (!isNaN(version))
+                            return version;
+                    }
 
-            function handleFlush(invoke) {
-                var drain = batch;
-                batch = null;
+                    function handleFlush(invoke) {
+                        var drain = batch;
+                        batch = null;
 
-                if (!drain)
-                    return;
+                        if (!drain)
+                            return;
 
-                var present = { };
-                var removed = { };
-                var i, len, link, resource;
-                var cVersion, lVersion;
-                for (i = 0, len = drain.length; i < len; i++) {
-                    resource = drain[i].object;
-                    if (resource) {
-                        link = decodeURIComponent(resourcePath([resource]));
-                        if (drain[i].type == "DELETED") {
-                            delete objects[link];
-                            delete present[link];
-                            removed[link] = resource;
-                        } else if (drain[i].checkResourceVersion) {
-                            /* There is a race between items loaded from
+                        var present = { };
+                        var removed = { };
+                        var i, len, link, resource;
+                        var cVersion, lVersion;
+                        for (i = 0, len = drain.length; i < len; i++) {
+                            resource = drain[i].object;
+                            if (resource) {
+                                link = decodeURIComponent(resourcePath([resource]));
+                                if (drain[i].type == "DELETED") {
+                                    delete objects[link];
+                                    delete present[link];
+                                    removed[link] = resource;
+                                } else if (drain[i].checkResourceVersion) {
+                                    /* There is a race between items loaded from
                              * watchers and items loaded other ways such as
                              * from KubeMethods callbacks, where we might
                              * end up saving the older item if loader.load is
@@ -498,223 +498,223 @@
                              * data. Look at the resourceVersion and only add
                              * if it is the same or newer than what we already have.
                              */
-                            cVersion = resourceVersion(resource);
-                            lVersion = resourceVersion(objects[link]);
-                            if (!cVersion || !lVersion || cVersion >= lVersion) {
-                                present[link] = resource;
-                                objects[link] = resource;
+                                    cVersion = resourceVersion(resource);
+                                    lVersion = resourceVersion(objects[link]);
+                                    if (!cVersion || !lVersion || cVersion >= lVersion) {
+                                        present[link] = resource;
+                                        objects[link] = resource;
+                                    }
+                                } else {
+                                    present[link] = resource;
+                                    objects[link] = resource;
+                                }
                             }
-                        } else {
-                            present[link] = resource;
-                            objects[link] = resource;
+                        }
+
+                        /* Run all the listeners and then digest */
+                        invoke(present, removed);
+                    }
+
+                    function invokeCallbacks(/* ... */) {
+                        var i, len, func;
+                        for (i = 0, len = callbacks.length; i < len; i++) {
+                            func = callbacks[i];
+                            if (func)
+                                func.apply(self, arguments);
                         }
                     }
-                }
 
-                /* Run all the listeners and then digest */
-                invoke(present, removed);
-            }
-
-            function invokeCallbacks(/* ... */) {
-                var i, len, func;
-                for (i = 0, len = callbacks.length; i < len; i++) {
-                    func = callbacks[i];
-                    if (func)
-                        func.apply(self, arguments);
-                }
-            }
-
-            function handleTimeout() {
-                batchTimeout = null;
-                handleFlush(invokeCallbacks);
-            }
-
-            function resetLoader() {
-                var link;
-
-                /* We drop any batched objects in flight */
-                window.clearTimeout(batchTimeout);
-                batchTimeout = null;
-                batch = null;
-
-                /* Cancel all the watches  */
-                var old = watching;
-                watching = { };
-                angular.forEach(old, function(w) {
-                    w.cancelWatch();
-                });
-
-                /* Clear out everything */
-                for (link in objects)
-                    delete objects[link];
-
-                for (link in limits)
-                    delete limits[link];
-                limits.namespace = null;
-
-                /* Tell the callbacks we're resetting */
-                invokeCallbacks();
-            }
-
-            function handleObjects(objects, removed, kind) {
-                handleFrames(objects.map(function(resource) {
-                    if (kind)
-                        resource.kind = kind;
-
-                    return {
-                        type: removed ? "DELETED" : "ADDED",
-                        object: resource,
-                        checkResourceVersion: true
-                    };
-                }));
-                handleFlush(invokeCallbacks);
-            }
-
-            function loadObjects(/* ... */) {
-                var path = resourcePath(arguments);
-                var req = new KubeRequest("GET", path);
-                var promise = req.then(function(response) {
-                    req = null;
-                    var resource = response.data;
-                    if (!resource || !resource.kind) {
-                        return null;
-                    } else if (resource.kind.indexOf("List") === resource.kind.length - 4) {
-                        handleObjects(resource.items, false, resource.kind.slice(0, -4));
-                        return resource.items;
-                    } else {
-                        handleObjects([resource]);
-                        return resource;
+                    function handleTimeout() {
+                        batchTimeout = null;
+                        handleFlush(invokeCallbacks);
                     }
-                }, function(response) {
-                    req = null;
-                    var resp = response.data;
-                    return $q.reject(resp || response);
-                });
-                promise.cancel = function cancel(ex) {
-                    req.cancel(ex);
-                };
-                return promise;
-            }
 
-            function adjustNamespace(value) {
-                window.clearTimeout(batchTimeout);
-                batchTimeout = null;
+                    function resetLoader() {
+                        var link;
 
-                /* Convert this to our native format */
-                var only = { };
-                if (value === null) {
-                    only = null;
-                } else if (angular.isArray(value)) {
-                    angular.forEach(value, function(namespace) {
-                        only[namespace] = true;
-                    });
-                } else {
-                    only[value] = true;
-                }
-                limits.namespace = value;
+                        /* We drop any batched objects in flight */
+                        window.clearTimeout(batchTimeout);
+                        batchTimeout = null;
+                        batch = null;
 
-                /* Flush everything that's outstanding */
-                var present = { }, removed = { };
-                handleFlush(function(a, b) {
-                    present = a;
-                    removed = b;
-                });
-
-                /* Remove objects that are not in these namespaces */
-                var meta, link;
-                for (link in objects) {
-                    meta = objects[link].metadata;
-                    if (only && meta.namespace && !(meta.namespace in only)) {
-                        removed[link] = objects[link];
-                        delete objects[link];
-                        delete present[link];
-                    }
-                }
-
-                /* Cancel any watches not applicable to these namespaces */
-                var path, w, reconnect = [ ];
-                for (path in watching) {
-                    w = watching[path];
-                    if ((!only && w.namespace) || (only && !w.global && !(w.namespace in only))) {
-                        w.cancelWatch();
-                        delete watching[path];
-                        reconnect.push(w);
-                    }
-                }
-
-                /* Tell the world what we did */
-                invokeCallbacks(present, removed);
-
-                /* Reconnect all the watches we cancelled with proper namespace */
-                angular.forEach(reconnect, function(w) {
-                    ensureWatches(w.what, w.references);
-                });
-            }
-
-            function connectUntil(ret, until) {
-                if (until) {
-                    if (until.$on) {
-                        until.$on("$destroy", function() {
-                            ret.cancel();
+                        /* Cancel all the watches  */
+                        var old = watching;
+                        watching = { };
+                        angular.forEach(old, function(w) {
+                            w.cancelWatch();
                         });
-                    } else {
-                        console.warn("invalid until passed to watch", until);
-                    }
-                }
-            }
 
-            self = {
-                watch: function watch(what, until) {
-                    var ret = ensureWatches(what, 1);
-                    connectUntil(ret, until);
-                    return ret;
-                },
-                load: function load(/* ... */) {
-                    return loadObjects.apply(this, arguments);
-                },
-                limit: function limit(options) {
-                    if ("namespace" in options)
-                        adjustNamespace(options.namespace);
-                },
-                reset: resetLoader,
-                listen: function listen(callback, until) {
-                    if (callback.early)
-                        callbacks.unshift(callback);
-                    else
-                        callbacks.push(callback);
-                    var timeout = $timeout(function() {
-                        timeout = null;
-                        callback.call(self, objects);
-                    }, 0);
-                    var ret = {
-                        cancel: function() {
-                            var i, len;
-                            $timeout.cancel(timeout);
-                            timeout = null;
-                            for (i = 0, len = callbacks.length; i < len; i++) {
-                                if (callbacks[i] === callback)
-                                    callbacks[i] = null;
+                        /* Clear out everything */
+                        for (link in objects)
+                            delete objects[link];
+
+                        for (link in limits)
+                            delete limits[link];
+                        limits.namespace = null;
+
+                        /* Tell the callbacks we're resetting */
+                        invokeCallbacks();
+                    }
+
+                    function handleObjects(objects, removed, kind) {
+                        handleFrames(objects.map(function(resource) {
+                            if (kind)
+                                resource.kind = kind;
+
+                            return {
+                                type: removed ? "DELETED" : "ADDED",
+                                object: resource,
+                                checkResourceVersion: true
+                            };
+                        }));
+                        handleFlush(invokeCallbacks);
+                    }
+
+                    function loadObjects(/* ... */) {
+                        var path = resourcePath(arguments);
+                        var req = new KubeRequest("GET", path);
+                        var promise = req.then(function(response) {
+                            req = null;
+                            var resource = response.data;
+                            if (!resource || !resource.kind) {
+                                return null;
+                            } else if (resource.kind.indexOf("List") === resource.kind.length - 4) {
+                                handleObjects(resource.items, false, resource.kind.slice(0, -4));
+                                return resource.items;
+                            } else {
+                                handleObjects([resource]);
+                                return resource;
+                            }
+                        }, function(response) {
+                            req = null;
+                            var resp = response.data;
+                            return $q.reject(resp || response);
+                        });
+                        promise.cancel = function cancel(ex) {
+                            req.cancel(ex);
+                        };
+                        return promise;
+                    }
+
+                    function adjustNamespace(value) {
+                        window.clearTimeout(batchTimeout);
+                        batchTimeout = null;
+
+                        /* Convert this to our native format */
+                        var only = { };
+                        if (value === null) {
+                            only = null;
+                        } else if (angular.isArray(value)) {
+                            angular.forEach(value, function(namespace) {
+                                only[namespace] = true;
+                            });
+                        } else {
+                            only[value] = true;
+                        }
+                        limits.namespace = value;
+
+                        /* Flush everything that's outstanding */
+                        var present = { }, removed = { };
+                        handleFlush(function(a, b) {
+                            present = a;
+                            removed = b;
+                        });
+
+                        /* Remove objects that are not in these namespaces */
+                        var meta, link;
+                        for (link in objects) {
+                            meta = objects[link].metadata;
+                            if (only && meta.namespace && !(meta.namespace in only)) {
+                                removed[link] = objects[link];
+                                delete objects[link];
+                                delete present[link];
                             }
                         }
-                    };
-                    connectUntil(ret, until);
-                    return ret;
-                },
-                handle: function handle(objects, removed, kind) {
-                    if (!angular.isArray(objects))
-                        objects = [ objects ];
-                    handleObjects(objects, removed, kind);
-                },
-                resolve: function resolve(/* ... */) {
-                    return resourcePath(arguments);
-                },
-                objects: objects,
-                limits: limits,
-            };
 
-            return self;
-        }
-    ])
+                        /* Cancel any watches not applicable to these namespaces */
+                        var path, w, reconnect = [ ];
+                        for (path in watching) {
+                            w = watching[path];
+                            if ((!only && w.namespace) || (only && !w.global && !(w.namespace in only))) {
+                                w.cancelWatch();
+                                delete watching[path];
+                                reconnect.push(w);
+                            }
+                        }
+
+                        /* Tell the world what we did */
+                        invokeCallbacks(present, removed);
+
+                        /* Reconnect all the watches we cancelled with proper namespace */
+                        angular.forEach(reconnect, function(w) {
+                            ensureWatches(w.what, w.references);
+                        });
+                    }
+
+                    function connectUntil(ret, until) {
+                        if (until) {
+                            if (until.$on) {
+                                until.$on("$destroy", function() {
+                                    ret.cancel();
+                                });
+                            } else {
+                                console.warn("invalid until passed to watch", until);
+                            }
+                        }
+                    }
+
+                    self = {
+                        watch: function watch(what, until) {
+                            var ret = ensureWatches(what, 1);
+                            connectUntil(ret, until);
+                            return ret;
+                        },
+                        load: function load(/* ... */) {
+                            return loadObjects.apply(this, arguments);
+                        },
+                        limit: function limit(options) {
+                            if ("namespace" in options)
+                                adjustNamespace(options.namespace);
+                        },
+                        reset: resetLoader,
+                        listen: function listen(callback, until) {
+                            if (callback.early)
+                                callbacks.unshift(callback);
+                            else
+                                callbacks.push(callback);
+                            var timeout = $timeout(function() {
+                                timeout = null;
+                                callback.call(self, objects);
+                            }, 0);
+                            var ret = {
+                                cancel: function() {
+                                    var i, len;
+                                    $timeout.cancel(timeout);
+                                    timeout = null;
+                                    for (i = 0, len = callbacks.length; i < len; i++) {
+                                        if (callbacks[i] === callback)
+                                            callbacks[i] = null;
+                                    }
+                                }
+                            };
+                            connectUntil(ret, until);
+                            return ret;
+                        },
+                        handle: function handle(objects, removed, kind) {
+                            if (!angular.isArray(objects))
+                                objects = [ objects ];
+                            handleObjects(objects, removed, kind);
+                        },
+                        resolve: function resolve(/* ... */) {
+                            return resourcePath(arguments);
+                        },
+                        objects: objects,
+                        limits: limits,
+                    };
+
+                    return self;
+                }
+            ])
 
     /**
      * kubeSelect
@@ -758,385 +758,384 @@
      * Ask on FreeNode #cockpit for documentation on filters.
      */
 
-    .factory("kubeSelect", [
-        "kubeLoader",
-        function(loader) {
-            /* A list of all registered filters */
-            var filters = { };
+            .factory("kubeSelect", [
+                "kubeLoader",
+                function(loader) {
+                    /* A list of all registered filters */
+                    var filters = { };
 
-            /* A hash index */
-            var index = null;
+                    /* A hash index */
+                    var index = null;
 
-            /* The filter prototype for functions available on selector */
-            var proto = null;
+                    /* The filter prototype for functions available on selector */
+                    var proto = null;
 
-            /* Cache data */
-            var weakmap = new SimpleWeakMap();
-            var version = 1;
+                    /* Cache data */
+                    var weakmap = new SimpleWeakMap();
+                    var version = 1;
 
-            function listener(present, removed) {
-                version += 1;
+                    function listener(present, removed) {
+                        version += 1;
 
-                /* Get called like this when reset */
-                if (!present) {
-                    index = null;
+                        /* Get called like this when reset */
+                        if (!present) {
+                            index = null;
 
-                /* Called like this when more objects arrive */
-                } else if (index) {
-                    indexObjects(present);
-                }
-            }
-
-            listener.early = true;
-            loader.listen(listener);
-
-            /* Create a new index and populate */
-            function indexCreate() {
-                /* TODO: Derive this value from cluster size */
-                index = new HashIndex(262139);
-
-                /* And index all the objects */
-                indexObjects(loader.objects);
-            }
-
-            /* Populate index for the given objects and current filters */
-            function indexObjects(objects) {
-                var link, object, name, key, keys, filter;
-                for (link in objects) {
-                    object = objects[link];
-                    for (name in filters) {
-                        filter = filters[name];
-                        if (filter.digest) {
-                            key = filter.digest.call(null, object);
-                            if (key)
-                                index.add([ key ], link);
-                        } else if (filter.digests) {
-                            keys = filter.digests.call(null, object);
-                            if (keys.length)
-                                index.add(keys, link);
+                            /* Called like this when more objects arrive */
+                        } else if (index) {
+                            indexObjects(present);
                         }
                     }
-                }
-            }
 
-            /* Return a place to cache data related to obj */
-            function cached(obj) {
-                var data = weakmap.get(obj);
-                if (!data || data.version !== version) {
-                    data = { version: version, length: data ? data.length : undefined };
-                    weakmap.set(obj, data);
-                }
-                return data;
-            }
+                    listener.early = true;
+                    loader.listen(listener);
 
-            function makePrototypeCall(filter) {
-                return function() {
-                    var cache = cached(this);
+                    /* Create a new index and populate */
+                    function indexCreate() {
+                        /* TODO: Derive this value from cluster size */
+                        index = new HashIndex(262139);
 
-                    /*
+                        /* And index all the objects */
+                        indexObjects(loader.objects);
+                    }
+
+                    /* Populate index for the given objects and current filters */
+                    function indexObjects(objects) {
+                        var link, object, name, key, keys, filter;
+                        for (link in objects) {
+                            object = objects[link];
+                            for (name in filters) {
+                                filter = filters[name];
+                                if (filter.digest) {
+                                    key = filter.digest.call(null, object);
+                                    if (key)
+                                        index.add([ key ], link);
+                                } else if (filter.digests) {
+                                    keys = filter.digests.call(null, object);
+                                    if (keys.length)
+                                        index.add(keys, link);
+                                }
+                            }
+                        }
+                    }
+
+                    /* Return a place to cache data related to obj */
+                    function cached(obj) {
+                        var data = weakmap.get(obj);
+                        if (!data || data.version !== version) {
+                            data = { version: version, length: data ? data.length : undefined };
+                            weakmap.set(obj, data);
+                        }
+                        return data;
+                    }
+
+                    function makePrototypeCall(filter) {
+                        return function() {
+                            var cache = cached(this);
+
+                            /*
                      * Do this early, since some browsers cannot pass
                      * arguments to JSON.stringify()
                      */
-                    var args = Array.prototype.slice.call(arguments);
+                            var args = Array.prototype.slice.call(arguments);
 
-                    /* Fast path, already calculated results */
-                    var desc = filter.name + ": " + JSON.stringify(args);
-                    if (desc in cache)
-                        return cache[desc];
+                            /* Fast path, already calculated results */
+                            var desc = filter.name + ": " + JSON.stringify(args);
+                            if (desc in cache)
+                                return cache[desc];
 
-                    var results;
-                    if (filter.filter) {
-                        results = filter.filter.apply(this, args);
+                            var results;
+                            if (filter.filter) {
+                                results = filter.filter.apply(this, args);
+                            } else {
+                                if (!index)
+                                    indexCreate();
+                                if (!cache.indexed) {
+                                    indexObjects(this);
+                                    cache.indexed = true;
+                                }
+                                if (filter.digests) {
+                                    results = digestsFilter(filter, this, args);
+                                } else if (filter.digest) {
+                                    results = digestFilter(filter, this, args);
+                                } else {
+                                    console.warn("invalid filter: " + filter.name);
+                                    results = { };
+                                }
+                            }
 
-                    } else {
-                        if (!index)
-                            indexCreate();
-                        if (!cache.indexed) {
-                            indexObjects(this);
-                            cache.indexed = true;
+                            cache[desc] = results;
+                            return results;
+                        };
+                    }
+
+                    function makePrototype() {
+                        var name, ret = {
+                            length: {
+                                enumerable: false,
+                                configurable: true,
+                                get: function() { return cached(this).length }
+                            }
+                        };
+                        for (name in filters) {
+                            ret[name] = {
+                                enumerable: false,
+                                configurable: true,
+                                value: makePrototypeCall(filters[name])
+                            };
                         }
-                        if (filter.digests) {
-                            results = digestsFilter(filter, this, args);
-                        } else if (filter.digest) {
-                            results = digestFilter(filter, this, args);
+                        return ret;
+                    }
+
+                    function mixinSelection(results, length, indexed) {
+                        var link, data;
+                        if (length === undefined) {
+                            length = 0;
+                            for (link in results)
+                                length += 1;
+                        }
+                        proto = proto || makePrototype();
+                        Object.defineProperties(results, proto);
+                        data = cached(results);
+                        data.length = length;
+                        data.selection = results;
+                        data.indexed = indexed;
+                        return results;
+                    }
+
+                    function digestFilter(filter, what, criteria) {
+                        var p, pl, key, possible, link, object;
+                        var results = { }, count = 0;
+
+                        key = filter.digest.apply(null, criteria);
+                        if (key !== null && key !== undefined) {
+                            possible = index.get(key);
                         } else {
-                            console.warn("invalid filter: " + filter.name);
-                            results = { };
+                            possible = [];
                         }
-                    }
 
-                    cache[desc] = results;
-                    return results;
-                };
-            }
-
-            function makePrototype() {
-                var name, ret = {
-                    length: {
-                        enumerable: false,
-                        configurable: true,
-                        get: function() { return cached(this).length }
-                    }
-                };
-                for (name in filters) {
-                    ret[name] = {
-                        enumerable: false,
-                        configurable: true,
-                        value: makePrototypeCall(filters[name])
-                    };
-                }
-                return ret;
-            }
-
-            function mixinSelection(results, length, indexed) {
-                var link, data;
-                if (length === undefined) {
-                    length = 0;
-                    for (link in results)
-                        length += 1;
-                }
-                proto = proto || makePrototype();
-                Object.defineProperties(results, proto);
-                data = cached(results);
-                data.length = length;
-                data.selection = results;
-                data.indexed = indexed;
-                return results;
-            }
-
-            function digestFilter(filter, what, criteria) {
-                var p, pl, key, possible, link, object;
-                var results = { }, count = 0;
-
-                key = filter.digest.apply(null, criteria);
-                if (key !== null && key !== undefined) {
-                    possible = index.get(key);
-                } else {
-                    possible = [];
-                }
-
-                for (p = 0, pl = possible.length; p < pl; p++) {
-                    link = possible[p];
-                    object = what[link];
-                    if (object) {
-                        if (key === filter.digest.call(null, object)) {
-                            results[link] = object;
-                            count += 1;
-                        }
-                    }
-                }
-
-                return mixinSelection(results, count, true);
-            }
-
-            function digestsFilter(filter, what, criteria) {
-                var keys, keyn, keyo, k, link, match, object, possible;
-                var p, pl, j, jl;
-                var results = { }, count = 0;
-
-                keys = filter.digests.apply(null, criteria);
-                keyn = keys.length;
-                if (keyn > 0) {
-                    possible = index.all(keys);
-                    keys.sort();
-                } else {
-                    possible = [];
-                }
-
-                for (p = 0, pl = possible.length; p < pl; p++) {
-                    link = possible[p];
-                    object = what[link];
-                    if (object) {
-                        keyo = filter.digests.call(null, object);
-                        keyo.sort();
-                        match = false;
-
-                        /* Search for first key */
-                        for (j = 0, jl = keyo.length; !match && j < jl; j++) {
-                            if (keys[0] === keyo[j]) {
-                                match = true;
-                                for (k = 0; match && k < keyn; k++) {
-                                    if (keys[k] !== keyo[j + k])
-                                        match = false;
+                        for (p = 0, pl = possible.length; p < pl; p++) {
+                            link = possible[p];
+                            object = what[link];
+                            if (object) {
+                                if (key === filter.digest.call(null, object)) {
+                                    results[link] = object;
+                                    count += 1;
                                 }
                             }
                         }
 
-                        if (match) {
-                            results[link] = object;
-                            count += 1;
+                        return mixinSelection(results, count, true);
+                    }
+
+                    function digestsFilter(filter, what, criteria) {
+                        var keys, keyn, keyo, k, link, match, object, possible;
+                        var p, pl, j, jl;
+                        var results = { }, count = 0;
+
+                        keys = filter.digests.apply(null, criteria);
+                        keyn = keys.length;
+                        if (keyn > 0) {
+                            possible = index.all(keys);
+                            keys.sort();
+                        } else {
+                            possible = [];
                         }
+
+                        for (p = 0, pl = possible.length; p < pl; p++) {
+                            link = possible[p];
+                            object = what[link];
+                            if (object) {
+                                keyo = filter.digests.call(null, object);
+                                keyo.sort();
+                                match = false;
+
+                                /* Search for first key */
+                                for (j = 0, jl = keyo.length; !match && j < jl; j++) {
+                                    if (keys[0] === keyo[j]) {
+                                        match = true;
+                                        for (k = 0; match && k < keyn; k++) {
+                                            if (keys[k] !== keyo[j + k])
+                                                match = false;
+                                        }
+                                    }
+                                }
+
+                                if (match) {
+                                    results[link] = object;
+                                    count += 1;
+                                }
+                            }
+                        }
+
+                        return mixinSelection(results, count, true);
                     }
-                }
 
-                return mixinSelection(results, count, true);
-            }
+                    function registerFilter(filter, optional) {
+                        if (typeof (optional) == "function") {
+                            filter = {
+                                name: filter,
+                                filter: optional,
+                            };
+                        }
 
-            function registerFilter(filter, optional) {
-                if (typeof (optional) == "function") {
-                    filter = {
-                        name: filter,
-                        filter: optional,
-                    };
-                }
-
-                filters[filter.name] = filter;
-                index = null;
-                proto = null;
-                version += 1;
-            }
-
-            /* The one filter */
-            registerFilter("one", function() {
-                var link;
-                for (link in this)
-                    return this[link];
-                return null;
-            });
-
-            /* The extend filter */
-            registerFilter("extend", function(target) {
-                var link;
-                for (link in this)
-                    target[link] = this[link];
-                return target;
-            });
-
-            /* The label filter */
-            registerFilter({
-                name: "label",
-                digests: function(arg) {
-                    var ret = [];
-                    if (!arg)
-                        return ret;
-                    var i, meta = arg.metadata;
-                    var labels = meta ? meta.labels : arg;
-                    for (i in labels || [])
-                        ret.push(i + "=" + labels[i]);
-                    return ret;
-                }
-            });
-
-            /* The namespace filter */
-            registerFilter({
-                name: "namespace",
-                digest: function(arg) {
-                    if (!arg)
-                        return null;
-                    if (typeof arg === "string")
-                        return arg;
-                    var meta = arg.metadata;
-                    return meta ? meta.namespace : null;
-                }
-            });
-
-            /* The name filter */
-            registerFilter({
-                name: "name",
-                digest: function(arg) {
-                    if (!arg)
-                        return null;
-                    if (typeof arg === "string")
-                        return arg;
-                    var meta = arg.metadata;
-                    return meta ? meta.name : null;
-                }
-            });
-
-            /* The kind filter */
-            registerFilter({
-                name: "kind",
-                digest: function(arg) {
-                    if (!arg)
-                        return null;
-                    if (typeof arg === "string")
-                        return arg;
-                    return arg.kind;
-                }
-            });
-
-            /* The host filter */
-            registerFilter({
-                name: "host",
-                digest: function(arg) {
-                    if (!arg)
-                        return null;
-                    if (typeof arg === "string")
-                        return arg;
-                    var spec = arg.spec;
-                    return spec ? spec.nodeName : null;
-                }
-            });
-
-            /* The namespace filter */
-            registerFilter({
-                name: "uid",
-                digest: function(arg) {
-                    if (!arg)
-                        return null;
-                    if (typeof arg === "string")
-                        return arg;
-                    var meta = arg.metadata;
-                    return meta ? meta.uid : null;
-                }
-            });
-
-            /* The statusPhase filter */
-            registerFilter({
-                name: "statusPhase",
-                digest: function(arg) {
-                    var status;
-                    if (typeof arg == "string") {
-                        return arg;
-                    } else {
-                        status = arg.status || { };
-                        return status.phase ? status.phase : null;
+                        filters[filter.name] = filter;
+                        index = null;
+                        proto = null;
+                        version += 1;
                     }
-                }
-            });
 
-            var empty = { };
+                    /* The one filter */
+                    registerFilter("one", function() {
+                        var link;
+                        for (link in this)
+                            return this[link];
+                        return null;
+                    });
 
-            function select(arg) {
-                var cache, indexed = false;
-                if (arg === undefined) {
-                    arg = loader.objects;
-                    indexed = true;
-                } else if (!arg) {
-                    arg = empty;
-                }
+                    /* The extend filter */
+                    registerFilter("extend", function(target) {
+                        var link;
+                        for (link in this)
+                            target[link] = this[link];
+                        return target;
+                    });
 
-                /* Next the specific object */
-                if (typeof arg !== "object") {
-                    console.warn("Pass resources or resource dicts or null to kubeSelect()");
-                    arg = empty;
-                }
+                    /* The label filter */
+                    registerFilter({
+                        name: "label",
+                        digests: function(arg) {
+                            var ret = [];
+                            if (!arg)
+                                return ret;
+                            var i, meta = arg.metadata;
+                            var labels = meta ? meta.labels : arg;
+                            for (i in labels || [])
+                                ret.push(i + "=" + labels[i]);
+                            return ret;
+                        }
+                    });
 
-                cache = cached(arg);
-                if (cache.selection)
-                    return cache.selection;
+                    /* The namespace filter */
+                    registerFilter({
+                        name: "namespace",
+                        digest: function(arg) {
+                            if (!arg)
+                                return null;
+                            if (typeof arg === "string")
+                                return arg;
+                            var meta = arg.metadata;
+                            return meta ? meta.namespace : null;
+                        }
+                    });
 
-                /* A single resource object */
-                var meta, single;
-                if (typeof arg.kind === "string") {
-                    if (!cache.single) {
-                        meta = arg.meta || { };
-                        single = { };
-                        single[meta.selfLink || 1] = arg;
-                        cache.single = mixinSelection(single, undefined, false);
+                    /* The name filter */
+                    registerFilter({
+                        name: "name",
+                        digest: function(arg) {
+                            if (!arg)
+                                return null;
+                            if (typeof arg === "string")
+                                return arg;
+                            var meta = arg.metadata;
+                            return meta ? meta.name : null;
+                        }
+                    });
+
+                    /* The kind filter */
+                    registerFilter({
+                        name: "kind",
+                        digest: function(arg) {
+                            if (!arg)
+                                return null;
+                            if (typeof arg === "string")
+                                return arg;
+                            return arg.kind;
+                        }
+                    });
+
+                    /* The host filter */
+                    registerFilter({
+                        name: "host",
+                        digest: function(arg) {
+                            if (!arg)
+                                return null;
+                            if (typeof arg === "string")
+                                return arg;
+                            var spec = arg.spec;
+                            return spec ? spec.nodeName : null;
+                        }
+                    });
+
+                    /* The namespace filter */
+                    registerFilter({
+                        name: "uid",
+                        digest: function(arg) {
+                            if (!arg)
+                                return null;
+                            if (typeof arg === "string")
+                                return arg;
+                            var meta = arg.metadata;
+                            return meta ? meta.uid : null;
+                        }
+                    });
+
+                    /* The statusPhase filter */
+                    registerFilter({
+                        name: "statusPhase",
+                        digest: function(arg) {
+                            var status;
+                            if (typeof arg == "string") {
+                                return arg;
+                            } else {
+                                status = arg.status || { };
+                                return status.phase ? status.phase : null;
+                            }
+                        }
+                    });
+
+                    var empty = { };
+
+                    function select(arg) {
+                        var cache, indexed = false;
+                        if (arg === undefined) {
+                            arg = loader.objects;
+                            indexed = true;
+                        } else if (!arg) {
+                            arg = empty;
+                        }
+
+                        /* Next the specific object */
+                        if (typeof arg !== "object") {
+                            console.warn("Pass resources or resource dicts or null to kubeSelect()");
+                            arg = empty;
+                        }
+
+                        cache = cached(arg);
+                        if (cache.selection)
+                            return cache.selection;
+
+                        /* A single resource object */
+                        var meta, single;
+                        if (typeof arg.kind === "string") {
+                            if (!cache.single) {
+                                meta = arg.meta || { };
+                                single = { };
+                                single[meta.selfLink || 1] = arg;
+                                cache.single = mixinSelection(single, undefined, false);
+                            }
+                            return cache.single;
+                        }
+
+                        return mixinSelection(arg, undefined, indexed);
                     }
-                    return cache.single;
+
+                    /* A seldom used 'static' method */
+                    select.register = registerFilter;
+
+                    return select;
                 }
-
-                return mixinSelection(arg, undefined, indexed);
-            }
-
-            /* A seldom used 'static' method */
-            select.register = registerFilter;
-
-            return select;
-        }
-    ])
+            ])
 
     /**
      * kubeMethods
@@ -1153,217 +1152,217 @@
      *
      * Delete the given resource from kubernetes.
      */
-    .factory("kubeMethods", [
-        "$q",
-        "KUBE_SCHEMA",
-        "KubeRequest",
-        "kubeLoader",
-        function($q, KUBE_SCHEMA, KubeRequest, loader) {
-            function createCompare(a, b) {
-                var sa = KUBE_SCHEMA[a.kind].create || 0;
-                var sb = KUBE_SCHEMA[b.kind].create || 0;
-                return sa - sb;
-            }
-
-            function createObjects(objects, namespace) {
-                var defer = $q.defer();
-                var promise = defer.promise;
-                var request = null;
-
-                if (!angular.isArray(objects)) {
-                    if (objects.kind == "List")
-                        objects = objects.items;
-                    else
-                        objects = [ objects ];
-                }
-
-                var haveNs = false;
-                var wantNs = false;
-
-                objects.forEach(function(resource) {
-                    var meta = resource.metadata || { };
-                    if ((resource.kind == "Namespace" || resource.kind == "Project") && meta.name === namespace)
-                        haveNs = true;
-                    var schema = SCHEMA[resource.kind] || SCHEMA[""];
-                    if (!schema.global)
-                        wantNs = true;
-                });
-
-                /* Shallow copy of the array, we modify it below */
-                objects = objects.slice();
-
-                /* Create the namespace  */
-                if (namespace && wantNs && !haveNs) {
-                    objects.unshift({
-                        apiVersion : "v1",
-                        kind : "Namespace",
-                        metadata : { name: namespace }
-                    });
-                }
-
-                /* Now sort the array with create preference */
-                objects.sort(createCompare);
-
-                function step() {
-                    var resource = objects.shift();
-                    if (!resource) {
-                        defer.resolve();
-                        return;
+            .factory("kubeMethods", [
+                "$q",
+                "KUBE_SCHEMA",
+                "KubeRequest",
+                "kubeLoader",
+                function($q, KUBE_SCHEMA, KubeRequest, loader) {
+                    function createCompare(a, b) {
+                        var sa = KUBE_SCHEMA[a.kind].create || 0;
+                        var sb = KUBE_SCHEMA[b.kind].create || 0;
+                        return sa - sb;
                     }
 
-                    var path = resourcePath([resource.kind, null, namespace || "default"]);
-                    path += "?timeout=" + REQ_TIMEOUT;
+                    function createObjects(objects, namespace) {
+                        var defer = $q.defer();
+                        var promise = defer.promise;
+                        var request = null;
 
-                    request = new KubeRequest("POST", path, JSON.stringify(resource))
-                        .then(function(response) {
-                            var meta;
+                        if (!angular.isArray(objects)) {
+                            if (objects.kind == "List")
+                                objects = objects.items;
+                            else
+                                objects = [ objects ];
+                        }
 
-                            debug("created resource:", path, response.data);
-                            if (response.data.kind) {
-                                /* HACK: https://github.com/openshift/origin/issues/8167 */
-                                if (response.data.kind == "Project") {
-                                    meta = response.data.metadata || { };
-                                    delete meta.selfLink;
-                                }
-                                loader.handle(response.data);
+                        var haveNs = false;
+                        var wantNs = false;
+
+                        objects.forEach(function(resource) {
+                            var meta = resource.metadata || { };
+                            if ((resource.kind == "Namespace" || resource.kind == "Project") && meta.name === namespace)
+                                haveNs = true;
+                            var schema = SCHEMA[resource.kind] || SCHEMA[""];
+                            if (!schema.global)
+                                wantNs = true;
+                        });
+
+                        /* Shallow copy of the array, we modify it below */
+                        objects = objects.slice();
+
+                        /* Create the namespace  */
+                        if (namespace && wantNs && !haveNs) {
+                            objects.unshift({
+                                apiVersion : "v1",
+                                kind : "Namespace",
+                                metadata : { name: namespace }
+                            });
+                        }
+
+                        /* Now sort the array with create preference */
+                        objects.sort(createCompare);
+
+                        function step() {
+                            var resource = objects.shift();
+                            if (!resource) {
+                                defer.resolve();
+                                return;
                             }
-                            step();
+
+                            var path = resourcePath([resource.kind, null, namespace || "default"]);
+                            path += "?timeout=" + REQ_TIMEOUT;
+
+                            request = new KubeRequest("POST", path, JSON.stringify(resource))
+                                    .then(function(response) {
+                                        var meta;
+
+                                        debug("created resource:", path, response.data);
+                                        if (response.data.kind) {
+                                            /* HACK: https://github.com/openshift/origin/issues/8167 */
+                                            if (response.data.kind == "Project") {
+                                                meta = response.data.metadata || { };
+                                                delete meta.selfLink;
+                                            }
+                                            loader.handle(response.data);
+                                        }
+                                        step();
+                                    }, function(response) {
+                                        var resp = response.data;
+                                        var code = response.status;
+                                        if (resp && resp.code)
+                                            code = resp.code;
+
+                                        /* Ignore failures creating the namespace if it already exists */
+                                        if (resource.kind == "Namespace" && (code === 409 || code === 403)) {
+                                            debug("skipping namespace creation");
+                                            step();
+                                        } else {
+                                            debug("create failed:", path, resp || response);
+                                            defer.reject(resp || response);
+                                        }
+                                    });
+                        }
+
+                        step();
+
+                        promise.cancel = function cancel() {
+                            if (request)
+                                request.cancel();
+                        };
+                        return promise;
+                    }
+
+                    function deleteResource(/* ... */) {
+                        var path = resourcePath(arguments);
+                        var resource = loader.objects[path];
+                        path += "?timeout=" + REQ_TIMEOUT;
+                        var promise = new KubeRequest("DELETE", path);
+                        return promise.then(function() {
+                            debug("deleted resource:", path, resource);
+                            if (resource)
+                                loader.handle(resource, true);
                         }, function(response) {
                             var resp = response.data;
-                            var code = response.status;
-                            if (resp && resp.code)
-                                code = resp.code;
-
-                            /* Ignore failures creating the namespace if it already exists */
-                            if (resource.kind == "Namespace" && (code === 409 || code === 403)) {
-                                debug("skipping namespace creation");
-                                step();
-                            } else {
-                                debug("create failed:", path, resp || response);
-                                defer.reject(resp || response);
-                            }
+                            return $q.reject(resp || response);
                         });
-                }
+                    }
 
-                step();
+                    function patchResource(resource, patch) {
+                        var path = resourcePath([resource]);
+                        path += "?timeout=" + REQ_TIMEOUT;
+                        var body = JSON.stringify(patch);
+                        var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
+                        var promise = new KubeRequest("PATCH", path, body, config);
+                        return promise.then(function(response) {
+                            debug("patched resource:", path, response.data);
+                            if (response.data.kind)
+                                loader.handle(response.data);
+                        }, function(response) {
+                            var resp = response.data;
+                            return $q.reject(resp || response);
+                        });
+                    }
 
-                promise.cancel = function cancel() {
-                    if (request)
-                        request.cancel();
-                };
-                return promise;
-            }
+                    function generalMethodRequest(method, resource, body, config) {
+                        var path = resourcePath([resource]);
+                        if (method != "GET")
+                            path += "?timeout=" + REQ_TIMEOUT;
+                        var promise = new KubeRequest(method, path, JSON.stringify(body), config);
+                        return promise.then(function(response) {
+                            var resp = response.data;
+                            return resp || response;
+                        }, function(response) {
+                            var resp = response.data;
+                            return $q.reject(resp || response);
+                        });
+                    }
 
-            function deleteResource(/* ... */) {
-                var path = resourcePath(arguments);
-                var resource = loader.objects[path];
-                path += "?timeout=" + REQ_TIMEOUT;
-                var promise = new KubeRequest("DELETE", path);
-                return promise.then(function() {
-                    debug("deleted resource:", path, resource);
-                    if (resource)
-                        loader.handle(resource, true);
-                }, function(response) {
-                    var resp = response.data;
-                    return $q.reject(resp || response);
-                });
-            }
+                    function putResource(resource, body, config) {
+                        return generalMethodRequest("PUT", resource, body, config);
+                    }
 
-            function patchResource(resource, patch) {
-                var path = resourcePath([resource]);
-                path += "?timeout=" + REQ_TIMEOUT;
-                var body = JSON.stringify(patch);
-                var config = { headers: { "Content-Type": "application/strategic-merge-patch+json" } };
-                var promise = new KubeRequest("PATCH", path, body, config);
-                return promise.then(function(response) {
-                    debug("patched resource:", path, response.data);
-                    if (response.data.kind)
-                        loader.handle(response.data);
-                }, function(response) {
-                    var resp = response.data;
-                    return $q.reject(resp || response);
-                });
-            }
+                    function postResource(resource, body, config) {
+                        return generalMethodRequest("POST", resource, body, config);
+                    }
 
-            function generalMethodRequest(method, resource, body, config) {
-                var path = resourcePath([resource]);
-                if (method != "GET")
-                    path += "?timeout=" + REQ_TIMEOUT;
-                var promise = new KubeRequest(method, path, JSON.stringify(body), config);
-                return promise.then(function(response) {
-                    var resp = response.data;
-                    return resp || response;
-                }, function(response) {
-                    var resp = response.data;
-                    return $q.reject(resp || response);
-                });
-            }
+                    function checkResource(resource, targets) {
+                        var defer = $q.defer();
+                        var ex, exs = [];
 
-            function putResource(resource, body, config) {
-                return generalMethodRequest("PUT", resource, body, config);
-            }
+                        if (!targets)
+                            targets = { };
 
-            function postResource(resource, body, config) {
-                return generalMethodRequest("POST", resource, body, config);
-            }
-
-            function checkResource(resource, targets) {
-                var defer = $q.defer();
-                var ex, exs = [];
-
-                if (!targets)
-                    targets = { };
-
-                /* Some simple metadata checks */
-                var meta = resource.metadata;
-                if (meta) {
-                    ex = null;
-                    if (meta.name !== undefined) {
-                        var check_re = (resource.kind == "User" || resource.kind == "Group") ? USER_NAME_RE : NAME_RE;
-                        if (!meta.name)
-                            ex = new Error("The name cannot be empty");
-                        else if (!check_re.test(meta.name))
-                            if (check_re == NAME_RE) {
-                                ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
-                            } else {
-                                ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _ - :");
+                        /* Some simple metadata checks */
+                        var meta = resource.metadata;
+                        if (meta) {
+                            ex = null;
+                            if (meta.name !== undefined) {
+                                var check_re = (resource.kind == "User" || resource.kind == "Group") ? USER_NAME_RE : NAME_RE;
+                                if (!meta.name)
+                                    ex = new Error("The name cannot be empty");
+                                else if (!check_re.test(meta.name))
+                                    if (check_re == NAME_RE) {
+                                        ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
+                                    } else {
+                                        ex = new Error("The name contains invalid characters. Only letters, numbers, spaces and the following symbols are allowed: , = @  . _ - :");
+                                    }
                             }
-                    }
-                    if (ex) {
-                        ex.target = targets["metadata.name"];
-                        exs.push(ex);
+                            if (ex) {
+                                ex.target = targets["metadata.name"];
+                                exs.push(ex);
+                            }
+
+                            ex = null;
+                            if (meta.namespace !== undefined) {
+                                if (!meta.namespace)
+                                    ex = new Error("The namespace cannot be empty");
+                                else if (!NAME_RE.test(meta.namespace))
+                                    ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
+                            }
+                            if (ex) {
+                                ex.target = targets["metadata.namespace"];
+                                exs.push(ex);
+                            }
+                        }
+
+                        if (exs.length)
+                            defer.reject(exs);
+                        else
+                            defer.resolve();
+                        return defer.promise;
                     }
 
-                    ex = null;
-                    if (meta.namespace !== undefined) {
-                        if (!meta.namespace)
-                            ex = new Error("The namespace cannot be empty");
-                        else if (!NAME_RE.test(meta.namespace))
-                            ex = new Error("The name contains invalid characters. Only letters, numbers and dashes are allowed");
-                    }
-                    if (ex) {
-                        ex.target = targets["metadata.namespace"];
-                        exs.push(ex);
-                    }
+                    return {
+                        "create": createObjects,
+                        "delete": deleteResource,
+                        "check": checkResource,
+                        "patch": patchResource,
+                        post: postResource,
+                        put: putResource,
+                    };
                 }
-
-                if (exs.length)
-                    defer.reject(exs);
-                else
-                    defer.resolve();
-                return defer.promise;
-            }
-
-            return {
-                "create": createObjects,
-                "delete": deleteResource,
-                "check": checkResource,
-                "patch": patchResource,
-                post: postResource,
-                put: putResource,
-            };
-        }
-    ])
+            ])
 
     /**
      * KubeRequest
@@ -1398,36 +1397,36 @@
      * Implementation specific fields may also be present
      */
 
-    .provider("KubeRequest", [
-        function() {
-            var self = this;
+            .provider("KubeRequest", [
+                function() {
+                    var self = this;
 
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeRequestFactory = "MissingKubeRequest";
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeRequestFactory = "MissingKubeRequest";
 
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "KubeRequest");
-                else
-                    return injector.invoke(name);
-            }
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "KubeRequest");
+                        else
+                            return injector.invoke(name);
+                    }
 
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeRequestFactory);
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeRequestFactory);
+                        }
+                    ];
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingKubeRequest", [
-        function() {
-            return function MissingKubeRequest(path, callback) {
-                throw new Error("no KubeRequestFactory set");
-            };
-        }
-    ])
+            .factory("MissingKubeRequest", [
+                function() {
+                    return function MissingKubeRequest(path, callback) {
+                        throw new Error("no KubeRequestFactory set");
+                    };
+                }
+            ])
 
     /**
      * KubeSocket
@@ -1456,36 +1455,36 @@
      * Implementation specific fields may also be present
      */
 
-    .provider("KubeSocket", [
-        function() {
-            var self = this;
+            .provider("KubeSocket", [
+                function() {
+                    var self = this;
 
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeSocketFactory = "MissingKubeSocket";
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeSocketFactory = "MissingKubeSocket";
 
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "KubeSocket");
-                else
-                    return injector.invoke(name);
-            }
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "KubeSocket");
+                        else
+                            return injector.invoke(name);
+                    }
 
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeSocketFactory);
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeSocketFactory);
+                        }
+                    ];
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingKubeSocket", [
-        function() {
-            return function MissingKubeSocket(path, callback) {
-                throw Error("no KubeSocketFactory set");
-            };
-        }
-    ])
+            .factory("MissingKubeSocket", [
+                function() {
+                    return function MissingKubeSocket(path, callback) {
+                        throw Error("no KubeSocketFactory set");
+                    };
+                }
+            ])
 
     /**
      * KubeWatch
@@ -1513,65 +1512,65 @@
      * look like: { type: "ADDED", object: { ... } }
      */
 
-    .provider("KubeWatch", [
-        function() {
-            var self = this;
+            .provider("KubeWatch", [
+                function() {
+                    var self = this;
 
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeWatchFactory = "MissingKubeWatch";
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeWatchFactory = "MissingKubeWatch";
 
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "KubeWatch");
-                else
-                    return injector.invoke(name);
-            }
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "KubeWatch");
+                        else
+                            return injector.invoke(name);
+                    }
 
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeWatchFactory);
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeWatchFactory);
+                        }
+                    ];
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingKubeWatch", [
-        function() {
-            return function MissingKubeWatch(path, callback) {
-                throw Error("no KubeWatchFactory set");
-            };
-        }
-    ])
-
-    .provider("KubeDiscoverSettings", [
-        function() {
-            var self = this;
-
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeDiscoverSettingsFactory = "MissingKubeDiscoverSettings";
-
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "KubeDiscoverSettings");
-                else
-                    return injector.invoke(name);
-            }
-
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeDiscoverSettingsFactory);
+            .factory("MissingKubeWatch", [
+                function() {
+                    return function MissingKubeWatch(path, callback) {
+                        throw Error("no KubeWatchFactory set");
+                    };
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingKubeDiscoverSettings", [
-        function() {
-            return function MissingKubeDiscoverSettings(path, callback) {
-                throw Error("no KubeDiscoverSettingsFactory set");
-            };
-        }
-    ]);
+            .provider("KubeDiscoverSettings", [
+                function() {
+                    var self = this;
+
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeDiscoverSettingsFactory = "MissingKubeDiscoverSettings";
+
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "KubeDiscoverSettings");
+                        else
+                            return injector.invoke(name);
+                    }
+
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeDiscoverSettingsFactory);
+                        }
+                    ];
+                }
+            ])
+
+            .factory("MissingKubeDiscoverSettings", [
+                function() {
+                    return function MissingKubeDiscoverSettings(path, callback) {
+                        throw Error("no KubeDiscoverSettingsFactory set");
+                    };
+                }
+            ]);
 }());

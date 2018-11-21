@@ -98,11 +98,11 @@ var showDialog = function(frames) {
 
     dataStore.footerProps = {
         'actions': [
-              { 'clicked': dataStore.closePage,
-                'caption': _("Close Selected Pages"),
-                'style': 'primary',
-              }
-          ],
+            { 'clicked': dataStore.closePage,
+              'caption': _("Close Selected Pages"),
+              'style': 'primary',
+            }
+        ],
     };
 
     dataStore.dialogObj = dialogPattern.show_modal_dialog(dataStore.dialogProps, dataStore.footerProps);

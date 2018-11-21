@@ -74,42 +74,42 @@
         var cpu_options = plot.plot_simple_template();
         $.extend(cpu_options.yaxis, { tickFormatter: function(v) { return v.toFixed(0) },
                                       max: 100
-                                    });
-        $.extend(cpu_options.grid,  { hoverable: true,
-                                      autoHighlight: false
-                                    });
+        });
+        $.extend(cpu_options.grid, { hoverable: true,
+                                     autoHighlight: false
+        });
 
         var cpu_plot = new plot.Plot($("#containers-cpu-graph"), 300);
         cpu_plot.set_options(cpu_options);
         cpu_plot.start_walking();
 
         cpu_ram_info()
-            .done(function (info) {
-                $('#containers-cpu-graph-title').text(
-                    cockpit.format(cockpit.ngettext("Combined usage of $0 CPU core",
-                                                    "Combined usage of $0 CPU cores",
-                                                    info.cpus),
-                                   info.cpus));
+                .done(function (info) {
+                    $('#containers-cpu-graph-title').text(
+                        cockpit.format(cockpit.ngettext("Combined usage of $0 CPU core",
+                                                        "Combined usage of $0 CPU cores",
+                                                        info.cpus),
+                                       info.cpus));
 
-                var cpu_data = {
-                    internal: "cgroup.cpu.usage",
-                    units: "millisec",
-                    derive: "rate",
-                    factor: 0.1 / info.cpus // millisec / sec -> percent
-                };
+                    var cpu_data = {
+                        internal: "cgroup.cpu.usage",
+                        units: "millisec",
+                        derive: "rate",
+                        factor: 0.1 / info.cpus // millisec / sec -> percent
+                    };
 
-                cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
-                $(cpu_series).on("value", function(ev, value) {
-                    $('#containers-cpu-text').text(util.format_cpu_usage(value));
+                    cpu_series = cpu_plot.add_metrics_stacked_instances_series(cpu_data, { });
+                    $(cpu_series).on("value", function(ev, value) {
+                        $('#containers-cpu-text').text(util.format_cpu_usage(value));
+                    });
+
+                    $(client).on('container.containers', function(event, id, container) {
+                        if (container && container.CGroup) {
+                            cpu_series.add_instance(container.CGroup);
+                            mem_series.add_instance(container.CGroup);
+                        }
+                    });
                 });
-
-                $(client).on('container.containers', function(event, id, container) {
-                    if (container && container.CGroup) {
-                        cpu_series.add_instance(container.CGroup);
-                        mem_series.add_instance(container.CGroup);
-                    }
-                });
-            });
 
         var mem_data = {
             internal: "cgroup.memory.usage",
@@ -119,14 +119,14 @@
         var mem_options = plot.plot_simple_template();
         $.extend(mem_options.yaxis, { ticks: plot.memory_ticks,
                                       tickFormatter: plot.format_bytes_tick_no_unit
-                                    });
-        $.extend(mem_options.grid,  { hoverable: true,
-                                      autoHighlight: false
-                                    });
+        });
+        $.extend(mem_options.grid, { hoverable: true,
+                                     autoHighlight: false
+        });
         mem_options.setup_hook = function (flot) {
             var axes = flot.getAxes();
-            if (axes.yaxis.datamax < 1.5*1024*1024)
-                axes.yaxis.options.max = 1.5*1024*1024;
+            if (axes.yaxis.datamax < 1.5 * 1024 * 1024)
+                axes.yaxis.options.max = 1.5 * 1024 * 1024;
             else
                 axes.yaxis.options.max = null;
             axes.yaxis.options.min = 0;
@@ -150,56 +150,66 @@
         });
 
         ReactDOM.render(React.createElement(storage.OverviewBox,
-                                         { model: storage.get_storage_model(),
-                                           small: true }),
-                     $("#containers-storage-details")[0]);
+                                            { model: storage.get_storage_model(),
+                                              small: true }),
+                        $("#containers-storage-details")[0]);
 
         var commit = $('#container-commit-dialog')[0];
-        $(commit).
-            on("show.bs.modal", function(event) {
-                var container = client.containers[event.relatedTarget.dataset.containerId];
+        $(commit)
+                .on("show.bs.modal", function(event) {
+                    var container = client.containers[event.relatedTarget.dataset.containerId];
 
-                $(commit).find(".container-name").text(container.Name.replace(/^\//, ''));
-                $(commit).attr('data-container-id', container.Id);
+                    $(commit).find(".container-name")
+                            .text(container.Name.replace(/^\//, ''));
+                    $(commit).attr('data-container-id', container.Id);
 
-                var image = client.images[container.Config.Image];
-                var repo = "";
-                if (image && image.RepoTags)
-                    repo = image.RepoTags[0].split(":", 1)[0];
-                $(commit).find(".container-repository").attr('value', repo);
+                    var image = client.images[container.Config.Image];
+                    var repo = "";
+                    if (image && image.RepoTags)
+                        repo = image.RepoTags[0].split(":", 1)[0];
+                    $(commit).find(".container-repository")
+                            .attr('value', repo);
 
-                $(commit).find(".container-tag").attr('value', "");
+                    $(commit).find(".container-tag")
+                            .attr('value', "");
 
-                cockpit.user().done(function (user) {
-                    var author = user.full_name || user.name;
-                    $(commit).find(".container-author").attr('value', author);
-                });
-
-                var command = "";
-                if (container.Config)
-                    command = util.quote_cmdline(container.Config.Cmd);
-                if (!command)
-                    command = container.Command;
-                $(commit).find(".container-command").attr('value', command);
-            }).
-            find(".btn-primary").on("click", function() {
-                var location = cockpit.location;
-                var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command").val()) };
-                var options = {
-                    "author": $(commit).find(".container-author").val()
-                };
-                var tag = $(commit).find(".container-tag").val();
-                if (tag)
-                    options["tag"] = tag;
-                var repository = $(commit).find(".container-repository").val();
-                client.commit($(commit).attr('data-container-id'), repository, options, run).
-                    fail(function(ex) {
-                        util.show_unexpected_error(ex);
-                    }).
-                    done(function() {
-                        location.go("/");
+                    cockpit.user().done(function (user) {
+                        var author = user.full_name || user.name;
+                        $(commit).find(".container-author")
+                                .attr('value', author);
                     });
-            });
+
+                    var command = "";
+                    if (container.Config)
+                        command = util.quote_cmdline(container.Config.Cmd);
+                    if (!command)
+                        command = container.Command;
+                    $(commit).find(".container-command")
+                            .attr('value', command);
+                })
+                .find(".btn-primary")
+                .on("click", function() {
+                    var location = cockpit.location;
+                    var run = { "Cmd": util.unquote_cmdline($(commit).find(".container-command")
+                            .val()) };
+                    var options = {
+                        "author": $(commit).find(".container-author")
+                                .val()
+                    };
+                    var tag = $(commit).find(".container-tag")
+                            .val();
+                    if (tag)
+                        options["tag"] = tag;
+                    var repository = $(commit).find(".container-repository")
+                            .val();
+                    client.commit($(commit).attr('data-container-id'), repository, options, run)
+                            .fail(function(ex) {
+                                util.show_unexpected_error(ex);
+                            })
+                            .done(function() {
+                                location.go("/");
+                            });
+                });
 
         function hide() {
             $('#containers').hide();

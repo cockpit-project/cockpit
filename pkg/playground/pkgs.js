@@ -36,10 +36,10 @@ $(function() {
             });
         }
         $("#reload").on("click", function() {
-            proxy.Reload().
-                fail(function (error) {
-                    console.log("ERROR", error);
-                });
+            proxy.Reload()
+                    .fail(function (error) {
+                        console.log("ERROR", error);
+                    });
         });
     });
 });

@@ -47,26 +47,26 @@
             if (watch === null) {
                 watch = cockpit.channel({ payload: "fslist1", path: self.path });
                 $(watch)
-                    .on("close", function(ev, data) {
-                        $(watch).off();
-                        if (!data.problem || data.problem == "not-found") {
-                            watch = null; /* Watch again */
-                        } else {
-                            console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
-                            watch = false; /* Don't watch again */
-                        }
-                    })
-                    .on("message", function(ev, payload) {
-                        var item = JSON.parse(payload);
-                        var name = item.path;
-                        if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
-                            if (item.event === "present" ||item.event === "created" ||
-                                item.event === "changed" || item.event === "deleted") {
-                                window.clearInterval(timeout);
-                                timeout = window.setTimeout(refresh, 100);
+                        .on("close", function(ev, data) {
+                            $(watch).off();
+                            if (!data.problem || data.problem == "not-found") {
+                                watch = null; /* Watch again */
+                            } else {
+                                console.warn("couldn't watch " + self.path + ": " + (data.message || data.problem));
+                                watch = false; /* Don't watch again */
                             }
-                        }
-                    });
+                        })
+                        .on("message", function(ev, payload) {
+                            var item = JSON.parse(payload);
+                            var name = item.path;
+                            if (name && name.indexOf("/") === -1 && name.slice(-4) === ".pub") {
+                                if (item.event === "present" || item.event === "created" ||
+                                item.event === "changed" || item.event === "deleted") {
+                                    window.clearInterval(timeout);
+                                    timeout = window.setTimeout(refresh, 100);
+                                }
+                            }
+                        });
             }
 
             if (proc)
@@ -76,18 +76,18 @@
             timeout = null;
 
             proc = cockpit.script(lister, [ self.path ], { err: "message" })
-                .always(function() {
-                    proc = null;
+                    .always(function() {
+                        proc = null;
 
-                    if (!timeout)
-                        timeout = window.setTimeout(refresh, 5000);
-                })
-                .done(function(data) {
-                    process(data);
-                })
-                .fail(function(ex) {
-                    console.warn("failed to list keys in home directory: " + ex.message);
-                });
+                        if (!timeout)
+                            timeout = window.setTimeout(refresh, 5000);
+                    })
+                    .done(function(data) {
+                        process(data);
+                    })
+                    .fail(function(ex) {
+                        console.warn("failed to list keys in home directory: " + ex.message);
+                    });
         }
 
         function process(data) {
@@ -95,15 +95,16 @@
             var key, items = { };
 
             /* First block is the data from ssh agent */
-            blocks[0].trim().split("\n").forEach(function(line) {
-                key = parse_key(line, items);
-                if (key)
-                    key.loaded = true;
-            });
+            blocks[0].trim().split("\n")
+                    .forEach(function(line) {
+                        key = parse_key(line, items);
+                        if (key)
+                            key.loaded = true;
+                    });
 
             /* Next come individual triples of blocks */
             blocks.slice(1).forEach(function(block, i) {
-                switch(i % 3) {
+                switch (i % 3) {
                 case 0:
                     key = parse_key(block, items);
                     break;
@@ -138,7 +139,6 @@
                 id = parts[2];
                 type = "RSA1";
                 comment = parts.slice(3).join(" ");
-
             } else if (parts[0].indexOf("ssh-") === 0) {
                 id = parts[1];
                 type = parts[0].substring(4).toUpperCase();
@@ -173,7 +173,7 @@
 
             key.fingerprint = parts[1];
 
-             if (parts[2] && !key.name && parts[2].indexOf("/") !== -1)
+            if (parts[2] && !key.name && parts[2].indexOf("/") !== -1)
                 key.name = parts[2];
         }
 
@@ -200,52 +200,52 @@
             }, 10 * 1000);
 
             proc = cockpit.spawn(["ssh-keygen", "-p", "-f", name],
-                    { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
-                .always(function() {
-                    window.clearInterval(timeout);
-                })
-                .done(function() {
-                    dfd.resolve();
-                })
-                .fail(function(ex) {
-                    if (ex.exit_status)
-                        ex = new Error(failure);
-                    dfd.reject(ex);
-                })
-                .stream(function(data) {
-                    buffer += data;
-                    for (i = 0; i < old_exps.length; i++) {
-                        if (old_exps[i].test(buffer)) {
-                            buffer = "";
-                            failure = _("Old password not accepted");
-                            this.input(old_pass + "\n", true);
-                            return;
+                                 { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
+                    .always(function() {
+                        window.clearInterval(timeout);
+                    })
+                    .done(function() {
+                        dfd.resolve();
+                    })
+                    .fail(function(ex) {
+                        if (ex.exit_status)
+                            ex = new Error(failure);
+                        dfd.reject(ex);
+                    })
+                    .stream(function(data) {
+                        buffer += data;
+                        for (i = 0; i < old_exps.length; i++) {
+                            if (old_exps[i].test(buffer)) {
+                                buffer = "";
+                                failure = _("Old password not accepted");
+                                this.input(old_pass + "\n", true);
+                                return;
+                            }
                         }
-                    }
 
-                    for (i = 0; i < new_exps.length; i++) {
-                        if (new_exps[i].test(buffer)) {
-                            buffer = "";
-                            this.input(new_pass + "\n", true);
-                            failure = _("Failed to change password");
-                            sent_new = true;
-                            return;
+                        for (i = 0; i < new_exps.length; i++) {
+                            if (new_exps[i].test(buffer)) {
+                                buffer = "";
+                                this.input(new_pass + "\n", true);
+                                failure = _("Failed to change password");
+                                sent_new = true;
+                                return;
+                            }
                         }
-                    }
 
-                    for (i = 0; sent_new && i < bad_exps.length; i++) {
-                        if (bad_exps[i].test(buffer)) {
-                            failure = _("New password was not accepted");
-                            return;
+                        for (i = 0; sent_new && i < bad_exps.length; i++) {
+                            if (bad_exps[i].test(buffer)) {
+                                failure = _("New password was not accepted");
+                                return;
+                            }
                         }
-                    }
-                });
+                    });
 
             return dfd.promise();
         };
 
         self.load = function(name, password) {
-            var ask_exp =  /.*Enter passphrase for .*/;
+            var ask_exp = /.*Enter passphrase for .*/;
             var perm_exp = /.*UNPROTECTED PRIVATE KEY FILE.*/;
             var bad_exp = /.*Bad passphrase.*/;
 
@@ -262,38 +262,38 @@
             }, 10 * 1000);
 
             proc = cockpit.spawn(["ssh-add", name],
-                    { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
-                .always(function() {
-                    window.clearInterval(timeout);
-                })
-                .done(function() {
-                    refresh();
-                    dfd.resolve();
-                })
-                .fail(function(ex) {
-                    console.log(output);
-                    if (ex.exit_status)
-                        ex = new Error(failure);
+                                 { pty: true, environ: [ "LC_ALL=C" ], err: "out", directory: self.path })
+                    .always(function() {
+                        window.clearInterval(timeout);
+                    })
+                    .done(function() {
+                        refresh();
+                        dfd.resolve();
+                    })
+                    .fail(function(ex) {
+                        console.log(output);
+                        if (ex.exit_status)
+                            ex = new Error(failure);
 
-                    ex.sent_password = sent_password;
-                    dfd.reject(ex);
-                })
-                .stream(function(data) {
-                    buffer += data;
-                    output += data;
-                    if (perm_exp.test(buffer)) {
-                        failure = _("Invalid file permissions");
-                        buffer = "";
-                    } else if (ask_exp.test(buffer)) {
-                        buffer = "";
-                        failure = _("Password not accepted");
-                        this.input(password + "\n", true);
-                        sent_password = true;
-                    } else if (bad_exp.test(buffer)) {
-                        buffer = "";
-                        this.input("\n", true);
-                    }
-                });
+                        ex.sent_password = sent_password;
+                        dfd.reject(ex);
+                    })
+                    .stream(function(data) {
+                        buffer += data;
+                        output += data;
+                        if (perm_exp.test(buffer)) {
+                            failure = _("Invalid file permissions");
+                            buffer = "";
+                        } else if (ask_exp.test(buffer)) {
+                            buffer = "";
+                            failure = _("Password not accepted");
+                            this.input(password + "\n", true);
+                            sent_password = true;
+                        } else if (bad_exp.test(buffer)) {
+                            buffer = "";
+                            this.input("\n", true);
+                        }
+                    });
 
             return dfd.promise();
         };

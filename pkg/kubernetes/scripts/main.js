@@ -70,50 +70,49 @@
         'kubernetesUI'
     ])
 
-    .config([
-        '$routeProvider',
-        'KubeWatchProvider',
-        'KubeRequestProvider',
-        'KubeSocketProvider',
-        'KubeTranslateProvider',
-        'KubeFormatProvider',
-        'kubernetesContainerSocketProvider',
-        'KubeDiscoverSettingsProvider',
-        'KubeBrowserStorageProvider',
-        'MomentLibProvider',
-        '$provide',
-        function($routeProvider, KubeWatchProvider, KubeRequestProvider,
-                 KubeSocketProvider, KubeTranslateProvider, KubeFormatProvider,
-                 kubernetesContainerSocketProvider, KubeDiscoverSettingsProvider,
-                 KubeBrowserStorageProvider, MomentLibProvider, $provide) {
+            .config([
+                '$routeProvider',
+                'KubeWatchProvider',
+                'KubeRequestProvider',
+                'KubeSocketProvider',
+                'KubeTranslateProvider',
+                'KubeFormatProvider',
+                'kubernetesContainerSocketProvider',
+                'KubeDiscoverSettingsProvider',
+                'KubeBrowserStorageProvider',
+                'MomentLibProvider',
+                '$provide',
+                function($routeProvider, KubeWatchProvider, KubeRequestProvider,
+                    KubeSocketProvider, KubeTranslateProvider, KubeFormatProvider,
+                    kubernetesContainerSocketProvider, KubeDiscoverSettingsProvider,
+                    KubeBrowserStorageProvider, MomentLibProvider, $provide) {
+                    $routeProvider.otherwise({ redirectTo: '/' });
 
-            $routeProvider.otherwise({ redirectTo: '/' });
+                    /* Tell the kube-client code to use cockpit watches and requests */
+                    KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
+                    KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
+                    KubeSocketProvider.KubeSocketFactory = "CockpitKubeSocket";
+                    KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
+                    KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
+                    KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
+                    KubeBrowserStorageProvider.KubeBrowserStorageFactory = "cockpitBrowserStorage";
+                    MomentLibProvider.MomentLibFactory = "momentLib";
 
-            /* Tell the kube-client code to use cockpit watches and requests */
-            KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
-            KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
-            KubeSocketProvider.KubeSocketFactory = "CockpitKubeSocket";
-            KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
-            KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
-            KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
-            KubeBrowserStorageProvider.KubeBrowserStorageFactory = "cockpitBrowserStorage";
-            MomentLibProvider.MomentLibFactory = "momentLib";
+                    /* Tell the container-terminal that we want to be involved in WebSocket creation */
+                    kubernetesContainerSocketProvider.WebSocketFactory = 'cockpitContainerWebSocket';
 
-            /* Tell the container-terminal that we want to be involved in WebSocket creation */
-            kubernetesContainerSocketProvider.WebSocketFactory = 'cockpitContainerWebSocket';
+                    $provide.decorator("$exceptionHandler",
+                                       ['$delegate',
+                                           '$log',
+                                           function($delegate, $log) {
+                                               return function (exception, cause) {
+                                                   /* Displays an oops if we're running in cockpit */
+                                                   if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+                                                       window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
 
-            $provide.decorator("$exceptionHandler",
-                ['$delegate',
-                 '$log',
-                 function($delegate, $log) {
-                    return function (exception, cause) {
-                        /* Displays an oops if we're running in cockpit */
-                        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
-                            window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
-
-                        $delegate(exception, cause);
-                    };
-              }]);
-        }
-    ]);
+                                                   $delegate(exception, cause);
+                                               };
+                                           }]);
+                }
+            ]);
 }());

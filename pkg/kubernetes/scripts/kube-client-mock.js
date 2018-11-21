@@ -48,34 +48,34 @@ var angular = require("angular");
     function guid() {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
+                    .toString(16)
+                    .substring(1);
         }
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                s4() + '-' + s4() + s4() + s4();
     }
 
     function deparam(query) {
-      var parsed = { };
-      var vars = query.split("&");
-      for (var i = 0; i < vars.length; i++) {
-          var pair = vars[i].split("=");
-          var k = decodeURIComponent(pair[0]);
-          var v = decodeURIComponent(pair[1]);
-          if (typeof parsed[k] === "undefined" ||
+        var parsed = { };
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            var k = decodeURIComponent(pair[0]);
+            var v = decodeURIComponent(pair[1]);
+            if (typeof parsed[k] === "undefined" ||
               typeof parsed[k] === "function") {
-              if (k.substr(k.length - 2) != '[]')
-                  parsed[k] = v;
-              else
-                  parsed[k] = [v];
-          } else if (typeof parsed[k] === "string") {
-              parsed[k] = v;
-          } else {
-              parsed[k].push(v);
-          }
-      }
+                if (k.substr(k.length - 2) != '[]')
+                    parsed[k] = v;
+                else
+                    parsed[k] = [v];
+            } else if (typeof parsed[k] === "string") {
+                parsed[k] = v;
+            } else {
+                parsed[k].push(v);
+            }
+        }
 
-      return parsed;
+        return parsed;
     }
 
     function kubeApiserver(req, defer) {
@@ -119,7 +119,7 @@ var angular = require("angular");
             ret = kubeApiDelete(req, parts, query, baseUri);
         } else if (req.method === "PATCH") {
             ret = kubeApiPatch(req, parts, query, baseUri);
-        }  else {
+        } else {
             req.mockRespond(405, "Unsupported method");
             ret = true;
         }
@@ -212,22 +212,22 @@ var angular = require("angular");
             regexp = /nodes\//;
             kind = "NodeList";
         } else if (what == "pods") {
-            regexp = RegExp("namespaces/"+ namespaceRe +"/pods/");
+            regexp = RegExp("namespaces/" + namespaceRe + "/pods/");
             kind = "PodList";
         } else if (what == "services") {
-            regexp = RegExp("namespaces/"+ namespaceRe +"/services/");
+            regexp = RegExp("namespaces/" + namespaceRe + "/services/");
             kind = "ServiceList";
         } else if (what == "replicationcontrollers") {
-            regexp = RegExp("namespaces/"+ namespaceRe +"/replicationcontrollers/");
+            regexp = RegExp("namespaces/" + namespaceRe + "/replicationcontrollers/");
             kind = "ReplicationControllerList";
         } else if (what == "events") {
-            regexp = RegExp("namespaces/"+ namespaceRe +"/events/");
+            regexp = RegExp("namespaces/" + namespaceRe + "/events/");
             kind = "EventList";
         } else if (what == "images") {
             req.mockRespond(404, "OK", { "Content-Type": "text/plain; charset=utf-8" });
             return;
         } else if (what == "imagestreams") {
-            regexp = RegExp("namespaces/"+ namespaceRe +"/imagestreams/");
+            regexp = RegExp("namespaces/" + namespaceRe + "/imagestreams/");
             kind = "ImageStreamList";
         /* Nothing found */
         } else {
@@ -303,7 +303,7 @@ var angular = require("angular");
         var object;
         try {
             object = JSON.parse(req.body);
-        } catch(ex) {
+        } catch (ex) {
             req.mockRespond(400, "Bad JSON");
             return true;
         }
@@ -327,7 +327,7 @@ var angular = require("angular");
 
         if (kubeData[key]) {
             req.mockRespond(409, "Already exists", { "Content-Type": "application/json" },
-                             JSON.stringify({ code: 409, message: "Already exists" }));
+                            JSON.stringify({ code: 409, message: "Already exists" }));
             return true;
         }
 
@@ -340,7 +340,7 @@ var angular = require("angular");
         var object;
         try {
             object = JSON.parse(req.body);
-        } catch(ex) {
+        } catch (ex) {
             req.mockRespond(400, "Bad JSON");
             return true;
         }
@@ -401,7 +401,7 @@ var angular = require("angular");
         var patch;
         try {
             patch = JSON.parse(req.body);
-        } catch(ex) {
+        } catch (ex) {
             req.mockRespond(400, "Bad JSON");
             return true;
         }
@@ -418,158 +418,157 @@ var angular = require("angular");
         "kubeClient",
     ])
 
-    .value("MockKubeData", {
-        load: function load(data) {
-            kubeData = JSON.parse(JSON.stringify(data));
-        },
-        update: kubeUpdate
-    })
+            .value("MockKubeData", {
+                load: function load(data) {
+                    kubeData = JSON.parse(JSON.stringify(data));
+                },
+                update: kubeUpdate
+            })
 
-    .factory("MockKubeWatch", [
-        "$q",
-        "KUBE_SCHEMA",
-        "MockKubeRequest",
-        function($q, KUBE_SCHEMA, MockKubeRequest) {
-            return function CockpitKubeWatch(path, callback) {
-                var defer = $q.defer();
-                var promise = defer.promise;
+            .factory("MockKubeWatch", [
+                "$q",
+                "KUBE_SCHEMA",
+                "MockKubeRequest",
+                function($q, KUBE_SCHEMA, MockKubeRequest) {
+                    return function CockpitKubeWatch(path, callback) {
+                        var defer = $q.defer();
+                        var promise = defer.promise;
 
-                unique += 1;
+                        unique += 1;
 
-                var request = new MockKubeRequest("GET", path + "?watch=true", "", {
-                    streamer: handleStream,
-                    unique: unique,
-                });
-
-                var buffer;
-                function handleStream(data, response) {
-                    if (buffer)
-                        data = buffer + data;
-
-                    var lines = data.split("\n");
-                    var i, length = lines.length - 1;
-
-                    /* Last line is incomplete save for later */
-                    buffer = lines[length];
-
-                    /* Process all the others */
-                    var frame, frames = [];
-                    for (i = 0; i < length; i++) {
-                        frame = JSON.parse(lines[i]);
-                        if (!frame.object)
-                            throw "invalid watch without object";
-
-                        /* The watch failed, likely due to invalid resourceVersion */
-                        if (frame.type == "ERROR")
-                            throw frame;
-
-                        frames.push(frame);
-                    }
-
-                    callback(frames);
-
-                    var df = defer;
-                    if (df) {
-                        callback([]);
-                        defer = null;
-                        df.resolve(response);
-                    }
-                }
-
-                request.then(function(response) {
-                    var df = defer;
-                    defer = null;
-                    if (df)
-                        df.resolve(response);
-                }, function(response) {
-                    var df = defer;
-                    defer = null;
-                    if (df)
-                        df.reject(response);
-                });
-
-                promise.cancel = function cancel() {
-                    var df = defer;
-                    if (request)
-                        request.cancel();
-                    if (df) {
-                        defer = null;
-                        df.reject({
-                            status: 999,
-                            statusText: "Cancelled",
-                            problem: "cancelled",
+                        var request = new MockKubeRequest("GET", path + "?watch=true", "", {
+                            streamer: handleStream,
+                            unique: unique,
                         });
-                    }
-                };
-                return promise;
-            };
-        }
-    ])
 
-    .factory("MockKubeRequest", [
-        "$q",
-        function($q) {
-            return function MockKubeRequest(method, path, data, config) {
-                var req = angular.extend({ }, config, { method: method, path: path, body: data });
-                var defer = $q.defer();
-                var promise = defer.promise;
-                var response;
-                function finish() {
-                    var df = defer;
-                    defer = null;
-                    if (response.headers["Content-Type"] == "application/json")
-                        response.data = JSON.parse(response.data);
-                    if (response.status < 300)
-                        df.resolve(response);
-                    else
-                        df.reject(response);
-                }
+                        var buffer;
+                        function handleStream(data, response) {
+                            if (buffer)
+                                data = buffer + data;
 
-                req.mockRespond = function(status, reason, headers, body) {
-                    if (!defer)
-                        return;
-                    response = {
-                        status: status,
-                        statusText: reason,
-                        headers: headers || { },
-                        data: "",
-                        unique: req.unique,
+                            var lines = data.split("\n");
+                            var i, length = lines.length - 1;
+
+                            /* Last line is incomplete save for later */
+                            buffer = lines[length];
+
+                            /* Process all the others */
+                            var frame, frames = [];
+                            for (i = 0; i < length; i++) {
+                                frame = JSON.parse(lines[i]);
+                                if (!frame.object)
+                                    throw "invalid watch without object";
+
+                                /* The watch failed, likely due to invalid resourceVersion */
+                                if (frame.type == "ERROR")
+                                    throw frame;
+
+                                frames.push(frame);
+                            }
+
+                            callback(frames);
+
+                            var df = defer;
+                            if (df) {
+                                callback([]);
+                                defer = null;
+                                df.resolve(response);
+                            }
+                        }
+
+                        request.then(function(response) {
+                            var df = defer;
+                            defer = null;
+                            if (df)
+                                df.resolve(response);
+                        }, function(response) {
+                            var df = defer;
+                            defer = null;
+                            if (df)
+                                df.reject(response);
+                        });
+
+                        promise.cancel = function cancel() {
+                            var df = defer;
+                            if (request)
+                                request.cancel();
+                            if (df) {
+                                defer = null;
+                                df.reject({
+                                    status: 999,
+                                    statusText: "Cancelled",
+                                    problem: "cancelled",
+                                });
+                            }
+                        };
+                        return promise;
                     };
-                    if (body !== null)
-                        req.mockData(body || "", false);
-                };
+                }
+            ])
 
-                req.mockData = function(body, stream) {
-                    if (!defer)
-                        return;
-                    if (typeof (body) !== "string")
-                        body = JSON.stringify(body);
-                    if (req.streamer)
-                        req.streamer(body, response);
-                    else
-                        response.data += body;
-                    if (!stream)
-                        finish();
-                };
+            .factory("MockKubeRequest", [
+                "$q",
+                function($q) {
+                    return function MockKubeRequest(method, path, data, config) {
+                        var req = angular.extend({ }, config, { method: method, path: path, body: data });
+                        var defer = $q.defer();
+                        var promise = defer.promise;
+                        var response;
+                        function finish() {
+                            var df = defer;
+                            defer = null;
+                            if (response.headers["Content-Type"] == "application/json")
+                                response.data = JSON.parse(response.data);
+                            if (response.status < 300)
+                                df.resolve(response);
+                            else
+                                df.reject(response);
+                        }
 
-                promise.cancel = function cancel() {
-                    if (!defer)
-                        return;
-                    defer.reject({
-                        status: 999,
-                        statusText: "Cancelled",
-                        problem: "cancelled",
-                    });
-                    defer = null;
-                };
+                        req.mockRespond = function(status, reason, headers, body) {
+                            if (!defer)
+                                return;
+                            response = {
+                                status: status,
+                                statusText: reason,
+                                headers: headers || { },
+                                data: "",
+                                unique: req.unique,
+                            };
+                            if (body !== null)
+                                req.mockData(body || "", false);
+                        };
 
-                window.setTimeout(function() {
-                    kubeApiserver(req);
-                });
+                        req.mockData = function(body, stream) {
+                            if (!defer)
+                                return;
+                            if (typeof (body) !== "string")
+                                body = JSON.stringify(body);
+                            if (req.streamer)
+                                req.streamer(body, response);
+                            else
+                                response.data += body;
+                            if (!stream)
+                                finish();
+                        };
 
-                return promise;
-            };
-        }
-    ]);
+                        promise.cancel = function cancel() {
+                            if (!defer)
+                                return;
+                            defer.reject({
+                                status: 999,
+                                statusText: "Cancelled",
+                                problem: "cancelled",
+                            });
+                            defer = null;
+                        };
 
+                        window.setTimeout(function() {
+                            kubeApiserver(req);
+                        });
+
+                        return promise;
+                    };
+                }
+            ]);
 }());

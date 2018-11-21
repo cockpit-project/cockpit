@@ -24,184 +24,183 @@
 
     angular.module("kubeUtils", [])
 
-    .factory("KubeMapNamedArray", [
-        function () {
-            return function mapNamedArray(array, attr) {
-                if (!attr)
-                    attr = "name";
+            .factory("KubeMapNamedArray", [
+                function () {
+                    return function mapNamedArray(array, attr) {
+                        if (!attr)
+                            attr = "name";
 
-                var result = { };
-                var i, len;
-                if (array) {
-                    for (i = 0, len = array.length; i < len; i++)
-                        result[array[i][attr]] = array[i];
+                        var result = { };
+                        var i, len;
+                        if (array) {
+                            for (i = 0, len = array.length; i < len; i++)
+                                result[array[i][attr]] = array[i];
+                        }
+                        return result;
+                    };
                 }
-                return result;
-            };
-        }
-    ])
+            ])
 
-    .factory("KubeStringToBytes", [
-        function() {
-            return function (byte_string) {
-                var valid_suffixes = {
-                    "E": 1000000000000000000,
-                    "P": 1000000000000000,
-                    "T": 1000000000000,
-                    "G": 1000000000,
-                    "M": 1000000,
-                    "K": 1000,
-                    "m": 0.001,
-                    "Ei": 1152921504606846976,
-                    "Pi": 1125899906842624,
-                    "Ti": 1099511627776,
-                    "Gi": 1073741824,
-                    "Mi": 1048576,
-                    "Ki": 1024,
-                };
+            .factory("KubeStringToBytes", [
+                function() {
+                    return function (byte_string) {
+                        var valid_suffixes = {
+                            "E": 1000000000000000000,
+                            "P": 1000000000000000,
+                            "T": 1000000000000,
+                            "G": 1000000000,
+                            "M": 1000000,
+                            "K": 1000,
+                            "m": 0.001,
+                            "Ei": 1152921504606846976,
+                            "Pi": 1125899906842624,
+                            "Ti": 1099511627776,
+                            "Gi": 1073741824,
+                            "Mi": 1048576,
+                            "Ki": 1024,
+                        };
 
-                if (!byte_string)
-                    return;
+                        if (!byte_string)
+                            return;
 
-                byte_string = byte_string.trim();
-                for (var key in valid_suffixes) {
-                    if (byte_string.length > key.length &&
+                        byte_string = byte_string.trim();
+                        for (var key in valid_suffixes) {
+                            if (byte_string.length > key.length &&
                         byte_string.slice(-key.length) === key) {
-                        var number = Number(byte_string.slice(0, -key.length));
-                        if (!isNaN(number))
-                            return number * valid_suffixes[key];
+                                var number = Number(byte_string.slice(0, -key.length));
+                                if (!isNaN(number))
+                                    return number * valid_suffixes[key];
+                            }
+                        }
+                    };
+                }
+            ])
+
+            .provider('KubeFormat', [
+                function() {
+                    var self = this;
+
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeFormatFactory = "MissingFormat";
+
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "KubeFormat");
+                        else
+                            return injector.invoke(name);
                     }
+
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeFormatFactory);
+                        }
+                    ];
                 }
-            };
-        }
-    ])
+            ])
 
-    .provider('KubeFormat', [
-        function() {
-            var self = this;
-
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeFormatFactory = "MissingFormat";
-
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "KubeFormat");
-                else
-                    return injector.invoke(name);
-            }
-
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeFormatFactory);
+            .factory("MissingFormat", [
+                function() {
+                    return function MissingFormatCapacity(value) {
+                        throw "no KubeFormatFactory set";
+                    };
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingFormat", [
-        function() {
-            return function MissingFormatCapacity(value) {
-                throw "no KubeFormatFactory set";
-            };
-        }
-    ])
+            .provider('KubeTranslate', [
+                function() {
+                    var self = this;
 
-    .provider('KubeTranslate', [
-        function() {
-            var self = this;
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeTranslateFactory = "KubeTranslate";
 
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeTranslateFactory = "KubeTranslate";
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "MissingKubeTranslate");
+                        else
+                            return injector.invoke(name);
+                    }
 
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "MissingKubeTranslate");
-                else
-                    return injector.invoke(name);
-            }
-
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeTranslateFactory);
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeTranslateFactory);
+                        }
+                    ];
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("MissingKubeTranslate", [
-        function() {
-            function error_func() {
-                throw "no KubeTranslateFactory set";
-            }
+            .factory("MissingKubeTranslate", [
+                function() {
+                    function error_func() {
+                        throw "no KubeTranslateFactory set";
+                    }
 
-            return {
-                gettext: error_func,
-                ngettext: error_func
-            };
-        }
-    ])
-
-    .provider('KubeBrowserStorage', [
-        function() {
-            var self = this;
-
-            /* Until we come up with a good default implementation, must be provided */
-            self.KubeBrowserStorageFactory = "DefaultKubeBrowserStorage";
-
-            function load(injector, name) {
-                if (angular.isString(name))
-                    return injector.get(name, "DefaultKubeBrowserStorage");
-                else
-                    return injector.invoke(name);
-            }
-
-            self.$get = [
-                "$injector",
-                function($injector) {
-                    return load($injector, self.KubeBrowserStorageFactory);
+                    return {
+                        gettext: error_func,
+                        ngettext: error_func
+                    };
                 }
-            ];
-        }
-    ])
+            ])
 
-    .factory("DefaultKubeBrowserStorage", [
-        "$window",
-        function($window) {
-            return {
-                localStorage: $window.localStorage,
-                sessionStorage: $window.sessionStorage,
-            };
-        }
-    ])
+            .provider('KubeBrowserStorage', [
+                function() {
+                    var self = this;
 
-    .filter('formatCapacityName', function() {
-        return function(key) {
-            var data;
-            if (key == "cpu") {
-                data = "CPUs";
-            } else {
-                key = key.replace(/-/g, " ");
-                data = key.charAt(0).toUpperCase() + key.substr(1);
-            }
-            return data;
-        };
-    })
+                    /* Until we come up with a good default implementation, must be provided */
+                    self.KubeBrowserStorageFactory = "DefaultKubeBrowserStorage";
 
-    .filter('formatCapacityValue', [
-        "KubeFormat",
-        "KubeStringToBytes",
-        function (format, stringToBytes) {
-            return function(value, key) {
-                if (key == "memory") {
-                    var raw = stringToBytes(value);
-                    if (raw)
-                        value = format.formatBytes(raw);
+                    function load(injector, name) {
+                        if (angular.isString(name))
+                            return injector.get(name, "DefaultKubeBrowserStorage");
+                        else
+                            return injector.invoke(name);
+                    }
+
+                    self.$get = [
+                        "$injector",
+                        function($injector) {
+                            return load($injector, self.KubeBrowserStorageFactory);
+                        }
+                    ];
                 }
-                return value;
-            };
-        }
-    ]);
+            ])
 
+            .factory("DefaultKubeBrowserStorage", [
+                "$window",
+                function($window) {
+                    return {
+                        localStorage: $window.localStorage,
+                        sessionStorage: $window.sessionStorage,
+                    };
+                }
+            ])
+
+            .filter('formatCapacityName', function() {
+                return function(key) {
+                    var data;
+                    if (key == "cpu") {
+                        data = "CPUs";
+                    } else {
+                        key = key.replace(/-/g, " ");
+                        data = key.charAt(0).toUpperCase() + key.substr(1);
+                    }
+                    return data;
+                };
+            })
+
+            .filter('formatCapacityValue', [
+                "KubeFormat",
+                "KubeStringToBytes",
+                function (format, stringToBytes) {
+                    return function(value, key) {
+                        if (key == "memory") {
+                            var raw = stringToBytes(value);
+                            if (raw)
+                                value = format.formatBytes(raw);
+                        }
+                        return value;
+                    };
+                }
+            ]);
 }());

@@ -140,7 +140,7 @@
                     machine.avatar = "../shell/images/server-small.png";
 
                 events.push([host in machines ? "updated" : "added",
-                            [machine, host, old_conns]]);
+                    [machine, host, old_conns]]);
                 machines[host] = machine;
             }
 
@@ -187,9 +187,9 @@
             // FIXME: investigate re-using the proxy from Loader (runs in different frame/scope)
             var bridge = cockpit.dbus(null, { bus: "internal", "superuser": "try" });
             var mod = bridge.call("/machines", "cockpit.Machines", "Update", [ "99-webui.json", host, values_variant ])
-                .fail(function(error) {
-                    console.error("failed to call cockpit.Machines.Update(): ", error);
-                });
+                    .fail(function(error) {
+                        console.error("failed to call cockpit.Machines.Update(): ", error);
+                    });
 
             return mod;
         }
@@ -197,15 +197,15 @@
         self.add_key = function(host_key) {
             var known_hosts = cockpit.file(known_hosts_path, { superuser: "try" });
             return known_hosts
-                .modify(function(data) {
-                    if (!data)
-                        data = "";
+                    .modify(function(data) {
+                        if (!data)
+                            data = "";
 
-                    return data + "\n" + host_key;
-                })
-                .always(function() {
-                    known_hosts.close();
-                });
+                        return data + "\n" + host_key;
+                    })
+                    .always(function() {
+                        known_hosts.close();
+                    });
         };
 
         self.add = function add(connection_string, color) {
@@ -213,9 +213,9 @@
             var host = values['address'];
 
             values = $.extend({
-                        visible: true,
-                        color: color || self.unused_color(),
-                    }, values);
+                visible: true,
+                color: color || self.unused_color(),
+            }, values);
 
             var machine = self.lookup(host);
             if (machine)
@@ -257,7 +257,6 @@
             var machine = self.lookup(host);
 
             if (values.label) {
-
                 var conn_to = host;
                 if (machine)
                     conn_to = machine.connection_string;
@@ -266,12 +265,12 @@
                     hostnamed = cockpit.dbus("org.freedesktop.hostname1", { host: conn_to });
                     call = hostnamed.call("/org/freedesktop/hostname1", "org.freedesktop.hostname1",
                                           "SetPrettyHostname", [ values.label, true ])
-                        .always(function() {
-                            hostnamed.close();
-                        })
-                        .fail(function(ex) {
-                            console.warn("couldn't set pretty host name: " + ex);
-                        });
+                            .always(function() {
+                                hostnamed.close();
+                            })
+                            .fail(function(ex) {
+                                console.warn("couldn't set pretty host name: " + ex);
+                            });
                 }
             }
 
@@ -371,12 +370,12 @@
 
             if (user_spot > 0) {
                 parts.user = conn_to.substring(0, user_spot);
-                conn_to = conn_to.substring(user_spot+1);
+                conn_to = conn_to.substring(user_spot + 1);
                 port_spot = conn_to.lastIndexOf(':');
             }
 
             if (port_spot > -1) {
-                var port = parseInt(conn_to.substring(port_spot+1), 10);
+                var port = parseInt(conn_to.substring(port_spot + 1), 10);
                 if (!isNaN(port)) {
                     parts.port = port;
                     conn_to = conn_to.substring(0, port_spot);
@@ -412,16 +411,16 @@
             var parts = key.split("/");
             if (parts[0] == session_prefix &&
                 parts.length === 2) {
-                    host = parts[1];
-                    if (value) {
-                        values = JSON.parse(value);
-                        machine = machines.lookup(host);
-                        if (!machine || !machine.on_disk)
-                            machines.overlay(host, values);
-                        else if (!machine.visible)
-                            machines.change(host, { visible: true });
-                        self.connect(host);
-                    }
+                host = parts[1];
+                if (value) {
+                    values = JSON.parse(value);
+                    machine = machines.lookup(host);
+                    if (!machine || !machine.on_disk)
+                        machines.overlay(host, values);
+                    else if (!machine.visible)
+                        machines.change(host, { visible: true });
+                    self.connect(host);
+                }
             }
         }
 
@@ -548,20 +547,20 @@
             /* Here we load the machine manifests, and expect them before going to "connected" */
             function request_manifest() {
                 request = $.ajax({ url: url, dataType: "json", cache: true})
-                    .done(function(manifests) {
-                        var overlay = { manifests: manifests };
-                        var etag = request.getResponseHeader("ETag");
-                        if (etag) /* and remove quotes */
-                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
-                        machines.overlay(host, overlay);
-                    })
-                    .fail(function(ex) {
-                        console.warn("failed to load manifests from " + machine.connection_string + ": " + ex);
-                    })
-                    .always(function() {
-                        request = null;
-                        whirl();
-                    });
+                        .done(function(manifests) {
+                            var overlay = { manifests: manifests };
+                            var etag = request.getResponseHeader("ETag");
+                            if (etag) /* and remove quotes */
+                                overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
+                            machines.overlay(host, overlay);
+                        })
+                        .fail(function(ex) {
+                            console.warn("failed to load manifests from " + machine.connection_string + ": " + ex);
+                        })
+                        .always(function() {
+                            request = null;
+                            whirl();
+                        });
             }
 
             /* Try to get change notifications via the internal
@@ -573,7 +572,7 @@
             function watch_manifests() {
                 var dbus = cockpit.dbus(null, { bus: "internal",
                                                 host: machine.connection_string
-                                              });
+                });
                 bridge_dbus[host] = dbus;
                 dbus.subscribe({ path: "/packages",
                                  interface: "org.freedesktop.DBus.Properties",
@@ -614,29 +613,29 @@
                 channel.send("x");
 
                 $(channel)
-                    .on("message", function() {
-                        open = true;
-                        if (url)
-                            request_manifest();
-                        watch_manifests();
-                        request_hostname();
-                        whirl();
-                    })
-                .on("close", function(ev, options) {
-                    var m = machines.lookup(host);
-                    open = false;
-                    // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
-                    if (!options.problem && m && !m.visible)
-                        state(host, null, null);
-                    else
-                        state(host, "failed", options.problem || "disconnected");
-                    if (m && m.restarting) {
-                        window.setTimeout(function() {
-                            self.connect(host);
-                        }, 10000);
-                    }
-                    self.disconnect(host);
-                });
+                        .on("message", function() {
+                            open = true;
+                            if (url)
+                                request_manifest();
+                            watch_manifests();
+                            request_hostname();
+                            whirl();
+                        })
+                        .on("close", function(ev, options) {
+                            var m = machines.lookup(host);
+                            open = false;
+                            // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
+                            if (!options.problem && m && !m.visible)
+                                state(host, null, null);
+                            else
+                                state(host, "failed", options.problem || "disconnected");
+                            if (m && m.restarting) {
+                                window.setTimeout(function() {
+                                    self.connect(host);
+                                }, 10000);
+                            }
+                            self.disconnect(host);
+                        });
             } else {
                 if (url)
                     request_manifest();

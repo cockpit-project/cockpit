@@ -65,7 +65,7 @@
      * Restart the service.
      *
      * - promise = proxy.tryRestart()
-     * 
+     *
      * Try to restart the service if it's running or starting
      *
      * - promise = proxy.stop()
@@ -97,12 +97,12 @@
             systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                    "/org/freedesktop/systemd1");
             wait_valid(systemd_manager, function() {
-                systemd_manager.Subscribe().
-                    fail(function (error) {
-                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                systemd_manager.Subscribe()
+                        .fail(function (error) {
+                            if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                             error.name != "org.freedesktop.DBus.Error.FileExists")
-                            console.warn("Subscribing to systemd signals failed", error);
-                    });
+                                console.warn("Subscribing to systemd signals failed", error);
+                        });
             });
         }
         wait_valid(systemd_manager, done);
@@ -168,20 +168,20 @@
         }
 
         with_systemd_manager(function () {
-            systemd_manager.LoadUnit(name).
-                done(function (path) {
-                    unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
-                    unit.addEventListener('changed', update_from_unit);
-                    wait_valid(unit, update_from_unit);
+            systemd_manager.LoadUnit(name)
+                    .done(function (path) {
+                        unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
+                        unit.addEventListener('changed', update_from_unit);
+                        wait_valid(unit, update_from_unit);
 
-                    service = systemd_client.proxy('org.freedesktop.systemd1.Service', path);
-                    service.addEventListener('changed', update_from_service);
-                    wait_valid(service, update_from_service);
-                }).
-                fail(function (error) {
-                    self.exists = false;
-                    self.dispatchEvent('changed');
-                });
+                        service = systemd_client.proxy('org.freedesktop.systemd1.Service', path);
+                        service.addEventListener('changed', update_from_service);
+                        wait_valid(service, update_from_service);
+                    })
+                    .fail(function (error) {
+                        self.exists = false;
+                        self.dispatchEvent('changed');
+                    });
         });
 
         function refresh() {
@@ -190,20 +190,20 @@
 
             function refresh_interface(path, iface) {
                 systemd_client.call(path,
-                                    "org.freedesktop.DBus.Properties", "GetAll", [ iface ]).
-                    fail(function (error) {
-                        console.log(error);
-                    }).
-                    done(function (result) {
-                        var props = { };
-                        for (var p in result[0])
-                            props[p] = result[0][p].v;
-                        var ifaces = { };
-                        ifaces[iface] = props;
-                        var data = { };
-                        data[unit.path] = ifaces;
-                        systemd_client.notify(data);
-                    });
+                                    "org.freedesktop.DBus.Properties", "GetAll", [ iface ])
+                        .fail(function (error) {
+                            console.log(error);
+                        })
+                        .done(function (result) {
+                            var props = { };
+                            for (var p in result[0])
+                                props[p] = result[0][p].v;
+                            var ifaces = { };
+                            ifaces[iface] = props;
+                            var data = { };
+                            data[unit.path] = ifaces;
+                            systemd_client.notify(data);
+                        });
             }
 
             refresh_interface(unit.path, "org.freedesktop.systemd1.Unit");
@@ -279,32 +279,32 @@
 
         function call_manager_with_job(method, args) {
             var dfd = cockpit.defer();
-            call_manager(method, args).
-                done(function (results) {
-                    var path = results[0];
-                    pending_jobs[path] = dfd;
-                }).
-                fail(function (error) {
-                    dfd.reject(error);
-                });
+            call_manager(method, args)
+                    .done(function (results) {
+                        var path = results[0];
+                        pending_jobs[path] = dfd;
+                    })
+                    .fail(function (error) {
+                        dfd.reject(error);
+                    });
             return dfd.promise();
         }
 
         function call_manager_with_reload(method, args) {
             return call_manager(method, args).then(function () {
                 var dfd = cockpit.defer();
-                call_manager("Reload", [ ]).
-                    done(function () { dfd.resolve() }).
-                    fail(function (error) {
+                call_manager("Reload", [ ])
+                        .done(function () { dfd.resolve() })
+                        .fail(function (error) {
                         // HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1560549
                         // some systemd versions disconnect too fast from the bus
-                        if (error.name === "org.freedesktop.DBus.Error.NoReply") {
-                            refresh();
-                            dfd.resolve();
-                        } else {
-                            dfd.reject(error);
-                        }
-                    });
+                            if (error.name === "org.freedesktop.DBus.Error.NoReply") {
+                                refresh();
+                                dfd.resolve();
+                            } else {
+                                dfd.reject(error);
+                            }
+                        });
                 return dfd.promise();
             });
         }

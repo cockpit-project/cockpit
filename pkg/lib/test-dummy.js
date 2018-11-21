@@ -21,8 +21,8 @@ var QUnit = require("qunit-tests");
 var assert = QUnit;
 
 function run_tests() {
-    QUnit.test( "hello test", function() {
-      assert.ok( 1 == "1", "Dummy test case" );
+    QUnit.test("hello test", function() {
+        assert.ok(1 == "1", "Dummy test case");
     });
     QUnit.start();
 }

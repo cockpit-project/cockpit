@@ -65,17 +65,17 @@
             events.stream(function(resp) {
                 util.docker_debug("event:", resp);
                 trigger_event();
-            }).
+            })
 
             /* Reconnect to /events when it disconnects/fails */
-            always(function() {
-                window.setTimeout(function() {
-                    if (alive && events) {
-                        connect_events();
-                        alive = false;
-                    }
-                }, 1000);
-            });
+                    .always(function() {
+                        window.setTimeout(function() {
+                            if (alive && events) {
+                                connect_events();
+                                alive = false;
+                            }
+                        }, 1000);
+                    });
         }
 
         /*
@@ -164,54 +164,53 @@
              * /events for notification when something changes as well as some
              * file monitoring.
              */
-            http.get("/v1.12/containers/json", { all: 1 }).
-                done(function(data) {
-                    var containers = JSON.parse(data);
-                    alive = true;
+            http.get("/v1.12/containers/json", { all: 1 })
+                    .done(function(data) {
+                        var containers = JSON.parse(data);
+                        alive = true;
 
-                    var seen = {};
-                    $(containers).each(function(i, item) {
-                        var id = item.Id;
-                        if (!id)
-                            return;
+                        var seen = {};
+                        $(containers).each(function(i, item) {
+                            var id = item.Id;
+                            if (!id)
+                                return;
 
-                        seen[id] = id;
-                        containers_meta[id] = item;
-                        http.get("/v1.12/containers/" + encodeURIComponent(id) + "/json").
-                            done(function(data) {
-                                var container = JSON.parse(data);
-                                populate_container(id, container);
-                                if (self.containers[id]) {
-                                    /* We need to rescue the CGroup
+                            seen[id] = id;
+                            containers_meta[id] = item;
+                            http.get("/v1.12/containers/" + encodeURIComponent(id) + "/json")
+                                    .done(function(data) {
+                                        var container = JSON.parse(data);
+                                        populate_container(id, container);
+                                        if (self.containers[id]) {
+                                            /* We need to rescue the CGroup
                                      * from the old instance since we
                                      * only set it once per ID in
                                      * update_usage_grid below.
                                      */
-                                    container.CGroup = self.containers[id].CGroup;
-                                }
-                                self.containers[id] = container;
-                                update_usage_grid();
-                                $(self).trigger("container", [id, container]);
-                            });
+                                            container.CGroup = self.containers[id].CGroup;
+                                        }
+                                        self.containers[id] = container;
+                                        update_usage_grid();
+                                        $(self).trigger("container", [id, container]);
+                                    });
+                        });
 
-                    });
+                        var removed = [];
+                        $.each(self.containers, function(id) {
+                            if (!seen[id])
+                                removed.push(id);
+                        });
 
-                    var removed = [];
-                    $.each(self.containers, function(id) {
-                        if (!seen[id])
-                            removed.push(id);
+                        $.each(removed, function(i, id) {
+                            remove_container(id);
+                        });
+                    })
+                    .fail(function(ex) {
+                        if (connected && !ignoreException(ex)) {
+                            got_failure = true;
+                            $(self).trigger("failure", [ex]);
+                        }
                     });
-
-                    $.each(removed, function(i, id) {
-                        remove_container(id);
-                    });
-                }).
-                fail(function(ex) {
-                    if (connected && !ignoreException(ex)) {
-                        got_failure = true;
-                        $(self).trigger("failure", [ex]);
-                    }
-                });
         }
 
         /* Various versions of docker + systemd use different scopes
@@ -269,7 +268,7 @@
                  */
                 if (limit > 1.115e18)
                     limit = undefined;
-                var cpu = samples[1][0]/10;
+                var cpu = samples[1][0] / 10;
                 var priority = samples[3][0];
                 if (mem != container.MemoryUsage ||
                     limit != container.MemoryLimit ||
@@ -316,64 +315,64 @@
             /*
              * Gets a list of images and keeps it up to date.
              */
-            http.get("/v1.12/images/json").
-                done(function(data) {
-                    var images = JSON.parse(data);
-                    alive = true;
+            http.get("/v1.12/images/json")
+                    .done(function(data) {
+                        var images = JSON.parse(data);
+                        alive = true;
 
-                    var seen = {};
-                    $.each(images, function(i, item) {
-                        var id = item.Id;
-                        if (!id)
-                            return;
+                        var seen = {};
+                        $.each(images, function(i, item) {
+                            var id = item.Id;
+                            if (!id)
+                                return;
 
-                        seen[id] = id;
-                        images_meta[id] = item;
-                        http.get("/v1.12/images/" + encodeURIComponent(id) + "/json").
-                            done(function(data) {
-                                var image = JSON.parse(data);
-                                populate_image(id, image);
-                                self.images[id] = image;
-                                $(self).trigger("image", [id, image]);
-                            });
+                            seen[id] = id;
+                            images_meta[id] = item;
+                            http.get("/v1.12/images/" + encodeURIComponent(id) + "/json")
+                                    .done(function(data) {
+                                        var image = JSON.parse(data);
+                                        populate_image(id, image);
+                                        self.images[id] = image;
+                                        $(self).trigger("image", [id, image]);
+                                    });
+                        });
+
+                        var removed = [];
+                        $.each(self.images, function(id) {
+                            if (!seen[id])
+                                removed.push(id);
+                        });
+
+                        $.each(removed, function(i, id) {
+                            remove_image(id);
+                        });
+                    })
+                    .fail(function(ex) {
+                        if (connected && !ignoreException(ex)) {
+                            got_failure = true;
+                            $(self).trigger("failure", [ex]);
+                        }
                     });
-
-                    var removed = [];
-                    $.each(self.images, function(id) {
-                        if (!seen[id])
-                            removed.push(id);
-                    });
-
-                    $.each(removed, function(i, id) {
-                        remove_image(id);
-                    });
-                }).
-                fail(function(ex) {
-                    if (connected && !ignoreException(ex)) {
-                        got_failure = true;
-                        $(self).trigger("failure", [ex]);
-                    }
-                });
         }
 
         function fetch_info() {
             http.get("/v1.12/info")
-                .fail(function(ex) {
-                    util.docker_debug("info failed:", ex);
+                    .fail(function(ex) {
+                        util.docker_debug("info failed:", ex);
 
-                    /* Failed to connect */
-                    if (connected && connected.state() == "pending")
-                        connected.reject(ex);
-                })
-                .done(function(data) {
-                    util.docker_debug("info:", data);
-                    self.info = data && JSON.parse(data);
-                    $(self).triggerHandler("info", self.info);
+                        /* Failed to connect */
+                        if (connected && connected.state() == "pending")
+                            connected.reject(ex);
+                    })
+                    .done(function(data) {
+                        util.docker_debug("info:", data);
+                        self.info = data && JSON.parse(data);
+                        $(self).triggerHandler("info", self.info);
 
-                    /* Ready to display stuff */
-                    if (connected && connected.state() == "pending")
-                        connected.resolve();
-                });
+                        /* Ready to display stuff */
+                        if (connected && connected.state() == "pending")
+                            connected.resolve();
+                    });
         }
 
         $(self).on("event", function() {
@@ -397,13 +396,13 @@
             function got_info() {
                 watch = cockpit.channel({ payload: "fslist1", path: self.info["DockerRootDir"], superuser: "try" });
                 $(watch)
-                    .on("message", function(event, data) {
-                        trigger_event();
-                    })
-                    .on("close", function(event, options) {
-                        if (options.problem && options.problem != "not-found")
-                            console.warn("monitor for docker directory failed: " + options.problem);
-                    });
+                        .on("message", function(event, data) {
+                            trigger_event();
+                        })
+                        .on("close", function(event, options) {
+                            if (options.problem && options.problem != "not-found")
+                                console.warn("monitor for docker directory failed: " + options.problem);
+                        });
                 $(self).off("info", got_info);
             }
 
@@ -416,18 +415,18 @@
                                                     { source: "internal",
                                                       metrics: [ { name: "cgroup.memory.usage",
                                                                    units: "bytes"
-                                                                 },
-                                                                 { name: "cgroup.cpu.usage",
-                                                                   units: "millisec",
-                                                                   derive: "rate"
-                                                                 },
-                                                                 { name: "cgroup.memory.limit",
-                                                                   units: "bytes"
-                                                                 },
-                                                                 { name: "cgroup.cpu.shares",
-                                                                   units: "count"
-                                                                 }
-                                                               ]
+                                                      },
+                                                      { name: "cgroup.cpu.usage",
+                                                        units: "millisec",
+                                                        derive: "rate"
+                                                      },
+                                                      { name: "cgroup.memory.limit",
+                                                        units: "bytes"
+                                                      },
+                                                      { name: "cgroup.cpu.shares",
+                                                        units: "count"
+                                                      }
+                                                      ]
                                                     });
 
             $(usage_metrics_channel).on("changed", function() {
@@ -480,15 +479,15 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(options || { })
             })
-                .fail(function(ex) {
-                    util.docker_debug("start failed:", id, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("started:", id, resp);
-                })
-                .always(function() {
-                    not_waiting(id);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("start failed:", id, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("started:", id, resp);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    });
         };
 
         this.stop = function stop(id, timeout) {
@@ -502,15 +501,15 @@
                 params: { 't': timeout },
                 body: ""
             })
-                .fail(function(ex) {
-                    util.docker_debug("stop failed:", id, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("stopped:", id, resp);
-                })
-                .always(function() {
-                    not_waiting(id);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("stop failed:", id, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("stopped:", id, resp);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    });
         };
 
         this.restart = function restart(id, timeout) {
@@ -524,15 +523,15 @@
                 params: { 't': timeout },
                 body: ""
             })
-                .fail(function(ex) {
-                    util.docker_debug("restart failed:", id, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("restarted:", id, resp);
-                })
-                .always(function() {
-                    not_waiting(id);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("restart failed:", id, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("restarted:", id, resp);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    });
         };
 
         this.create = function create(name, options) {
@@ -545,24 +544,24 @@
                 headers: { "Content-Type": "application/json" },
                 body: body,
             })
-                .fail(function(ex) {
-                    util.docker_debug("create failed:", name, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("created:", name, resp);
-                })
-                .then(JSON.parse);
+                    .fail(function(ex) {
+                        util.docker_debug("create failed:", name, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("created:", name, resp);
+                    })
+                    .then(JSON.parse);
         };
 
         this.search = function search(term) {
             util.docker_debug("searching:", term);
             return http.get("/v1.12/images/search", { "term": term })
-                .fail(function(ex) {
-                    util.docker_debug("search failed:", term, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("searched:", term, resp);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("search failed:", term, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("searched:", term, resp);
+                    });
         };
 
         this.commit = function create(id, repotag, options, run_config) {
@@ -581,16 +580,16 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(run_config || { })
             })
-                .fail(function(ex) {
-                    util.docker_debug("commit failed:", repotag, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("committed:", repotag);
-                })
-                .always(function() {
-                    not_waiting(id);
-                })
-                .then(JSON.parse);
+                    .fail(function(ex) {
+                        util.docker_debug("commit failed:", repotag, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("committed:", repotag);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    })
+                    .then(JSON.parse);
         };
 
         this.rm = function rm(id, forced) {
@@ -604,16 +603,16 @@
                 params: { "force": forced },
                 body: ""
             })
-                .fail(function(ex) {
-                    util.docker_debug("delete failed:", id, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("deleted:", id, resp);
-                    remove_container(id);
-                })
-                .always(function() {
-                    not_waiting(id);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("delete failed:", id, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("deleted:", id, resp);
+                        remove_container(id);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    });
         };
 
         this.rmi = function rmi(id, forced) {
@@ -626,16 +625,16 @@
                 params: { "force": forced },
                 body: ""
             })
-                .fail(function(ex) {
-                    util.docker_debug("delete failed:", id, ex);
-                })
-                .done(function(resp) {
-                    util.docker_debug("deleted:", id, resp);
-                    remove_image(id);
-                })
-                .always(function() {
-                    not_waiting(id);
-                });
+                    .fail(function(ex) {
+                        util.docker_debug("delete failed:", id, ex);
+                    })
+                    .done(function(resp) {
+                        util.docker_debug("deleted:", id, resp);
+                        remove_image(id);
+                    })
+                    .always(function() {
+                        not_waiting(id);
+                    });
         };
 
         this.pull = function (repo, tag, registry) {
@@ -643,28 +642,28 @@
                 name: repo
             };
 
-            docker.pull(repo, tag, registry).
-                progress(function(message, progress) {
-                    job.status = progress.status;
-                    if (progress.progressDetail && 'current' in progress.progressDetail && 'total' in progress.progressDetail)
-                        job.progress = progress.progressDetail;
-                    else
+            docker.pull(repo, tag, registry)
+                    .progress(function(message, progress) {
+                        job.status = progress.status;
+                        if (progress.progressDetail && 'current' in progress.progressDetail && 'total' in progress.progressDetail)
+                            job.progress = progress.progressDetail;
+                        else
+                            delete job.progress;
+                        $(self).trigger("pulling");
+                    })
+                    .done(function () {
+                        self.pulling = self.pulling.filter(function (j) {
+                            return j !== job;
+                        });
+                        $(self).trigger("pulling");
+                    })
+                    .fail(function (error) {
+                        job.status = 'Error getting image: ' + error.message;
                         delete job.progress;
-                    $(self).trigger("pulling");
-                }).
-                done(function () {
-                    self.pulling = self.pulling.filter(function (j) {
-                        return j !== job;
+                        $(self).trigger("pulling");
                     });
-                    $(self).trigger("pulling");
-                }).
-                fail(function (error) {
-                    job.status = 'Error getting image: ' + error.message;
-                    delete job.progress;
-                    $(self).trigger("pulling");
-                });
 
-           self.pulling.push(job);
+            self.pulling.push(job);
         };
 
         function change_cgroup(directory, cgroup, filename, value) {
@@ -684,14 +683,14 @@
             /* The order in which we set memory.memsw and memory is important. */
             if (value === -1) {
                 return change_cgroup("memory", cgroup, "memory.memsw.limit_in_bytes", -1)
-                    .then(function() {
-                        return change_cgroup("memory", cgroup, "memory.limit_in_bytes", -1);
-                    });
+                        .then(function() {
+                            return change_cgroup("memory", cgroup, "memory.limit_in_bytes", -1);
+                        });
             } else {
                 return change_cgroup("memory", cgroup, "memory.limit_in_bytes", value)
-                    .then(function() {
-                        return change_cgroup("memory", cgroup, "memory.memsw.limit_in_bytes", value * 2);
-                    });
+                        .then(function() {
+                            return change_cgroup("memory", cgroup, "memory.memsw.limit_in_bytes", value * 2);
+                        });
             }
         };
 
@@ -715,7 +714,7 @@
         };
 
         this.connect = function connect() {
-            if(!connected)
+            if (!connected)
                 perform_connect();
             return connected.promise();
         };
@@ -730,13 +729,14 @@
 
         this.containers_for_image = function containers_for_image(id) {
             util.docker_debug('containers search on image id: ', id);
-            return http.get('/v1.12/containers/json', { all: 1 , filters: JSON.stringify({ ancestor: [ id ] }) })
-                .fail(function(ex) {
-                    util.docker_debug('containers search on image id failed:', id, ex);
-                })
-                .done(function(data) {
-                    util.docker_debug('containers search on image id succeeded:', id);
-                }).then(JSON.parse);
+            return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [ id ] }) })
+                    .fail(function(ex) {
+                        util.docker_debug('containers search on image id failed:', id, ex);
+                    })
+                    .done(function(data) {
+                        util.docker_debug('containers search on image id succeeded:', id);
+                    })
+                    .then(JSON.parse);
         };
 
         /* Initially empty info data */
@@ -752,5 +752,4 @@
             return client;
         }
     };
-
 }());

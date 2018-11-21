@@ -111,21 +111,21 @@
 
         /* When the machine list is ready we start processing navigation */
         $(machines)
-            .on("ready", on_ready)
-            .on("added updated", function(ev, machine) {
-                if (!machine.visible)
-                    index.frames.remove(machine);
-                else if (machine.problem)
-                    index.frames.remove(machine);
+                .on("ready", on_ready)
+                .on("added updated", function(ev, machine) {
+                    if (!machine.visible)
+                        index.frames.remove(machine);
+                    else if (machine.problem)
+                        index.frames.remove(machine);
 
-                update_machines();
-                if (ready)
-                    navigate();
-            })
-            .on("removed", function(ev, machine) {
-                index.frames.remove(machine);
-                update_machines();
-            });
+                    update_machines();
+                    if (ready)
+                        navigate();
+                })
+                .on("removed", function(ev, machine) {
+                    index.frames.remove(machine);
+                    update_machines();
+                });
 
         if (machines.ready)
             on_ready();
@@ -267,10 +267,10 @@
                 var listItem;
 
                 listItem = $("<li class='list-group-item'>")
-                    .toggleClass("active", active)
-                    .append($("<a>")
-                        .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
-                        .append($("<span>").text(component.label)));
+                        .toggleClass("active", active)
+                        .append($("<a>")
+                                .attr("href", index.href({ host: machine.address, component: component.path, hash: component.hash }))
+                                .append($("<span>").text(component.label)));
 
                 if (active)
                     listItem.find('a').attr("aria-current", "page");
@@ -279,13 +279,15 @@
             }
 
             var menu = compiled.ordered("menu").map(links);
-            $("#sidebar-menu").empty().append(menu);
+            $("#sidebar-menu").empty()
+                    .append(menu);
 
             var tools = compiled.ordered("tools").map(links);
-            $("#sidebar-tools").empty().append(tools);
+            $("#sidebar-tools").empty()
+                    .append(tools);
 
             $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) :
-                                                "../shell/images/server-small.png");
+                "../shell/images/server-small.png");
 
             var color = machine && machine.color || "";
             $("#host-nav-item span.pficon-container-node").css("color", color);
@@ -302,11 +304,13 @@
         function update_active_machine (address) {
             var active_sel;
             $("#machine-dropdown ul li").toggleClass("active", false)
-                .find("a").removeAttr("aria-current");
+                    .find("a")
+                    .removeAttr("aria-current");
             if (address) {
                 active_sel = "#machine-dropdown ul li[data-address='" + address + "']";
                 $(active_sel).toggleClass("active", true)
-                    .find("a").attr("aria-current", "page");
+                        .find("a")
+                        .attr("aria-current", "page");
             }
         }
 
@@ -330,9 +334,9 @@
 
             $("#host-nav-link span.list-group-item-value").text(machine ? machine.label : "");
             $("#host-nav-link")
-                .attr("aria-label", _("Host"))
-                .attr("data-machine", machine ? machine.address : "")
-                .attr("href", index.href({ host: machine ? machine.address : undefined }, true));
+                    .attr("aria-label", _("Host"))
+                    .attr("data-machine", machine ? machine.address : "")
+                    .attr("href", index.href({ host: machine ? machine.address : undefined }, true));
 
             // Only show the hosts icon in the main nav if we have a machine
             $("#host-nav-item").toggleClass("dashboard-link", !!machine);
@@ -354,11 +358,13 @@
                 // Mark active component and save our place
                 if (data && data === state.component) {
                     el.attr("href", index.href(state))
-                        .toggleClass("active", true)
-                        .find("a").attr("aria-current", "page");
+                            .toggleClass("active", true)
+                            .find("a")
+                            .attr("aria-current", "page");
                 } else {
                     el.toggleClass("active", false)
-                        .find("a").removeAttr("aria-current");
+                            .find("a")
+                            .removeAttr("aria-current");
                 }
             });
 
@@ -422,9 +428,9 @@
 
                 if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
                     $("#machine-troubleshoot").off()
-                        .on("click", function () {
-                            mdialogs.troubleshoot("troubleshoot-dialog", machine);
-                        });
+                            .on("click", function () {
+                                mdialogs.troubleshoot("troubleshoot-dialog", machine);
+                            });
                     $("#machine-troubleshoot").show();
                 } else {
                     $("#machine-troubleshoot").hide();
@@ -442,7 +448,7 @@
 
                 update_title(null, machine);
 
-                /* Fall through when connecting, and allow frame to load at same time*/
+                /* Fall through when connecting, and allow frame to load at same time */
                 if (!connecting)
                     return;
             }
@@ -481,7 +487,7 @@
 
         function update_machines() {
             $("#machine-dropdown .caret")
-                .toggle(machines.list.length > 1);
+                    .toggle(machines.list.length > 1);
 
             var machine_link = $("#machine-link");
             if (machines.list.length > 1)
@@ -492,24 +498,25 @@
             var list = $("#machine-dropdown ul");
             var links = machines.list.map(function(machine) {
                 var text = $("<span>")
-                    .text(machine.label)
-                    .prepend($("<i>")
-                        .attr("class", "fa-li fa fa-circle")
-                        .css("color", machine.color || ""));
+                        .text(machine.label)
+                        .prepend($("<i>")
+                                .attr("class", "fa-li fa fa-circle")
+                                .css("color", machine.color || ""));
                 return $("<li role='presentation'>")
-                    .attr("data-address", machine.address)
-                    .append($("<a>")
-                        .attr("role", "menuitem")
-                        .attr("tabindex", "-1")
                         .attr("data-address", machine.address)
-                        .attr("href", index.href({ host: machine.address }, true))
-                        .append(text));
-                });
+                        .append($("<a>")
+                                .attr("role", "menuitem")
+                                .attr("tabindex", "-1")
+                                .attr("data-address", machine.address)
+                                .attr("href", index.href({ host: machine.address }, true))
+                                .append(text));
+            });
             list.empty().append(links);
         }
 
         function filter_machines () {
-            var val = $("#find-machine").val().toLowerCase();
+            var val = $("#find-machine").val()
+                    .toLowerCase();
             $("#machine-dropdown ul li").each(function() {
                 var el = $(this);
                 var a = el.find('a').first();
@@ -640,7 +647,6 @@
                 delete state.sidebar;
 
             $('.area-ct-body').toggleClass("single-nav", $(".dashboard-link").length < 2);
-
         }
 
         function update_title(label) {
@@ -708,5 +714,4 @@
 
         window.addEventListener("message", message_queue, false);
     }
-
 }());

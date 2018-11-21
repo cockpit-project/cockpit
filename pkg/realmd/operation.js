@@ -46,10 +46,10 @@
 
         $(".realms-op-apply").on("click", perform);
         $(".realms-op-field")
-            .on("keydown", function(ev) {
-                if (ev.which == 13)
-                    perform();
-            });
+                .on("keydown", function(ev) {
+                    if (ev.which == 13)
+                        perform();
+                });
 
         $(dialog).on("click", ".realms-op-more-diagnostics", function() {
             $(".realms-op-error").hide();
@@ -135,54 +135,54 @@
             });
 
             realmd.call(MANAGER, PROVIDER, "Discover", [ name, { } ])
-                .always(function() {
-
-                    if ($(".realms-op-address").val() != name) {
-                        dfd.reject();
-                        check();
-                        return;
-                    }
-
-                    var error, result = [], path;
-                    if (this.state() == "rejected") {
-                        error = arguments[0];
-                        $(".realms-op-message")
-                            .empty()
-                            .text(error.message);
-                        dfd.reject(error);
-                    }
-
-                    var message;
-                    if (arguments[0][1])
-                        result = arguments[0][1];
-                    path = result[0]; /* the first realm */
-
-                    if (!path) {
-                        if (name) {
-                            message = cockpit.format(_("Domain $0 could not be contacted"), name);
-                            $(".realms-op-address-error").show().attr('title', message);
+                    .always(function() {
+                        if ($(".realms-op-address").val() != name) {
+                            dfd.reject();
+                            check();
+                            return;
                         }
 
-                        realm = null;
-                        kerberos_membership = null;
-                        kerberos = null;
+                        var error, result = [], path;
+                        if (this.state() == "rejected") {
+                            error = arguments[0];
+                            $(".realms-op-message")
+                                    .empty()
+                                    .text(error.message);
+                            dfd.reject(error);
+                        }
 
-                        dfd.reject(new Error(message));
-                    } else {
-                        kerberos_membership = realmd.proxy(KERBEROS_MEMBERSHIP, path);
-                        $(kerberos_membership).on("changed", update);
+                        var message;
+                        if (arguments[0][1])
+                            result = arguments[0][1];
+                        path = result[0]; /* the first realm */
 
-                        kerberos = realmd.proxy(KERBEROS, path);
+                        if (!path) {
+                            if (name) {
+                                message = cockpit.format(_("Domain $0 could not be contacted"), name);
+                                $(".realms-op-address-error").show()
+                                        .attr('title', message);
+                            }
 
-                        realm = realmd.proxy(REALM, path);
-                        $(realm).on("changed", update);
-                        realm.wait(function() {
-                            dfd.resolve(realm);
-                        });
-                    }
+                            realm = null;
+                            kerberos_membership = null;
+                            kerberos = null;
 
-                    update();
-                });
+                            dfd.reject(new Error(message));
+                        } else {
+                            kerberos_membership = realmd.proxy(KERBEROS_MEMBERSHIP, path);
+                            $(kerberos_membership).on("changed", update);
+
+                            kerberos = realmd.proxy(KERBEROS, path);
+
+                            realm = realmd.proxy(REALM, path);
+                            $(realm).on("changed", update);
+                            realm.wait(function() {
+                                dfd.resolve(realm);
+                            });
+                        }
+
+                        update();
+                    });
 
             checking = dfd.promise();
             checked = name;
@@ -220,7 +220,6 @@
             return result;
         }
 
-
         function update() {
             var message;
 
@@ -235,7 +234,8 @@
             if (realm && kerberos_membership && !kerberos_membership.valid) {
                 message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
                 $(".realms-op-address-spinner").hide();
-                $(".realms-op-address-error").show().attr('title', message);
+                $(".realms-op-address-error").show()
+                        .attr('title', message);
             } else {
                 $(".realms-op-address-error").hide();
             }
@@ -273,7 +273,8 @@
                 for (i = 0; i < length; i++) {
                     if ((!owner || owner == supported[i][1]) && type == supported[i][0]) {
                         choice = type + "/" + supported[i][1];
-                        item = $("<li>").attr("data-value", choice).append($("<a>").text(text));
+                        item = $("<li>").attr("data-value", choice)
+                                .append($("<a>").text(text));
                         list.append(item);
                         if (first) {
                             auth_changed(item);
@@ -394,26 +395,26 @@
 
             kerberos = realmd.proxy(KERBEROS, realm.path);
             kerberos.wait()
-                .done(function() {
+                    .done(function() {
                     // ipa-rmkeytab needs root
-                    var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
+                        var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';
 
-                    // clean up keytab
-                    script += '[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
+                        // clean up keytab
+                        script += '[ ! -e /etc/cockpit/krb5.keytab ] || ipa-rmkeytab -k /etc/cockpit/krb5.keytab -p ' +
                         '"HTTP/$(hostname -f)@' + kerberos.RealmName + '"; ';
 
-                    // clean up certificate
-                    script += 'ipa-getcert stop-tracking -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key; ' +
+                        // clean up certificate
+                        script += 'ipa-getcert stop-tracking -f /run/cockpit/ipa.crt -k /run/cockpit/ipa.key; ' +
                               'rm -f /etc/cockpit/ws-certs.d/10-ipa.cert; ';
 
-                    cockpit.script(script, [], { superuser: "require", err: "message" })
-                        .done(dfd.resolve)
-                        .fail(function(ex) {
-                            console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));
-                            dfd.resolve();
-                        });
-                })
-                .fail(dfd.resolve); // no Kerberos domain? nevermind then
+                        cockpit.script(script, [], { superuser: "require", err: "message" })
+                                .done(dfd.resolve)
+                                .fail(function(ex) {
+                                    console.log("Failed to clean up SPN from /etc/cockpit/krb5.keytab:", JSON.stringify(ex));
+                                    dfd.resolve();
+                                });
+                    })
+                    .fail(dfd.resolve); // no Kerberos domain? nevermind then
 
             return dfd.promise();
         }
@@ -427,67 +428,70 @@
             $(".realms-op-error").hide();
 
             ensure()
-                .fail(function() {
-                    busy(null);
-                })
-                .done(function(realm) {
-                    var options = { operation: cockpit.variant('s', id) };
+                    .fail(function() {
+                        busy(null);
+                    })
+                    .done(function(realm) {
+                        var options = { operation: cockpit.variant('s', id) };
 
-                    $(".realms-op-message").empty();
-                    $(".realms-op-diagnostics").empty().hide();
+                        $(".realms-op-message").empty();
+                        $(".realms-op-diagnostics").empty()
+                                .hide();
 
-                    var diagnostics = "";
-                    var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
-                        if (args[1] === id) {
-                            diagnostics += args[0];
-                        }
-                    });
-
-                    var call, computer_ou;
-                    if (mode == 'join') {
-                        computer_ou = $(".realms-join-computer-ou").val();
-                        if (computer_ou)
-                            options["computer-ou"] = cockpit.variant('s', computer_ou);
-                        if (kerberos_membership.valid) {
-                            call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_credentials);
-                        } else {
-                            busy(null);
-                            $(".realms-op-message").empty().text(_("Joining this domain is not supported"));
-                            $(".realms-op-error").show();
-                        }
-                    } else if (mode == 'leave') {
-                        call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options) });
-                    }
-
-                    if (!call) {
-                        sub.remove();
-                        return;
-                    }
-
-                    call
-                        .fail(function(ex) {
-                            busy(null);
-                            if (ex.name == "org.freedesktop.realmd.Error.Cancelled") {
-                                $(dialog).modal("hide");
-                            } else {
-                                console.log("Failed to " + mode + " domain: " + realm.Name + ": " + ex);
-                                $(".realms-op-message").empty().text(ex + " ");
-                                $(".realms-op-error").show();
-                                if (diagnostics) {
-                                    $(".realms-op-message")
-                                        .append('<a class="realms-op-more-diagnostics">' + _("More") + '</a>');
-                                    $(".realms-op-diagnostics").text(diagnostics);
-                                }
+                        var diagnostics = "";
+                        var sub = realmd.subscribe({ member: "Diagnostics" }, function(path, iface, signal, args) {
+                            if (args[1] === id) {
+                                diagnostics += args[0];
                             }
-                        })
-                        .done(function() {
-                            busy(null);
-                            $(dialog).modal("hide");
-                        })
-                        .always(function() {
-                            sub.remove();
                         });
-                });
+
+                        var call, computer_ou;
+                        if (mode == 'join') {
+                            computer_ou = $(".realms-join-computer-ou").val();
+                            if (computer_ou)
+                                options["computer-ou"] = cockpit.variant('s', computer_ou);
+                            if (kerberos_membership.valid) {
+                                call = kerberos_membership.call("Join", [ credentials(), options ]).then(install_ws_credentials);
+                            } else {
+                                busy(null);
+                                $(".realms-op-message").empty()
+                                        .text(_("Joining this domain is not supported"));
+                                $(".realms-op-error").show();
+                            }
+                        } else if (mode == 'leave') {
+                            call = cleanup_ws_credentials().then(function() { realm.Deconfigure(options) });
+                        }
+
+                        if (!call) {
+                            sub.remove();
+                            return;
+                        }
+
+                        call
+                                .fail(function(ex) {
+                                    busy(null);
+                                    if (ex.name == "org.freedesktop.realmd.Error.Cancelled") {
+                                        $(dialog).modal("hide");
+                                    } else {
+                                        console.log("Failed to " + mode + " domain: " + realm.Name + ": " + ex);
+                                        $(".realms-op-message").empty()
+                                                .text(ex + " ");
+                                        $(".realms-op-error").show();
+                                        if (diagnostics) {
+                                            $(".realms-op-message")
+                                                    .append('<a class="realms-op-more-diagnostics">' + _("More") + '</a>');
+                                            $(".realms-op-diagnostics").text(diagnostics);
+                                        }
+                                    }
+                                })
+                                .done(function() {
+                                    busy(null);
+                                    $(dialog).modal("hide");
+                                })
+                                .always(function() {
+                                    sub.remove();
+                                });
+                    });
         }
 
         function busy(id) {
@@ -526,9 +530,9 @@
 
         function setTooltip(message) {
             element
-                .attr('title', message)
-                .tooltip({ container: 'body'})
-                .tooltip('fixTitle');
+                    .attr('title', message)
+                    .tooltip({ container: 'body'})
+                    .tooltip('fixTitle');
         }
 
         function update_realms() {
@@ -583,8 +587,8 @@
 
                 function update_realm_privileged() {
                     $(link).update_privileged(permission,
-                            cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
-                                permission.user ? permission.user.name : ''), null, element);
+                                              cockpit.format(_("The user <b>$0</b> is not permitted to modify realms"),
+                                                             permission.user ? permission.user.name : ''), null, element);
                 }
 
                 $(permission).on("changed", update_realm_privileged);
@@ -595,14 +599,14 @@
 
         function handle_install_realmd() {
             install_dialog("realmd")
-                .then(function() {
-                    install_realmd = false;
-                    setup_realms_proxy();
-                    element.tooltip('disable');
-                    // proceed to domain join dialog after realmd initialized
-                    realms.wait().done(handle_link_click);
-                })
-                .catch(function() { }); // dialog cancelled
+                    .then(function() {
+                        install_realmd = false;
+                        setup_realms_proxy();
+                        element.tooltip('disable');
+                        // proceed to domain join dialog after realmd initialized
+                        realms.wait().done(handle_link_click);
+                    })
+                    .catch(function() { }); // dialog cancelled
         }
 
         var dialog = null;
@@ -621,9 +625,9 @@
                 dialog = instance(realmd, 'join', null, link);
 
             $(dialog)
-                .attr("id", "realms-op")
-                .appendTo("body")
-                .modal('show');
+                    .attr("id", "realms-op")
+                    .appendTo("body")
+                    .modal('show');
             cockpit.translate();
         }
 

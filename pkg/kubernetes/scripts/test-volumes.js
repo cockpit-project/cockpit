@@ -37,14 +37,14 @@ function suite(fixtures) {
         "kubeUtils",
     ])
 
-    .config([
-        'KubeTranslateProvider',
-        'KubeFormatProvider',
-        function(KubeTranslateProvider, KubeFormatProvider) {
-            KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
-            KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
-        }
-    ]);
+            .config([
+                'KubeTranslateProvider',
+                'KubeFormatProvider',
+                function(KubeTranslateProvider, KubeFormatProvider) {
+                    KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
+                    KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
+                }
+            ]);
 
     function volumesTest(name, count, fixtures, func) {
         QUnit.test(name, function() {
@@ -65,7 +65,9 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var claim = select().kind("PersistentVolumeClaim").name("bound-claim").one();
+            var claim = select().kind("PersistentVolumeClaim")
+                    .name("bound-claim")
+                    .one();
             var pods = volumeData.podsForClaim(claim);
             assert.equal(pods.length, 1, "number of pods");
             assert.equal(pods.one().metadata.name, "mock-pod", "correct pod");
@@ -82,61 +84,62 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var pod = select().kind("Pod").one();
+            var pod = select().kind("Pod")
+                    .one();
             var volumes = volumeData.volumesForPod(pod);
             assert.deepEqual(volumes, {
-              "default-token-luvqo": {
-                "name": "default-token-luvqo",
-                "secret": {
-                    "secretName": "default-token-luvqo"
-                },
-                "mounts": {
-                  "mock-volume-container": {
-                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "default-token-luvqo": {
                     "name": "default-token-luvqo",
-                    "readOnly": true
-                  },
-                  "mock-volume-container1": {
-                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
-                    "name": "default-token-luvqo",
-                    "readOnly": true
-                  }
-                }
-              },
-              "host-tmp": {
-                "mounts": {
-                  "mock-volume-container": {
-                    "mountPath": "/other",
-                    "name": "host-tmp"
-                  },
-                  "mock-volume-container1": {
-                    "mountPath": "/tmp",
-                    "name": "host-tmp"
-                  }
+                    "secret": {
+                        "secretName": "default-token-luvqo"
+                    },
+                    "mounts": {
+                        "mock-volume-container": {
+                            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                            "name": "default-token-luvqo",
+                            "readOnly": true
+                        },
+                        "mock-volume-container1": {
+                            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                            "name": "default-token-luvqo",
+                            "readOnly": true
+                        }
+                    }
                 },
-                "name": "host-tmp",
-                "persistentVolumeClaim": {
-                  "claimName": "bound-claim"
-                }
-              },
-              "missing-claim": {
-                "mounts": {
-                  "mock-volume-container": {
-                    "mountPath": "/tmp",
-                    "name": "missing-claim"
-                  }
+                "host-tmp": {
+                    "mounts": {
+                        "mock-volume-container": {
+                            "mountPath": "/other",
+                            "name": "host-tmp"
+                        },
+                        "mock-volume-container1": {
+                            "mountPath": "/tmp",
+                            "name": "host-tmp"
+                        }
+                    },
+                    "name": "host-tmp",
+                    "persistentVolumeClaim": {
+                        "claimName": "bound-claim"
+                    }
                 },
-                "name": "missing-claim",
-                "persistentVolumeClaim": {
-                  "claimName": "missing-claim"
+                "missing-claim": {
+                    "mounts": {
+                        "mock-volume-container": {
+                            "mountPath": "/tmp",
+                            "name": "missing-claim"
+                        }
+                    },
+                    "name": "missing-claim",
+                    "persistentVolumeClaim": {
+                        "claimName": "missing-claim"
+                    }
+                },
+                "missing-claim2": {
+                    "name": "missing-claim2",
+                    "persistentVolumeClaim": {
+                        "claimName": "missing-claim2"
+                    }
                 }
-              },
-              "missing-claim2": {
-                "name": "missing-claim2",
-                "persistentVolumeClaim": {
-                  "claimName": "missing-claim2"
-                }
-              }
             });
             assert.equal(volumes, volumeData.volumesForPod(pod), "same object");
 
@@ -149,7 +152,8 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var pod = select().kind("Pod").one();
+            var pod = select().kind("Pod")
+                    .one();
             var volumes = volumeData.volumesForPod(pod);
             var source = volumes["host-tmp"]["persistentVolumeClaim"];
             var claim = volumeData.claimFromVolumeSource(source, "default");
@@ -165,13 +169,17 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var bound = select().kind("PersistentVolume").name("bound").one();
+            var bound = select().kind("PersistentVolume")
+                    .name("bound")
+                    .one();
             var claim = volumeData.claimForVolume(bound);
 
             assert.equal(claim.metadata.name, "bound-claim", "correct claim");
             assert.equal(claim.kind, "PersistentVolumeClaim", "correct claim");
 
-            var unbound = select().kind("PersistentVolume").name("unbound").one();
+            var unbound = select().kind("PersistentVolume")
+                    .name("unbound")
+                    .one();
             assert.equal(volumeData.claimForVolume(unbound), null, "no claim");
 
             assert.equal(volumeData.claimForVolume(), null, "null volume");
@@ -183,10 +191,14 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var claim = select().kind("PersistentVolumeClaim").statusPhase("Bound").one();
+            var claim = select().kind("PersistentVolumeClaim")
+                    .statusPhase("Bound")
+                    .one();
             assert.equal(claim.metadata.name, "bound-claim", "select bound claims");
 
-            var pending = select().kind("PersistentVolumeClaim").statusPhase("Pending").one();
+            var pending = select().kind("PersistentVolumeClaim")
+                    .statusPhase("Pending")
+                    .one();
             assert.equal(pending.metadata.name, "unbound-claim", "select unbound claims");
         }
     ]);
@@ -195,8 +207,11 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var pv = select().kind("PersistentVolume").name("bound").one();
-            var volumes = volumeData.volumesForPod(select().kind("Pod").one());
+            var pv = select().kind("PersistentVolume")
+                    .name("bound")
+                    .one();
+            var volumes = volumeData.volumesForPod(select().kind("Pod")
+                    .one());
             assert.equal(volumeData.getVolumeType(pv.spec), "nfs", "correct type");
             assert.equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
             assert.equal(volumeData.getVolumeType(), undefined, "null volume");
@@ -208,7 +223,9 @@ function suite(fixtures) {
         "volumeData",
         'kubeSelect',
         function(volumeData, select) {
-            var pv = select().kind("PersistentVolume").name("bound").one();
+            var pv = select().kind("PersistentVolume")
+                    .name("bound")
+                    .one();
             assert.equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
             assert.equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
             assert.equal(volumeData.getVolumeLabel(pv.spec), "NFS Mount", "volume label");
@@ -220,37 +237,38 @@ function suite(fixtures) {
         "kubeSelect",
         function(volumeFields, select) {
             var blank_fields = {
-              "accessModes": {
-                "ReadOnlyMany": "Read only from multiple nodes",
-                "ReadWriteMany": "Read and write from multiple nodes",
-                "ReadWriteOnce": "Read and write from a single node"
-              },
-              "capacity": "",
-              "policy": "Retain",
-              "reclaimPolicies": {
-                "Delete": "Delete",
-                "Recycle": "Recycle",
-                "Retain": "Retain"
-              }
+                "accessModes": {
+                    "ReadOnlyMany": "Read only from multiple nodes",
+                    "ReadWriteMany": "Read and write from multiple nodes",
+                    "ReadWriteOnce": "Read and write from a single node"
+                },
+                "capacity": "",
+                "policy": "Retain",
+                "reclaimPolicies": {
+                    "Delete": "Delete",
+                    "Recycle": "Recycle",
+                    "Retain": "Retain"
+                }
             };
 
             assert.deepEqual(blank_fields, volumeFields.build(), "default fields");
             assert.deepEqual(blank_fields, volumeFields.build({}), "empty fields");
             assert.deepEqual({
-              "accessModes": {
-                "ReadOnlyMany": "Read only from multiple nodes",
-                "ReadWriteMany": "Read and write from multiple nodes",
-                "ReadWriteOnce": "Read and write from a single node"
-              },
-              "capacity": "2Gi",
-              "policy": "Retain",
-              "ReadWriteMany": true,
-              "reclaimPolicies": {
-                "Delete": "Delete",
-                "Recycle": "Recycle",
-                "Retain": "Retain"
-              }
-            }, volumeFields.build(select().name("available").one()), "default fields");
+                "accessModes": {
+                    "ReadOnlyMany": "Read only from multiple nodes",
+                    "ReadWriteMany": "Read and write from multiple nodes",
+                    "ReadWriteOnce": "Read and write from a single node"
+                },
+                "capacity": "2Gi",
+                "policy": "Retain",
+                "ReadWriteMany": true,
+                "reclaimPolicies": {
+                    "Delete": "Delete",
+                    "Recycle": "Recycle",
+                    "Retain": "Retain"
+                }
+            }, volumeFields.build(select().name("available")
+                    .one()), "default fields");
         }
     ]);
 
@@ -292,20 +310,20 @@ function suite(fixtures) {
             };
             var spec = {
                 "accessModes": [
-                  "mode1"
+                    "mode1"
                 ],
                 "capacity": {
-                  "storage": "2Gi"
+                    "storage": "2Gi"
                 },
                 "persistentVolumeReclaimPolicy": "policy1"
             };
             result = volumeFields.validate(null, valid);
             assert.deepEqual(result.data, {
-              "kind": "PersistentVolume",
-              "metadata": {
-                "name": "name"
-              },
-              "spec": spec
+                "kind": "PersistentVolume",
+                "metadata": {
+                    "name": "name"
+                },
+                "spec": spec
             }, "no item full object");
             assert.equal(result.errors.length, 0);
 
@@ -320,26 +338,27 @@ function suite(fixtures) {
         function(gfs, select) {
             var endpoints = select().kind("Endpoints");
             var blank_fields = {
-              "glusterfsPath": undefined,
-              "endpoint": undefined,
-              "endpointOptions": endpoints,
-              "readOnly": undefined,
-              "reclaimPolicies": {
-                "Retain": "Retain"
-              }
+                "glusterfsPath": undefined,
+                "endpoint": undefined,
+                "endpointOptions": endpoints,
+                "readOnly": undefined,
+                "reclaimPolicies": {
+                    "Retain": "Retain"
+                }
             };
 
             assert.deepEqual(blank_fields, gfs.build(), "default gluster fields");
             assert.deepEqual(blank_fields, gfs.build({}), "empty gluster fields");
             assert.deepEqual({
-              "glusterfsPath": "kube_vo",
-              "endpointOptions": endpoints,
-              "readOnly": undefined,
-              "reclaimPolicies": {
-                "Retain": "Retain"
-              },
-              "endpoint": "my-gluster-endpoint",
-            }, gfs.build(select().name("gfs-volume").one()), "gluster fields");
+                "glusterfsPath": "kube_vo",
+                "endpointOptions": endpoints,
+                "readOnly": undefined,
+                "reclaimPolicies": {
+                    "Retain": "Retain"
+                },
+                "endpoint": "my-gluster-endpoint",
+            }, gfs.build(select().name("gfs-volume")
+                    .one()), "gluster fields");
         }
     ]);
 
@@ -381,26 +400,27 @@ function suite(fixtures) {
         "kubeSelect",
         function(nfsVolumeFields, select) {
             var blank_fields = {
-              "path": undefined,
-              "readOnly": undefined,
-              "reclaimPolicies": {
-                "Recycle": "Recycle",
-                "Retain": "Retain"
-              },
-              "server": undefined
+                "path": undefined,
+                "readOnly": undefined,
+                "reclaimPolicies": {
+                    "Recycle": "Recycle",
+                    "Retain": "Retain"
+                },
+                "server": undefined
             };
 
             assert.deepEqual(blank_fields, nfsVolumeFields.build(), "default nfs fields");
             assert.deepEqual(blank_fields, nfsVolumeFields.build({}), "empty nfs fields");
             assert.deepEqual({
-              "path": "/tmp",
-              "readOnly": true,
-              "reclaimPolicies": {
-                "Recycle": "Recycle",
-                "Retain": "Retain"
-              },
-              "server": "host-or.ip:port",
-            }, nfsVolumeFields.build(select().name("bound").one()), "nfs fields");
+                "path": "/tmp",
+                "readOnly": true,
+                "reclaimPolicies": {
+                    "Recycle": "Recycle",
+                    "Retain": "Retain"
+                },
+                "server": "host-or.ip:port",
+            }, nfsVolumeFields.build(select().name("bound")
+                    .one()), "nfs fields");
         }
     ]);
 
@@ -460,310 +480,310 @@ function suite(fixtures) {
 
 /* Invoke the test suite with this data */
 suite([
-{
-    "kind": "PersistentVolume",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "iscsi-vol",
-        "selfLink": "/api/v1/persistentvolumes/iscsi-vol",
-        "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f2",
-        "resourceVersion": "1325",
-        "creationTimestamp": "2016-03-30T18:21:33Z"
+    {
+        "kind": "PersistentVolume",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "iscsi-vol",
+            "selfLink": "/api/v1/persistentvolumes/iscsi-vol",
+            "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f2",
+            "resourceVersion": "1325",
+            "creationTimestamp": "2016-03-30T18:21:33Z"
+        },
+        "spec": {
+            "capacity": {
+                "storage": "2Gi"
+            },
+            "iscsi":{
+                "targetPortal": "host-or.ip:port",
+                "iqn": "iqn.1994-05.t.com.redhat:83ba4072bb9c",
+                "lun": 10,
+                "iscsiInterface": "custom-iface",
+                "fsType":"ext3",
+                "readOnly": true,
+            },
+            "accessModes":["ReadWriteOnce"],
+            "persistentVolumeReclaimPolicy": "Retain"
+        },
+        "status": {
+            "phase": "Available"
+        }
     },
-    "spec": {
-        "capacity": {
-            "storage": "2Gi"
+    {
+        "kind": "PersistentVolume",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "available",
+            "selfLink": "/api/v1/persistentvolumes/available",
+            "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f1",
+            "resourceVersion": "1325",
+            "creationTimestamp": "2016-03-30T18:21:33Z"
         },
-        "iscsi":{
-            "targetPortal": "host-or.ip:port",
-            "iqn": "iqn.1994-05.t.com.redhat:83ba4072bb9c",
-            "lun": 10,
-            "iscsiInterface": "custom-iface",
-            "fsType":"ext3",
-            "readOnly": true,
+        "spec": {
+            "capacity": {
+                "storage": "2Gi"
+            },
+            "hostPath": {
+                "path": "/tmp"
+            },
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "persistentVolumeReclaimPolicy": "Retain"
         },
-        "accessModes":["ReadWriteOnce"],
-        "persistentVolumeReclaimPolicy": "Retain"
+        "status": {
+            "phase": "Available"
+        }
     },
-    "status": {
-        "phase": "Available"
-    }
-},
-{
-    "kind": "PersistentVolume",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "available",
-        "selfLink": "/api/v1/persistentvolumes/available",
-        "uid": "3b2e0dc2-f6a4-11e5-9e36-5254009e00f1",
-        "resourceVersion": "1325",
-        "creationTimestamp": "2016-03-30T18:21:33Z"
+    {
+        "kind": "PersistentVolume",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "bound",
+            "selfLink": "/api/v1/persistentvolumes/bound",
+            "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00f1",
+            "resourceVersion": "1388",
+            "creationTimestamp": "2016-03-30T18:24:46Z"
+        },
+        "spec": {
+            "capacity": {
+                "storage": "5Gi"
+            },
+            "nfs": {
+                "path": "/tmp",
+                "server": "host-or.ip:port",
+                "readOnly": true
+            },
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "claimRef": {
+                "kind": "PersistentVolumeClaim",
+                "namespace": "default",
+                "name": "bound-claim",
+                "uid": "43dfbea5-f6a4-11e5-9e36-5254009e00f1",
+                "apiVersion": "v1",
+                "resourceVersion": "1331"
+            },
+            "persistentVolumeReclaimPolicy": "Retain"
+        },
+        "status": {
+            "phase": "Bound"
+        }
     },
-    "spec": {
-        "capacity": {
-            "storage": "2Gi"
+    {
+        "kind": "PersistentVolume",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "gfs-volume",
+            "selfLink": "/api/v1/persistentvolumes/gfs-volume",
+            "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00cc",
+            "resourceVersion": "1388",
+            "creationTimestamp": "2016-03-30T18:24:46Z"
         },
-        "hostPath": {
-            "path": "/tmp"
+        "spec": {
+            "capacity": {
+                "storage": "5Gi"
+            },
+            "glusterfs": {
+                "path": "kube_vo",
+                "endpoints": "my-gluster-endpoint"
+            },
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "persistentVolumeReclaimPolicy": "Retain"
         },
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "persistentVolumeReclaimPolicy": "Retain"
+        "status": {
+            "phase": "Pending"
+        }
     },
-    "status": {
-        "phase": "Available"
-    }
-},
-{
-    "kind": "PersistentVolume",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "bound",
-        "selfLink": "/api/v1/persistentvolumes/bound",
-        "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00f1",
-        "resourceVersion": "1388",
-        "creationTimestamp": "2016-03-30T18:24:46Z"
-    },
-    "spec": {
-        "capacity": {
-            "storage": "5Gi"
-        },
-        "nfs": {
-            "path": "/tmp",
-            "server": "host-or.ip:port",
-            "readOnly": true
-        },
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "claimRef": {
-            "kind": "PersistentVolumeClaim",
+    {
+        "kind": "PersistentVolumeClaim",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "unbound-claim",
             "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/unbound-claim",
+            "uid": "3d474220-f6b3-11e5-ab0c-3b97187a9955",
+            "resourceVersion": "1331",
+            "creationTimestamp": "2016-03-30T18:21:47Z"
+        },
+        "spec": {
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "resources": {
+                "requests": {
+                    "storage": "5Gi"
+                }
+            }
+        },
+        "status": {
+            "phase": "Pending"
+        }
+    },
+    {
+        "kind": "PersistentVolumeClaim",
+        "apiVersion": "v1",
+        "metadata": {
             "name": "bound-claim",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/bound-claim",
             "uid": "43dfbea5-f6a4-11e5-9e36-5254009e00f1",
-            "apiVersion": "v1",
-            "resourceVersion": "1331"
+            "resourceVersion": "1387",
+            "creationTimestamp": "2016-03-30T18:21:47Z"
         },
-        "persistentVolumeReclaimPolicy": "Retain"
-    },
-    "status": {
-        "phase": "Bound"
-    }
-},
-{
-    "kind": "PersistentVolume",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "gfs-volume",
-        "selfLink": "/api/v1/persistentvolumes/gfs-volume",
-        "uid": "ae3133fc-f6a4-11e5-9e36-5254009e00cc",
-        "resourceVersion": "1388",
-        "creationTimestamp": "2016-03-30T18:24:46Z"
-    },
-    "spec": {
-        "capacity": {
-            "storage": "5Gi"
+        "spec": {
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "resources": {
+                "requests": {
+                    "storage": "5Gi"
+                }
+            },
+            "volumeName": "available"
         },
-        "glusterfs": {
-            "path": "kube_vo",
-            "endpoints": "my-gluster-endpoint"
-        },
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "persistentVolumeReclaimPolicy": "Retain"
-    },
-    "status": {
-        "phase": "Pending"
-    }
-},
-{
-    "kind": "PersistentVolumeClaim",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "unbound-claim",
-        "namespace": "default",
-        "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/unbound-claim",
-        "uid": "3d474220-f6b3-11e5-ab0c-3b97187a9955",
-        "resourceVersion": "1331",
-        "creationTimestamp": "2016-03-30T18:21:47Z"
-    },
-    "spec": {
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "resources": {
-            "requests": {
+        "status": {
+            "phase": "Bound",
+            "accessModes": [
+                "ReadWriteMany"
+            ],
+            "capacity": {
                 "storage": "5Gi"
             }
         }
     },
-    "status": {
-        "phase": "Pending"
-    }
-},
-{
-    "kind": "PersistentVolumeClaim",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "bound-claim",
-        "namespace": "default",
-        "selfLink": "/api/v1/namespaces/default/persistentvolumeclaims/bound-claim",
-        "uid": "43dfbea5-f6a4-11e5-9e36-5254009e00f1",
-        "resourceVersion": "1387",
-        "creationTimestamp": "2016-03-30T18:21:47Z"
-    },
-    "spec": {
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "resources": {
-            "requests": {
-                "storage": "5Gi"
-            }
+    {
+        "kind": "Pod",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "mock-pod",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/pods/mock-pod",
+            "uid": "43d38e8e-f6a4-11e5-9e36-5254009e00f1",
+            "resourceVersion": "1328",
+            "creationTimestamp": "2016-03-30T18:21:47Z"
         },
-        "volumeName": "available"
-    },
-    "status": {
-        "phase": "Bound",
-        "accessModes": [
-            "ReadWriteMany"
-        ],
-        "capacity": {
-            "storage": "5Gi"
+        "spec": {
+            "volumes": [
+                {
+                    "name": "missing-claim",
+                    "persistentVolumeClaim": {
+                        "claimName": "missing-claim"
+                    }
+                },
+                {
+                    "name": "host-tmp",
+                    "persistentVolumeClaim": {
+                        "claimName": "bound-claim"
+                    }
+                },
+                {
+                    "name": "missing-claim2",
+                    "persistentVolumeClaim": {
+                        "claimName": "missing-claim2"
+                    }
+                },
+                {
+                    "name": "default-token-luvqo",
+                    "secret": {
+                        "secretName": "default-token-luvqo"
+                    }
+                }
+            ],
+            "containers": [
+                {
+                    "name": "mock-volume-container1",
+                    "image": "busybox:buildroot-2014.02",
+                    "command": [
+                        "/bin/sh",
+                        "-c",
+                        "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
+                    ],
+                    "ports": [
+                        {
+                            "containerPort": 9949,
+                            "protocol": "TCP"
+                        }
+                    ],
+                    "resources": {},
+                    "volumeMounts": [
+                        {
+                            "name": "host-tmp",
+                            "mountPath": "/tmp"
+                        },
+                        {
+                            "name": "default-token-luvqo",
+                            "readOnly": true,
+                            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                        }
+                    ]
+                },
+                {
+                    "name": "mock-volume-container",
+                    "image": "busybox:buildroot-2014.02",
+                    "command": [
+                        "/bin/sh",
+                        "-c",
+                        "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
+                    ],
+                    "ports": [
+                        {
+                            "containerPort": 9949,
+                            "protocol": "TCP"
+                        }
+                    ],
+                    "resources": {},
+                    "volumeMounts": [
+                        {
+                            "name": "host-tmp",
+                            "mountPath": "/other"
+                        },
+                        {
+                            "name": "missing-claim",
+                            "mountPath": "/tmp"
+                        },
+                        {
+                            "name": "default-token-luvqo",
+                            "readOnly": true,
+                            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                        }
+                    ]
+                }
+            ]
+        },
+        "status": {
+            "phase": "Pending"
         }
-    }
-},
-{
-    "kind": "Pod",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "mock-pod",
-        "namespace": "default",
-        "selfLink": "/api/v1/namespaces/default/pods/mock-pod",
-        "uid": "43d38e8e-f6a4-11e5-9e36-5254009e00f1",
-        "resourceVersion": "1328",
-        "creationTimestamp": "2016-03-30T18:21:47Z"
     },
-    "spec": {
-        "volumes": [
+    {
+        "kind": "Endpoints",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "my-gluster-endpoint",
+            "namespace": "default",
+            "selfLink": "/api/v1/namespaces/default/endpoints/my-gluster-endpoint",
+            "uid": "498cac38-ffc0-11e5-8098-5254009e00dd",
+            "resourceVersion": "1078",
+            "creationTimestamp": "2016-04-11T08:35:03Z"
+        },
+        "subsets": [
             {
-                "name": "missing-claim",
-                "persistentVolumeClaim": {
-                    "claimName": "missing-claim"
-                }
-            },
-            {
-                "name": "host-tmp",
-                "persistentVolumeClaim": {
-                    "claimName": "bound-claim"
-                }
-            },
-            {
-                "name": "missing-claim2",
-                "persistentVolumeClaim": {
-                    "claimName": "missing-claim2"
-                }
-            },
-            {
-                "name": "default-token-luvqo",
-                "secret": {
-                    "secretName": "default-token-luvqo"
-                }
-            }
-        ],
-        "containers": [
-            {
-                "name": "mock-volume-container1",
-                "image": "busybox:buildroot-2014.02",
-                "command": [
-                    "/bin/sh",
-                    "-c",
-                    "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
+                "addresses": [
+                    {
+                        "ip": "172.17.0.2"
+                    }
                 ],
                 "ports": [
                     {
-                        "containerPort": 9949,
+                        "port": 1,
                         "protocol": "TCP"
-                    }
-                ],
-                "resources": {},
-                "volumeMounts": [
-                    {
-                        "name": "host-tmp",
-                        "mountPath": "/tmp"
-                    },
-                    {
-                        "name": "default-token-luvqo",
-                        "readOnly": true,
-                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
-                    }
-                ]
-            },
-            {
-                "name": "mock-volume-container",
-                "image": "busybox:buildroot-2014.02",
-                "command": [
-                    "/bin/sh",
-                    "-c",
-                    "for x in $(seq 1 1000); do echo 'HelloMessage.' \u003e\u00262; sleep 1; done"
-                ],
-                "ports": [
-                    {
-                        "containerPort": 9949,
-                        "protocol": "TCP"
-                    }
-                ],
-                "resources": {},
-                "volumeMounts": [
-                    {
-                        "name": "host-tmp",
-                        "mountPath": "/other"
-                    },
-                    {
-                        "name": "missing-claim",
-                        "mountPath": "/tmp"
-                    },
-                    {
-                        "name": "default-token-luvqo",
-                        "readOnly": true,
-                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
                     }
                 ]
             }
         ]
-    },
-    "status": {
-        "phase": "Pending"
     }
-},
-{
-    "kind": "Endpoints",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "my-gluster-endpoint",
-        "namespace": "default",
-        "selfLink": "/api/v1/namespaces/default/endpoints/my-gluster-endpoint",
-        "uid": "498cac38-ffc0-11e5-8098-5254009e00dd",
-        "resourceVersion": "1078",
-        "creationTimestamp": "2016-04-11T08:35:03Z"
-    },
-    "subsets": [
-        {
-            "addresses": [
-                {
-                    "ip": "172.17.0.2"
-                }
-            ],
-            "ports": [
-                {
-                    "port": 1,
-                    "protocol": "TCP"
-                }
-            ]
-        }
-    ]
-}
 
 ]);

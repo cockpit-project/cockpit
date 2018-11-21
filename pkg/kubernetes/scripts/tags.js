@@ -94,60 +94,59 @@
 
     angular.module('registry.tags', [ ])
 
-    .directive('imageTagEditor', [
-        function() {
-            return {
-                restrict: 'A',
-                transclude: true,
-                scope: {
-                    tags: "=",
-                },
-                link: function(scope, element, attrs) {
-                    element.addClass("image-tag-editor");
-                    element.attr("tabindex", "0");
-                    element.attr("contenteditable", "true");
+            .directive('imageTagEditor', [
+                function() {
+                    return {
+                        restrict: 'A',
+                        transclude: true,
+                        scope: {
+                            tags: "=",
+                        },
+                        link: function(scope, element, attrs) {
+                            element.addClass("image-tag-editor");
+                            element.attr("tabindex", "0");
+                            element.attr("contenteditable", "true");
 
-                    var spans = buildNodes(scope.tags);
-                    element.append(spans);
+                            var spans = buildNodes(scope.tags);
+                            element.append(spans);
 
-                    /* Select the last item when we get focus */
-                    var range = document.createRange();
-                    range.selectNodeContents(spans[spans.length - 1]);
-                    range.collapse(false);
-                    var sel = window.getSelection();
-                    sel.removeAllRanges();
-                    sel.addRange(range);
+                            /* Select the last item when we get focus */
+                            var range = document.createRange();
+                            range.selectNodeContents(spans[spans.length - 1]);
+                            range.collapse(false);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
 
-                    element.on("click", function(ev) {
-                        var target = ev.target;
-                        var span = target.parentNode;
-                        if (target.nodeName.toLowerCase() == "a" && span.nodeName.toLowerCase() == "span")
-                            span.parentNode.removeChild(span);
-                    });
+                            element.on("click", function(ev) {
+                                var target = ev.target;
+                                var span = target.parentNode;
+                                if (target.nodeName.toLowerCase() == "a" && span.nodeName.toLowerCase() == "span")
+                                    span.parentNode.removeChild(span);
+                            });
 
-                    /* When things change retag */
-                    element.on("blur keyup paste copy cut mouseup", function() {
-                        var tags = parseNodes(element[0]);
-                        while (scope.tags.length > 0)
-                            scope.tags.pop();
-                        tags.forEach(function(tag) {
-                            scope.tags.push(tag);
-                        });
-                    });
+                            /* When things change retag */
+                            element.on("blur keyup paste copy cut mouseup", function() {
+                                var tags = parseNodes(element[0]);
+                                while (scope.tags.length > 0)
+                                    scope.tags.pop();
+                                tags.forEach(function(tag) {
+                                    scope.tags.push(tag);
+                                });
+                            });
+                        }
+                    };
                 }
-            };
-        }
-    ])
+            ])
 
-    .factory('imageTagData', [
-        function() {
-            return {
-                parseSpec: parseSpec,
-                buildSpec: buildSpec,
-                buildNodes: buildNodes,
-                parseNodes: parseNodes,
-            };
-        }
-    ]);
-
+            .factory('imageTagData', [
+                function() {
+                    return {
+                        parseSpec: parseSpec,
+                        buildSpec: buildSpec,
+                        buildNodes: buildNodes,
+                        parseNodes: parseNodes,
+                    };
+                }
+            ]);
 }());

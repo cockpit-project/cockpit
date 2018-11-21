@@ -82,44 +82,52 @@ $(function() {
 
     $("#control-2").on("click", "[value]", function(ev) {
         var target = $(this);
-        $("span", ev.delegateTarget).first().text(target.text());
+        $("span", ev.delegateTarget).first()
+                .text(target.text());
         console.log("value: ", target.attr("value"));
     });
 
     /* Switches */
 
     $("#my-switch")
-        .onoff("value", true)
-        .on("change", function(ev) {
-            console.log("switch: " + $(this).onoff('value'));
-        });
+            .onoff("value", true)
+            .on("change", function(ev) {
+                console.log("switch: " + $(this).onoff('value'));
+            });
 
     $("#my-switch2")
-        .onoff()
-        .on("change", function(ev) {
-            console.log("switch 2: " + $(this).onoff('value'));
-        });
+            .onoff()
+            .on("change", function(ev) {
+                console.log("switch 2: " + $(this).onoff('value'));
+            });
 
     $("#my-switch3").onoff("disabled", true);
 
     /* Listing clicks */
 
     $("body")
-        .on("click", ".listing-ct-item:not(.listing-ct-head)", function(ev) {
+            .on("click", ".listing-ct-item:not(.listing-ct-head)", function(ev) {
             /* If expanded or can't navigate, collapse - otherwise navigate */
-            if ($(this).parents("tbody.open").length)
-                $(this).parents("tbody.open").toggleClass("open");
+                if ($(this).parents("tbody.open").length)
+                    $(this).parents("tbody.open")
+                            .toggleClass("open");
+                /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
+                else if ($(ev.target).parents()
+                        .addBack()
+                        .filter(".btn, a, li, .timeline-ct").length === 0)
+                    window.alert("Navigate to details page");
+            })
+            .on("click", "tr.listing-ct-head", function(ev) {
             /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
-            else if($(ev.target).parents().addBack().filter(".btn, a, li, .timeline-ct").length === 0)
-                window.alert("Navigate to details page");
-        })
-        .on("click", "tr.listing-ct-head", function(ev) {
-            /* Only proceed if a .btn a li or .timeline-ct was not clicked on */
-            if($(ev.target).parents().addBack().filter(".btn, a, li, .timeline-ct").length === 0)
-                $(this).parents("tbody").toggleClass("open");
-        })
-        .on("click", ".listing-ct-toggle", function(ev) {
-            $(this).parents("tbody").toggleClass("open");
-            ev.stopPropagation();
-        });
+                if ($(ev.target).parents()
+                        .addBack()
+                        .filter(".btn, a, li, .timeline-ct").length === 0)
+                    $(this).parents("tbody")
+                            .toggleClass("open");
+            })
+            .on("click", ".listing-ct-toggle", function(ev) {
+                $(this).parents("tbody")
+                        .toggleClass("open");
+                ev.stopPropagation();
+            });
 });

@@ -79,7 +79,7 @@ var funcs = {
     },
     remove_last: function() {
         dbg('remove-last');
-        output = output.slice(0, output.length-1);
+        output = output.slice(0, output.length - 1);
     },
     prepend: function(elt) {
         dbg('prepend', elt);
@@ -100,7 +100,7 @@ function append_flush() {
 }
 
 function prepend(message) {
-    renderer.prepend(make_entry (message));
+    renderer.prepend(make_entry(message));
 }
 
 function prepend_flush() {
@@ -132,19 +132,19 @@ function jexpect(label, expected) {
     QUnit.ok(check(expected), label);
 }
 
-var month_names = [         'January',
-                            'February',
-                            'March',
-                            'April',
-                            'May',
-                            'June',
-                            'July',
-                            'August',
-                            'September',
-                            'October',
-                            'November',
-                            'December'
-                          ];
+var month_names = [ 'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+];
 
 (function() {
     QUnit.testStart(function() {
@@ -159,14 +159,14 @@ var month_names = [         'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-                 [ { day: expected_day },
-                   { message: 'foo', count: 2 }
-                 ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 2 }
+                ]);
         append('foo');
         append_flush();
         jexpect('three repeated lines after flush',
                 [ { day: expected_day },
-                  { message: 'foo', count: 3 }
+                    { message: 'foo', count: 3 }
                 ]);
     });
 
@@ -176,14 +176,14 @@ var month_names = [         'January',
         prepend_flush();
         jexpect('two repeated lines',
                 [ { day: expected_day },
-                  { message: 'foo', count: 2 }
+                    { message: 'foo', count: 2 }
                 ]);
         prepend('foo');
         prepend_flush();
         jexpect('three repeated lines after flush',
-            [ { day: expected_day },
-              { message: 'foo', count: 3 }
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 3 }
+                ]);
     });
 
     QUnit.test('prepend after append', function() {
@@ -192,9 +192,9 @@ var month_names = [         'January',
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-            [ { day: expected_day },
-              { message: 'foo', count: 2 }
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 2 }
+                ]);
     });
 
     QUnit.test('prepend after append', function() {
@@ -203,10 +203,10 @@ var month_names = [         'January',
         prepend('bar');
         prepend_flush();
         jexpect('two different lines',
-            [ { day: expected_day },
-              { message: 'bar', count: 1 },
-              { message: 'foo', count: 1 }
-            ]);
+                [ { day: expected_day },
+                    { message: 'bar', count: 1 },
+                    { message: 'foo', count: 1 }
+                ]);
     });
 
     QUnit.test('append after prepend', function() {
@@ -215,9 +215,9 @@ var month_names = [         'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines',
-            [ { day: expected_day },
-              { message: 'foo', count: 2 }
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 2 }
+                ]);
     });
 
     QUnit.test('append after split', function() {
@@ -227,11 +227,11 @@ var month_names = [         'January',
         append('foo');
         append_flush();
         jexpect('two different lines',
-            [ { day: expected_day },
-              { message: 'baz', count: 1 },
-              { message: 'bar', count: 1 },
-              { message: 'foo', count: 1 }
-            ]);
+                [ { day: expected_day },
+                    { message: 'baz', count: 1 },
+                    { message: 'bar', count: 1 },
+                    { message: 'foo', count: 1 }
+                ]);
     });
 
     QUnit.test('append after split', function() {
@@ -241,10 +241,10 @@ var month_names = [         'January',
         append('bar');
         append_flush();
         jexpect('two repeated lines',
-            [ { day: expected_day },
-              { message: 'baz', count: 1 },
-              { message: 'bar', count: 2 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'baz', count: 1 },
+                    { message: 'bar', count: 2 },
+                ]);
     });
 
     QUnit.test('prepend after split', function() {
@@ -254,11 +254,11 @@ var month_names = [         'January',
         prepend('baz');
         prepend_flush();
         jexpect('two different lines',
-            [ { day: expected_day },
-              { message: 'baz', count: 1 },
-              { message: 'foo', count: 1 },
-              { message: 'bar', count: 1 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'baz', count: 1 },
+                    { message: 'foo', count: 1 },
+                    { message: 'bar', count: 1 },
+                ]);
     });
 
     QUnit.test('prepend after split', function() {
@@ -268,10 +268,10 @@ var month_names = [         'January',
         prepend('foo');
         prepend_flush();
         jexpect('two repeated lines',
-            [ { day: expected_day },
-              { message: 'foo', count: 2 },
-              { message: 'bar', count: 1 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 2 },
+                    { message: 'bar', count: 1 },
+                ]);
     });
 
     QUnit.test('reboot', function() {
@@ -281,11 +281,11 @@ var month_names = [         'January',
         append('foo');
         append_flush();
         jexpect('two repeated lines before reboot',
-            [ { day: expected_day },
-              { message: 'foo', count: 2 },
-              { reboot: true },
-              { message: 'foo', count: 1 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 2 },
+                    { reboot: true },
+                    { message: 'foo', count: 1 },
+                ]);
     });
 
     QUnit.test('prepend to reboot same day', function() {
@@ -296,12 +296,12 @@ var month_names = [         'January',
         prepend('bar');
         prepend_flush();
         jexpect('different lines',
-            [ { day: expected_day },
-              { message: 'bar', count: 1 },
-              { reboot: true },
-              { message: 'foo', count: 1 },
-              { message: 'baz', count: 1 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'bar', count: 1 },
+                    { reboot: true },
+                    { message: 'foo', count: 1 },
+                    { message: 'baz', count: 1 },
+                ]);
     });
 
     QUnit.test('prepend to reboot same day', function() {
@@ -312,12 +312,12 @@ var month_names = [         'January',
         prepend('foo');
         prepend_flush();
         jexpect('repeated line',
-            [ { day: expected_day },
-              { message: 'foo', count: 1 },
-              { reboot: true },
-              { message: 'foo', count: 1 },
-              { message: 'baz', count: 1 },
-            ]);
+                [ { day: expected_day },
+                    { message: 'foo', count: 1 },
+                    { reboot: true },
+                    { message: 'foo', count: 1 },
+                    { message: 'baz', count: 1 },
+                ]);
     });
 
     QUnit.start();

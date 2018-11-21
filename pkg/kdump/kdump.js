@@ -34,12 +34,12 @@ var initStore = function(rootElement) {
     dataStore.applySettings = function(settings) {
         var dfd = cockpit.defer();
         dataStore.kdumpClient.validateSettings(settings)
-            .done(function() {
-                dataStore.kdumpClient.writeSettings(settings)
-                    .done(dfd.resolve)
-                    .fail(dfd.reject);
-            })
-            .fail(dfd.reject);
+                .done(function() {
+                    dataStore.kdumpClient.writeSettings(settings)
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
+                })
+                .fail(dfd.reject);
         return dfd.promise();
     };
 
@@ -77,28 +77,28 @@ var initStore = function(rootElement) {
     // https://github.com/cockpit-project/cockpit/issues/5597
     // cockpit.file("/sys/kernel/kexec_crash_size").read()
     cockpit.spawn(["cat", "/sys/kernel/kexec_crash_size"])
-        .done(function(content) {
-            var value = parseInt(content, 10);
-            if (!isNaN(value)) {
+            .done(function(content) {
+                var value = parseInt(content, 10);
+                if (!isNaN(value)) {
                 // if it's only a number, guess from the size what units we should use
                 // https://access.redhat.com/solutions/59432 states limit to be 896M and the auto at 768M max
                 // default unit is M
-                if (value >= 1000000)
-                    dataStore.kdumpMemory = cockpit.format_bytes(value);
-                else if (value >= 1000)
-                    dataStore.kdumpMemory = cockpit.format_bytes(value*1024);
-                else
-                    dataStore.kdumpMemory = cockpit.format_bytes(value*1024*1024);
-            } else {
-                dataStore.kdumpMemory = content.trim();
-            }
-        })
-        .fail(function(error) {
-            dataStore.kdumpMemory = "error";
-        })
-        .always(function() {
-            render();
-        });
+                    if (value >= 1000000)
+                        dataStore.kdumpMemory = cockpit.format_bytes(value);
+                    else if (value >= 1000)
+                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024);
+                    else
+                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024 * 1024);
+                } else {
+                    dataStore.kdumpMemory = content.trim();
+                }
+            })
+            .fail(function(error) {
+                dataStore.kdumpMemory = "error";
+            })
+            .always(function() {
+                render();
+            });
 
     // catch kdump config and service changes
     dataStore.kdumpClient.addEventListener('kdumpStatusChanged', function(event, status) {

@@ -34,8 +34,8 @@ function assert_throws(func, checks) {
 
 QUnit.test("ip_prefix_from_text", function() {
     var checks = [
-        [ "0",      0 ],
-        [ "12",    12 ],
+        [ "0", 0 ],
+        [ "12", 12 ],
         [ " 12  ", 12 ]
     ];
 
@@ -61,9 +61,9 @@ QUnit.test("ip_prefix_from_text invalids", function() {
 
 QUnit.test("ip_metric_from_text", function() {
     var checks = [
-        [ "",       0 ],
-        [ "0",      0 ],
-        [ "12",    12 ],
+        [ "", 0 ],
+        [ "0", 0 ],
+        [ "12", 12 ],
         [ " 12  ", 12 ]
     ];
 
@@ -88,14 +88,14 @@ QUnit.test("ip_metric_from_text invalids", function() {
 
 QUnit.test("ip4_to/from_text be", function() {
     var checks = [
-        [ "0.0.0.0",           0x00000000 ],
-        [ "255.255.255.255",   0xFFFFFFFF ],
-        [ "1.2.3.4",           0x01020304 ],
-        [ " 1.2.3.4 ",         0x01020304 ],
-        [ " 1 . 2 . 3. 4 ",    0x01020304 ]
+        [ "0.0.0.0", 0x00000000 ],
+        [ "255.255.255.255", 0xFFFFFFFF ],
+        [ "1.2.3.4", 0x01020304 ],
+        [ " 1.2.3.4 ", 0x01020304 ],
+        [ " 1 . 2 . 3. 4 ", 0x01020304 ]
     ];
 
-    assert.expect(2*checks.length);
+    assert.expect(2 * checks.length);
 
     utils.set_byteorder("be");
     checks.forEach(function(c) {
@@ -106,14 +106,14 @@ QUnit.test("ip4_to/from_text be", function() {
 
 QUnit.test("ip4_to/from_text le", function() {
     var checks = [
-        [ "0.0.0.0",           0x00000000 ],
-        [ "255.255.255.255",   0xFFFFFFFF ],
-        [ "1.2.3.4",           0x04030201 ],
-        [ " 1.2.3.4 ",         0x04030201 ],
-        [ " 1 . 2 . 3. 4 ",    0x04030201 ]
+        [ "0.0.0.0", 0x00000000 ],
+        [ "255.255.255.255", 0xFFFFFFFF ],
+        [ "1.2.3.4", 0x04030201 ],
+        [ " 1.2.3.4 ", 0x04030201 ],
+        [ " 1 . 2 . 3. 4 ", 0x04030201 ]
     ];
 
-    assert.expect(2*checks.length);
+    assert.expect(2 * checks.length);
 
     utils.set_byteorder("le");
     checks.forEach(function(c) {
@@ -222,19 +222,19 @@ QUnit.test("ip6_to/from_text", function() {
     var checks = [
         [ [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ],
-          "0:0:0:0:0:0:0:0"
+        "0:0:0:0:0:0:0:0"
         ],
         [ [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
             0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F ],
-          "1:203:405:607:809:a0b:c0d:e0f"
+        "1:203:405:607:809:a0b:c0d:e0f"
         ],
         [ [ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
             0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F ],
-          " 1: 203 :  405: 607: 809:a0b :c0d:e0f"
+        " 1: 203 :  405: 607: 809:a0b :c0d:e0f"
         ],
     ];
 
-    assert.expect(2*checks.length);
+    assert.expect(2 * checks.length);
 
     checks.forEach(function(c) {
         assert.strictEqual(utils.ip6_to_text(cockpit.base64_encode(c[0])), c[1].replace(/ /g, ""));
@@ -245,24 +245,24 @@ QUnit.test("ip6_to/from_text", function() {
 QUnit.test("ip6_from_text abbrevs", function() {
     var checks = [
         [ "::",
-          [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ],
+            [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ],
         ],
         [ "::1",
-          [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ],
+            [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ],
         ],
         [ "1::",
-          [ 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ],
+            [ 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ],
         ],
         [ "1:2:3::2:1",
-          [ 0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01 ],
+            [ 0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01 ],
         ],
         [ "2001::1",
-          [ 0x20, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ],
+            [ 0x20, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ],
         ],
     ];
 
@@ -298,15 +298,15 @@ QUnit.test("ip6_from_text invalids", function() {
 
 QUnit.test("ip6_to_text zero", function() {
     var zero = [ 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0
-               ];
+        0, 0, 0, 0, 0, 0, 0, 0
+    ];
     assert.strictEqual(utils.ip6_to_text(cockpit.base64_encode(zero), true), "");
 });
 
 QUnit.test("ip6_from_text empty", function() {
     var zero = [ 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0
-               ];
+        0, 0, 0, 0, 0, 0, 0, 0
+    ];
     assert.deepEqual(cockpit.base64_decode(utils.ip6_from_text("", true)), zero);
 });
 

@@ -29,7 +29,8 @@
             box.connect();
         }
 
-        $("#container").empty().append(box);
+        $("#container").empty()
+                .append(box);
         $("body").show();
     }
 

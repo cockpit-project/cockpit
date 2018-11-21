@@ -89,9 +89,7 @@
                     window.alert("channel closed");
                 stop();
             };
-
         } else {
-
             if (binary)
                 options.binary = true;
 

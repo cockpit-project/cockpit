@@ -49,7 +49,6 @@
             $('#image-details-containers button.enable-danger').toggleClass('active', self.danger_enabled);
             $("#image-details-containers td.container-column-actions").toggle(!self.danger_enabled);
             $("#image-details-containers td.container-column-danger").toggle(self.danger_enabled);
-
         },
 
         setup: function() {
@@ -74,7 +73,7 @@
             $('#image-details-run').attr("data-image", image_id);
 
             this.image_id = image_id;
-            this.name = cockpit.format(_("Image $0"), this.image_id.slice(0,12));
+            this.name = cockpit.format(_("Image $0"), this.image_id.slice(0, 12));
 
             $('#image-details-containers table tbody tr').remove();
             $('#image-details-containers button.enable-danger').toggle(false);
@@ -118,7 +117,6 @@
         },
 
         maybe_render_container: function(id, container) {
-
             /* Does this container match? */
             if (container &&
                 container.ImageID !== this.image_id &&
@@ -146,9 +144,10 @@
                 cockpit.all(stop_promises).done(function() {
                     self.client.rmi(self.image_id, force).fail(function(ex) {
                         util.show_unexpected_error(ex);
-                    }).done(function() {
-                        location.go("/");
-                    });
+                    })
+                            .done(function() {
+                                location.go("/");
+                            });
                 });
             });
         }

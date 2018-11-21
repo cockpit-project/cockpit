@@ -19,10 +19,19 @@
 
 import os
 import re
+import sys
 import subprocess
 import shutil
 
 from avocado.utils import process
+
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(1, CURRENT_DIR)
+
+import parent
+parent  # pyflakes
+
 from testlib import Browser
 
 class Cockpit():

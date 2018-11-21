@@ -547,14 +547,15 @@ class TestMachines(MachineCase):
         b.wait_present(".add-disk-dialog label:contains(Create New)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
 
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vde")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-target", "vde")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_temporary")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2048")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "raw") # verify content of the dropdown box
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "qcow2") # and switch it back
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "raw") # verify content of the dropdown box
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-diskfileformat", "qcow2") # and switch it back
+
         # keep "Attach permanently" un-checked (by default)
         b.wait_in_text("#vm-subVmTest1-state", "running") # re-check
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
@@ -569,8 +570,8 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-permanent")
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-name")
         b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-new-target", "vda")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-target", "vda")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2") # keep GiB and qcow2 format
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
@@ -585,7 +586,7 @@ class TestMachines(MachineCase):
         b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)") # since both disks are already attached
         b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
         b.wait_not_present("#add-disk-dialog")
@@ -596,9 +597,9 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-permanent")
         b.click("#vm-subVmTest1-disks-adddisk-existing-permanent")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_permanent")
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdd")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_permanent")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdd")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vdd-target") # verify after modal dialog close
@@ -613,9 +614,9 @@ class TestMachines(MachineCase):
         # b.click("#vm-subVmTest1-disks-adddisk")
         # b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         # b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
-        # self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
-        # self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_temporary")
-        # self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdb")
+        # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
+        # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_temporary")
+        # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdb")
         # b.click(".modal-footer button:contains(Add)")
         # b.wait_not_present("#cockpit_modal_dialog")
         # b.wait_present("#vm-subVmTest1-disks-vdb-target") # verify after modal dialog close
@@ -631,7 +632,7 @@ class TestMachines(MachineCase):
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
         b.wait_present('#vm-subVmTest1-disks-adddisk-existing-target')
-        self._selectFromDropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdc")
+        b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdc")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#add-disk-dialog")
         b.wait_present("#vm-subVmTest1-disks-vdc-target") # verify after modal dialog close
@@ -651,9 +652,6 @@ class TestMachines(MachineCase):
         b.wait_not_present("#vm-subVmTest1-disks-vde-target")
         b.wait_present("#vm-subVmTest1-disks-vda-target")
         b.wait_present("#vm-subVmTest1-disks-vdd-target")
-
-    def _selectFromDropdown(self, selector, value):
-        selectFromDropdown(self.browser, selector, value)
 
     def testNetworks(self):
         b = self.browser
@@ -1259,20 +1257,20 @@ class TestMachines(MachineCase):
             b.set_input_text("#vm-name", self.name)
 
             expected_source_type = 'Filesystem' if self.is_filesystem_location else 'URL'
-            self._selectFromDropdown("#source-type", expected_source_type)
+            b.select_from_dropdown("#source-type", expected_source_type)
             if self.is_filesystem_location:
                 self._setFileAutocompleteVal("#source-file", self.location)
             else:
                 b.set_input_text("#source-url", self.location)
 
-            self._selectFromDropdown("#vendor-select", self.os_vendor)
-            self._selectFromDropdown("#system-select", self.os_name)
+            b.select_from_dropdown("#vendor-select", self.os_vendor)
+            b.select_from_dropdown("#system-select", self.os_name)
 
             b.set_input_text("#memory-size", str(self.memory_size))
-            self._selectFromDropdown("#memory-size-unit-select", self.memory_size_unit)
+            b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
 
             b.set_input_text("#storage-size", str(self.storage_size))
-            self._selectFromDropdown("#storage-size-unit-select", self.storage_size_unit)
+            b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
 
             b.wait_visible("#start-vm")
             if self.start_vm:
@@ -1280,7 +1278,7 @@ class TestMachines(MachineCase):
             # b.set_checked("#start-vm", self.start_vm)
 
             if (self.connection):
-                self._selectFromDropdown("#connection", self.connectionText)
+                b.select_from_dropdown("#connection", self.connectionText)
 
             return self
 
@@ -1358,9 +1356,6 @@ class TestMachines(MachineCase):
                             allowBugErrors(error_location, x2)
 
             return self
-
-        def _selectFromDropdown(self, selector, value):
-            selectFromDropdown(self.browser, selector, value)
 
         def _setFileAutocompleteVal(self, selector, location):
             b = self.browser
@@ -1534,18 +1529,6 @@ class TestMachines(MachineCase):
             b.wait_not_present("#notification-area")
 
             return self
-
-
-def selectFromDropdown(b, selector, value):
-    button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
-
-    b.wait_visible(selector)
-    if not b.text(button_text_selector) == value:
-        item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
-        b.click(selector)
-        b.wait_visible(item_selector)
-        b.click(item_selector)
-        b.wait_in_text(button_text_selector, value)
 
 if __name__ == '__main__':
     test_main()

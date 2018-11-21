@@ -147,12 +147,12 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # Change network model type of a running domain
-        self._selectFromDropdown("#vm-subVmTest1-network-1-select-model", "e1000e")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-model", "e1000e")
         # Wait for the footer warning to appear
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
-        self._selectFromDropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
-        self._selectFromDropdown("#vm-subVmTest1-network-1-select-source", "test_network")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")

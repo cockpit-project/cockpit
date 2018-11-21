@@ -50,7 +50,7 @@
 
         setup: function() {
             $("#containers-search-image-search").on('keypress', $.proxy(this, "input"));
-            $("#containers-search-image-search").attr( "placeholder", _("search by name, namespace or description"));
+            $("#containers-search-image-search").attr("placeholder", _("search by name, namespace or description"));
             $("#containers-search-download").on('click', $.proxy(this, 'start_download'));
             $('#containers-search-tag').prop('disabled', true);
             $('#containers-search-download').prop('disabled', true);
@@ -73,7 +73,7 @@
             this.cancel_search();
 
             // Only handle if the new value is at least 3 characters long or return was pressed
-            if(event.target.value.length < 3 && event.which != 13)
+            if (event.target.value.length < 3 && event.which != 13)
                 return;
 
             var self = this;
@@ -100,58 +100,59 @@
             $('#containers-search-image-no-results').hide();
             $('#containers-search-image-results').hide();
             $('#containers-search-image-results tbody tr').remove();
-            this.search_request = client.search(term).
-                done(function(data) {
-                    var resp = data && JSON.parse(data);
-                    $('#containers-search-image-waiting').removeClass('spinner');
+            this.search_request = client.search(term)
+                    .done(function(data) {
+                        var resp = data && JSON.parse(data);
+                        $('#containers-search-image-waiting').removeClass('spinner');
 
-                    if(resp && resp.length > 0) {
-                        $('#containers-search-image-results').show();
-                        resp.forEach(function(entry) {
-                            var row = $('<tr>').append(
-                                $('<td>').text(entry.name),
-                                $('<td>').text(entry.description));
-                            row.on('click', function(event) {
+                        if (resp && resp.length > 0) {
+                            $('#containers-search-image-results').show();
+                            resp.forEach(function(entry) {
+                                var row = $('<tr>').append(
+                                    $('<td>').text(entry.name),
+                                    $('<td>').text(entry.description));
+                                row.on('click', function(event) {
                                 // Remove the active class from all other rows
-                                $('#containers-search-image-results tr').each(function(){
-                                    $(this).removeClass('active');
+                                    $('#containers-search-image-results tr').each(function() {
+                                        $(this).removeClass('active');
+                                    });
+
+                                    row.addClass('active');
+                                    $('#containers-search-tag').val('latest');
+                                    $('#containers-search-tag').prop('disabled', false);
+                                    $('#containers-search-download').data('repo', entry.name);
+                                    $('#containers-search-download').data('registry', entry.registry_name);
+                                    $('#containers-search-download').prop('disabled', false);
                                 });
+                                row.data('entry', entry);
 
-                                row.addClass('active');
-                                $('#containers-search-tag').val('latest');
-                                $('#containers-search-tag').prop('disabled', false);
-                                $('#containers-search-download').data('repo', entry.name);
-                                $('#containers-search-download').data('registry', entry.registry_name);
-                                $('#containers-search-download').prop('disabled', false);
+                                util.insert_table_sorted_generic($('#containers-search-image-results'), row, function(row1, row2) {
+                                // Bigger than 0 means row1 after row2
+                                // Smaller than 0 means row1 before row2
+                                    if (row1.data('entry').is_official && !row2.data('entry').is_official)
+                                        return -1;
+                                    if (!row1.data('entry').is_official && row2.data('entry').is_official)
+                                        return 1;
+                                    if (row1.data('entry').is_automated && !row2.data('entry').is_automated)
+                                        return -1;
+                                    if (!row1.data('entry').is_automated && row2.data('entry').is_automated)
+                                        return 1;
+                                    if (row1.data('entry').star_count != row2.data('entry').star_count)
+                                        return row2.data('entry').star_count - row1.data('entry').star_count;
+                                    return row1.data('entry').name.localeCompare(row2.data('entry').name);
+                                });
                             });
-                            row.data('entry', entry);
-
-                            util.insert_table_sorted_generic($('#containers-search-image-results'), row, function(row1, row2) {
-                                //Bigger than 0 means row1 after row2
-                                //Smaller than 0 means row1 before row2
-                                if (row1.data('entry').is_official && !row2.data('entry').is_official)
-                                    return -1;
-                                if (!row1.data('entry').is_official && row2.data('entry').is_official)
-                                    return 1;
-                                if (row1.data('entry').is_automated && !row2.data('entry').is_automated)
-                                    return -1;
-                                if (!row1.data('entry').is_automated && row2.data('entry').is_automated)
-                                    return 1;
-                                if (row1.data('entry').star_count != row2.data('entry').star_count)
-                                    return row2.data('entry').star_count - row1.data('entry').star_count;
-                                return row1.data('entry').name.localeCompare(row2.data('entry').name);
-                            });
-                        });
-                    } else {
+                        } else {
                         // No results
-                        $('#containers-search-image-no-results').empty().append(
-                              $("<span>").text(cockpit.format(_("No results for $0"), term)),
-                              $("<br />"),
-                              $("span>").text(_("Please try another term"))
-                        );
-                        $('#containers-search-image-no-results').show();
-                    }
-                });
+                            $('#containers-search-image-no-results').empty()
+                                    .append(
+                                        $("<span>").text(cockpit.format(_("No results for $0"), term)),
+                                        $("<br />"),
+                                        $("span>").text(_("Please try another term"))
+                                    );
+                            $('#containers-search-image-no-results').show();
+                        }
+                    });
         },
 
         cancel_search: function() {
@@ -178,10 +179,10 @@
 
     $(function() {
         dialog.setup();
-        $("#containers-search-image-dialog").
-            on('show.bs.modal', function () { dialog.enter() }).
-            on('shown.bs.modal', function () { dialog.show() }).
-            on('hidden.bs.modal', function () { dialog.leave() });
+        $("#containers-search-image-dialog")
+                .on('show.bs.modal', function () { dialog.enter() })
+                .on('shown.bs.modal', function () { dialog.show() })
+                .on('hidden.bs.modal', function () { dialog.leave() });
     });
 
     function search(client) {

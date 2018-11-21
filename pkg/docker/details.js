@@ -61,35 +61,37 @@
             $('#container-details-delete').on('click', $.proxy(this, "delete_container"));
 
             self.memory_limit = new util.MemorySlider($("#container-resources-dialog .memory-slider"),
-                                                      10*1024*1024, 2*1024*1024*1024);
+                                                      10 * 1024 * 1024, 2 * 1024 * 1024 * 1024);
             self.cpu_priority = new util.CpuSlider($("#container-resources-dialog .cpu-slider"),
                                                    2, 1000000);
 
             self.memory_usage = $('#container-details-memory .bar-row');
-            $('#container-resources-dialog').
-                on("show.bs.modal", function() {
-                    var info = self.client.containers[self.container_id];
+            $('#container-resources-dialog')
+                    .on("show.bs.modal", function() {
+                        var info = self.client.containers[self.container_id];
 
-                    /* This slider is only visible if docker says this option is available */
-                    $("#container-resources-dialog .memory-slider")
-                        .toggle(!!self.client.info.MemoryLimit);
+                        /* This slider is only visible if docker says this option is available */
+                        $("#container-resources-dialog .memory-slider")
+                                .toggle(!!self.client.info.MemoryLimit);
 
-                    if (self.client.info.MemTotal)
-                       self.memory_limit.max = self.client.info.MemTotal;
+                        if (self.client.info.MemTotal)
+                            self.memory_limit.max = self.client.info.MemTotal;
 
-                    /* Fill in the resource dialog */
-                    $(this).find(".container-name").text(self.name);
-                    self.memory_limit.value = info.MemoryLimit || undefined;
-                    self.cpu_priority.value = info.CpuPriority || undefined;
-                }).
-                find(".btn-primary").on("click", function() {
-                    var mem, prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
-                    if (self.client.info.MemoryLimit) {
-                        mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
-                        prom = cockpit.all(mem, prom);
-                    }
-                    $('#container-resources-dialog').dialog('promise', prom);
-                });
+                        /* Fill in the resource dialog */
+                        $(this).find(".container-name")
+                                .text(self.name);
+                        self.memory_limit.value = info.MemoryLimit || undefined;
+                        self.cpu_priority.value = info.CpuPriority || undefined;
+                    })
+                    .find(".btn-primary")
+                    .on("click", function() {
+                        var mem, prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                        if (self.client.info.MemoryLimit) {
+                            mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+                            prom = cockpit.all(mem, prom);
+                        }
+                        $('#container-resources-dialog').dialog('promise', prom);
+                    });
         },
 
         enter: function(container_id) {
@@ -104,7 +106,7 @@
             $("#container-terminal").hide();
 
             this.container_id = container_id;
-            this.name = this.container_id.slice(0,12);
+            this.name = this.container_id.slice(0, 12);
 
             $(this.client).on('container.container-details', function (event, id, container) {
                 if (id == self.container_id)
@@ -119,7 +121,8 @@
         maybe_show_terminal: function(info) {
             if (!this.terminal) {
                 this.terminal = docker.console(this.container_id, { tty: info.Config.Tty });
-                $("#container-terminal").empty().append(this.terminal);
+                $("#container-terminal").empty()
+                        .append(this.terminal);
                 this.terminal.connect();
             }
             this.terminal.typeable(info.State.Running);
@@ -203,7 +206,7 @@
             $('#container-details-id').text(info.Id);
             $('#container-details-names').text(util.render_container_name(info.Name));
             $('#container-details-created').text(moment(info.Created).isValid() ?
-                                                 moment(info.Created).calendar() : info.Created);
+                moment(info.Created).calendar() : info.Created);
 
             $('#container-details-image').text(info.Image);
             $('#container-details-image-id').text(info.ImageID);
@@ -251,31 +254,31 @@
         start_container: function () {
             var self = this;
             var id = this.container_id;
-            this.client.start(this.container_id).
-                fail(function(ex) {
-                    util.handle_scope_start_container(self.client, id, ex.message, function() { self.maybe_reconnect_terminal() }, null);
-                }).
-                done(function() {
-                    self.maybe_reconnect_terminal();
-                });
+            this.client.start(this.container_id)
+                    .fail(function(ex) {
+                        util.handle_scope_start_container(self.client, id, ex.message, function() { self.maybe_reconnect_terminal() }, null);
+                    })
+                    .done(function() {
+                        self.maybe_reconnect_terminal();
+                    });
         },
 
         stop_container: function () {
-            this.client.stop(this.container_id).
-                fail(function(ex) {
-                    util.show_unexpected_error(ex);
-                });
+            this.client.stop(this.container_id)
+                    .fail(function(ex) {
+                        util.show_unexpected_error(ex);
+                    });
         },
 
         restart_container: function () {
             var self = this;
-            this.client.restart(this.container_id).
-                fail(function(ex) {
-                    util.show_unexpected_error(ex);
-                }).
-                done(function() {
-                    self.maybe_reconnect_terminal();
-                });
+            this.client.restart(this.container_id)
+                    .fail(function(ex) {
+                        util.show_unexpected_error(ex);
+                    })
+                    .done(function() {
+                        self.maybe_reconnect_terminal();
+                    });
         },
 
         delete_container: function () {
@@ -283,10 +286,10 @@
             var location = cockpit.location;
             util.confirm(cockpit.format(_("Please confirm deletion of $0"), self.name),
                          _("Deleting a container will erase all data in it."),
-                         _("Delete")).
-                done(function () {
-                    util.docker_container_delete(self.client, self.container_id, function() { location.go("/") }, function () { });
-                });
+                         _("Delete"))
+                    .done(function () {
+                        util.docker_container_delete(self.client, self.container_id, function() { location.go("/") }, function () { });
+                    });
         }
 
     };

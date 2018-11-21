@@ -208,26 +208,26 @@ module.exports = {
     },
     "namespaces/default/imagestreams/mock-image-stream": {
         "kind": "ImageStream",
-          "apiVersion": "v1",
-          "metadata": {
+        "apiVersion": "v1",
+        "metadata": {
             "name": "mock-image-stream",
             "namespace":"default",
             "uid":"c216455b-4cc5-11e5-8a7f-0e5582eacc27"
-          },
-          "spec": {
+        },
+        "spec": {
             "dockerImageRepository": "mock/image",
             "tags": [
-              {
-                "name": "latest",
-                "annotations": {
-                  "description": "Mock Image",
-                  "iconClass": "icon-mock",
-                  "tags": "builder,mock",
-                  "version": "3.0"
+                {
+                    "name": "latest",
+                    "annotations": {
+                        "description": "Mock Image",
+                        "iconClass": "icon-mock",
+                        "tags": "builder,mock",
+                        "version": "3.0"
+                    }
                 }
-              }
             ]
-          },
-          "status": {}
+        },
+        "status": {}
     },
 };

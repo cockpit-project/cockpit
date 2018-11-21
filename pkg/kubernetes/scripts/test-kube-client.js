@@ -39,14 +39,14 @@ var FIXTURE_LARGE = require("./fixture-large");
         "kubeClient.mock"
     ])
 
-    .config([
-        'KubeWatchProvider',
-        'KubeRequestProvider',
-        function(KubeWatchProvider, KubeRequestProvider) {
-            KubeWatchProvider.KubeWatchFactory = "MockKubeWatch";
-            KubeRequestProvider.KubeRequestFactory = "MockKubeRequest";
-        }
-    ]);
+            .config([
+                'KubeWatchProvider',
+                'KubeRequestProvider',
+                function(KubeWatchProvider, KubeRequestProvider) {
+                    KubeWatchProvider.KubeWatchFactory = "MockKubeWatch";
+                    KubeRequestProvider.KubeRequestFactory = "MockKubeRequest";
+                }
+            ]);
 
     function kubeTest(name, count, fixtures, func) {
         QUnit.asyncTest(name, function() {
@@ -64,7 +64,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                     var result;
                     try {
                         result = inject(func);
-                    } catch(ex) {
+                    } catch (ex) {
                         $exceptionHandler(ex);
                         assert.ok(!true, "test failed with exception: " + String(ex));
                         QUnit.start();
@@ -99,7 +99,6 @@ var FIXTURE_LARGE = require("./fixture-large");
             });
         }
     ]);
-
 
     kubeTest("loader load encoding", 2, FIXTURE_BASIC, [
         "kubeLoader",
@@ -259,7 +258,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "number of pods");
                 assert.equal(pods["/api/v1/namespaces/default/pods/apache"].metadata.labels.name,
-                      "apache", "pod has label");
+                             "apache", "pod has label");
 
                 var defer = $q.defer();
                 var x = loader.listen(function() {
@@ -291,7 +290,6 @@ var FIXTURE_LARGE = require("./fixture-large");
 
                 return defer.promise;
             });
-
         }
     ]);
 
@@ -412,7 +410,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                 }],
                 "nodeName": "127.0.0.1"
             }
-        },{
+        }, {
             "kind": "Node",
             "apiVersion": "v1",
             "metadata": {
@@ -595,7 +593,7 @@ var FIXTURE_LARGE = require("./fixture-large");
     kubeTest("check resource name missing", 1, null, [
         "kubeMethods",
         function(methods) {
-            var data = { kind: "Blah", metadata: {  } };
+            var data = { kind: "Blah", metadata: { } };
             return methods.check(data).then(function() {
                 assert.ok(true, "passed check");
             }, null);
@@ -638,15 +636,18 @@ var FIXTURE_LARGE = require("./fixture-large");
         function(loader, select) {
             return loader.watch("pods").then(function() {
                 /* Get the item */
-                var item = select().kind("Pod").one();
+                var item = select().kind("Pod")
+                        .one();
                 var uid = item.metadata.uid;
                 assert.ok(uid, "Have uid");
 
-                var by_uid_item = select().uid(uid).one();
+                var by_uid_item = select().uid(uid)
+                        .one();
                 assert.strictEqual(item, by_uid_item, "load uid");
 
                 /* Shouldn't match */
-                item = select().uid("bad").one();
+                item = select().uid("bad")
+                        .one();
                 assert.strictEqual(item, null, "mismatch uid");
             });
         }
@@ -658,11 +659,13 @@ var FIXTURE_LARGE = require("./fixture-large");
         function(loader, select) {
             return loader.watch("pods").then(function() {
                 /* Get the item */
-                var item = select().host("127.0.0.1").one();
+                var item = select().host("127.0.0.1")
+                        .one();
                 assert.deepEqual(item.metadata.selfLink, "/api/v1/namespaces/default/pods/database-1", "correct pod");
 
                 /* Shouldn't match */
-                item = select().host("127.0.0.2").one();
+                item = select().host("127.0.0.2")
+                        .one();
                 assert.strictEqual(item, null, "mismatch host");
             });
         }
@@ -676,34 +679,49 @@ var FIXTURE_LARGE = require("./fixture-large");
                 "apiVersion": "v1",
                 "kind": "ReplicationController",
                 "metadata": { "labels": { "example": "mock", "name": "3controller" },
-                    "name": "3controller",
-                    "resourceVersion": 10000,
-                    "uid": "11768037-ab8a-11e4-9a7c-100001001",
-                    "namespace": "default",
-                    "selfLink": "/api/v1/namespaces/default/replicationcontrollers/3controller",
+                              "name": "3controller",
+                              "resourceVersion": 10000,
+                              "uid": "11768037-ab8a-11e4-9a7c-100001001",
+                              "namespace": "default",
+                              "selfLink": "/api/v1/namespaces/default/replicationcontrollers/3controller",
                 },
                 "spec": { "replicas": 1, "selector": { "factor3": "yes" } }
             };
 
             return loader.watch("replicationcontrollers").then(function() {
                 /* Get the item */
-                var item = select().kind("ReplicationController").name("3controller").namespace("default").one();
+                var item = select().kind("ReplicationController")
+                        .name("3controller")
+                        .namespace("default")
+                        .one();
                 assert.deepEqual(item, expected, "correct item");
 
                 /* The same item, without namespace */
-                item = select().kind("ReplicationController").name("3controller").one();
+                item = select().kind("ReplicationController")
+                        .name("3controller")
+                        .one();
                 assert.deepEqual(item, expected, "selected without namespace");
 
                 /* Any replication controller */
-                item = select().kind("ReplicationController").one();
+                item = select().kind("ReplicationController")
+                        .one();
                 assert.equal(item.kind, "ReplicationController", "any replication controller");
 
                 /* Shouldn't match */
-                item = select().kind("BadKind").name("3controller").namespace("default").one();
+                item = select().kind("BadKind")
+                        .name("3controller")
+                        .namespace("default")
+                        .one();
                 assert.strictEqual(item, null, "mismatch kind");
-                item = select().kind("ReplicationController").name("badcontroller").namespace("default").one();
+                item = select().kind("ReplicationController")
+                        .name("badcontroller")
+                        .namespace("default")
+                        .one();
                 assert.strictEqual(item, null, "mismatch name");
-                item = select().kind("ReplicationController").name("3controller").namespace("baddefault").one();
+                item = select().kind("ReplicationController")
+                        .name("3controller")
+                        .namespace("baddefault")
+                        .one();
                 assert.strictEqual(item, null, "mismatch namespace");
             });
         }
@@ -727,31 +745,40 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.strictEqual(first, second, "identical for null object");
 
                 /* Select everything odd, 500 pods */
-                var results = select().namespace("default").label({ "type": "odd" });
+                var results = select().namespace("default")
+                        .label({ "type": "odd" });
                 assert.equal(results.length, 500, "correct amount");
 
                 /* The same thing should be returned */
-                var results1 = select().namespace("default").label({ "type": "odd" });
+                var results1 = select().namespace("default")
+                        .label({ "type": "odd" });
                 assert.strictEqual(results, results1, "same object returned");
 
                 /* Select everything odd, but wrong namespace, no pods */
-                results = select().namespace("other").label({ "type": "odd" });
+                results = select().namespace("other")
+                        .label({ "type": "odd" });
                 assert.equal(results.length, 0, "other namespace no pods");
 
                 /* The same ones selected even when a second (present) label */
-                results = select().namespace("default").label({ "type": "odd", "tag": "silly"  });
+                results = select().namespace("default")
+                        .label({ "type": "odd", "tag": "silly" });
                 assert.equal(results.length, 500, "with additional label");
 
                 /* Nothing selected when additional invalid field */
-                results = select().namespace("default").label({ "type": "odd", "tag": "billy"  });
+                results = select().namespace("default")
+                        .label({ "type": "odd", "tag": "billy" });
                 assert.equal(results.length, 0, "no objects");
 
                 /* Limit by kind */
-                results = select().kind("Pod").namespace("default").label({ "type": "odd" });
+                results = select().kind("Pod")
+                        .namespace("default")
+                        .label({ "type": "odd" });
                 assert.equal(results.length, 500, "by kind");
 
                 /* Limit by invalid kind */
-                results = select().kind("Ood").namespace("default").label({ "type": "odd" });
+                results = select().kind("Ood")
+                        .namespace("default")
+                        .label({ "type": "odd" });
                 assert.equal(results.length, 0, "nothing for invalid kind");
 
                 /* Everything selected when no selector */

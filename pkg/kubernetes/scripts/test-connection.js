@@ -63,7 +63,7 @@ var QUnit = require("qunit-tests");
             sessionCertificates.trustCert({}, "data1");
             assert.equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
             assert.equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
-            sessionCertificates.trustCert({ server: "address"} , "address-data");
+            sessionCertificates.trustCert({ server: "address"}, "address-data");
             assert.equal(sessionCertificates.getCert("address"), undefined, "address data");
         }
     ]);
@@ -72,71 +72,71 @@ var QUnit = require("qunit-tests");
         "cockpitKubectlConfig",
         function (ckg) {
             var alpha = {
-              "address": "alfa.org",
-              "headers": {
-                "Authorization": "Bearer provider-token"
-              },
-              "port": 443,
-              "tls": {
-                "validate": false,
-                "authority": undefined,
-                "certificate": undefined,
-                "key": undefined,
-              }
+                "address": "alfa.org",
+                "headers": {
+                    "Authorization": "Bearer provider-token"
+                },
+                "port": 443,
+                "tls": {
+                    "validate": false,
+                    "authority": undefined,
+                    "certificate": undefined,
+                    "key": undefined,
+                }
             };
 
             var bravo = {
-              "address": "bravo.org",
-              "headers": {
-                "Authorization": "Bearer provider-access-token"
-              },
-              "port": 8080,
-              "tls": {
-                "authority": {
-                  "file": "cert-authority-file"
+                "address": "bravo.org",
+                "headers": {
+                    "Authorization": "Bearer provider-access-token"
                 },
-                "certificate": undefined,
-                "key": undefined,
-                "validate": true
-              }
+                "port": 8080,
+                "tls": {
+                    "authority": {
+                        "file": "cert-authority-file"
+                    },
+                    "certificate": undefined,
+                    "key": undefined,
+                    "validate": true
+                }
             };
 
             var charlie = {
-              "address": "charlie.org",
-              "headers": {
-                "Authorization": "Bearer token"
-              },
-              "port": 8080
+                "address": "charlie.org",
+                "headers": {
+                    "Authorization": "Bearer token"
+                },
+                "port": 8080
             };
 
             var delta1 = {
-              "address": "delta.org",
-              "headers": {},
-              "port": 443,
-              "tls": {
-                "authority": undefined,
-                "certificate": {
-                  "file": "cert-file"
-                },
-                "key": {
-                  "file": "key-file"
-                },
-                "validate": true
-              }
+                "address": "delta.org",
+                "headers": {},
+                "port": 443,
+                "tls": {
+                    "authority": undefined,
+                    "certificate": {
+                        "file": "cert-file"
+                    },
+                    "key": {
+                        "file": "key-file"
+                    },
+                    "validate": true
+                }
             };
 
             var delta2 = {
-              "address": "delta.org",
-              "headers": {
-                "Authorization": "Basic dXNlcjpwYXNzd29yZA=="
-              },
-              "port": 443,
-              "tls": {
-                "validate": true,
-                "authority": undefined,
-                "certificate": undefined,
-                "key": undefined,
-              }
+                "address": "delta.org",
+                "headers": {
+                    "Authorization": "Basic dXNlcjpwYXNzd29yZA=="
+                },
+                "port": 443,
+                "tls": {
+                    "validate": true,
+                    "authority": undefined,
+                    "certificate": undefined,
+                    "key": undefined,
+                }
             };
             var configData = JSON.stringify(configJson);
             assert.deepEqual(ckg.parseKubeConfig(configData), alpha);
@@ -154,17 +154,17 @@ var QUnit = require("qunit-tests");
             data = connectionActions.prepareData();
             assert.deepEqual(data, {
                 "cluster": {
-                 "cluster": {
-                   "server": "http://localhost:8080"
-                 },
-                 "name": "localhost:8080"
+                    "cluster": {
+                        "server": "http://localhost:8080"
+                    },
+                    "name": "localhost:8080"
                 },
                 "context": {
-                 "context": {
-                   "cluster": "localhost:8080",
-                   "user": undefined
-                 },
-                 "name": "localhost:8080/noauth"
+                    "context": {
+                        "cluster": "localhost:8080",
+                        "user": undefined
+                    },
+                    "name": "localhost:8080/noauth"
                 },
                 "user": undefined
             }, "got right empty values");
@@ -367,5 +367,4 @@ var QUnit = require("qunit-tests");
     ]);
 
     angular.bootstrap(document, ['kubernetes.connection.tests']);
-
 }());

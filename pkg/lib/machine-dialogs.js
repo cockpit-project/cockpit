@@ -60,7 +60,8 @@
         tmp.find("[translatable=\"yes\"]").each(function(i, e) {
             var old = e.outerHTML;
             var translated = cockpit.gettext(e.getAttribute("context"), $(e).text());
-            $(e).removeAttr("translatable").text(translated);
+            $(e).removeAttr("translatable")
+                    .text(translated);
             tmpl = tmpl.replace(old, e.outerHTML);
         });
         mustache.parse(tmpl);
@@ -154,14 +155,14 @@
             var client = cockpit.channel(conn_options);
             client.send("x");
             $(client)
-               .on("message", function() {
-                    $(client).off();
-                    client.close();
-                    dfd.resolve();
-                })
-                .on("close", function(event, options) {
-                    dfd.reject(options);
-                });
+                    .on("message", function() {
+                        $(client).off();
+                        client.close();
+                        dfd.resolve();
+                    })
+                    .on("close", function(event, options) {
+                        dfd.reject(options);
+                    });
 
             return dfd.promise();
         };
@@ -238,22 +239,22 @@
 
             function next(i) {
                 promise_funcs[i]()
-                    .done(function(val) {
-                        i = i + 1;
-                        if (i < promise_funcs.length) {
-                            next(i);
-                        } else {
-                            dialog_dfd.resolve();
-                            self.complete(val);
-                        }
-                    })
-                    .fail(function(ex) {
-                        if (failure_callback)
-                            failure_callback(ex);
-                        else
-                            self.render_error(ex);
-                        dialog_dfd.reject(ex);
-                    });
+                        .done(function(val) {
+                            i = i + 1;
+                            if (i < promise_funcs.length) {
+                                next(i);
+                            } else {
+                                dialog_dfd.resolve();
+                                self.complete(val);
+                            }
+                        })
+                        .fail(function(ex) {
+                            if (failure_callback)
+                                failure_callback(ex);
+                            else
+                                self.render_error(ex);
+                            dialog_dfd.reject(ex);
+                        });
             }
 
             promise_funcs.push(function() {
@@ -290,7 +291,7 @@
 
             var part, colors = [];
             for (var i = 0; i < machines.colors.length; i += 6) {
-                part = machines.colors.slice(i, i+6);
+                part = machines.colors.slice(i, i + 6);
                 colors.push({"list" : part});
             }
 
@@ -303,37 +304,37 @@
             });
 
             $('#host-edit-color-popover .popover-content .color-cell', selector)
-                .click(function() {
-                    var color = $(this).css('background-color');
-                    $('#host-edit-color', selector).css('background-color', color);
-                });
+                    .click(function() {
+                        var color = $(this).css('background-color');
+                        $('#host-edit-color', selector).css('background-color', color);
+                    });
 
-            $("#host-edit-color", selector).parent().
-                on('show.bs.dropdown', function () {
-                    var $div = $('#host-edit-color', selector);
-                    var $pop = $('#host-edit-color-popover', selector);
-                    var div_pos = $div.position();
-                    var div_width = $div.width();
-                    var div_height = $div.height();
-                    var pop_width = $pop.width();
-                    var pop_height = $pop.height();
+            $("#host-edit-color", selector).parent()
+                    .on('show.bs.dropdown', function () {
+                        var $div = $('#host-edit-color', selector);
+                        var $pop = $('#host-edit-color-popover', selector);
+                        var div_pos = $div.position();
+                        var div_width = $div.width();
+                        var div_height = $div.height();
+                        var pop_width = $pop.width();
+                        var pop_height = $pop.height();
 
-                    var top = div_pos.top - pop_height + 10;
-                    if (top < 0) {
-                        top = div_pos.top + div_height + 10;
-                        $pop.addClass("bottom");
-                        $pop.removeClass("top");
-                    } else {
-                        $pop.addClass("top");
-                        $pop.removeClass("bottom");
-                    }
-                    $pop.css('left', div_pos.left + (div_width - pop_width) / 2);
-                    $pop.css('top', top);
-                    $pop.show();
-                }).
-                on('hide.bs.dropdown', function () {
-                    $('#host-edit-color-popover', selector).hide();
-                });
+                        var top = div_pos.top - pop_height + 10;
+                        if (top < 0) {
+                            top = div_pos.top + div_height + 10;
+                            $pop.addClass("bottom");
+                            $pop.removeClass("top");
+                        } else {
+                            $pop.addClass("top");
+                            $pop.removeClass("bottom");
+                        }
+                        $pop.css('left', div_pos.left + (div_width - pop_width) / 2);
+                        $pop.css('top', top);
+                        $pop.show();
+                    })
+                    .on('hide.bs.dropdown', function () {
+                        $('#host-edit-color-popover', selector).hide();
+                    });
         };
     }
 
@@ -406,12 +407,12 @@
             dialog.set_goal(function() {
                 var dfp = $.Deferred();
                 dialog.machines_ins.add(dialog.address, color)
-                    .done(dfp.resolve)
-                    .fail(function (ex) {
-                        var msg = cockpit.format(_("Failed to add machine: $0"),
-                                                 cockpit.message(ex));
-                        dfp.reject(msg);
-                    });
+                        .done(dfp.resolve)
+                        .fail(function (ex) {
+                            var msg = cockpit.format(_("Failed to add machine: $0"),
+                                                     cockpit.message(ex));
+                            dfp.reject(msg);
+                        });
 
                 return dfp.promise();
             });
@@ -471,42 +472,42 @@
             var parts = dialog.machines_ins.split_connection_string(dialog.address);
             parts.port = $("#edit-machine-port").val();
             var address = dialog.machines_ins.generate_connection_string(parts.user,
-                                                                  parts.port,
-                                                                  parts.address);
+                                                                         parts.port,
+                                                                         parts.address);
             function update_host(ex) {
                 dialog.address = address;
                 dialog.machines_ins.change(parts.address, { "port": parts.port })
-                    .done(function () {
+                        .done(function () {
                         // We failed before so try to connect again
                         // now that the machine is saved.
-                        if (ex) {
-                            dialog.try_to_connect(address)
-                                .done(dialog.complete)
-                                .fail(function (e) {
-                                    dfp.reject(e);
-                                });
-                        } else {
-                            dfp.resolve();
-                        }
-                    })
-                    .fail(function (ex) {
-                        var msg = cockpit.format(_("Failed to edit machine: $0"),
-                                                 cockpit.message(ex));
-                        dfp.reject(msg);
-                    });
+                            if (ex) {
+                                dialog.try_to_connect(address)
+                                        .done(dialog.complete)
+                                        .fail(function (e) {
+                                            dfp.reject(e);
+                                        });
+                            } else {
+                                dfp.resolve();
+                            }
+                        })
+                        .fail(function (ex) {
+                            var msg = cockpit.format(_("Failed to edit machine: $0"),
+                                                     cockpit.message(ex));
+                            dfp.reject(msg);
+                        });
             }
 
             dialog.try_to_connect(address)
-                .done(function () {
-                    update_host();
-                })
-                .fail(function (ex) {
+                    .done(function () {
+                        update_host();
+                    })
+                    .fail(function (ex) {
                     /* any other error means progress, so save */
-                    if (ex.problem != 'no-host')
-                        update_host(ex);
-                    else
-                        dfp.reject(ex);
-                });
+                        if (ex.problem != 'no-host')
+                            update_host(ex);
+                        else
+                            dfp.reject(ex);
+                    });
 
             dialog.run(dfp.promise());
         }
@@ -552,11 +553,11 @@
                     if ((ex.problem == "invalid-hostkey" ||
                         ex.problem == "unknown-hostkey") &&
                         machine && !machine.on_disk) {
-                            dialog.machines_ins.change(dialog.address, {
-                                'host_key': null
-                            });
-                        }
-                    });
+                        dialog.machines_ins.change(dialog.address, {
+                            'host_key': null
+                        });
+                    }
+                });
 
                 return inner;
             });
@@ -592,19 +593,19 @@
                 }
 
                 promise = dialog.try_to_connect(dialog.address, options)
-                    .fail(function(ex) {
-                        if (ex.problem != match_problem) {
-                            dialog.render_error(ex);
-                        } else {
-                            error_options = ex;
-                            render();
-                        }
-                    })
+                        .fail(function(ex) {
+                            if (ex.problem != match_problem) {
+                                dialog.render_error(ex);
+                            } else {
+                                error_options = ex;
+                                render();
+                            }
+                        })
 
-                    // Fixed already, just close
-                    .done(function (v) {
-                        dialog.complete(v);
-                    });
+                // Fixed already, just close
+                        .done(function (v) {
+                            dialog.complete(v);
+                        });
 
                 dialog.get_sel().dialog("wait", promise);
             } else if (allow_change) {
@@ -657,8 +658,8 @@
             parts.user = user;
 
             address = dialog.machines_ins.generate_connection_string(parts.user,
-                                                              parts.port,
-                                                              parts.address);
+                                                                     parts.port,
+                                                                     parts.address);
 
             if ($("#login-type button").val() != 'stored') {
                 options['password'] = $("#login-custom-password").val();
@@ -675,17 +676,17 @@
             }
 
             dialog.try_to_connect(address, options)
-                .done(function () {
-                    dialog.address = address;
-                    if (machine) {
-                        dialog.machines_ins.change(machine.address, { "user" : user })
-                            .done(dfp.resolve)
-                            .fail(dfp.reject);
-                    } else {
-                        dfp.resolve();
-                    }
-                })
-                .fail(dfp.reject);
+                    .done(function () {
+                        dialog.address = address;
+                        if (machine) {
+                            dialog.machines_ins.change(machine.address, { "user" : user })
+                                    .done(dfp.resolve)
+                                    .fail(dfp.reject);
+                        } else {
+                            dfp.resolve();
+                        }
+                    })
+                    .fail(dfp.reject);
 
             dialog.run(dfp.promise());
         }
@@ -750,15 +751,15 @@
 
             if (methods === null && machines.has_auth_results) {
                 promise = dialog.try_to_connect(dialog.address)
-                    .fail(function(ex) {
-                        error_options = ex;
-                        render();
-                    })
+                        .fail(function(ex) {
+                            error_options = ex;
+                            render();
+                        })
 
-                    // Fixed already, just close
-                    .done(function (v) {
-                        dialog.complete(v);
-                    });
+                // Fixed already, just close
+                        .done(function (v) {
+                            dialog.complete(v);
+                        });
 
                 dialog.get_sel().dialog("wait", promise);
             } else if (!$.isEmptyObject(available)) {
@@ -785,21 +786,21 @@
             }
 
             cockpit.spawn(["klist", "-s"])
-                .fail(function (ex) {
-                    have_ticket = false;
-                })
-                .done(function (done) {
-                    have_ticket = true;
-                })
-                .always(function () {
-                    cockpit.user()
-                        .done(function (user) {
-                            self.user = user;
-                        })
-                        .always(function (user) {
-                            render();
-                        });
-                });
+                    .fail(function (ex) {
+                        have_ticket = false;
+                    })
+                    .done(function (done) {
+                        have_ticket = true;
+                    })
+                    .always(function () {
+                        cockpit.user()
+                                .done(function (user) {
+                                    self.user = user;
+                                })
+                                .always(function (user) {
+                                    render();
+                                });
+                    });
         };
 
         self.close = function(ex) {
@@ -840,44 +841,44 @@
                     };
 
                     proxy.Transfer("passwd1", blank)
-                        .done(function(prepared) {
-                            var i, parts, name;
-                            var groups = prepared.v[1];
+                            .done(function(prepared) {
+                                var i, parts, name;
+                                var groups = prepared.v[1];
 
-                            for (i = 0; i < prepared.v[0].length; i++) {
-                                var raw = prepared.v[0][i];
+                                for (i = 0; i < prepared.v[0].length; i++) {
+                                    var raw = prepared.v[0][i];
 
-                                parts = raw.split(":");
-                                name = parts[0];
+                                    parts = raw.split(":");
+                                    name = parts[0];
 
-                                users[name] = {
-                                    "username" : name,
-                                    "name" : parts[4] || name,
-                                    "raw" : raw,
-                                    "groups" : [],
-                                };
-                            }
-
-                            for (i = 0; i < groups.length; i++) {
-                                parts = groups[i].split(":");
-                                name = parts[0];
-                                var members = parts[parts.length - 1].split(",");
-                                for (var j = 0; j < members.length; j++) {
-                                    var u = members[j];
-                                    if (users[u])
-                                        users[u].groups.push(name);
+                                    users[name] = {
+                                        "username" : name,
+                                        "name" : parts[4] || name,
+                                        "raw" : raw,
+                                        "groups" : [],
+                                    };
                                 }
-                            }
-                        })
-                        .fail(function(ex) {
-                            ex.message = cockpit.gettext(ex.message);
-                            perm_failed = ex;
-                        })
-                        .always(function(ex) {
-                            $(local).off();
-                            local.close();
-                            render();
-                        });
+
+                                for (i = 0; i < groups.length; i++) {
+                                    parts = groups[i].split(":");
+                                    name = parts[0];
+                                    var members = parts[parts.length - 1].split(",");
+                                    for (var j = 0; j < members.length; j++) {
+                                        var u = members[j];
+                                        if (users[u])
+                                            users[u].groups.push(name);
+                                    }
+                                }
+                            })
+                            .fail(function(ex) {
+                                ex.message = cockpit.gettext(ex.message);
+                                perm_failed = ex;
+                            })
+                            .always(function(ex) {
+                                $(local).off();
+                                local.close();
+                                render();
+                            });
                 }
             });
         }
@@ -917,7 +918,7 @@
             };
 
             var groups = {};
-            dialog.get_sel("input:checked").each( function() {
+            dialog.get_sel("input:checked").each(function() {
                 var u = users[$(this).attr("name")];
                 if (u) {
                     variant.v[0].push(u.raw);
@@ -939,11 +940,11 @@
             proxy.wait(function() {
                 if (proxy.valid) {
                     proxy.Commit("passwd1", variant)
-                        .fail(function(ex) {
-                            ex.message = cockpit.gettext(ex.message);
-                            dfd.reject(ex);
-                        })
-                        .done(dfd.resolve);
+                            .fail(function(ex) {
+                                ex.message = cockpit.gettext(ex.message);
+                                dfd.reject(ex);
+                            })
+                            .done(dfd.resolve);
                 }
             });
         }
@@ -955,16 +956,17 @@
 
         function render() {
             function formated_groups() {
-                /*jshint validthis:true */
+                /* jshint validthis:true */
                 if (this.groups)
                     return this.groups.join(", ");
             }
 
             /* assume password is allowed for backwards compatibility */
             var allows_password = true;
-            var user_list = Object.keys(users).sort().map(function(v) {
-                return users[v];
-            });
+            var user_list = Object.keys(users).sort()
+                    .map(function(v) {
+                        return users[v];
+                    });
 
             if (machines.has_auth_results && methods)
                 allows_password = is_method_supported(methods, 'password');
@@ -1004,10 +1006,10 @@
                          * open new transport that fails.
                          */
                         dialog.try_to_connect(dialog.address, { "user" : "1" })
-                            .fail(function(ex) {
-                                methods = ex['auth-method-results'];
-                            })
-                            .always(render);
+                                .fail(function(ex) {
+                                    methods = ex['auth-method-results'];
+                                })
+                                .always(render);
                 } else {
                     methods = ex['auth-method-results'];
                     render();
@@ -1046,7 +1048,7 @@
             if (machine.problem == "no-host")
                 return true;
 
-            return codes[machine.problem] ? true : false;
+            return !!codes[machine.problem];
         };
 
         self.render_dialog = function (template, target_id, address) {

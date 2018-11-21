@@ -45,13 +45,13 @@ client.init = function(capabilitiesChangedCallback) {
     client.proxy.wait(function() {
         // HACK setroubleshootd seems to drop connections if we don't start explicitly
         client.proxy.call("start", [])
-            .done(function() {
-                client.connected = true;
-                dfd.resolve();
-            })
-            .fail(function(ex) {
-                dfd.reject(new Error(_("Unable to start setroubleshootd")));
-            });
+                .done(function() {
+                    client.connected = true;
+                    dfd.resolve();
+                })
+                .fail(function(ex) {
+                    dfd.reject(new Error(_("Unable to start setroubleshootd")));
+                });
     });
 
     client.alertCallback = null;
@@ -83,18 +83,18 @@ client.init = function(capabilitiesChangedCallback) {
         else
             call = client.proxy.call("get_all_alerts", []);
         call
-            .done(function(result) {
-                dfdResult.resolve(result[0].map(function(entry) {
-                    return {
-                        localId: entry[0],
-                        summary: entry[1],
-                        reportCount: entry[2],
-                    };
-                }));
-            })
-            .fail(function(ex) {
-                dfdResult.reject(ex);
-            });
+                .done(function(result) {
+                    dfdResult.resolve(result[0].map(function(entry) {
+                        return {
+                            localId: entry[0],
+                            summary: entry[1],
+                            reportCount: entry[2],
+                        };
+                    }));
+                })
+                .fail(function(ex) {
+                    dfdResult.reject(ex);
+                });
         return dfdResult.promise();
     };
 
@@ -118,45 +118,45 @@ client.init = function(capabilitiesChangedCallback) {
     client.getAlert = function(localId) {
         var dfdResult = cockpit.defer();
         client.proxy.call("get_alert", [localId])
-            .done(function(result) {
-                var details = {
-                  localId: result[0],
-                  summary: result[1],
-                  reportCount: result[2],
-                  auditEvent: result[3],
-                  pluginAnalysis: result[4],
-                };
-                // these values are available starting setroubleshoot-3.2.25
-                // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
-                if (result.length >= 8) {
+                .done(function(result) {
+                    var details = {
+                        localId: result[0],
+                        summary: result[1],
+                        reportCount: result[2],
+                        auditEvent: result[3],
+                        pluginAnalysis: result[4],
+                    };
+                    // these values are available starting setroubleshoot-3.2.25
+                    // HACK https://bugzilla.redhat.com/show_bug.cgi?id=1306700
+                    if (result.length >= 8) {
                     // there was an API change: if the timestamps are numbers, divide by 1000
                     // so moment.js can parse them correctly by default
-                    if (typeof(result[5]) === "number") {
-                        result[5] /= 1000;
-                        result[6] /= 1000;
+                        if (typeof (result[5]) === "number") {
+                            result[5] /= 1000;
+                            result[6] /= 1000;
+                        }
+                        details.firstSeen = moment(result[5]);
+                        details.lastSeen = moment(result[6]);
+                        details.level = result[7];
                     }
-                    details.firstSeen = moment(result[5]);
-                    details.lastSeen = moment(result[6]);
-                    details.level = result[7];
-                }
-                // cleanup analysis
-                details.pluginAnalysis = details.pluginAnalysis.map(function(itm) {
-                    return {
-                        ifText: itm[0],
-                        thenText: itm[1],
-                        doText: itm[2],
-                        analysisId: itm[3],
-                        fixable: itm[4],
-                        reportBug: itm[5],
-                    };
+                    // cleanup analysis
+                    details.pluginAnalysis = details.pluginAnalysis.map(function(itm) {
+                        return {
+                            ifText: itm[0],
+                            thenText: itm[1],
+                            doText: itm[2],
+                            analysisId: itm[3],
+                            fixable: itm[4],
+                            reportBug: itm[5],
+                        };
+                    });
+                    dfdResult.resolve(details);
+                })
+                .fail(function(ex) {
+                    console.warn("Unable to get alert for id " + localId);
+                    console.warn(ex);
+                    dfdResult.reject(new Error(cockpit.format(_("Unable to get alert: $0"), localId)));
                 });
-                dfdResult.resolve(details);
-            })
-            .fail(function(ex) {
-                console.warn("Unable to get alert for id " + localId);
-                console.warn(ex);
-                dfdResult.reject(new Error(cockpit.format(_("Unable to get alert: $0"), localId)));
-            });
         return dfdResult.promise();
     };
 
@@ -166,12 +166,12 @@ client.init = function(capabilitiesChangedCallback) {
     client.runFix = function(alertId, analysisId) {
         var dfdResult = cockpit.defer();
         client.proxyFixit.call("run_fix", [alertId, analysisId])
-            .done(function(result) {
-                dfdResult.resolve(result[0]);
-            })
-            .fail(function(ex) {
-                dfdResult.reject(new Error(cockpit.format(_("Unable to run fix: %0"), + ex)));
-            });
+                .done(function(result) {
+                    dfdResult.resolve(result[0]);
+                })
+                .fail(function(ex) {
+                    dfdResult.reject(new Error(cockpit.format(_("Unable to run fix: %0"), +ex)));
+                });
         return dfdResult.promise();
     };
 
@@ -181,17 +181,17 @@ client.init = function(capabilitiesChangedCallback) {
     var deleteAlert = function(localId) {
         var dfdResult = cockpit.defer();
         client.proxy.call("delete_alert", [localId])
-            .done(function(success) {
-                if (success)
-                    dfdResult.resolve();
-                else
-                    dfdResult.reject(new Error(cockpit.format(_("Failed to delete alert: $0"), localId)));
-            })
-            .fail(function(ex) {
-                console.warn("Unable to delete alert with id " + localId);
-                console.warn(ex);
-                dfdResult.reject(new Error(cockpit.format(_("Error while deleting alert: $0"), localId)));
-            });
+                .done(function(success) {
+                    if (success)
+                        dfdResult.resolve();
+                    else
+                        dfdResult.reject(new Error(cockpit.format(_("Failed to delete alert: $0"), localId)));
+                })
+                .fail(function(ex) {
+                    console.warn("Unable to delete alert with id " + localId);
+                    console.warn(ex);
+                    dfdResult.reject(new Error(cockpit.format(_("Error while deleting alert: $0"), localId)));
+                });
         return dfdResult.promise();
     };
 

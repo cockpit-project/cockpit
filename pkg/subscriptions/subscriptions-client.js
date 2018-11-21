@@ -106,19 +106,19 @@ function getSubscriptionDetails() {
     gettingDetails = true;
     cockpit.spawn(['subscription-manager', 'list'],
                   { directory: '/', superuser: "require", environ: ['LC_ALL=C'] })
-        .done(function(output) {
-            client.subscriptionStatus.products = parseMultipleSubscriptions(output);
-        })
-        .fail(function(ex) {
-            client.subscriptionStatus.error = ex;
-            console.warn("Subscriptions [getSubscriptionDetails]: couldn't get details: " + ex);
-        })
-        .always(function(output) {
-            gettingDetails = false;
-            if (getDetailsRequested)
-                getSubscriptionDetails();
-            needRender();
-        });
+            .done(function(output) {
+                client.subscriptionStatus.products = parseMultipleSubscriptions(output);
+            })
+            .fail(function(ex) {
+                client.subscriptionStatus.error = ex;
+                console.warn("Subscriptions [getSubscriptionDetails]: couldn't get details: " + ex);
+            })
+            .always(function(output) {
+                gettingDetails = false;
+                if (getDetailsRequested)
+                    getSubscriptionDetails();
+                needRender();
+            });
 }
 
 client.registerSystem = function(subscriptionDetails) {
@@ -173,48 +173,48 @@ client.registerSystem = function(subscriptionDetails) {
     var promise;
     var buffer = '';
     process
-        .input('')
-        .stream(function(text) {
-            buffer += text;
-        })
-        .done(function(output) {
-            dfd.resolve();
-        })
-        .fail(function(ex) {
-            if (ex.problem === "cancelled") {
-                dfd.reject(ex);
-                return;
-            }
+            .input('')
+            .stream(function(text) {
+                buffer += text;
+            })
+            .done(function(output) {
+                dfd.resolve();
+            })
+            .fail(function(ex) {
+                if (ex.problem === "cancelled") {
+                    dfd.reject(ex);
+                    return;
+                }
 
-            /* detect error types we recognize, fall back is generic error */
-            var invalidUsernameString = 'Invalid username or password.';
-            var invalidCredentialsString = 'Invalid Credentials';
-            var message = buffer.trim();
-            if (message.indexOf(invalidUsernameString) !== -1) {
-                message = cockpit.format("$0 ($1)", _("Invalid username or password"), message.substring(invalidUsernameString.length).trim());
-            } else if (message.indexOf(invalidCredentialsString) !== -1) {
-                message = cockpit.format("$0 ($1)", _("Invalid credentials"), message.substring(invalidCredentialsString.length).trim());
-            } else if ((message.indexOf('EOF') === 0) && (message.indexOf('Organization:') !== -1)) {
-                message = _("'Organization' required to register.");
-            } else if ((message.indexOf('EOF') === 0) && (message.indexOf('Username:') !== -1)) {
-                message = _("Login/password or activation key required to register.");
-            } else if (message.indexOf('Must provide --org with activation keys') !== -1) {
-                message = _("'Organization' required when using activation keys.");
-            } else if (message.indexOf('The system has been registered') !== -1) {
+                /* detect error types we recognize, fall back is generic error */
+                var invalidUsernameString = 'Invalid username or password.';
+                var invalidCredentialsString = 'Invalid Credentials';
+                var message = buffer.trim();
+                if (message.indexOf(invalidUsernameString) !== -1) {
+                    message = cockpit.format("$0 ($1)", _("Invalid username or password"), message.substring(invalidUsernameString.length).trim());
+                } else if (message.indexOf(invalidCredentialsString) !== -1) {
+                    message = cockpit.format("$0 ($1)", _("Invalid credentials"), message.substring(invalidCredentialsString.length).trim());
+                } else if ((message.indexOf('EOF') === 0) && (message.indexOf('Organization:') !== -1)) {
+                    message = _("'Organization' required to register.");
+                } else if ((message.indexOf('EOF') === 0) && (message.indexOf('Username:') !== -1)) {
+                    message = _("Login/password or activation key required to register.");
+                } else if (message.indexOf('Must provide --org with activation keys') !== -1) {
+                    message = _("'Organization' required when using activation keys.");
+                } else if (message.indexOf('The system has been registered') !== -1) {
                 /*
                  * Currently we don't separate registration & subscription.
                  * Our auto-attach may have failed, so close the dialog and
                  * update status.
                  */
-                dfd.resolve();
-                return;
-            } else {
+                    dfd.resolve();
+                    return;
+                } else {
                 // unrecognized output
-                console.log("unrecognized subscription-manager failure output: ", ex, message);
-            }
-            var error = new Error(message);
-            dfd.reject(error);
-        });
+                    console.log("unrecognized subscription-manager failure output: ", ex, message);
+                }
+                var error = new Error(message);
+                dfd.reject(error);
+            });
 
     promise = dfd.promise();
     promise.cancel = function cancel() {
@@ -246,22 +246,22 @@ client.unregisterSystem = function() {
     var promise;
     var buffer = '';
     process
-        .input('')
-        .stream(function(text) {
-            buffer += text;
-        })
-        .done(function(output) {
-            dfd.resolve();
-        })
-        .fail(function(ex) {
-            if (ex.problem === "cancelled") {
-                dfd.reject(ex);
-                return;
-            }
-            var error = new Error(buffer.trim());
-            dfd.reject(error);
-            requestUpdate();
-        });
+            .input('')
+            .stream(function(text) {
+                buffer += text;
+            })
+            .done(function(output) {
+                dfd.resolve();
+            })
+            .fail(function(ex) {
+                if (ex.problem === "cancelled") {
+                    dfd.reject(ex);
+                    return;
+                }
+                var error = new Error(buffer.trim());
+                dfd.reject(error);
+                requestUpdate();
+            });
 
     promise = dfd.promise();
     promise.cancel = function cancel() {
@@ -297,16 +297,16 @@ function requestUpdate() {
         'com.redhat.SubscriptionManager.EntitlementStatus',
         'check_status',
         [])
-        .always(function() {
-            window.clearTimeout(updateTimeout);
-        })
-        .done(function(result) {
-            client.subscriptionStatus.serviceStatus = subscriptionStatusValues[result[0]];
-            client.getSubscriptionStatus();
-        })
-        .catch(function(ex) {
-            statusUpdateFailed("EntitlementStatus.check_status() failed:", ex);
-        });
+            .always(function() {
+                window.clearTimeout(updateTimeout);
+            })
+            .done(function(result) {
+                client.subscriptionStatus.serviceStatus = subscriptionStatusValues[result[0]];
+                client.getSubscriptionStatus();
+            })
+            .catch(function(ex) {
+                statusUpdateFailed("EntitlementStatus.check_status() failed:", ex);
+            });
 
     /* TODO: Don't use a timeout here. Needs better API */
     updateTimeout = window.setTimeout(
@@ -343,7 +343,7 @@ function processStatusOutput(text, exitDetails) {
 
 var gettingStatus = false;
 var getStatusRequested = false;
-/* get subscription summary using 'subscription-manager status'*/
+/* get subscription summary using 'subscription-manager status' */
 client.getSubscriptionStatus = function() {
     if (gettingStatus) {
         getStatusRequested = true;
@@ -362,17 +362,20 @@ client.getSubscriptionStatus = function() {
      */
     cockpit.spawn(['subscription-manager', 'status'],
                   { directory: '/', superuser: "require", environ: ['LC_ALL=C'], err: "out" })
-        .stream(function(text) {
-            status_buffer += text;
-        }).done(function(text) {
-            processStatusOutput(status_buffer + text, undefined);
-        }).fail(function(ex) {
-            processStatusOutput(status_buffer, ex);
-        }).always(function() {
-            gettingStatus = false;
-            if (getStatusRequested)
-                client.getSubscriptionStatus();
-        });
+            .stream(function(text) {
+                status_buffer += text;
+            })
+            .done(function(text) {
+                processStatusOutput(status_buffer + text, undefined);
+            })
+            .fail(function(ex) {
+                processStatusOutput(status_buffer, ex);
+            })
+            .always(function() {
+                gettingStatus = false;
+                if (getStatusRequested)
+                    client.getSubscriptionStatus();
+            });
 };
 
 client.init = function() {

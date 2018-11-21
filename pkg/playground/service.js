@@ -10,7 +10,6 @@
         var proxy;
 
         function navigate() {
-
             proxy = service.proxy(cockpit.location.path[0] || "");
 
             function show() {
@@ -30,10 +29,10 @@
 
         function b(t) {
             $('#' + t).on('click', function () {
-                proxy[t]().
-                    fail(function (error) {
-                        console.error("action", t, "failed:", JSON.stringify(error));
-                    });
+                proxy[t]()
+                        .fail(function (error) {
+                            console.error("action", t, "failed:", JSON.stringify(error));
+                        });
             });
         }
 

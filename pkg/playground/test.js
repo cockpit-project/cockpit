@@ -10,42 +10,42 @@
         $(".cockpit-internal-reauthorize .btn").on("click", function() {
             $(".cockpit-internal-reauthorize span").text("checking...");
             var cmd = "pkcheck --action-id org.freedesktop.policykit.exec --process $$ -u 2>&1";
-            cockpit.spawn(["sh", "-c", cmd]).
-                stream(function(data) {
-                    console.debug(data);
-                }).
-                done(function() {
-                    $(".cockpit-internal-reauthorize span").text("result: authorized");
-                }).
-                fail(function() {
-                    $(".cockpit-internal-reauthorize span").text("result: access-denied");
-                });
+            cockpit.spawn(["sh", "-c", cmd])
+                    .stream(function(data) {
+                        console.debug(data);
+                    })
+                    .done(function() {
+                        $(".cockpit-internal-reauthorize span").text("result: authorized");
+                    })
+                    .fail(function() {
+                        $(".cockpit-internal-reauthorize span").text("result: access-denied");
+                    });
         });
 
         $(".super-channel .btn").on("click", function() {
             $(".super-channel span").text("checking...");
-            cockpit.spawn(["id"], { "superuser": true }).
-                done(function(data) {
-                    console.log("done");
-                    $(".super-channel span").text("result: " + data);
-                }).
-                fail(function(ex) {
-                    console.log("fail");
-                    $(".super-channel span").text("result: " + ex.problem);
-                });
+            cockpit.spawn(["id"], { "superuser": true })
+                    .done(function(data) {
+                        console.log("done");
+                        $(".super-channel span").text("result: " + data);
+                    })
+                    .fail(function(ex) {
+                        console.log("fail");
+                        $(".super-channel span").text("result: " + ex.problem);
+                    });
         });
 
         function update_nav() {
             $('#nav').empty();
             var path = [ "top" ].concat(cockpit.location.path);
             $(path).each(function (i, p) {
-                if (i < path.length-1) {
+                if (i < path.length - 1) {
                     $('#nav').append(
-                        $('<a>').
-                            text(p).
-                            click(function () {
-                                cockpit.location.go(path.slice(1,i+1));
-                            }),
+                        $('<a>')
+                                .text(p)
+                                .click(function () {
+                                    cockpit.location.go(path.slice(1, i + 1));
+                                }),
                         " >> ");
                 } else {
                     $('#nav').append(
@@ -85,18 +85,19 @@
 
         $('#modify-file').click(function () {
             counter
-                .modify(function (obj) {
-                    obj = normalize_counter(obj);
-                    obj.counter += 1;
-                    return obj;
-                })
-                .fail(complain);
+                    .modify(function (obj) {
+                        obj = normalize_counter(obj);
+                        obj.counter += 1;
+                        return obj;
+                    })
+                    .fail(complain);
         });
 
         function load_file() {
-            cockpit.file("/tmp/counter").read().done(function (content) {
-                $('#edit-file').val(content);
-            });
+            cockpit.file("/tmp/counter").read()
+                    .done(function (content) {
+                        $('#edit-file').val(content);
+                    });
         }
 
         function save_file() {

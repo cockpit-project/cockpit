@@ -104,12 +104,12 @@
         $('#activate-multipath').on('click', function () {
             cockpit.spawn([ "mpathconf", "--enable", "--with_multipathd", "y" ],
                           { superuser: "try"
-                          }).
-                fail(function (error) {
-                    dialog_open({ Title: _("Error"),
-                                  Body: error.toString()
-                                });
-                });
+                          })
+                    .fail(function (error) {
+                        dialog_open({ Title: _("Error"),
+                                      Body: error.toString()
+                        });
+                    });
         });
     }
 

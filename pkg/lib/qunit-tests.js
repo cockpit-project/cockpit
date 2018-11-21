@@ -29,5 +29,4 @@
     require("qunitjs/qunit/qunit.css");
 
     module.exports = window.QUnit;
-
 }());

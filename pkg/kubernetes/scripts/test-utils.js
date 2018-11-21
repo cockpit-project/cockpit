@@ -72,7 +72,7 @@ function suite() {
                 "name": "one",
                 "other": "other1",
                 "value": 1
-            },{
+            }, {
                 "name": "two",
                 "other": "other2",
                 "value": 2

@@ -53,147 +53,147 @@
         'kubeClient.cockpit'
     ])
 
-    .config([
-        '$routeProvider',
-        'KubeWatchProvider',
-        'KubeRequestProvider',
-        'KubeDiscoverSettingsProvider',
-        'MomentLibProvider',
-        '$provide',
-        function($routeProvider, KubeWatchProvider, KubeRequestProvider,
-                 KubeDiscoverSettingsProvider, MomentLibProvider, $provide) {
+            .config([
+                '$routeProvider',
+                'KubeWatchProvider',
+                'KubeRequestProvider',
+                'KubeDiscoverSettingsProvider',
+                'MomentLibProvider',
+                '$provide',
+                function($routeProvider, KubeWatchProvider, KubeRequestProvider,
+                    KubeDiscoverSettingsProvider, MomentLibProvider, $provide) {
+                    $routeProvider
+                            .when('/', {
+                                templateUrl: 'views/registry-dashboard-page.html',
+                                controller: 'DashboardCtrl',
+                                reloadOnSearch: false,
+                            })
+                            .otherwise({ redirectTo: '/' });
 
-            $routeProvider
-                .when('/', {
-                    templateUrl: 'views/registry-dashboard-page.html',
-                    controller: 'DashboardCtrl',
-                    reloadOnSearch: false,
-                })
-                .otherwise({ redirectTo: '/' });
+                    /* Tell the kube-client code to use cockpit watches and requests */
+                    KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
+                    KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
+                    KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
+                    MomentLibProvider.MomentLibFactory = "momentLib";
 
-            /* Tell the kube-client code to use cockpit watches and requests */
-            KubeWatchProvider.KubeWatchFactory = "CockpitKubeWatch";
-            KubeRequestProvider.KubeRequestFactory = "CockpitKubeRequest";
-            KubeDiscoverSettingsProvider.KubeDiscoverSettingsFactory = "cockpitKubeDiscoverSettings";
-            MomentLibProvider.MomentLibFactory = "momentLib";
+                    $provide.decorator("$exceptionHandler",
+                                       ['$delegate',
+                                           '$log',
+                                           function($delegate, $log) {
+                                               return function (exception, cause) {
+                                                   /* Displays an oops if we're running in cockpit */
+                                                   if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
+                                                       window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
 
-            $provide.decorator("$exceptionHandler",
-                ['$delegate',
-                 '$log',
-                 function($delegate, $log) {
-                    return function (exception, cause) {
-                        /* Displays an oops if we're running in cockpit */
-                        if (window.parent !== window && window.name.indexOf("cockpit1:") === 0)
-                            window.parent.postMessage("\n{ \"command\": \"oops\" }", "*");
+                                                   $delegate(exception, cause);
+                                               };
+                                           }]);
+                }
+            ])
 
-                        $delegate(exception, cause);
-                    };
-              }]);
-        }
-    ])
+            .controller('DashboardCtrl', [
+                '$scope',
+                'kubeLoader',
+                'kubeSelect',
+                'KubeDiscoverSettings',
+                'imageData',
+                'imageActions',
+                'projectActions',
+                'projectData',
+                'projectPolicy',
+                'filterService',
+                function($scope, loader, select, discoverSettings, imageData, imageActions, projectActions, projectData, projectPolicy, filter) {
+                    loader.load("projects");
+                    /* Watch the for project access changes */
+                    projectPolicy.watch($scope);
 
-    .controller('DashboardCtrl', [
-        '$scope',
-        'kubeLoader',
-        'kubeSelect',
-        'KubeDiscoverSettings',
-        'imageData',
-        'imageActions',
-        'projectActions',
-        'projectData',
-        'projectPolicy',
-        'filterService',
-        function($scope, loader, select, discoverSettings, imageData, imageActions, projectActions, projectData, projectPolicy, filter) {
-            loader.load("projects");
-            /* Watch the for project access changes */
-            projectPolicy.watch($scope);
-
-            /*
+                    /*
              * For now the dashboard  has to watch all images in
              * order to display the 'Images pushed recently' data
              *
              * In the future we want to have a metadata or filtering
              * service that we can query for that data.
              */
-            imageData.watchImages($scope);
+                    imageData.watchImages($scope);
 
-            function compareVersion(a, b) {
-                a = (a.metadata || { }).resourceVersion || 0;
-                b = (b.metadata || { }).resourceVersion || 0;
-                return b - a;
-            }
-            function compareCreated(a, b) {
-                a = a.items && a.items[0] || {};
-                b = b.items && b.items[0] || {};
-                a = a.created || "";
-                b = b.created || "";
-                return (b < a ? -1 : (b > a ? 1 : 0));
-            }
+                    function compareVersion(a, b) {
+                        a = (a.metadata || { }).resourceVersion || 0;
+                        b = (b.metadata || { }).resourceVersion || 0;
+                        return b - a;
+                    }
+                    function compareCreated(a, b) {
+                        a = a.items && a.items[0] || {};
+                        b = b.items && b.items[0] || {};
+                        a = a.created || "";
+                        b = b.created || "";
+                        return (b < a ? -1 : (b > a ? 1 : 0));
+                    }
 
-            select.register("buildRecentStreams", function() {
-                var link, array = [];
-                for (link in this)
-                    array.push(this[link]);
-                array.sort(compareVersion);
-                array.splice(MAX_RECENT_STREAMS);
+                    select.register("buildRecentStreams", function() {
+                        var link, array = [];
+                        for (link in this)
+                            array.push(this[link]);
+                        array.sort(compareVersion);
+                        array.splice(MAX_RECENT_STREAMS);
 
-                var result = [];
-                var status, tags, stream, i, len, total;
-                for (i = 0, len = array.length; i < len; i++) {
-                    stream = array[i];
+                        var result = [];
+                        var status, tags, stream, i, len, total;
+                        for (i = 0, len = array.length; i < len; i++) {
+                            stream = array[i];
 
-                    status = stream.status || { };
-                    tags = (status.tags || []).slice();
-                    tags.sort(compareCreated);
-                    total = tags.length;
-                    tags.splice(MAX_RECENT_TAGS);
+                            status = stream.status || { };
+                            tags = (status.tags || []).slice();
+                            tags.sort(compareCreated);
+                            total = tags.length;
+                            tags.splice(MAX_RECENT_TAGS);
 
-                    if (tags.length > 0)
-                        result.push({ stream: stream, tags: tags, truncated: total > tags.length });
-                }
+                            if (tags.length > 0)
+                                result.push({ stream: stream, tags: tags, truncated: total > tags.length });
+                        }
 
-                return result;
-            });
-
-            function setShowDockerPushCommands(visible) {
-                if (visible != $scope.showDockerPushCommands) {
-                    $scope.showDockerPushCommands = visible;
-                    $scope.$applyAsync();
-                }
-            }
-
-            function updateShowDockerPushCommands() {
-                var ns = filter.namespace();
-
-                if (ns) {
-                    discoverSettings().then(function(settings) {
-                        projectPolicy.subjectAccessReview(ns, settings.currentUser, 'update', 'imagestreamimages')
-                           .then(setShowDockerPushCommands);
+                        return result;
                     });
-                } else {
-                    // no current project, always show push commands; too expensive to iterate through all projects
-                    setShowDockerPushCommands(true);
+
+                    function setShowDockerPushCommands(visible) {
+                        if (visible != $scope.showDockerPushCommands) {
+                            $scope.showDockerPushCommands = visible;
+                            $scope.$applyAsync();
+                        }
+                    }
+
+                    function updateShowDockerPushCommands() {
+                        var ns = filter.namespace();
+
+                        if (ns) {
+                            discoverSettings().then(function(settings) {
+                                projectPolicy.subjectAccessReview(ns, settings.currentUser, 'update', 'imagestreamimages')
+                                        .then(setShowDockerPushCommands);
+                            });
+                        } else {
+                            // no current project, always show push commands; too expensive to iterate through all projects
+                            setShowDockerPushCommands(true);
+                        }
+                    }
+
+                    // watch for project changes to update showDockerPushCommands, and initialize it
+                    $scope.$on("$routeUpdate", updateShowDockerPushCommands);
+                    updateShowDockerPushCommands();
+
+                    $scope.createProject = projectActions.createProject;
+                    $scope.createImageStream = imageActions.createImageStream;
+                    $scope.sharedImages = projectData.sharedImages;
+
+                    $scope.recentlyUpdated = function recentlyUpdated() {
+                        return select().kind("ImageStream")
+                                .buildRecentStreams();
+                    };
+
+                    $scope.projects = function projects() {
+                        return select().kind("Project")
+                                .statusPhase("Active");
+                    };
+
+                    $scope.filter = filter;
                 }
-            }
-
-            // watch for project changes to update showDockerPushCommands, and initialize it
-            $scope.$on("$routeUpdate", updateShowDockerPushCommands);
-            updateShowDockerPushCommands();
-
-            $scope.createProject = projectActions.createProject;
-            $scope.createImageStream = imageActions.createImageStream;
-            $scope.sharedImages = projectData.sharedImages;
-
-            $scope.recentlyUpdated = function recentlyUpdated() {
-                return select().kind("ImageStream").buildRecentStreams();
-            };
-
-            $scope.projects = function projects() {
-                return select().kind("Project").statusPhase("Active");
-            };
-
-            $scope.filter = filter;
-        }
-    ]);
-
+            ]);
 }());

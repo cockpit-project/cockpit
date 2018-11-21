@@ -39,7 +39,8 @@ $(function () {
 
     var template = $("#mustache-input").text();
     var output = mustache.render(template);
-    $("#mustache-output").empty().append(output);
+    $("#mustache-output").empty()
+            .append(output);
 
     var module = angular.module('playgroundTranslate', [ 'gettext' ]);
 
@@ -50,5 +51,4 @@ $(function () {
         });
     }]);
     angular.bootstrap(document, ['playgroundTranslate']);
-
 });

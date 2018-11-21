@@ -43,8 +43,8 @@ function registerSystem () {
 var footerProps = {
     'actions': [
         { 'clicked': registerSystem,
-         'caption': _("Register"),
-         'style': 'primary',
+          'caption': _("Register"),
+          'style': 'primary',
         },
     ]
 };
@@ -70,9 +70,9 @@ function openRegisterDialog() {
         registerDialogDetails.onChange = updatedData;
 
         var dialogProps = {
-              'title': _("Register system"),
-              'body': React.createElement(subscriptionsRegister.dialogBody, registerDialogDetails),
-          };
+            'title': _("Register system"),
+            'body': React.createElement(subscriptionsRegister.dialogBody, registerDialogDetails),
+        };
 
         if (renderDialog)
             renderDialog.setProps(dialogProps);
@@ -88,9 +88,9 @@ function unregisterSystem() {
 
 function initStore(rootElement) {
     subscriptionsClient.addEventListener("dataChanged",
-        function() {
-            dataStore.render();
-        }
+                                         function() {
+                                             dataStore.render();
+                                         }
     );
 
     subscriptionsClient.init();
@@ -106,7 +106,7 @@ function initStore(rootElement) {
                 register: openRegisterDialog,
                 unregister: unregisterSystem,
             }),
-            rootElement
+                        rootElement
         );
     };
 }

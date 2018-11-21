@@ -71,7 +71,7 @@
 
             try {
                 ready = $("body", frame.contentWindow.document).is(":visible");
-            } catch(ex) {
+            } catch (ex) {
                 ready = true;
             }
 
@@ -153,8 +153,8 @@
                 }
 
                 if (checksum && checksum == component_checksum(machine, component)) {
-                     if (host === "localhost")
-                         base = "..";
+                    if (host === "localhost")
+                        base = "..";
                     else
                         base = "../../" + checksum;
                 } else {
@@ -373,11 +373,10 @@
              */
             try {
                 source = source_by_name[child.name];
-            } catch(ex) {
+            } catch (ex) {
                 console.log("received message from child with in accessible name: ", ex);
                 return;
             }
-
 
             /* Closing the transport */
             if (data.length === 0) {
@@ -400,7 +399,7 @@
                     }
                     if (source) {
                         var reply = $.extend({ }, cockpit.transport.options,
-                            { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
+                                             { command: "init", "host": source.default_host, "channel-seed": source.channel_seed }
                         );
                         child.postMessage("\n" + JSON.stringify(reply), origin);
                         source.inited = true;
@@ -409,14 +408,11 @@
                         if (child.frameElement != index.current_frame())
                             self.hint(child.frameElement.contentWindow, { "hidden": true });
                     }
-
                 } else if (control.command === "jump") {
                     perform_jump(child, control);
                     return;
-
                 } else if (control.command == "logout" || control.command == "kill") {
                     forward_command = true;
-
                 } else if (control.command === "hint") {
                     if (control.hint == "restart") {
                         /* watchdog handles current host for now */
@@ -448,7 +444,6 @@
             /* Everything else gets forwarded */
             cockpit.transport.inject(data, true);
         }
-
 
         self.start = function start(messages) {
             window.addEventListener("message", message_handler, false);
@@ -588,10 +583,10 @@
 
             function links(component) {
                 var sm = $("<span class='fa'>")
-                    .attr("data-toggle", "tooltip")
-                    .attr("role", "presentation")
-                    .attr("title", "")
-                    .attr("data-original-title", component.label);
+                        .attr("data-toggle", "tooltip")
+                        .attr("role", "presentation")
+                        .attr("title", "")
+                        .attr("data-original-title", component.label);
 
                 if (component.icon)
                     sm.addClass(component.icon);
@@ -599,16 +594,16 @@
                     sm.addClass("first-letter").text(component.label);
 
                 var value = $("<span class='list-group-item-value'>")
-                    .text(component.label);
+                        .text(component.label);
 
                 var a = $("<a>")
-                    .attr("href", self.href({ host: "localhost", component: component.path }))
-                    .append(sm)
-                    .append(value);
+                        .attr("href", self.href({ host: "localhost", component: component.path }))
+                        .append(sm)
+                        .append(value);
 
                 return $("<li class='dashboard-link list-group-item'>")
-                    .attr("data-component", component.path)
-                    .append(a);
+                        .attr("data-component", component.path)
+                        .append(a);
             }
 
             var local_compiled = new CompiledComponents();
@@ -676,7 +671,6 @@
                 history.replaceState(state, "", target);
                 return false;
             }
-
 
             if (frame_change || state.hash !== current.hash) {
                 history.pushState(state, "", target);
@@ -827,7 +821,8 @@
             $('html').attr('lang', language);
 
             $.each(manifest.locales || { }, function(code, name) {
-                var el = $("<option>").text(name).val(code);
+                var el = $("<option>").text(name)
+                        .val(code);
                 if (code == language)
                     el.attr("selected", "true");
                 $("#display-language-list").append(el);
@@ -859,7 +854,8 @@
         function setup_account(id, user) {
             $(id).on("click", function() {
                 self.jump({ host: "localhost", component: "users", hash: "/" + user.name });
-            }).show();
+            })
+                    .show();
         }
 
         function setup_killer(id) {
@@ -941,7 +937,6 @@
             });
         };
 
-
         self.ordered = function(section) {
             var x, list = [];
             for (x in self.items) {
@@ -972,7 +967,7 @@
             arg.then(function() { console.log.apply(console, arguments) },
                      function() { console.error.apply(console, arguments) });
             if (typeof arg.stream == "function")
-                arg.stream(function() { console.log.apply(console,arguments) });
+                arg.stream(function() { console.log.apply(console, arguments) });
         }
     }
 

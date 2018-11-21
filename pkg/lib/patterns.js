@@ -51,7 +51,8 @@
         if (!wrapper.hasClass("error-keep")) {
             wrapper.on("keypress.dialog-error change.dialog-error", function() {
                 wrapper.removeClass("has-error")
-                    .find(".dialog-error.help-block").css("visibility", "hidden");
+                        .find(".dialog-error.help-block")
+                        .css("visibility", "hidden");
             });
         }
     }
@@ -142,7 +143,8 @@
         $("<div class='spinner spinner-sm'>").appendTo(wait);
         var message = $("<span>").appendTo(wait);
 
-        sel.find(".modal-footer button").first().before(wait);
+        sel.find(".modal-footer button").first()
+                .before(wait);
 
         var data = new DialogWait(promise, handle);
         sel.data("dialog-wait", data);
@@ -201,8 +203,8 @@
         }
 
         promise
-            .always(restore)
-            .progress(update);
+                .always(restore)
+                .progress(update);
 
         return sel;
     }
@@ -230,14 +232,16 @@
         /* During testing, no Cockpit dependency */
         var _ = cockpit.gettext || function(x) { return x };
 
-        sel = sel.find(".btn-onoff-ct").addBack().filter(".btn-onoff-ct");
+        sel = sel.find(".btn-onoff-ct").addBack()
+                .filter(".btn-onoff-ct");
         sel.each(function(x, el) {
             var self = $(el)
-                .attr("data-toggle", "buttons")
-                .addClass("btn-group");
+                    .attr("data-toggle", "buttons")
+                    .addClass("btn-group");
             var value = self.onoff("value");
             var buttons = self.find(".btn");
-            var name = self.find("input").first().attr("name") || unique();
+            var name = self.find("input").first()
+                    .attr("name") || unique();
             var i, input, text;
             for (i = buttons.length; i < 2; i++) {
                 input = $('<input type="radio" autocomplete="off">');
@@ -253,14 +257,19 @@
     }
 
     function onoff_value(sel) {
-        return sel.find(".btn").first().hasClass("active");
+        return sel.find(".btn").first()
+                .hasClass("active");
     }
 
     function onoff_change(sel, value) {
         return sel.each(function(i, el) {
             var buttons = $(el).find(".btn");
-            buttons.first().toggleClass("active", !!value).find("input").prop("checked", !!value);
-            buttons.last().toggleClass("active", !value).find("input").prop("checked", !value);
+            buttons.first().toggleClass("active", !!value)
+                    .find("input")
+                    .prop("checked", !!value);
+            buttons.last().toggleClass("active", !value)
+                    .find("input")
+                    .prop("checked", !value);
         });
     }
 
@@ -323,15 +332,17 @@
             value = 0;
         else if (!isNaN(total) && total > 0 && part >= 0)
             value = (part / total);
-        $(flex).css('width', (value * 100) + "%").
-            next("div").css('margin-left', $(flex).css('width'));
+        $(flex).css('width', (value * 100) + "%")
+                .next("div")
+                .css('margin-left', $(flex).css('width'));
 
         /* Set the property and the attribute */
         slider.value = value;
     }
 
     function update_value(slider) {
-        resize_flex(slider, $(slider).children("div.slider-bar").first()[0], 1, slider.value);
+        resize_flex(slider, $(slider).children("div.slider-bar")
+                .first()[0], 1, slider.value);
     }
 
     function check_overflow(slider) {
@@ -384,29 +395,30 @@
             var flex;
             var offset = $(slider).offset().left;
             if ($(ev.target).hasClass("slider-thumb")) {
-                var hitx  = (ev.offsetX || ev.clientX - $(ev.target).offset().left);
+                var hitx = (ev.offsetX || ev.clientX - $(ev.target).offset().left);
                 offset += (hitx - $(ev.target).outerWidth() / 2);
                 flex = $(ev.target).parent()[0];
             } else {
-                flex = $(slider).children("div.slider-bar").first()[0];
+                flex = $(slider).children("div.slider-bar")
+                        .first()[0];
                 resize_flex(slider, flex, $(slider).width(), (ev.pageX - offset));
                 $(slider).trigger("change", [slider.value]);
                 check_overflow(slider);
             }
 
-            $(document).
-                on("mousemove.slider", function(ev) {
-                    resize_flex(slider, flex, $(slider).width(), (ev.pageX - offset));
-                    $(slider).trigger("change", [slider.value]);
-                    check_overflow(slider);
-                    return false;
-                }).
-                on("mouseup.slider", function(ev) {
-                    $(document).
-                        off("mousemove.slider").
-                        off("mouseup.slider");
-                    return false;
-                });
+            $(document)
+                    .on("mousemove.slider", function(ev) {
+                        resize_flex(slider, flex, $(slider).width(), (ev.pageX - offset));
+                        $(slider).trigger("change", [slider.value]);
+                        check_overflow(slider);
+                        return false;
+                    })
+                    .on("mouseup.slider", function(ev) {
+                        $(document)
+                                .off("mousemove.slider")
+                                .off("mouseup.slider");
+                        return false;
+                    });
             return false; /* no default action */
         });
     }
@@ -459,14 +471,14 @@
             tooltip_element.tooltip(options);
 
             if ($(this).hasClass("disabled") === allowed) {
-              $(this).toggleClass("disabled", !allowed);
-              tooltip_element.attr('data-original-title', null);
+                $(this).toggleClass("disabled", !allowed);
+                tooltip_element.attr('data-original-title', null);
 
-              if (allowed)
-                  tooltip_element.attr('title', $(this).data(allowed_key));
-              else
-                  tooltip_element.attr('title', denied_message);
-              tooltip_element.tooltip('fixTitle');
+                if (allowed)
+                    tooltip_element.attr('title', $(this).data(allowed_key));
+                else
+                    tooltip_element.attr('title', denied_message);
+                tooltip_element.tooltip('fixTitle');
             }
             $(this).attr('data-stable', 'yes');
         });

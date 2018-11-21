@@ -36,14 +36,14 @@ function suite(fixtures) {
         "kubernetes.nodes",
     ])
 
-    .config([
-        'KubeTranslateProvider',
-        'KubeFormatProvider',
-        function(KubeTranslateProvider, KubeFormatProvider) {
-            KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
-            KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
-        }
-    ]);
+            .config([
+                'KubeTranslateProvider',
+                'KubeFormatProvider',
+                function(KubeTranslateProvider, KubeFormatProvider) {
+                    KubeTranslateProvider.KubeTranslateFactory = "CockpitTranslate";
+                    KubeFormatProvider.KubeFormatFactory = "CockpitFormat";
+                }
+            ]);
 
     function nodesTest(name, count, fixtures, func) {
         QUnit.test(name, function() {
@@ -70,8 +70,8 @@ function suite(fixtures) {
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node']), "Unknown", "no conditions");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unknown-node2']), "Unknown", "no ready condition");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/failed-node']), "Not Ready", "failed");
-            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/ready-node']), "Ready",  "ready");
-            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-node']),  "Scheduling Disabled", "ready but unschedulable");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/ready-node']), "Ready", "ready");
+            assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-node']), "Scheduling Disabled", "ready but unschedulable");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-failed-node']), "Not Ready", "not ready and unschedulable");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/disk-node']), "Ready", "out of disk");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/mem-node']), "Ready", "out of memory");
@@ -88,7 +88,7 @@ function suite(fixtures) {
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node']), "wait", "no conditions");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unknown-node2']), "wait", "no ready condition");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/failed-node']), "fail", "failed");
-            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/ready-node']),  "");
+            assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/ready-node']), "");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-node']), "", "ready but unschedulable");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-failed-node']), "fail", "not ready and unschedulable");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/disk-node']), "warn", "out of disk");
@@ -106,14 +106,14 @@ function suite(fixtures) {
             assert.deepEqual(nodeData.nodeConditions({}), {});
             var conditions = nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']);
             assert.deepEqual(conditions, {
-              "OutOfDisk": {
-                "status": "False",
-                "type": "OutOfDisk"
-              },
-              "Ready": {
-                "status": "True",
-                "type": "Ready"
-              }
+                "OutOfDisk": {
+                    "status": "False",
+                    "type": "OutOfDisk"
+                },
+                "Ready": {
+                    "status": "True",
+                    "type": "Ready"
+                }
             }, "Correct object");
             assert.strictEqual(conditions, nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']), "identical when called with the same object");
         }
@@ -141,164 +141,164 @@ function suite(fixtures) {
 
 /* Invoke the test suite with this data */
 suite([
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "unknown-node",
-        "selfLink": "/api/v1/nodes/unknown-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f1",
-        "resourceVersion": "17152",
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "unknown-node",
+            "selfLink": "/api/v1/nodes/unknown-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f1",
+            "resourceVersion": "17152",
+        },
+        "status": {
+        }
     },
-    "status": {
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "unknown-node2",
+            "selfLink": "/api/v1/nodes/unknown-node2",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f2",
+            "resourceVersion": "17152",
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Other",
+                    "status": "Other",
+                },
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "failed-node",
+            "selfLink": "/api/v1/nodes/failed-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f3",
+            "resourceVersion": "17152",
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "Other",
+                },
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "ready-node",
+            "selfLink": "/api/v1/nodes/ready-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f4",
+            "resourceVersion": "17152",
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "True",
+                },
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "unschedulable-node",
+            "selfLink": "/api/v1/nodes/unschedulable-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f5",
+            "resourceVersion": "17152",
+        },
+        "spec": {
+            "unschedulable": true
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "True",
+                },
+                {
+                    "type": "OutOfDisk",
+                    "status": "False",
+                }
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "unschedulable-failed-node",
+            "selfLink": "/api/v1/nodes/unschedulable-failed-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f7",
+            "resourceVersion": "17152",
+        },
+        "spec": {
+            "unschedulable": true
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "False",
+                },
+                {
+                    "type": "OutOfDisk",
+                    "status": "False",
+                }
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "disk-node",
+            "selfLink": "/api/v1/nodes/disk-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f8",
+            "resourceVersion": "17152",
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "True",
+                },
+                {
+                    "type": "OutOfDisk",
+                    "status": "True",
+                }
+            ],
+        }
+    },
+    {
+        "kind": "Node",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "mem-node",
+            "selfLink": "/api/v1/nodes/mem-node",
+            "uid": "4920ab25-1092-11e6-a03c-5254009e00f7",
+            "resourceVersion": "17152",
+        },
+        "status": {
+            "conditions": [
+                {
+                    "type": "Ready",
+                    "status": "True",
+                },
+                {
+                    "type": "OutOfMemory",
+                    "status": "True",
+                }
+            ],
+        }
     }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "unknown-node2",
-        "selfLink": "/api/v1/nodes/unknown-node2",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f2",
-        "resourceVersion": "17152",
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Other",
-                "status": "Other",
-            },
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "failed-node",
-        "selfLink": "/api/v1/nodes/failed-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f3",
-        "resourceVersion": "17152",
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "Other",
-            },
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "ready-node",
-        "selfLink": "/api/v1/nodes/ready-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f4",
-        "resourceVersion": "17152",
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "True",
-            },
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "unschedulable-node",
-        "selfLink": "/api/v1/nodes/unschedulable-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f5",
-        "resourceVersion": "17152",
-    },
-    "spec": {
-        "unschedulable": true
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "True",
-            },
-            {
-                "type": "OutOfDisk",
-                "status": "False",
-            }
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "unschedulable-failed-node",
-        "selfLink": "/api/v1/nodes/unschedulable-failed-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f7",
-        "resourceVersion": "17152",
-    },
-    "spec": {
-        "unschedulable": true
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "False",
-            },
-            {
-                "type": "OutOfDisk",
-                "status": "False",
-            }
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "disk-node",
-        "selfLink": "/api/v1/nodes/disk-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f8",
-        "resourceVersion": "17152",
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "True",
-            },
-            {
-                "type": "OutOfDisk",
-                "status": "True",
-            }
-        ],
-    }
-},
-{
-    "kind": "Node",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "mem-node",
-        "selfLink": "/api/v1/nodes/mem-node",
-        "uid": "4920ab25-1092-11e6-a03c-5254009e00f7",
-        "resourceVersion": "17152",
-    },
-    "status": {
-        "conditions": [
-            {
-                "type": "Ready",
-                "status": "True",
-            },
-            {
-                "type": "OutOfMemory",
-                "status": "True",
-            }
-        ],
-    }
-}
 ]);

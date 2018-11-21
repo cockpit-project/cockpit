@@ -54,14 +54,14 @@
 
         $('#curtain').on('click', '[data-action=docker-start]', function () {
             show_curtain(null);
-            docker_service.start().
-                done(function () {
-                    client.close();
-                    client.connect().done(navigate);
-                }).
-                fail(function (error) {
-                    show_curtain(cockpit.format(_("Failed to start Docker: $0"), error));
-                });
+            docker_service.start()
+                    .done(function () {
+                        client.close();
+                        client.connect().done(navigate);
+                    })
+                    .fail(function (error) {
+                        show_curtain(cockpit.format(_("Failed to start Docker: $0"), error));
+                    });
         });
 
         $('#curtain').on('click', '[data-action=docker-connect]', function () {

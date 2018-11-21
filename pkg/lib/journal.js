@@ -147,48 +147,47 @@
             }
         }
 
-        var proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" }).
-            stream(function(data) {
+        var proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" })
+                .stream(function(data) {
+                    if (buffer)
+                        data = buffer + data;
+                    buffer = "";
 
-                if (buffer)
-                    data = buffer + data;
-                buffer = "";
-
-                var lines = data.split("\n");
-                var last = lines.length - 1;
-                lines.forEach(function(line, i) {
-                    if (i == last) {
-                        buffer = line;
-                    } else if (line && line.indexOf("-- ") !== 0) {
-                        try {
-                            entries.push(JSON.parse(line));
-                        } catch (e) {
-                            console.warn(e, line);
+                    var lines = data.split("\n");
+                    var last = lines.length - 1;
+                    lines.forEach(function(line, i) {
+                        if (i == last) {
+                            buffer = line;
+                        } else if (line && line.indexOf("-- ") !== 0) {
+                            try {
+                                entries.push(JSON.parse(line));
+                            } catch (e) {
+                                console.warn(e, line);
+                            }
                         }
-                    }
-                });
+                    });
 
-                if (streamers.length && interval === null)
-                    interval = window.setInterval(fire_streamers, 300);
-            }).
-            done(function() {
-                fire_streamers();
-                dfd.resolve(entries);
-            }).
-            fail(function(ex) {
-                /* The journalctl command fails when no entries are matched
-                 * so we just ignore this status code */
-                if (ex.problem == "cancelled" ||
-                    ex.exit_status === 1) {
+                    if (streamers.length && interval === null)
+                        interval = window.setInterval(fire_streamers, 300);
+                })
+                .done(function() {
                     fire_streamers();
                     dfd.resolve(entries);
-                } else {
-                    dfd.reject(ex);
-                }
-            }).
-            always(function() {
-                window.clearInterval(interval);
-            });
+                })
+                .fail(function(ex) {
+                /* The journalctl command fails when no entries are matched
+                 * so we just ignore this status code */
+                    if (ex.problem == "cancelled" ||
+                    ex.exit_status === 1) {
+                        fire_streamers();
+                        dfd.resolve(entries);
+                    } else {
+                        dfd.reject(ex);
+                    }
+                })
+                .always(function() {
+                    window.clearInterval(interval);
+                });
 
         promise = dfd.promise();
         promise.stream = function stream(callback) {
@@ -204,7 +203,7 @@
     journal.printable = function printable(value) {
         if (value === undefined || value === null)
             return _("[no data]");
-        else if (typeof(value) == "string")
+        else if (typeof (value) == "string")
             return value;
         else if (value.length !== undefined)
             return cockpit.format(_("[$0 bytes of binary data]"), value.length);
@@ -223,31 +222,30 @@
 
         function render_line(ident, prio, message, count, time, entry) {
             var parts = {
-                    'cursor': entry["__CURSOR"],
-                    'time': time,
-                    'message': message,
-                    'service': ident
-                };
+                'cursor': entry["__CURSOR"],
+                'time': time,
+                'message': message,
+                'service': ident
+            };
             if (count > 1)
                 parts['count'] = count;
             if (ident === 'abrt-notification') {
                 parts['problem'] = true;
                 parts['service'] = entry['PROBLEM_BINARY'];
-            }
-            else if (prio < 4)
+            } else if (prio < 4)
                 parts['warning'] = true;
             return Mustache.render(line_template, parts);
         }
 
         var reboot = _("Reboot");
-        var reboot_line = Mustache.render(reboot_template, {'message': reboot} );
+        var reboot_line = Mustache.render(reboot_template, {'message': reboot});
 
         function render_reboot_separator() {
             return reboot_line;
         }
 
         function render_day_header(day) {
-            return Mustache.render(day_header_template, {'day': day} );
+            return Mustache.render(day_header_template, {'day': day});
         }
 
         function parse_html(string) {
@@ -371,7 +369,7 @@
             output_funcs = output_funcs_for_box(funcs_or_box);
 
         function copy_object(o) {
-            var c = { }; for(var p in o) c[p] = o[p]; return c;
+            var c = { }; for (var p in o) c[p] = o[p]; return c;
         }
 
         // A 'entry' object describes a journal entry in formatted form.
@@ -381,7 +379,7 @@
         function format_entry(journal_entry) {
             function pad(n) {
                 var str = n.toFixed();
-                if(str.length == 1)
+                if (str.length == 1)
                     str = '0' + str;
                 return str;
             }
@@ -541,7 +539,7 @@
                  prepend_flush: prepend_flush,
                  append: append,
                  append_flush: append_flush
-               };
+        };
     };
 
     journal.logbox = function logbox(match, max_entries) {
@@ -550,7 +548,7 @@
 
         function render() {
             var renderer = journal.renderer(box);
-            while(box.firstChild)
+            while (box.firstChild)
                 box.removeChild(box.firstChild);
             for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
@@ -564,17 +562,17 @@
 
         render();
 
-        var promise = journal.journalctl(match, { count: max_entries }).
-            stream(function(tail) {
-                entries = entries.concat(tail);
-                if (entries.length > max_entries)
-                    entries = entries.slice(-max_entries);
-                render();
-            }).
-            fail(function(error) {
-                box.appendChild(document.createTextNode(error.message));
-                box.removeAttribute("hidden");
-            });
+        var promise = journal.journalctl(match, { count: max_entries })
+                .stream(function(tail) {
+                    entries = entries.concat(tail);
+                    if (entries.length > max_entries)
+                        entries = entries.slice(-max_entries);
+                    render();
+                })
+                .fail(function(error) {
+                    box.appendChild(document.createTextNode(error.message));
+                    box.removeAttribute("hidden");
+                });
 
         /* Both a DOM element and a promise */
         return promise.promise(box);

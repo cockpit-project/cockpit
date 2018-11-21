@@ -51,33 +51,32 @@ $(function() {
                                     'dmesg': render_multiline,
                                     'container_rootfs': render_multiline,
                                     'docker_inspect': render_multiline
-                                    };
+    };
 
     var problem_info_1 = ['reason', 'cmdline', 'executable', 'package', 'component',
-                          'crash_function', 'pid', 'pwd', 'hostname', 'count',
-                          'type', 'analyzer', 'rootdir', 'duphash', 'exception_type',
-                          'container', 'container_uuid', 'container_cmdline',
-                          'container_id', 'container_image' ];
+        'crash_function', 'pid', 'pwd', 'hostname', 'count',
+        'type', 'analyzer', 'rootdir', 'duphash', 'exception_type',
+        'container', 'container_uuid', 'container_cmdline',
+        'container_id', 'container_image' ];
 
     var problem_info_2 = ['Directory', 'username', 'abrt_version', 'architecture', 'global_pid', 'kernel',
-                          'last_occurrence', 'os_release', 'pkg_fingerprint', 'pkg_vendor',
-                          'runlevel', 'tid', 'time', 'uid', 'uuid'];
+        'last_occurrence', 'os_release', 'pkg_fingerprint', 'pkg_vendor',
+        'runlevel', 'tid', 'time', 'uid', 'uuid'];
 
     var displayable_problems = {};
 
-    //Get list of all problems that can be displayed
+    // Get list of all problems that can be displayed
     var find_problems = function () {
         var r = $.Deferred();
         problems.wait(function() {
             try {
                 service.GetProblems(0, {})
-                    .done(function(problem_paths, options) {
-                        update_problems(problem_paths);
-                        r.resolve();
-                    });
-            }
-            catch(err) {
-                //ABRT is not installed. Suggest installing?
+                        .done(function(problem_paths, options) {
+                            update_problems(problem_paths);
+                            r.resolve();
+                        });
+            } catch (err) {
+                // ABRT is not installed. Suggest installing?
                 r.resolve();
             }
         });
@@ -138,35 +137,35 @@ $(function() {
                 var count = 0;
                 var stopped = null;
                 start_box.text(_("Loading..."));
-                procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first }).
-                    fail(query_error).
-                    stream(function(entries) {
-                        if (entries[0]["__CURSOR"] == first)
-                            entries.shift();
-                        count += entries.length;
-                        append_entries(entries);
-                        if (count >= query_more) {
-                            stopped = entries[entries.length - 1]["__CURSOR"];
-                            didnt_reach_start(stopped);
-                            this.stop();
-                        }
-                    }).
-                    done(function() {
-                        if (start_box.text() == _("Loading..."))
-                            start_box.empty();
-                    }));
+                procs.push(journal.journalctl(match, { follow: false, reverse: true, cursor: first })
+                        .fail(query_error)
+                        .stream(function(entries) {
+                            if (entries[0]["__CURSOR"] == first)
+                                entries.shift();
+                            count += entries.length;
+                            append_entries(entries);
+                            if (count >= query_more) {
+                                stopped = entries[entries.length - 1]["__CURSOR"];
+                                didnt_reach_start(stopped);
+                                this.stop();
+                            }
+                        })
+                        .done(function() {
+                            if (start_box.text() == _("Loading..."))
+                                start_box.empty();
+                        }));
             });
         }
 
         function follow(cursor) {
-            procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor }).
-                fail(query_error).
-                stream(function(entries) {
-                    if (entries[0]["__CURSOR"] == cursor)
-                        entries.shift();
-                    prepend_entries(entries);
-                    update_day_box();
-                }));
+            procs.push(journal.journalctl(match, { follow: true, count: 0, cursor: cursor })
+                    .fail(query_error)
+                    .stream(function(entries) {
+                        if (entries[0]["__CURSOR"] == cursor)
+                            entries.shift();
+                        prepend_entries(entries);
+                        update_day_box();
+                    }));
         }
 
         function update_day_box() {
@@ -220,39 +219,39 @@ $(function() {
         var count = 0;
         var stopped = null;
 
-        procs.push(journal.journalctl(match, options).
-            fail(query_error).
-            stream(function(entries) {
-                if (!last) {
-                    last = entries[0]["__CURSOR"];
-                    follow(last);
-                    update_day_box();
-                }
-                count += entries.length;
-                append_entries(entries);
-                if (count >= query_count) {
-                    stopped = entries[entries.length - 1]["__CURSOR"];
-                    didnt_reach_start(stopped);
-                    this.stop();
-                }
-            }).
-            done(function() {
-                if (start_box.text() == _("Loading..."))
-                    start_box.empty();
-                if (!last) {
-                    procs.push(journal.journalctl(match, { follow: true, count: 0,
-                                                           boot: options["boot"],
-                                                           since: options["since"]
-                                                         }).
-                        fail(query_error).
-                        stream(function(entries) {
-                            prepend_entries(entries);
-                            update_day_box();
-                        }));
-                }
-                if (!all || stopped)
-                    didnt_reach_start();
-            }));
+        procs.push(journal.journalctl(match, options)
+                .fail(query_error)
+                .stream(function(entries) {
+                    if (!last) {
+                        last = entries[0]["__CURSOR"];
+                        follow(last);
+                        update_day_box();
+                    }
+                    count += entries.length;
+                    append_entries(entries);
+                    if (count >= query_count) {
+                        stopped = entries[entries.length - 1]["__CURSOR"];
+                        didnt_reach_start(stopped);
+                        this.stop();
+                    }
+                })
+                .done(function() {
+                    if (start_box.text() == _("Loading..."))
+                        start_box.empty();
+                    if (!last) {
+                        procs.push(journal.journalctl(match, { follow: true, count: 0,
+                                                               boot: options["boot"],
+                                                               since: options["since"]
+                        })
+                                .fail(query_error)
+                                .stream(function(entries) {
+                                    prepend_entries(entries);
+                                    update_day_box();
+                                }));
+                    }
+                    if (!all || stopped)
+                        didnt_reach_start();
+                }));
 
         outer.stop = function stop() {
             $(window).off('scroll', update_day_box);
@@ -334,7 +333,7 @@ $(function() {
                 id = _("Journal entry");
 
             var is_problem = false;
-            if (id === 'abrt-notification'){
+            if (id === 'abrt-notification') {
                 is_problem = true;
                 id = entry['PROBLEM_BINARY'];
             }
@@ -353,32 +352,33 @@ $(function() {
         function show_error(error) {
             out.append(
                 $('<tr>').append(
-                    $('<td>').
-                        text(error)));
+                    $('<td>')
+                            .text(error)));
         }
 
-        journal.journalctl({ cursor: cursor, count: 1, follow: false }).
-            done(function (entries) {
-                if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
-                    show_entry(entries[0]);
-                else
-                    show_error(_("Journal entry not found"));
-            }).
-            fail(function (error) {
-                show_error(error);
-            });
+        journal.journalctl({ cursor: cursor, count: 1, follow: false })
+                .done(function (entries) {
+                    if (entries.length >= 1 && entries[0]["__CURSOR"] == cursor)
+                        show_entry(entries[0]);
+                    else
+                        show_error(_("Journal entry not found"));
+                })
+                .fail(function (error) {
+                    show_error(error);
+                });
     }
 
-    function create_entry(out, entry){
+    function create_entry(out, entry) {
         $('#journal-entry-message').text(journal.printable(entry['MESSAGE']));
         var keys = Object.keys(entry).sort();
         $.each(keys, function (i, key) {
             if (key !== 'MESSAGE') {
                 out.append(
                     $('<tr>').append(
-                        $('<td>').css('text-align', 'right').text(key),
+                        $('<td>').css('text-align', 'right')
+                                .text(key),
                         $('<td>').css('text-align', 'left')
-                            .text(journal.printable(entry[key]))));
+                                .text(journal.printable(entry[key]))));
             }
         });
     }
@@ -393,9 +393,9 @@ $(function() {
             }
         }
 
-        //Display unknown problems as standard logs
-        //unknown problem = deleted problem | problem of different user
-        if (problem === null){
+        // Display unknown problems as standard logs
+        // unknown problem = deleted problem | problem of different user
+        if (problem === null) {
             create_entry(out, entry);
             return;
         }
@@ -403,7 +403,8 @@ $(function() {
         function switch_tab(new_tab, new_content) {
             out.find('li').removeClass('active');
             new_tab.addClass('active');
-            out.find('tbody.tab').first().replaceWith(new_content);
+            out.find('tbody.tab').first()
+                    .replaceWith(new_content);
         }
 
         $('#journal-entry-message').text('');
@@ -414,14 +415,15 @@ $(function() {
 
         var ge = $('<tbody>').addClass('tab');
         var pi = $('<tbody>').addClass('tab');
-        var pd = $('<tbody>').addClass('tab').append(
-            $('<tr>').append($('<div class="panel-group" id="accordion-markup">')));
+        var pd = $('<tbody>').addClass('tab')
+                .append(
+                    $('<tr>').append($('<div class="panel-group" id="accordion-markup">')));
 
         var tab = $('<ul class="nav nav-tabs nav-tabs-pf">');
 
         var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
         var r_btn = $();
-        if (problem.IsReported){
+        if (problem.IsReported) {
             for (var pid = 0; pid < problem.Reports.length; pid++) {
                 if (problem.Reports[pid][0] === 'ABRT Server') {
                     var url = problem.Reports[pid][1]['URL']['v']['v'];
@@ -432,9 +434,7 @@ $(function() {
                     break;
                 }
             }
-        }
-
-        else if (problem.CanBeReported){
+        } else if (problem.CanBeReported) {
             r_btn = $('<button class="btn btn-primary problem-btn">').text(_("Report"));
 
             r_btn.click(function() {
@@ -454,11 +454,12 @@ $(function() {
                     } else if (ex.problem === "not-found") {
                         message = _("Reporter 'reporter-ureport' not found.");
                     } else {
-                        message = _("Reporting was unsucessful. Try running `reporter-ureport -d "+ problem.ID +"`");
+                        message = _("Reporting was unsucessful. Try running `reporter-ureport -d " + problem.ID + "`");
                     }
                     $('<div class="alert alert-danger">')
-                        .append('<span class="pficon pficon-error-circle-o">')
-                        .text(message).insertAfter(".breadcrumb");
+                            .append('<span class="pficon pficon-error-circle-o">')
+                            .text(message)
+                            .insertAfter(".breadcrumb");
                     tab.children(':last-child').replaceWith($('<span>'));
                 });
             });
@@ -490,9 +491,10 @@ $(function() {
             if (key !== 'MESSAGE' && key.indexOf('PROBLEM_') !== 0) {
                 ge.append(
                     $('<tr>').append(
-                        $('<td>').css('text-align', 'right').text(key),
-                        $('<td>').css('text-align', 'left').
-                            text(journal.printable(entry[key]))));
+                        $('<td>').css('text-align', 'right')
+                                .text(key),
+                        $('<td>').css('text-align', 'left')
+                                .text(journal.printable(entry[key]))));
             }
         });
 
@@ -515,64 +517,68 @@ $(function() {
             var i, elem, val;
             // Render first column of problem info
             var c1 = $('<table>').css('display', 'inline-block')
-                               .css('padding-right', '200px')
-                               .css('vertical-align', 'top').addClass('info-table-ct');
+                    .css('padding-right', '200px')
+                    .css('vertical-align', 'top')
+                    .addClass('info-table-ct');
             pi.append(c1);
             for (i = 0; i < problem_info_1.length; i++) {
                 elem = problem_info_1[i];
-                if (elem in args){
+                if (elem in args) {
                     val = args[elem][2];
                     c1.append(
                         $('<tr>').append(
-                            $('<td>').css('text-align', 'right').text(elem),
+                            $('<td>').css('text-align', 'right')
+                                    .text(elem),
                             $('<td>').css('text-align', 'left')
-                                .text(String(val))));
+                                    .text(String(val))));
                 }
             }
 
             // Render second column of problem info
             var c2 = $('<table>').css('display', 'inline-block')
-                               .css('vertical-align', 'top').addClass('info-table-ct');
+                    .css('vertical-align', 'top')
+                    .addClass('info-table-ct');
             pi.append(c2);
             for (i = 0; i < problem_info_2.length; i++) {
                 elem = problem_info_2[i];
-                if (elem in args){
+                if (elem in args) {
                     val = args[elem][2];
                     // Display date properly
-                    if (['last_occurrence', 'time'].indexOf(elem) !== -1){
+                    if (['last_occurrence', 'time'].indexOf(elem) !== -1) {
                         var d = new Date(val / 1000);
                         val = d.toString();
                     }
                     c2.append(
                         $('<tr>').append(
-                            $('<td>').css('text-align', 'right').text(elem),
+                            $('<td>').css('text-align', 'right')
+                                    .text(elem),
                             $('<td>').css('text-align', 'left')
-                                .text(String(val))));
+                                    .text(String(val))));
                 }
             }
 
             // Render problem details
             var problem_details_elems = Object.keys(problem_render_callbacks);
             $.each(problem_details_elems, function(i, key) {
-                if (key in args){
+                if (key in args) {
                     val = problem_render_callbacks[key](args[key]);
                     $('.panel-group', pd).append(
                         $('<div class="panel panel-default">')
-                            .css("border-width", "0px 0px 2px 0px")
-                            .css("margin-bottom", "0px")
-                            .append(
-                          $('<div class="panel-heading problem-panel">')
-                            .attr('data-toggle', 'collapse')
-                            .attr('data-target', '#' + key)
-                            .attr('data-parent', '#accordion-markup')
-                            .append($('<h4 class="panel-title">')
-                              .append($('<a class="accordion-toggle">')
-                                .text(key))),
-                          $('<div class="panel-collapse collapse">')
-                            .attr('id', key)
-                            .append(
-                              $('<div class="panel-body">')
-                                    .html(val))));
+                                .css("border-width", "0px 0px 2px 0px")
+                                .css("margin-bottom", "0px")
+                                .append(
+                                    $('<div class="panel-heading problem-panel">')
+                                            .attr('data-toggle', 'collapse')
+                                            .attr('data-target', '#' + key)
+                                            .attr('data-parent', '#accordion-markup')
+                                            .append($('<h4 class="panel-title">')
+                                                    .append($('<a class="accordion-toggle">')
+                                                            .text(key))),
+                                    $('<div class="panel-collapse collapse">')
+                                            .attr('id', key)
+                                            .append(
+                                                $('<div class="panel-body">')
+                                                        .html(val))));
                 }
             });
         });
@@ -641,9 +647,9 @@ $(function() {
 
     function render_limits(orig) {
         var lines = orig[2].split('\n');
-        lines[0] ='":' + lines[0].replace(/(\S+) (\S+) /g, '$1:$2 ');
+        lines[0] = '":' + lines[0].replace(/(\S+) (\S+) /g, '$1:$2 ');
         for (var i = 1; i < lines.length - 1; i++) {
-                lines[i] = lines[i].replace(/  +/g, ':');
+            lines[i] = lines[i].replace(/  +/g, ':');
         }
 
         return render_multitable(lines.join('\n'), ':');
@@ -657,27 +663,22 @@ $(function() {
         var other_items = {};
 
         for (var item in content_json) {
-
             if (item === 'stacktrace') {
-
                 var threads = content_json[item];
                 for (var thread_key in threads) {
-
                     var thread = threads[thread_key];
 
                     if (thread.hasOwnProperty("crash_thread") && thread['crash_thread']) {
                         if (thread.hasOwnProperty('frames')) {
                             crash_thread = thread['frames'];
                         }
-                    }
-                    else {
+                    } else {
                         if (thread.hasOwnProperty('frames')) {
                             other_threads.push(thread['frames']);
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 other_items[item] = content_json[item];
             }
         }
@@ -685,7 +686,6 @@ $(function() {
     }
 
     function create_detail_from_parsed_core_backtrace(crash_thread, other_threads, other_items) {
-
         var detail_content = '';
         for (var item in other_items) {
             detail_content += item;
@@ -739,8 +739,7 @@ $(function() {
                     row_content = frame[key].toString();
                     if (row_content.length > 8)
                         title = row_content;
-                }
-                else
+                } else
                     row_content = '';
 
                 table += '<td title="' + title + '">';
@@ -781,7 +780,7 @@ $(function() {
             }
         }
 
-        for(key_key in all_keys) {
+        for (key_key in all_keys) {
             all_ordered_keys.push(all_keys[key_key]);
         }
 
@@ -813,8 +812,8 @@ $(function() {
     });
 
     $('#journal-box').on('click', '.cockpit-logline', function() {
-         var cursor = $(this).attr('data-cursor');
-         if (cursor)
+        var cursor = $(this).attr('data-cursor');
+        if (cursor)
             cockpit.location.go([ cursor ], {'parent_options': JSON.stringify(cockpit.location.options)});
     });
 

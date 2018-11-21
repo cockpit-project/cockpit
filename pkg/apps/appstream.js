@@ -36,25 +36,25 @@ function get_metainfo_db() {
         python.spawn([ inotify_py, watch_appstream_py ], [ ],
                      { environ: [ "LANGUAGE=" + (cockpit.language || "en") ]
                      })
-            .stream(function (data) {
-                var lines, metadata;
+                .stream(function (data) {
+                    var lines, metadata;
 
-                buf += data;
-                lines = buf.split("\n");
-                buf = lines[lines.length-1];
-                if (lines.length >= 2) {
-                    metadata = JSON.parse(lines[lines.length-2]);
-                    metainfo_db.components = metadata.components;
-                    metainfo_db.origin_files = metadata.origin_files;
-                    metainfo_db.ready = true;
-                    metainfo_db.dispatchEvent("changed");
-                }
-            }).
-            fail(function (error) {
-                if (error != "closed") {
-                    console.warn(error);
-                }
-            });
+                    buf += data;
+                    lines = buf.split("\n");
+                    buf = lines[lines.length - 1];
+                    if (lines.length >= 2) {
+                        metadata = JSON.parse(lines[lines.length - 2]);
+                        metainfo_db.components = metadata.components;
+                        metainfo_db.origin_files = metadata.origin_files;
+                        metainfo_db.ready = true;
+                        metainfo_db.dispatchEvent("changed");
+                    }
+                })
+                .fail(function (error) {
+                    if (error != "closed") {
+                        console.warn(error);
+                    }
+                });
     }
 
     return metainfo_db;

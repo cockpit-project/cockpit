@@ -45,36 +45,36 @@ function sanitizeVulnerableInfo (id, info) {
 
 function updateVulnerableInfo() {
     bus.call("/org/atomic/object", "org.atomic", "VulnerableInfo", [], { name: 'org.atomic' })
-        .done(function (reply) {
-            var infos = {};
+            .done(function (reply) {
+                var infos = {};
 
-            try {
-                infos = JSON.parse(reply[0]);
-            } catch (error) {
+                try {
+                    infos = JSON.parse(reply[0]);
+                } catch (error) {
                 /* ignore errors (same as when org.atomic doesn't exist) */
-            }
+                }
 
-            var promises;
+                var promises;
 
-            /* Atomic sometimes returns containers for which it doesn't
+                /* Atomic sometimes returns containers for which it doesn't
              * have scan results. Remove those. */
-            var ids = Object.keys(infos).filter(function (id) { return infos[id].json_file });
+                var ids = Object.keys(infos).filter(function (id) { return infos[id].json_file });
 
-            if (ids.length > 0) {
-                promises = ids.map(function (id) {
-                    return cockpit.file(infos[id].json_file, { syntax: JSON }).read();
-                });
+                if (ids.length > 0) {
+                    promises = ids.map(function (id) {
+                        return cockpit.file(infos[id].json_file, { syntax: JSON }).read();
+                    });
 
-                cockpit.all(promises).done(function () {
-                    var detailedInfos = {};
+                    cockpit.all(promises).done(function () {
+                        var detailedInfos = {};
 
-                    for (var i = 0; i < arguments.length; i++)
-                        detailedInfos[ids[i]] = sanitizeVulnerableInfo(ids[i], arguments[i]);
+                        for (var i = 0; i < arguments.length; i++)
+                            detailedInfos[ids[i]] = sanitizeVulnerableInfo(ids[i], arguments[i]);
 
-                    atomic.dispatchEvent("vulnerableInfoChanged", detailedInfos);
-                });
-            }
-        });
+                        atomic.dispatchEvent("vulnerableInfoChanged", detailedInfos);
+                    });
+                }
+            });
 }
 
 function visibilityChanged() {

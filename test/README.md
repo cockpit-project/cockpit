@@ -182,7 +182,7 @@ The third class of integration tests use avocado and selenium to cover
 different browsers:
 
     $ bots/image-download selenium
-    $ bots/image-prepare fedora-28
+    $ bots/image-prepare fedora-29
     $ TEST_OS=fedora-29 test/avocado/run-tests --selenium-tests --browser=firefox -v
 
 Currently, these tests run on Fedora 29. Other images don't have selenium and

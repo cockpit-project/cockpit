@@ -230,24 +230,20 @@
          * change notification, of course).
          */
 
-        if (false) {
-            // This is what we want to do.
+        // This is what we want to do:
+        // systemd_manager.addEventListener("UnitNew", function (event, unit_id, path) {
+        //     if (unit_id == name)
+        //         refresh();
+        // });
 
-            systemd_manager.addEventListener("UnitNew", function (event, unit_id, path) {
-                if (unit_id == name)
-                    refresh();
-            });
-        } else {
-            // This is what we have to do.
+        // This is what we have to do:
+        systemd_manager.addEventListener("Reloading", function (event, reloading) {
+            if (!reloading)
+                refresh();
+        });
 
-            systemd_manager.addEventListener("Reloading", function (event, reloading) {
-                if (!reloading)
-                    refresh();
-            });
-
-            systemd_manager.addEventListener("JobNew", on_job_new_removed_refresh);
-            systemd_manager.addEventListener("JobRemoved", on_job_new_removed_refresh);
-        }
+        systemd_manager.addEventListener("JobNew", on_job_new_removed_refresh);
+        systemd_manager.addEventListener("JobRemoved", on_job_new_removed_refresh);
 
         function wait(callback) {
             wait_callbacks.promise.then(callback);

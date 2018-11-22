@@ -95,10 +95,11 @@
         ];
 
         assert.expect(checks.length);
+        var pos;
         for (var i = 0; i < checks.length; i++) {
             var res = [];
-            var pos = undefined;
             var next;
+            pos = undefined;
             for (var j = 0; j < 16; j++) {
                 next = docker.json_skip(checks[i][1], pos);
                 res.push(next);

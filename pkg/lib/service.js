@@ -178,7 +178,7 @@
                         service.addEventListener('changed', update_from_service);
                         wait_valid(service, update_from_service);
                     })
-                    .fail(function (error) {
+                    .fail(function () {
                         self.exists = false;
                         self.dispatchEvent('changed');
                     });

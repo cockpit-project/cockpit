@@ -45,7 +45,8 @@
      */
     function imagestreamEachTagItem(stream, callback, context) {
         var i, il, items;
-        var t, tl, tags = (stream.status || {}).tags || [];
+        var t, tl;
+        var tags = (stream.status || {}).tags || [];
         for (t = 0, tl = tags.length; t < tl; t++) {
             items = (tags[t].items) || [];
             for (i = 0, il = items.length; i < il; i++)
@@ -324,7 +325,8 @@
              * name to the image itself.
              */
                     function handle_image(image) {
-                        var item, manifest = image.dockerImageManifest;
+                        var item;
+                        var manifest = image.dockerImageManifest;
                         if (manifest) {
                             manifest = JSON.parse(manifest);
                             angular.forEach(manifest.history || [], function(item) {
@@ -362,7 +364,8 @@
              * in the given TagEvent.
              */
                     select.register("taggedBy", function(tag) {
-                        var i, len, results = { };
+                        var i, len;
+                        var results = { };
                         // catch condition when tag.items is null due to imagestream import error
                         if (!tag.items)
                             return select(null);
@@ -420,7 +423,8 @@
                     select.register("dockerImageConfig", function() {
                         var results = { };
                         angular.forEach(this, function(image, key) {
-                            var compat, layers = imageLayers(image) || { };
+                            var compat;
+                            var layers = imageLayers(image) || { };
                             if (layers[0]) {
                                 compat = layers[0].v1Compatibility;
                                 if (compat && compat.config) {

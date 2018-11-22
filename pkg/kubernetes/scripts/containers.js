@@ -239,7 +239,8 @@
                             function connect() {
                                 pre.empty();
 
-                                var url = "", pod = scope.pod();
+                                var url = "";
+                                var pod = scope.pod();
                                 if (pod.metadata)
                                     url += pod.metadata.selfLink;
                                 else

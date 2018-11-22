@@ -142,7 +142,8 @@
                             return;
                         }
 
-                        var error, result = [], path;
+                        var error, path;
+                        var result = [];
                         if (this.state() == "rejected") {
                             error = arguments[0];
                             $(".realms-op-message")
@@ -269,7 +270,8 @@
             var count = 0;
 
             function add_choice(owner, type, text) {
-                var item, choice, i, length = supported.length;
+                var item, choice, i;
+                var length = supported.length;
                 for (i = 0; i < length; i++) {
                     if ((!owner || owner == supported[i][1]) && type == supported[i][0]) {
                         choice = type + "/" + supported[i][1];

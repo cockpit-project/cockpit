@@ -272,7 +272,8 @@
                             return [];
                         var projectName = toName(project);
                         var roleBinds = subjectRoleBindings(member, projectName);
-                        var meta, ret = [];
+                        var meta;
+                        var ret = [];
                         angular.forEach(roleBinds, function(roleBind) {
                             meta = roleBind.metadata || { };
                             if (meta.name)
@@ -365,7 +366,8 @@
                     select.register({
                         name: "containsSubject",
                         digests: function(arg) {
-                            var meta, i, len, subjects, ret = [];
+                            var meta, i, len, subjects;
+                            var ret = [];
                             if (typeof arg == "string") {
                                 ret.push(arg);
                             } else if (arg.kind == "User" || arg.kind == "Group") {
@@ -463,7 +465,8 @@
                         projState[anonymousGroup] = null;
                         projState[sharedGroup] = null;
 
-                        var i, len, groups = response.groups || [];
+                        var i, len;
+                        var groups = response.groups || [];
                         for (i = 0, len = groups.length; i < len; i++) {
                             if (projState.hasOwnProperty(groups[i]))
                                 projState[groups[i]] = true;

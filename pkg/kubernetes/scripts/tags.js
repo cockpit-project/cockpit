@@ -24,7 +24,8 @@
 
     var REGTAG = /[\u200B\s,]+/;
     function parseNodes(parent) {
-        var child, text, names = [];
+        var child, text;
+        var names = [];
         function pushName(name) {
             if (name)
                 names.push(name);

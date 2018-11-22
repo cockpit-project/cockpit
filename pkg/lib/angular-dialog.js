@@ -164,8 +164,10 @@
             ]);
 
     function queryAll(element, selector) {
-        var list, result = [];
-        var j, i, jlen, len = element.length;
+        var list;
+        var result = [];
+        var j, i, jlen;
+        var len = element.length;
         for (i = 0; i < len; i++) {
             list = element[i].querySelectorAll(selector);
             if (list) {
@@ -178,7 +180,8 @@
 
     function queryFirst(element, selector) {
         var result = null;
-        var i, len = element.length;
+        var i;
+        var len = element.length;
         for (i = 0; !result && i < len; i++)
             result = element[i].querySelector(selector);
         return angular.element(result);

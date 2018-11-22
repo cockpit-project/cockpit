@@ -95,7 +95,8 @@
                 }, 10);
             }
 
-            var host, hosts = { };
+            var host;
+            var hosts = { };
             var content = shared.content || { };
             var overlay = shared.overlay || { };
             for (host in content)
@@ -155,7 +156,9 @@
             }
 
             /* Fire off all events */
-            var i, sel = $(self), len = events.length;
+            var i;
+            var sel = $(self);
+            var len = events.length;
             for (i = 0; i < len; i++)
                 sel.triggerHandler(events[i][0], events[i][1]);
             if (emit_ready)
@@ -225,7 +228,8 @@
         };
 
         self.unused_color = function unused_color() {
-            var i, len = mod.colors.length;
+            var i;
+            var len = mod.colors.length;
             for (i = 0; i < len; i++) {
                 if (!color_in_use(mod.colors[i]))
                     return mod.colors[i];
@@ -234,7 +238,8 @@
         };
 
         function color_in_use(color) {
-            var key, machine, norm = mod.colors.parse(color);
+            var key, machine;
+            var norm = mod.colors.parse(color);
             for (key in machines) {
                 machine = machines[key];
                 if (machine.color && mod.colors.parse(machine.color) == norm)
@@ -286,7 +291,8 @@
         };
 
         self.data = function data(content) {
-            var host, changes = {};
+            var host;
+            var changes = {};
 
             for (host in content) {
                 changes[host] = $.extend({ }, last.overlay[host] || { });

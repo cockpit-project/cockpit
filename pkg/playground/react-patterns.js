@@ -45,7 +45,8 @@
         var dfd = cockpit.defer();
         dfd.notify("Starting something long");
         if (mode == 'steps') {
-            var interval, count = 0;
+            var interval;
+            var count = 0;
             interval = window.setInterval(function() {
                 count += 1;
                 dfd.notify("Step " + count);

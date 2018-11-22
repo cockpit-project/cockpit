@@ -289,7 +289,8 @@
             if (!selected_color)
                 selected_color = machines_ins.unused_color();
 
-            var part, colors = [];
+            var part;
+            var colors = [];
             for (var i = 0; i < machines.colors.length; i += 6) {
                 part = machines.colors.slice(i, i + 6);
                 colors.push({"list" : part});

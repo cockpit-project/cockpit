@@ -322,7 +322,8 @@
                             return "";
                         }, function(response) {
                             if (response.status == 302) {
-                                var token, header = response.headers["Location"];
+                                var token;
+                                var header = response.headers["Location"];
                                 if (header) {
                                     /*
                              * When OAuth is in play (ie: Openshift, Origin, Atomic, then

@@ -92,7 +92,8 @@
 
         function process(data) {
             var blocks = data.split('\v');
-            var key, items = { };
+            var key;
+            var items = { };
 
             /* First block is the data from ssh agent */
             blocks[0].trim().split("\n")

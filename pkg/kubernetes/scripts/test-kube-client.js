@@ -376,7 +376,8 @@ var FIXTURE_LARGE = require("./fixture-large");
         function(loader, select) {
             return loader.watch("services").then(function() {
                 var services = select().kind("Service");
-                var x, svc = null;
+                var x;
+                var svc = null;
                 for (x in services) {
                     svc = services[x];
                     break;

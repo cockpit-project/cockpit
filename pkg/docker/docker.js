@@ -276,8 +276,10 @@
     }
 
     function sequence_find(seq, find) {
-        var f, fl = find.length;
-        var s, sl = (seq.length - fl) + 1;
+        var f;
+        var fl = find.length;
+        var s;
+        var sl = (seq.length - fl) + 1;
         for (s = 0; s < sl; s++) {
             for (f = 0; f < fl; f++) {
                 if (seq[s + f] !== find[f])

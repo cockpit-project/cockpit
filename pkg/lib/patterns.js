@@ -182,7 +182,8 @@
          * processing the same promise.
          */
         function restore() {
-            var state, data = sel.data("dialog-wait");
+            var state;
+            var data = sel.data("dialog-wait");
             if (data && data.promise === promise) {
                 clear_wait(sel);
                 state = promise.state();

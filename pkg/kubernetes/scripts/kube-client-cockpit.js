@@ -153,7 +153,8 @@
                                 return;
                             loaded = true;
 
-                            var key, prev, frames = [];
+                            var key, prev;
+                            var frames = [];
                             prev = previous;
                             previous = null;
                             for (key in prev) {
@@ -186,7 +187,8 @@
                                 data = buffer + data;
 
                             var lines = data.split("\n");
-                            var i, length = lines.length - 1;
+                            var i;
+                            var length = lines.length - 1;
 
                             /* Last line is incomplete save for later */
                             buffer = lines[length];
@@ -393,7 +395,8 @@
 
                         if (pos !== -1) {
                             angular.forEach(href.substring(pos + 1).split("&"), function(opt) {
-                                var last, parts = opt.split('=');
+                                var last;
+                                var parts = opt.split('=');
                                 var name = decodeURIComponent(parts[0]);
                                 var value = decodeURIComponent(parts[1]);
                                 if (options.hasOwnProperty(name)) {
@@ -877,14 +880,16 @@
                         });
 
                         /* Find the user info */
-                        var user, users = config["users"] || [];
+                        var user;
+                        var users = config["users"] || [];
                         users.forEach(function(info) {
                             if (info.name === userName)
                                 user = info.user;
                         });
 
                         /* Find the cluster info */
-                        var cluster, clusters = config["clusters"] || [];
+                        var cluster;
+                        var clusters = config["clusters"] || [];
                         clusters.forEach(function(info) {
                             if (info.name == clusterName)
                                 cluster = info.cluster;

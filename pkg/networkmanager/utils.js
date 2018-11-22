@@ -63,7 +63,8 @@
     }
 
     function bytes_from_nm32(num) {
-        var bytes = [], i;
+        var bytes = [];
+        var i;
         if (byteorder == "be") {
             for (i = 3; i >= 0; i--) {
                 bytes[i] = num & 0xFF;
@@ -187,7 +188,8 @@
         if (parts[parts.length - 1] === "")
             parts[parts.length - 1] = "0";
 
-        var bytes = [], n, i, j;
+        var bytes = [];
+        var n, i, j;
         var empty_seen = false;
         for (i = 0, j = 0; i < parts.length; i++, j++) {
             if (parts[i] === "") {

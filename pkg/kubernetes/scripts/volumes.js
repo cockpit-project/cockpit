@@ -238,7 +238,8 @@
                             if (typeof arg === "string")
                                 return ["claimName=" + arg];
 
-                            var i, ret = [];
+                            var i;
+                            var ret = [];
                             var spec = arg.spec || {};
                             var vols = spec.volumes || [];
                             for (i in vols) {
@@ -458,7 +459,8 @@
                     }
 
                     function validate (item, fields) {
-                        var ex, spec, name, capacity, policy, i, validModes, accessModes = [];
+                        var ex, spec, name, capacity, policy, i, validModes;
+                        var accessModes = [];
                         var ret = {
                             errors: [],
                             data: null,
@@ -903,7 +905,8 @@
 
                     function validate() {
                         var defer = $q.defer();
-                        var resp, main_resp, errors = [];
+                        var resp, main_resp;
+                        var errors = [];
 
                         if (!$scope.item) {
                             valName = $scope.current_type + VOLUME_FACTORY_SUFFIX;

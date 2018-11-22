@@ -130,7 +130,8 @@
                     }
 
                     select.register("buildRecentStreams", function() {
-                        var link, array = [];
+                        var link;
+                        var array = [];
                         for (link in this)
                             array.push(this[link]);
                         array.sort(compareVersion);

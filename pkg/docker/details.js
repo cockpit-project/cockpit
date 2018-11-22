@@ -85,7 +85,8 @@
                     })
                     .find(".btn-primary")
                     .on("click", function() {
-                        var mem, prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
+                        var mem;
+                        var prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
                         if (self.client.info.MemoryLimit) {
                             mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
                             prom = cockpit.all(mem, prom);

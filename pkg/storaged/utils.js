@@ -638,7 +638,8 @@
         }
 
         function pvol_remove(pvols) {
-            var by_vgroup = { }, p;
+            var by_vgroup = { };
+            var p;
             pvols.forEach(function (p) {
                 if (!by_vgroup[p.vgroup.path])
                     by_vgroup[p.vgroup.path] = [ ];

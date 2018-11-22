@@ -7,7 +7,8 @@ $(function() {
     var manifests;
 
     function update(str) {
-        var new_m = JSON.parse(str), p;
+        var new_m = JSON.parse(str);
+        var p;
 
         if (manifests) {
             for (p in new_m) {

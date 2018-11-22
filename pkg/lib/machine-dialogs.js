@@ -705,14 +705,12 @@
             var no_password = false;
             var methods = null;
             var available = null;
-            var supported = null;
 
             var machine_user = dialog.machines_ins.split_connection_string(dialog.address).user;
             if (!machine_user && machine)
                 machine_user = machine.user;
 
             if (error_options && machines.has_auth_results) {
-                supported = {};
                 available = {};
 
                 methods = error_options["auth-method-results"];

@@ -3173,7 +3173,7 @@ PageNetworkIpSettings.prototype = {
         var topic = PageNetworkIpSettings.topic;
         var params = self.settings[topic];
 
-        var method_btn, addresses_table;
+        var addresses_table;
         var auto_dns_btn, dns_table;
         var auto_dns_search_btn, dns_search_table;
         var auto_routes_btn, routes_table;
@@ -3283,7 +3283,7 @@ PageNetworkIpSettings.prototype = {
                 $('<div>').append(
                     addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],
                                                [ "", "", "" ],
-                                               method_btn = choicebox("method", (topic == "ipv4") ?
+                                               choicebox("method", (topic == "ipv4") ?
                                                    ipv4_method_choices : ipv6_method_choices)
                                                        .css('display', 'inline-block')),
                     $('<br>'),

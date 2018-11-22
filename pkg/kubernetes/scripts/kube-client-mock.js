@@ -288,13 +288,11 @@ var angular = require("angular");
     }
 
     function kubeApiPost(req, parts, query, baseUri) {
-        var namespace;
         var section;
 
         if (parts.length === 3) {
             if (parts[0] != "namespaces")
                 return false;
-            namespace = parts[1];
             section = parts[2];
         } else if (parts.length === 1) {
             section = parts[0];
@@ -354,19 +352,10 @@ var angular = require("angular");
     }
 
     function kubeApiDelete(req, parts, query, baseUri) {
-        var namespace;
-        var kind;
-        var name;
-
         if (parts.length === 4) {
             if (parts[0] != "namespaces")
                 return false;
-            namespace = parts[1];
-            kind = parts[2];
-            name = parts[3];
-        } else if (parts.length === 2) {
-            namespace = parts[1];
-        } else {
+        } else if (parts.length !== 2) {
             return false;
         }
 
@@ -378,19 +367,10 @@ var angular = require("angular");
     }
 
     function kubeApiPatch(req, parts, query, baseUri) {
-        var namespace;
-        var kind;
-        var name;
-
         if (parts.length === 4) {
             if (parts[0] != "namespaces")
                 return false;
-            namespace = parts[1];
-            kind = parts[2];
-            name = parts[3];
-        } else if (parts.length === 2) {
-            namespace = parts[1];
-        } else {
+        } else if (parts.length !== 2) {
             return false;
         }
 

@@ -324,15 +324,7 @@
                     function removeMemberFromProject(project, subjectRoleBindings, subject) {
                         var registryRoles = ["registry-admin", "registry-editor", "registry-viewer"];
                         var chain = $q.when();
-                        var roleBindings = [];
-                        var defaultPolicybinding = select().kind("PolicyBinding")
-                                .namespace(project)
-                                .name(":default")
-                                .one();
                         subject.apiGroup = apiGroup;
-
-                        if (defaultPolicybinding)
-                            roleBindings = defaultPolicybinding.roleBindings;
 
                         angular.forEach(subjectRoleBindings, function(role) {
                             // Since we only added registry roles

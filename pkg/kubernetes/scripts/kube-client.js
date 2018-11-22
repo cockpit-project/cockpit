@@ -894,12 +894,9 @@
                     }
 
                     function mixinSelection(results, length, indexed) {
-                        var link, data;
-                        if (length === undefined) {
-                            length = 0;
-                            for (link in results)
-                                length += 1;
-                        }
+                        var data;
+                        if (length === undefined)
+                            length = Object.keys(results).length;
                         proto = proto || makePrototype();
                         Object.defineProperties(results, proto);
                         data = cached(results);

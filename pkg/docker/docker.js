@@ -385,7 +385,7 @@
             }
 
             /* Prepare the command to be executed */
-            var prep = http.request($.extend({ }, options, exec))
+            prep = http.request($.extend({ }, options, exec))
                     .always(function() {
                         prep = null;
                     })

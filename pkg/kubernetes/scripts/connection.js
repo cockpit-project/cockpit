@@ -254,7 +254,7 @@
                             if (c.context) {
                                 var inner = c.context || {};
                                 if (inner.cluster == cluster.name &&
-                            (user && inner.user == user.name || !user && !inner.user)) {
+                            ((user && inner.user == user.name) || (!user && !inner.user))) {
                                     context = { name: c.name };
                                     break;
                                 }

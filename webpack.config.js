@@ -397,9 +397,14 @@ module.exports = {
     module: {
         preLoaders: [
             {
-                test: /\.js$/, // include .js files
+                test: /\/src\/.*\.js$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "jshint-loader"
+            },
+            {
+                test: /\/pkg\/.*\.js$/,
+                exclude: /\/node_modules\/.*\//, // exclude external dependencies
+                loader: "eslint-loader"
             },
             {
                 test: /\.es6$/,

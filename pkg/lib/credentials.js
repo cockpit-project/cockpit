@@ -234,10 +234,12 @@
                             }
                         }
 
-                        for (i = 0; sent_new && i < bad_exps.length; i++) {
-                            if (bad_exps[i].test(buffer)) {
-                                failure = _("New password was not accepted");
-                                return;
+                        if (sent_new) {
+                            for (i = 0; i < bad_exps.length; i++) {
+                                if (bad_exps[i].test(buffer)) {
+                                    failure = _("New password was not accepted");
+                                    return;
+                                }
                             }
                         }
                     });

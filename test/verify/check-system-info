@@ -420,7 +420,10 @@ class TestPcp(packagelib.PackageCase):
         b.wait_present("#server-pmlogger-onoff-row")
         b.wait_not_visible("#server-pmlogger-onoff-row")
         b.wait_visible("#system-information-enable-pcp")
-        b.wait_in_text("#system-information-enable-pcp", "Enable persistent metrics…")
+        if m.image in ["rhel-7-6-distropkg"]:
+            b.wait_in_text("#system-information-enable-pcp", "Enable persistent metrics…")
+        else:
+            b.wait_in_text("#system-information-enable-pcp", "Enable stored metrics…")
         b.click("#system-information-enable-pcp-link")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
         b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")

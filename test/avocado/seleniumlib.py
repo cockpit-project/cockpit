@@ -34,12 +34,14 @@ import os
 import time
 from avocado import Test
 from timeoutlib import Retry
+from machine_core import ssh_connection
 
 user = "test"
 passwd = "superhardpasswordtest5554"
 
 # path for storing selenium screenshots
 actualpath = "."
+IDENTITY_FILE = "identity"
 
 # use javascript to generate clicks in the browsers and add more javascript checks for elements
 # this prevents races where the test clicks in the wrong place because the page layout changed
@@ -61,6 +63,17 @@ class SeleniumTest(Test):
         network_port = int(os.environ.get("PORT", "9090"))
         url_base = os.environ.get("URL_BASE", "http")
         local_testing = os.environ.get("LOCAL", "no")  # use "yes" to test via local browsers
+        identity_file = os.environ.get("IDENTITY")
+        if not identity_file:
+            identity_file = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), IDENTITY_FILE))
+        if not os.path.exists(identity_file):
+            raise FileNotFoundError("IDENTITY envvar does not contain file to proper private key,"
+                                    " or {} file does not exist".format(identity_file))
+        self.machine = ssh_connection.SSHConnection(user=user,
+                                                    address=guest_machine,
+                                                    ssh_port=22,
+                                                    identity_file=identity_file,
+                                                    verbose=False)
         if browser == 'edge':
             browser = 'MicrosoftEdge'
         # allow_localhost testing

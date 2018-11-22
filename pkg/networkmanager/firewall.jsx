@@ -257,7 +257,7 @@ export class Firewall extends React.Component {
         show_modal_dialog(
             {
                 title: _("Add Services"),
-                body: <AddServicesDialogBody selectionChanged={s => { selected = [...s] }} />
+                body: <AddServicesDialogBody selectionChanged={s => { selected = new Set(s) }} />
             },
             {
                 cancel_caption: _("Cancel"),
@@ -265,7 +265,7 @@ export class Firewall extends React.Component {
                     {
                         caption: _("Add Services"),
                         style: 'primary',
-                        clicked: () => firewall.addServices(selected)
+                        clicked: () => firewall.addServices([...selected])
                     }
                 ]
             });

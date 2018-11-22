@@ -515,6 +515,8 @@ class Browser:
             title: Used for the filename.
         """
         if self.cdp and self.cdp.valid:
+            self.cdp.command("clearExceptions()")
+
             filename = "{0}-{1}.png".format(label or self.label, title)
             ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
             if "data" in ret:

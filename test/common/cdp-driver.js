@@ -67,6 +67,11 @@ var logPromiseResolver;
 var nReportedLogMessages = 0;
 var unhandledExceptions = [];
 
+function clearExceptions() {
+    unhandledExceptions.length = 0;
+    return Promise.resolve();
+}
+
 function setupLogging(client) {
     client.Runtime.enable();
 
@@ -320,7 +325,7 @@ CDP.New(options)
                                 } else {
                                     let message = unhandledExceptions[0];
                                     fail(message.split("\n")[0]);
-                                    unhandledExceptions.length = 0;
+                                    clearExceptions();
                                 }
                             }, fail);
 

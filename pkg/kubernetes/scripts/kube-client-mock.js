@@ -170,7 +170,7 @@ var angular = require("angular");
             if (query.resourceVersion) {
                 resourceVersion = parseInt(query.resourceVersion, 10);
                 if (isNaN(resourceVersion))
-                    throw "invalid resourceVersion";
+                    throw Error("invalid resourceVersion");
             }
         }
 
@@ -441,7 +441,7 @@ var angular = require("angular");
                             for (i = 0; i < length; i++) {
                                 frame = JSON.parse(lines[i]);
                                 if (!frame.object)
-                                    throw "invalid watch without object";
+                                    throw Error("invalid watch without object");
 
                                 /* The watch failed, likely due to invalid resourceVersion */
                                 if (frame.type == "ERROR")

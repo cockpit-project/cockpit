@@ -102,7 +102,7 @@
             .factory("MissingFormat", [
                 function() {
                     return function MissingFormatCapacity(value) {
-                        throw "no KubeFormatFactory set";
+                        throw Error("no KubeFormatFactory set");
                     };
                 }
             ])
@@ -133,7 +133,7 @@
             .factory("MissingKubeTranslate", [
                 function() {
                     function error_func() {
-                        throw "no KubeTranslateFactory set";
+                        throw Error("no KubeTranslateFactory set");
                     }
 
                     return {

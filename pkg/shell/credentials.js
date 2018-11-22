@@ -207,7 +207,7 @@
                     var new_pass = body.find(".credential-new").val();
                     var two_pass = body.find(".credential-two").val();
                     if (old_pass === undefined || new_pass === undefined || two_pass === undefined)
-                        throw "invalid password fields";
+                        throw Error("invalid password fields");
 
                     keys.change(key.name, old_pass, new_pass, two_pass)
                             .always(function(ex) {

@@ -484,7 +484,7 @@
         var current_frame;
 
         if (typeof self.navigate !== "function")
-            throw "Index requires a prototype with a navigate function";
+            throw Error("Index requires a prototype with a navigate function");
 
         self.frames = new Frames(self);
         self.router = new Router(self);

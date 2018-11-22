@@ -248,8 +248,6 @@
                 write(decoder.decode(block, { stream: true }));
                 at += 8 + size;
             }
-
-            return at;
         };
 
         self.focus = function() {

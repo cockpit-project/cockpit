@@ -531,7 +531,7 @@
         function setTooltip(message) {
             element
                     .attr('title', message)
-                    .tooltip({ container: 'body'})
+                    .tooltip({ container: 'body' })
                     .tooltip('fixTitle');
         }
 

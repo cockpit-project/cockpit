@@ -815,7 +815,7 @@
                         link: function($scope, element, attributes) {
                             var colorFunc = d3.scale.threshold()
                                     .domain([0.7, 0.8, 0.9])
-                                    .range(['#d4f0fa', '#F9D67A', '#EC7A08', '#CE0000' ]);
+                                    .range(['#d4f0fa', '#F9D67A', '#EC7A08', '#CE0000']);
 
                             var types = {
                                 cpu: {

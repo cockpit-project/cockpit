@@ -63,7 +63,7 @@ var QUnit = require("qunit-tests");
             sessionCertificates.trustCert({}, "data1");
             assert.equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
             assert.equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
-            sessionCertificates.trustCert({ server: "address"}, "address-data");
+            sessionCertificates.trustCert({ server: "address" }, "address-data");
             assert.equal(sessionCertificates.getCert("address"), undefined, "address data");
         }
     ]);
@@ -195,7 +195,7 @@ var QUnit = require("qunit-tests");
             data = connectionActions.prepareData(config, cluster, user);
             assert.deepEqual(data, {
                 "cluster": {
-                    "cluster": {"server": "https://127.0.0.1:8000" },
+                    "cluster": { "server": "https://127.0.0.1:8000" },
                     "name": "name"
                 },
                 "context": { "name" : "existing" },
@@ -211,7 +211,7 @@ var QUnit = require("qunit-tests");
             data = connectionActions.prepareData({}, cluster, user);
             assert.deepEqual(data, {
                 "cluster": {
-                    "cluster": {"server": "https://127.0.0.1:8000" },
+                    "cluster": { "server": "https://127.0.0.1:8000" },
                     "name": "127-0-0-1:8000"
                 },
                 "context": {

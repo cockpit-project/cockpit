@@ -115,7 +115,7 @@
     };
 
     utils.format_size_and_text = function format_size_and_text(size, text) {
-        return cockpit.format(_("${size} ${desc}"), { size: utils.fmt_size(size), desc: text});
+        return cockpit.format(_("${size} ${desc}"), { size: utils.fmt_size(size), desc: text });
     };
 
     utils.validate_lvm2_name = function validate_lvm2_name(name) {

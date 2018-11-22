@@ -644,7 +644,7 @@
                         var data = {
                             apiVersion: "v1",
                             kind: "ImageStream",
-                            metadata: { annotations:  { "openshift.io/image.dockerRepositoryCheck" : null }}
+                            metadata: { annotations:  { "openshift.io/image.dockerRepositoryCheck" : null } }
                         };
 
                         if (fields.populate == "pull")

@@ -546,7 +546,7 @@
 
             /* Here we load the machine manifests, and expect them before going to "connected" */
             function request_manifest() {
-                request = $.ajax({ url: url, dataType: "json", cache: true})
+                request = $.ajax({ url: url, dataType: "json", cache: true })
                         .done(function(manifests) {
                             var overlay = { manifests: manifests };
                             var etag = request.getResponseHeader("ETag");

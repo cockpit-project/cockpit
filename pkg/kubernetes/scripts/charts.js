@@ -108,7 +108,7 @@
                             var data;
                             var padding = 2;
                             var thresholdDefaults = [0, 0.7, 0.8, 0.9];
-                            var heatmapColorDefaults = ['#bbbbbb', '#d4f0fa', '#F9D67A', '#EC7A08', '#CE0000' ];
+                            var heatmapColorDefaults = ['#bbbbbb', '#d4f0fa', '#F9D67A', '#EC7A08', '#CE0000'];
                             var legendLabelDefaults = [_("Unavailable"), '< 70%', '70-80%', '80-90%', '> 90%'];
 
                             var maxSize = attributes['maxBlockSize'];

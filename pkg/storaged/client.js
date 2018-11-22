@@ -382,7 +382,7 @@
                     var defer = cockpit.defer();
                     client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                     client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                    wait_all([ client.manager_lvm2, client.manager_iscsi],
+                    wait_all([ client.manager_lvm2, client.manager_iscsi ],
                              function () {
                                  client.features.lvm2 = client.manager_lvm2.valid;
                                  client.features.iscsi = (hacks.with_storaged_iscsi_sessions != "no" &&

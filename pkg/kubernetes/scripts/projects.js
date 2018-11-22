@@ -242,7 +242,7 @@
                 'kubeLoader',
                 'projectPolicy',
                 function($q, select, loader, policy) {
-                    var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin"},
+                    var registryRoles = [{ ocRole: "registry-admin", displayRole :"Admin" },
                         { ocRole:"registry-editor", displayRole :"Push" },
                         { ocRole:"registry-viewer", displayRole :"Pull" }];
 
@@ -1216,7 +1216,7 @@
                     $scope.performModify = function performModify() {
                         var identities = [];
                         var user = $scope.fields.user;
-                        var data = {"identities": identities };
+                        var data = { "identities": identities };
 
                         if (fields.identities.trim() !== "") {
                             var idList = fields.identities.trim().split(",");

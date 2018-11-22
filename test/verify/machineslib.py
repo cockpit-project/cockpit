@@ -1259,7 +1259,7 @@ class TestMachines(MachineCase):
             expected_source_type = 'Filesystem' if self.is_filesystem_location else 'URL'
             b.select_from_dropdown("#source-type", expected_source_type)
             if self.is_filesystem_location:
-                self._setFileAutocompleteVal("#source-file", self.location)
+                b.set_file_autocomplete_val("#source-file", self.location)
             else:
                 b.set_input_text("#source-url", self.location)
 
@@ -1356,26 +1356,6 @@ class TestMachines(MachineCase):
                             allowBugErrors(error_location, x2)
 
             return self
-
-        def _setFileAutocompleteVal(self, selector, location):
-            b = self.browser
-            caret_selector = "{0} span.caret".format(selector)
-            spinner_selector = "{0} .spinner".format(selector)
-            file_item_selector_template = "{0} ul li a:contains({1})"
-
-            b.wait_present(selector)
-            b.wait_visible(selector)
-
-            for path_part in location.split('/')[1:]:
-                b.wait_not_present(spinner_selector)
-                file_item_selector = file_item_selector_template.format(selector, path_part)
-                if not b.is_present(file_item_selector) or not b.is_visible(file_item_selector):
-                    b.click(caret_selector)
-                b.wait_visible(file_item_selector)
-                b.click(file_item_selector)
-
-            b.wait_not_present(spinner_selector)
-            b.wait_val(selector + " input", location)
 
     class CreateVmRunner:
         def __init__(self, test_obj):

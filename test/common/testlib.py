@@ -269,6 +269,25 @@ class Browser:
         self.wait_val(selector, val)
         self.blur(selector)
 
+    def set_file_autocomplete_val(self, selector, location):
+        caret_selector = "{0} span.caret".format(selector)
+        spinner_selector = "{0} .spinner".format(selector)
+        file_item_selector_template = "{0} ul li a:contains({1})"
+
+        self.wait_present(selector)
+        self.wait_visible(selector)
+
+        for path_part in filter(None, location.split('/')):
+            self.wait_not_present(spinner_selector)
+            file_item_selector = file_item_selector_template.format(selector, path_part)
+            if not self.is_present(file_item_selector) or not self.is_visible(file_item_selector):
+                self.click(caret_selector)
+            self.wait_visible(file_item_selector)
+            self.click(file_item_selector)
+
+        self.wait_not_present(spinner_selector)
+        self.wait_val(selector + " input", location)
+
     def wait_timeout(self, timeout):
         browser = self
         class WaitParamsRestorer():

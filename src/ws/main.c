@@ -45,13 +45,17 @@ static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
+static gchar     *opt_local_session = NULL;
 static gboolean  opt_version      = FALSE;
 
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
-  {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", NULL},
+  {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", "ADDRESS"},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
+  {"local-session", 0, 0, G_OPTION_ARG_STRING, &opt_local_session,
+      "Launch a bridge in the local session (path to cockpit-bridge or '-' for stdin/out); implies --no-tls",
+      "BRIDGE" },
   {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
   {NULL}
 };
@@ -96,6 +100,15 @@ setup_static_roots (GHashTable *os_release)
   return roots;
 }
 
+static void
+on_local_ready (GObject *object,
+                GAsyncResult *result,
+                gpointer data)
+{
+  cockpit_web_server_start (COCKPIT_WEB_SERVER (data));
+  g_object_unref (data);
+}
+
 int
 main (int argc,
       char *argv[])
@@ -112,6 +125,8 @@ main (int argc,
   GMainLoop *loop = NULL;
   gchar *login_html = NULL;
   gchar *login_po_html = NULL;
+  CockpitPipe *pipe = NULL;
+  int outfd = -1;
 
   signal (SIGPIPE, SIG_IGN);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
@@ -142,9 +157,23 @@ main (int argc,
       goto out;
     }
 
+  /*
+   * This process talks on stdin/stdout. However lots of stuff wants to write
+   * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
+   * it goes to stderr, and use another fd for stdout.
+   */
+  outfd = dup (1);
+  if (outfd < 0 || dup2 (2, 1) < 1)
+    {
+      g_printerr ("ws couldn't redirect stdout to stderr");
+      if (outfd > -1)
+        close (outfd);
+      goto out;
+    }
+
   cockpit_set_journal_logging (NULL, !isatty (2));
 
-  if (opt_no_tls)
+  if (opt_local_session || opt_no_tls)
     {
       /* no certificate */
     }
@@ -215,7 +244,36 @@ main (int argc,
   g_signal_connect (server, "handle-resource",
                     G_CALLBACK (cockpit_handler_default), &data);
 
-  cockpit_web_server_start (server);
+  if (opt_local_session)
+    {
+      struct passwd *pwd;
+
+      if (g_str_equal (opt_local_session, "-"))
+        {
+          pipe = cockpit_pipe_new (opt_local_session, 0, outfd);
+          outfd = -1;
+        }
+      else
+        {
+          const gchar *args[] = { opt_local_session, NULL };
+          pipe = cockpit_pipe_spawn (args, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+        }
+
+      /* Spawn a local session as a bridge */
+      pwd = getpwuid (geteuid ());
+      if (!pwd)
+        {
+          g_printerr ("Failed to resolve current user id %u\n", geteuid ());
+          goto out;
+        }
+      cockpit_auth_local_async (data.auth, pwd->pw_name, pipe, on_local_ready, g_object_ref (server));
+      g_object_unref (pipe);
+    }
+  else
+    {
+      /* When no local bridge, start serving immediately */
+      cockpit_web_server_start (server);
+    }
 
   /* Debugging issues during testing */
 #if WITH_DEBUG
@@ -228,6 +286,8 @@ main (int argc,
   ret = 0;
 
 out:
+  if (outfd >= 0)
+    close (outfd);
   if (loop)
     g_main_loop_unref (loop);
   if (local_error)
@@ -245,6 +305,7 @@ out:
   g_free (login_po_html);
   g_free (login_html);
   g_free (opt_address);
+  g_free (opt_local_session);
   cockpit_conf_cleanup ();
   return ret;
 }

@@ -40,9 +40,10 @@
       <command>cockpit-ws</command>
       <arg><option>--help</option></arg>
       <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
+      <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
       <arg><option>--no-tls</option></arg>
       <arg><option>--local-ssh</option></arg>
-      <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
+      <arg><option>--local-session</option> <replaceable>BRIDGE</replaceable></arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -126,17 +127,6 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term><option>--local-ssh</option></term>
-        <listitem>
-          <para>
-            Normally <command>cockpit-ws</command> uses
-            <command>cockpit-session</command> and PAM to authenticate the user and start a
-            user session. With this option enabled, it will instead authenticate via SSH at
-            <literal>127.0.0.1</literal> port <literal>22</literal>.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term><option>--port</option> <replaceable>PORT</replaceable></term>
         <listitem>
           <para>
@@ -166,6 +156,42 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
           <para>
             Don't use TLS.
           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--local-ssh</option></term>
+        <listitem>
+          <para>
+            Normally <command>cockpit-ws</command> uses
+            <command>cockpit-session</command> and PAM to authenticate the user and start a
+            user session. With this option enabled, it will instead authenticate via SSH at
+            <literal>127.0.0.1</literal> port <literal>22</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--local-session</option> <replaceable>BRIDGE</replaceable></term>
+        <listitem>
+          <para>
+            Skip all authentication and <command>cockpit-session</command>, and launch the
+            <command>cockpit-bridge</command> specified in <replaceable>BRIDGE</replaceable> in
+            the local session. If the <replaceable>BRIDGE</replaceable> is specified as
+            <command>-</command> then expect an already running bridge that is connected to
+            stdin and stdout of this <command>cockpit-ws</command> process. This allows the
+            web server to run as any unprivileged user in an already running session.
+          </para>
+          <para>
+            This mode implies <literal>--no-tls</literal>, thus you need to use http://
+            URLs with this.
+          </para>
+          <warning>
+            <para>
+              If you use this, you <emphasis>have to isolate the opened TCP port</emphasis>
+              somehow (for example in a network namespace), otherwise all other users (or
+              even remote machines if the port is not just listening on localhost) can access
+              the session!
+            </para>
+          </warning>
         </listitem>
       </varlistentry>
     </variablelist>

@@ -26,6 +26,7 @@
 #include "cockpitcreds.h"
 #include "cockpitwebservice.h"
 
+#include "common/cockpitpipe.h"
 #include "common/cockpittransport.h"
 
 G_BEGIN_DECLS
@@ -35,6 +36,7 @@ G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_AUTH         (cockpit_auth_get_type ())
 #define COCKPIT_AUTH(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_AUTH, CockpitAuth))
+#define COCKPIT_IS_AUTH(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_AUTH))
 #define COCKPIT_AUTH_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_AUTH, CockpitAuthClass))
 #define COCKPIT_IS_AUTH_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), COCKPIT_TYPE_AUTH))
 
@@ -80,6 +82,16 @@ JsonObject *    cockpit_auth_login_finish    (CockpitAuth *self,
                                               GAsyncResult *result,
                                               GIOStream *connection,
                                               GHashTable *out_headers,
+                                              GError **error);
+
+void            cockpit_auth_local_async     (CockpitAuth *self,
+                                              const gchar *user,
+                                              CockpitPipe *pipe,
+                                              GAsyncReadyCallback callback,
+                                              gpointer user_data);
+
+gboolean        cockpit_auth_local_finish    (CockpitAuth *self,
+                                              GAsyncResult *result,
                                               GError **error);
 
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,

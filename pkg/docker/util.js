@@ -692,7 +692,7 @@
         var log_found = false;
         match.push('SYSLOG_IDENTIFIER=abrt-notification');
         match.push('PROBLEM_DIR=' + problem_id);
-        journal.journalctl(match, { follow: false, reverse: true, all: true})
+        journal.journalctl(match, { follow: false, reverse: true, all: true })
                 .stream(function(entries) {
                     log_found = true;
                     // Only first entry is enough, since others are only previous occurrences

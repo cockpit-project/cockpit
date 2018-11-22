@@ -28,7 +28,7 @@
     QUnit.test("bytes_from_format", function() {
         var checks = [
             [ "999", 999 ],
-            [ "1.9 kb", 1945.6],
+            [ "1.9 kb", 1945.6 ],
             [ "2.0 KB", 2048 ],
             [ "1.0 MB", 1048576 ],
             [ "1 GB", 1073741824 ],

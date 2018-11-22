@@ -802,10 +802,10 @@
                         grid.addEventListener('changed', changed);
 
                         function resized() {
-	                width = selector.offsetWidth - 10;
-	                if (width < 0)
-                                width = 0;
-                            adjust();
+                            width = selector.offsetWidth - 10;
+                            if (width < 0)
+                                    width = 0;
+                                adjust();
                         }
 
                         window.addEventListener('resize', resized);

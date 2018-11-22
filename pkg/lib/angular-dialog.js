@@ -372,7 +372,7 @@
             function disable(el) {
                 var control = angular.element(el);
                 if (control.attr("disabled") ||
-                    promise.cancel && control.hasClass("btn-cancel"))
+                    (promise.cancel && control.hasClass("btn-cancel")))
                     return;
                 disabled.push(control);
                 control.attr("disabled", "disabled");

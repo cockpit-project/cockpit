@@ -289,7 +289,7 @@
             $("#machine-avatar").attr("src", machine && machine.avatar ? encodeURI(machine.avatar) :
                 "../shell/images/server-small.png");
 
-            var color = machine && machine.color || "";
+            var color = machine ? machine.color : "";
             $("#host-nav-item span.pficon-container-node").css("color", color);
 
             if (machine) {

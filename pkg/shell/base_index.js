@@ -817,7 +817,7 @@
              */
             var manifest = cockpit.manifests["shell"] || { };
             $(".display-language-menu").toggle(!!manifest.locales);
-            var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            var language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
             if (!language)
                 language = "en-us";
 

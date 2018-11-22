@@ -94,8 +94,8 @@
     util.render_container_state = function render_container_state (state) {
         if (state.Running) {
             var momentDate = moment(state.StartedAt);
-            return cockpit.format(_("Up since $0"), momentDate.isValid() ?
-                momentDate.calendar() : state.startedAt);
+            return cockpit.format(_("Up since $0"), momentDate.isValid()
+                ? momentDate.calendar() : state.startedAt);
         }
         return cockpit.format(_("Exited $ExitCode"), state);
     };
@@ -620,8 +620,8 @@
             $(containers).each(function(index, value) {
                 var container = client.containers[value.Id];
                 var $row = $('<tr />', { 'class': 'listing-ct-item' })
-                        .append($('<td />').text(container.Name.startsWith('/') ?
-                            container.Name.substring(1) : container.Name))
+                        .append($('<td />').text(container.Name.startsWith('/')
+                            ? container.Name.substring(1) : container.Name))
                         .append($('<td />').text(util.render_container_status(container.State)));
                 $dialog.find('#delete-image-confirmation-dialog-containers .listing-ct-body')
                         .append($row);

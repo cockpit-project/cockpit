@@ -93,7 +93,7 @@ var initStore = function(rootElement) {
                     dataStore.kdumpMemory = content.trim();
                 }
             })
-            .fail(function(error) {
+            .fail(function() {
                 dataStore.kdumpMemory = "error";
             })
             .always(function() {

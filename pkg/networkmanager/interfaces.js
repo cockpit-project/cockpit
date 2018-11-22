@@ -2154,7 +2154,7 @@ function with_checkpoint(model, modify, options) {
                             window.setTimeout(function () {
                                 manager.checkpoint_destroy(cp)
                                         .always(hide_curtain)
-                                        .fail(function (error) {
+                                        .fail(function () {
                                             dialog.find('#confirm-breaking-change-text').html(options.fail_text);
                                             dialog.find('.modal-footer .btn-danger')
                                                     .off('click')

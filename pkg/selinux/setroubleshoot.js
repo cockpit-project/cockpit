@@ -221,7 +221,7 @@ var initStore = function(rootElement) {
                     maybeUpdateAlert(id, details.summary, details.reportCount, details);
                     render();
                 })
-                .fail(function(error) {
+                .fail(function() {
                     maybeUpdateAlert(id, undefined, undefined, null);
                     render();
                 });
@@ -269,7 +269,7 @@ var initStore = function(rootElement) {
                                     setDisconnected();
                                 });
                     })
-                    .fail(function(error) {
+                    .fail(function() {
                         dataStore.connected = false;
                         window.clearTimeout(dataStore.connecting);
                         dataStore.connecting = null;

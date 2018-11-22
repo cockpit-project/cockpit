@@ -274,7 +274,8 @@
                     keys = credentials.keys_instance();
 
                     $(keys).on("changed", function() {
-                        var key, id, row, rows = { };
+                        var key, id, row;
+                        var rows = { };
                         var table = $("#credentials-dialog table.credential-listing");
 
                         table.find("tbody[data-id]").each(function(i, el) {

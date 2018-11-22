@@ -366,7 +366,8 @@
                                 var size = getSize(element[0]);
                                 var width = size.width;
                                 var height = size.height;
-                                var c, radius = Math.min(width, height) / 2;
+                                var c;
+                                var radius = Math.min(width, height) / 2;
                                 var barSize = parseInt(attributes['barSize'], 10);
                                 if (isNaN(barSize))
                                     barSize = 20;

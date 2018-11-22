@@ -29,7 +29,8 @@ function Privileges() {
     }
 
     function display() {
-        var i, locks = document.querySelectorAll(".credential-lock");
+        var i;
+        var locks = document.querySelectorAll(".credential-lock");
         for (i = 0; i < locks.length; i++) {
             var lock = locks[i];
             if (locked !== true)

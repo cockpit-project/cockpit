@@ -304,7 +304,8 @@
         }
 
         function register(child) {
-            var host, name = child.name || "";
+            var host;
+            var name = child.name || "";
             if (name.indexOf("cockpit1:") === 0)
                 host = name.substring(9).split("/")[0];
             if (!name || !host) {
@@ -452,7 +453,8 @@
         };
 
         self.hint = function hint(child, data) {
-            var message, source = source_by_name[child.name];
+            var message;
+            var source = source_by_name[child.name];
             /* This is often invalid when the window is closed */
             if (source && source.inited && !source.window.closed) {
                 data.command = "hint";
@@ -785,7 +787,8 @@
                 console.warn("Couldn't parse os-release", ex);
             }
 
-            var len, content = css_content(elt);
+            var len;
+            var content = css_content(elt);
             if (content && content != "none" && content != "normal") {
                 len = content.length;
                 if ((content[0] === '"' || content[0] === '\'') &&
@@ -938,7 +941,8 @@
         };
 
         self.ordered = function(section) {
-            var x, list = [];
+            var x;
+            var list = [];
             for (x in self.items) {
                 if (!section || self.items[x].section === section)
                     list.push(self.items[x]);

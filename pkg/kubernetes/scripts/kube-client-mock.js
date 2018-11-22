@@ -30,7 +30,8 @@ var angular = require("angular");
     }
 
     function removeNotify(handler) {
-        var i, len = handlers.length;
+        var i;
+        var len = handlers.length;
         for (i = 0; i < len; i++) {
             if (handlers[i] === handler)
                 handlers[i] = null;
@@ -38,7 +39,8 @@ var angular = require("angular");
     }
 
     function dispatchNotify() {
-        var i, len = handlers.length;
+        var i;
+        var len = handlers.length;
         for (i = 0; i < len; i++) {
             if (handlers[i])
                 handlers[i].apply(kubeData, arguments);
@@ -447,13 +449,15 @@ var angular = require("angular");
                                 data = buffer + data;
 
                             var lines = data.split("\n");
-                            var i, length = lines.length - 1;
+                            var i;
+                            var length = lines.length - 1;
 
                             /* Last line is incomplete save for later */
                             buffer = lines[length];
 
                             /* Process all the others */
-                            var frame, frames = [];
+                            var frame;
+                            var frames = [];
                             for (i = 0; i < length; i++) {
                                 frame = JSON.parse(lines[i]);
                                 if (!frame.object)

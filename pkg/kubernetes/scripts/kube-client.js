@@ -118,7 +118,8 @@
         var array = [];
 
         self.add = function add(keys, value) {
-            var i, j, p, x, length = keys.length;
+            var i, j, p, x;
+            var length = keys.length;
             for (j = 0; j < length; j++) {
                 i = hash("" + keys[j]) % size;
                 p = array[i];
@@ -236,7 +237,8 @@
     }
 
     function flatSchema(items) {
-        var i, len, ret = { "": DEFAULT };
+        var i, len;
+        var ret = { "": DEFAULT };
         for (i = 0, len = items.length; i < len; i++) {
             ret[items[i].type] = items[i];
             ret[items[i].kind] = items[i];
@@ -395,7 +397,8 @@
 
                     function ensureWatch(what, namespace, increment) {
                         var schema = SCHEMA[what] || SCHEMA[""];
-                        var watch, path = schema.api;
+                        var watch;
+                        var path = schema.api;
                         if (!schema.global && namespace)
                             path += "/namespaces/" + namespace;
                         path += "/" + schema.type;
@@ -614,7 +617,8 @@
                         limits.namespace = value;
 
                         /* Flush everything that's outstanding */
-                        var present = { }, removed = { };
+                        var present = { };
+                        var removed = { };
                         handleFlush(function(a, b) {
                             present = a;
                             removed = b;
@@ -632,7 +636,8 @@
                         }
 
                         /* Cancel any watches not applicable to these namespaces */
-                        var path, w, reconnect = [ ];
+                        var path, w;
+                        var reconnect = [ ];
                         for (path in watching) {
                             w = watching[path];
                             if ((!only && w.namespace) || (only && !w.global && !(w.namespace in only))) {
@@ -870,7 +875,8 @@
                     }
 
                     function makePrototype() {
-                        var name, ret = {
+                        var name;
+                        var ret = {
                             length: {
                                 enumerable: false,
                                 configurable: true,
@@ -905,7 +911,8 @@
 
                     function digestFilter(filter, what, criteria) {
                         var p, pl, key, possible, link, object;
-                        var results = { }, count = 0;
+                        var results = { };
+                        var count = 0;
 
                         key = filter.digest.apply(null, criteria);
                         if (key !== null && key !== undefined) {
@@ -931,7 +938,8 @@
                     function digestsFilter(filter, what, criteria) {
                         var keys, keyn, keyo, k, link, match, object, possible;
                         var p, pl, j, jl;
-                        var results = { }, count = 0;
+                        var results = { };
+                        var count = 0;
 
                         keys = filter.digests.apply(null, criteria);
                         keyn = keys.length;
@@ -1008,7 +1016,8 @@
                             var ret = [];
                             if (!arg)
                                 return ret;
-                            var i, meta = arg.metadata;
+                            var i;
+                            var meta = arg.metadata;
                             var labels = meta ? meta.labels : arg;
                             for (i in labels || [])
                                 ret.push(i + "=" + labels[i]);
@@ -1097,7 +1106,8 @@
                     var empty = { };
 
                     function select(arg) {
-                        var cache, indexed = false;
+                        var cache;
+                        var indexed = false;
                         if (arg === undefined) {
                             arg = loader.objects;
                             indexed = true;
@@ -1308,7 +1318,8 @@
 
                     function checkResource(resource, targets) {
                         var defer = $q.defer();
-                        var ex, exs = [];
+                        var ex;
+                        var exs = [];
 
                         if (!targets)
                             targets = { };

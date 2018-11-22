@@ -67,7 +67,8 @@
                     /* Used to build simple route URLs */
                     $scope.viewUrl = function(segment, forceQS) {
                         var namespace = loader.limits.namespace;
-                        var path, parts = [];
+                        var path;
+                        var parts = [];
                         if (angular.isArray(namespace))
                             namespace = null;
 
@@ -242,7 +243,8 @@
                             all = select().kind("Project")
                                     .statusPhase("Active");
 
-                        var link, meta, ret = [];
+                        var link, meta;
+                        var ret = [];
                         for (link in all) {
                             meta = all[link].metadata || { };
                             if (meta.name)
@@ -315,7 +317,8 @@
     /* The default orderBy filter doesn't work on objects */
             .filter('orderObjectBy', function() {
                 return function(items, field) {
-                    var i, sorted = [];
+                    var i;
+                    var sorted = [];
                     for (i in items)
                         sorted.push(items[i]);
                     if (!angular.isArray(field))
@@ -327,7 +330,8 @@
                         return obj ? obj[x] : undefined;
                     }
                     sorted.sort(function(a, b) {
-                        var ra, rb, i, len = criteria.length;
+                        var ra, rb, i;
+                        var len = criteria.length;
                         for (i = 0; i < len; i++) {
                             ra = criteria[i].reduce(value, a);
                             rb = criteria[i].reduce(value, b);

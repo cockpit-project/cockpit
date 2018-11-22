@@ -74,7 +74,8 @@
 
     journal.journalctl = function journalctl(/* ... */) {
         var matches = [];
-        var i, arg, options = { follow: true };
+        var i, arg;
+        var options = { follow: true };
         for (i = 0; i < arguments.length; i++) {
             arg = arguments[i];
             if (typeof arg == "string") {

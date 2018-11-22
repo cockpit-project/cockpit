@@ -136,7 +136,8 @@
                     };
 
                     $scope.deleteSelectedNodes = function() {
-                        var k, selected = [];
+                        var k;
+                        var selected = [];
                         for (k in $scope.listing.selected) {
                             if ($scope.nodes[k] && $scope.listing.selected[k])
                                 selected.push($scope.nodes[k]);

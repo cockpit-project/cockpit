@@ -368,7 +368,8 @@
 
                     function validate_manifest() {
                         var defer = $q.defer();
-                        var ex, fails = [];
+                        var ex;
+                        var fails = [];
 
                         var ns = fields.namespace;
                         if (!ns)

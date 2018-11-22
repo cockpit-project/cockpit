@@ -91,7 +91,8 @@
                             var base = Math.floor(new Date(first).getTime() / interval);
 
                             var items = [];
-                            var name, mapping = { };
+                            var name;
+                            var mapping = { };
                             var new_ids = [];
                             var id;
                             var names = { };
@@ -459,7 +460,8 @@
 
                         function rows_sum(input, row, x, n) {
                             var max = row.maximum || 0;
-                            var value, i, v, j, len = input.length;
+                            var value, i, v, j;
+                            var len = input.length;
 
                             /* Calculate the sum of the rows */
                             for (i = 0; i < n; i++) {
@@ -508,7 +510,8 @@
                         }
 
                         function containers_sum(service, input, row, x, n) {
-                            var id, rowc, subset = [];
+                            var id, rowc;
+                            var subset = [];
                             var mapped = services[service];
                             if (mapped) {
                                 for (id in mapped) {
@@ -530,7 +533,8 @@
                             current_metric = type;
 
                             var service_uids = Object.keys(services);
-                            var row, i, len = service_uids.length;
+                            var row, i;
+                            var len = service_uids.length;
                             for (i = 0; i < len; i++) {
                                 row = rows[type][service_uids[i]];
                                 if (row !== undefined) {
@@ -715,8 +719,10 @@
                             var interval = grid.interval;
 
                             /* Calculate our maximum value, hopefully rows are tracking this for us */
-                            var rows = grid.rows, maximum = 0;
-                            var i, max, len = rows.length;
+                            var rows = grid.rows;
+                            var maximum = 0;
+                            var i, max;
+                            var len = rows.length;
                             for (i = 0; i < len; i++) {
                                 if (rows[i].maximum !== undefined)
                                     max = rows[i].maximum;

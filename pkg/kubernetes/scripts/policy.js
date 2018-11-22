@@ -57,7 +57,8 @@
                             watchPromise = new KubeRequest("GET", "/oapi/v1")
                                     .then(function(response) {
                                         var data = response.data || {};
-                                        var i, l = data.resources || [];
+                                        var i;
+                                        var l = data.resources || [];
                                         for (i = 0; i < l.length; i++) {
                                             if (l[i].kind == "PolicyBinding")
                                                 return setupRoleBinding();
@@ -83,7 +84,8 @@
              * fail to do this, so we simulate these objects from the role bindings.
              */
                     loader.listen(function(present, removed) {
-                        var link, expire = { };
+                        var link;
+                        var expire = { };
 
                         /* If reseting clear status */
                         if (!present && !removed) {

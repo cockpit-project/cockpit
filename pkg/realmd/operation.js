@@ -22,7 +22,7 @@
 
         /* Scope the jQuery selector to our dialog */
         var $ = function(selector, context) {
-            return new jQuery.fn.init(selector, context || dialog);
+            return new jQuery.fn.init(selector, context || dialog); // eslint-disable-line new-cap
         };
         $.fn = $.prototype = jQuery.fn;
         jQuery.extend($, jQuery);

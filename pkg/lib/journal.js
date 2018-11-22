@@ -128,7 +128,7 @@
         cmd.push("--");
         cmd.push.apply(cmd, matches);
 
-        var dfd = new cockpit.defer();
+        var dfd = cockpit.defer();
         var promise;
         var buffer = "";
         var entries = [];

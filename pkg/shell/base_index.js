@@ -988,7 +988,7 @@
 
     module.exports = {
         new_index_from_proto: function (proto) {
-            var o = new Object(proto);
+            var o = new Object(proto); // eslint-disable-line no-new-object
             Index.call(o);
             return o;
         },

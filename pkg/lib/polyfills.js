@@ -22,6 +22,9 @@
  This file contains various polyfills and other compatibility hacks
  */
 
+// Don't complain about extending native data types -- that's what polyfills do
+/* eslint-disable no-extend-native */
+
 // for IE 11
 require('promise/polyfill.js');
 

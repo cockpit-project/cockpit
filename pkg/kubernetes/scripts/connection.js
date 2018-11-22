@@ -197,7 +197,7 @@
                         function ensureValid(name, options) {
                             var added;
                             var chars = "abcdefghijklmnopqrstuvwxyz";
-                            name = name.toLowerCase().replace(/[^a-z0-9:\/-]/g, "-");
+                            name = name.toLowerCase().replace(/[^a-z0-9:/-]/g, "-");
                             while (options[name]) {
                                 var length = 0;
                                 if (!added)
@@ -528,7 +528,7 @@
                             function validate() {
                                 var errors = [];
                                 var ex;
-                                var address_re = /^[a-z0-9\:\/.-]+$/i;
+                                var address_re = /^[a-z0-9:/.-]+$/i;
                                 var address = $scope.fields.address;
                                 var cluster = { cluster: {} };
                                 var user;

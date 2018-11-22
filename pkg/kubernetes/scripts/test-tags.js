@@ -37,7 +37,7 @@ function suite() {
 
     function tagsTest(name, count, func) {
         QUnit.test(name, function() {
-	    /* Nothing happening with fixtures yet */
+            /* Nothing happening with fixtures yet */
             assert.expect(count);
             inject(func);
         });

@@ -261,99 +261,99 @@ var QUnit = require("qunit-tests");
     });
 
     configJson = {
-	    "clusters": [{
-		    "name": "alfa",
-		    "cluster": {
-			    "insecure-skip-tls-verify": true,
-			    "server": "https://alfa.org"
-		    }
-	    }, {
-		    "name": "bravo",
-		    "cluster": {
-			    "server": "https://bravo.org:8080",
-			    "certificate-authority": "cert-authority-file"
-		    }
-	    }, {
-		    "name": "charlie",
-		    "cluster": {
-			    "server": "http://charlie.org"
-		    }
-	    }, {
-		    "name": "delta",
-		    "cluster": {
-			    "server": "https://delta.org:443"
-		    }
-	    }],
-	    "contexts": [{
-		    "name": "alfa-with-token-auth-provider",
-		    "context": {
-			    "cluster": "alfa",
-			    "user": "token-auth-provider"
-		    }
-	    }, {
-		    "name": "bravo-with-access-token-auth-provider",
-		    "context": {
-			    "cluster": "bravo",
-			    "user": "access-token-auth-provider"
-		    }
-	    }, {
-		    "name": "charlie-with-token",
-		    "context": {
-			    "cluster": "charlie",
-			    "user": "token"
-		    }
-	    }, {
-		    "name": "delta-with-cert",
-		    "context": {
-			    "cluster": "delta",
-			    "user": "cert"
-		    }
-	    }, {
-		    "name": "delta-with-basic",
-		    "context": {
-			    "cluster": "delta",
-			    "user": "basic"
-		    }
-	    }],
-	    "current-context": "alfa-with-token-auth-provider",
-	    "users": [{
-		    "name": "token-auth-provider",
-		    "user": {
-			    "auth-provider": {
-				    "config": {
-					    "token": "provider-token"
-				    },
-				    "name": "gcp"
-			    }
-		    }
-	    }, {
-		    "name": "access-token-auth-provider",
-		    "user": {
-			    "auth-provider": {
-				    "config": {
-					    "access-token": "provider-access-token"
-				    },
-				    "name": "gcp"
-			    }
-		    }
-	    }, {
-		    "name": "token",
-		    "user": {
-			    "token": "token"
-		    }
-	    }, {
-		    "name": "cert",
-		    "user": {
-			    "client-certificate": "cert-file",
-			    "client-key": "key-file"
-		    }
-	    }, {
-		    "name": "basic",
-		    "user": {
-			    "username": "user",
-			    "password": "password"
-		    }
-	    }]
+        "clusters": [{
+            "name": "alfa",
+            "cluster": {
+                "insecure-skip-tls-verify": true,
+                "server": "https://alfa.org"
+            }
+        }, {
+            "name": "bravo",
+            "cluster": {
+                "server": "https://bravo.org:8080",
+                "certificate-authority": "cert-authority-file"
+            }
+        }, {
+            "name": "charlie",
+            "cluster": {
+                "server": "http://charlie.org"
+            }
+        }, {
+            "name": "delta",
+            "cluster": {
+                "server": "https://delta.org:443"
+            }
+        }],
+        "contexts": [{
+            "name": "alfa-with-token-auth-provider",
+            "context": {
+                "cluster": "alfa",
+                "user": "token-auth-provider"
+            }
+        }, {
+            "name": "bravo-with-access-token-auth-provider",
+            "context": {
+                "cluster": "bravo",
+                "user": "access-token-auth-provider"
+            }
+        }, {
+            "name": "charlie-with-token",
+            "context": {
+                "cluster": "charlie",
+                "user": "token"
+            }
+        }, {
+            "name": "delta-with-cert",
+            "context": {
+                "cluster": "delta",
+                "user": "cert"
+            }
+        }, {
+            "name": "delta-with-basic",
+            "context": {
+                "cluster": "delta",
+                "user": "basic"
+            }
+        }],
+        "current-context": "alfa-with-token-auth-provider",
+        "users": [{
+            "name": "token-auth-provider",
+            "user": {
+                "auth-provider": {
+                    "config": {
+                        "token": "provider-token"
+                    },
+                    "name": "gcp"
+                }
+            }
+        }, {
+            "name": "access-token-auth-provider",
+            "user": {
+                "auth-provider": {
+                    "config": {
+                        "access-token": "provider-access-token"
+                    },
+                    "name": "gcp"
+                }
+            }
+        }, {
+            "name": "token",
+            "user": {
+                "token": "token"
+            }
+        }, {
+            "name": "cert",
+            "user": {
+                "client-certificate": "cert-file",
+                "client-key": "key-file"
+            }
+        }, {
+            "name": "basic",
+            "user": {
+                "username": "user",
+                "password": "password"
+            }
+        }]
     };
 
     module.run([

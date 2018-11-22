@@ -24,15 +24,11 @@ import os
 import sys
 import subprocess
 
-# we use symlinked files
-# the directory structure breaks on the second run with .pyc files
-sys.dont_write_bytecode = True
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(1, CURRENT_DIR)
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from verify import parent
-parent # pyflakes
-
-import testvm
+from machine_core import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
 

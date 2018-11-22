@@ -527,7 +527,7 @@
                             if (type === undefined)
                                 return current_metric;
                             if (rows[type] === undefined)
-                                throw "unsupported metric type";
+                                throw Error("unsupported metric type");
 
                             self.rows = [];
                             current_metric = type;

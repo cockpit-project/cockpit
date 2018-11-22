@@ -1796,9 +1796,9 @@ PageNetworking.prototype = {
             })
                     .append($('<td>').text(iface.Name),
                             $('<td>').html(render_active_connection(dev, false, true)),
-                            (show_traffic ?
-                                [ $('<td>').text(""), $('<td>').text("") ] :
-                                $('<td colspan="2">').text(device_state_text(dev))));
+                            (show_traffic
+                                ? [ $('<td>').text(""), $('<td>').text("") ]
+                                : $('<td colspan="2">').text(device_state_text(dev))));
 
             if (!dev || dev.Managed) {
                 managed_tbody.append(row.click(function () {
@@ -2575,9 +2575,9 @@ PageNetworkInterface.prototype = {
                 return $('<tr>').append(
                     $('<td>').text(_("Carrier")),
                     $('<td>').append(
-                        dev.Carrier ?
-                            (dev.Speed ? cockpit.format_bits_per_sec(dev.Speed * 1e6) : _("Yes")) :
-                            _("No")));
+                        dev.Carrier
+                            ? (dev.Speed ? cockpit.format_bits_per_sec(dev.Speed * 1e6) : _("Yes"))
+                            : _("No")));
             } else
                 return null;
         }
@@ -2995,9 +2995,9 @@ PageNetworkInterface.prototype = {
                                     "data-sample-id": is_active ? encodeURIComponent(iface.Name) : null
                         })
                                 .append($('<td>').text(iface.Name),
-                                        (is_active ?
-                                            [ $('<td>').text(""), $('<td>').text("") ] :
-                                            $('<td colspan="2">').text(device_state_text(dev))),
+                                        (is_active
+                                            ? [ $('<td>').text(""), $('<td>').text("") ]
+                                            : $('<td colspan="2">').text(device_state_text(dev))),
                                         $('<td class="networking-row-configure">').append(
                                             switchbox(!!(dev && dev.ActiveConnection), function(val) {
                                                 if (val) {
@@ -3283,8 +3283,8 @@ PageNetworkIpSettings.prototype = {
                 $('<div>').append(
                     addresses_table = tablebox(_("Addresses"), "addresses", [ "Address", prefix_text, "Gateway" ],
                                                [ "", "", "" ],
-                                               choicebox("method", (topic == "ipv4") ?
-                                                   ipv4_method_choices : ipv6_method_choices)
+                                               choicebox("method", (topic == "ipv4")
+                                                   ? ipv4_method_choices : ipv6_method_choices)
                                                        .css('display', 'inline-block')),
                     $('<br>'),
                     dns_table =
@@ -3779,8 +3779,8 @@ PageNetworkBondSettings.prototype = {
 
         if (PageNetworkBondSettings.connection) {
             with_settings_checkpoint(PageNetworkBondSettings.model, modify,
-                                     { devices: (self.slaves_changed ?
-                                         [ ] : connection_devices(PageNetworkBondSettings.connection)),
+                                     { devices: (self.slaves_changed
+                                         ? [ ] : connection_devices(PageNetworkBondSettings.connection)),
                                        hack_does_add_or_remove: self.slaves_changed,
                                        rollback_on_failure: self.slaves_changed
                                      });
@@ -3972,8 +3972,8 @@ PageNetworkTeamSettings.prototype = {
 
         if (PageNetworkTeamSettings.connection) {
             with_settings_checkpoint(PageNetworkTeamSettings.model, modify,
-                                     { devices: (self.slaves_changed ?
-                                         [ ] : connection_devices(PageNetworkTeamSettings.connection)),
+                                     { devices: (self.slaves_changed
+                                         ? [ ] : connection_devices(PageNetworkTeamSettings.connection)),
                                        hack_does_add_or_remove: self.slaves_changed,
                                        rollback_on_failure: self.slaves_changed
                                      });
@@ -4214,8 +4214,8 @@ PageNetworkBridgeSettings.prototype = {
 
         if (PageNetworkBridgeSettings.connection) {
             with_settings_checkpoint(PageNetworkBridgeSettings.model, modify,
-                                     { devices: (self.slaves_changed ?
-                                         [ ] : connection_devices(PageNetworkBridgeSettings.connection)),
+                                     { devices: (self.slaves_changed
+                                         ? [ ] : connection_devices(PageNetworkBridgeSettings.connection)),
                                        hack_does_add_or_remove: self.slaves_changed,
                                        rollback_on_failure: self.slaves_changed
                                      });
@@ -4393,9 +4393,9 @@ PageNetworkVlanSettings.prototype = {
                 .on('input', change_name);
 
         select_btn_select(parent_btn, (options.parent ||
-                                               (parent_choices[0] ?
-                                                   parent_choices[0].choice :
-                                                   "")));
+                                               (parent_choices[0]
+                                                   ? parent_choices[0].choice
+                                                   : "")));
         change();
         $('#network-vlan-settings-body').html(body);
     },

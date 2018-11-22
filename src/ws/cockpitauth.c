@@ -48,6 +48,7 @@
 
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
+#define LOCAL_SESSION "local-session"
 
 /* Some tunables that can be set from tests */
 const gchar *cockpit_ws_session_program =
@@ -992,6 +993,35 @@ on_web_service_destroy (CockpitWebService *service,
 
 static CockpitSession *
 cockpit_session_create (CockpitAuth *self,
+                        const gchar *name,
+                        CockpitCreds *creds,
+                        CockpitTransport *transport)
+{
+  CockpitSession *session;
+
+  session = g_new0 (CockpitSession, 1);
+  session->refs = 1;
+  session->name = g_path_get_basename (name);
+  session->auth = self;
+
+  session->service = cockpit_web_service_new (creds, transport);
+
+  session->idling_sig = g_signal_connect (session->service, "idling",
+                                          G_CALLBACK (on_web_service_idling), session);
+  session->destroy_sig = g_signal_connect (session->service, "destroy",
+                                           G_CALLBACK (on_web_service_destroy), session);
+
+  g_object_weak_ref (G_OBJECT (session->service), on_web_service_gone, session);
+
+  session->transport = g_object_ref (transport);
+  session->control_sig = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), session);
+  session->close_sig = g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), session);
+
+  return session;
+}
+
+static CockpitSession *
+cockpit_session_launch (CockpitAuth *self,
                         GIOStream *connection,
                         GHashTable *headers,
                         const gchar *type,
@@ -1071,23 +1101,7 @@ cockpit_session_create (CockpitAuth *self,
       goto out;
     }
 
-  session = g_new0 (CockpitSession, 1);
-  session->refs = 1;
-  session->name = g_path_get_basename (argv[0]);
-  session->auth = self;
-
-  session->service = cockpit_web_service_new (creds, transport);
-
-  session->idling_sig = g_signal_connect (session->service, "idling",
-                                          G_CALLBACK (on_web_service_idling), session);
-  session->destroy_sig = g_signal_connect (session->service, "destroy",
-                                           G_CALLBACK (on_web_service_destroy), session);
-
-  g_object_weak_ref (G_OBJECT (session->service), on_web_service_gone, session);
-
-  session->transport = g_object_ref (transport);
-  session->control_sig = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), session);
-  session->close_sig = g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), session);
+  session = cockpit_session_create (self, argv[0], creds, transport);
 
   /* How long to wait for the auth process to send some data */
   session->authorize_timeout = timeout_option ("timeout", section, cockpit_ws_auth_process_timeout);
@@ -1217,10 +1231,18 @@ session_for_headers (CockpitAuth *self,
             ret = g_hash_table_lookup (self->sessions, cookie);
           else
             g_debug ("invalid or unsupported cookie: %s", cookie);
+
+          /* We must never find the default session based on a cookie */
+          g_assert (!ret || !g_str_equal (ret->cookie, LOCAL_SESSION));
+          g_assert (!ret || !g_str_equal (ret->name, LOCAL_SESSION));
           g_free (cookie);
         }
       g_free (raw);
     }
+
+  /* Check for a default session for auto-login */
+  if (!ret)
+    ret = g_hash_table_lookup (self->sessions, LOCAL_SESSION);
 
   g_free (application);
   g_free (cookie_name);
@@ -1248,6 +1270,55 @@ cockpit_auth_check_cookie (CockpitAuth *self,
       g_debug ("received unknown/invalid credential cookie");
       return NULL;
     }
+}
+
+void
+cockpit_auth_local_async (CockpitAuth *self,
+                          const gchar *user,
+                          CockpitPipe *pipe,
+                          GAsyncReadyCallback callback,
+                          gpointer user_data)
+{
+  CockpitTransport *transport;
+  CockpitSession *session;
+  CockpitCreds *creds;
+  gchar *csrf_token;
+
+  g_return_if_fail (COCKPIT_IS_AUTH (self));
+  g_return_if_fail (COCKPIT_IS_PIPE (pipe));
+  g_return_if_fail (user != NULL);
+
+  transport = cockpit_pipe_transport_new (pipe);
+
+  csrf_token = cockpit_auth_nonce (self);
+  creds = cockpit_creds_new ("cockpit",
+                             COCKPIT_CRED_USER, user,
+                             COCKPIT_CRED_RHOST, "localhost",
+                             COCKPIT_CRED_CSRF_TOKEN, csrf_token,
+                             NULL);
+
+  session = cockpit_session_create (self, cockpit_pipe_get_name (pipe), creds, transport);
+
+  session->cookie = g_strdup (LOCAL_SESSION);
+  g_hash_table_insert (self->sessions, session->cookie, session);
+
+  session->result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
+                                               cockpit_auth_local_async);
+
+  g_free (csrf_token);
+  g_object_unref (transport);
+  cockpit_creds_unref (creds);
+}
+
+gboolean
+cockpit_auth_local_finish (CockpitAuth *self,
+                           GAsyncResult *result,
+                           GError **error)
+{
+  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
+                        cockpit_auth_local_async), FALSE);
+
+  return g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error);
 }
 
 /*
@@ -1349,7 +1420,7 @@ cockpit_auth_login_async (CockpitAuth *self,
     }
   else
     {
-      session = cockpit_session_create (self, connection, headers, type, authorization, application, &error);
+      session = cockpit_session_launch (self, connection, headers, type, authorization, application, &error);
       if (!session)
         {
           g_simple_async_result_take_error (result, error);

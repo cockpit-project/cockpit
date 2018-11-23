@@ -18,7 +18,7 @@ RUN dpkg --add-architecture ${arch} && echo ${arch} > /arch && apt-get update &&
     apt-get install -y --allow-downgrades libssh-dev:${arch}=0.6.3-4.3 libssh-4:${arch}=0.6.3-4.3 && \
     echo 'deb http://archive.ubuntu.com/ubuntu bionic universe' > /etc/apt/sources.list.d/stable.list && \
     apt-get update && \
-    apt-get install -y pyflakes pyflakes3 && \
+    apt-get install -y pyflakes pyflakes3 python3-pep8 && \
     apt-get clean
 
 # use latest npm/node

@@ -2,7 +2,7 @@
 # run static code checks like pyflakes and pep8
 set -eu
 
-echo "1..6"
+echo "1..7"
 
 builddir=$(pwd)
 cd "${srcdir:-.}"
@@ -106,6 +106,27 @@ if [ -d .git ]; then
     echo "ok 6 json-verify"
 else
     echo "ok 6 json-verify # SKIP not a git tree"
+fi
+
+# pycodestyle/pep8 python syntax check
+if python3 -m pycodestyle /dev/null >/dev/null 2>&1; then
+    PYTHON_STYLE_CHECKER="pycodestyle"
+elif python3 -m pep8 /dev/null >/dev/null 2>&1; then
+    PYTHON_STYLE_CHECKER="pep8"
+fi
+
+if [ -z "${PYTHON_STYLE_CHECKER-}" ]; then
+    echo "ok 7 pycodestyle test # SKIP pycodestyle not installed"
+else
+    # FIXME: Fix code for the warnings and re-enable them
+    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --ignore E501,E265,E261,W504,W605 test/verify/* --exclude=test/verify/nested-kvm) || true
+    if [ -n "$out" ]; then
+        echo "$out" >&2
+        echo "not ok 7 $PYTHON_STYLE_CHECKER test"
+        fail=1
+    else
+        echo "ok 7 $PYTHON_STYLE_CHECKER test"
+    fi
 fi
 
 exit $fail

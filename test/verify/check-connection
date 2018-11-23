@@ -259,9 +259,9 @@ class TestConnection(MachineCase):
         self.assertIn("Content-Type: text/html\r\n", headers)
         # login.html is not always accessible as a file (e. g. in Atomic), so just assert a reasonable content length
         self.assertIn("Content-Length: ", headers)
-        l = int(headers.split('Content-Length: ', 1)[1].split()[0])
-        self.assertGreater(l, 10000)
-        self.assertLess(l, 100000)
+        length = int(headers.split('Content-Length: ', 1)[1].split()[0])
+        self.assertGreater(length, 10000)
+        self.assertLess(length, 100000)
 
         # login handler: wrong password
         headers = m.execute("curl -s --head --header 'Authorization: Basic {}' http://172.27.0.15:9090/cockpit/login".format(

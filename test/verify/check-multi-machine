@@ -99,7 +99,7 @@ def kill_user_admin(machine):
 def change_ssh_port(machine, address, port=None, timeout_sec=120):
     try:
         port = int(port)
-    except:
+    except (ValueError, TypeError):
         port = 22
 
     # Keep in mind that not all operating systems have firewalld

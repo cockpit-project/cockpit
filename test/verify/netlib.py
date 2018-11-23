@@ -94,11 +94,11 @@ class NetworkCase(MachineCase):
             self.browser.wait_present(sel)
             self.browser.wait_visible(sel)
             self.browser.wait_in_text(sel, text)
-        except:
+        except Error as e:
             print("Interface %s didn't show up." % iface)
             print(self.browser.eval_js("ph_find('#networking-interfaces').outerHTML"))
             print(self.machine.execute("grep . /sys/class/net/*/address"))
-            raise
+            raise e
 
     def iface_con_id(self, iface):
         con_id = self.machine.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()

@@ -1399,7 +1399,7 @@ class TestMachines(MachineCase):
                 b.wait_present(selector)
                 try:
                     text = b.text(selector)
-                except:  # if selector disappears
+                except Error:  # if selector disappears
                     return False
 
                 if (accepted and accepted in text) or text == 'in transition':

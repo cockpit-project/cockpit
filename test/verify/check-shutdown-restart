@@ -120,7 +120,7 @@ class TestShutdownRestart(MachineCase):
         m2.start_cockpit()
         b2.login_and_go("/system")
 
-        if not m.image in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
+        if m.image not in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
             # Add machine with static IP to m2
             b2.switch_to_top()
             b2.go("/@10.111.113.1")

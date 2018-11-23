@@ -69,7 +69,7 @@ class TestKdump(MachineCase):
         b.wait_timeout(120)
         self.allow_restart_journal_messages()
 
-        if not "atomic" in m.image:
+        if "atomic" not in m.image:
             m.execute("systemctl enable kdump && systemctl start kdump || true")
 
         self.login_and_go("/kdump")

@@ -22,6 +22,7 @@ import parent
 import testvm
 from testlib import *
 
+
 non_manageable_images = [
     # No "atomic" utility
     "debian-stable",
@@ -241,6 +242,7 @@ class TestDockerStorage(MachineCase):
         b.wait_in_text("#storage-drives", "DISK2")
 
         m.execute("docker info | grep 'Storage Driver: overlay2'")
+
 
 if __name__ == '__main__':
     test_main()

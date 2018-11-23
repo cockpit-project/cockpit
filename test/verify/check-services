@@ -651,5 +651,6 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         b.wait_js_cond('window.location.hash === "#/test-b.service"')
         wait_relationship("After", "test-a.service")
 
+
 if __name__ == '__main__':
     test_main()

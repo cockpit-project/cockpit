@@ -107,5 +107,6 @@ class TestNetworking(NetworkCase):
         self.assertEqual(m.execute("nmcli -m tabular -t -f connection.gateway-ping-timeout con show '%s'" % con_id).strip(),
                          "12")
 
+
 if __name__ == '__main__':
     test_main()

@@ -118,5 +118,6 @@ class TestRoles(MachineCase):
         m.execute("groupdel docker")
         b.wait_not_in_text("#account-change-roles-roles", "Container Administrator")
 
+
 if __name__ == '__main__':
     test_main()

@@ -22,6 +22,7 @@ import parent
 from storagelib import *
 from testlib import *
 
+
 storaged_debug_service = """
 [Unit]
 Description=Storaged
@@ -215,6 +216,7 @@ class TestStorage(StorageCase):
         self.wait_in_storaged_configuration("/data")
         m.execute("grep 'noauto,readonly,foo' /etc/crypttab")
         m.execute("grep 'noauto,ro,foo' /etc/fstab")
+
 
 if __name__ == '__main__':
     test_main()

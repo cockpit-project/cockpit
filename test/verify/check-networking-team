@@ -117,5 +117,6 @@ class TestNetworking(NetworkCase):
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
         b.wait_in_text("#network-interface .panel:contains('tteam')", ip)
 
+
 if __name__ == '__main__':
     test_main()

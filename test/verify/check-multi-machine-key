@@ -39,6 +39,7 @@ def authorize_user(m, user):
     m.execute("chmod 600 /home/{0}/.ssh/authorized_keys".format(user))
     m.execute("chmod 700 /home/{0}/.ssh".format(user))
 
+
 LOAD_KEYS = [
     "id_rsa", # password: foobar
     "id_ecdsa",  # no password
@@ -255,6 +256,7 @@ class TestMultiMachineKeyAuth(MachineCase):
                                     "Error executing command as another user: Not authorized",
                                     "This incident has been reported.",
                                     "sudo: a password is required")
+
 
 if __name__ == '__main__':
     test_main()

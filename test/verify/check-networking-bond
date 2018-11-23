@@ -279,5 +279,6 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface)
 
+
 if __name__ == '__main__':
     test_main()

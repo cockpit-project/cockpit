@@ -42,5 +42,6 @@ class TestStorage(StorageCase):
         m.execute("udevadm control --reload; udevadm trigger")
         b.wait_not_in_text("#mounts", "TEST")
 
+
 if __name__ == '__main__':
     test_main()

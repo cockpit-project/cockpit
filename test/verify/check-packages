@@ -21,6 +21,7 @@
 import parent
 from testlib import *
 
+
 test_manifest = """
 {
   "tools": {
@@ -82,6 +83,7 @@ class TestPackages(MachineCase):
 
         b.switch_to_top()
         b.wait_not_present("#sidebar-tools a:contains(Test)")
+
 
 if __name__ == '__main__':
     test_main()

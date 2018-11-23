@@ -21,6 +21,7 @@
 import parent
 from testlib import *
 
+
 FIX_AUDITD = """
 set -e
 mkdir -p /var/log/audit
@@ -197,6 +198,7 @@ class TestSelinux(MachineCase):
         b.enter_page("/selinux/setroubleshoot")
         b.wait_in_text(on_off_selector_active, "Off")
         b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
+
 
 if __name__ == '__main__':
     test_main()

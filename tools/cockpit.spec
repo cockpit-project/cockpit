@@ -317,7 +317,7 @@ done
 for lib in systemd tmpfiles.d firewalld; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
-for libexec in cockpit-askpass cockpit-session cockpit-ws; do
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-desktop; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
@@ -512,6 +512,7 @@ Requires(postun): systemd
 The Cockpit Web Service listens on the network, and authenticates users.
 
 %files ws -f cockpit.lang
+%doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz
@@ -532,6 +533,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
 %{_libexecdir}/cockpit-ws
+%{_libexecdir}/cockpit-desktop
 %attr(4750, root, cockpit-ws) %{_libexecdir}/cockpit-session
 %attr(775, -, wheel) %{_localstatedir}/lib/cockpit
 %{_datadir}/cockpit/static

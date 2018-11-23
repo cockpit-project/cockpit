@@ -25,6 +25,7 @@ import parent
 from packagelib import PackageCase
 from testlib import *
 
+
 WAIT_SCRIPT = """
 set -ex
 for x in $(seq 1 200); do
@@ -1111,6 +1112,7 @@ WantedBy=basic.target
         # as dnf-automatic isn't actually installed DnfImpl.setConfig will fail,
         # but we can check that the backend is now enabled
         b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'On')
+
 
 if __name__ == '__main__':
     test_main()

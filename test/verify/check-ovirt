@@ -23,6 +23,7 @@ import json
 import parent
 from testlib import *
 
+
 # The oVirt image has following content
 # DC: "Default"
 # Cluster: "Default"
@@ -375,6 +376,7 @@ class TestOVirtMachines(MachineCase):
         # Check changes
         b.wait_visible("#cluster-VM-cpus")
         b.wait_in_text("#cluster-VM-cpus", "4")
+
 
 if __name__ == '__main__':
     test_main()

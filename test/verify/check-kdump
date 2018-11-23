@@ -212,5 +212,6 @@ class TestKdump(MachineCase):
         self.assertNotEqual(
             m.execute("""find "{0}" -maxdepth 1 -mindepth 1 -type d -exec echo {{}} \;""".format(customPath)), "")
 
+
 if __name__ == '__main__':
     test_main()

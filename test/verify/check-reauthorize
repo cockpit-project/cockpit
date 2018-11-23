@@ -135,5 +135,6 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
+
 if __name__ == '__main__':
     test_main()

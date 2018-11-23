@@ -25,6 +25,7 @@ import packagelib
 import parent
 from testlib import *
 
+
 WAIT_KRB_SCRIPT = """
 set -ex
 # HACK: This needs to work, but may take a minute
@@ -348,6 +349,7 @@ class TestRealms(MachineCase):
         b.click(".realms-op-apply")
         b.wait_text(".realms-op-message", "Joining this domain is not supported")
 
+
 JOIN_SCRIPT = """
 set -ex
 # Wait until zones from LDAP get loaded
@@ -638,6 +640,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b.mouse("#system-info-domain .button-location span", "mouseover")
         time.sleep(2)
         self.assertFalse(b.is_present(".tooltip-inner"))
+
 
 if __name__ == '__main__':
     test_main()

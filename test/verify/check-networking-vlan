@@ -63,5 +63,6 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tvlan']")
 
+
 if __name__ == '__main__':
     test_main()

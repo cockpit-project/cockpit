@@ -1531,5 +1531,18 @@ class TestMachines(MachineCase):
 
             return self
 
+
+def selectFromDropdown(b, selector, value):
+    button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
+
+    b.wait_visible(selector)
+    if not b.text(button_text_selector) == value:
+        item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
+        b.click(selector)
+        b.wait_visible(item_selector)
+        b.click(item_selector)
+        b.wait_in_text(button_text_selector, value)
+
+
 if __name__ == '__main__':
     test_main()

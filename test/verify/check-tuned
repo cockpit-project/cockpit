@@ -124,5 +124,6 @@ class TestTuned(MachineCase):
         output = m.execute("systemctl status tuned")
         self.assertIn("disabled;", output)
 
+
 if __name__ == '__main__':
     test_main()

@@ -54,5 +54,6 @@ class TestNetworking(NetworkCase):
         b.wait_popdown("network-ip-settings-dialog")
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
 
+
 if __name__ == '__main__':
     test_main()

@@ -631,7 +631,7 @@ QUnit.asyncTest("publish object replaces", function() {
 });
 
 QUnit.asyncTest("publish object unpublish", function() {
-    assert.expect(3);
+    assert.expect(5);
 
     var info = {
         "org.Interface": {
@@ -664,9 +664,9 @@ QUnit.asyncTest("publish object unpublish", function() {
                     }, function(ex) {
                         assert.strictEqual(ex.name, "org.freedesktop.DBus.Error.UnknownMethod",
                                            "got right error name");
-                        assert.strictEqual(ex.message,
-                                "No such interface 'org.Interface' on object at path /a/path",
-                                "got right error message");
+                        assert.ok(ex.message.indexOf("No such interface") == 0, "unexpected error: " + ex.message);
+                        assert.ok(ex.message.indexOf("org.Interface") > 0, "unexpected error: " + ex.message);
+                        assert.ok(ex.message.indexOf("/a/path") > 0, "unexpected error: " + ex.message);
                     }).always(function() {
                         dbus.close();
                         QUnit.start();

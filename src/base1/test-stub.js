@@ -107,14 +107,17 @@ QUnit.asyncTest("internal dbus environment", function() {
 });
 
 QUnit.asyncTest("internal user dbus", function() {
-    assert.expect(2);
+    assert.expect(4);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
     dbus.call("/user", "org.freedesktop.DBus.Properties",
               "GetAll", [ "cockpit.User" ],
               { "type": "s" })
         .fail(function(ex) {
-            assert.equal(ex.message, "No such interface 'org.freedesktop.DBus.Properties' on object at path /user");
+            assert.ok(ex.message.indexOf("No such interface") == 0, "unexpected error: " + ex.message);
+            assert.ok(ex.message.indexOf("org.freedesktop.DBus.Properties") > 0, "unexpected error: " + ex.message);
+            assert.ok(ex.message.indexOf("/user") > 0, "unexpected error: " + ex.message);
+
         })
         .always(function() {
             assert.equal(this.state(), "rejected", "finished successfuly");

@@ -64,7 +64,7 @@ class TestStorage(StorageCase):
                   targetcli /iscsi/%(tgt)s/tpg1 set attribute authentication=1
                   targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
                   targetcli /iscsi/%(tgt)s/tpg1/acls/%(ini)s set auth userid=admin password=barfoo
-                  """ % { "tgt": target_iqn, "ini": initiator_iqn })
+                  """ % {"tgt": target_iqn, "ini": initiator_iqn})
         # m.execute("targetcli ls")
 
         self.login_and_go("/storage")

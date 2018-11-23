@@ -225,7 +225,7 @@ class StorageCase(MachineCase):
         elif ftype == "text-input":
             self.browser.set_input_text(sel, val)
         elif ftype == "text-input-checked":
-            if val == False:
+            if not val:
                 self.browser.set_checked(sel + " input[type=checkbox]", False)
             else:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)

@@ -41,7 +41,7 @@ class TestApps(PackageCase):
   <summary>An application for testing</summary>
             <launchable type="cockpit-manifest">{0}</launchable>
 </component>
-""".format(name) })
+""".format(name)})
         self.appstream_collection.add(name)
 
     def enableAppStreamRepo(self):

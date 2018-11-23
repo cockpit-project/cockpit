@@ -155,7 +155,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_log123():
-            b.wait_js_func ("""(function () {
+            b.wait_js_func("""(function () {
           var lines = ph_get_log_lines();
 
           if (lines[0] != "%s")

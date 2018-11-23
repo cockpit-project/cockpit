@@ -34,6 +34,7 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
+
 SPICE_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
@@ -524,7 +525,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
 
-     # Test Add Disk via dialog
+    # Test Add Disk via dialog
     def testAddDisk(self):
         b = self.browser
         m = self.machine

@@ -112,7 +112,15 @@ const Enum = {
     VIR_DOMAIN_XML_INACTIVE: 2,
     VIR_CONNECT_LIST_NETWORKS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
-    VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64
+    VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64,
+    // Storage Pools Event Lifecycle Type
+    VIR_STORAGE_POOL_EVENT_DEFINED: 0,
+    VIR_STORAGE_POOL_EVENT_UNDEFINED: 1,
+    VIR_STORAGE_POOL_EVENT_STARTED: 2,
+    VIR_STORAGE_POOL_EVENT_STOPPED: 3,
+    VIR_STORAGE_POOL_EVENT_CREATED: 4,
+    VIR_STORAGE_POOL_EVENT_DELETED: 5,
+    VIR_STORAGE_POOL_EVENT_LAST: 6,
 };
 
 let LIBVIRT_DBUS_PROVIDER = {};
@@ -969,6 +977,28 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
             }
         );
     }
+
+    /* Handler for storage pool events */
+    dbus_client(connectionName).subscribe(
+        { interface: 'org.libvirt.Connect', member: 'StoragePoolEvent' },
+        (path, iface, signal, args) => {
+            let objPath = args[0];
+            let eventType = args[1];
+
+            switch (eventType) {
+            case Enum.VIR_STORAGE_POOL_EVENT_DEFINED:
+            case Enum.VIR_STORAGE_POOL_EVENT_STARTED:
+            case Enum.VIR_STORAGE_POOL_EVENT_STOPPED:
+            case Enum.VIR_STORAGE_POOL_EVENT_CREATED:
+                dispatch(getStoragePool({connectionName, id:objPath}));
+                break;
+            case Enum.VIR_STORAGE_POOL_EVENT_UNDEFINED:
+            case Enum.VIR_STORAGE_POOL_EVENT_DELETED:
+            default:
+                logDebug(`handle StoragePoolEvent on ${connectionName}: ignoring event ${signal}`);
+            }
+        }
+    );
 }
 
 /**

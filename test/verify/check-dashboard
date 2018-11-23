@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import subprocess
 
 import parent
 import atomiclib
@@ -318,11 +319,7 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         self.assertIn("docker", groups(m2, "junior"))
         self.assertIn(m2.get_admin_group(), groups(m2, "senior"))
 
-        try:
-            m2.execute("id nosync")
-            self.assertFalse("User nosync should not have been synced")
-        except:
-            pass
+        self.assertRaises(subprocess.CalledProcessError, m2.execute, "id nosync")
 
         m2.execute("ps aux | grep cockpit-bridge | grep admin")
         self.allow_hostkey_messages()

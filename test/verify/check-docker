@@ -60,7 +60,7 @@ class TestDocker(MachineCase):
                 self.confirm()
                 b.wait_visible("#containers")
                 b.wait_not_in_text("#containers-containers", container_name)
-            except:
+            except Error:
                 # we may have to confirm again for forced deletion
                 self.confirm()
                 b.wait_visible("#containers")
@@ -171,7 +171,7 @@ class TestDocker(MachineCase):
         with b.wait_timeout(20):
             try:
                 b.wait_not_in_text('#containers-containers', "PROBE2")
-            except:
+            except Error:
                 self.confirm()
                 b.wait_not_in_text('#containers-containers', "PROBE2")
 

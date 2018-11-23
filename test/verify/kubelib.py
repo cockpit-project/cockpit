@@ -1542,6 +1542,10 @@ class RegistryTests(object):
         # Make sure it showed up in the console
         found = False
         i = 0
+
+        class LLAMANotFoundException(Exception):
+            pass
+
         while True:
             try:
                 output = o.execute("oc get projects")
@@ -1549,9 +1553,9 @@ class RegistryTests(object):
                     if not found:
                         sys.stderr.write(output)
                     found = True
-                    raise Exception(output)
+                    raise LLAMANotFoundException(output)
                 break
-            except:
+            except LLAMANotFoundException:
                 if i > 60:
                     raise
                 i = i + 1

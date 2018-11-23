@@ -18,11 +18,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
+import time
+
+import packagelib
 import parent
 from testlib import *
-import time
-import subprocess
-import packagelib
 
 os_release = """
 NAME="Foobar Adventure Linux Server"

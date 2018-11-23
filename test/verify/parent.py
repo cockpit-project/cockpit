@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 TEST_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOTS_DIR = os.path.join(os.path.dirname(TEST_DIR), "bots")

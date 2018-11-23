@@ -18,8 +18,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import subprocess
 import re
+import subprocess
 import sys
 import time
 

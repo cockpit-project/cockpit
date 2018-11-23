@@ -18,8 +18,9 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from testlib import *
 import warnings
+
+from testlib import *
 
 
 class PackageCase(MachineCase):

@@ -192,10 +192,16 @@ install-exec-hook::
 	chown -f root:$(COCKPIT_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
 	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
 
+libexec_SCRIPTS = cockpit-desktop
+
+cockpit-desktop: src/ws/cockpit-desktop.in
+	$(SUBST_RULE)
+
 EXTRA_DIST += \
 	src/ws/cockpit-motd.service.in \
 	src/ws/cockpit.service.in \
 	src/ws/cockpit.socket.in \
+	src/ws/cockpit-desktop.in \
 	$(firewall_DATA) \
 	$(tempconf_in) \
 	$(NULL)
@@ -205,6 +211,7 @@ CLEANFILES += \
 	src/ws/cockpit.service \
 	src/ws/cockpit-motd.service \
 	$(nodist_tempconf_DATA) \
+	cockpit-desktop \
 	$(NULL)
 
 appdatadir = $(datadir)/metainfo

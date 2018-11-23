@@ -23,9 +23,11 @@ from testlib import *
 import json
 import os
 
+
 @skipPackage("cockpit-docker")
 @skipImage("No docker packaged", "rhel-x")
 class TestDocker(MachineCase):
+
     def setUp(self):
         MachineCase.setUp(self)
         m = self.machine
@@ -84,16 +86,16 @@ class TestDocker(MachineCase):
         b.wait_visible("#containers-containers")
         b.click("#containers-containers-filter button")
         b.wait_visible("#containers-containers-filter .dropdown-menu")
-        b.wait_in_text("#containers-containers-filter span:first-child()", "Images and running containers");
+        b.wait_in_text("#containers-containers-filter span:first-child()", "Images and running containers")
         b.click("#containers-containers-filter li[data-data='all'] a")
-        b.wait_in_text("#containers-containers-filter span:first-child()", "Everything");
+        b.wait_in_text("#containers-containers-filter span:first-child()", "Everything")
 
         # Run it
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", """/bin/sh -c 'echo "%s"; sleep 5' """ % message)
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE1")
         b.wait_in_text("#containers-containers", "busybox:latest")
@@ -113,8 +115,8 @@ class TestDocker(MachineCase):
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE1")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"%s\"; sleep 10000'" % (message))
-        b.click("#containers-run-image-with-terminal");
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-with-terminal")
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE1")
 
@@ -127,22 +129,22 @@ class TestDocker(MachineCase):
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         b.set_val("#containers-run-image-command", "/bin/echo -e '%s\n%s\n'" % (message, message))
-        b.click("#containers-run-image-with-terminal");
-        b.wait_visible("#select-linked-containers:empty");
-        b.click("#link-containers");
-        b.wait_visible("#select-linked-containers:parent");
+        b.click("#containers-run-image-with-terminal")
+        b.wait_visible("#select-linked-containers:empty")
+        b.click("#link-containers")
+        b.wait_visible("#select-linked-containers:parent")
         b.click("#select-linked-containers form:last-child .link-container button")
         b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
-        b.click("#select-linked-containers form:last-child  button.fa-plus");
+        b.click("#select-linked-containers form:last-child  button.fa-plus")
         # new line should be the second group
         b.wait_present("#select-linked-containers .form-group:eq(1)")
         b.click("#select-linked-containers form:last-child .link-container button")
         b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias2")
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
 
@@ -177,7 +179,7 @@ class TestDocker(MachineCase):
         b.wait_visible("#container-details")
         b.wait_in_text('#container-details', "busybox:latest")
         self.wait_for_message(message)
-        b.call_js_func("ph_count_check", ".console-ct pre",  1)
+        b.call_js_func("ph_count_check", ".console-ct pre", 1)
         b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 
@@ -185,7 +187,7 @@ class TestDocker(MachineCase):
         b.wait_visible("#container-details-start")
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
-        b.call_js_func("ph_count_check", ".console-ct pre",  1)
+        b.call_js_func("ph_count_check", ".console-ct pre", 1)
         b.wait_present("#container-details-stop:not([disabled])")
         b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
@@ -232,14 +234,14 @@ class TestDocker(MachineCase):
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C1')
-        b.click('#containers-run-image-run');
+        b.click('#containers-run-image-run')
         b.wait_popdown('containers_run_image_dialog')
         b.wait_in_text('#containers-containers', 'C1')
         b.wait_in_text('#containers-containers', 'busybox:latest')
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
         b.wait_popup('containers_run_image_dialog')
         b.set_val('#containers-run-image-name', 'C2')
-        b.click('#containers-run-image-run');
+        b.click('#containers-run-image-run')
         b.wait_popdown('containers_run_image_dialog')
         b.wait_in_text('#containers-containers', 'C2')
         b.wait_in_text('#containers-containers', 'busybox:latest')
@@ -273,7 +275,7 @@ class TestDocker(MachineCase):
         self.login_and_go("/docker")
         b.wait_in_text("#containers-images", "busybox:latest")
 
-        port = 3380;
+        port = 3380
         message = "HelloMessage."
 
         # Create an updated image, expose a port
@@ -294,21 +296,21 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", image_name)
 
-        nport = port + 1;
+        nport = port + 1
 
         # Run it and expose additional port via the ui
         b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "PROBE2")
         # Tell our probe to listen on both ports
-        second_message = "%s" % (message);
+        second_message = "%s" % (message)
         b.set_val("#containers-run-image-command",
                   ("/bin/sh -c \"/listen-on-port.sh %(port)d %(message)s; " +
-                               "/listen-on-port.sh %(second_port)d %(second_message)s\"")
-                    % {'port': port,
-                       'message': message,
-                       'second_port': nport,
-                       'second_message': second_message})
+                   "/listen-on-port.sh %(second_port)d %(second_message)s\"")
+                  % {'port': port,
+                     'message': message,
+                     'second_port': nport,
+                     'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
         b.click(".containers-run-portmapping form:eq(0) .fa-plus")
         b.wait_present(".containers-run-portmapping form:eq(1) input:eq(0)")
@@ -321,7 +323,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
 
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE2")
 
@@ -398,11 +400,11 @@ CMD ["/bin/sh"]
         b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
-        if m.image not in [ "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable" ]:
+        if m.image not in ["debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable"]:
             m.execute("chcon --dereference -HRt svirt_sandbox_file_t /mnt")
         m.execute("touch /mnt/dripping.txt")
 
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
         b.wait_in_text("#containers-containers", "PROBE4")
 
@@ -495,8 +497,8 @@ CMD ["/bin/sh"]
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "NORESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"no-restart\"; sleep 10000'")
-        b.click("#containers-run-image-with-terminal");
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-with-terminal")
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
 
         # Run another container with restarting
@@ -504,11 +506,11 @@ CMD ["/bin/sh"]
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "YAYRESTART")
         b.set_val("#containers-run-image-command", "/bin/sh -c 'echo \"yay-restart\"; sleep 10000'")
-        b.click("#containers-run-image-with-terminal");
-        b.click("#restart-policy-select button");
-        b.click("#restart-policy-select a[data-value=always]");
-        b.wait_in_text("#restart-policy-select button", "Always");
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-with-terminal")
+        b.click("#restart-policy-select button")
+        b.click("#restart-policy-select a[data-value=always]")
+        b.wait_in_text("#restart-policy-select button", "Always")
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
 
         # Make sure they've started
@@ -547,12 +549,12 @@ CMD ["/bin/sh"]
         b.wait_popup("containers_run_image_dialog")
         b.set_val("#containers-run-image-name", "RESOURCE")
         b.set_val("#containers-run-image-command", "/bin/sleep 1000000")
-        b.click("#containers-run-image-with-terminal");
-        b.click("#containers-run-image-memory input[type='checkbox']");
-        b.set_val("#containers-run-image-memory input.size-text-ct", "236");
-        b.click("#containers-run-image-cpu input[type='checkbox']");
-        b.set_val("#containers-run-image-cpu input.size-text-ct", "512");
-        b.click("#containers-run-image-run");
+        b.click("#containers-run-image-with-terminal")
+        b.click("#containers-run-image-memory input[type='checkbox']")
+        b.set_val("#containers-run-image-memory input.size-text-ct", "236")
+        b.click("#containers-run-image-cpu input[type='checkbox']")
+        b.set_val("#containers-run-image-cpu input.size-text-ct", "512")
+        b.click("#containers-run-image-run")
         b.wait_popdown("containers_run_image_dialog")
 
         # Make sure they've started
@@ -568,8 +570,8 @@ CMD ["/bin/sh"]
         # Now adjust things
         b.click("#container-details-resource-row button")
         b.wait_popup("container-resources-dialog")
-        b.set_val(".memory-slider input.size-text-ct", "246");
-        b.set_val(".cpu-slider input.size-text-ct", "256");
+        b.set_val(".memory-slider input.size-text-ct", "246")
+        b.set_val(".cpu-slider input.size-text-ct", "256")
         b.click("#container-resources-dialog .btn-primary")
         b.wait_popdown("container-resources-dialog")
 
@@ -580,8 +582,8 @@ CMD ["/bin/sh"]
         # Remove the restrictions
         b.click("#container-details-resource-row button")
         b.wait_popup("container-resources-dialog")
-        b.click(".memory-slider input[type='checkbox']");
-        b.click(".cpu-slider input[type='checkbox']");
+        b.click(".memory-slider input[type='checkbox']")
+        b.click(".cpu-slider input[type='checkbox']")
         b.click("#container-resources-dialog .btn-primary")
         b.wait_popdown("container-resources-dialog")
 
@@ -590,7 +592,8 @@ CMD ["/bin/sh"]
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine
@@ -625,7 +628,7 @@ CMD ["/bin/sh"]
         sel = "#containers-containers .listing-ct-panel .listing-ct-body a.list-group-item"
         b.wait_present(sel)
         b.wait_visible(sel)
-        b.wait_in_text(sel, "sleep" )
+        b.wait_in_text(sel, "sleep")
         b.click(sel + ':contains("sleep")')
 
         # wait for the page to load
@@ -634,12 +637,15 @@ CMD ["/bin/sh"]
         # check for abrtd service in text
         b.wait_present("#journal-entry-id")
         b.wait_in_text("#journal-entry-id", "sleep")
-        b.wait_in_text("#journal-entry-fields","abrtd.service")
+        b.wait_in_text("#journal-entry-fields", "abrtd.service")
 
-@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
+
+@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable",
+           "debian-testing", "ubuntu-1804", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
 @skipImage("No docker packaged", "rhel-x")
 @skipPackage("cockpit-docker")
 class TestAtomicScan(MachineCase):
+
     def setUp(self):
         MachineCase.setUp(self)
 

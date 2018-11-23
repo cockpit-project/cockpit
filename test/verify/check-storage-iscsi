@@ -22,8 +22,11 @@ import parent
 from testlib import *
 from storagelib import *
 
-@skipImage("UDisks doesn't have support for iSCSI", "debian-stable", "ubuntu-1804", "ubuntu-stable", "debian-testing", "centos-7")
+
+@skipImage("UDisks doesn't have support for iSCSI", "debian-stable",
+           "ubuntu-1804", "ubuntu-stable", "debian-testing", "centos-7")
 class TestStorage(StorageCase):
+
     def testISCSI(self):
         m = self.machine
         b = self.browser
@@ -71,8 +74,8 @@ class TestStorage(StorageCase):
         orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
         b.wait_visible('#edit-iscsi')
         b.click('#edit-iscsi')
-        self.dialog(expect = { "name": orig_iqn },
-                    values = { "name": initiator_iqn })
+        self.dialog(expect={"name": orig_iqn},
+                    values={"name": initiator_iqn})
         new_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
         self.assertEqual(new_iqn, initiator_iqn)
 
@@ -109,8 +112,8 @@ class TestStorage(StorageCase):
         b.wait_visible('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
         self.content_tab_action(1, 1, "Format")
-        self.dialog({ "type": "ext4",
-                      "name": "FILESYSTEM" })
+        self.dialog({"type": "ext4",
+                     "name": "FILESYSTEM"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         b.click('#storage-detail .breadcrumb a')
         b.wait_visible('#storage')

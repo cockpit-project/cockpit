@@ -22,10 +22,11 @@ import parent
 from testlib import *
 from netlib import *
 
+
 class TestNetworking(NetworkCase):
     provision = {
-        "machine1": { },
-        "machine2": { "image": "fedora-29", "address": "10.111.113.2/20", "dhcp": True }
+        "machine1": {},
+        "machine2": {"image": "fedora-29", "address": "10.111.113.2/20", "dhcp": True}
     }
 
     def testUnmanaged(self):
@@ -38,7 +39,8 @@ class TestNetworking(NetworkCase):
         if "ubuntu" in m.image or "debian" in m.image:
             m.execute("printf 'iface {0} inet static\n' >> /etc/network/interfaces".format(iface))
         else:
-            m.execute("echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(iface))
+            m.execute(
+                "echo -e 'NM_CONTROLLED=no\\nDEVICE=\"{0}\"\\n' >> /etc/sysconfig/network-scripts/ifcfg-{0}".format(iface))
         m.execute("systemctl restart NetworkManager")
 
         self.login_and_go("/network")

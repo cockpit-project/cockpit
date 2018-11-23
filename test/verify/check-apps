@@ -22,6 +22,7 @@ import parent
 from testlib import *
 from packagelib import *
 
+
 @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 @skipPackage("cockpit-apps")
 class TestApps(PackageCase):
@@ -31,7 +32,7 @@ class TestApps(PackageCase):
         self.appstream_collection = set()
 
     def createAppStreamPackage(self, name, version, revision):
-        self.createPackage(name, version, revision, content = {
+        self.createPackage(name, version, revision, content={
             "/usr/share/metainfo/org.cockpit-project.{0}.metainfo.xml".format(name): """
 <component type="addon">
   <extends>cockpit.desktop</extends>
@@ -61,7 +62,7 @@ class TestApps(PackageCase):
   </component>
 """.format(p)
         self.machine.execute("mkdir -p /usr/share/app-info/xmls")
-        self.createPackage("appstream-data-test", "1.0", "1", content = {
+        self.createPackage("appstream-data-test", "1.0", "1", content={
             "/usr/share/app-info/xmls/test.xml": """
 <components origin="test">
 {0}

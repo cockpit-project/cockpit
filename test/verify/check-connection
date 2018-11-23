@@ -24,7 +24,9 @@ from testlib import *
 import base64
 import time
 
+
 class TestConnection(MachineCase):
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -130,10 +132,11 @@ class TestConnection(MachineCase):
         output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
         self.assertNotIn("DONE", output)
         # HACK: (NONE) cipher is a regression in Fedora 29 (https://bugzilla.redhat.com/show_bug.cgi?id=1629732)
-        self.assertRegexpMatches(output, "no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
+        self.assertRegexpMatches(
+            output, "no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
 
         # Install a certificate chain, and give it an arbitrary bad file context
-        m.upload([ "verify/files/cert-chain.cert" ], "/etc/cockpit/ws-certs.d")
+        m.upload(["verify/files/cert-chain.cert"], "/etc/cockpit/ws-certs.d")
         m.execute("! selinuxenabled || chcon --type svirt_sandbox_file_t /etc/cockpit/ws-certs.d/cert-chain.cert")
 
         # This should also reset the file context
@@ -146,9 +149,11 @@ class TestConnection(MachineCase):
         self.assertRegexpMatches(output, "1 s:/?OU *= *Intermediate")
 
         # login handler: correct password
-        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(base64.b64encode(b"admin:foobar").decode(), ))
+        m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
+            base64.b64encode(b"admin:foobar").decode(), ))
         headers = m.execute("curl -k --head -b cockpit.jar -s https://127.0.0.1:9090/")
-        self.assertIn("default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
+        self.assertIn(
+            "default-src 'self' https://127.0.0.1:9090; connect-src 'self' https://127.0.0.1:9090 wss://127.0.0.1:9090", headers)
         self.assertIn("Access-Control-Allow-Origin: https://127.0.0.1:9090", headers)
 
         self.allow_journal_messages(
@@ -159,12 +164,13 @@ class TestConnection(MachineCase):
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
         # check the Debian smoke test
-        m.upload([ "../tools/debian/tests/smoke" ], "/tmp")
+        m.upload(["../tools/debian/tests/smoke"], "/tmp")
         m.execute("/tmp/smoke")
 
     def testConfigOrigins(self):
         m = self.machine
-        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
+        m.execute(
+            'mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
         m.start_cockpit()
         output = m.execute('curl -s -f -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://other-origin:9090" -H "Host: localhost:9090" -H "Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H "Sec-Websocket-Version: 13" http://localhost:9090/cockpit/socket')
         self.assertIn('"no-session"', output)
@@ -194,7 +200,8 @@ class TestConnection(MachineCase):
 
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
-        m.execute('mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+        m.execute(
+            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
         # cockpit-ws from base package
         if m.image not in ["rhel-7-6-distropkg"]:
@@ -222,7 +229,8 @@ class TestConnection(MachineCase):
     @skipImage("Atomic doesn't have cockpit-ws", "fedora-atomic", "rhel-atomic", "continuous-atomic")
     def testCommandline(self):
         m = self.machine
-        m.execute('mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')
+        m.execute(
+            'mkdir -p /test/cockpit/ws-certs.d && echo "[WebService]\nLoginTitle = A Custom Title" > /test/cockpit/cockpit.conf')
         m.execute('mkdir -p /test/cockpit/static/ && echo "<!DOCTYPE html><html><head></head><body><p>Custom Default Root</p></body></html>" > /test/cockpit/static/login.html')
 
         m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test remotectl certificate --ensure")

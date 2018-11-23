@@ -21,8 +21,10 @@
 import parent
 from testlib import *
 
+
 @skipImage("Atomic always uses loopback", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestLoopback(MachineCase):
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -33,7 +35,7 @@ class TestLoopback(MachineCase):
             cockpit_ws = "/usr/libexec/cockpit-ws"
 
         # Start Cockpit with option to access SSH
-        m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws");
+        m.spawn(cockpit_ws + " --local-ssh --no-tls", "cockpit-ws")
         m.wait_for_cockpit_running()
 
         b.login_and_go("/system", user="admin")
@@ -45,11 +47,13 @@ class TestLoopback(MachineCase):
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
         b.wait_visible('#login-fatal')
-        self.assertIn("no-cockpit", b.text('#login-fatal'));
+        self.assertIn("no-cockpit", b.text('#login-fatal'))
 
         m.disconnect()
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
-        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        m.execute(
+            "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service",
+            direct=True)
         m.wait_execute()
 
         b.reload()
@@ -58,7 +62,9 @@ class TestLoopback(MachineCase):
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
         b.wait_visible('#login-fatal')
-        self.assertIn("The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.", b.text('#login-fatal'));
+        self.assertIn(
+            "The server refused to authenticate 'admin' using password authentication, and no other supported authentication methods are available.",
+            b.text('#login-fatal'))
 
         self.allow_journal_messages("Cannot run program cockpit-bridge: No such file or directory",
                                     ".*server offered unsupported authentication methods: public-key.*")

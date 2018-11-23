@@ -21,24 +21,29 @@ import os
 import re
 from testlib import *
 
+
 class StorageCase(MachineCase):
+
     def setUp(self):
 
         if "atomic" in os.getenv("TEST_OS", ""):
             self.skipTest("No storage on Atomic")
 
         super(StorageCase, self).setUp()
-        self.storagectl_cmd = self.machine.execute("for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
+        self.storagectl_cmd = self.machine.execute(
+            "for cmd in storagedctl storagectl udisksctl; do if which $cmd 2>/dev/null; then break; fi; done").strip()
 
         if "udisksctl" in self.storagectl_cmd:
-            ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
+            ver = self.machine.execute(
+                "busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
         else:
-            ver = self.machine.execute("busctl --system get-property org.storaged.Storaged /org/storaged/Storaged/Manager org.storaged.Storaged.Manager Version || true")
+            ver = self.machine.execute(
+                "busctl --system get-property org.storaged.Storaged /org/storaged/Storaged/Manager org.storaged.Storaged.Manager Version || true")
         m = re.match('s "(.*)"', ver)
         if m:
             self.storaged_version = list(map(int, m.group(1).split(".")))
         else:
-            self.storaged_version = [ 0 ]
+            self.storaged_version = [0]
 
         self.storaged_is_old_udisks = ("udisksctl" in self.storagectl_cmd and self.storaged_version < [2, 6, 0])
 
@@ -86,7 +91,7 @@ class StorageCase(MachineCase):
     # temporarily disappearing element, so we use self.retry.
 
     def content_row_wait_in_col(self, row_index, col_index, val):
-        col = self.content_row_tbody(row_index) +" .listing-ct-item :nth-child(%d)" % (col_index + 1)
+        col = self.content_row_tbody(row_index) + " .listing-ct-item :nth-child(%d)" % (col_index + 1)
         self.retry(None, lambda: self.browser.is_present(col) and val in self.browser.text(col), None)
 
     def content_head_action(self, index, title):
@@ -289,7 +294,7 @@ class StorageCase(MachineCase):
         # out the right order dynamically here by just setting what we
         # can and then starting over.  As long as we make progress in
         # each iteration, everything is good.
-        failed = { }
+        failed = {}
         last_error = None
         for f in values:
             try:
@@ -352,11 +357,13 @@ class StorageCase(MachineCase):
         def setup():
             trigger()
             self.dialog_wait_open()
+
         def check():
             if callable(expect):
                 return expect()
             else:
                 return self.dialog_check(expect)
+
         def teardown():
             self.dialog_cancel()
             self.dialog_wait_close()

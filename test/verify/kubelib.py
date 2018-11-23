@@ -34,9 +34,10 @@ __all__ = (
     'RegistryTests',
 )
 
+
 class KubernetesCase(testlib.MachineCase):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" }
+        "machine1": {"address": "10.111.113.1/20"}
     }
 
     def setUp(self):
@@ -52,10 +53,12 @@ class KubernetesCase(testlib.MachineCase):
     def start_kubernetes(self):
         # kubelet needs the config to register to the API server
         self.machine.upload(["verify/files/mock-kube-config-basic.json"], "/etc/kubernetes/kubeconfig")
-        self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s%"$% --kubeconfig=/etc/kubernetes/kubeconfig"% }' /etc/kubernetes/kubelet""")
+        self.machine.execute(
+            """sed -i '/KUBELET_ARGS=/ { s%"$% --kubeconfig=/etc/kubernetes/kubeconfig"% }' /etc/kubernetes/kubelet""")
 
         # disable imagefs eviction to protect our docker images
-        self.machine.execute("""sed -i '/KUBELET_ARGS=/ { s/"$/ --eviction-hard=imagefs.available<0% --eviction-soft=imagefs.available<0%"/ }' /etc/kubernetes/kubelet""")
+        self.machine.execute(
+            """sed -i '/KUBELET_ARGS=/ { s/"$/ --eviction-hard=imagefs.available<0% --eviction-soft=imagefs.available<0%"/ }' /etc/kubernetes/kubelet""")
 
         # HACK: These are the default container secrets that which conflict
         # with kubernetes secrets and cause the pod to not start
@@ -63,14 +66,17 @@ class KubernetesCase(testlib.MachineCase):
         self.machine.execute("systemctl start docker || journalctl -u docker")
 
         # disable swap, newer kubernetes versions don't like it:
-        # failed to run Kubelet: Running with swap on is not supported, please disable swap! or set --fail-swap-on flag to false
+        # failed to run Kubelet: Running with swap on is not supported, please
+        # disable swap! or set --fail-swap-on flag to false
         self.machine.execute("swapoff --all --verbose")
 
-        self.machine.execute("echo 'KUBE_API_ADDRESS=\"$KUBE_API_ADDRESS --bind-address=10.111.113.1\"' >> /etc/kubernetes/apiserver")
+        self.machine.execute(
+            "echo 'KUBE_API_ADDRESS=\"$KUBE_API_ADDRESS --bind-address=10.111.113.1\"' >> /etc/kubernetes/apiserver")
         try:
             self.machine.execute('/etc/kubernetes/start-kubernetes')
         except subprocess.CalledProcessError:
-            self.machine.execute("systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler kube-proxy kubelet")
+            self.machine.execute(
+                "systemctl start etcd kube-apiserver kube-controller-manager kube-scheduler kube-proxy kubelet")
 
     # HACK: https://github.com/GoogleCloudPlatform/kubernetes/issues/8311
     # Work around for the fact that kube-apiserver doesn't notify about startup
@@ -89,6 +95,7 @@ class KubernetesCase(testlib.MachineCase):
         exit 1
         """.format(**locals())
         self.machine.execute(script=waiter)
+
 
 class VolumeTests(object):
 
@@ -145,7 +152,7 @@ class VolumeTests(object):
         b.set_val("modal-dialog #modify-name", "pv1")
         b.set_val("modal-dialog #nfs-modify-server", "10.111.112.101")
         b.set_val("modal-dialog #modify-path", "/nfsexport")
-        b.set_val("modal-dialog #modify-policy-Retain", "Retain");
+        b.set_val("modal-dialog #modify-policy-Retain", "Retain")
         b.click("modal-dialog .modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
@@ -198,7 +205,7 @@ class VolumeTests(object):
         b.set_val("modal-dialog #modify-capacity", pv1_size)
         b.set_val("modal-dialog #nfs-modify-server", "10.111.112.101")
         b.set_val("modal-dialog #modify-path", "/nfsexport")
-        b.set_val("modal-dialog #modify-policy-Retain", "Retain");
+        b.set_val("modal-dialog #modify-policy-Retain", "Retain")
         b.click("modal-dialog #modify-policy-Retain")
         b.click("modal-dialog #modify-access-ReadWriteMany")
 
@@ -271,8 +278,9 @@ class VolumeTests(object):
         b.wait_in_text("{} .listing-ct-panel".format(base_sel), "mock-volume-claim")
         b.wait_in_text("{} .listing-ct-panel ".format(base_sel), "default / mock-volume")
 
-        pods = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"')
-        pod = [ x for x in pods.split("|") if x.startswith("mock-volume")][0]
+        pods = m.execute(
+            'kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"')
+        pod = [x for x in pods.split("|") if x.startswith("mock-volume")][0]
         pod_id = "pods/default/{}".format(pod)
 
         b.click("a[href='#/list']")
@@ -284,18 +292,21 @@ class VolumeTests(object):
         b.wait_present(".listing-ct-body")
         b.wait_js_func("ph_count_check", ".listing-ct-body div.well", 2)
 
-        volumes = m.execute('kubectl get pods/%s --output=template --template="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
-        secret = [ x for x in volumes.split("|") if x.startswith("default-token")][0]
+        volumes = m.execute(
+            'kubectl get pods/%s --output=template --template="{{ range .spec.volumes }}{{.name}}|{{ end }}"' % pod)
+        secret = [x for x in volumes.split("|") if x.startswith("default-token")][0]
 
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "Secret")
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "mock-volume-container")
-        b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "/var/run/secrets/kubernetes.io/serviceaccount")
+        b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret),
+                       "/var/run/secrets/kubernetes.io/serviceaccount")
         b.wait_present(".listing-ct-body div[data-id='host-tmp']")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "Persistent Volume Claim")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-claim")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-container")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "/mount-path-tmp")
         b.wait_present(".listing-ct-body div[data-id='host-tmp'] a[href='#/volumes/{}']".format(pv_id))
+
 
 class KubernetesCommonTests(VolumeTests):
 
@@ -346,9 +357,10 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present("#content .details-listing tbody[data-id='replicationcontrollers/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] th"), "mock")
         b.wait_present(".details-listing tbody[data-id^='pods/default/'] th")
-        podl = m.execute('kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"').split("|")
-        b.wait_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th")
-        self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] th"), podl[0])
+        podl = m.execute(
+            'kubectl get pods --output=template --template="{{ range .items }}{{.metadata.name}}|{{ end }}"').split("|")
+        b.wait_present(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] th")
+        self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] th"), podl[0])
 
         b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
@@ -366,14 +378,14 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
 
-        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
-        b.click(".details-listing tbody[data-id='pods/default/"+podl[0]+"'] .delete-pod")
+        b.click(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] td.listing-ct-toggle")
+        b.wait_visible(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] .delete-pod")
+        b.click(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] .delete-pod")
         b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-body", "Deleting a Pod will")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
-        b.wait_not_present(".details-listing tbody[data-id='pods/default/"+podl[0]+"']")
+        b.wait_not_present(".details-listing tbody[data-id='pods/default/" + podl[0] + "']")
 
     def testDashboard(self):
         m = self.machine
@@ -454,7 +466,8 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present(".details-listing tbody[data-id='services/default/mock']")
         self.assertEqual(b.text(".details-listing tbody[data-id='services/default/mock'] th"), "mock")
         b.wait_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
-        self.assertEqual(b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] tr.listing-ct-item th"), "mock")
+        self.assertEqual(
+            b.text(".details-listing tbody[data-id='replicationcontrollers/default/mock'] tr.listing-ct-item th"), "mock")
         b.wait_not_present("#routes")
         b.wait_not_present("#deployment-configs")
 
@@ -677,6 +690,7 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer", "127.0.0.1")
         b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer h3:first", "Node")
 
+
 class OpenshiftCommonTests(VolumeTests):
 
     def testBasic(self):
@@ -696,10 +710,12 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_present("#deployment-configs")
 
         b.wait_present(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th")
-        self.assertEqual(b.text(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th"), "docker-registry")
+        self.assertEqual(
+            b.text(".details-listing tbody[data-id='deploymentconfigs/default/docker-registry'] th"), "docker-registry")
 
         b.wait_present(".details-listing tbody[data-id='routes/default/docker-registry'] th")
-        self.assertEqual(b.text(".details-listing tbody[data-id='routes/default/docker-registry'] th"), "docker-registry")
+        self.assertEqual(
+            b.text(".details-listing tbody[data-id='routes/default/docker-registry'] th"), "docker-registry")
 
         # Switch to images view
         b.click("a[href='#/images']")
@@ -796,9 +812,9 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text("#troubleshoot-dialog", 'Log in to')
         b.wait_present("#login-type button")
-        b.click("#login-type button");
-        b.click("#login-type li[value=password] a");
-        b.wait_in_text("#login-type button span", "Type a password");
+        b.click("#login-type button")
+        b.click("#login-type li[value=password] a")
+        b.wait_in_text("#login-type button span", "Type a password")
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.val("#login-custom-password"), "")
@@ -828,6 +844,7 @@ class OpenshiftCommonTests(VolumeTests):
 
 
 class RegistryTests(object):
+
     def setupDockerRegistry(self):
         """Run a docker registry instance and populate it
 
@@ -875,7 +892,8 @@ class RegistryTests(object):
         b.wait_in_text(".content-filter h3", "marmalade/busybee")
         b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-ct-toggle")
         b.wait_present("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:0.x")
+        b.wait_in_text(
+            "tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:0.x")
 
         # Look at the image layers
         b.click(".listing-ct-head li:last-child a")
@@ -896,7 +914,7 @@ class RegistryTests(object):
         b.set_val("#imagestream-modify-pull", "postgres")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_in_text ("#content", "postgres")
+        b.wait_in_text("#content", "postgres")
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
         self.assertIn("postgres", output)
 
@@ -909,7 +927,7 @@ class RegistryTests(object):
         b.click("#imagestream-modify-populate a[value='none']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text ("#content", "postgres")
+        b.wait_not_in_text("#content", "postgres")
         output = o.execute("oc get imagestream --namespace=marmalade --template='{{.spec}}' busybee")
         self.assertNotIn("postgres", output)
 
@@ -962,7 +980,8 @@ class RegistryTests(object):
         b.wait_present("tbody[data-id='marmalade/busybee:latest']")
         b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-ct-item td.listing-ct-toggle")
         b.wait_present("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags")
-        b.wait_in_text("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:latest")
+        b.wait_in_text(
+            "tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:latest")
         b.click("tbody[data-id='marmalade/busybee:latest'] .listing-ct-head .pficon-delete")
         b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
@@ -979,7 +998,8 @@ class RegistryTests(object):
 
         # Various labels should show up in this image
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-panel", "Juggs Image")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body", "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body",
+                       "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body", "http://hipsum.co")
 
         # And some key labels shouldn't show up on the metadata
@@ -997,9 +1017,12 @@ class RegistryTests(object):
         b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags')")
         b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags') a")
         b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct")
-        b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest']")
-        b.wait_in_text("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr th", "latest")
-        b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr")
+        b.wait_present(
+            "tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest']")
+        b.wait_in_text(
+            "tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr th", "latest")
+        b.click(
+            "tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr")
         b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs:latest"')
         b.wait_present("#content div.listing-ct-inline")
         b.wait_text(".content-filter h3 span", "marmalade/juggs:latest")
@@ -1215,7 +1238,7 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
         b.wait_present("table.listing-ct")
         testlib.wait(lambda: re.search(r"registry-editor\s+/registry-editor\s+testprojectuser\b",
-                               o.execute("oc get rolebinding -n testprojectuserproj")))
+                                       o.execute("oc get rolebinding -n testprojectuserproj")))
 
         #delete user
         b.wait_in_text(".content-filter h3", "testprojectuser")
@@ -1225,7 +1248,8 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         # HACK: In order to test issue, log the output to the journal
-        testlib.wait(lambda: not re.search(r"\btestprojectuser\b", o.execute("oc get rolebinding -n testprojectuserproj | logger -s 2>&1")))
+        testlib.wait(lambda: not re.search(r"\btestprojectuser\b", o.execute(
+            "oc get rolebinding -n testprojectuserproj | logger -s 2>&1")))
 
         #add/remove members for other roles
         b.go("#/projects/testprojectuserproj")
@@ -1291,7 +1315,8 @@ class RegistryTests(object):
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
         b.wait_present("tbody[data-id='system:janitor:default']")
-        testlib.wait(lambda: 'system:janitor:default' in o.execute("oc get rolebinding -n testprojectuserproj"), delay=5)
+        testlib.wait(lambda: 'system:janitor:default' in o.execute(
+            "oc get rolebinding -n testprojectuserproj"), delay=5)
 
         # they appear on the "All projects" page too
         b.go("#/projects/")
@@ -1363,7 +1388,7 @@ class RegistryTests(object):
         b.wait_visible("#add_member_group")
         b.click(".btn-primary")
         b.wait_present("modal-dialog")
-        self.assertEqual(b.text(".dialog-error") ,"Please select a valid Member.")
+        self.assertEqual(b.text(".dialog-error"), "Please select a valid Member.")
         b.click(".btn-cancel")
         b.wait_not_present("modal-dialog")
 
@@ -1377,7 +1402,7 @@ class RegistryTests(object):
         b.click("#add_member_group a[value='scruffy']")
         b.click(".btn-primary")
         b.wait_present("modal-dialog")
-        self.assertEqual(b.text(".dialog-error") ,"Please select a valid Role.")
+        self.assertEqual(b.text(".dialog-error"), "Please select a valid Role.")
         b.click(".btn-cancel")
         b.wait_not_present("modal-dialog")
 
@@ -1406,7 +1431,7 @@ class RegistryTests(object):
         b.click("#add_role a[value='Admin']")
         b.click(".btn-primary")
         b.wait_present("modal-dialog")
-        self.assertEqual(b.text(".dialog-error") ,"Please select a valid Member.")
+        self.assertEqual(b.text(".dialog-error"), "Please select a valid Member.")
         b.click(".btn-cancel")
         b.wait_not_present("modal-dialog")
 
@@ -1430,7 +1455,8 @@ class RegistryTests(object):
         # Change the project access
         b.go("#/projects/marmalade")
         b.wait_in_text(".content-filter h3", "marmalade")
-        b.wait_in_text(".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
+        b.wait_in_text(
+            ".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
         b.wait_visible("#project-access-policy")
@@ -1440,7 +1466,8 @@ class RegistryTests(object):
         b.click("#project-access-policy a[value='shared']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_not_in_text(".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
+        b.wait_not_in_text(
+            ".listing-ct-body", "Project access policy allows all authenticated users to pull images. Grant additional access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertIn("system:authenticated", output)
         self.assertNotIn("system:unauthenticated", output)
@@ -1461,7 +1488,8 @@ class RegistryTests(object):
         b.click("#project-access-policy a[value='anonymous']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
-        b.wait_in_text(".listing-ct-body", "Project access policy allows anonymous users to pull images. Grant additional push or admin access to specific members below.")
+        b.wait_in_text(
+            ".listing-ct-body", "Project access policy allows anonymous users to pull images. Grant additional push or admin access to specific members below.")
         output = o.execute("oc policy who-can get --namespace=marmalade imagestreams/layers")
         self.assertIn("system:unauthenticated", output)
 
@@ -1655,4 +1683,5 @@ class RegistryTests(object):
 
         # also check with CLI
         testlib.wait(lambda: '2.11' in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
-        testlib.wait(lambda: 'latest' not in self.openshift.execute('oc get imagestream --namespace=marmalade sometags'))
+        testlib.wait(lambda: 'latest' not in self.openshift.execute(
+            'oc get imagestream --namespace=marmalade sometags'))

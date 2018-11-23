@@ -22,10 +22,11 @@ import parent
 from testlib import *
 from netlib import *
 
+
 class TestNetworking(NetworkCase):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "machine2": { "image": "fedora-29", "address": "10.111.113.2/20", "dhcp": True }
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"image": "fedora-29", "address": "10.111.113.2/20", "dhcp": True}
     }
 
     def testBond(self):
@@ -257,7 +258,7 @@ class TestNetworking(NetworkCase):
 
         # Now 'iface' has a normal connection
         con_id = self.iface_con_id(iface)
-        self.assertTrue(con_id != None)
+        self.assertTrue(con_id is not None)
 
         # Manually create a bond and make 'iface' its slave via a
         # second connection.  Cockpit should ignore that second

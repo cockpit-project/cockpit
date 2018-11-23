@@ -23,7 +23,9 @@ from testlib import *
 
 import time
 
+
 class TestMenu(MachineCase):
+
     @enableAxe
     def testBasic(self):
         b = self.browser
@@ -31,7 +33,8 @@ class TestMenu(MachineCase):
 
         # Add a link with a hash in it to test that this works
         m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
-        m.execute("""sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
+        m.execute(
+            """sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
 
         self.login_and_go("/system")
 

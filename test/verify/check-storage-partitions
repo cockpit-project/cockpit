@@ -22,7 +22,9 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 class TestStorage(StorageCase):
+
     def testPartitions(self):
         m = self.machine
         b = self.browser
@@ -48,11 +50,11 @@ class TestStorage(StorageCase):
 
         b.wait_visible('button:contains(Create partition table)')
         b.click('button:contains(Create partition table)')
-        self.dialog({ "type": "gpt" })
+        self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 
         self.content_row_action(1, "Create Partition")
-        self.dialog({ "type": "ext4" })
+        self.dialog({"type": "ext4"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
 
         self.content_head_action(1, "Delete")

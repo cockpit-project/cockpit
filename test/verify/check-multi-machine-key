@@ -25,10 +25,12 @@ from testlib import *
 import subprocess
 import re
 
+
 def kill_user_admin(machine):
     # logind from systemd 208 is buggy, so we use systemd directly if it fails
     # https://bugs.freedesktop.org/show_bug.cgi?id=71092
     machine.execute("loginctl terminate-user admin || systemctl kill user-1000.slice")
+
 
 def authorize_user(m, user):
     m.execute("mkdir -p /home/{0}/.ssh".format(user))
@@ -56,10 +58,11 @@ KEY_IDS_MD5 = [
     "256 b5:80:1b:f5:98:89:2a:39:f3:78:b3:64:5c:64:33:17 /home/admin/.ssh/id_ed25519 (ED25519)"
 ]
 
+
 class TestMultiMachineKeyAuth(MachineCase):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "machine2": { "address": "10.111.113.2/20" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
     }
 
     def load_key(self, name, password):
@@ -98,8 +101,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Add user
         self.machine2.disconnect()
         self.machine2.execute("useradd user -c 'User' || true", direct=True)
-        self.machine2.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
-        self.machine2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+        self.machine2.execute(
+            "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config", direct=True)
+        self.machine2.execute(
+            "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
         self.machine2.wait_execute()
 
     def testBasic(self):
@@ -111,9 +116,9 @@ class TestMultiMachineKeyAuth(MachineCase):
         m1.execute("mkdir -p /home/admin/.ssh")
 
         m1.upload(["verify/files/ssh/{0}".format(k) for k in LOAD_KEYS],
-                   "/home/admin/.ssh/")
+                  "/home/admin/.ssh/")
         m1.upload(["verify/files/ssh/{0}.pub".format(k) for k in LOAD_KEYS],
-                   "/home/admin/.ssh/")
+                  "/home/admin/.ssh/")
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
 
@@ -127,7 +132,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         # pam-ssh-add isn't used on atomic
         if m1.atomic_image:
             self.load_key('id_rsa', 'foobar')
-            b.wait_js_cond('loaded === true');
+            b.wait_js_cond('loaded === true')
             self.check_keys(["2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1 id_rsa (RSA)"],
                             ["2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw id_rsa (RSA)"])
         else:
@@ -154,7 +159,7 @@ class TestMultiMachineKeyAuth(MachineCase):
         self.assertEqual(b.val("#login-custom-user"), "")
         b.set_val("#login-custom-user", "user")
         self.assertEqual(b.text("#login-type button span"), "Using available credentials")
-        b.wait_not_present("#login-type li[value=password] a");
+        b.wait_not_present("#login-type li[value=password] a")
         b.wait_visible("#login-available")
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "id_rsa")

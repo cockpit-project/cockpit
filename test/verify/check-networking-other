@@ -22,7 +22,9 @@ import parent
 from testlib import *
 from netlib import *
 
+
 class TestNetworking(NetworkCase):
+
     @skipImage("No 'tun' support", "rhel-atomic")
     def testOther(self):
         b = self.browser

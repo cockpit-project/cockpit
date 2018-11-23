@@ -21,7 +21,9 @@
 import parent
 from testlib import *
 
+
 class TestSession(MachineCase):
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -78,7 +80,7 @@ class TestSession(MachineCase):
         b.wait_visible('#go-account')
         b.click('#go-account')
         b.enter_page("/users")
-        b.wait_text ("#account-user-name", "admin")
+        b.wait_text("#account-user-name", "admin")
         b.wait_text("#account-user-name", "admin")
 
 if __name__ == '__main__':

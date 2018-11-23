@@ -32,6 +32,7 @@ from testlib import *
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 
+
 def wait_healthz(openshift):
     # Openshift prints "ok" on /healthz/ready when it's ready
     healthz = "curl -sk --stderr - https://localhost:8443/healthz/ready || true"
@@ -42,8 +43,8 @@ def wait_healthz(openshift):
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "rhel-x", "fedora-30")
 class TestOpenshift(MachineCase, OpenshiftCommonTests):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "openshift": { "image": "openshift", "forward": { 30000: 30000, 8443: 8443 } }
+        "machine1": {"address": "10.111.113.1/20"},
+        "openshift": {"image": "openshift", "forward": {30000: 30000, 8443: 8443}}
     }
 
     def setUp(self):
@@ -65,7 +66,8 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         self.openshift.execute("oc project default")
 
         # Expect the default container user limitations during testing
-        self.openshift.execute("oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
+        self.openshift.execute(
+            "oc patch securitycontextconstraints restricted -p '{ \"runAsUser\": { \"type\": \"MustRunAsRange\" } }'")
 
         self.browser.wait_timeout(120)
 
@@ -192,7 +194,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#deploy-app-start")
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.is_visible(".modal-footer .alert")
-        self.assertEqual(b.text(".modal-footer .alert") ,"No supported providers found.")
+        self.assertEqual(b.text(".modal-footer .alert"), "No supported providers found.")
         b.dialog_cancel("#deploy-app-dialog")
 
         # 3)check atomicappversion is supported
@@ -219,9 +221,8 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#deploy-app-start")
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.is_visible(".modal-footer .alert")
-        self.assertEqual(b.text(".modal-footer .alert") ,"atomicapp version 0.0.11 is not supported.")
+        self.assertEqual(b.text(".modal-footer .alert"), "atomicapp version 0.0.11 is not supported.")
         b.dialog_cancel("#deploy-app-dialog")
-
 
         # 5)check for all metadata
         m.execute("mkdir /var/tmp/invalid-app4")
@@ -241,9 +242,8 @@ LABEL io.projectatomic.nulecule.providers="kubernetes,openshift"
         b.click("#deploy-app-start")
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.is_visible(".modal-footer .alert")
-        self.assertEqual(b.text(".modal-footer .alert") ,"This image is not a supported Nulecule image")
+        self.assertEqual(b.text(".modal-footer .alert"), "This image is not a supported Nulecule image")
         b.dialog_cancel("#deploy-app-dialog")
-
 
         # 6)check when atomicapp is not available
         m.execute("mkdir /var/tmp/invalid-app5")
@@ -269,7 +269,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#deploy-app-start")
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.is_visible(".modal-footer .alert")
-        self.assertEqual(b.text(".modal-footer .alert") ,"Image failed to install.")
+        self.assertEqual(b.text(".modal-footer .alert"), "Image failed to install.")
         b.dialog_cancel("#deploy-app-dialog")
 
         # 7) fail when Unable to pull Nulecule app
@@ -281,7 +281,7 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         b.click("#deploy-app-start")
         b.wait_not_attr("#deploy-app-start", "disabled", "disabled")
         b.is_visible(".modal-footer .alert")
-        self.assertEqual(b.text(".modal-footer .alert") ,"Unable to pull Nulecule app image.")
+        self.assertEqual(b.text(".modal-footer .alert"), "Unable to pull Nulecule app image.")
         b.dialog_cancel("#deploy-app-dialog")
 
         # 8) check if app can be deployed
@@ -376,16 +376,17 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
 
 class TestOpenshiftPrerelease(TestOpenshift):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "openshift": { "image": "openshift-prerelease", "forward": { 30000: 30000, 8443: 8443 } }
+        "machine1": {"address": "10.111.113.1/20"},
+        "openshift": {"image": "openshift-prerelease", "forward": {30000: 30000, 8443: 8443}}
     }
+
 
 @skipImage("Kubernetes not packaged", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-i386")
 @skipImage("No cockpit-kubernetes packaged", "continuous-atomic", "fedora-atomic", "rhel-atomic", "rhel-x", "fedora-30")
 class TestRegistry(MachineCase, RegistryTests):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "openshift": { "image": "openshift" }
+        "machine1": {"address": "10.111.113.1/20"},
+        "openshift": {"image": "openshift"}
     }
     registry_root = "/kubernetes/registry"
 
@@ -419,8 +420,8 @@ class TestRegistry(MachineCase, RegistryTests):
 
 class TestRegistryPrerelease(TestRegistry):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "openshift": { "image": "openshift-prerelease", "forward": { 30000: 30000, 8443: 8443 } }
+        "machine1": {"address": "10.111.113.1/20"},
+        "openshift": {"image": "openshift-prerelease", "forward": {30000: 30000, 8443: 8443}}
     }
 
 

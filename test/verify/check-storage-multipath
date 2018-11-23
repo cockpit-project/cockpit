@@ -22,9 +22,11 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 @skipImage("UDisks doesn't have support for multipath", "debian-stable", "ubuntu-1804", "ubuntu-stable")
 @skipImage("No multipath on Debian", "debian-testing")
 class TestStorage(StorageCase):
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -108,7 +110,7 @@ class TestStorage(StorageCase):
         b.wait_visible('#create-volume-group')
         b.click('#create-volume-group')
         self.dialog_wait_open()
-        check_free_block_devices([ "/dev/mapper/mpatha" ])
+        check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()
         self.dialog_wait_close()
 

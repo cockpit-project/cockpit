@@ -22,12 +22,14 @@ import parent
 import time
 from testlib import *
 
+
 class TestPages(MachineCase):
+
     def testBasic(self):
         m = self.machine
         b = self.browser
         m.write("/etc/systemd/system/test.service",
-"""
+                """
 [Unit]
 Description=Test Service
 
@@ -38,7 +40,7 @@ ExecStart=/bin/true
 WantedBy=default.target
 """)
         m.write("/etc/systemd/system/test.timer",
-"""
+                """
 [Unit]
 Description=Test timer
 
@@ -51,14 +53,14 @@ OnCalendar=daily
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
         # On Debian and Ubuntu we have to generate the other locales :S
-        if m.image in ["debian-stable", "debian-testing" ]:
+        if m.image in ["debian-stable", "debian-testing"]:
             m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
-        elif m.image in [ "ubuntu-1804", "ubuntu-stable" ]:
+        elif m.image in ["ubuntu-1804", "ubuntu-stable"]:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 
         # On Atomic no locales other than en_US are supported on the host itself
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in [ "continuous-atomic", "fedora-atomic", "rhel-atomic" ]:
+        elif m.image in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
             self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
         # login so that we have a cookie.
@@ -77,18 +79,18 @@ OnCalendar=daily
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         # check that navigating away and back preserves place
-        b.switch_to_top();
+        b.switch_to_top()
         b.click("a[href='/system']")
         b.enter_page("/system")
         b.wait_present("#system_information_hostname_button")
-        b.switch_to_top();
+        b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
         b.wait_present("#service-unit .panel-heading")
         b.wait_visible("#service-unit")
         b.wait_present("ol.breadcrumb")
         b.wait_text("#service-unit .panel-heading", "Test Service")
-        b.switch_to_top();
+        b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === "#/test.service"')
 
@@ -99,7 +101,7 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.wait_present("#services-list-enabled")
         b.wait_not_visible("#service-unit")
-        b.switch_to_top();
+        b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')
         b.wait_js_cond('window.location.hash === ""')
 
@@ -220,14 +222,14 @@ OnCalendar=daily
 
         self.allow_restart_journal_messages()
 
-        if m.image in ['debian-stable', 'debian-testing' ]:
+        if m.image in ['debian-stable', 'debian-testing']:
             m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
-        elif m.image in [ 'ubuntu-1804', 'ubuntu-stable' ]:
+        elif m.image in ['ubuntu-1804', 'ubuntu-stable']:
             m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
 
         # On Atomic no locales other than en_US are supported on the host itself
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in [ 'continuous-atomic', 'fedora-atomic', 'rhel-atomic' ]:
+        elif m.image in ['continuous-atomic', 'fedora-atomic', 'rhel-atomic']:
             self.allow_journal_messages('invalid or unusable locale: pt_BR.UTF-8')
 
         self.login_and_go('/system')
@@ -360,7 +362,7 @@ OnCalendar=daily
             b.key_press(c)
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         time.sleep(1)
-        b.key_press([ " ", "\b" ])
+        b.key_press([" ", "\b"])
         b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
@@ -376,7 +378,7 @@ OnCalendar=daily
         m.execute("touch /tmp/stuff/file1.txt")
         b.focus(".file-autocomplete-ct input")
         time.sleep(1)
-        b.key_press([ " ", "\b" ])
+        b.key_press([" ", "\b"])
         b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         # this should still be unique
@@ -391,7 +393,7 @@ OnCalendar=daily
         m.execute("touch /tmp/stuff/other")
         b.focus(".file-autocomplete-ct input")
         # FIXME: need to tickle the widget to re-read the directory by changing out and back in
-        b.key_press([ "\b" ])
+        b.key_press(["\b"])
         time.sleep(1)
         b.key_press("/")
         time.sleep(1)

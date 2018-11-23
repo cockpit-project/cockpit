@@ -23,8 +23,10 @@ import datetime
 import parent
 from testlib import *
 
+
 @skipImage("Don't run upstream tests against distro packages", "rhel-7-6-distropkg")
 class TestAccounts(MachineCase):
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -104,7 +106,7 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "Jussi Junior")
 
         def is_locked():
-            return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in [ "L", "LK" ]
+            return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in ["L", "LK"]
 
         def is_admin():
             return "jussi" in m.execute("getent group %s" % m.get_admin_group())

@@ -23,8 +23,10 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 @skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
+
     def testHiddenLuks(self):
         m = self.machine
         b = self.browser
@@ -45,7 +47,7 @@ class TestStorage(StorageCase):
         b.click('#create-volume-group')
         self.dialog_wait_open()
         self.dialog_set_val('name', "TEST")
-        self.dialog_set_val('disks', { "DISK1": True })
+        self.dialog_set_val('disks', {"DISK1": True})
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text('#vgroups', "TEST")
@@ -53,19 +55,19 @@ class TestStorage(StorageCase):
         b.click('#vgroups tr:contains("TEST")')
         b.wait_visible('#storage-detail')
         b.click("a:contains(Create new Logical Volume)")
-        self.dialog({ 'purpose': "block",
-                      'name': "lvol",
-                      'size': 48 })
+        self.dialog({'purpose': "block",
+                     'name': "lvol",
+                     'size': 48})
         self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol")
 
         self.content_tab_action(1, 2, "Format")
-        self.dialog({ "type": "luks+ext4",
-                      "name": "FS",
-                      "passphrase": "einszweidrei",
-                      "passphrase2": "einszweidrei",
-                      "mounting": "custom",
-                      "mount_point": mount_point_1,
-                      "crypto_extra_options": "my-crypto-tag" })
+        self.dialog({"type": "luks+ext4",
+                     "name": "FS",
+                     "passphrase": "einszweidrei",
+                     "passphrase2": "einszweidrei",
+                     "mounting": "custom",
+                     "mount_point": mount_point_1,
+                     "crypto_extra_options": "my-crypto-tag"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_1)
         self.wait_in_storaged_configuration("my-crypto-tag")
@@ -111,21 +113,21 @@ class TestStorage(StorageCase):
 
         # Now do the same with a MDRAID
 
-        self.dialog_with_retry(trigger = lambda: b.click('#create-mdraid'),
-                               expect = lambda: (self.dialog_is_present('disks', "DISK1") and
-                                                 self.dialog_is_present('disks', "DISK2")),
-                               values = { "name": "ARR",
-                                          "disks": { "DISK1": True,
-                                                     "DISK2": True }})
+        self.dialog_with_retry(trigger=lambda: b.click('#create-mdraid'),
+                               expect=lambda: (self.dialog_is_present('disks', "DISK1") and
+                                               self.dialog_is_present('disks', "DISK2")),
+                               values={"name": "ARR",
+                                       "disks": {"DISK1": True,
+                                                 "DISK2": True}})
         b.wait_in_text('#mdraids', "ARR")
 
         b.click('#mdraids tr:contains("ARR")')
         b.wait_visible('#storage-detail')
         self.content_tab_action(1, 1, "Format")
-        self.dialog({ "type": "ext4",
-                      "name": "FS2",
-                      "mounting": "custom",
-                      "mount_point": mount_point_2 })
+        self.dialog({"type": "ext4",
+                     "name": "FS2",
+                     "mounting": "custom",
+                     "mount_point": mount_point_2})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_2)
 

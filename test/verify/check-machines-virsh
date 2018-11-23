@@ -24,6 +24,7 @@ import machineslib
 
 
 class TestMachinesVirsh(machineslib.TestMachines):
+
     def removeLibvirtDBus(self):
         m = self.machine
         if ("debian" in self.machine.image) or ("ubuntu" in self.machine.image):

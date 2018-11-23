@@ -21,7 +21,9 @@
 import parent
 from testlib import *
 
+
 class TestActivePages(MachineCase):
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -39,7 +41,7 @@ class TestActivePages(MachineCase):
             # that's also why we force this click event
             b.click("#active-pages", force=True)
             b.wait_present("#active-pages-dialog")
-            b.call_js_func("ph_count_check", "#active-pages-dialog tbody",  count)
+            b.call_js_func("ph_count_check", "#active-pages-dialog tbody", count)
 
         showPagesAssertCount(1)
         b.click("button.cancel")
@@ -65,7 +67,7 @@ class TestActivePages(MachineCase):
             return '.terminal div:nth-child(%d)' % i
 
         def line_text(t):
-            return t + u'\xa0'*(80-len(t))
+            return t + u'\xa0' * (80 - len(t))
 
         # wait for prompt in first line
         b.wait_text_not(line_sel(1), line_text(""))

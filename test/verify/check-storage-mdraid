@@ -28,6 +28,7 @@ def info_field(name):
 
 
 class TestStorage(StorageCase):
+
     def tearDown(self):
         # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
         print(self.machine.execute("parted -s /dev/md127 print || true"))
@@ -52,9 +53,9 @@ class TestStorage(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.dialog_with_retry(trigger = lambda: self.browser.click('#detail-sidebar .panel-heading button'),
-                               expect = lambda: self.dialog_is_present('disks', name),
-                               values = { "disks": { name: True }})
+        self.dialog_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .panel-heading button'),
+                               expect=lambda: self.dialog_is_present('disks', name),
+                               values={"disks": {name: True}})
 
     def raid_remove_disk(self, name):
         self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
@@ -110,10 +111,10 @@ class TestStorage(StorageCase):
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 2 disks are needed")
-        self.dialog_set_val("disks", { "DISK1": True })
+        self.dialog_set_val("disks", {"DISK1": True})
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 2 disks are needed")
-        self.dialog_set_val("disks", { "DISK2": True, "DISK3": True })
+        self.dialog_set_val("disks", {"DISK2": True, "DISK3": True})
         self.dialog_set_val("level", "raid6")
         self.dialog_apply()
         self.dialog_wait_error("disks", "At least 4 disks are needed")
@@ -126,9 +127,9 @@ class TestStorage(StorageCase):
         b.click('#mdraids tr:contains("ARR")')
         b.wait_visible('#storage-detail')
 
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                           "QEMU QEMU HARDDISK (DISK2)": "In Sync",
-                           "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In Sync",
+                          "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
 
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
@@ -150,14 +151,14 @@ class TestStorage(StorageCase):
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger" % dev)
         wait_degraded_state(True)
 
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "FAILED" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "FAILED"})
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
         self.raid_add_disk("DISK1")
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                           "QEMU QEMU HARDDISK (DISK2)": "In Sync",
-                           "QEMU QEMU HARDDISK (DISK3)": "In Sync" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In Sync",
+                          "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
 
         wait_degraded_state(False)
 
@@ -174,7 +175,7 @@ class TestStorage(StorageCase):
 
         # Partitions also get symlinks in /dev/md/, so they should
         # have names like "/dev/md/ARR1".
-        if self.storaged_version >= [ 2, 6, 3]:
+        if self.storaged_version >= [2, 6, 3]:
             part_prefix = "/dev/md/ARR"
         else:
             # Older storaged versions don't pick them up as the preferred
@@ -184,21 +185,21 @@ class TestStorage(StorageCase):
 
         # Create partition table
         b.click('button:contains(Create partition table)')
-        self.dialog({ "type": "gpt" })
+        self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 
         # Create first partition
         self.content_row_action(1, "Create Partition")
-        self.dialog({ "size": 20,
-                      "type": "ext4",
-                      "name": "One" })
+        self.dialog({"size": 20,
+                     "type": "ext4",
+                     "name": "One"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_row_wait_in_col(1, 2, part_prefix + "1")
 
         # Create second partition
         self.content_row_action(2, "Create Partition")
-        self.dialog({ "type": "ext4",
-                      "name": "Two" })
+        self.dialog({"type": "ext4",
+                     "name": "Two"})
 
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.content_row_wait_in_col(2, 2, part_prefix + "2")
@@ -208,12 +209,12 @@ class TestStorage(StorageCase):
 
         # Add a spare
         self.raid_add_disk("DISK4")
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "Spare" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "Spare"})
 
         # Remove DISK1.  The spare takes over.
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK4)": "In Sync" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "In Sync"})
 
         # Stop the array, destroy a disk, and start the array
         self.raid_default_action("Stop")
@@ -234,7 +235,7 @@ class TestStorage(StorageCase):
         self.confirm()
         with b.wait_timeout(120):
             b.wait_visible("#storage")
-            b.wait_not_in_text ("#mdraids", "ARR")
+            b.wait_not_in_text("#mdraids", "ARR")
 
     def testNotRemovingDisks(self):
         m = self.machine
@@ -256,7 +257,7 @@ class TestStorage(StorageCase):
         b.click("#create-mdraid")
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid5")
-        self.dialog_set_val("disks", { "DISK1": True, "DISK2": True })
+        self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -265,8 +266,8 @@ class TestStorage(StorageCase):
         b.click('#mdraids tr:contains("ARR")')
         b.wait_visible('#storage-detail')
 
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "In Sync",
-                           "QEMU QEMU HARDDISK (DISK2)": "In Sync" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
+                          "QEMU QEMU HARDDISK (DISK2)": "In Sync"})
 
         # All buttons should be disabled when the array is stopped
 
@@ -287,7 +288,7 @@ class TestStorage(StorageCase):
 
         # Adding a spare will allow removal of the "in-sync" disks.
         self.raid_add_disk("DISK3")
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK3)": "Spare" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK3)": "Spare"})
         b.wait_not_present('#detail-sidebar tr:contains(DISK1) button.disabled')
         b.wait_not_present('#detail-sidebar tr:contains(DISK2) button.disabled')
 
@@ -300,7 +301,7 @@ class TestStorage(StorageCase):
         # A failed disk can be removed
         dev = b.text(info_field("Device"))
         m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
-        self.wait_states({ "QEMU QEMU HARDDISK (DISK1)": "FAILED" })
+        self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "FAILED"})
         b.wait_not_present('#detail-sidebar tr:contains(DISK1) button.disabled')
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")

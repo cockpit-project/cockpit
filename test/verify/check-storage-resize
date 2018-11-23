@@ -23,10 +23,12 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 @skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
-    def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount = None, grow_needs_unmount = None,
-                    need_passphrase = False):
+
+    def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,
+                    need_passphrase=False):
         m = self.machine
         b = self.browser
 
@@ -119,7 +121,7 @@ class TestStorage(StorageCase):
     def testResizeLuks(self):
         # Only newer versions of UDisks support resizing encrypted block devices
         if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-x", "fedora-29",
-                                  "fedora-testing", "fedora-i386", "debian-testing" ]:
+                                  "fedora-testing", "fedora-i386", "debian-testing"]:
             self.checkResize("luks+ext4",
                              can_shrink=True, shrink_needs_unmount=True,
                              can_grow=True, grow_needs_unmount=False,

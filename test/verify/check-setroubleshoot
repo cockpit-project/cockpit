@@ -52,9 +52,12 @@ ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localh
 mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
+
 @skipImage("DBus API of setroubleshoot too old", "centos-7")
 class TestSelinux(MachineCase):
-    @skipImage("No setroubleshoot", "continuous-atomic", "debian-stable", "debian-testing", "fedora-atomic", "rhel-atomic", "ubuntu-1804", "ubuntu-stable")
+
+    @skipImage("No setroubleshoot", "continuous-atomic", "debian-stable", "debian-testing",
+               "fedora-atomic", "rhel-atomic", "ubuntu-1804", "ubuntu-stable")
     def testTroubleshootAlerts(self):
         b = self.browser
 
@@ -87,7 +90,9 @@ class TestSelinux(MachineCase):
 
         # a solution is present
         b.wait_present(panel_selector)
-        b.wait_in_text(panel_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+        b.wait_in_text(
+            panel_selector,
+            "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
 
         # ... but we can't apply it automatically
         # there are several solutions this can match against - that's ok, we want at least one to have this message
@@ -97,7 +102,8 @@ class TestSelinux(MachineCase):
         b.click(toggle_selector)
 
         # wait until it is collapsed
-        b.wait_not_in_text(row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
+        b.wait_not_in_text(
+            row_selector, "You must tell SELinux about this by enabling the 'httpd_read_user_content' boolean.")
 
         # now expand again so we can dismiss the alert
         b.click(toggle_selector)
@@ -140,7 +146,8 @@ class TestSelinux(MachineCase):
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "continuous-atomic", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing",
+               "continuous-atomic", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine

@@ -66,11 +66,14 @@ done
 
 TEST_VDSM_CONF_CONTENT = "Dummy content of the vdsm.conf file"
 
-@skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-i386", "fedora-atomic", "rhel-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+
+@skipImage("No oVirt release", "continuous-atomic", "debian-stable", "debian-testing", "fedora-i386",
+           "fedora-atomic", "rhel-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestOVirtMachines(MachineCase):
     provision = {
-        "0": { "address": "10.111.113.1/20" },
-        "ovirt": { "image": "ovirt", "memory_mb": 4096, "forward": { "443": 30000 }} # oVirt API listens on 10.111.113.5:443
+        "0": {"address": "10.111.113.1/20"},
+        # oVirt API listens on 10.111.113.5:443
+        "ovirt": {"image": "ovirt", "memory_mb": 4096, "forward": {"443": 30000}}
     }
 
     access_token = "unknown"
@@ -80,13 +83,14 @@ class TestOVirtMachines(MachineCase):
         self.ovirt = self.machines['ovirt']
         m = self.machine
 
-        m.execute("hostname ovirt.cockpit.lan") # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.es6:getHost()
+        # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.es6:getHost()
+        m.execute("hostname ovirt.cockpit.lan")
 
         self.engine_url = "https://{0}/ovirt-engine/".format(self.ovirt.forward['443']) # from phantomJS
         print(("Engine URL: {0}".format(self.engine_url)))
 
         # Wait for the web service to be accessible
-        args = { "api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": OVIRT_ADDR }
+        args = {"api": "curl -s -k -u admin@internal:engine -H Content-type:application/xml", "addr": OVIRT_ADDR}
         m.execute(script=WAIT_SCRIPT % args, timeout=1000)
 
         # Run the prepared VM
@@ -100,10 +104,12 @@ class TestOVirtMachines(MachineCase):
         # wait for DC to get up
         m = self.machine
         curl = "curl -s -k -u {0}:{1} -H Content-type:application/xml".format(OVIRT_USER, OVIRT_PWD)
-        cmd = "{0} https://{1}/ovirt-engine/api/datacenters?search=name%3DDefault | xmllint --xpath \"string(/data_centers/data_center/@id)\" -".format(curl, OVIRT_ADDR)
+        cmd = "{0} https://{1}/ovirt-engine/api/datacenters?search=name%3DDefault | xmllint --xpath \"string(/data_centers/data_center/@id)\" -".format(
+            curl, OVIRT_ADDR)
         dc_id = m.execute(cmd)
 
-        cmd = "{0} https://{1}/ovirt-engine/api/datacenters/{2} | xmllint --xpath \"string(/data_center/status)\" -".format(curl, OVIRT_ADDR, dc_id)
+        cmd = "{0} https://{1}/ovirt-engine/api/datacenters/{2} | xmllint --xpath \"string(/data_center/status)\" -".format(
+            curl, OVIRT_ADDR, dc_id)
         status = m.execute(cmd)
         if status != "up":
             print(("Data Center status: {0}, waiting for automatic reactivation".format(status)))
@@ -112,7 +118,8 @@ class TestOVirtMachines(MachineCase):
     def enforce_cockpit_ovirt(self):
         # enforce use of cockpit-machines-ovirt instead of cockpit-machines
         m = self.machine
-        m.execute("sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
+        m.execute(
+            "sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
         m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
 
     def pass_install_dialog(self):
@@ -121,14 +128,16 @@ class TestOVirtMachines(MachineCase):
         # The installation dialog calls 'ovirt/install.sh' script, so this simplification is acceptable for the test.
         m = self.machine
 
-        m.execute("bash /usr/share/cockpit/ovirt/install.sh {0} {1} {2}".format(ENGINE_FQDN, ENGINE_PORT, VIRSH_CONNECTION_URI))
+        m.execute(
+            "bash /usr/share/cockpit/ovirt/install.sh {0} {1} {2}".format(ENGINE_FQDN, ENGINE_PORT, VIRSH_CONNECTION_URI))
         # m.execute("sed -i 's/false/true/' /etc/cockpit/machines-ovirt.config") # turn on debug messages
 
         self.access_token = self.get_ovirt_token()
 
     def get_ovirt_token(self):
         m = self.machine
-        response = m.execute("curl --insecure -H 'Accept: application/json' --data 'grant_type=password&scope=ovirt-app-api&username={0}&password={1}' https://{2}:{3}/ovirt-engine/sso/oauth/token".format(OVIRT_USER, OVIRT_PWD, ENGINE_FQDN, ENGINE_PORT))
+        response = m.execute("curl --insecure -H 'Accept: application/json' --data 'grant_type=password&scope=ovirt-app-api&username={0}&password={1}' https://{2}:{3}/ovirt-engine/sso/oauth/token".format(
+            OVIRT_USER, OVIRT_PWD, ENGINE_FQDN, ENGINE_PORT))
         print(response)
         data = json.loads(response)
         token = data['access_token']
@@ -141,11 +150,13 @@ class TestOVirtMachines(MachineCase):
         # For this reason, pkg/ovirt incorrectly modifies vdsm.conf on self.machine and not on self.ovirt.
         # This is fine for production (does not happen there), but the test is adjusted accordingly
         self.machine.execute("mkdir -p /etc/vdsm")
-        self.machine.execute("echo 'original content before test modification' >> {0} && chmod a+w {0} && chmod a+w /etc/vdsm".format(VDSM_CONF_FILE))
+        self.machine.execute(
+            "echo 'original content before test modification' >> {0} && chmod a+w {0} && chmod a+w /etc/vdsm".format(VDSM_CONF_FILE))
 
         # engine's cacert.pem would be normally present on a valid oVirt host
         self.machine.execute("mkdir -p /etc/pki/vdsm/certs")
-        self.machine.execute("curl --insecure 'https://{0}/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA' > {1}".format(OVIRT_ADDR, CA_PEM_FILE))
+        self.machine.execute(
+            "curl --insecure 'https://{0}/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA' > {1}".format(OVIRT_ADDR, CA_PEM_FILE))
 
     def testBasic(self):
         b = self.browser
@@ -259,7 +270,8 @@ class TestOVirtMachines(MachineCase):
         b.wait_in_text("body", "Virtual Machines of Default cluster")
         with b.wait_timeout(180):
             b.wait_present("table > tbody:nth-child(4) > tr.listing-ct-item > th") # at least two VMs are listed
-        b.wait_in_text("table > tbody:nth-child(4) > tr.listing-ct-item > th", "myVMFromBlankTemplate") # check 'name' of the second one
+        b.wait_in_text("table > tbody:nth-child(4) > tr.listing-ct-item > th",
+                       "myVMFromBlankTemplate") # check 'name' of the second one
 
         # check error message by attempt to run an unexecutable VM
         b.wait_present("#cluster-myVMFromBlankTemplate-run") # run button
@@ -275,7 +287,8 @@ class TestOVirtMachines(MachineCase):
         b.set_input_text("textarea", TEST_VDSM_CONF_CONTENT)
         b.click("button:contains('Save')")
         b.wait_present("button:contains('OK')")
-        b.click("button:contains('OK')")  # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().
+        # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().
+        b.click("button:contains('OK')")
         b.wait(lambda: TEST_VDSM_CONF_CONTENT in self.machine.execute("cat {0}".format(VDSM_CONF_FILE)))
 
         # sit(self.machines)
@@ -305,7 +318,9 @@ class TestOVirtMachines(MachineCase):
         #
         # For this reason the test checks just for rendered error which is produced by oVirt API to verify proper action
         # calling and processing on pkg/ovirt side.
-        b.wait_in_text(".modal-footer", "The following Hosts have running VMs and cannot be switched to maintenance mode: host.Please ensure that the following Clusters have at least one Host in UP state: Default.")
+        b.wait_in_text(
+            ".modal-footer",
+            "The following Hosts have running VMs and cannot be switched to maintenance mode: host.Please ensure that the following Clusters have at least one Host in UP state: Default.")
         b.click("#cockpit_modal_dialog button:contains(Cancel)")
         b.wait_not_present("#cockpit_modal_dialog")
 

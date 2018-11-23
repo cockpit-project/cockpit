@@ -33,6 +33,7 @@ BusName=org.storaged.Storaged
 ExecStart=/usr/lib/storaged/storaged
 """
 
+
 class TestStorage(StorageCase):
 
     def testMounting(self):
@@ -74,27 +75,27 @@ class TestStorage(StorageCase):
 
         if not self.storaged_is_old_udisks:
             self.content_tab_wait_in_info(1, 1, "Mount Point", mount_point_foo)
-        self.content_tab_action(1, 1, "Mount");
+        self.content_tab_action(1, 1, "Mount")
         self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_foo)
 
-        self.content_tab_action(1, 1, "Unmount");
+        self.content_tab_action(1, 1, "Unmount")
         if not self.storaged_is_old_udisks:
             b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
 
-        self.content_tab_info_action(1, 1, "Name");
-        self.dialog({ "name": "filesystem" })
+        self.content_tab_info_action(1, 1, "Name")
+        self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
         if not self.storaged_is_old_udisks:
-            self.dialog_with_retry(trigger = lambda: self.content_tab_info_action(1, 1, "Mount Point"),
-                                   expect = { "mounting": "custom",
-                                              "mount_point": mount_point_foo },
-                                   values = { "mount_point": mount_point_bar })
+            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point"),
+                                   expect={"mounting": "custom",
+                                           "mount_point": mount_point_foo},
+                                   values={"mount_point": mount_point_bar})
             self.wait_in_storaged_configuration(mount_point_bar)
         else:
             mount_point_bar = self.mount_root + "/admin/filesystem"
 
-        self.content_tab_action(1, 1, "Mount");
+        self.content_tab_action(1, 1, "Mount")
         self.content_tab_wait_in_info(1, 1, "Mounted At", mount_point_bar)
 
         # Go to overview page and check that the filesystem usage is
@@ -130,18 +131,18 @@ class TestStorage(StorageCase):
 
         if not self.storaged_is_old_udisks:
             b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
-            self.content_tab_info_action(1, 1, "Mount Point");
-            self.dialog(values = { "mounting": "default" })
+            self.content_tab_info_action(1, 1, "Mount Point")
+            self.dialog(values={"mounting": "default"})
             self.wait_not_in_storaged_configuration(mount_point_bar)
 
-            self.content_tab_action(1, 1, "Mount");
+            self.content_tab_action(1, 1, "Mount")
             self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
 
-            self.content_tab_action(1, 1, "Unmount");
+            self.content_tab_action(1, 1, "Unmount")
             b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
 
         self.content_tab_action(1, 1, "Format")
-        self.dialog({ "type": "empty" })
+        self.dialog({"type": "empty"})
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
 
     def testMountOptions(self):

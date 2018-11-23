@@ -21,8 +21,9 @@
 import parent
 from testlib import *
 
+
 class TestTerminal(MachineCase):
-    provision = { "machine1": { "dns": "127.0.0.1" } }
+    provision = {"machine1": {"dns": "127.0.0.1"}}
 
     def testBasic(self):
         b = self.browser
@@ -41,7 +42,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         def line_sel(i):
             return '.terminal div:nth-child(%d)' % i
 
-        def wait_line(i,t):
+        def wait_line(i, t):
             b.wait_in_text(line_sel(i), t)
 
         b.wait_present('.terminal')

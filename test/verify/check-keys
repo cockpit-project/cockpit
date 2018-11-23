@@ -25,11 +25,12 @@ FP_MD5 = "93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
 FP_SHA256 = "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
 KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQWnT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIyeYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test-name"
 
+
 class TestKeys(MachineCase):
+
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser
-
 
         # Create a user without any role
         m.execute("useradd user -s /bin/bash -m -c 'User' || true")
@@ -53,7 +54,7 @@ class TestKeys(MachineCase):
             b.wait_visible('#go-account')
             b.click('#go-account')
             b.enter_page("/users")
-            b.wait_text("#account-user-name", user);
+            b.wait_text("#account-user-name", user)
 
         def add_key(key, fp_md5, fp_sh256, comment):
             b.click('#authorized-key-add')
@@ -75,7 +76,7 @@ class TestKeys(MachineCase):
         # no keys
         login("user", "foobar", "User")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         # add bad
         b.click('#authorized-key-add')
@@ -96,8 +97,9 @@ class TestKeys(MachineCase):
 
         # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
         if not "ubuntu" in m.image and not "debian" in m.image:
-            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "You do not have permission")
-            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+            b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child",
+                           "You do not have permission")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         b.logout()
 
@@ -109,7 +111,7 @@ class TestKeys(MachineCase):
         login("admin", "foobar", "Administrator")
         b.go("#/user")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         # Adding keys sets permissions properly
         b.wait_text("#account-user-name", "user")
@@ -126,23 +128,23 @@ class TestKeys(MachineCase):
         # Add invalid key directly
         m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
-        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  2)
+        b.call_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 2)
 
         # Removing the key
-        b.click("#account-authorized-keys-list div.list-group-item:last-child button");
+        b.click("#account-authorized-keys-list div.list-group-item:last-child button")
         b.wait_not_in_text("#account-authorized-keys-list div.list-group-item:last-child", "Invalid key")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
-        self.assertEqual(data, KEY+'\n')
+        self.assertEqual(data, KEY + '\n')
         b.logout()
 
         # User can still see their keys
         login("user", "foobar", "User")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "test-name")
 
-        b.click("#account-authorized-keys-list div.list-group-item:first-child button");
+        b.click("#account-authorized-keys-list div.list-group-item:first-child button")
         b.wait_in_text("#account-authorized-keys-list div.list-group-item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item",  1);
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list div.list-group-item", 1)
 
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
@@ -172,11 +174,11 @@ class TestKeys(MachineCase):
         m.execute("chown -R admin:admin /home/admin/.ssh")
 
         # Determine OpenSSH version
-        ver = m.execute("ssh -V 2>&1 |  grep -Eo 'OpenSSH_[[:digit:]]+.[[:digit:]]+'");
+        ver = m.execute("ssh -V 2>&1 |  grep -Eo 'OpenSSH_[[:digit:]]+.[[:digit:]]+'")
         if ver:
             openssh_version = [int(x) for x in ver.split("_")[1].split(".")]
         else:
-            openssh_version = [ 0 ]
+            openssh_version = [0]
 
         self.login_and_go()
 
@@ -209,7 +211,7 @@ class TestKeys(MachineCase):
         assert b.is_present("tbody[data-name=id_rsa] li.active:contains('Details')")
         self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-comment"), "test@test")
         self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-type"), "RSA")
-        text = b.text("tbody[data-name=id_rsa] .credential-fingerprint");
+        text = b.text("tbody[data-name=id_rsa] .credential-fingerprint")
         if "SHA256" in text:
             self.assertEqual(text, id_rsa[5:])
         else:
@@ -312,7 +314,7 @@ class TestKeys(MachineCase):
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
 
-        if openssh_version >= [ 7, 8 ]:
+        if openssh_version >= [7, 8]:
             new_key_tbody = "tbody:contains('root@')"
         else:
             new_key_tbody = "tbody[data-name='/tmp/new.rsa']"
@@ -331,7 +333,7 @@ class TestKeys(MachineCase):
 
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
-        if openssh_version >= [ 7, 8 ]:
+        if openssh_version >= [7, 8]:
             # "agent_only" keys cannot be turned off, or have their passwords changed
             assert b.is_visible(new_key_tbody + " .btn.active.disabled:contains('On')")
         else:

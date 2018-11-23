@@ -17,11 +17,13 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 # We really want nested virtualization
-if [ -d /sys/module/kvm_intel -a -d /etc/modprobe.d -a ! -f /etc/modprobe.d/kvm-intel.conf ]; then
-    echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
-    rmmod kvm-intel && modprobe kvm-intel || true
+if [-d / sys / module / kvm_intel - a - d / etc / modprobe.d - a ! - f / etc / modprobe.d / kvm - intel.conf]
+then
+    echo "options kvm-intel nested=1" > /etc / modprobe.d / kvm - intel.conf
+    rmmod kvm - intel & & modprobe kvm - intel | | true
 fi
-if [ -d /sys/module/kvm_amd -a -d /etc/modprobe.d -a ! -f /etc/modprobe.d/kvm-amd.conf ]; then
-    echo "options kvm-amd nested=1" > /etc/modprobe.d/kvm-amd.conf
-    rmmod kvm-amd && modprobe kvm-amd || true
+if [-d / sys / module / kvm_amd - a - d / etc / modprobe.d - a ! - f / etc / modprobe.d / kvm - amd.conf]
+then
+    echo "options kvm-amd nested=1" > /etc / modprobe.d / kvm - amd.conf
+    rmmod kvm - amd & & modprobe kvm - amd | | true
 fi

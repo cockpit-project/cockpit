@@ -26,6 +26,7 @@ import atomiclib
 import parent
 from testlib import *
 
+
 def break_hostkey(m, address, filename=None):
     if not filename:
         filename = "/etc/ssh/ssh_known_hosts"
@@ -35,21 +36,25 @@ def break_hostkey(m, address, filename=None):
     line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
     m.execute("echo '{0}'> {1}".format(line, filename))
 
+
 def fix_hostkey(m, key=None, filename=None):
     if not filename:
         filename = "/etc/ssh/ssh_known_hosts"
 
     if not key:
-        key = '';
+        key = ''
 
     m.execute('touch {}'.format(filename))
     m.execute("echo '{0}' > {1}".format(key, filename))
 
+
 def break_bridge(m):
     m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
 
+
 def fix_bridge(m):
     m.execute("rm /usr/local/bin/cockpit-bridge")
+
 
 def check_failed_state(b, expected_title):
     b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
@@ -57,6 +62,7 @@ def check_failed_state(b, expected_title):
     b.wait_in_text('#troubleshoot-dialog h4', expected_title)
     b.click("#troubleshoot-dialog .btn-default")
     b.wait_popdown('troubleshoot-dialog')
+
 
 def start_machine_troubleshoot(b, new=False, known_host=False):
     b.wait_visible("#machine-troubleshoot")
@@ -71,10 +77,12 @@ def start_machine_troubleshoot(b, new=False, known_host=False):
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
             b.click('#troubleshoot-dialog .btn-primary')
 
+
 def fail_login(b):
     b.click('#troubleshoot-dialog .btn-primary')
     b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
     b.wait_in_text("#troubleshoot-dialog .dialog-error", "Login failed")
+
 
 def add_machine(b, address, known_host=False):
     b.switch_to_top()
@@ -83,8 +91,10 @@ def add_machine(b, address, known_host=False):
     b.wait_popdown('troubleshoot-dialog')
     b.enter_page("/system", host=address)
 
+
 def kill_user_admin(machine):
     machine.execute("loginctl terminate-user admin")
+
 
 def change_ssh_port(machine, address, port=None, timeout_sec=120):
     try:
@@ -97,7 +107,8 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     machine.execute("firewall-cmd --reload || true")
     machine.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
     machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
-    machine.execute("printf 'ListenAddress 127.27.0.15:22\nListenAddress {0}:{1}\n' >> /etc/ssh/sshd_config".format(address, port))
+    machine.execute(
+        "printf 'ListenAddress 127.27.0.15:22\nListenAddress {0}:{1}\n' >> /etc/ssh/sshd_config".format(address, port))
 
     # We stop the sshd.socket unit and just go with a regular
     # daemon.  This is more portable and reloading/restarting the
@@ -109,18 +120,20 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     error = None
     while (time.time() - start_time) < timeout_sec:
         try:
-            machine.execute("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {0} {1} 2>&1 | grep -q 'Permission denied'".format(port, address), quiet=True)
+            machine.execute(
+                "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {0} {1} 2>&1 | grep -q 'Permission denied'".format(port, address), quiet=True)
             return
         except Exception as e:
             error = e
         time.sleep(0.5)
     raise error
 
+
 class TestMultiMachineAdd(MachineCase):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "machine2": { "address": "10.111.113.2/20" },
-        "machine3": { "address": "10.111.113.3/20" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
+        "machine3": {"address": "10.111.113.3/20"},
     }
 
     def setUp(self):
@@ -215,11 +228,12 @@ class TestMultiMachineAdd(MachineCase):
         b.wait_present("#dashboard-hosts a[data-address='m3'] img")
         b.wait_attr("#dashboard-hosts a[data-address='m3'] img", 'src', '../shell/images/server-small.png')
 
+
 class TestMultiMachine(MachineCase):
     provision = {
-        "machine1": { "address": "10.111.113.1/20" },
-        "machine2": { "address": "10.111.113.2/20" },
-        "machine3": { "address": "10.111.113.3/20" },
+        "machine1": {"address": "10.111.113.1/20"},
+        "machine2": {"address": "10.111.113.2/20"},
+        "machine3": {"address": "10.111.113.3/20"},
     }
 
     def setUp(self):
@@ -240,7 +254,7 @@ class TestMultiMachine(MachineCase):
         m2.execute("echo 'NAME=\"A Pretty Name\"' >> /etc/os-release")
 
         b.switch_to_top()
-        b.go("{}/system".format(root));
+        b.go("{}/system".format(root))
         b.enter_page("/system")
         b.wait_in_text('#system_information_hostname_button', name.strip())
         b.switch_to_top()
@@ -267,7 +281,7 @@ class TestMultiMachine(MachineCase):
         b.switch_to_top()
 
         # Branding uses m2 pretty name
-        b.wait_in_text ("#index-brand", "A Pretty Name")
+        b.wait_in_text("#index-brand", "A Pretty Name")
         b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
         m2_dashboard_name = "machine2"
 
@@ -355,7 +369,8 @@ class TestMultiMachine(MachineCase):
         assert match
         (hash_fn, algo) = match.groups()
         try:
-            line = m2.execute("ssh-keygen -l -E %s -f /etc/ssh/ssh_host_%s_key.pub" % (hash_fn, algo.lower()), quiet=True)
+            line = m2.execute("ssh-keygen -l -E %s -f /etc/ssh/ssh_host_%s_key.pub" %
+                              (hash_fn, algo.lower()), quiet=True)
             # SHA256 base64 fingerprints include an "SHA256:" prefix, but MD5 hex FPs don't
             fp = line.split(" ")[1].replace('MD5:', '')
             self.assertEqual(b.val('#conversation-input'), fp)
@@ -443,15 +458,17 @@ class TestMultiMachine(MachineCase):
 
         self.login_and_go("/dashboard")
         add_machine(b, "10.111.113.2")
-        self.checkDirectLogin('/');
+        self.checkDirectLogin('/')
 
-    @skipImage("test VM image does not have FIPS support", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic")
+    @skipImage("test VM image does not have FIPS support", "debian-stable",
+               "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic")
     def testFIPS(self):
         b = self.browser
 
         # enable FIPS
         self.machine.execute(r'grubby --update-kernel=$(grubby --default-kernel) --args=fips=1')
-        self.machine.execute(r'uuid=$(findmnt -no uuid /boot); [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}')
+        self.machine.execute(
+            r'uuid=$(findmnt -no uuid /boot); [ -n "$uuid" ] && grubby --update-kernel=$(grubby --default-kernel) --args=boot=UUID=${uuid}')
         self.machine.spawn('sync && sync && sync && sleep 0.1 && reboot', 'reboot')
         self.machine.wait_reboot()
         # ensure it's really enabled
@@ -459,7 +476,7 @@ class TestMultiMachine(MachineCase):
 
         self.login_and_go("/dashboard")
         add_machine(b, "10.111.113.2")
-        self.checkDirectLogin('/');
+        self.checkDirectLogin('/')
 
     def testUrlRoot(self):
         b = self.browser
@@ -518,8 +535,7 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/users"')
         b.wait_js_cond('window.location.hash == "#/admin"')
 
-
-        self.checkDirectLogin('/cockpit-new/');
+        self.checkDirectLogin('/cockpit-new/')
         self.allow_hostkey_messages()
 
     def testUrlRootWithQuery(self):
@@ -590,16 +606,16 @@ class TestMultiMachine(MachineCase):
         # Go to the path, remove the image
         b.go(m2_path)
         b.enter_page("/playground/test", "10.111.113.2")
-        b.wait_present("img[src='hammer.gif']");
-        b.wait_visible("img[src='hammer.gif']");
-        b.click("img[src='hammer.gif']");
+        b.wait_present("img[src='hammer.gif']")
+        b.wait_visible("img[src='hammer.gif']")
+        b.click("img[src='hammer.gif']")
         b.switch_to_top()
 
         # kill admin, lock account
         m2.execute('passwd -l admin')
         kill_user_admin(m2)
 
-        b.wait_present(".curtains-ct");
+        b.wait_present(".curtains-ct")
         b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
         self.assertEqual(b.text("#machine-reconnect"), "Reconnect")
 
@@ -611,7 +627,7 @@ class TestMultiMachine(MachineCase):
 
         # navigating there again will fail
         b.go(m2_path)
-        b.wait_present(".curtains-ct");
+        b.wait_present(".curtains-ct")
         b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
         self.assertEqual(b.text("#machine-reconnect"), "Reconnect")
         self.assertTrue(b.is_present("#machine-reconnect:not(.disabled)"))
@@ -631,7 +647,7 @@ class TestMultiMachine(MachineCase):
         b.go(m2_path)
         b.enter_page("/playground/test", "10.111.113.2", reconnect=True)
         # image is back because it page was reloaded after disconnection
-        b.wait_present("img[src='hammer.gif']");
+        b.wait_present("img[src='hammer.gif']")
         b.switch_to_top()
 
         # Dashboard shows it as up
@@ -643,7 +659,7 @@ class TestMultiMachine(MachineCase):
 
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")
-        b.wait_present(".curtains-ct");
+        b.wait_present(".curtains-ct")
         b.wait_text(".curtains-ct h1", "Couldn't connect to the machine")
         self.assertEqual(b.text(".curtains-ct p"), "Cannot connect to an unknown machine")
 
@@ -676,7 +692,6 @@ class TestMultiMachine(MachineCase):
         b.wait_text('#file-content', "0")
         b.click("#modify-file")
         b.wait_text('#file-content', "1")
-
 
         # load the same page on m1
         b.switch_to_top()
@@ -796,9 +811,9 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.text("#login-type button span"), "Type a password")
-        b.click("#login-type button");
-        b.click("#login-type li[value=stored] a");
-        b.wait_in_text("#login-type button span", "Using available credentials");
+        b.click("#login-type button")
+        b.click("#login-type li[value=stored] a")
+        b.wait_in_text("#login-type button span", "Using available credentials")
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
         b.wait_in_text("#login-available", "Login Password")
@@ -807,9 +822,9 @@ class TestMultiMachine(MachineCase):
 
         fail_login(b)
 
-        b.click("#login-type button");
-        b.click("#login-type li[value=password] a");
-        b.wait_in_text("#login-type button span", "Type a password");
+        b.click("#login-type button")
+        b.click("#login-type li[value=password] a")
+        b.wait_in_text("#login-type button span", "Type a password")
         b.wait_visible("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.val("#login-custom-password"), "")
@@ -854,7 +869,8 @@ class TestMultiMachine(MachineCase):
         b.set_val("#edit-machine-port", "2222")
         b.click('#troubleshoot-dialog .btn-primary')
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        if m1.image not in ['rhel-7-6', 'rhel-7-6-distropkg', 'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1804']:
+        if m1.image not in ['rhel-7-6', 'rhel-7-6-distropkg',
+                            'rhel-atomic', 'debian-stable', 'centos-7', 'ubuntu-1804']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
             b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
@@ -891,9 +907,9 @@ class TestMultiMachine(MachineCase):
         b.wait_present("#login-diff-password")
         b.wait_not_visible("#login-available")
         self.assertEqual(b.text("#login-type button span"), "Type a password")
-        b.click("#login-type button");
-        b.click("#login-type li[value=stored] a");
-        b.wait_in_text("#login-type button span", "Using available credentials");
+        b.click("#login-type button")
+        b.click("#login-type li[value=stored] a")
+        b.wait_in_text("#login-type button span", "Using available credentials")
         b.wait_not_visible("#login-diff-password")
         b.wait_visible("#login-available")
 

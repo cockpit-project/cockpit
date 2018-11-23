@@ -26,8 +26,10 @@ import glob
 import parent
 from testlib import *
 
+
 @skipImage("No sosreport", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
 class TestSOS(MachineCase):
+
     def testBasic(self):
         b = self.browser
 

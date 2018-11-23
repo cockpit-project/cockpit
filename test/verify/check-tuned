@@ -21,8 +21,10 @@
 import parent
 from testlib import *
 
+
 @skipImage("No tuned packaged", "debian-stable", "fedora-atomic")
 class TestTuned(MachineCase):
+
     def testBasic(self):
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
@@ -64,7 +66,7 @@ class TestTuned(MachineCase):
         b.relogin('/system', authorized=False)
         b.wait_present('#system-info-performance a.action-trigger.disabled')
         b.wait_text('#system-info-performance a.action-trigger.disabled', recommended_profile)
-        check_status_tooltip('The user admin is not permitted to change profiles');
+        check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
         b.wait_present('#system-info-performance a.action-trigger')
         b.wait_visible('#system-info-performance a.action-trigger')

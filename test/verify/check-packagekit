@@ -36,8 +36,10 @@ for x in $(seq 1 200); do
 done
 """
 
+
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestUpdates(PackageCase):
+
     def setUp(self):
         PackageCase.setUp(self)
 
@@ -51,24 +53,25 @@ class TestUpdates(PackageCase):
         else:
             self.enhancement_severity = "bug"
 
-    def check_nth_update(self, index, pkgname, version, severity="bug", num_issues=None, desc_matches=[], cves=[], bugs=[]):
+    def check_nth_update(self, index, pkgname, version, severity="bug",
+                         num_issues=None, desc_matches=[], cves=[], bugs=[]):
         """Check the contents of the package update table row at index
 
         None properties will not be tested.
         """
         b = self.browser
         row = "#app .listing-ct tbody:nth-of-type(%i) " % index
-        severity_to_icon = { "bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security" }
+        severity_to_icon = {"bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security"}
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
                 self.assertEqual(b.text(row + "th > span:nth-of-type(%i)" % idx), pkg)
         else:
-            self.assertEqual(b.text(row +"th span"), pkgname)
-            b.mouse(row +"th span", "mouseover")
+            self.assertEqual(b.text(row + "th span"), pkgname)
+            b.mouse(row + "th span", "mouseover")
             b.wait_present("div.tooltip")
             b.wait_text("div.tooltip", "dummy " + pkgname)
-            b.mouse(row +"th span", "mouseout")
+            b.mouse(row + "th span", "mouseout")
             b.wait_not_present("div.tooltip")
         self.assertEqual(b.text(row + "td:nth-of-type(2)"), version)
         # verify type
@@ -85,7 +88,7 @@ class TestUpdates(PackageCase):
         desc = b.text(row + ".listing-ct-body")
 
         # details should contain all description bits, CVEs and bug numbers
-        for m in desc_matches +  cves + bugs:
+        for m in desc_matches + cves + bugs:
             self.assertIn(m, desc)
 
         return row
@@ -97,7 +100,7 @@ class TestUpdates(PackageCase):
         good_count = 0
         for retry in range(60):
             classes = self.browser.attr("#system_information_updates_icon", "class")
-            if classes is None  or "spinner" in classes:
+            if classes is None or "spinner" in classes:
                 good_count = 0
             else:
                 good_count += 1
@@ -236,10 +239,12 @@ class TestUpdates(PackageCase):
 
         # just changelog
         self.createPackage("norefs-bin", "1", "1", install=True)
-        self.createPackage("norefs-bin", "2", "1", severity="enhancement", changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
+        self.createPackage("norefs-bin", "2", "1", severity="enhancement",
+                           changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
         # binary from same source
         self.createPackage("norefs-doc", "1", "1", install=True)
-        self.createPackage("norefs-doc", "2", "1", severity="enhancement", changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
+        self.createPackage("norefs-doc", "2", "1", severity="enhancement",
+                           changes="Now 10% *more* [unicorns](http://unicorn.example.com)")
         # bug fixes
         self.createPackage("buggy", "2", "1", install=True)
         self.createPackage("buggy", "2", "2", changes="* Fixit", bugs=[123, 456])
@@ -559,7 +564,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#state", "Applying updates failed")
 
         b.wait_present("#app .container-fluid pre")
-        self.assertRegexpMatches(b.text("#app .container-fluid pre:first-of-type"), "missing|downloading|not.*available|No such file or directory")
+        self.assertRegexpMatches(b.text("#app .container-fluid pre:first-of-type"),
+                                 "missing|downloading|not.*available|No such file or directory")
 
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
@@ -577,7 +583,8 @@ class TestUpdates(PackageCase):
         install_lockfile = "/tmp/finish-pk"
         # updating this package takes longer than a cockpit start and building the page
         self.createPackage("slow", "1", "1", install=True)
-        self.createPackage("slow", "1", "2",  postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+        self.createPackage(
+            "slow", "1", "2", postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
         self.enableRepo()
         m.execute("pkcon refresh")
 
@@ -682,16 +689,18 @@ class TestUpdates(PackageCase):
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28", "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing", "fedora-28",
+           "fedora-29", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
-        "0": { "address": "10.111.113.2/20", "dns": "10.111.113.2" },
-        "candlepin": { "image": "candlepin", "address": "10.111.113.5/20" }
+        "0": {"address": "10.111.113.2/20", "dns": "10.111.113.2"},
+        "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
     }
 
     def register(self):
         # this fails with "Unable to find available subscriptions for all your installed products", but works anyway
-        self.machine.execute("subscription-manager register --insecure --serverurl https://10.111.113.5:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
+        self.machine.execute(
+            "subscription-manager register --insecure --serverurl https://10.111.113.5:8443/candlepin --org=admin --activationkey=awesome_os_pool || true")
         self.machine.execute("subscription-manager attach --auto")
 
     def setUp(self):
@@ -717,7 +726,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        m.execute(script=WAIT_SCRIPT % { "addr": "10.111.113.5" })
+        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.113.5"})
 
     def testNoUpdates(self):
         m = self.machine
@@ -821,6 +830,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
 class TestAutoUpdates(PackageCase):
+
     def setUp(self):
         PackageCase.setUp(self)
 
@@ -1010,7 +1020,8 @@ class TestAutoUpdates(PackageCase):
         # new vanilla package got installed, and triggered reboot; cancel that
         m.execute("set -e; test -f /stamp-vanilla-1.0-2; test -f /run/nologin; shutdown -c; test ! -f /run/nologin")
         # service should show vanilla upgrade and scheduling shutdown
-        out = m.execute("if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+        out = m.execute(
+            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
         self.assertIn("vanilla", out)
         self.assertIn("Shutdown scheduled", out)
 
@@ -1018,7 +1029,8 @@ class TestAutoUpdates(PackageCase):
         m.execute("systemctl start dnf-automatic-install.service")
         m.execute("set -e; test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
         # service should not do much
-        out = m.execute("if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
+        out = m.execute(
+            "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
         self.assertNotIn("vanilla", out)
         self.assertNotIn("Shutdown", out)
 
@@ -1078,11 +1090,11 @@ OnUnitInactiveSec=1d
 [Install]
 WantedBy=basic.target
         '''
-        self.createPackage('dnf-automatic', '1', '1', content = {
+        self.createPackage('dnf-automatic', '1', '1', content={
             '/etc/dnf/automatic.conf': '',
             '/usr/lib/systemd/system/dnf-automatic.timer': timerContent,
             '/usr/lib/systemd/system/dnf-automatic-install.timer': timerContent
-        });
+        })
         self.enableRepo()
 
         m.start_cockpit()

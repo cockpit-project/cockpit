@@ -26,6 +26,7 @@ import os
 import functools
 import time
 
+
 def readFile(name):
     content = ''
     if os.path.exists(name):
@@ -33,7 +34,7 @@ def readFile(name):
             content = f.read().replace('\n', '')
     return content
 
-SPICE_XML="""
+SPICE_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
       <alias name='video0'/>
@@ -44,7 +45,7 @@ SPICE_XML="""
     </graphics>
 """
 
-VNC_XML="""
+VNC_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
       <alias name='video0'/>
@@ -54,14 +55,14 @@ VNC_XML="""
     </graphics>
 """
 
-CONSOLE_XML="""
+CONSOLE_XML = """
     <console type='file'>
       <target type='serial' port='0'/>
       <source path='{log}'/>
     </console>
 """
 
-PTYCONSOLE_XML="""
+PTYCONSOLE_XML = """
     <serial type='pty'>
       <source path='/dev/pts/3'/>
       <target port='0'/>
@@ -74,7 +75,7 @@ PTYCONSOLE_XML="""
     </console>
 """
 
-DOMAIN_XML="""
+DOMAIN_XML = """
 <domain type='qemu'>
   <name>{name}</name>
   <vcpu>1</vcpu>
@@ -112,7 +113,7 @@ DOMAIN_XML="""
 </domain>
 """
 
-POOL_XML="""
+POOL_XML = """
 <pool type='dir'>
   <name>images</name>
   <target>
@@ -121,7 +122,7 @@ POOL_XML="""
 </pool>
 """
 
-VOLUME_XML="""
+VOLUME_XML = """
 <volume type='file'>
   <name>{name}</name>
   <key>{image}</key>
@@ -137,6 +138,7 @@ VOLUME_XML="""
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
 # rmmod kvm-intel && modprobe kvm-intel || true
 
+
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
 class TestMachines(MachineCase):
     created_pool = False
@@ -148,8 +150,10 @@ class TestMachines(MachineCase):
 
         # enforce use of cockpit-machines instead of cockpit-machines-ovirt
         m = self.machine
-        m.execute("sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
-        m.execute("[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
+        m.execute(
+            "sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
+        m.execute(
+            "[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 
@@ -347,8 +351,10 @@ class TestMachines(MachineCase):
         b.wait_visible("#vm-subVmTest2-run")
         b.click("#vm-subVmTest2-run")
         b.click("#vm-subVmTest2-run") # make use of slow processing - the button is still present; will cause error
-        b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert") # triangle by status
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification with error
+        # triangle by status
+        b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
+        # inline notification with error
+        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
         b.wait_in_text("#vm-subVmTest2-last-message", "VM START action failed")
 
         b.wait_present("a.alert-link.machines-more-button") # more/less button
@@ -359,13 +365,18 @@ class TestMachines(MachineCase):
 
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "domain is already running")
+            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+                           "domain is already running")
         else:
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p", "Domain is already active")
+            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+                           "Domain is already active")
 
         b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
-        b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning") # inline notification is gone
-        b.wait_not_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert") # triangle by status is gone
+        # inline notification is gone
+        b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
+        # triangle by status is gone
+        b.wait_not_present(
+            "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser
@@ -482,7 +493,8 @@ class TestMachines(MachineCase):
 
         # Test add disk by external action
         m.execute("qemu-img create -f raw /var/lib/libvirt/images/image3.img 128M")
-        m.execute("virsh attach-disk subVmTest1 /var/lib/libvirt/images/image3.img vdc") # attach to the virtio bus instead of ide
+        # attach to the virtio bus instead of ide
+        m.execute("virsh attach-disk subVmTest1 /var/lib/libvirt/images/image3.img vdc")
 
         b.wait_in_text("#vm-subVmTest1-disks-hda-target", "hda")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-target", "hdb")
@@ -564,7 +576,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vde-target", "vde")
         b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vde-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vde-source", "/mnt/vm_one/mydiskofpoolone_temporary") # should be gone after shut down
+        # should be gone after shut down
+        b.wait_in_text("#vm-subVmTest1-disks-vde-source", "/mnt/vm_one/mydiskofpoolone_temporary")
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-permanent")
@@ -580,14 +593,16 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vda-target", "vda")
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vda-source", "/mnt/vm_one/mydiskofpoolone_permanent") # should survive the shut down
+        b.wait_in_text("#vm-subVmTest1-disks-vda-source",
+                       "/mnt/vm_one/mydiskofpoolone_permanent") # should survive the shut down
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
-        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)") # since both disks are already attached
+        # since both disks are already attached
+        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
         b.wait_not_present("#add-disk-dialog")
 
@@ -719,7 +734,7 @@ class TestMachines(MachineCase):
 
         # Set new socket value
         b.wait_present("#socketsSelect li[data-value=2] a")
-        b.click("#socketsSelect button");
+        b.click("#socketsSelect button")
         b.click("#socketsSelect li[data-value=2] a")
         b.wait_in_text("#socketsSelect button", "2")
         b.wait_in_text("#coresSelect button", "1")
@@ -781,7 +796,7 @@ class TestMachines(MachineCase):
 
         # Set new socket value
         b.wait_present("#coresSelect li[data-value=2] a")
-        b.click("#coresSelect button");
+        b.click("#coresSelect button")
         b.click("#coresSelect li[data-value=2] a")
         b.wait_in_text("#coresSelect button", "2")
         b.wait_in_text("#socketsSelect button", "2")
@@ -791,7 +806,8 @@ class TestMachines(MachineCase):
         b.click("#machines-vcpu-modal-dialog-apply")
         b.wait_not_present("#machines-vcpu-modal-dialog")
 
-        wait(lambda: m.execute("virsh dumpxml subVmTest1 | tee /tmp/subVmTest1.xml | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
+        wait(lambda: m.execute(
+            "virsh dumpxml subVmTest1 | tee /tmp/subVmTest1.xml | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -"))
 
         # Run VM - this ensures that the internal state is updated before we move on.
         # We need this here because we can't wait for UI updates after we open the modal dialog.
@@ -812,7 +828,8 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
 
         # Check value of sockets, threads and cores from VM dumpxml
-        m.execute("virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
+        m.execute(
+            "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/cpu/topology[@sockets=\"2\"][@threads=\"1\"][@cores=\"2\"]' -")
 
     # HACK: broken with Chromium > 63, see https://github.com/cockpit-project/cockpit/pull/9229
     @unittest.skip("Broken with current chromium, see PR #9229")
@@ -841,7 +858,8 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-consoles-launch") # "Launch Remote Viewer" button
         b.click("#vm-subVmTest1-consoles-launch")
         b.wait_present("#dynamically-generated-file") # is .vv file generated for download?
-        self.assertEqual(b.attr("#dynamically-generated-file", "href"), u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
+        self.assertEqual(b.attr("#dynamically-generated-file", "href"),
+                         u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
     def testInlineConsole(self):
         b = self.browser
@@ -1144,6 +1162,7 @@ class TestMachines(MachineCase):
             'system': 'QEMU/KVM System connection'}
 
     class VmDialog:
+
         def __init__(self, test_obj, name, is_filesystem_location=True, location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=1, storage_size_unit='GiB',
@@ -1311,7 +1330,8 @@ class TestMachines(MachineCase):
                         break
                     time.sleep(5)
                 else:
-                    raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (', '.join(errors), b.text(error_location)))
+                    raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
+                        ', '.join(errors), b.text(error_location)))
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors
@@ -1320,8 +1340,8 @@ class TestMachines(MachineCase):
                 error_message = b.text(location)
 
                 if "CPU is incompatible with host CPU" not in error_message and \
-                                "unsupported configuration: CPU mode" not in error_message and \
-                                "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
+                    "unsupported configuration: CPU mode" not in error_message and \
+                        "CPU mode 'custom' for x86_64 kvm domain on x86_64 host is not supported by hypervisor" not in error_message:
                     raise original_exception
 
             b.click(".modal-footer button:contains(Create)")
@@ -1358,6 +1378,7 @@ class TestMachines(MachineCase):
             return self
 
     class CreateVmRunner:
+
         def __init__(self, test_obj):
             self.browser = test_obj.browser
             self.machine = test_obj.machine

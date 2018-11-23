@@ -22,7 +22,9 @@ import parent
 from testlib import *
 import testvm
 
+
 class TestServices(MachineCase):
+
     def setUp(self):
         MachineCase.setUp(self)
 
@@ -36,7 +38,7 @@ class TestServices(MachineCase):
         b = self.browser
 
         m.write("/etc/systemd/system/test.service",
-"""
+                """
 [Unit]
 Description=Test Service
 
@@ -47,7 +49,7 @@ ExecStart=/bin/sh /usr/local/bin/test-service
 WantedBy=default.target
 """)
         m.write("/usr/local/bin/test-service",
-"""
+                """
 #! /bin/sh
 
 trap "echo STOP" 0
@@ -59,7 +61,7 @@ while true; do
 done
 """)
         m.write("/etc/systemd/system/test-fail.service",
-"""
+                """
 [Unit]
 Description=Failing Test Service
 
@@ -67,7 +69,7 @@ Description=Failing Test Service
 ExecStart=/usr/bin/false
 """)
         m.write("/etc/systemd/system/test-template@.service",
-"""
+                """
 [Unit]
 Description=Test Template for %I
 
@@ -75,7 +77,7 @@ Description=Test Template for %I
 ExecStart=/usr/local/bin/test-service %I
 """)
         m.write("/etc/systemd/system/test.timer",
-"""
+                """
 [Unit]
 Description=Test Timer
 
@@ -83,7 +85,7 @@ Description=Test Timer
 OnCalendar=*:1/2
 """)
         m.write("/etc/systemd/system/test-onboot.timer",
-"""
+                """
 [Unit]
 Description=Test OnBoot Timer
 
@@ -102,7 +104,7 @@ Unit=test.service
             return 'tr[data-goto-unit="%s"]' % service
 
         def wait_service_state(service, state):
-            b.wait_present(svc_sel(service));
+            b.wait_present(svc_sel(service))
             b.wait_in_text(svc_sel(service), state)
 
         def wait_service_in_panel(service, title):
@@ -156,7 +158,6 @@ Unit=test.service
         b.wait_in_text('#service-log', "START")
         b.wait_in_text('#service-log', "WORKING")
 
-
         self.allow_authorize_journal_messages()
         b.relogin('/system/services#/test.service', authorized=False)
         b.wait_present('#service-unit')
@@ -208,7 +209,7 @@ Unit=test.service
         b = self.browser
 
         m.write("/etc/systemd/system/test.service",
-"""
+                """
 [Unit]
 Description=Test Service
 
@@ -247,13 +248,15 @@ WantedBy=default.target
 
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
+
         def wait_systemctl_timer(time):
             with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
                 m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
         m.execute("timedatectl set-timezone UTC")
         m.execute("timedatectl set-ntp off")
-        wait(lambda: "false" in m.execute("busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
+        wait(lambda: "false" in m.execute(
+            "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
         b.click('#services-filter :nth-child(4)')
@@ -293,11 +296,11 @@ WantedBy=default.target
         b.click("#drop-repeat .dropdown-menu li[value=525600] a")
         b.click("[data-content='add'][data-index=0]")
         b.wait_present("[data-content='datepicker'][data-index=0]")
-        b.set_val(".bootstrap-datepicker[data-index=0]","2020-01-01")
+        b.set_val(".bootstrap-datepicker[data-index=0]", "2020-01-01")
         b.set_val("[data-index=0][data-content='hours']", "16")
         b.set_val("[data-index=0][data-content='minutes']", "00")
         b.wait_present("[data-content='datepicker'][data-index=1]")
-        b.set_val(".bootstrap-datepicker[data-index=1]","2021-01-01")
+        b.set_val(".bootstrap-datepicker[data-index=1]", "2021-01-01")
         b.set_val("[data-index=1][data-content='hours']", "01")
         b.set_val("[data-index=1][data-content='minutes']", "22")
         b.click("#timer-save-button")
@@ -512,7 +515,7 @@ WantedBy=default.target
         m = self.machine
         b = self.browser
         m.write("/etc/systemd/system/condtest.service",
-"""
+                """
 [Unit]
 Description=Test Service
 ConditionDirectoryNotEmpty=/var/tmp/empty
@@ -570,7 +573,7 @@ WantedBy=multi-user.target
         b = self.browser
 
         m.write("/etc/systemd/system/test-a.service",
-"""
+                """
 [Unit]
 Description=A Service
 Before=test-b.service
@@ -581,7 +584,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
         m.write("/etc/systemd/system/test-b.service",
-"""
+                """
 [Unit]
 Description=B Service
 After=test-a.service
@@ -591,7 +594,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
 """)
 
         m.write("/etc/systemd/system/test-c.service",
-"""
+                """
 [Unit]
 Description=C Service
 Conflicts=test-a.service

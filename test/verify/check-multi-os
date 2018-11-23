@@ -22,6 +22,7 @@ import parent
 import atomiclib
 from testlib import *
 
+
 def wait_dashboard_addresses(b, expected):
     b.wait_js_func(
         """(function(expected) {
@@ -31,6 +32,7 @@ def wait_dashboard_addresses(b, expected):
             });
             return expected.sort().toString() == addresses.sort().toString();
         })""", expected)
+
 
 def old_add_machine(b, address):
     b.click('#dashboard-add')
@@ -44,6 +46,7 @@ def old_add_machine(b, address):
     b.click('#dashboard_setup_next')
     b.wait_popdown('dashboard_setup_server_dialog')
 
+
 def new_add_machine(b, address):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
@@ -56,10 +59,11 @@ def new_add_machine(b, address):
     b.click('#dashboard_setup_server_dialog .btn-primary')
     b.wait_popdown('dashboard_setup_server_dialog')
 
+
 class TestMultiOS(MachineCase):
     provision = {
-        "0": { "address": "10.111.113.1/20" },
-        "fedora-stock": { "address": "10.111.113.5/20", "image": "fedora-stock" }
+        "0": {"address": "10.111.113.1/20"},
+        "fedora-stock": {"address": "10.111.113.5/20", "image": "fedora-stock"}
     }
 
     def setUp(self):
@@ -92,8 +96,8 @@ class TestMultiOS(MachineCase):
 
         self.login_and_go("/dashboard")
 
-        dev_dashboard_addresses = [ "localhost" ]
-        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+        dev_dashboard_addresses = ["localhost"]
+        wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
         def stock_login_and_go(browser, page, href, host="localhost"):
             if host:
@@ -131,17 +135,17 @@ class TestMultiOS(MachineCase):
         stock_b = self.new_browser(stock_m)
 
         stock_login_and_go(stock_b, "dashboard", href="/dashboard/list", host=None)
-        wait_dashboard_addresses (stock_b, [ "localhost" ])
+        wait_dashboard_addresses(stock_b, ["localhost"])
 
         old_add_machine(stock_b, "10.111.113.1")
-        wait_dashboard_addresses (stock_b, [ "localhost", "10.111.113.1" ])
+        wait_dashboard_addresses(stock_b, ["localhost", "10.111.113.1"])
 
         dev_b.switch_to_top()
         dev_b.switch_to_frame("cockpit1:localhost/dashboard")
 
         new_add_machine(dev_b, "10.111.113.5")
         dev_dashboard_addresses.append("10.111.113.5")
-        wait_dashboard_addresses (dev_b, dev_dashboard_addresses)
+        wait_dashboard_addresses(dev_b, dev_dashboard_addresses)
 
         self.check_dbus(stock_b, "10.111.113.1")
         self.check_dbus(dev_b, "10.111.113.5")
@@ -191,10 +195,11 @@ class TestMultiOS(MachineCase):
             if e.msg != "Error: TypeError: null is not an object (evaluating 'o.client.lookup')":
                 raise
 
+
 class TestMultiOSDirect(MachineCase):
     provision = {
-        "0": { "address": "10.111.113.1/20" },
-        "fedora-23-stock": { "address": "10.111.113.5/20", "image": "fedora-23-stock" }
+        "0": {"address": "10.111.113.1/20"},
+        "fedora-23-stock": {"address": "10.111.113.5/20", "image": "fedora-23-stock"}
     }
 
     def setUp(self):
@@ -208,15 +213,15 @@ class TestMultiOSDirect(MachineCase):
 
         self.login_and_go("/dashboard")
 
-        dev_dashboard_addresses = [ "localhost" ]
-        wait_dashboard_addresses (b, dev_dashboard_addresses)
+        dev_dashboard_addresses = ["localhost"]
+        wait_dashboard_addresses(b, dev_dashboard_addresses)
 
         stock_m = self.machines['fedora-23-stock']
         stock_m.execute("hostnamectl set-hostname stock")
 
         new_add_machine(b, "10.111.113.5")
         dev_dashboard_addresses.append("10.111.113.5")
-        wait_dashboard_addresses (b, dev_dashboard_addresses)
+        wait_dashboard_addresses(b, dev_dashboard_addresses)
         b.logout()
 
         # Access stock directly from dev

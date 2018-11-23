@@ -35,9 +35,11 @@ rootfs_not_in_volume_group_images = [
     "centos-7",
 ]
 
+
 def can_manage(machine):
     return (machine.image not in non_manageable_images and
             machine.image not in rootfs_not_in_volume_group_images)
+
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 @skipImage("No docker packaged", "rhel-x")
@@ -57,11 +59,12 @@ class TestDockerStorageDirect(MachineCase):
         if can_manage(m):
             b.wait_present("#containers-storage-details a")
 
+
 @skipImage("No cockpit-docker on i386", "fedora-i386")
 @skipImage("No docker packaged", "rhel-x")
 @skipPackage("cockpit-docker")
 class TestDockerStorage(MachineCase):
-    provision = { "machine1" : { "address": "10.111.113.1/20" } }
+    provision = {"machine1": {"address": "10.111.113.1/20"}}
 
     def setUp(self):
         # On the Atomics, we use two machines: one for running

@@ -22,7 +22,9 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 class TestStorage(StorageCase):
+
     def testFormatTooSmall(self):
         m = self.machine
         b = self.browser
@@ -31,7 +33,7 @@ class TestStorage(StorageCase):
         #
         # https://github.com/storaged-project/storaged/pull/82
 
-        storaged_supports_dry_run = (self.storaged_version >= [ 2, 6, 3])
+        storaged_supports_dry_run = (self.storaged_version >= [2, 6, 3])
 
         self.login_and_go("/storage")
         b.wait_in_text("#drives", "VirtIO")
@@ -67,7 +69,7 @@ class TestStorage(StorageCase):
 
         def check_type(type):
             self.content_tab_action(1, 1, "Format")
-            self.dialog({ "type": type })
+            self.dialog({"type": type})
             self.content_row_wait_in_col(1, 1, type + " File System")
 
         def check_unsupported_type(type):
@@ -85,7 +87,7 @@ class TestStorage(StorageCase):
         else:
             check_type("vfat")
 
-        if self.storaged_is_old_udisks or m.image in [ "rhel-7-6", "rhel-7-6-distropkg", "centos-7", "rhel-x" ]:
+        if self.storaged_is_old_udisks or m.image in ["rhel-7-6", "rhel-7-6-distropkg", "centos-7", "rhel-x"]:
             check_unsupported_type("ntfs")
         else:
             check_type("ntfs")

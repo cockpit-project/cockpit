@@ -23,19 +23,21 @@ import time
 import subprocess
 from testlib import *
 
+
 def read_mem_info(machine):
-    info = { }
+    info = {}
     for l in machine.execute("cat /proc/meminfo").splitlines():
         (name, value) = l.strip().split(":")
         if value.endswith("kB"):
-            info[name] = int(value[:-2])*1024
+            info[name] = int(value[:-2]) * 1024
         else:
             info[name] = int(value)
     return info
 
+
 class TestMetrics(MachineCase):
     provision = {
-        "0": { "forward": { "2000": 2000 } },
+        "0": {"forward": {"2000": 2000}},
     }
 
     def check_host_metrics(self):
@@ -57,7 +59,7 @@ class TestMetrics(MachineCase):
 
         def wait_for_plot(sel, seconds):
             now = b.call_js_func("ph_plot_timestamp", sel)
-            b.wait_js_func("ph_plot_timestamp_is", sel, now+20*1000)
+            b.wait_js_func("ph_plot_timestamp_is", sel, now + 20 * 1000)
 
         # When checking whether the plots show the expected results,
         # we look for a segment of the data of a certain duration
@@ -97,7 +99,7 @@ class TestMetrics(MachineCase):
         # can not reliably create 100% load in a virtual machine since
         # we only get as much as the qemu process itself gets.
 
-        m.upload([ "verify/files/measure-cpu" ], "/var/lib/testvm/")
+        m.upload(["verify/files/measure-cpu"], "/var/lib/testvm/")
         cmd = "$(which python3 || which python2) /var/lib/testvm/measure-cpu"
 
         cpu_start = m.execute(cmd + " start")
@@ -108,7 +110,7 @@ class TestMetrics(MachineCase):
 
         print("Measured CPU", cpu_percentage)
         self.assertTrue(b.call_js_func("ph_flot_data_plateau", "#server_cpu_graph",
-                                       cpu_percentage*0.50, cpu_percentage*1.50, 15, "cpu"));
+                                       cpu_percentage * 0.50, cpu_percentage * 1.50, 15, "cpu"))
 
         # Memory.  We assume that the machine has had a reasonably
         # stable memory situation for the last 20 seconds and we just
@@ -117,19 +119,19 @@ class TestMetrics(MachineCase):
         meminfo = read_mem_info(m)
         mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
         print("Measured Memory", mem_used)
-        b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used*0.95, mem_used*1.05, 15, "mem");
+        b.wait_js_func("ph_flot_data_plateau", "#server_memory_graph", mem_used * 0.95, mem_used * 1.05, 15, "mem")
 
         # Disk.  Anything above 100 kiB/s is good for now.
         #
         m.add_disk("10M", serial="MYSERIAL")
         disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
-        b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100*1024, None, 5, "disk io");
+        b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100 * 1024, None, 5, "disk io")
         m.execute("kill %d" % disk_pid)
 
         # Network traffic through loopback. Should be ignored
         m.spawn("ping -f -c 10000000 -s 50000  127.0.0.1", "load-net-lo.log")
         try:
-            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300 * 1000, None, 5, "net io")
             self.fail("Unexpected traffic graph for localhost")
         except Error as ex:
             if not ex.msg.startswith('timeout'):
@@ -154,14 +156,16 @@ class TestMetrics(MachineCase):
         time_before = time.time()
 
         # -q is necessary with netcat-openbsd, but does not exist with nmap-nc
-        net_pid = m.spawn("nc `nc -h 2>&1| grep -q -- -q && echo '-q -1' || true` -l 2000 </dev/null >/dev/null", "load-net.log")
+        net_pid = m.spawn(
+            "nc `nc -h 2>&1| grep -q -- -q && echo '-q -1' || true` -l 2000 </dev/null >/dev/null", "load-net.log")
 
         # might take several attemps until server-side is listening
         (host, port) = m.forward["2000"].split(":")
-        client = subprocess.Popen("for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)
+        client = subprocess.Popen(
+            "for retry in `seq 10`; do nc {0} {1} </dev/zero >/dev/null; sleep 1; done".format(host, port), shell=True)
 
         try:
-            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300*1000, None, 5, "net io");
+            b.wait_js_func("ph_flot_data_plateau", "#server_network_traffic_graph", 300 * 1000, None, 5, "net io")
         finally:
             time_after = time.time()
             (eth_after, lo_after) = m.execute(r"grep -E '" + iface + r"' /proc/net/dev | awk '{print $2 + $10}'; "

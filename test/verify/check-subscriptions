@@ -78,12 +78,14 @@ print [ e['id'] for e in data if e['owner']['key'] == 'admin' and e['contractNum
 "
 """
 
-@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29", "fedora-28", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
+
+@skipImage("No subscriptions", "centos-7", "continuous-atomic", "debian-stable", "debian-testing", "fedora-29",
+           "fedora-28", "fedora-i386", "fedora-atomic", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 @skipImage("cockpit-subscriptions obsoleted by external subscription-manager-cockpit", "rhel-x")
 class TestSubscriptions(MachineCase):
     provision = {
-        "0": { "address": "10.111.113.1/20" },
-        "candlepin": { "image": "candlepin", "address": "10.111.113.5/20" }
+        "0": {"address": "10.111.113.1/20"},
+        "candlepin": {"image": "candlepin", "address": "10.111.113.5/20"}
     }
 
     def setUp(self):
@@ -113,7 +115,7 @@ class TestSubscriptions(MachineCase):
             m.execute("rm -f /etc/pki/consumer/* /etc/pki/entitlement/*")
 
         # Wait for the web service to be accessible
-        args = { "addr": "10.111.113.5" }
+        args = {"addr": "10.111.113.5"}
         m.execute(script=WAIT_SCRIPT % args)
 
     def testRegister(self):
@@ -168,7 +170,8 @@ class TestSubscriptions(MachineCase):
         # use an activation key
         activation_key_id = self.candlepin.execute(ACTIVATION_KEY_COMMAND).strip()
         pool_id = self.candlepin.execute(POOL_COMMAND).strip()
-        key_url = "https://localhost:8443/candlepin/activation_keys/{key}/pools/{pool}".format(key=activation_key_id, pool=pool_id)
+        key_url = "https://localhost:8443/candlepin/activation_keys/{key}/pools/{pool}".format(
+            key=activation_key_id, pool=pool_id)
         self.candlepin.execute("curl -s --insecure --request POST --user admin:admin {url}".format(url=key_url))
         b.set_input_text("#subscription-register-username", "")
         b.set_input_text("#subscription-register-password", "")

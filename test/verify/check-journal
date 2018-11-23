@@ -21,7 +21,9 @@
 import parent
 from testlib import *
 
+
 class TestJournal(MachineCase):
+
     def setUp(self):
         super(TestJournal, self).setUp()
 
@@ -81,7 +83,7 @@ class TestJournal(MachineCase):
         # output.
         #
         m.write("/etc/systemd/system/log123.service",
-"""
+                """
 [Unit]
 Description=123 different log lines
 
@@ -90,7 +92,7 @@ ExecStart=/bin/sh -c '/usr/bin/seq 123; sleep 10'
 """)
 
         m.write("/etc/systemd/system/slow10.service",
-"""
+                """
 [Unit]
 Description=Slowly log 10 identical lines
 
@@ -147,7 +149,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         })""", expected)
 
         def wait_journal_empty():
-            wait_log_lines([ ])
+            wait_log_lines([])
 
         b.go("#/?prio=*&service=log123.service")
         wait_journal_empty()
@@ -209,8 +211,8 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         wait_journal_empty()
 
         def wait_slow10():
-            wait_log_lines([ expected_date, [ "sh", "SLOW", "10" ]
-                       ])
+            wait_log_lines([expected_date, ["sh", "SLOW", "10"]
+                            ])
 
         m.execute("systemctl start slow10")
 
@@ -223,15 +225,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         # insert messages as errors because we know these will be shown by default
         m.execute("systemctl start systemd-journald.service")
-        m.execute("logger -p user.err --tag check-journal BEFORE BOOT");
+        m.execute("logger -p user.err --tag check-journal BEFORE BOOT")
         b.go("#/?tag=check-journal")
-        wait_log_lines([ expected_date, [ "check-journal", "BEFORE BOOT", "" ] ])
+        wait_log_lines([expected_date, ["check-journal", "BEFORE BOOT", ""]])
         m.execute("systemctl stop systemd-journald.service")
 
         # Now reboot things
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
-        m.execute("logger -p user.err --tag check-journal AFTER BOOT");
+        m.execute("logger -p user.err --tag check-journal AFTER BOOT")
 
         m.start_cockpit()
         b.switch_to_top()
@@ -239,31 +241,31 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         inject_extras()
 
         b.go("#/?tag=check-journal")
-        wait_log_lines([ expected_date,
-                         [ "check-journal", "AFTER BOOT", "" ],
-                         [ "", "Reboot", "" ],
-                         [ "check-journal", "BEFORE BOOT", "" ]
-                     ])
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        ["", "Reboot", ""],
+                        ["check-journal", "BEFORE BOOT", ""]
+                        ])
 
         b.go("#/?start=boot&tag=check-journal")
-        wait_log_lines([ expected_date,
-                         [ "check-journal", "AFTER BOOT", "" ],
-                         "Load earlier entries",
-                     ])
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", ""],
+                        "Load earlier entries",
+                        ])
 
         b.click('#journal-load-earlier')
-        wait_log_lines([ expected_date,
-                         [ "check-journal", "AFTER BOOT", "2" ],
-                         [ "", "Reboot", "" ],
-                         [ "check-journal", "BEFORE BOOT", "" ]
-                     ])
+        wait_log_lines([expected_date,
+                        ["check-journal", "AFTER BOOT", "2"],
+                        ["", "Reboot", ""],
+                        ["check-journal", "BEFORE BOOT", ""]
+                        ])
 
     def testBinary(self):
         b = self.browser
         m = self.machine
 
         m.execute(self.python +
-""" -c '
+                  """ -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
@@ -291,7 +293,7 @@ s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\
         m = self.machine
 
         m.execute(self.python +
-""" -c '
+                  """ -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
@@ -309,7 +311,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT does not work on i386", "fedora-i386")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -350,7 +353,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT does not work on i386", "fedora-i386")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -386,10 +390,10 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav")
 
-
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT does not work on i386", "fedora-i386")
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-x")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py

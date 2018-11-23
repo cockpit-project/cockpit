@@ -9,6 +9,7 @@ EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
 
 
 class TestPinger(MachineCase):
+
     def setUp(self):
         super(TestPinger, self).setUp()
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")

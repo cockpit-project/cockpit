@@ -22,7 +22,9 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 class TestStorage(StorageCase):
+
     def testDosParts(self):
         m = self.machine
         b = self.browser
@@ -37,14 +39,14 @@ class TestStorage(StorageCase):
 
         # Format it with a DOS partition table
         b.click('button:contains(Create partition table)')
-        self.dialog({ "type": "dos" })
+        self.dialog({"type": "dos"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 
         # Create a primary partition
         self.content_row_action(1, "Create Partition")
-        self.dialog({ "size": 10,
-                      "type": "ext4",
-                      "name": "FIRST" })
+        self.dialog({"size": 10,
+                     "type": "ext4",
+                     "name": "FIRST"})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 

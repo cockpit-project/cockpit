@@ -25,7 +25,9 @@ import time
 import parent
 from testlib import *
 
+
 class TestLogin(MachineCase):
+
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -72,7 +74,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_text_not("#login-error-message", "")
 
         # Try to login as user with correct password
-        login ("user", "abcdefg")
+        login("user", "abcdefg")
         if m.atomic_image:
             b.wait_in_text("#login-error-message", "Server closed connection")
         else:
@@ -105,7 +107,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible('#go-account')
         b.click('#go-account')
         b.enter_page("/users")
-        b.wait_text ("#account-user-name", "admin")
+        b.wait_text("#account-user-name", "admin")
         try:
             m.execute("journalctl -p 7 SYSLOG_IDENTIFIER=cockpit-ws | grep 'cockpit-session: opening pam session'")
             assert False, "cockpit-session debug messsages found"
@@ -136,13 +138,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_present("#option-group")
             b.wait_not_visible("#option-group")
 
-        self.allow_journal_messages ("Returning error-response ... with reason .*",
-                            "pam_unix\(cockpit:auth\): authentication failure; .*",
-                            "pam_unix\(cockpit:auth\): check pass; user unknown",
-                            "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
+        self.allow_journal_messages("Returning error-response ... with reason .*",
+                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         self.allow_restart_journal_messages()
-
 
     def testExpired(self):
         m = self.machine
@@ -150,8 +151,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # On atomic this happens over ssh
         if m.atomic_image:
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+            m.execute(
+                "sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            m.execute(
+                "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
         m.execute("chage -d 0 admin")
         m.start_cockpit()
@@ -248,8 +251,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         conf = "/etc/pam.d/cockpit"
         if m.atomic_image:
             conf = "/etc/pam.d/sshd"
-            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
-            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
+            m.execute(
+                "sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config", direct=True)
+            m.execute(
+                "( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service", direct=True)
 
         m.execute("sed -i '5 a auth       required    {0}' {1}".format(path, conf))
 
@@ -294,9 +299,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
-        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-', '--header', header,
-               'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url) ],
-               universal_newlines=True)
+        return subprocess.check_output(['/usr/bin/curl', '-s', '-k', '-D', '-', '--header', header,
+                                        'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url)],
+                                       universal_newlines=True)
 
     def curl_auth_code(self, url, userpass):
         lines = self.curl_auth(url, userpass).splitlines()
@@ -308,25 +313,25 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testRaw(self):
         self.machine.start_cockpit()
         time.sleep(0.5)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', ''), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar\n'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar:baz'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', ':\n\n'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'admin:bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'foo:bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'admin:' + 'x' * 4000), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'x' * 4000 + ':bar'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':b\nc'), 401)
-        self.assertEqual(self.curl_auth_code ('/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', ''), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:bar\n'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:bar:baz'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', ':\n\n'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'admin:bar'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'foo:bar'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'admin:' + 'x' * 4000), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'x' * 4000 + ':bar'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'a' * 4000 + ':'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'a' * 4000 + ':b\nc'), 401)
+        self.assertEqual(self.curl_auth_code('/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
 
-        self.allow_journal_messages ("Returning error-response ... with reason .*",
-                            "pam_unix\(cockpit:auth\): authentication failure; .*",
-                            "pam_unix\(cockpit:auth\): check pass; user unknown",
-                            "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
-                            "couldn't parse login input: Malformed input",
-                            "couldn't parse login input: Authentication failed")
+        self.allow_journal_messages("Returning error-response ... with reason .*",
+                                    "pam_unix\(cockpit:auth\): authentication failure; .*",
+                                    "pam_unix\(cockpit:auth\): check pass; user unknown",
+                                    "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                    "couldn't parse login input: Malformed input",
+                                    "couldn't parse login input: Authentication failed")
 
     @skipImage("cockpit-system too old", "rhel-7-6-distropkg")
     def testUnsupportedBrowser(self):

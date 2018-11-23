@@ -23,8 +23,10 @@ import parent
 from testlib import *
 from storagelib import *
 
+
 @skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
+
     def testLvm(self):
         m = self.machine
         b = self.browser
@@ -109,12 +111,12 @@ class TestStorage(StorageCase):
         # create volume group in the UI
         b.wait_visible('#create-volume-group')
 
-        self.dialog_with_retry(trigger = lambda: b.click('#create-volume-group'),
-                               expect = lambda: (self.dialog_is_present('disks', "DISK1") and
-                                                 self.dialog_is_present('disks', "DISK2") and
-                                                 self.dialog_check({ "name": "vgroup0" })),
-                               values = { "disks": { "DISK1": True,
-                                                     "DISK2": True }})
+        self.dialog_with_retry(trigger=lambda: b.click('#create-volume-group'),
+                               expect=lambda: (self.dialog_is_present('disks', "DISK1") and
+                                               self.dialog_is_present('disks', "DISK2") and
+                                               self.dialog_check({"name": "vgroup0"})),
+                               values={"disks": {"DISK1": True,
+                                                 "DISK2": True}})
 
         b.wait_in_text("#vgroups", "vgroup0")
 
@@ -130,9 +132,9 @@ class TestStorage(StorageCase):
 
         # create a logical volume
         b.click("a:contains(Create new Logical Volume)")
-        self.dialog(expect = { "name": "lvol0" },
-                    values = { "purpose": "block",
-                               "size": 20 })
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block",
+                            "size": 20})
         self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
 
         # check that the next default name is "lvol1"
@@ -144,13 +146,13 @@ class TestStorage(StorageCase):
 
         # grow it
         self.content_tab_action(1, 1, "Grow")
-        self.dialog({ "size": 30 })
+        self.dialog({"size": 30})
 
         # format and mount it
         self.content_tab_action(1, 2, "Format")
-        self.dialog({ "type": "ext4",
-                      "mounting": "custom",
-                      "mount_point": mount_point_one })
+        self.dialog({"type": "ext4",
+                     "mounting": "custom",
+                     "mount_point": mount_point_one})
         self.content_row_wait_in_col(1, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_one)
         self.content_tab_action(1, 2, "Mount")
@@ -162,7 +164,7 @@ class TestStorage(StorageCase):
 
         # shrink it, this time with a filesystem.
         self.content_tab_action(1, 1, "Shrink")
-        self.dialog({ "size": 10 })
+        self.dialog({"size": 10})
 
         # delete it
         self.content_head_action(1, "Delete")
@@ -179,29 +181,29 @@ class TestStorage(StorageCase):
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
         b.click("a:contains(Create new Logical Volume)")
-        self.dialog(expect = { "size": 48 },
-                    values = { "purpose": "pool",
-                               "name": "pool",
-                               "size": 38 })
+        self.dialog(expect={"size": 48},
+                    values={"purpose": "pool",
+                            "name": "pool",
+                            "size": 38})
         self.content_row_wait_in_col(1, 2, "pool")
 
         self.content_row_action(1, "Create Thin Volume")
-        self.dialog(expect = { "name": "lvol0" },
-                    values = { "name": "thin",
-                               "size": 50 })
+        self.dialog(expect={"name": "lvol0"},
+                    values={"name": "thin",
+                            "size": 50})
         self.content_row_wait_in_col(2, 2, "/dev/vgroup0/thin")
 
         # add a disk and resize the pool
         b.click('#detail-sidebar .panel-heading button')
         self.dialog_wait_open()
-        self.dialog_set_val('disks', { "DISK2": True })
+        self.dialog_set_val('disks', {"DISK2": True})
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
 
         self.content_tab_action(1, 1, "Grow")
-        self.dialog({ "size": 70 })
+        self.dialog({"size": 70})
 
         # There is not enough free space to remove any of the disks.
         b.wait_present('#detail-sidebar tr:nth-child(1) button.disabled')
@@ -209,10 +211,10 @@ class TestStorage(StorageCase):
 
         # use almost all of the pool by erasing the thin volume
         self.content_tab_action(2, 2, "Format")
-        self.dialog({ "erase": "zero",
-                      "type": "ext4",
-                      "mounting": "custom",
-                      "mount_point": mount_point_thin })
+        self.dialog({"erase": "zero",
+                     "type": "ext4",
+                     "mounting": "custom",
+                     "mount_point": mount_point_thin})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
         self.wait_in_storaged_configuration(mount_point_thin)
 
@@ -240,9 +242,10 @@ class TestStorage(StorageCase):
 
         # Create a volume group out of DISK1
         b.wait_visible('#create-volume-group')
-        self.dialog_with_retry(trigger = lambda: b.click('#create-volume-group'),
-                               expect = lambda: self.dialog_is_present('disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK1)"),
-                               values = { "disks": { "DISK1": True }})
+        self.dialog_with_retry(trigger=lambda: b.click('#create-volume-group'),
+                               expect=lambda: self.dialog_is_present(
+                                   'disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK1)"),
+                               values={"disks": {"DISK1": True}})
 
         b.wait_in_text("#vgroups", "vgroup0")
         b.click('tr:contains("vgroup0")')
@@ -252,9 +255,10 @@ class TestStorage(StorageCase):
         b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK1)")
 
         # Add the unused space of DISK2
-        self.dialog_with_retry(trigger = lambda: b.click('#detail-sidebar .panel-heading button'),
-                               expect = lambda: self.dialog_is_present('disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK2)"),
-                               values = { "disks": { "DISK2": True }})
+        self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .panel-heading button'),
+                               expect=lambda: self.dialog_is_present(
+                                   'disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK2)"),
+                               values={"disks": {"DISK2": True}})
         b.wait_in_text("#detail-sidebar", "Partition of QEMU QEMU HARDDISK (DISK2)")
 
 if __name__ == '__main__':

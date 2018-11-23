@@ -21,7 +21,9 @@ import subprocess
 import re
 from testlib import *
 
+
 class NetworkCase(MachineCase):
+
     def setUp(self):
         MachineCase.setUp(self)
 
@@ -36,7 +38,8 @@ class NetworkCase(MachineCase):
         while True:
             try:
                 print(m.execute("nmcli con show"))
-                m.execute("""nmcli -f UUID,DEVICE connection show | awk '$2 == "--" { print $1 }' | xargs -r nmcli con del""")
+                m.execute(
+                    """nmcli -f UUID,DEVICE connection show | awk '$2 == "--" { print $1 }' | xargs -r nmcli con del""")
                 break
             except subprocess.CalledProcessError:
                 failures_allowed -= 1
@@ -46,12 +49,13 @@ class NetworkCase(MachineCase):
         m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
         m.execute("systemctl reload-or-restart NetworkManager")
 
-        ver = self.machine.execute("busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
+        ver = self.machine.execute(
+            "busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
         m = re.match('s "(.*)"', ver)
         if m:
             self.networkmanager_version = [int(x) for x in m.group(1).split(".")]
         else:
-            self.networkmanager_version = [ 0 ]
+            self.networkmanager_version = [0]
 
     def get_iface(self, m, mac):
         def getit():

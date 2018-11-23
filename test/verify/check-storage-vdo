@@ -24,7 +24,9 @@ from testlib import *
 from storagelib import *
 from packagelib import *
 
+
 class TestStorage(StorageCase):
+
     def testVdo(self):
         m = self.machine
         b = self.browser
@@ -52,7 +54,7 @@ class TestStorage(StorageCase):
         b.click("#create-vdo")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vdo0")
-        self.dialog_set_val("space", { "/dev/vdo_vgroup/lvol": True })
+        self.dialog_set_val("space", {"/dev/vdo_vgroup/lvol": True})
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -91,7 +93,7 @@ class TestStorage(StorageCase):
         # Grow logical
 
         b.click(detail(4) + " button:contains(Grow)")
-        self.dialog({ "lsize": 10*1024 })
+        self.dialog({"lsize": 10 * 1024})
         b.wait_in_text(detail(4), "used of 10 GiB")
         self.content_tab_wait_in_info(1, 1, "Used", "of 9.99 GiB", "of 10.0 GiB")
 
@@ -263,6 +265,7 @@ config: !Configuration
 """)
 
         b.wait_in_text("#vdos", "vdo1")
+
 
 class TestStoragePackages(StorageCase, PackageCase):
 

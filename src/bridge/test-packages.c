@@ -530,7 +530,7 @@ test_no_path (TestCase *tc,
 }
 
 static const Fixture fixture_bad_path = {
-  .path = "../test/sub/file.ext"
+  .path = "/../test/sub/file.ext"
 };
 
 static void
@@ -549,7 +549,7 @@ test_bad_path (TestCase *tc,
 }
 
 static const Fixture fixture_no_package = {
-  .path = "test"
+  .path = "/test"
 };
 
 static void

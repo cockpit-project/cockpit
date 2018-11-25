@@ -364,9 +364,6 @@ test_parse_headers_bad (void)
   gssize ret;
   gint i;
 
-  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE,
-                         "received invalid header line*");
-
   for (i = 0; i < G_N_ELEMENTS (input); i++)
     {
       ret = web_socket_util_parse_headers (input[i], strlen (input[i]), NULL);

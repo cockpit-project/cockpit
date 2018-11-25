@@ -944,6 +944,12 @@ parse_and_process_request (CockpitRequest *request)
       request->delayed_reply = 400;
       goto out;
     }
+  if (!path || path[0] != '/')
+    {
+      g_message ("received invalid HTTP path");
+      request->delayed_reply = 400;
+      goto out;
+    }
 
   off2 = web_socket_util_parse_headers ((const gchar *)request->buffer->data + off1,
                                         request->buffer->len - off1,

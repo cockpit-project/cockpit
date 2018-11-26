@@ -510,9 +510,16 @@ tbody + thead.listing-ct-empty {
 }
 
 /* Listing pattern mod to redce the padding */
-.listing-ct-compact tbody {
-    td, th {
+.listing-ct-compact {
+    > thead > tr > th,
+    > tbody > tr > th,
+    > tbody > tr > td {
         padding: @listing-ct-padding / 2;
+    }
+
+    > tbody > tr > .listing-ct-toggle + th,
+    > tbody > tr > .listing-ct-toggle + td {
+        padding-left: @listing-ct-padding / 2;
     }
 
     .listing-ct-item > .listing-ct-toggle:not(:empty) + td::before,

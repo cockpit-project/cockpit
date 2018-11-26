@@ -7,17 +7,20 @@ machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from seleniumlib import SeleniumTest, user, clickable, passwd, visible
+from testlib_avocado.seleniumlib import SeleniumTest, user, clickable, passwd, visible
 
 class BasicTestSuite(SeleniumTest):
     """
     :avocado: enable
     """
     def test10Base(self):
+        # this is minimal cockpit test what checks login page
         self.wait_id('server-name')
         self.error = False
 
     def test15BaseSSHKeyAdded(self):
+        # calling self.login() ensures there is added public ssh key to user to be able to call
+        # machine.execute(...)
         self.login()
         self.logout()
         out = self.machine.execute("hostname")

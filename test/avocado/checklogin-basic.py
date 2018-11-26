@@ -23,7 +23,8 @@ from avocado import Test
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import cockpit
+
+from testlib_avocado import cockpit
 
 username = "user"
 

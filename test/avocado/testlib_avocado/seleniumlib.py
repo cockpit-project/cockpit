@@ -32,8 +32,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 import os
 import time
 from avocado import Test
-from timeoutlib import Retry
-from machine_core import ssh_connection
+from .timeoutlib import Retry
+from .machine_core import ssh_connection
 
 user = "test"
 passwd = "superhardpasswordtest5554"

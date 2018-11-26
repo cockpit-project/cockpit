@@ -23,7 +23,7 @@
 # usecase:
 #  a=Network('brname'); a.addiface('x1'); DOWHATEWERYOUWANTWITHx1 ;a.clear()
 
-import  re
+import re
 from avocado.utils import process
 
 class Network():

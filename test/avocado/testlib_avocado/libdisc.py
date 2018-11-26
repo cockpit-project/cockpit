@@ -24,7 +24,7 @@
 # usecase:
 # import libdisc; a=libdisc.Disc('cockpit'); print a.adddisc('disc1'); print a.adddisc('disc2'); a.deldisc('disc2'); a.clear();"
 
-import  re
+import re
 from avocado.utils import process
 
 class Disc():

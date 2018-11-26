@@ -143,6 +143,27 @@ _web_socket_util_parse_url (const gchar *url,
   return TRUE;
 }
 
+static gboolean
+is_valid_line (const gchar *string,
+               gssize length)
+{
+  gint i;
+
+  if (length < 0)
+    length = strlen (string);
+
+  for (i = 0; i < length; i++)
+    {
+      if (string[i] != '\t')
+        {
+          if (string[i] < ' ' || string[i] & 0x80)
+            return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
 /**
  * web_socket_util_parse_req_line:
  * @data: (array length=length): the input data
@@ -221,6 +242,10 @@ web_socket_util_parse_req_line (const gchar *data,
         return -1;
       last++;
     }
+
+  if (!is_valid_line (data, (method_end - data)) ||
+      !is_valid_line (data, (path_end - path_beg)))
+    return -1;
 
   if (method)
     *method = g_strndup (data, (method_end - data));
@@ -330,7 +355,7 @@ web_socket_util_parse_headers (const gchar *data,
           colon = memchr (data, ':', length);
           if (!colon || colon >= line)
             {
-              g_message ("received invalid header line: %.*s", (gint)line_len, data);
+              g_debug ("received invalid header line: %.*s", (gint)line_len, data);
               consumed = -1;
               break;
             }
@@ -340,6 +365,13 @@ web_socket_util_parse_headers (const gchar *data,
           value = g_strndup (colon + 1, line - (colon + 1));
           g_strstrip (value);
           g_hash_table_insert (parsed_headers, name, value);
+
+          if (!is_valid_line (name, -1) || !is_valid_line (value, -1))
+            {
+              g_debug ("received invalid header");
+              consumed = -1;
+              break;
+            }
         }
 
       consumed += line_len;

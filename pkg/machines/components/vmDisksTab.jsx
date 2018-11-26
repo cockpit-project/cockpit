@@ -88,7 +88,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
     }
 
     return (
-        <div>
+        <div className="machines-disks">
             {notification}
             {message}
             <Listing compact columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>

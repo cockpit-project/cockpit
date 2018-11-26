@@ -33,6 +33,23 @@
     white-space: nowrap;
 }
 
+.machines-disks .listing-ct th:nth-last-child(-n+2),
+.machines-disks .listing-ct td:nth-last-child(-n+2) {
+    text-align: left;
+}
+
+.machines-disks-source {
+    th, td {
+        padding: 0;
+        vertical-align: baseline;
+    }
+
+    th + td,
+    td + td {
+        padding-left: 0.5em;
+    }
+}
+
 .machines-disks-source-descr {
     color: #888888;
     padding-top: 0 !important;

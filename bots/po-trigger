@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-DAYS = 10
+DAYS = 7
 
 import argparse
 import sys
+import time
 
 sys.dont_write_bytecode = True
 
@@ -30,14 +31,15 @@ import task
 def main():
     parser = argparse.ArgumentParser(description="Ensure necessary issue exists for translations")
     parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    parser.add_argument("context", nargs="?")
     opts = parser.parse_args()
 
     task.verbose = opts.verbose
     text = "Update translations from Fedora Zanata"
 
-    if opts.context or task.stale(DAYS, "po/*.po"):
-        issue = task.issue(text, text, "po-refresh")
+    since = time.time() - (DAYS * 86400)
+    issue = task.issue(text, text, "po-refresh", None, state="all", since=since)
+
+    if issue:
         sys.stderr.write("#{0}: po-refresh\n".format(issue["number"]))
 
 if __name__ == '__main__':

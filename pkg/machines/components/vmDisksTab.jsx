@@ -58,7 +58,7 @@ const VmDiskCell = ({ value, id }) => {
 
 const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notificationText, dispatch, provider }) => {
     let notification = null;
-    const columnTitles = [_("Device"), _("Target")];
+    const columnTitles = [_("Device")];
     let renderCapacityUsed, renderReadOnly;
     const currentTab = 'disk';
     const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
@@ -96,7 +96,6 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [
                         { name: <VmDiskCell value={disk.device} id={`${idPrefixRow}-device`} key={`${idPrefixRow}-device`} />, 'header': true },
-                        <VmDiskCell value={disk.target} id={`${idPrefixRow}-target`} key={`${idPrefixRow}-target`} />
                     ];
 
                     if (renderCapacity) {

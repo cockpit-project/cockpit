@@ -32,18 +32,16 @@ const _ = cockpit.gettext;
 const CREATE_NEW = 'create-new';
 const USE_EXISTING = 'use-existing';
 
-function getAvailableTargets(vm) {
+function getNextAvailableTarget(vm) {
     const existingTargets = Object.getOwnPropertyNames(vm.disks);
     const targets = [];
     let i = 0;
     while (i < 26 && targets.length < 5) {
         const target = `vd${String.fromCharCode(97 + i)}`;
-        if (!existingTargets.includes(target)) {
-            targets.push(target);
-        }
+        if (!existingTargets.includes(target))
+            return target;
         i++;
     }
-    return targets;
 }
 
 function getFilteredVolumes(vmStoragePool, disks) {
@@ -182,7 +180,7 @@ const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
     );
 };
 
-const PoolAndTargetRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => {
+const PoolRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => {
     return (
         <React.Fragment>
             <label className='control-label' htmlFor={`${idPrefix}-select-pool`}>
@@ -191,7 +189,7 @@ const PoolAndTargetRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePoo
             <Select.Select id={`${idPrefix}-select-pool`}
                            onChange={value => onValueChanged('storagePoolName', value)}
                            initial={dialogValues.storagePoolName}
-                           extraClass="form-control ct-form-layout-split">
+                           extraClass="form-control">
                 {Object.getOwnPropertyNames(vmStoragePools)
                         .sort((a, b) => a.localeCompare(b))
                         .map(poolName => {
@@ -202,21 +200,6 @@ const PoolAndTargetRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePoo
                             );
                         })}
             </Select.Select>
-            <label className='control-label' htmlFor={`${idPrefix}-target`}>
-                {_("Target")}
-            </label>
-            <Select.Select id={`${idPrefix}-target`}
-                           onChange={value => onValueChanged('target', value)}
-                           initial={dialogValues.target}
-                           extraClass="form-control  ct-form-layout-split">
-                {dialogValues.availableTargets.map(target => {
-                    return (
-                        <Select.SelectEntry data={target} key={target}>
-                            {target}
-                        </Select.SelectEntry>
-                    );
-                })}
-            </Select.Select>
         </React.Fragment>
     );
 };
@@ -225,10 +208,10 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
     return (
         <React.Fragment>
             <hr />
-            <PoolAndTargetRow idPrefix={idPrefix}
-                              dialogValues={dialogValues}
-                              onValueChanged={onValueChanged}
-                              vmStoragePools={vmStoragePools} />
+            <PoolRow idPrefix={idPrefix}
+                     dialogValues={dialogValues}
+                     onValueChanged={onValueChanged}
+                     vmStoragePools={vmStoragePools} />
             <hr />
             <VolumeName idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
             <VolumeDetails idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
@@ -242,10 +225,10 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
     return (
         <React.Fragment>
             <hr />
-            <PoolAndTargetRow idPrefix={idPrefix}
-                              dialogValues={dialogValues}
-                              onValueChanged={onValueChanged}
-                              vmStoragePools={vmStoragePools} />
+            <PoolRow idPrefix={idPrefix}
+                     dialogValues={dialogValues}
+                     onValueChanged={onValueChanged}
+                     vmStoragePools={vmStoragePools} />
             <hr />
             <SelectExistingVolume idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} vmStoragePools={vmStoragePools} vmDisks={vm.disks} />
             <hr />
@@ -313,7 +296,7 @@ class AddDiskModalBody extends React.Component {
 
     get initialState() {
         const { vm, storagePools, provider } = this.props;
-        const availableTargets = getAvailableTargets(vm);
+        const availableTarget = getNextAvailableTarget(vm);
 
         return {
             storagePoolName: storagePools && Object.getOwnPropertyNames(storagePools).sort()[0],
@@ -323,10 +306,9 @@ class AddDiskModalBody extends React.Component {
             size: 1,
             unit: units.GiB.name,
             diskFileFormat: 'qcow2',
-            target: availableTargets[0],
+            target: availableTarget,
             permanent: !provider.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
-            availableTargets, // for optimization
         };
     }
 

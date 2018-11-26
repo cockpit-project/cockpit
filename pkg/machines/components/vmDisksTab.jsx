@@ -89,7 +89,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
         <div>
             {notification}
             {message}
-            <Listing columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
+            <Listing compact columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
                     const columns = [

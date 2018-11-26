@@ -154,7 +154,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
     return (
         <div className="machines-network-list">
             {message}
-            <Listing columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
+            <Listing compact columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
                 {vm.interfaces.sort().map(target => {
                     const columns = detailMap.map(d => {
                         let column = null;

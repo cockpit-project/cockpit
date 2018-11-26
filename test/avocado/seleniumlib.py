@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """ SETUP tasks
 
 # workaround for RHEL7
@@ -69,6 +68,7 @@ class SeleniumTest(Test):
         if not os.path.exists(identity_file):
             raise FileNotFoundError("IDENTITY envvar does not contain file to proper private key,"
                                     " or {} file does not exist".format(identity_file))
+        self.ssh_identity_file = identity_file
         self.machine = ssh_connection.SSHConnection(user=user,
                                                     address=guest_machine,
                                                     ssh_port=22,
@@ -139,7 +139,9 @@ class SeleniumTest(Test):
             else:
                 self.log.info('ERR: Unable to close WEBdriver: {0}'.format(e))
 
-    def get_debug_logs(self, logs=['browser','driver','client','server']):
+    def get_debug_logs(self, logs=None):
+        if logs is None:
+            logs = ['browser', 'driver', 'client', 'server']
         try:
             max_line_log_count = 10
             for log in logs:
@@ -277,17 +279,38 @@ parameters:
         return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck)
 
     def mainframe(self):
-        self.driver.switch_to_default_content()
+        self.driver.switch_to.default_content()
 
-    def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True):
+    def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True, add_ssh_key=True):
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
         self.send_keys(self.wait_id('login-password-input'), tmppasswd)
         self.check_box(self.wait_id('authorized-input'))
         self.click(self.wait_id("login-button", cond=clickable))
         if wait_hostapp:
             self.wait_id("host-apps")
+        if add_ssh_key:
+            self.add_authorised_ssh_key_to_user()
+
+    def add_authorised_ssh_key_to_user(self, pub_key=None):
+        if pub_key is None:
+            pub_key = self.ssh_identity_file
+        ssh_public_key = open("%s.pub" % pub_key).read()
+        ssh_key_name = ssh_public_key.rsplit(" ", 1)[1]
+        self.click(self.wait_id("content-user-name", cond=clickable))
+        self.click(self.wait_id("go-account", cond=clickable))
+        self.wait_frame('users')
+        # put key just in case it is not already there
+        if not self.wait_xpath("//div[@class='comment' and contains(text(), '%s')]" % ssh_key_name,
+                               fatal=False,
+                               overridetry=3,
+                               cond=visible):
+            self.click(self.wait_id("authorized-key-add", cond=clickable))
+            self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
+            self.click((self.wait_id("add-authorized-key", cond=clickable)))
+            self.wait_id("authorized-key-add", cond=clickable)
+        self.driver.switch_to.default_content()
 
     def logout(self):
-        self.driver.switch_to_default_content()
+        self.driver.switch_to.default_content()
         self.click(self.wait_id('navbar-dropdown', cond=clickable))
         self.click(self.wait_id('go-logout', cond=clickable))

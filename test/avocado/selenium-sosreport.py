@@ -3,14 +3,13 @@
 # we need to be able to find and import seleniumlib, so add this directory
 import os
 import sys
+import subprocess
 
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from avocado import main
-from avocado.utils import process
-from seleniumlib import *
+from seleniumlib import SeleniumTest, clickable
 from timeoutlib import Retry
 
 class SosReportingTab(SeleniumTest):
@@ -25,17 +24,17 @@ class SosReportingTab(SeleniumTest):
         self.click(self.wait_xpath('//button[@data-target="#sos"]', cond=clickable))
         self.wait_id("sos")
         self.wait_text("Generating report")
-        @Retry(attempts = 10, timeout = 3, exceptions = (process.CmdError,),
+        @Retry(attempts = 10, timeout = 3, exceptions = (subprocess.CalledProcessError,),
                error = Exception('Timeout: sosreport did not start'))
         def waitforsosreportstarted():
-            process.run("pgrep sosreport", shell=True)
+            self.machine.execute("pgrep sosreport")
         waitforsosreportstarted()
         # duration of report generation depends on the target system - as along as sosreport is active, we don't want to timeout
         # it is also important to call some selenium method there to ensure that connection to HUB will not be lost
-        @Retry(attempts = 30, timeout = 10, exceptions = (process.CmdError,),
+        @Retry(attempts = 30, timeout = 10, exceptions = (subprocess.CalledProcessError,),
                error = Exception('Timeout: sosreport did not finish'), inverse = True)
         def waitforsosreport():
-            process.run("pgrep sosreport", shell=True)
+            self.machine.execute("pgrep sosreport")
             self.wait_text("Generating report", overridetry=5)
         waitforsosreport()
         element = self.wait_id("sos-download")
@@ -44,6 +43,3 @@ class SosReportingTab(SeleniumTest):
         self.wait_text("This tool will collect system configuration and diagnostic")
         self.mainframe()
         self.error = False
-
-if __name__ == '__main__':
-    main()

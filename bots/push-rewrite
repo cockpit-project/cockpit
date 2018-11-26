@@ -58,7 +58,7 @@ def main():
 
     for n in range(100,0,-1):
         try:
-            if api.get("commits/%s" % local, verbose=False):
+            if api.get("commits/%s" % local):
                 break
         except RuntimeError as e:
             if not "Unprocessable Entity" in str(e) or n <= 1:

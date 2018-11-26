@@ -7,8 +7,7 @@ machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from avocado import main
-from seleniumlib import *
+from seleniumlib import SeleniumTest, clickable, invisible
 
 class DockerTestSuite(SeleniumTest):
     """
@@ -39,7 +38,4 @@ class DockerTestSuite(SeleniumTest):
         self.wait_id('containers-search-image-dialog', cond=invisible)
         self.wait_text('cockpit/ws')
         self.mainframe()
-        self.error=False
-
-if __name__ == '__main__':
-    main()
+        self.error = False

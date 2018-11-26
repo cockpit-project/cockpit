@@ -7,19 +7,23 @@ machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from avocado import main
-from avocado.utils import process
-from seleniumlib import SeleniumTest, user, clickable, passwd
+from seleniumlib import SeleniumTest, user, clickable, passwd, visible
 
 class BasicTestSuite(SeleniumTest):
     """
     :avocado: enable
     """
     def test10Base(self):
-        out = process.run("hostname", shell=True)
+        self.wait_id('server-name')
+        self.error = False
+
+    def test15BaseSSHKeyAdded(self):
+        self.login()
+        self.logout()
+        out = self.machine.execute("hostname")
         server_element = self.wait_id('server-name')
-        self.assertTrue(str(out.stdout.decode("utf-8"))[:-1] in str(server_element.text))
-        self.error=False
+        self.assertTrue(out.strip() in str(server_element.text))
+        self.error = False
 
     def test20Login(self):
         self.login()
@@ -27,7 +31,7 @@ class BasicTestSuite(SeleniumTest):
         self.assertEqual(user_element.text, user)
         self.logout()
         self.wait_id('server-name')
-        self.login("baduser", "badpasswd", wait_hostapp=False)
+        self.login("baduser", "badpasswd", wait_hostapp=False, add_ssh_key=False)
         message_element = self.wait_id('login-error-message')
         self.assertTrue("Wrong" in message_element.text)
         self.login()
@@ -50,7 +54,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("services-list-enabled")
         self.wait_text("dbus.service")
         self.mainframe()
-        self.error=False
+        self.error = False
 
     def test50ChangeTabLogs(self):
         self.login()
@@ -126,56 +130,30 @@ class BasicTestSuite(SeleniumTest):
             "//span[@id='journal-prio' and contains(text(), '%s')]" % "Debug and above"))
         self.wait_id("prio-lists")
         checkt = "ahojnotice"
-        process.run("systemd-cat -p debug echo '%s'" % checkt, shell=True)
+        self.machine.execute("systemd-cat -p debug echo '%s'" % checkt)
         self.click(self.wait_text(checkt, cond=clickable))
         self.wait_id('journal-entry')
         self.mainframe()
-        self.error=False
+        self.error = False
 
     def test70ChangeTabNetworking(self):
         self.login()
-        out = process.run("ip r |grep default | head -1 | cut -d ' ' -f 5", shell=True)
+        out = self.machine.execute("/usr/sbin/ip r |grep default | head -1 | cut -d ' ' -f 5").strip()
         self.click(self.wait_link('Network', cond=clickable))
         self.wait_frame("network")
         self.wait_id("networking-interfaces")
         self.wait_id("networking-tx-graph")
 
-        self.click(self.wait_xpath("//tr[@data-interface='%s']" % out.stdout.decode("utf-8")[:-1],cond=clickable))
+        self.click(self.wait_xpath("//tr[@data-interface='%s']" % out, cond=clickable))
         self.wait_text("Carrier", element="td")
         self.mainframe()
-        self.error=False
+        self.error = False
 
-    def test80ChangeTabTools(self):
+    def test80TerminalTool(self):
         self.login()
-        self.click(self.wait_link('Accounts', cond=clickable))
-        self.wait_frame("users")
-        self.click(self.wait_xpath(
-            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable))
-        self.wait_id('account')
-        self.wait_text("Full Name")
-        self.mainframe()
-        self.click(self.wait_link('Accounts', cond=clickable))
-        self.wait_frame('users')
-        self.click(self.wait_id("accounts-create", cond=clickable))
-        self.wait_id("accounts-create-dialog")
-        self.wait_id('accounts-create-create', cond=clickable)
-        self.send_keys(self.wait_id('accounts-create-real-name'), 'testxx')
-        self.send_keys(self.wait_id('accounts-create-pw1'), passwd)
-        self.send_keys(self.wait_id('accounts-create-pw2'), passwd)
-        self.wait_xpath("//span[@id='accounts-create-password-meter-message' and contains(text(), '%s')]" % "Excellent")
-        self.click(self.wait_id('accounts-create-create', cond=clickable))
-        self.click(self.wait_xpath(
-            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % 'testxx', cond=clickable))
-        self.click(self.wait_id('account-delete', cond=clickable))
-        self.wait_id('account-confirm-delete-dialog')
-        self.click(self.wait_id('account-confirm-delete-apply', cond=clickable))
-        self.wait_xpath(
-            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable)
-        self.mainframe()
-
         # TODO edge support for terminal test
         if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
-            self.error=False
+            self.error = False
             return
 
         self.click(self.wait_link('Terminal', cond=clickable))
@@ -190,16 +168,46 @@ class BasicTestSuite(SeleniumTest):
         self.wait_text("touch {0}abd".format(prefix), user, element="div")
         self.send_keys(terminal, "ls {0}*\n".format(prefix), clear=False)
         self.wait_text("ls {0}*".format(prefix), '{0}abc'.format(prefix), element="div")
-        process.run("ls {0}abc".format(prefix), shell=True)
-        process.run("ls {0}abd".format(prefix), shell=True)
+        self.machine.execute("ls {0}abc".format(prefix))
+        self.machine.execute("ls {0}abd".format(prefix))
         self.send_keys(terminal, "rm {0}abc {0}abd\n".format(prefix), clear=False)
         self.wait_text("rm {0}abc {0}abd".format(prefix), user, element="div")
         self.send_keys(terminal, "ls {0}*\n".format(prefix), clear=False)
         self.wait_text("ls {0}*".format(prefix), 'cannot access', element="div")
-        process.run("ls {0}abc |wc -l |grep 0".format(prefix), shell=True)
-        process.run("ls {0}abd |wc -l |grep 0".format(prefix), shell=True)
+        self.machine.execute("ls {0}abc |wc -l |grep 0".format(prefix), quiet=True)
+        self.machine.execute("ls {0}abd |wc -l |grep 0".format(prefix), quiet=True)
         self.mainframe()
-        self.error=False
+        self.error = False
 
-if __name__ == '__main__':
-    main()
+    def test90Accounts(self):
+        self.login()
+        username = "selfcheckuser"
+        self.click(self.wait_link('Accounts', cond=clickable))
+        self.wait_frame("users")
+        self.click(self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % user, cond=clickable))
+        self.wait_id('account')
+        self.wait_text("Full Name")
+        self.mainframe()
+        self.click(self.wait_link('Accounts', cond=clickable))
+        self.wait_frame('users')
+        self.wait_id("accounts", cond=visible)
+        self.click(self.wait_id("accounts-create", cond=clickable))
+        self.wait_id("accounts-create-dialog")
+        self.wait_id('accounts-create-create', cond=clickable)
+        self.send_keys(self.wait_id('accounts-create-real-name'), username)
+        self.send_keys(self.wait_id('accounts-create-pw1'), passwd)
+        self.send_keys(self.wait_id('accounts-create-pw2'), passwd)
+        self.wait_xpath("//span[@id='accounts-create-password-meter-message' and contains(text(), '%s')]" % "Excellent")
+        self.click(self.wait_id('accounts-create-create', cond=clickable))
+        self.wait_id("accounts", cond=visible)
+        self.click(self.wait_xpath(
+            "//*[@class='cockpit-account-user-name' and contains(text(), '%s')]" % username, cond=clickable))
+
+        self.click(self.wait_id('account-delete', cond=clickable))
+        self.wait_id('account-confirm-delete-dialog')
+        self.click(self.wait_id('account-confirm-delete-apply', cond=clickable))
+        self.wait_id("accounts", cond=visible)
+        self.wait_id("accounts-list", cond=visible)
+        self.mainframe()
+        self.error = False

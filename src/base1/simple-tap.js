@@ -4,7 +4,7 @@ var test = { };
     var count = 0;
     var is_partial = false;
 
-    window.onerror = function(error, file, line) {
+    window.onerror = function() {
         console.log("cockpittest-tap-error");
         window.clearTimeout(timeout);
         return false;
@@ -62,5 +62,3 @@ var test = { };
         is_partial = true;
     };
 })(test);
-
-var tests_included = true;

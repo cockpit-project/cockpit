@@ -1,9 +1,10 @@
-/* global $, cockpit, QUnit, ArrayBuffer, Uint8Array */
+/* global cockpit, QUnit, ArrayBuffer, Uint8Array */
 
 /* To help with future migration */
 var assert = QUnit;
 
 /* Set this to a regexp to ignore that warning once */
+/*
 function console_ignore_warning(exp) {
     var console_warn = console.warn;
     console.warn = function() {
@@ -12,6 +13,7 @@ function console_ignore_warning(exp) {
         console.warn = console_warn;
     };
 }
+*/
 
 QUnit.test("public api", function() {
     var client = cockpit.http("/test");

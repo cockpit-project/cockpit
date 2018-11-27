@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit */
+/* global cockpit, QUnit */
 
 /* To help with future migration */
 var assert = QUnit;

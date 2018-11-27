@@ -5,7 +5,8 @@ var assert = QUnit;
 
 var pig_latin = {
     "": { "language": "pig", "plural-forms": function(n) {
-        var nplurals, plural; nplurals = 2; plural = (n != 1); return plural;
+        var plural = (n != 1);
+        return plural;
     } },
     "Control": [ null, "Ontrolcay" ],
     "User": [ null, "Useray" ],
@@ -26,7 +27,7 @@ var pig_latin = {
 var ru = {
     "": { "language": "ru", "plural-forms":
         function(n) {
-            var nplurals, plural; nplurals = 3; plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
+            var plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;
         }
     },

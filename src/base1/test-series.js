@@ -473,7 +473,7 @@ QUnit.asyncTest("walk", function() {
     var series = cockpit.series(100, null, fetch);
     var grid = cockpit.grid(100, 20, 25);
 
-    var row1 = grid.add(series, []);
+    grid.add(series, []);
 
     var count = 0;
     grid.walk();

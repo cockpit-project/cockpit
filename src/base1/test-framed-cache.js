@@ -7,8 +7,6 @@ var frame_tests = 6;
 function parent_window() {
     document.getElementById("title").innerHTML = "Cockpit Parent Frame";
     var count = 0;
-    var frame;
-    var cache;
     var child_done = false;
 
     function maybe_done () {
@@ -43,12 +41,11 @@ function parent_window() {
         maybe_done();
     }
 
-    cache = cockpit.cache("cross-frame-cache", provider, consumer, 'parent');
+    cockpit.cache("cross-frame-cache", provider, consumer, 'parent');
     var iframe = document.createElement("iframe");
     iframe.setAttribute("name", "cockpit1:blah");
     iframe.setAttribute("src", window.location.href + "?sub");
     document.body.appendChild(iframe);
-    frame = window.frames["blah"];
 }
 
 function child_frame() {

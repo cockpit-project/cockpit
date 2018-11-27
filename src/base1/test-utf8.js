@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit, unescape, escape */
 
 /* To help with future migration */
 var assert = QUnit;
@@ -64,20 +64,6 @@ QUnit.test("utf8 round trip", function() {
             block.push(String.fromCharCode(0xDC00 + (cp & 0x3FF)));
         }
         return block.join('');
-    }
-    function old_encode(string) {
-        var utf8 = unescape(encodeURIComponent(string));
-        var octets = new Array(utf8.length);
-        var i;
-        for (i = 0; i < utf8.length; i += 1) {
-            octets[i] = utf8.charCodeAt(i);
-        }
-        return octets;
-    }
-
-    function old_decode(octets) {
-        var utf8 = String.fromCharCode.apply(null, octets);
-        return decodeURIComponent(escape(utf8));
     }
 
     for (var i = MIN_CODEPOINT; i < MAX_CODEPOINT; i += BLOCK_SIZE) {

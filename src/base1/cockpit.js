@@ -1967,7 +1967,6 @@ function factory() {
             var at = search(index, beg);
 
             var end = beg + items.length;
-            var remove = [ ];
             var entry;
             var num;
 
@@ -2194,7 +2193,7 @@ function factory() {
             var row = [];
             rows.push(row);
 
-            var registered, sink, path, links, cb;
+            var sink, path, links, cb;
 
             /* Called as add(sink, path) */
             if (is_object(arguments[0])) {
@@ -2537,7 +2536,7 @@ function factory() {
             href = href.replace("%3D", "=");
             href = href.replace(/%2B/g, "+");
 
-            var i, opt, value;
+            var opt, value;
             var query = [];
             function push_option(v) {
                 query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
@@ -3381,7 +3380,6 @@ function factory() {
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
-            var msg;
             var subscription = {
                 match: extend({ }, match),
                 callback: callback
@@ -4291,8 +4289,6 @@ function factory() {
      * Permission
      */
 
-    var authority = null;
-
     function check_superuser() {
         var dfd = cockpit.defer();
         var ch = cockpit.channel({ payload: "null", superuser: "require" });
@@ -4366,17 +4362,6 @@ function factory() {
      *
      */
 
-    function timestamp(when, interval) {
-        if (typeof when == "number")
-            return when * interval;
-        else if (typeof when == "string")
-            when = new Date(when);
-        if (when instanceof Date)
-            return when.getTime();
-        else
-            throw "invalid date or offset";
-    }
-
     function MetricsChannel(interval, options_list, cache) {
         var self = this;
         event_mixin(self, { });
@@ -4449,7 +4434,7 @@ function factory() {
             channel.addEventListener("message", function(ev, payload) {
                 var message = JSON.parse(payload);
 
-                var data, data_len, last_len, dataj, dataj_len, lastj, lastj_len;
+                var data, last_len, dataj, dataj_len, lastj, lastj_len;
                 var i, j, k;
                 var timestamp;
 
@@ -4473,7 +4458,6 @@ function factory() {
                     for (i = 0; i < message_len; i++) {
                         data = message[i];
                         if (last) {
-                            data_len = data.length;
                             last_len = last.length;
                             for (j = 0; j < last_len; j++) {
                                 dataj = data[j];

@@ -263,9 +263,10 @@ QUnit.asyncTest("multiple", function() {
 });
 
 QUnit.asyncTest("open no host", function() {
-    assert.expect(2);
+    assert.expect(3);
 
     var channel = cockpit.channel({ });
+    assert.ok(channel);
     $(mock_peer).on("open", function(event) {
         assert.ok(true, "websocket connected");
     });
@@ -279,10 +280,11 @@ QUnit.asyncTest("open no host", function() {
 });
 
 QUnit.asyncTest("open auto host", function() {
-    assert.expect(2);
+    assert.expect(3);
 
     force_default_host = "planetexpress";
     var channel = cockpit.channel({ });
+    assert.ok(channel);
     $(mock_peer).on("open", function(event) {
         assert.ok(true, "websocket connected");
     });
@@ -581,7 +583,7 @@ QUnit.asyncTest("droppriv", function() {
 });
 
 QUnit.asyncTest("info", function() {
-    assert.expect(3);
+    assert.expect(4);
 
     var info_changed = false;
 
@@ -602,6 +604,7 @@ QUnit.asyncTest("info", function() {
     });
 
     var channel = cockpit.channel({ "host": "scruffy" });
+    assert.ok(channel);
 });
 
 QUnit.asyncTest("send after close", function() {

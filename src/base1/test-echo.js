@@ -38,8 +38,6 @@ QUnit.asyncTest("binary empty", function() {
         "binary": true
     });
 
-    var first = true;
-
     $(channel).on("message", function(ev, payload) {
         if (window.Uint8Array)
             assert.ok(payload instanceof window.Uint8Array, "got a byte array");

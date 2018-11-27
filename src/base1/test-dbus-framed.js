@@ -58,9 +58,6 @@ function parent_window() {
 }
 
 function child_frame() {
-    var spawn_done = false;
-    var binary_done = false;
-
     test.start_from(parent_tests);
 
     document.getElementById("title").innerHTML = "Cockpit Child Frame";

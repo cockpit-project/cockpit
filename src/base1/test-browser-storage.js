@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit, unescape, escape */
 
 /* To help with future migration */
 var assert = QUnit;

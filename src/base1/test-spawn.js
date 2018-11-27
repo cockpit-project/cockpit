@@ -287,7 +287,6 @@ QUnit.asyncTest("with signal", function() {
 QUnit.test("spawn promise recursive", function() {
     assert.expect(7);
 
-    var peer = new MockPeer();
     var promise = cockpit.spawn(["/the/path", "arg1", "arg2"]);
 
     var target = { };

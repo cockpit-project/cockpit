@@ -21,7 +21,7 @@
 
 var assert = QUnit;
 
-function common_dbus_tests(channel_options, bus_name) {
+function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
     QUnit.asyncTest("call method", function() {
         assert.expect(3);
 
@@ -354,7 +354,7 @@ function common_dbus_tests(channel_options, bus_name) {
 
         var received = false;
         var dbus = cockpit.dbus(bus_name, channel_options);
-        var id = dbus.subscribe({
+        dbus.subscribe({
             "interface": "com.redhat.Cockpit.DBusTests.Frobber",
             "path": "/otree/frobber"
         }, function(path, iface, signal, args) {
@@ -1049,7 +1049,7 @@ function common_dbus_tests(channel_options, bus_name) {
     });
 }
 
-function dbus_track_tests(channel_options, bus_name) {
+function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
     QUnit.asyncTest("track name", function() {
         assert.expect(4);
 
@@ -1156,7 +1156,7 @@ function dbus_track_tests(channel_options, bus_name) {
     });
 
     QUnit.asyncTest("receive readable fd and ensure opening more than once fails", function() {
-        assert.expect(6);
+        assert.expect(7);
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "MakeTestFd", ["readable"])
@@ -1166,6 +1166,7 @@ function dbus_track_tests(channel_options, bus_name) {
                     assert.equal(fd.payload, 'stream');
 
                     var channel1 = cockpit.channel(fd);
+                    assert.ok(channel1);
                     var channel2 = cockpit.channel(fd);
 
                     /* QUnit.start() and .stop() are ref-counted. Stop again until the channel is closed */

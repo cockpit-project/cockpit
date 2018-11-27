@@ -23,8 +23,7 @@ function parent_window() {
             test.done(parent_tests + frame_tests);
         } else if (message.indexOf && message.indexOf('"init"') !== -1) {
             initialized = true;
-            frame.postMessage('\n{ "command": "init", "version": 1, \
-                                           "a": "b", "host" : "frame_host"  }',
+            frame.postMessage('\n{ "command": "init", "version": 1, "a": "b", "host" : "frame_host"  }',
                               cockpit.transport.origin);
         } else {
             var ret = cockpit.transport.inject(message);

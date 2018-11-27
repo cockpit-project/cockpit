@@ -525,7 +525,6 @@ $(function() {
     $(permission).on('changed', unit_action_update_privilege);
 
     function unit_action() {
-        /* jshint validthis:true */
         var parsed_action = $(this)
                 .attr("data-action")
                 .split(":");
@@ -553,7 +552,6 @@ $(function() {
     ];
 
     function unit_file_action() {
-        /* jshint validthis:true */
         var parsed_action = $(this)
                 .attr("data-action")
                 .split(":");
@@ -780,7 +778,6 @@ $(function() {
     }
 
     function unit_goto() {
-        /* jshint validthis:true */
         cockpit.location.go([ $(this).attr("data-goto-unit") ]);
     }
 

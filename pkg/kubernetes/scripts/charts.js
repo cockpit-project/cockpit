@@ -392,7 +392,6 @@
                             }
 
                             function calFontSize() {
-                                /* jshint validthis:true */
                                 var width = this.getComputedTextLength();
                                 var inner = parseInt(g.attr("data-innersize"), 10);
                                 var style = window.getComputedStyle(this, null);

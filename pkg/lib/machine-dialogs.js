@@ -950,7 +950,6 @@
 
         function render() {
             function formated_groups() {
-                /* jshint validthis:true */
                 if (this.groups)
                     return this.groups.join(", ");
             }

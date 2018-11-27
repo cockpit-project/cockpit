@@ -45,15 +45,6 @@ var cwd = process.cwd();
 var config_path = path.resolve(cwd, ops.args[0]);
 var config = require(config_path);
 
-// An alternate jshint reporter when used with make
-config.jshint.reporter = function(errors) {
-    var loader = this;
-    errors.forEach(function(err) {
-        console.log(loader.resource + ":" + err.line + ":" + err.character + ": " + err.reason);
-    });
-    process.exit(1);
-};
-
 // The latest input file time updated and used below
 var latest = fs.statSync(config_path).mtime;
 

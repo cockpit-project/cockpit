@@ -122,7 +122,6 @@ if (!transport_origin) {
 
 function array_from_raw_string(str, constructor) {
     var length = str.length;
-    /* jshint -W056 */
     var data = new (constructor || Array)(length);
     for (var i = 0; i < length; i++)
         data[i] = str.charCodeAt(i) & 0xFF;
@@ -186,7 +185,6 @@ function base64_decode(str, constructor) {
             break;
     }
     var olen = (ilen * 3 + 1 >> 2) - eq;
-    /* jshint -W056 */
     var data = new (constructor || Array)(olen);
     for (var mod3, mod4, uint24 = 0, oi = 0, ii = 0; ii < ilen; ii++) {
         mod4 = ii & 3;

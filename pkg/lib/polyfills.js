@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *

@@ -41,7 +41,7 @@ dist/base1/jquery.js:
 dist/base1/jquery.min.js: dist/base1/jquery.js
 	$(MIN_JS_RULE)
 dist/base1/cockpit.js: src/base1/cockpit.js
-	$(JSHINT_RULE)
+	$(ESLINT_RULE)
 	$(COPY_RULE)
 dist/base1/cockpit.min.js: dist/base1/cockpit.js
 	$(MIN_JS_RULE)
@@ -149,11 +149,11 @@ dist/base1/qunit.css:
 	cp $(srcdir)/node_modules/qunitjs/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
-	$(JSHINT_RULE)
+	$(ESLINT_RULE)
 	$(COPY_RULE)
 
 $(base_QUNIT_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_QUNIT_DEPS)
-	$(JSHINT_RULE)
+	$(ESLINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/qunit-template.html > $@.tmp && $(MV) $@.tmp $@
@@ -174,11 +174,11 @@ base_SIMPLE_DEPS = \
 	$(NULL)
 
 dist/base1/simple-tap.js: src/base1/simple-tap.js
-	$(JSHINT_RULE)
+	$(ESLINT_RULE)
 	$(COPY_RULE)
 
 $(base_SIMPLE_TESTS): dist/base1/test-%.html: src/base1/test-%.js $(base_SIMPLE_DEPS)
-	$(JSHINT_RULE)
+	$(ESLINT_RULE)
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cp -L $< $@.tmp.js && $(MV) $@.tmp.js $(dir $@)/$(notdir $<) && \
 	$(SED_TEST_TEMPLATE) $(srcdir)/src/base1/simple-template.html > $@.tmp && $(MV) $@.tmp $@

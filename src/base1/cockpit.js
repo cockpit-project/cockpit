@@ -129,7 +129,8 @@ function array_from_raw_string(str, constructor) {
 }
 
 function array_to_raw_string(data) {
-    var length = data.length, str = "";
+    var length = data.length;
+    var str = "";
     for (var i = 0; i < length; i++)
         str += String.fromCharCode(data[i]);
     return str;
@@ -152,7 +153,9 @@ function base64_encode(data) {
     /* For when the caller has chosen to use ArrayBuffer */
     if (data instanceof window.ArrayBuffer)
         data = new window.Uint8Array(data);
-    var length = data.length, mod3 = 2, str = "";
+    var length = data.length;
+    var mod3 = 2;
+    var str = "";
     for (var uint24 = 0, i = 0; i < length; i++) {
         mod3 = i % 3;
         uint24 |= data[i] << (16 >>> mod3 & 24);
@@ -311,8 +314,9 @@ function join_data(buffers, binary) {
         return buffers.join("");
 
     var data;
-    var j, k, total = 0;
-    var i, length = buffers.length;
+    var i, j, k;
+    var total = 0;
+    var length = buffers.length;
     for (i = 0; i < length; i++)
         total += buffers[i].length;
 
@@ -540,7 +544,8 @@ function Transport() {
             transport_debug("recv " + channel + ":", payload);
         }
 
-        var i, length = incoming_filters ? incoming_filters.length : 0;
+        var i;
+        var length = incoming_filters ? incoming_filters.length : 0;
         for (i = 0; i < length; i++) {
             if (incoming_filters[i](message, channel, control) === false)
                 return false;
@@ -654,7 +659,8 @@ function Transport() {
             return false;
         }
 
-        var i, length = outgoing_filters ? outgoing_filters.length : 0;
+        var i;
+        var length = outgoing_filters ? outgoing_filters.length : 0;
         for (i = 0; i < length; i++) {
             if (channel === undefined)
                 channel = parse_channel(data);
@@ -1035,7 +1041,9 @@ function factory() {
             }
 
             /* We have to scan to do non-fatal and streaming */
-            var beg = 0, i = 0, len = data.length;
+            var beg = 0;
+            var i = 0;
+            var len = data.length;
             var p, x, j, ok;
             var str = "";
 
@@ -1166,7 +1174,8 @@ function factory() {
     var later_timeout = null;
 
     function later_drain() {
-        var func, queue = later_queue;
+        var func;
+        var queue = later_queue;
         later_timeout = null;
         later_queue = [];
         for (;;) {
@@ -1298,7 +1307,8 @@ function factory() {
     }
 
     function deferred_resolve(state, values) {
-        var then, done = false;
+        var then;
+        var done = false;
         if (is_object(values[0]) || is_function(values[0]))
             then = values[0] && values[0].then;
         if (is_function(then)) {
@@ -1907,7 +1917,8 @@ function factory() {
             var at = search(index, beg);
 
             var entry;
-            var b, e, eb, en, i, len = index.length;
+            var b, e, eb, en, i;
+            var len = index.length;
             var last = beg;
 
             /* We do this in two phases: First, we walk the index to
@@ -1960,7 +1971,8 @@ function factory() {
             var entry;
             var num;
 
-            var b, e, eb, en, i, len = index.length;
+            var b, e, eb, en, i;
+            var len = index.length;
             for (i = at > 0 ? at - 1 : at; i < len; i++) {
                 entry = index[i];
                 en = entry.items.length;
@@ -2166,7 +2178,8 @@ function factory() {
                 n = (self.end - self.beg) - x;
             if (n <= 0)
                 return;
-            var j, jlen = callbacks.length;
+            var j;
+            var jlen = callbacks.length;
             var callback, row;
             for (j = 0; j < jlen; j++) {
                 callback = callbacks[j][0];
@@ -2242,7 +2255,8 @@ function factory() {
         };
 
         self.remove_sink = function remove_sink(sink) {
-            var i, len = sinks.length;
+            var i;
+            var len = sinks.length;
             for (i = 0; i < len; i++) {
                 if (sinks[i].sink === sink) {
                     sinks[i].links.remove();
@@ -2257,7 +2271,8 @@ function factory() {
             suppress++;
 
             /* Ask all sinks to load data */
-            var sink, i, len = sinks.length;
+            var sink, i;
+            var len = sinks.length;
             for (i = 0; i < len; i++) {
                 sink = sinks[i].sink;
                 sink.load(self.beg, self.end, for_walking);
@@ -2484,7 +2499,8 @@ function factory() {
 
         function decode_path(input) {
             var parts = input.split('/').map(decodeURIComponent);
-            var result, i, pre_parts = [];
+            var result, i;
+            var pre_parts = [];
 
             if (self.url_root)
                 pre_parts = self.url_root.split('/').map(decodeURIComponent);
@@ -2521,7 +2537,8 @@ function factory() {
             href = href.replace("%3D", "=");
             href = href.replace(/%2B/g, "+");
 
-            var i, opt, value, query = [];
+            var i, opt, value;
+            var query = [];
             function push_option(v) {
                 query.push(encodeURIComponent(opt) + "=" + encodeURIComponent(v));
             }
@@ -2552,8 +2569,9 @@ function factory() {
             var path = decode_path(first);
             if (pos !== -1 && options) {
                 href.substring(pos + 1).split("&")
-.forEach(function(opt) {
-                    var last, parts = opt.split('=');
+                .forEach(function(opt) {
+                    var last;
+                    var parts = opt.split('=');
                     var name = decodeURIComponent(parts[0]);
                     var value = decodeURIComponent(parts[1]);
                     if (options.hasOwnProperty(name)) {
@@ -2861,7 +2879,8 @@ function factory() {
                 callbacks.push(cb);
             return {
                 remove: function remove() {
-                    var i, length = callbacks.length;
+                    var i;
+                    var length = callbacks.length;
                     for (i = 0; i < length; i++) {
                         var cb = callbacks[i];
                         if (cb[0] === path && cb[1] === iface && cb[2] === callback) {
@@ -2875,7 +2894,8 @@ function factory() {
 
         function emit(path, iface, props) {
             var copy = callbacks.slice();
-            var i, length = copy.length;
+            var i;
+            var length = copy.length;
             for (i = 0; i < length; i++) {
                 var cb = copy[i];
                 if ((!cb[0] || cb[0] === path) &&
@@ -2922,7 +2942,8 @@ function factory() {
             self.data = { };
             var copy = callbacks;
             callbacks = [ ];
-            var i, length = copy.length;
+            var i;
+            var length = copy.length;
             for (i = 0; i < length; i++)
                 copy[i].callback();
         };
@@ -3290,7 +3311,8 @@ function factory() {
 
         function close_perform(options) {
             closed = options.problem || "disconnected";
-            var id, outstanding = calls;
+            var id;
+            var outstanding = calls;
             calls = { };
             for (id in outstanding) {
                 outstanding[id].reject(new DBusError(closed, options.message));
@@ -3359,7 +3381,8 @@ function factory() {
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
-            var msg, subscription = {
+            var msg;
+            var subscription = {
                 match: extend({ }, match),
                 callback: callback
             };
@@ -3712,7 +3735,8 @@ function factory() {
                 }
             });
 
-            var len = 0, binary = false;
+            var len = 0;
+            var binary = false;
             if (file_content) {
                 if (file_content.byteLength) {
                     len = file_content.byteLength;
@@ -3722,7 +3746,8 @@ function factory() {
                 }
             }
 
-            var i, n, batch = 16 * 1024;
+            var i, n;
+            var batch = 16 * 1024;
             for (i = 0; i < len; i += batch) {
                 n = Math.min(len - i, batch);
                 if (binary)
@@ -4534,7 +4559,8 @@ function factory() {
         };
 
         self.close = function close(options) {
-            var i, len = channels.length;
+            var i;
+            var len = channels.length;
             if (self.series)
                 self.series.close();
 

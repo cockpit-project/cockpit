@@ -67,7 +67,8 @@ QUnit.test("utf8 round trip", function() {
     }
     function old_encode(string) {
         var utf8 = unescape(encodeURIComponent(string));
-        var octets = new Array(utf8.length), i;
+        var octets = new Array(utf8.length);
+        var i;
         for (i = 0; i < utf8.length; i += 1) {
             octets[i] = utf8.charCodeAt(i);
         }

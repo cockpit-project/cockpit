@@ -107,14 +107,16 @@
     }
 
     function brand(_id, def) {
-        var style, elt = id(_id);
+        var style;
+        var elt = id(_id);
         if (elt && window.getComputedStyle)
             style = window.getComputedStyle(elt, ":before");
 
         if (!style)
             return;
 
-        var len, content = style.content;
+        var len;
+        var content = style.content;
         if (content && content != "none" && content != "normal") {
             len = content.length;
             if ((content[0] === '"' || content[0] === '\'') &&
@@ -446,7 +448,8 @@
 
     function call_login() {
         login_failure(null);
-        var machine, user = trim(id("login-user-input").value);
+        var machine;
+        var user = trim(id("login-user-input").value);
         if (user === "") {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && id("server-field").value === "") {

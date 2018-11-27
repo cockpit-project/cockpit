@@ -1331,8 +1331,11 @@ class TestMachines(MachineCase):
                         break
                     time.sleep(5)
                 else:
-                    raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
-                        ', '.join(errors), b.text(error_location)))
+                    if m.image == "debian-stable" and "internal error: process exited while connecting to monitor" in error_message:
+                        return unittest.skip("QEMU binary crashed in TCG code and error message from QEMU was not printed")
+                    else:
+                        raise Error("Retry limit exceeded: None of [%s] is part of the error message '%s'" % (
+                            ', '.join(errors), b.text(error_location)))
 
             def allowBugErrors(location, original_exception):
                 # CPU must be supported to detect errors

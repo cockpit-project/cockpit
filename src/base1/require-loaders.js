@@ -29,6 +29,6 @@
     };
 
     /* Define this under two names, one of which is more webpack compatible */
-    define('raw', module);
-    define('data', module);
+    define('raw', module); // eslint-disable-line no-undef
+    define('data', module); // eslint-disable-line no-undef
 }());

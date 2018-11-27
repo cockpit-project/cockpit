@@ -7,7 +7,7 @@ staticdir = $(datadir)/cockpit/static
 nodist_static_DATA = dist/static/login.min.html dist/static/login.po.html $(LOGIN_PO_FILES)
 
 dist/static/login.js: src/ws/login.js
-	$(JSHINT_RULE)
+	$(ESHINT_RULE)
 	$(COPY_RULE)
 dist/static/login.min.js: dist/static/login.js
 	$(MIN_JS_RULE)

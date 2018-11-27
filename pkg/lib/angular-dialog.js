@@ -312,7 +312,6 @@
 
         function handleClear(ev) {
             var target = ev.target;
-            /* jshint validthis:true */
             while (target !== this) {
                 clearError(angular.element(target));
                 target = target.parentNode;

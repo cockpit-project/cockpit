@@ -96,8 +96,8 @@ MIN_CSS_RULE = \
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ \
 		--source-map --source-map-inline-sources $^
 
-JSHINT_RULE = \
-	$(V_CHECK) $(srcdir)/tools/missing $(srcdir)/tools/jshint $<
+ESLINT_RULE = \
+	$(V_CHECK) eslint $<
 
 SUBST_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && sed \

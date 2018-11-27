@@ -40,7 +40,7 @@ require("./networking.css");
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
-function nm_debug() { // jshint ignore:line
+function nm_debug() {
     if (window.debugging == "all" || window.debugging == "nm")
         console.debug.apply(console, arguments);
 }

@@ -3117,17 +3117,17 @@ function factory() {
 
         function update(props, path) {
             var proxy = self[path];
-            if (!path) {
-                return;
-            } else if (!props && proxy) {
-                delete self[path];
-                self.dispatchEvent("removed", proxy);
-            } else if (props) {
-                if (!proxy) {
-                    proxy = self[path] = client.proxy(iface, path, options);
-                    self.dispatchEvent("added", proxy);
+            if (path) {
+                if (!props && proxy) {
+                    delete self[path];
+                    self.dispatchEvent("removed", proxy);
+                } else if (props) {
+                    if (!proxy) {
+                        proxy = self[path] = client.proxy(iface, path, options);
+                        self.dispatchEvent("added", proxy);
+                    }
+                    self.dispatchEvent("changed", proxy);
                 }
-                self.dispatchEvent("changed", proxy);
             }
         }
 

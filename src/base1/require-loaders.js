@@ -14,14 +14,14 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", parentRequire.toUrl(name), true);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4) {
-                return;
-            } else if (xhr.status == 200) {
-                onload(xhr.responseText);
-            } else if (xhr.statusText) {
-                onload.error(new Error(name + ": " + xhr.statusText));
-            } else {
-                onload.error(new Error(name + ": " + xhr.status + " error"));
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    onload(xhr.responseText);
+                } else if (xhr.statusText) {
+                    onload.error(new Error(name + ": " + xhr.statusText));
+                } else {
+                    onload.error(new Error(name + ": " + xhr.status + " error"));
+                }
             }
         };
         xhr.overrideMimeType("text/plain");

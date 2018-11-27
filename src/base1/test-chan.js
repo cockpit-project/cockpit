@@ -795,8 +795,6 @@ QUnit.asyncTest("transport options", function() {
     channel.send("blah");
 });
 
-var shell = shell || { };
-
 QUnit.test("message", function() {
     assert.expect(4);
     assert.strictEqual(cockpit.message("terminated"), "Your session has been terminated.", "problem code");

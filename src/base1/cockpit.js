@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* eslint-disable indent */
+/* eslint-disable indent,no-empty */
 
 var url_root;
 

@@ -313,18 +313,18 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", login_path, true);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4) {
-                return;
-            } else if (xhr.status == 200) {
-                run(JSON.parse(xhr.responseText));
-            } else if (xhr.status == 401) {
-                show_login();
-            } else if (xhr.statusText) {
-                fatal(decodeURIComponent(xhr.statusText));
-            } else if (xhr.status === 0) {
-                show_login();
-            } else {
-                fatal(format(_("$0 error"), xhr.status));
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    run(JSON.parse(xhr.responseText));
+                } else if (xhr.status == 401) {
+                    show_login();
+                } else if (xhr.statusText) {
+                    fatal(decodeURIComponent(xhr.statusText));
+                } else if (xhr.status === 0) {
+                    show_login();
+                } else {
+                    fatal(format(_("$0 error"), xhr.status));
+                }
             }
         };
         xhr.send();
@@ -366,17 +366,17 @@
             xhr.open("GET", login_path, true);
             xhr.setRequestHeader("Authorization", "Bearer " + token_val);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState != 4) {
-                    return;
-                } else if (xhr.status == 200) {
-                    run(JSON.parse(xhr.responseText));
-                } else {
-                    prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"),
-                                                            xhr.responseText);
-                    if (prompt_data)
-                        show_converse(prompt_data);
-                    else
-                        fatal(xhr.statusText);
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        run(JSON.parse(xhr.responseText));
+                    } else {
+                        prompt_data = get_prompt_from_challenge(xhr.getResponseHeader("WWW-Authenticate"),
+                                                                xhr.responseText);
+                        if (prompt_data)
+                            show_converse(prompt_data);
+                        else
+                            fatal(xhr.statusText);
+                    }
                 }
             };
             xhr.send();
@@ -703,17 +703,17 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", base + 'manifests.json', true);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4) {
-                return;
-            } else if (xhr.status == 200) {
-                var resp = JSON.parse(xhr.responseText);
-                var base1 = resp ? resp['base1'] : {};
-                if (!base1['version'] || base1['version'] < "119.x") {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    var resp = JSON.parse(xhr.responseText);
+                    var base1 = resp ? resp['base1'] : {};
+                    if (!base1['version'] || base1['version'] < "119.x") {
+                        login_reload(embeded_url);
+                    } else
+                        login_reload(wanted);
+                } else {
                     login_reload(embeded_url);
-                } else
-                    login_reload(wanted);
-            } else {
-                login_reload(embeded_url);
+                }
             }
         };
         xhr.send();

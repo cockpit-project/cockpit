@@ -173,8 +173,8 @@ function base64_encode(data) {
 }
 
 function b64_to_uint6 (x) {
-    return x > 64 && x < 91 ? x - 65 : x > 96 && x < 123 ?
-        x - 71 : x > 47 && x < 58 ? x + 4 : x === 43 ? 62 : x === 47 ? 63 : 0;
+    return x > 64 && x < 91 ? x - 65 : x > 96 && x < 123
+        ? x - 71 : x > 47 && x < 58 ? x + 4 : x === 43 ? 62 : x === 47 ? 63 : 0;
 }
 
 function base64_decode(str, constructor) {

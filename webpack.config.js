@@ -397,7 +397,7 @@ module.exports = {
     module: {
         preLoaders: [
             {
-                test: /\/src\/.*\.js$/,
+                test: /\/src\/(base1|ws)\/[^/]*\.js$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "jshint-loader"
             },

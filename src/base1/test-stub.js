@@ -11,13 +11,13 @@ function internal_test(options) {
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);
     dbus.call("/", "org.freedesktop.DBus.Introspectable", "Introspect")
-        .done(function(resp) {
-            assert.ok(String(resp[0]).indexOf("<node") !== -1, "introspected internal");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "called internal");
-            QUnit.start();
-        });
+            .done(function(resp) {
+                assert.ok(String(resp[0]).indexOf("<node") !== -1, "introspected internal");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "called internal");
+                QUnit.start();
+            });
 }
 
 QUnit.asyncTest("internal dbus", function() {
@@ -63,36 +63,36 @@ QUnit.asyncTest("http", function() {
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
-        .done(function(data) {
-            assert.deepEqual(JSON.parse(data), {
-                version: "@VERSION@",
-                requires: {
-                    cockpit: "122"
-                },
-                tools: {
-                    'exception': {
-                        label: 'Exceptions'
+            .done(function(data) {
+                assert.deepEqual(JSON.parse(data), {
+                    version: "@VERSION@",
+                    requires: {
+                        cockpit: "122"
                     },
-                    'patterns': {
-                        label: "Design Patterns",
-                        path: "jquery-patterns.html"
-                    },
-                    'react-patterns': {
-                        label: "React Patterns"
-                    },
-                    'translate': {
-                        label: "Translating"
-                    },
-                    'pkgs': {
-                        label: "Packages"
+                    tools: {
+                        'exception': {
+                            label: 'Exceptions'
+                        },
+                        'patterns': {
+                            label: "Design Patterns",
+                            path: "jquery-patterns.html"
+                        },
+                        'react-patterns': {
+                            label: "React Patterns"
+                        },
+                        'translate': {
+                            label: "Translating"
+                        },
+                        'pkgs': {
+                            label: "Packages"
+                        }
                     }
-                }
-            }, "returned right data");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+                }, "returned right data");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("internal dbus environment", function() {
@@ -113,18 +113,16 @@ QUnit.asyncTest("internal user dbus", function() {
     dbus.call("/user", "org.freedesktop.DBus.Properties",
               "GetAll", [ "cockpit.User" ],
               { "type": "s" })
-        .fail(function(ex) {
-            assert.ok(ex.message.indexOf("No such interface") == 0, "unexpected error: " + ex.message);
-            assert.ok(ex.message.indexOf("org.freedesktop.DBus.Properties") > 0, "unexpected error: " + ex.message);
-            assert.ok(ex.message.indexOf("/user") > 0, "unexpected error: " + ex.message);
-
-        })
-        .always(function() {
-            assert.equal(this.state(), "rejected", "finished successfuly");
-            QUnit.start();
-        });
+            .fail(function(ex) {
+                assert.ok(ex.message.indexOf("No such interface") == 0, "unexpected error: " + ex.message);
+                assert.ok(ex.message.indexOf("org.freedesktop.DBus.Properties") > 0, "unexpected error: " + ex.message);
+                assert.ok(ex.message.indexOf("/user") > 0, "unexpected error: " + ex.message);
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "finished successfuly");
+                QUnit.start();
+            });
 });
-
 
 QUnit.asyncTest("not supported types", function() {
     var failures = 7;
@@ -138,19 +136,19 @@ QUnit.asyncTest("not supported types", function() {
             QUnit.start();
     }
 
-    var flist = cockpit.channel({"payload":"fslist1","path":"/foo"});
+    var flist = cockpit.channel({"payload":"fslist1", "path":"/foo"});
     $(flist).on("close", failed);
 
-    var fwatch = cockpit.channel({"payload":"fswatch1","path":"/foo"});
+    var fwatch = cockpit.channel({"payload":"fswatch1", "path":"/foo"});
     $(fwatch).on("close", failed);
 
-    var file = cockpit.channel({"payload":"fsread1","path":"/foo"});
+    var file = cockpit.channel({"payload":"fsread1", "path":"/foo"});
     $(file).on("close", failed);
 
-    var freplace = cockpit.channel({"payload":"fsreplace1","path":"/foo"});
+    var freplace = cockpit.channel({"payload":"fsreplace1", "path":"/foo"});
     $(freplace).on("close", failed);
 
-    var spawn = cockpit.channel({"payload":"stream","spawn":["sh","-c","echo"]});
+    var spawn = cockpit.channel({"payload":"stream", "spawn":["sh", "-c", "echo"]});
     $(spawn).on("close", failed);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });

@@ -39,8 +39,6 @@ QUnit.asyncTest("external channel websocket", function() {
 });
 
 QUnit.asyncTest("bad channel options websocket", function() {
-
-
     var payloads = [
         window.btoa(JSON.stringify({
             payload: "websocket-stream1",

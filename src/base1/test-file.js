@@ -9,176 +9,176 @@ QUnit.asyncTest("simple read", function() {
     assert.expect(3);
     var file = cockpit.file(dir + "/foo");
     assert.equal(file.path, dir + "/foo", "file has path");
-    file.read().
-        done(function(resp) {
-            assert.equal(resp, "1234\n", "correct result");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    file.read()
+            .done(function(resp) {
+                assert.equal(resp, "1234\n", "correct result");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("read non-existent", function() {
     assert.expect(2);
-    cockpit.file(dir + "/blah").read().
-        done(function(resp) {
-            assert.equal(resp, null, "correct result");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/blah").read()
+            .done(function(resp) {
+                assert.equal(resp, null, "correct result");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("parse read", function() {
     assert.expect(2);
-    cockpit.file(dir + "/foo.json", { syntax: JSON }).read().
-        done(function(resp) {
-            assert.deepEqual(resp, { foo: 12 }, "correct result");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/foo.json", { syntax: JSON }).read()
+            .done(function(resp) {
+                assert.deepEqual(resp, { foo: 12 }, "correct result");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("parse read error", function() {
     assert.expect(2);
-    cockpit.file(dir + "/foo.bin", { syntax: JSON }).read().
-        fail(function(error) {
-            assert.ok(error instanceof SyntaxError, "got SyntaxError error");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "failed");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/foo.bin", { syntax: JSON }).read()
+            .fail(function(error) {
+                assert.ok(error instanceof SyntaxError, "got SyntaxError error");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "failed");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("binary read", function() {
     assert.expect(2);
-    cockpit.file(dir + "/foo.bin", { binary: true }).read().
-        done(function(resp) {
-            assert.deepEqual(resp, new Uint8Array([ 0, 1, 2, 3 ]), "correct result");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/foo.bin", { binary: true }).read()
+            .done(function(resp) {
+                assert.deepEqual(resp, new Uint8Array([ 0, 1, 2, 3 ]), "correct result");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("read non-regular", function() {
     assert.expect(2);
-    cockpit.file(dir, { binary: true }).read().
-        fail(function(error) {
-            assert.equal(error.problem, "internal-error", "got error");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "failed");
-            QUnit.start();
-        });
+    cockpit.file(dir, { binary: true }).read()
+            .fail(function(error) {
+                assert.equal(error.problem, "internal-error", "got error");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "failed");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("read large", function() {
     assert.expect(2);
-    cockpit.file(dir + "/large.bin", { binary: true }).read().
-        done(function(resp) {
-            assert.equal(resp.length, 512*1024, "correct result");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/large.bin", { binary: true }).read()
+            .done(function(resp) {
+                assert.equal(resp.length, 512 * 1024, "correct result");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("read too large", function() {
     assert.expect(2);
-    cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8*1024 }).read().
-        fail(function(error) {
-            assert.equal(error.problem, "too-large", "got error");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "failed");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8 * 1024 }).read()
+            .fail(function(error) {
+                assert.equal(error.problem, "too-large", "got error");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "failed");
+                QUnit.start();
+            });
 });
 
 /* regression: passing 'binary: false' made cockpit-ws close the whole connection */
 QUnit.asyncTest("binary false", function() {
     assert.expect(1);
-    cockpit.file(dir + "/foo.bin", { binary: false }).read().
-        done(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/foo.bin", { binary: false }).read()
+            .done(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("simple replace", function() {
     assert.expect(2);
-    cockpit.file(dir + "/bar").replace("4321\n").
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            cockpit.spawn([ "cat", dir + "/bar" ])
-                .done(function (res) {
-                    assert.equal(res, "4321\n", "correct content");
-                    QUnit.start();
-                });
-        });
+    cockpit.file(dir + "/bar").replace("4321\n")
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                cockpit.spawn([ "cat", dir + "/bar" ])
+                        .done(function (res) {
+                            assert.equal(res, "4321\n", "correct content");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("stringify replace", function() {
     assert.expect(2);
-    cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            cockpit.spawn([ "cat", dir + "/bar" ])
-                .done(function (res) {
-                    assert.deepEqual(JSON.parse(res), { foo: 4321 }, "correct content");
-                    QUnit.start();
-                });
-        });
+    cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                cockpit.spawn([ "cat", dir + "/bar" ])
+                        .done(function (res) {
+                            assert.deepEqual(JSON.parse(res), { foo: 4321 }, "correct content");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("stringify replace error", function() {
     assert.expect(2);
     var cycle = { };
     cycle.me = cycle;
-    cockpit.file(dir + "/bar", { syntax: JSON }).replace(cycle).
-        fail(function(error) {
-            assert.ok(error instanceof TypeError, "got stringify error");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "failed");
-            QUnit.start();
-        });
+    cockpit.file(dir + "/bar", { syntax: JSON }).replace(cycle)
+            .fail(function(error) {
+                assert.ok(error instanceof TypeError, "got stringify error");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "failed");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("binary replace", function() {
     assert.expect(2);
-    cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0])).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            cockpit.spawn([ "cat", dir + "/bar" ], { binary: true })
-                .done(function (res) {
-                    assert.deepEqual(res, new Uint8Array([3, 2, 1, 0]), "correct content");
-                    QUnit.start();
-                });
-        });
+    cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0]))
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                cockpit.spawn([ "cat", dir + "/bar" ], { binary: true })
+                        .done(function (res) {
+                            assert.deepEqual(res, new Uint8Array([3, 2, 1, 0]), "correct content");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("replace large", function() {
     assert.expect(3);
     var str = new Array(23 * 1023).join('abcdef12345');
-    cockpit.file(dir + "/large").replace(str).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            cockpit.spawn([ "cat", dir + "/large" ])
-                .done(function(res) {
-                    assert.equal(res.length, str.length, "correct large length");
-                    assert.ok(res == str, "correct large data");
-                    QUnit.start();
-                });
-        });
+    cockpit.file(dir + "/large").replace(str)
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                cockpit.spawn([ "cat", dir + "/large" ])
+                        .done(function(res) {
+                            assert.equal(res.length, str.length, "correct large length");
+                            assert.ok(res == str, "correct large data");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("binary replace large", function() {
@@ -186,43 +186,42 @@ QUnit.asyncTest("binary replace large", function() {
     var data = new Uint8Array(249 * 1023);
     var i, len = data.byteLength;
     for (i = 0; i < len; i++)
-       data[i] = i % 233;
-    cockpit.file(dir + "/large-binary", { binary: true }).replace(data).
-        always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            cockpit.spawn([ "cat", dir + "/large-binary" ], { binary: true })
-                .done(function (res) {
-                    var i, len = res.byteLength, eq = true;
-                    assert.equal(res.byteLength, 249 * 1023, "check length");
-                    assert.equal(res.byteLength, data.byteLength, "correct large length");
-                    for (i = 0; i < len; i++) {
-                        if (res[i] !== data[i] || res[i] === undefined) {
-                            eq = false;
-                            break;
-                        }
-                    }
-                    assert.ok(eq, "got back same data");
-                    QUnit.start();
-                });
-        });
+        data[i] = i % 233;
+    cockpit.file(dir + "/large-binary", { binary: true }).replace(data)
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                cockpit.spawn([ "cat", dir + "/large-binary" ], { binary: true })
+                        .done(function (res) {
+                            var i, len = res.byteLength, eq = true;
+                            assert.equal(res.byteLength, 249 * 1023, "check length");
+                            assert.equal(res.byteLength, data.byteLength, "correct large length");
+                            for (i = 0; i < len; i++) {
+                                if (res[i] !== data[i] || res[i] === undefined) {
+                                    eq = false;
+                                    break;
+                                }
+                            }
+                            assert.ok(eq, "got back same data");
+                            QUnit.start();
+                        });
+            });
 });
-
 
 QUnit.asyncTest("remove", function() {
     assert.expect(3);
     cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar && echo exists" ])
-        .done(function (res) {
-            assert.equal(res, "exists\n", "exists");
-            cockpit.file(dir + "/bar").replace(null).
-                always(function() {
-                    assert.equal(this.state(), "resolved", "didn't fail");
-                    cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar || echo gone" ])
-                        .done(function (res) {
-                            assert.equal(res, "gone\n", "gone");
-                            QUnit.start();
+            .done(function (res) {
+                assert.equal(res, "exists\n", "exists");
+                cockpit.file(dir + "/bar").replace(null)
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "didn't fail");
+                            cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar || echo gone" ])
+                                    .done(function (res) {
+                                        assert.equal(res, "gone\n", "gone");
+                                        QUnit.start();
+                                    });
                         });
-                });
-        });
+            });
 });
 
 QUnit.asyncTest("abort replace", function() {
@@ -238,48 +237,48 @@ QUnit.asyncTest("abort replace", function() {
     }
 
     file.replace("1234\n")
-        .always(function () {
-            assert.equal(this.state(), "rejected", "failed as expected");
-            start_after_two();
-        });
+            .always(function () {
+                assert.equal(this.state(), "rejected", "failed as expected");
+                start_after_two();
+            });
 
     file.replace("abcd\n")
-        .always(function () {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            start_after_two();
-        });
+            .always(function () {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                start_after_two();
+            });
 });
 
 QUnit.asyncTest("replace with tag", function() {
     var file = cockpit.file(dir + "/barfoo");
 
     file.read()
-        .always(function () {
-            assert.equal(this.state(), "resolved", "didn't fail");
-        })
-        .done(function (content, tag_1) {
-            assert.equal(content, null, "file does not exist");
-            assert.equal(tag_1, "-", "first tag is -");
-            file.replace("klmn\n", tag_1)
-                .always(function () {
-                    assert.equal(this.state(), "resolved", "didn't fail");
-                })
-                .done(function (tag_2) {
-                    assert.notEqual(tag_2, "-", "second tag is not -");
-                    file.replace("KLMN\n", tag_2)
+            .always(function () {
+                assert.equal(this.state(), "resolved", "didn't fail");
+            })
+            .done(function (content, tag_1) {
+                assert.equal(content, null, "file does not exist");
+                assert.equal(tag_1, "-", "first tag is -");
+                file.replace("klmn\n", tag_1)
                         .always(function () {
                             assert.equal(this.state(), "resolved", "didn't fail");
                         })
-                        .done(function (tag_3) {
-                            assert.notEqual(tag_3, tag_2, "third tag is different");
-                            file.replace("opqr\n", tag_2)
-                                .fail(function (error) {
-                                    assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
-                                    QUnit.start();
-                                });
+                        .done(function (tag_2) {
+                            assert.notEqual(tag_2, "-", "second tag is not -");
+                            file.replace("KLMN\n", tag_2)
+                                    .always(function () {
+                                        assert.equal(this.state(), "resolved", "didn't fail");
+                                    })
+                                    .done(function (tag_3) {
+                                        assert.notEqual(tag_3, tag_2, "third tag is different");
+                                        file.replace("opqr\n", tag_2)
+                                                .fail(function (error) {
+                                                    assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
+                                                    QUnit.start();
+                                                });
+                                    });
                         });
-                });
-        });
+            });
 });
 
 QUnit.asyncTest("modify", function() {
@@ -289,33 +288,33 @@ QUnit.asyncTest("modify", function() {
 
     var n = 0;
     file
-        .modify(function (old) {
-            n += 1;
-            assert.equal(old, null, "no old content");
-            return "ABCD\n";
-        })
-        .always(function () {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            assert.equal(n, 1, "callback called once");
-        })
-        .done(function () {
-            var n = 0;
-            file
-                .modify(function (old) {
-                    n += 1;
-                    assert.equal(old, "ABCD\n", "correct old content");
-                    return "dcba\n";
-                })
-                .always(function () {
-                    assert.equal(this.state(), "resolved", "didn't fail");
-                    assert.equal(n, 1, "callback called once");
-                    cockpit.spawn([ "cat", dir + "/quux" ])
-                        .done(function (res) {
-                            assert.equal(res, "dcba\n", "correct content");
-                            QUnit.start();
+            .modify(function (old) {
+                n += 1;
+                assert.equal(old, null, "no old content");
+                return "ABCD\n";
+            })
+            .always(function () {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                assert.equal(n, 1, "callback called once");
+            })
+            .done(function () {
+                var n = 0;
+                file
+                        .modify(function (old) {
+                            n += 1;
+                            assert.equal(old, "ABCD\n", "correct old content");
+                            return "dcba\n";
+                        })
+                        .always(function () {
+                            assert.equal(this.state(), "resolved", "didn't fail");
+                            assert.equal(n, 1, "callback called once");
+                            cockpit.spawn([ "cat", dir + "/quux" ])
+                                    .done(function (res) {
+                                        assert.equal(res, "dcba\n", "correct content");
+                                        QUnit.start();
+                                    });
                         });
-                });
-        });
+            });
 });
 
 QUnit.asyncTest("modify with conflict", function() {
@@ -325,39 +324,39 @@ QUnit.asyncTest("modify with conflict", function() {
 
     var n = 0;
     file
-        .modify(function (old) {
-            n += 1;
-            assert.equal(old, null, "no old content");
-            return "ABCD\n";
-        })
-        .always(function () {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            assert.equal(n, 1, "callback called once");
-        })
-        .done(function (content, tag) {
-            var n = 0;
-            cockpit.spawn([ "bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz" ])
-                .done(function () {
-                    file
-                        .modify(function (old) {
-                            n += 1;
-                            if (n == 1)
-                                assert.equal(old, "ABCD\n", "correct old (out-of-date) content");
-                            else
-                                assert.equal(old, "XYZ\n", "correct old (current) content");
-                            return old.toLowerCase();
-                        }, content, tag)
-                        .always(function () {
-                            assert.equal(this.state(), "resolved", "didn't fail");
-                            assert.equal(n, 2, "callback called twice");
-                            cockpit.spawn([ "cat", dir + "/baz" ])
-                                .done(function (res) {
-                                    assert.equal(res, "xyz\n", "correct content");
-                                    QUnit.start();
-                                });
+            .modify(function (old) {
+                n += 1;
+                assert.equal(old, null, "no old content");
+                return "ABCD\n";
+            })
+            .always(function () {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                assert.equal(n, 1, "callback called once");
+            })
+            .done(function (content, tag) {
+                var n = 0;
+                cockpit.spawn([ "bash", "-c", "sleep 1; echo XYZ > " + dir + "/baz" ])
+                        .done(function () {
+                            file
+                                    .modify(function (old) {
+                                        n += 1;
+                                        if (n == 1)
+                                            assert.equal(old, "ABCD\n", "correct old (out-of-date) content");
+                                        else
+                                            assert.equal(old, "XYZ\n", "correct old (current) content");
+                                        return old.toLowerCase();
+                                    }, content, tag)
+                                    .always(function () {
+                                        assert.equal(this.state(), "resolved", "didn't fail");
+                                        assert.equal(n, 2, "callback called twice");
+                                        cockpit.spawn([ "cat", dir + "/baz" ])
+                                                .done(function (res) {
+                                                    assert.equal(res, "xyz\n", "correct content");
+                                                    QUnit.start();
+                                                });
+                                    });
                         });
-                });
-        });
+            });
 });
 
 QUnit.asyncTest("watching", function() {
@@ -381,7 +380,6 @@ QUnit.asyncTest("watching", function() {
             QUnit.start();
         }
     }
-
 });
 
 QUnit.asyncTest("syntax watching", function() {
@@ -424,13 +422,13 @@ QUnit.asyncTest("closing", function() {
     }
 
     file.read()
-        .done(function (content, tag) {
-            assert.ok(false, "read didn't complete");
-        }).
-        fail(function (error) {
-            assert.equal(error.problem, "cancelled", "read got cancelled");
-            start_after_two();
-        });
+            .done(function (content, tag) {
+                assert.ok(false, "read didn't complete");
+            })
+            .fail(function (error) {
+                assert.equal(error.problem, "cancelled", "read got cancelled");
+                start_after_two();
+            });
 
     function changed(content, tag, err) {
         if (err) {
@@ -447,25 +445,25 @@ QUnit.asyncTest("closing", function() {
 QUnit.asyncTest("channel options", function() {
     assert.expect(1);
     cockpit.file(dir + "/foo", { binary: true }).read()
-        .done(function(data) {
-            assert.ok(data instanceof window.Uint8Array, "options applied, got binary data");
-        })
-        .always(function() {
-            QUnit.start();
-        });
+            .done(function(data) {
+                assert.ok(data instanceof window.Uint8Array, "options applied, got binary data");
+            })
+            .always(function() {
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("remove testdir", function() {
     assert.expect(1);
-    cockpit.spawn([ "rm", "-rf", dir ]).
-        always(function () {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.spawn([ "rm", "-rf", dir ])
+            .always(function () {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
-cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]).
-    done(function (resp) {
-        dir = resp.replace(/\n$/, "");
-        QUnit.start();
-    });
+cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"])
+        .done(function (resp) {
+            dir = resp.replace(/\n$/, "");
+            QUnit.start();
+        });

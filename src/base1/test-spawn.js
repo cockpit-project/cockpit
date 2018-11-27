@@ -40,7 +40,7 @@ function MockPeer() {
 
     /* send a message from peer back to channel */
     this.send = function(channel, payload) {
-        if (typeof(payload) != "string")
+        if (typeof (payload) != "string")
             payload = String(payload);
         window.setTimeout(function() {
             if (channel.valid)
@@ -73,7 +73,7 @@ function MockPeer() {
         var channel = this;
 
         function Transport() {
-            this.close = function(problem) { console.assert(arguments.length == 1); };
+            this.close = function(problem) { console.assert(arguments.length == 1) };
         }
 
         this.transport = new Transport();
@@ -81,13 +81,13 @@ function MockPeer() {
         this.send = function(payload) {
             console.assert(arguments.length == 1);
             console.assert(this.valid);
-            window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]); }, 5);
+            window.setTimeout(function() { $(peer).trigger("recv", [channel, payload]) }, 5);
         };
 
         this.close = function(options) {
             console.assert(arguments.length <= 1);
             this.valid = false;
-            window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]); }, 5);
+            window.setTimeout(function() { $(peer).trigger("closed", [channel, options || { }]) }, 5);
             this.dispatchEvent("close", options || { });
         };
 
@@ -148,15 +148,15 @@ QUnit.asyncTest("simple request", function() {
         this.close(channel);
     });
 
-    cockpit.spawn(["/the/path", "arg1", "arg2"]).
-        input("input", true).
-        done(function(resp) {
-            assert.deepEqual(resp, "output", "returned right json");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+    cockpit.spawn(["/the/path", "arg1", "arg2"])
+            .input("input", true)
+            .done(function(resp) {
+                assert.deepEqual(resp, "output", "returned right json");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("string command", function() {
@@ -182,7 +182,7 @@ QUnit.asyncTest("channel options", function() {
             "host": "the-other-host.example.com",
             "extra-option": "zerogjuggs",
             "payload": "stream"
-            }, "sent correctly");
+        }, "sent correctly");
         QUnit.start();
     });
 
@@ -196,28 +196,28 @@ QUnit.asyncTest("streaming", function() {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
-        for(var i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
             this.send(channel, String(i));
         this.close(channel);
     });
 
     var at = 0;
-    var promise = cockpit.spawn(["/unused"]).
-        stream(function(resp) {
-            assert.equal(String(at), resp, "stream got right data");
-            if (at === 0)
-                assert.strictEqual(this, promise, "stream got right this");
-            at++;
-        }).
-        done(function(resp) {
-            assert.ok(!resp, "stream didn't send data to done");
-            assert.strictEqual(this, promise, "done got right this");
-        }).
-        always(function() {
-            assert.equal(this.state(), "resolved", "split response didn't fail");
-            assert.strictEqual(this, promise, "always got right this");
-            QUnit.start();
-        });
+    var promise = cockpit.spawn(["/unused"])
+            .stream(function(resp) {
+                assert.equal(String(at), resp, "stream got right data");
+                if (at === 0)
+                    assert.strictEqual(this, promise, "stream got right this");
+                at++;
+            })
+            .done(function(resp) {
+                assert.ok(!resp, "stream didn't send data to done");
+                assert.strictEqual(this, promise, "done got right this");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "split response didn't fail");
+                assert.strictEqual(this, promise, "always got right this");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("with problem", function() {
@@ -228,16 +228,16 @@ QUnit.asyncTest("with problem", function() {
         peer.close(channel, {"problem": "not-found"});
     });
 
-    cockpit.spawn("/unused").
-        fail(function(ex) {
-            assert.equal(ex.problem, "not-found", "got problem");
-            assert.strictEqual(ex.exit_signal, null, "got no signal");
-            assert.strictEqual(ex.exit_status, null, "got no status");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "should fail");
-            QUnit.start();
-        });
+    cockpit.spawn("/unused")
+            .fail(function(ex) {
+                assert.equal(ex.problem, "not-found", "got problem");
+                assert.strictEqual(ex.exit_signal, null, "got no signal");
+                assert.strictEqual(ex.exit_status, null, "got no status");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("with status", function() {
@@ -249,17 +249,17 @@ QUnit.asyncTest("with status", function() {
         peer.close(channel, {"exit-status": 5});
     });
 
-    cockpit.spawn("/unused").
-        fail(function(ex, data) {
-            assert.strictEqual(ex.problem, null, "got null problem");
-            assert.strictEqual(ex.exit_signal, null, "got no signal");
-            assert.strictEqual(ex.exit_status, 5, "got status");
-            assert.equal(data, "the data", "got data even with exit status");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "should fail");
-            QUnit.start();
-        });
+    cockpit.spawn("/unused")
+            .fail(function(ex, data) {
+                assert.strictEqual(ex.problem, null, "got null problem");
+                assert.strictEqual(ex.exit_signal, null, "got no signal");
+                assert.strictEqual(ex.exit_status, 5, "got status");
+                assert.equal(data, "the data", "got data even with exit status");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("with signal", function() {
@@ -271,17 +271,17 @@ QUnit.asyncTest("with signal", function() {
         peer.close(channel, {"exit-signal": "TERM"});
     });
 
-    cockpit.spawn("/unused").
-        fail(function(ex, data) {
-            assert.strictEqual(ex.problem, null, "got null problem");
-            assert.strictEqual(ex.exit_signal, "TERM", "got signal");
-            assert.strictEqual(ex.exit_status, null, "got no status");
-            assert.equal(data, "signal data here", "got data even with signal");
-        }).
-        always(function() {
-            assert.equal(this.state(), "rejected", "should fail");
-            QUnit.start();
-        });
+    cockpit.spawn("/unused")
+            .fail(function(ex, data) {
+                assert.strictEqual(ex.problem, null, "got null problem");
+                assert.strictEqual(ex.exit_signal, "TERM", "got signal");
+                assert.strictEqual(ex.exit_status, null, "got no status");
+                assert.equal(data, "signal data here", "got data even with signal");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
 });
 
 QUnit.test("spawn promise recursive", function() {

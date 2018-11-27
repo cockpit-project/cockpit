@@ -61,8 +61,8 @@ function MockPeer() {
     };
 
     /* Methods filled in by MockWebSocket */
-    self.send = function(channel, payload) { throw "not reached"; };
-    self.close = function(options) { throw "not reached"; };
+    self.send = function(channel, payload) { throw "not reached" };
+    self.close = function(options) { throw "not reached" };
 }
 
 window.mock = { url: "ws://url" };
@@ -102,7 +102,7 @@ function MockWebSocket(url, protocol) {
             throw "Invalid frame sent to WebSocket: " + data;
         var channel = data.substring(0, pos);
         var payload = data.substring(pos + 1);
-        window.setTimeout(function() { $(mock).triggerHandler("recv", [channel, payload]); }, 5);
+        window.setTimeout(function() { $(mock).triggerHandler("recv", [channel, payload]) }, 5);
     };
 
     this.close = function(code, reason) {
@@ -182,9 +182,9 @@ function check_transport (base_url, application, socket, url_root) {
     for (i = 0; i < arr.length; i++) {
         window.mock.pathname = arr[i];
         assert.equal(cockpit.transport.application(), application,
-              arr[i] + " transport.application is " + socket);
+                     arr[i] + " transport.application is " + socket);
         assert.equal(cockpit.transport.uri(), "ws://" + window.location.host + socket,
-              arr[i] + " transport.uri is " + socket);
+                     arr[i] + " transport.uri is " + socket);
     }
 
     window.mock.url = old_url;
@@ -211,17 +211,17 @@ QUnit.test("public api", function() {
     else
         assert.equal(typeof cockpit.transport.origin, "string", "cockpit.transport.origin is present");
 
-    check_transport ('/', 'cockpit', '/cockpit/socket');
-    check_transport ('/cockpit', 'cockpit', '/cockpit/socket');
-    check_transport ('/cockpitother/', 'cockpit', '/cockpit/socket');
-    check_transport ('/cockpita+pplication/', 'cockpit', '/cockpit/socket');
-    check_transport ('/cockpit+application', 'cockpit+application', '/cockpit+application/socket');
-    check_transport ('/=machine', 'cockpit+=machine', '/cockpit+=machine/socket');
-    check_transport ('/url-root', 'cockpit', '/url-root/cockpit/socket', 'url-root');
-    check_transport ('/url-root/cockpit', 'cockpit', '/url-root/cockpit/socket', 'url-root');
-    check_transport ('/url-root/cockpit+application', 'cockpit+application',
-                     '/url-root/cockpit+application/socket', 'url-root');
-    check_transport ('/url-root/=machine', 'cockpit+=machine', '/url-root/cockpit+=machine/socket', 'url-root');
+    check_transport('/', 'cockpit', '/cockpit/socket');
+    check_transport('/cockpit', 'cockpit', '/cockpit/socket');
+    check_transport('/cockpitother/', 'cockpit', '/cockpit/socket');
+    check_transport('/cockpita+pplication/', 'cockpit', '/cockpit/socket');
+    check_transport('/cockpit+application', 'cockpit+application', '/cockpit+application/socket');
+    check_transport('/=machine', 'cockpit+=machine', '/cockpit+=machine/socket');
+    check_transport('/url-root', 'cockpit', '/url-root/cockpit/socket', 'url-root');
+    check_transport('/url-root/cockpit', 'cockpit', '/url-root/cockpit/socket', 'url-root');
+    check_transport('/url-root/cockpit+application', 'cockpit+application',
+                    '/url-root/cockpit+application/socket', 'url-root');
+    check_transport('/url-root/=machine', 'cockpit+=machine', '/url-root/cockpit+=machine/socket', 'url-root');
 });
 
 QUnit.asyncTest("open channel", function() {
@@ -300,7 +300,7 @@ QUnit.asyncTest("send message", function() {
 
     var channel = cockpit.channel({ });
     $(mock_peer).on("open", function(event) {
-	channel.send("Scruffy gonna die the way he lived");
+        channel.send("Scruffy gonna die the way he lived");
     });
     $(mock_peer).on("recv", function(event, chan, payload) {
         /* Ignore the open and init messages */
@@ -496,9 +496,10 @@ QUnit.asyncTest("wait ready", function() {
         assert.strictEqual(channel.valid, true, "when valid");
     }, function() {
         assert.ok(false, "should not fail");
-    }).always(function() {
-        QUnit.start();
-    });
+    })
+            .always(function() {
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("wait close", function() {
@@ -514,9 +515,10 @@ QUnit.asyncTest("wait close", function() {
         assert.equal(options.command, "close", "wait is close");
         assert.equal(options.problem, "not-supported", "wait options has fields");
         assert.strictEqual(channel.valid, false, "channel not valid");
-    }).always(function() {
-        QUnit.start();
-    });
+    })
+            .always(function() {
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("wait callback", function() {
@@ -601,7 +603,6 @@ QUnit.asyncTest("info", function() {
 
     var channel = cockpit.channel({ "host": "scruffy" });
 });
-
 
 QUnit.asyncTest("send after close", function() {
     assert.expect(1);

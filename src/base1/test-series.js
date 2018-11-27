@@ -35,7 +35,7 @@ QUnit.test("calculated row", function() {
     var grid = cockpit.grid(1000, 3, 8);
     var calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
-             row[i + x] = i;
+            row[i + x] = i;
     });
 
     grid.notify(1, 4);
@@ -47,13 +47,13 @@ QUnit.test("calculated order", function() {
 
     var calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
-             row[i + x] = i;
+            row[i + x] = i;
     });
 
     /* Callbacks must be called in the right order for this to work */
     var dependant = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
-             row[i + x] = calculated[i + x] + 10;
+            row[i + x] = calculated[i + x] + 10;
     });
 
     grid.notify(1, 4);
@@ -68,13 +68,13 @@ QUnit.test("calculated early", function() {
     /* Callbacks must be called in the right order for this to work */
     var dependant = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
-             row[i + x] = calculated[i + x] + 10;
+            row[i + x] = calculated[i + x] + 10;
     });
 
     /* Even though this one is added after, run first, due to early flag */
     calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
-             row[i + x] = i;
+            row[i + x] = i;
     }, true);
 
     grid.notify(1, 4);
@@ -151,7 +151,7 @@ QUnit.test("sink no path", function() {
 
     sink.input(8, items);
 
-    assert.deepEqual(row, [undefined, undefined, undefined,  567, 768, { "hello": "scruffy" }], "row without a path");
+    assert.deepEqual(row, [undefined, undefined, undefined, 567, 768, { "hello": "scruffy" }], "row without a path");
 });
 
 QUnit.test("sink after close", function() {
@@ -256,7 +256,7 @@ QUnit.test("cache simple", function() {
     assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
     assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
     assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
-                     undefined, undefined, undefined, undefined ], "row with calculated");
+        undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });
@@ -306,7 +306,7 @@ QUnit.test("cache multiple", function() {
     assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row with string path");
     assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row with array path");
     assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
-                     undefined, undefined, undefined, undefined ], "row with calculated");
+        undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });
@@ -333,7 +333,7 @@ QUnit.test("cache overlap", function() {
     sink.input(8, [{
         "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
         "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
-    },{
+    }, {
         "one": { "sub": [ 300, 301, 302 ], "another": [ 30, 31, 32 ] },
         "two": { "sub": [ 3000, 3001, 3002 ], "marmalade": [ 0, 1, 2 ] }
     }]);
@@ -341,7 +341,6 @@ QUnit.test("cache overlap", function() {
         "one": { "sub": [ 900, 901, 902 ], "another": [ 90, 91, 92 ] },
         "two": { "sub": [ 9000, 9001, 9002 ], "marmalade": [ 0, 1, 2 ] }
     }]);
-
 
     assert.deepEqual(row1, [undefined, 202, 202, 302, 302, 902], "row with initial data");
 
@@ -389,7 +388,7 @@ QUnit.test("cache limit", function() {
     /* Should have removed move data from cache */
     grid.move(3, 13);
     assert.deepEqual(row, [ "three", "four", "five", undefined, undefined, undefined,
-                     undefined, "ten", "eleven" ], "expired more");
+        undefined, "ten", "eleven" ], "expired more");
 
     grid.close();
 });
@@ -443,7 +442,7 @@ QUnit.test("move", function() {
     assert.deepEqual(row1, [undefined, undefined, 202, 302, 402], "row1 with data");
     assert.deepEqual(row2, [undefined, undefined, 202, 302, 402], "row2 with data");
     assert.deepEqual(calc, [undefined, undefined, 404, 604, 804, undefined,
-                     undefined, undefined, undefined, undefined ], "row with calculated");
+        undefined, undefined, undefined, undefined ], "row with calculated");
 
     grid.close();
 });

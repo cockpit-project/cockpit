@@ -6,8 +6,8 @@ var assert = QUnit;
 QUnit.test("utf8 basic", function() {
     var str = "Base 64 \u2014 Mozilla Developer Network";
     var expect = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
-                   111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-                   111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
 
     var encoded = cockpit.utf8_encoder().encode(str);
     assert.deepEqual(encoded, expect, "encoded");
@@ -53,7 +53,7 @@ QUnit.test("utf8 round trip", function() {
         var block = [];
         for (var i = 0; i < len; i += skip) {
             var cp = from + i;
-            if (0xD800 <= cp && cp <= 0xDFFF)
+            if (cp >= 0xD800 && cp <= 0xDFFF)
                 continue;
             if (cp < 0x10000) {
                 block.push(String.fromCharCode(cp));
@@ -125,8 +125,8 @@ QUnit.test("utf8 stream", function() {
 QUnit.test("utf8 invalid", function() {
     var sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
-                   111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-                   111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
 
     var decoded = cockpit.utf8_decoder().decode(data);
 
@@ -135,10 +135,10 @@ QUnit.test("utf8 invalid", function() {
 
 QUnit.test("utf8 fatal", function() {
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
-                   111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
-                   111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
+        111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
+        111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];
 
-    assert.throws(function() { cockpit.utf8_decoder(true).decode(data); }, "fatal throws error");
+    assert.throws(function() { cockpit.utf8_decoder(true).decode(data) }, "fatal throws error");
 });
 
 QUnit.start();

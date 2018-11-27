@@ -4,7 +4,7 @@
 var assert = QUnit;
 
 QUnit.test("event dispatch", function() {
-    var obj =  { };
+    var obj = { };
     cockpit.event_target(obj);
 
     var count = 0;

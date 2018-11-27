@@ -2,7 +2,6 @@
     var module = { };
 
     module.load = function load(name, parentRequire, onload, config) {
-
         /* Predefined in the bundle */
         var predef = name + "_text";
         if (parentRequire.specified(predef)) {

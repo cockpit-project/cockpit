@@ -25,7 +25,7 @@
     var fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     function format(fmt /* ... */) {
         var args = Array.prototype.slice.call(arguments, 1);
-        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || ""; });
+        return fmt.replace(fmt_re, function(m, x, y) { return args[x || y] || "" });
     }
 
     function gettext(key) {
@@ -140,7 +140,7 @@
             var ret;
             try {
                 ret = (obj[name]);
-            } catch(ex) {
+            } catch (ex) {
                 fatal(format(_("The web browser configuration prevents Cockpit from running (inaccessible $0)"), name));
                 throw ex;
             }
@@ -196,7 +196,7 @@
         var base_tags;
         /* Some IEs don't support baseURI */
         if (!base) {
-            base_tags = document.getElementsByTagName ("base");
+            base_tags = document.getElementsByTagName("base");
             if (base_tags.length > 0)
                 base = base_tags[0].href;
             else
@@ -256,7 +256,7 @@
 
         translate();
 
-        setup_path_globals (window.location.pathname);
+        setup_path_globals(window.location.pathname);
 
         // Setup title
         var title = environment.page.title;
@@ -362,7 +362,7 @@
         if (query[oauth.TokenParam]) {
             if (window.sessionStorage.getItem('login-wanted')) {
                 parser.href = window.sessionStorage.getItem('login-wanted');
-                setup_path_globals (parser.pathname);
+                setup_path_globals(parser.pathname);
             }
 
             token_val = query[oauth.TokenParam];
@@ -464,7 +464,6 @@
             id("server-name").textContent = machine || environment.hostname;
             id("login-button").removeEventListener("click", call_login);
 
-
             /* When checked we tell the server to keep authentication */
             var authorized = id("authorized-input").checked ? "password" : "";
             var password = id("login-password-input").value;
@@ -504,7 +503,6 @@
         } else {
             id("server-group").style.display = expanded ? "block" : "none";
         }
-
 
         id("login-button").removeAttribute('disabled');
 
@@ -715,11 +713,11 @@
                 var resp = JSON.parse(xhr.responseText);
                 var base1 = resp ? resp['base1'] : {};
                 if (!base1['version'] || base1['version'] < "119.x") {
-                    login_reload (embeded_url);
+                    login_reload(embeded_url);
                 } else
-                    login_reload (wanted);
+                    login_reload(wanted);
             } else {
-                login_reload (embeded_url);
+                login_reload(embeded_url);
             }
         };
         xhr.send();
@@ -742,7 +740,7 @@
         /* Clear anything not prefixed with
          * different application from sessionStorage
          */
-        clear_storage (window.sessionStorage, application, true);
+        clear_storage(window.sessionStorage, application, true);
 
         /* Clear anything prefixed with our application
          * and login-data, but not other non-application values.
@@ -791,9 +789,9 @@
          * urls that reference machines.
          */
         if (application.indexOf("cockpit+=") === 0) {
-            machine_application_login_reload (wanted);
+            machine_application_login_reload(wanted);
         } else {
-            login_reload (wanted);
+            login_reload(wanted);
         }
     }
 

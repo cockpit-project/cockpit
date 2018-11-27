@@ -24,71 +24,71 @@ QUnit.asyncTest("simple request", function() {
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
-        .done(function(data) {
-            assert.deepEqual(JSON.parse(data), {
-                version: "@VERSION@",
-                'requires': {
-                    "cockpit": "122"
-                },
-                tools: {
-                    'exception': {
-                        'label': 'Exceptions'
+            .done(function(data) {
+                assert.deepEqual(JSON.parse(data), {
+                    version: "@VERSION@",
+                    'requires': {
+                        "cockpit": "122"
                     },
-                    'patterns': {
-                        label: "Design Patterns",
-                        path: "jquery-patterns.html"
-                    },
-                    'react-patterns': {
-                        label: "React Patterns"
-                    },
-                    'translate': {
-                        label: "Translating"
-                    },
-                    'pkgs': {
-                        label: "Packages"
+                    tools: {
+                        'exception': {
+                            'label': 'Exceptions'
+                        },
+                        'patterns': {
+                            label: "Design Patterns",
+                            path: "jquery-patterns.html"
+                        },
+                        'react-patterns': {
+                            label: "React Patterns"
+                        },
+                        'translate': {
+                            label: "Translating"
+                        },
+                        'pkgs': {
+                            label: "Packages"
+                        }
                     }
-                }
-            }, "returned right data");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+                }, "returned right data");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("with params", function() {
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" })
-        .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
-        .done(function(resp) {
-            assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+            .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+            .done(function(resp) {
+                assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("not found", function() {
     assert.expect(7);
 
     var promise = cockpit.http({ "internal": "/test-server" })
-        .get("/not/found")
-        .response(function(status, headers) {
-            assert.equal(status, 404, "status code");
-            assert.strictEqual(this, promise, "got right this");
-        })
-        .fail(function(ex, data) {
-            assert.strictEqual(ex.problem, null, "mapped to cockpit code");
-            assert.strictEqual(ex.status, 404, "has status code");
-            assert.equal(ex.message, "Not Found", "has reason");
-            assert.equal(data, "<html><head><title>Not Found</title></head><body>Not Found</body></html>\n", "got body");
-        })
-        .always(function() {
-            assert.equal(this.state(), "rejected", "should fail");
-            QUnit.start();
-        });
+            .get("/not/found")
+            .response(function(status, headers) {
+                assert.equal(status, 404, "status code");
+                assert.strictEqual(this, promise, "got right this");
+            })
+            .fail(function(ex, data) {
+                assert.strictEqual(ex.problem, null, "mapped to cockpit code");
+                assert.strictEqual(ex.status, 404, "has status code");
+                assert.equal(ex.message, "Not Found", "has reason");
+                assert.equal(data, "<html><head><title>Not Found</title></head><body>Not Found</body></html>\n", "got body");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("streaming", function() {
@@ -97,21 +97,21 @@ QUnit.asyncTest("streaming", function() {
     var at = 0;
     var got = "";
     var promise = cockpit.http({ "internal": "/test-server" })
-        .get("/mock/stream")
-        .stream(function(resp) {
-            if (at === 0)
-                assert.strictEqual(this, promise, "got right this");
-            got += resp;
-            at++;
-        })
-        .always(function() {
-            var expected = "";
-            for (var i = 0; i < at; i++)
-                expected += String(i) + " ";
-            assert.equal(got, expected, "stream got right data");
-            assert.equal(this.state(), "resolved", "split response didn't fail");
-            QUnit.start();
-        });
+            .get("/mock/stream")
+            .stream(function(resp) {
+                if (at === 0)
+                    assert.strictEqual(this, promise, "got right this");
+                got += resp;
+                at++;
+            })
+            .always(function() {
+                var expected = "";
+                for (var i = 0; i < at; i++)
+                    expected += String(i) + " ";
+                assert.equal(got, expected, "stream got right data");
+                assert.equal(this.state(), "resolved", "split response didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("close", function() {
@@ -121,18 +121,18 @@ QUnit.asyncTest("close", function() {
 
     var at = 0;
     req.stream(function(resp) {
-            at += 1;
-            assert.equal(resp, "0 ", "first stream part");
-            this.close("bad-boy");
-        })
-        .fail(function(ex) {
-            assert.equal(ex.problem, "bad-boy", "right problem");
-        })
-        .always(function() {
-            assert.equal(at, 1, "stream got cancelled");
-            assert.equal(this.state(), "rejected", "cancelling a response rejects it");
-            QUnit.start();
-        });
+        at += 1;
+        assert.equal(resp, "0 ", "first stream part");
+        this.close("bad-boy");
+    })
+            .fail(function(ex) {
+                assert.equal(ex.problem, "bad-boy", "right problem");
+            })
+            .always(function() {
+                assert.equal(at, 1, "stream got cancelled");
+                assert.equal(this.state(), "rejected", "cancelling a response rejects it");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("close all", function() {
@@ -143,66 +143,66 @@ QUnit.asyncTest("close all", function() {
 
     var at = 0;
     req.stream(function(resp) {
-            at += 1;
-            assert.equal(resp, "0 ", "first stream part");
-            http.close("bad-boy");
-        })
-        .fail(function(ex) {
-            assert.equal(ex.problem, "bad-boy", "right problem");
-        })
-        .always(function() {
-            assert.equal(at, 1, "stream got cancelled");
-            assert.equal(this.state(), "rejected", "cancelling a response rejects it");
-            http.close("closed");  // This should be a no-op now
-            QUnit.start();
-        });
+        at += 1;
+        assert.equal(resp, "0 ", "first stream part");
+        http.close("bad-boy");
+    })
+            .fail(function(ex) {
+                assert.equal(ex.problem, "bad-boy", "right problem");
+            })
+            .always(function() {
+                assert.equal(at, 1, "stream got cancelled");
+                assert.equal(this.state(), "rejected", "cancelling a response rejects it");
+                http.close("closed"); // This should be a no-op now
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("headers", function() {
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
-        .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay value" })
-        .response(function(status, headers) {
-            assert.equal(status, 201, "status code");
-            assert.deepEqual(headers, {
+            .get("/mock/headers", null, { "Header1": "booo", "Header2": "yay value" })
+            .response(function(status, headers) {
+                assert.equal(status, 201, "status code");
+                assert.deepEqual(headers, {
                     "Header1": "booo",
                     "Header2": "yay value",
                     "Header3": "three",
                     "Header4": "marmalade",
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
-            }, "got back headers");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "split response didn't fail");
-            QUnit.start();
-        });
+                }, "got back headers");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "split response didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("escape host header", function() {
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
-        .get("/mock/host", null, { })
-        .response(function(status, headers) {
-            assert.equal(status, 201, "status code");
-            assert.deepEqual(headers.Host, "%2Ftest-server", "got back escaped headers");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "split response didn't fail");
-            QUnit.start();
-        });
+            .get("/mock/host", null, { })
+            .response(function(status, headers) {
+                assert.equal(status, 201, "status code");
+                assert.deepEqual(headers.Host, "%2Ftest-server", "got back escaped headers");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "split response didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("connection headers", function() {
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" }})
-        .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
-        .response(function(status, headers) {
-            assert.equal(status, 201, "status code");
-            assert.deepEqual(headers, {
+            .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
+            .response(function(status, headers) {
+                assert.equal(status, 201, "status code");
+                assert.deepEqual(headers, {
                     "Header0": "extra",
                     "Header1": "booo",
                     "Header2": "yay value",
@@ -210,12 +210,12 @@ QUnit.asyncTest("connection headers", function() {
                     "Header4": "marmalade",
                     "Referrer-Policy": "no-referrer",
                     "X-DNS-Prefetch-Control": "off",
-            }, "got back combined headers");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "split response didn't fail");
-            QUnit.start();
-        });
+                }, "got back combined headers");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "split response didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.test("http promise recursive", function() {
@@ -246,20 +246,20 @@ QUnit.asyncTest("http keep alive", function() {
 
     var first;
     cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
-        .always(function() {
-            assert.equal(this.state(), "resolved", "response didn't fail");
-        })
-        .done(function(data) {
-            first = data;
-            cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
-                .done(function(data) {
-                    assert.equal(first, data, "same connection");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "response didn't fail");
-                    QUnit.start();
-                });
-        });
+            .always(function() {
+                assert.equal(this.state(), "resolved", "response didn't fail");
+            })
+            .done(function(data) {
+                first = data;
+                cockpit.http({ "internal": "/test-server", "connection": "marmalade" }).get("/mock/connection")
+                        .done(function(data) {
+                            assert.equal(first, data, "same connection");
+                        })
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "response didn't fail");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("http connection different", function() {
@@ -272,20 +272,20 @@ QUnit.asyncTest("http connection different", function() {
 
     var first;
     cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
-        .always(function() {
-            assert.equal(this.state(), "resolved", "response didn't fail");
-        })
-        .done(function(data) {
-            first = data;
-            cockpit.http({ "internal": "/test-server", "connection": "two" }).get("/mock/connection")
-                .done(function(data) {
-                    assert.notEqual(first, data, "different connection");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "response didn't fail");
-                    QUnit.start();
-                });
-        });
+            .always(function() {
+                assert.equal(this.state(), "resolved", "response didn't fail");
+            })
+            .done(function(data) {
+                first = data;
+                cockpit.http({ "internal": "/test-server", "connection": "two" }).get("/mock/connection")
+                        .done(function(data) {
+                            assert.notEqual(first, data, "different connection");
+                        })
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "response didn't fail");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("http connection without address ", function() {
@@ -297,20 +297,20 @@ QUnit.asyncTest("http connection without address ", function() {
 
     var first;
     cockpit.http({ "internal": "/test-server", "connection": "one" }).get("/mock/connection")
-        .always(function() {
-            assert.equal(this.state(), "resolved", "response didn't fail");
-        })
-        .done(function(data) {
-            first = data;
-            cockpit.http({ "connection": "one" }).get("/mock/connection")
-                .done(function(data) {
-                    assert.equal(first, data, "different connection");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "resolved", "response didn't fail");
-                    QUnit.start();
-                });
-        });
+            .always(function() {
+                assert.equal(this.state(), "resolved", "response didn't fail");
+            })
+            .done(function(data) {
+                first = data;
+                cockpit.http({ "connection": "one" }).get("/mock/connection")
+                        .done(function(data) {
+                            assert.equal(first, data, "different connection");
+                        })
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "response didn't fail");
+                            QUnit.start();
+                        });
+            });
 });
 
 QUnit.asyncTest("no dns address", function() {
@@ -318,17 +318,17 @@ QUnit.asyncTest("no dns address", function() {
 
     cockpit.http({ "port": 8080,
                    "address": "the-other-host.example.com" })
-        .get("/")
-        .fail(function(ex, data) {
+            .get("/")
+            .fail(function(ex, data) {
             /* Unfortunately we can see either of these errors when running unit tests */
-            if (ex.problem === "timeout")
-                ex.problem = "not-found";
-            assert.strictEqual(ex.problem, "not-found", "can't resolve is not found");
-        })
-        .always(function() {
-            assert.equal(this.state(), "rejected", "should fail");
-            QUnit.start();
-        });
+                if (ex.problem === "timeout")
+                    ex.problem = "not-found";
+                assert.strictEqual(ex.problem, "not-found", "can't resolve is not found");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                QUnit.start();
+            });
 });
 
 QUnit.asyncTest("address with params", function() {
@@ -337,14 +337,14 @@ QUnit.asyncTest("address with params", function() {
 
     cockpit.http({ port: parseInt(window.location.port, 10),
                    address: window.location.hostname })
-        .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
-        .done(function(resp) {
-            assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
-        })
-        .always(function() {
-            assert.equal(this.state(), "resolved", "didn't fail");
-            QUnit.start();
-        });
+            .get("/mock/qs", { "key": "value", "name": "Scruffy the Janitor" })
+            .done(function(resp) {
+                assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "didn't fail");
+                QUnit.start();
+            });
 });
 
 QUnit.start();

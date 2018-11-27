@@ -21,7 +21,6 @@ var limited_user = {
     groups: ["limited"]
 };
 
-
 QUnit.module("Permission tests", {
     setup: function() {
         this.old_dbus = cockpit.dbus;
@@ -33,7 +32,6 @@ QUnit.module("Permission tests", {
         cockpit._is_superuser = this.old_is_superuser;
     }
 });
-
 
 QUnit.test("root-all-permissions", function() {
     assert.expect(2);

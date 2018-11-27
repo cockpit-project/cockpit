@@ -24,83 +24,83 @@ QUnit.test("decode", function() {
     var checks = [
         [ "#/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
                                        options: { a: "1", b: "2" }
-                                     }
+        }
         ],
-        [ "" , { path: [ ],
-                 options: { }
-               }
+        [ "", { path: [ ],
+                options: { }
+        }
         ],
         [ "#", { path: [ ],
                  options: { }
-               }
+        }
         ],
         [ "#/", { path: [ ],
                   options: { }
-                }
+        }
         ],
         [ "/horst", { path: [ "horst" ],
-                       options: { }
-                     }
+                      options: { }
+        }
         ],
         [ "//one", { path: [ "one" ],
-                      options: { }
-                    }
+                     options: { }
+        }
         ],
         [ "//one/", { path: [ "one" ],
-                       options: { }
-                     }
+                      options: { }
+        }
         ],
         [ "///two", { path: [ "two" ],
-                       options: { }
-                     }
+                      options: { }
+        }
         ],
         [ "/slash/%2f", { path: [ "slash", "/" ],
-                           options: { }
-                         }
+                          options: { }
+        }
         ],
         [ "?a=1", { path: [ ],
-                     options: { a: "1" }
-                   }
+                    options: { a: "1" }
+        }
         ],
         [ "?a=1&a=2", { path: [ ],
                         options: { a: [ "1", "2" ] }
-                       }
+        }
         ],
         [ "?%3f=%3d", { path: [ ],
-                         options: { "?": "=" }
-                       }
+                        options: { "?": "=" }
+        }
         ],
         [ "#?=", { path: [ ],
                    options: { "": "" }
-                 }
+        }
         ],
         [ "?=", { path: [ ],
-                   options: { "": "" }
-                 }
+                  options: { "": "" }
+        }
         ],
         [ "relative/sub", { path: [ "base", "relative", "sub" ],
                             options: { }
-                          }
+        }
         ],
         [ "./relative/sub", { path: [ "base", "relative", "sub" ],
                               options: { }
-                          }
+        }
         ],
         [ "../relative/sub", { path: [ "relative", "sub" ],
-                              options: { }
-                          }
+                               options: { }
+        }
         ],
         [ "/top/../sub", { path: [ "sub" ],
-                              options: { }
-                          }
+                           options: { }
+        }
         ],
         [ "/top/./sub/./", { path: [ "top", "sub" ],
-                              options: { }
-                          }
+                             options: { }
+        }
         ],
         [ "relative/../sub", { path: [ "base", "sub" ],
-                              options: { }
-                          }
+                               options: { }
+        }
         ]
     ];
 
@@ -108,7 +108,7 @@ QUnit.test("decode", function() {
     for (var i = 0; i < checks.length; i++) {
         var options = { };
         var path = cockpit.location.decode(checks[i][0], options);
-        assert.deepEqual({ path: path, options: options }, checks[i][1], "decode(\"" + checks[i][0]+ "\")");
+        assert.deepEqual({ path: path, options: options }, checks[i][1], "decode(\"" + checks[i][0] + "\")");
     }
 });
 
@@ -119,32 +119,32 @@ QUnit.test("encode", function() {
     */
     var checks = [
         [ "/host/path/sub?a=1&b=2", { path: [ "host", "path", "sub" ],
-                                       options: { a: "1", b: "2" }
-                                     }
+                                      options: { a: "1", b: "2" }
+        }
         ],
         [ "/one", { path: [ "one" ],
-                     options: { }
-                   }
+                    options: { }
+        }
         ],
         [ "/one/two", { path: [ "one", "two" ],
                         options: { }
-                      }
+        }
         ],
         [ "/slash/%2F", { path: [ "slash", "/" ],
-                           options: { }
-                         }
+                          options: { }
+        }
         ],
         [ "/p?a=1", { path: [ "p" ],
-                       options: { a: "1" }
-                     }
+                      options: { a: "1" }
+        }
         ],
         [ "/p?%3F=%3D", { path: [ "p" ],
-                           options: { "?": "=" }
-                         }
+                          options: { "?": "=" }
+        }
         ],
         [ "/p?=", { path: [ "p" ],
-                     options: { "": "" }
-                   }
+                    options: { "": "" }
+        }
         ],
         [ "/p?value=one&value=two", {
             path: [ "p" ],
@@ -157,7 +157,7 @@ QUnit.test("encode", function() {
     assert.expect(checks.length);
     for (i = 0; i < checks.length; i++) {
         var encoded = cockpit.location.encode(checks[i][1].path, checks[i][1].options);
-        assert.strictEqual(encoded, checks[i][0], "encode(" + JSON.stringify(checks[i][1])+ ")");
+        assert.strictEqual(encoded, checks[i][0], "encode(" + JSON.stringify(checks[i][1]) + ")");
     }
 });
 
@@ -181,7 +181,7 @@ QUnit.test("roundtrip", function() {
         var encoded = cockpit.location.encode(checks[i].path, checks[i].options);
         var decoded = { options: { } };
         decoded.path = cockpit.location.decode(encoded, decoded.options);
-        assert.deepEqual(decoded, checks[i], "roundtrip(" + JSON.stringify(checks[i])+ ")");
+        assert.deepEqual(decoded, checks[i], "roundtrip(" + JSON.stringify(checks[i]) + ")");
     }
 });
 

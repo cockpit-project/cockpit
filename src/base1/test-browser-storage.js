@@ -72,11 +72,11 @@ function test_storage (storage, cockpitStorage) {
 }
 
 QUnit.test("local-storage", function() {
-    test_storage (window.localStorage, cockpit.localStorage);
+    test_storage(window.localStorage, cockpit.localStorage);
 });
 
 QUnit.test("session-storage", function() {
-    test_storage (window.sessionStorage, cockpit.sessionStorage);
+    test_storage(window.sessionStorage, cockpit.sessionStorage);
 });
 
 // Start tests after we have a user object

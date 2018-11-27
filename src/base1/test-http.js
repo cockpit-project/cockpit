@@ -198,7 +198,7 @@ QUnit.asyncTest("escape host header", function() {
 QUnit.asyncTest("connection headers", function() {
     assert.expect(3);
 
-    cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" }})
+    cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" } })
             .get("/mock/headers", null, { "Header2": "yay value", "Header0": "extra" })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");

@@ -554,7 +554,7 @@ function common_dbus_tests(channel_options, bus_name) {
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ], { type: 5 /* invalid */ })
+        dbus.call("/bork", "borkety.Bork", "Echo", [ 1 ], { type: 5 }) // invalid
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
                     assert.equal(ex.message, "the \"type\" field is invalid in call", "error message");

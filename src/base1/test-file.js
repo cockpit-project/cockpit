@@ -395,7 +395,7 @@ QUnit.asyncTest("syntax watching", function() {
             assert.equal(content, null, "initially non-existent");
             cockpit.spawn([ "bash", "-c", "cd " + dir + " && echo '[ 1, 2, 3, 4 ]' > foobar.json.tmp && mv foobar.json.tmp foobar.json" ]);
         } else if (n == 2) {
-            assert.deepEqual(content, [ 1, 2, 3, 4], "correct new content");
+            assert.deepEqual(content, [ 1, 2, 3, 4 ], "correct new content");
             cockpit.spawn([ "bash", "-c", "echo 'hi-there-this-is-not-json'  > " + dir + "/foobar.json" ]);
         } else if (n == 3) {
             assert.ok(err instanceof SyntaxError, "got SyntaxError error");

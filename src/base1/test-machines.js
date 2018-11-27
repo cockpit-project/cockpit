@@ -171,27 +171,27 @@ QUnit.asyncTest("add host to existing map", function() {
                        "blue",
                        { "visible": cockpit.variant('b', false), "address": cockpit.variant('s', "9.8.7.6") },
                        { "green": { "address": "1.2.3.4", "visible": true },
-                         "blue":  { "address": "9.8.7.6", "visible": false} });
+                         "blue":  { "address": "9.8.7.6", "visible": false } });
 });
 
 QUnit.asyncTest("change bool host property", function() {
     machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "visible": cockpit.variant('b', false)},
+                       { "visible": cockpit.variant('b', false) },
                        { "green": { "address": "1.2.3.4", "visible": false } });
 });
 
 QUnit.asyncTest("change string host property", function() {
     machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "address": cockpit.variant('s', "fe80::1")},
+                       { "address": cockpit.variant('s', "fe80::1") },
                        { "green": { "address": "fe80::1", "visible": true } });
 });
 
 QUnit.asyncTest("add host property", function() {
     machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
-                       { "color": cockpit.variant('s', "pitchblack")},
+                       { "color": cockpit.variant('s', "pitchblack") },
                        { "green": { "address": "1.2.3.4", "visible": true, "color": "pitchblack" } });
 });
 
@@ -201,7 +201,7 @@ QUnit.asyncTest("Update() only writes delta", function() {
             .done(function(tag) {
                 machinesUpdateTest(null,
                                    "green",
-                                   { "color": cockpit.variant('s', "pitchblack")},
+                                   { "color": cockpit.variant('s', "pitchblack") },
                                    { "green": { "color": "pitchblack" } });
             });
 });
@@ -212,7 +212,7 @@ QUnit.asyncTest("updating and existing delta file", function() {
             .done(function(tag) {
                 machinesUpdateTest('{"green": {"address": "9.8.7.6", "user": "joe"}}',
                                    "green",
-                                   { "color": cockpit.variant('s', "pitchblack")},
+                                   { "color": cockpit.variant('s', "pitchblack") },
                                    { "green": { "address": "9.8.7.6", "user": "joe", "color": "pitchblack" } });
             });
 });

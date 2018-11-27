@@ -44,7 +44,7 @@ QUnit.asyncTest("user object", function() {
 QUnit.asyncTest("user environment", function() {
     assert.expect(6);
 
-    cockpit.spawn([ "/bin/sh", "-c", "echo $USER~$SHELL~$HOME"])
+    cockpit.spawn([ "/bin/sh", "-c", "echo $USER~$SHELL~$HOME" ])
             .done(function(data) {
                 var parts = data.split("~");
                 assert.ok(parts[0].length > 0, "valid $USER");

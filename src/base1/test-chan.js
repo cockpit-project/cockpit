@@ -136,7 +136,7 @@ function MockWebSocket(url, protocol) {
         if (!options)
             options = { };
         window.setTimeout(function() {
-            ws.close(options.reason && 1000 || 1011, options.reason || "");
+            ws.close(options.reason ? 1000 : 1011, options.reason || "");
         }, 5);
     };
 

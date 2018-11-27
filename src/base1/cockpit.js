@@ -4604,8 +4604,8 @@ if (pos !== -1) {
 /* Cockpit loaded via AMD loader */
 if (is_function(window.define) && window.define.amd) {
     if (self_module_id)
-        define(self_module_id, [], window.cockpit);
+        define(self_module_id, [], window.cockpit); // eslint-disable-line no-undef
     else
-        define([], factory);
+        define([], factory); // eslint-disable-line no-undef
 }
 })();

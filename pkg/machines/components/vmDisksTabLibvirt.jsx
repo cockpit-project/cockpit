@@ -53,7 +53,7 @@ class VmDisksTabLibvirt extends React.Component {
                         if (!vm.disks[target] || (vm.disks[target].type !== 'volume' && !vm.disksStats[target])) {
                             return false; // not yet retrieved, can't decide about disk stats support
                         }
-                        return !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
+                        return vm.disks[target].type == 'volume' || !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);
                     });
         }
 
@@ -72,11 +72,35 @@ class VmDisksTabLibvirt extends React.Component {
         return _("Start the VM to see disk statistics.");
     }
 
-    prepareDiskData(disk, diskStats, idPrefix) {
+    prepareDiskData(disk, diskStats, idPrefix, storagePools) {
         diskStats = diskStats || {};
+
+        let used = diskStats.allocation;
+        let capacity = diskStats.capacity;
+
+        /*
+         * For disks of type `volume` allocation and capacity stats are not
+         * fetched with the virConnectGetAllDomainStats API so we need to get
+         * them from the volume.
+         *
+         * Both pool and volume of the disk might have been undefined so make
+         * required checks before reading them.
+         */
+        if (disk.type == 'volume') {
+            let pool = storagePools.filter(pool => pool.name == disk.source.pool)[0];
+            let volumes = pool ? pool.volumes : [];
+            let volumeName = disk.source.volume;
+            let volume = volumes.filter(vol => vol.name == volumeName)[0];
+
+            if (volume) {
+                capacity = volume.capacity;
+                used = volume.allocation;
+            }
+        }
+
         return {
-            used: diskStats.allocation,
-            capacity: diskStats.capacity,
+            used: used,
+            capacity: capacity,
 
             device: disk.device,
             target: disk.target,
@@ -98,7 +122,8 @@ class VmDisksTabLibvirt extends React.Component {
                 .sort() // by 'target'
                 .map(target => this.prepareDiskData(vm.disks[target],
                                                     vm.disksStats && vm.disksStats[target],
-                                                    `${idPrefix}-${target}`));
+                                                    `${idPrefix}-${target}`,
+                                                    storagePools));
         let actions = [];
 
         if (config.provider.name != 'oVirt')

@@ -679,7 +679,7 @@ function Transport() {
         if (payload.byteLength || is_array(payload)) {
             if (payload instanceof window.ArrayBuffer)
                 payload = new window.Uint8Array(payload);
-            var output = join_data([array_from_raw_string(channel), [ 10 ], payload ], true);
+            var output = join_data([ array_from_raw_string(channel), [ 10 ], payload ], true);
             return self.send_data(output.buffer, channel, control);
 
         /* A string message */
@@ -1135,7 +1135,7 @@ function factory() {
         close: function close(problem) {
             var options;
             if (problem)
-                options = {"problem": problem };
+                options = { "problem": problem };
             if (default_transport)
                 default_transport.close(options);
             default_transport = null;

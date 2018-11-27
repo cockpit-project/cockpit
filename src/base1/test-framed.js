@@ -53,7 +53,7 @@ function child_frame() {
 
     document.getElementById("title").innerHTML = "Cockpit Child Frame";
     cockpit.spawn(["/bin/sh", "-c", "echo hi"],
-                  { "host" : "localhost"})
+                  { "host" : "localhost" })
             .done(function(resp) {
                 test.assert(resp == "hi\n", "framed channel got output");
             })

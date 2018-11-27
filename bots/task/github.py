@@ -26,7 +26,6 @@ import http.client
 import json
 import os
 import socket
-import sys
 import time
 import urllib.parse
 import subprocess
@@ -82,6 +81,25 @@ class Logger(object):
     def write(self, value):
         with open(self.path, 'a') as f:
             f.write(value)
+
+class GitHubError(RuntimeError):
+    """Raise when getting an error from the GitHub API
+
+    We used to raise `RuntimeError` before. Subclass from that, so that client
+    code depending on it continues to work.
+    """
+
+    def __init__(self, url, response):
+        self.url = url
+        self.data = response.get('data')
+        self.status = response.get('status')
+        self.reason = response.get('reason')
+
+    def __str__(self):
+        return ('Error accessing {0}\n'
+                '  Status: {1}\n'
+                '  Reason: {2}\n'
+                '  Response: {3}'.format(self.url, self.status, self.reason, self.data))
 
 def get_origin_repo():
     res = subprocess.check_output([ "git", "remote", "get-url", "origin" ])
@@ -176,7 +194,7 @@ class GitHub(object):
             "data": response.read().decode('utf-8')
         }
 
-    def get(self, resource, verbose = True):
+    def get(self, resource):
         headers = { }
         qualified = self.qualify(resource)
         cached = self.cache.read(qualified)
@@ -196,9 +214,7 @@ class GitHub(object):
             self.cache.write(qualified, cached)
             return json.loads(cached['data'] or "null")
         elif response['status'] < 200 or response['status'] >= 300:
-            if verbose:
-                sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or response['status']))
+            raise GitHubError(self.qualify(resource), response)
         else:
             self.cache.write(qualified, response)
             return json.loads(response['data'] or "null")
@@ -207,8 +223,7 @@ class GitHub(object):
         response = self.request("POST", resource, json.dumps(data), { "Content-Type": "application/json" })
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
-            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
+            raise GitHubError(self.qualify(resource), response)
         self.cache.mark()
         return json.loads(response['data'])
 
@@ -216,8 +231,7 @@ class GitHub(object):
         response = self.request("DELETE", resource, "", { "Content-Type": "application/json" })
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
-            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
+            raise GitHubError(self.qualify(resource), response)
         self.cache.mark()
         return json.loads(response['data'])
 
@@ -225,8 +239,7 @@ class GitHub(object):
         response = self.request("PATCH", resource, json.dumps(data), { "Content-Type": "application/json" })
         status = response['status']
         if (status < 200 or status >= 300) and status not in accept:
-            sys.stderr.write("{0}\n{1}\n".format(resource, response['data']))
-            raise RuntimeError("GitHub API problem: {0}".format(response['reason'] or status))
+            raise GitHubError(self.qualify(resource), response)
         self.cache.mark()
         return json.loads(response['data'])
 

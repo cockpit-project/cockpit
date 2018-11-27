@@ -74,7 +74,7 @@
 %endif
 
 Name:           cockpit
-Summary:        A user interface for Linux servers
+Summary:        Web Console for Linux servers
 
 License:        LGPLv2+
 URL:            https://cockpit-project.org/
@@ -389,8 +389,11 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 %if 0%{?build_basic}
 
 %description
-Cockpit runs in a browser and can manage your network of GNU/Linux
-machines.
+The Cockpit Web Console enables users to administer GNU/Linux servers using a
+web browser.
+
+It offers network configuration, log inspection, diagnostic reports, SELinux
+troubleshooting, interactive command-line sessions, and more.
 
 %files
 %{_docdir}/cockpit/AUTHORS

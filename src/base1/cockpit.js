@@ -26,7 +26,8 @@ try {
     url_root = window.localStorage.getItem('url-root');
 } catch (e) { }
 
-var mock = mock || { };
+/* injected by tests */
+var mock = mock || { }; // eslint-disable-line no-use-before-define
 
 (function() {
 "use strict";

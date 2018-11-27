@@ -184,7 +184,8 @@ QUnit.asyncTest("replace large", function() {
 QUnit.asyncTest("binary replace large", function() {
     assert.expect(4);
     var data = new Uint8Array(249 * 1023);
-    var i, len = data.byteLength;
+    var i;
+    var len = data.byteLength;
     for (i = 0; i < len; i++)
         data[i] = i % 233;
     cockpit.file(dir + "/large-binary", { binary: true }).replace(data)
@@ -192,7 +193,9 @@ QUnit.asyncTest("binary replace large", function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 cockpit.spawn([ "cat", dir + "/large-binary" ], { binary: true })
                         .done(function (res) {
-                            var i, len = res.byteLength, eq = true;
+                            var i;
+                            var len = res.byteLength;
+                            var eq = true;
                             assert.equal(res.byteLength, 249 * 1023, "check length");
                             assert.equal(res.byteLength, data.byteLength, "correct large length");
                             for (i = 0; i < len; i++) {

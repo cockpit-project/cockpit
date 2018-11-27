@@ -2049,7 +2049,7 @@ function factory() {
         /* An undocumented function called by DataGrid */
         self._register = function _register(grid, id) {
             if (grid.interval != interval)
-                throw "mismatched metric interval between grid and sink";
+                throw Error("mismatched metric interval between grid and sink");
             var gdata = registered[id];
             if (!gdata) {
                 gdata = registered[id] = { grid: grid, links: [ ] };
@@ -2222,7 +2222,7 @@ function factory() {
 
             /* Not called as add() */
             } else if (arguments.length !== 0) {
-                throw "invalid args to grid.add()";
+                throw Error("invalid args to grid.add()");
             }
 
             return row;
@@ -3014,7 +3014,7 @@ function factory() {
                 var config = {
                     enumerable: true,
                     get: function() { return self.data[name] },
-                    set: function(v) { throw name + "is not writable" }
+                    set: function(v) { throw Error(name + "is not writable") }
                 };
 
                 var prop = meta.properties[name];
@@ -4084,7 +4084,7 @@ function factory() {
                 if (!isNaN(port))
                     options.port = port;
                 else
-                    throw "The endpoint must be either a unix path or port number";
+                    throw Error("The endpoint must be either a unix path or port number");
             }
         }
 

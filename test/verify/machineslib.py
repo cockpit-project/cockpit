@@ -578,7 +578,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vde-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vde-device", "disk")
         # should be gone after shut down
-        b.wait_in_text("#vm-subVmTest1-disks-vde-source", "/mnt/vm_one/mydiskofpoolone_temporary")
+        b.wait_in_text("#vm-subVmTest1-disks-vde-source", "mydiskofpoolone_temporary")
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-permanent")
@@ -595,7 +595,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vda-source",
-                       "/mnt/vm_one/mydiskofpoolone_permanent") # should survive the shut down
+                       "mydiskofpoolone_permanent") # should survive the shut down
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
@@ -622,7 +622,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vdd-target", "vdd")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "/mnt/vm_two/mydiskofpooltwo_permanent")
+        b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "mydiskofpooltwo_permanent")
 
         # FIXME: This causes either "unable to execute QEMU command 'device_add': Failed to get "write" lock"
         # or adding the _temporary volume results in showing that the _permanent one actually gets added
@@ -655,7 +655,7 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vdc-target", "vdc")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "/mnt/default_tmp/defaultVol")
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "defaultVol")
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")

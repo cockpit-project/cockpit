@@ -12,6 +12,7 @@ export function getDiskXML(poolName, volumeName, target) {
 
     var targetElem = doc.createElement('target');
     targetElem.setAttribute('dev', target);
+    targetElem.setAttribute('bus', 'virtio');
     diskElem.appendChild(targetElem);
 
     doc.appendChild(diskElem);

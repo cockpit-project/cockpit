@@ -643,14 +643,14 @@ function Transport() {
         } else if (channel !== undefined) {
             func = control_cbs[channel];
             if (func)
-                func.apply(null, [data]);
+                func(data);
         }
     }
 
     function process_message(channel, payload) {
         var func = message_cbs[channel];
         if (func)
-            func.apply(null, [payload]);
+            func(payload);
     }
 
     /* The channel/control arguments is used by filters, and auto-populated if necessary */

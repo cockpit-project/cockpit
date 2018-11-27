@@ -274,20 +274,26 @@ LIBVIRT_PROVIDER = {
         const command = `(virsh ${connection} -q vol-create-as ${poolName} ${volumeName} --capacity ${size}M --format ${format} && virsh ${connection} -q vol-path ${volumeName} --pool ${poolName}) | grep -v 'Vol ${volumeName} created'`;
         logDebug('CREATE_AND_ATTACH_VOLUME command: ', command);
         return dispatch => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
-                .then(diskFileName => {
-                    logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName, ', diskFileName: ', diskFileName);
-                    return dispatch(attachDisk({ connectionName, diskFileName: diskFileName.trim(), target, vmName, permanent, hotplug }));
+                .then(() => {
+                    logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName);
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }));
                 });
     },
 
-    ATTACH_DISK({ connectionName, diskFileName, target, vmName, permanent, hotplug }) {
-        logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', diskFileName, '", "', target, '", "', vmName, '"');
+    ATTACH_DISK({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }) {
+        logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', poolName, '", "', volumeName, '", "', target, '", "', vmName, '"');
         const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
-        let scope = permanent ? '--config' : '';
-        scope = scope + (hotplug ? ' --live' : '');
-        const command = `virsh ${connection} attach-disk ${vmName} ${diskFileName} ${target} ${scope}`;
-        logDebug('ATTACH_DISK command: ', command);
-        return () => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+        const volpathCommand = `virsh ${connection} vol-path --pool ${poolName} ${volumeName}`;
+
+        return () => cockpit.script(volpathCommand, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+                .then((volPath) => {
+                    let scope = permanent ? '--config' : '';
+                    scope = scope + (hotplug ? ' --live' : '');
+                    const command = `virsh ${connection} attach-disk ${vmName} ${volPath.trim()} ${target} ${scope}`;
+
+                    logDebug('ATTACH_DISK command: ', command);
+                    return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+                });
     },
 
     SHUTDOWN_VM ({ name, connectionName }) {

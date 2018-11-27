@@ -50,7 +50,7 @@ class VmDisksTabLibvirt extends React.Component {
             // stats are read/supported if there is a non-NaN stat value
             areDiskStatsSupported = !!Object.getOwnPropertyNames(vm.disksStats)
                     .some(target => {
-                        if (!vm.disksStats[target]) {
+                        if (!vm.disks[target] || (vm.disks[target].type !== 'volume' && !vm.disksStats[target])) {
                             return false; // not yet retrieved, can't decide about disk stats support
                         }
                         return !isNaN(vm.disksStats[target].capacity) || !isNaN(vm.disksStats[target].allocation);

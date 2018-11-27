@@ -1,12 +1,13 @@
-export function getDiskXML(diskFileName, target) {
+export function getDiskXML(poolName, volumeName, target) {
     var doc = document.implementation.createDocument('', '', null);
 
     var diskElem = doc.createElement('disk');
-    diskElem.setAttribute('type', 'file');
+    diskElem.setAttribute('type', 'volume');
     diskElem.setAttribute('device', 'disk');
 
     var sourceElem = doc.createElement('source');
-    sourceElem.setAttribute('file', diskFileName);
+    sourceElem.setAttribute('volume', volumeName);
+    sourceElem.setAttribute('pool', poolName);
     diskElem.appendChild(sourceElem);
 
     var targetElem = doc.createElement('target');

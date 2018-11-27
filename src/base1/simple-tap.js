@@ -57,11 +57,10 @@ var test = { };
 
     test.start_from = function start_from (num) {
         if (num)
-          count = num;
+            count = num;
 
         is_partial = true;
     };
-
 })(test);
 
 var tests_included = true;

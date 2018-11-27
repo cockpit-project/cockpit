@@ -5,13 +5,13 @@ var assert = QUnit;
 
 QUnit.test("format", function() {
     assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
-          "My special message with lots of things", "named keys");
+                 "My special message with lots of things", "named keys");
     assert.equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
-          "My special message with lots of things", "number keys");
+                 "My special message with lots of things", "number keys");
     assert.equal(cockpit.format("My $0 message with $1 of things", "special", "lots"),
-          "My special message with lots of things", "vararg keys");
+                 "My special message with lots of things", "vararg keys");
     assert.equal(cockpit.format("My $0 message with lots of things", "special"),
-          "My special message with lots of things", "vararg one key");
+                 "My special message with lots of things", "vararg one key");
     assert.equal(cockpit.format("Undefined $value", { }), "Undefined ", "missing value");
 
     /* All falsy values except `0` should return the empty string */
@@ -32,7 +32,7 @@ QUnit.test("format_number", function () {
         [ -23.44, "-23.4", "-23,4" ],
 
         [ 0, "0", "0" ],
-        [ 0.001, "0.001" , "0,001"],
+        [ 0.001, "0.001", "0,001"],
         [ -0.001, "-0.001", "-0,001" ],
 
         [ 123.0, "123", "123" ],
@@ -51,23 +51,23 @@ QUnit.test("format_number", function () {
     cockpit.language = 'en';
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][1],
-                    "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
+                           "format_number@en(" + checks[i][0] + ") = " + checks[i][1]);
     }
 
     cockpit.language = 'de';
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
-                    "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
+                           "format_number@de(" + checks[i][0] + ") = " + checks[i][2]);
     }
 
     cockpit.language = 'pt_BR';
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_number(checks[i][0]), checks[i][2],
-                    "format_number@pt_BR(" + checks[i][0] + ") = " + checks[i][2]);
+                           "format_number@pt_BR(" + checks[i][0] + ") = " + checks[i][2]);
     }
 
-  /* restore this as not to break the other tests */
-  cockpit.language = saved_language;
+    /* restore this as not to break the other tests */
+    cockpit.language = saved_language;
 });
 
 QUnit.test("format_bytes", function() {
@@ -99,19 +99,19 @@ QUnit.test("format_bytes", function() {
     assert.expect(checks.length * 2);
     for (i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
-                    "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
+                           "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
     }
     for (i = 0; i < checks.length; i++) {
         split = checks[i][2].split(" ");
         assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
-                   "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
+                         "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
     }
 });
 
 QUnit.test("get_byte_units", function() {
-    var mib = 1024*1024;
-    var gib = mib*1024;
-    var tib = gib*1024;
+    var mib = 1024 * 1024;
+    var gib = mib * 1024;
+    var tib = gib * 1024;
 
     var mib_unit = { factor: mib, name: "MiB" };
     var gib_unit = { factor: gib, name: "GiB" };
@@ -122,21 +122,21 @@ QUnit.test("get_byte_units", function() {
     }
 
     var checks = [
-        [     0*mib, 1024,    [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [    20*mib, 1024,    [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [   200*mib, 1024,    [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [  2000*mib, 1024,    [ selected(mib_unit), gib_unit, tib_unit ] ],
-        [ 20000*mib, 1024,    [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [    20*gib, 1024,    [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [   200*gib, 1024,    [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [  2000*gib, 1024,    [ mib_unit, selected(gib_unit), tib_unit ] ],
-        [ 20000*gib, 1024,    [ mib_unit, gib_unit, selected(tib_unit) ] ]
+        [ 0 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
+        [ 20 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
+        [ 200 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
+        [ 2000 * mib, 1024, [ selected(mib_unit), gib_unit, tib_unit ] ],
+        [ 20000 * mib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
+        [ 20 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
+        [ 200 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
+        [ 2000 * gib, 1024, [ mib_unit, selected(gib_unit), tib_unit ] ],
+        [ 20000 * gib, 1024, [ mib_unit, gib_unit, selected(tib_unit) ] ]
     ];
 
     assert.expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
         assert.deepEqual(cockpit.get_byte_units(checks[i][0], checks[i][1]), checks[i][2],
-                  "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
+                         "get_byte_units(" + checks[i][0] + ", " + checks[i][1] + ") = " + JSON.stringify(checks[i][2]));
     }
 });
 
@@ -148,7 +148,7 @@ QUnit.test("format_bytes_per_sec", function() {
     assert.expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
-                    "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+                           "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 
@@ -165,7 +165,7 @@ QUnit.test("format_bits_per_sec", function() {
     assert.expect(checks.length);
     for (var i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bits_per_sec(checks[i][0]), checks[i][1],
-                    "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+                           "format_bits_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
 });
 

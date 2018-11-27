@@ -5,7 +5,7 @@ var assert = QUnit;
 
 var pig_latin = {
     "": { "language": "pig", "plural-forms": function(n) {
-        var nplurals, plural; nplurals=2; plural=(n != 1); return plural;
+        var nplurals, plural; nplurals = 2; plural = (n != 1); return plural;
     } },
     "Control": [ null, "Ontrolcay" ],
     "User": [ null, "Useray" ],
@@ -26,7 +26,7 @@ var pig_latin = {
 var ru = {
     "": { "language": "ru", "plural-forms":
         function(n) {
-            var nplurals, plural; nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);
+            var nplurals, plural; nplurals = 3; plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;
         }
     },
@@ -65,11 +65,11 @@ QUnit.test("ngettext simple", function() {
     assert.equal(cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 1), "$0 isksbay is issingmay", "one thing");
     assert.equal(cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 5), "$0 isksbay are issingmay", "multiple things");
     assert.equal(cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 0),
-            "$0 isksBAY are issingMAY", "zero things context");
+                 "$0 isksBAY are issingMAY", "zero things context");
     assert.equal(cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 1),
-            "$0 isksBAY is issingMAY", "one thing context");
+                 "$0 isksBAY is issingMAY", "one thing context");
     assert.equal(cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 5),
-            "$0 isksBAY are issingMAY", "multiple things context");
+                 "$0 isksBAY are issingMAY", "multiple things context");
     assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 1), "$0 byte", "default one");
     assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 2), "$0 bytes", "default multiple");
     assert.equal(cockpit.ngettext("memory", "$0 byte", "$0 bytes", 1), "$0 byte", "default one context");
@@ -92,8 +92,8 @@ QUnit.test("translate document", function() {
     cockpit.locale(pig_latin);
 
     $("#translations")
-        .empty()
-        .append("<span translate id='translatable-html'>Control</span>");
+            .empty()
+            .append("<span translate id='translatable-html'>Control</span>");
 
     cockpit.translate();
     assert.equal($("#translatable-html").text(), "Ontrolcay", "translate element");
@@ -112,8 +112,8 @@ QUnit.test("translate elements", function() {
     var div3 = $("<div><span><i translate>Waiting</i></span></div>");
 
     $("#translations")
-        .empty()
-        .append(div1, div2, div3);
+            .empty()
+            .append(div1, div2, div3);
 
     cockpit.translate(div1[0], div2[0], div3[0]);
     assert.equal($("#translatable-html").text(), "Ontrolcay", "translate element");
@@ -134,8 +134,8 @@ QUnit.test("translate array", function() {
     var div3 = $("<div><span><i translate>Waiting</i></span></div>");
 
     $("#translations")
-        .empty()
-        .append(div1, div2, div3);
+            .empty()
+            .append(div1, div2, div3);
 
     cockpit.translate($("#translations div"));
     assert.equal($("#translatable-html").text(), "Ontrolcay", "translate element");
@@ -151,7 +151,8 @@ QUnit.test("translate glade", function() {
     var div = $("<div><span translatable='yes' id='translatable-glade'>Control</span>" +
                 "<span translatable='yes' context='key' id='translatable-glade-context'>Control</span></div>");
 
-    $("#translations").empty().append(div);
+    $("#translations").empty()
+            .append(div);
 
     cockpit.translate(div);
     assert.equal($("#translatable-glade").text(), "Ontrolcay", "translatable element");
@@ -171,7 +172,8 @@ QUnit.test("translate attributes", function() {
                 "<span translate='  yes title ' title='User'" +
                     "id='translatable-attribute-syntax'>Waiting</span></div>");
 
-    $("#translations").empty().append(div);
+    $("#translations").empty()
+            .append(div);
 
     cockpit.translate(div);
     assert.equal($("#translatable-attribute").attr("title"), "Ontrolcay", "translate attribute");
@@ -189,7 +191,6 @@ QUnit.test("translate attributes", function() {
 });
 
 $(function() {
-
     /* Area for translate tests to play in */
     $("body").append("<div id='translations' hidden>");
 

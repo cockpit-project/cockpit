@@ -17,12 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* eslint-disable indent */
+
 var url_root;
 
 try {
     // Sometimes this throws a SecurityError such as during testing
     url_root = window.localStorage.getItem('url-root');
-} catch(e) { }
+} catch (e) { }
 
 var mock = mock || { };
 
@@ -37,7 +39,7 @@ if (typeof window.debugging === "undefined") {
         // Sometimes this throws a SecurityError such as during testing
         window.debugging = window.sessionStorage["debugging"] ||
                            window.localStorage["debugging"];
-    } catch(e) { }
+    } catch (e) { }
 }
 
 function in_array(array, val) {
@@ -114,7 +116,7 @@ var transport_origin = window.location.origin;
 
 if (!transport_origin) {
     transport_origin = window.location.protocol + "//" + window.location.hostname +
-        (window.location.port ? ':' + window.location.port: '');
+        (window.location.port ? ':' + window.location.port : '');
 }
 
 function array_from_raw_string(str, constructor) {
@@ -534,7 +536,7 @@ function Transport() {
         if (!channel) {
             transport_debug("recv control:", payload);
             control = JSON.parse(payload);
-        } else  {
+        } else {
             transport_debug("recv " + channel + ":", payload);
         }
 
@@ -576,7 +578,7 @@ function Transport() {
     };
 
     function process_init(options) {
-        if (options.problem){
+        if (options.problem) {
             self.close({ "problem": options.problem });
             return;
         }
@@ -614,7 +616,6 @@ function Transport() {
         /* Init message received */
         if (data.command == "init") {
             process_init(data);
-
         } else if (waiting_for_init) {
             waiting_for_init = false;
             if (data.command != "close" || channel) {
@@ -627,14 +628,12 @@ function Transport() {
         } else if (data.command == "ping") {
             data["command"] = "pong";
             self.send_control(data);
-
         } else if (data.command == "pong") {
             /* Any pong commands are ignored */
 
         } else if (data.command == "hint") {
             if (process_hints)
                 process_hints(data);
-
         } else if (channel !== undefined) {
             func = control_cbs[channel];
             if (func)
@@ -690,7 +689,7 @@ function Transport() {
     };
 
     self.send_control = function send_control(data) {
-        if(!ws && (data.command == "close" || data.command == "kill"))
+        if (!ws && (data.command == "close" || data.command == "kill"))
             return; /* don't complain if closed and closing */
         if (check_health_timer &&
             data.command == "hint" && data.hint == "ignore_transport_health_check") {
@@ -797,7 +796,6 @@ function Channel(options) {
         if (done && received_done) {
             console.warn("received two done commands on channel");
             self.close("protocol-error");
-
         } else {
             if (done)
                 received_done = true;
@@ -845,7 +843,7 @@ function Channel(options) {
         transport.send_control(command);
 
         /* Now drain the queue */
-        while(queue.length > 0) {
+        while (queue.length > 0) {
             var item = queue.shift();
             if (item[0]) {
                 item[1]["channel"] = id;
@@ -989,7 +987,6 @@ function resolve_path_dots(parts) {
 }
 
 function factory() {
-
     cockpit.channel = function channel(options) {
         return new Channel(options);
     };
@@ -1044,13 +1041,13 @@ function factory() {
 
             while (i < len) {
                 p = data.charCodeAt(i);
-                x = p == 255 ? 0 :
-                    p > 251 && p < 254 ? 6 :
-                    p > 247 && p < 252 ? 5 :
-                    p > 239 && p < 248 ? 4 :
-                    p > 223 && p < 240 ? 3 :
-                    p > 191 && p < 224 ? 2 :
-                    p < 128 ? 1 : 0;
+                x = p == 255 ? 0
+                    : p > 251 && p < 254 ? 6
+                    : p > 247 && p < 252 ? 5
+                    : p > 239 && p < 248 ? 4
+                    : p > 223 && p < 240 ? 3
+                    : p > 191 && p < 224 ? 2
+                    : p < 128 ? 1 : 0;
 
                 ok = (i + x <= len);
                 if (!ok && stream) {
@@ -1211,7 +1208,6 @@ function factory() {
     }
 
     function create_promise(state) {
-
         /* Like jQuery the promise object is callable */
         var self = function Promise(target) {
             if (target) {
@@ -1298,7 +1294,7 @@ function factory() {
         if (state.process_scheduled || !state.pending)
             return;
         state.process_scheduled = true;
-        later_invoke(function() { process_queue(state); });
+        later_invoke(function() { process_queue(state) });
     }
 
     function deferred_resolve(state, values) {
@@ -1389,7 +1385,7 @@ function factory() {
         var callback_output = null;
         if (is_function(callback))
             callback_output = callback();
-        if (callback_output && is_function (callback_output.then)) {
+        if (callback_output && is_function(callback_output.then)) {
             return callback_output.then(function() {
                 return prep_promise(values, is_resolved);
             }, function() {
@@ -1411,7 +1407,7 @@ function factory() {
         var counter = 0;
         var results = [];
 
-        if (arguments.length != 1 && !is_array (promises))
+        if (arguments.length != 1 && !is_array(promises))
             promises = Array.prototype.slice.call(arguments);
 
         promises.forEach(function(promise, key) {
@@ -1505,7 +1501,6 @@ function factory() {
         /* Find that factor string */
         if (!number && number !== 0) {
             suffix = null;
-
         } else if (typeof (factor) === "string") {
             /* Prefer larger factors */
             keys = [];
@@ -1564,7 +1559,7 @@ function factory() {
     };
 
     cockpit.get_byte_units = function get_byte_units(guide_value, factor) {
-        if (factor === undefined || ! (factor in byte_suffixes))
+        if (factor === undefined || !(factor in byte_suffixes))
             factor = 1024;
 
         function unit(index) {
@@ -1578,7 +1573,7 @@ function factory() {
         // The default unit is the largest one that gives us at least
         // two decimal digits in front of the comma.
 
-        for (var i = units.length-1; i >= 0; i--) {
+        for (var i = units.length - 1; i >= 0; i--) {
             if (i === 0 || (guide_value / units[i].factor) >= 10) {
                 units[i].selected = true;
                 break;
@@ -1682,7 +1677,7 @@ function factory() {
                 storage = win["cv1-storage"];
                 if (!storage)
                     win["cv1-storage"] = storage = { };
-            } catch(ex) { }
+            } catch (ex) { }
         }
         return storage;
     }
@@ -1899,7 +1894,7 @@ function factory() {
                      * again for the same range while they are still fetching
                      * it asynchronously.
                      */
-                    stash(beg, new Array(end-beg), { });
+                    stash(beg, new Array(end - beg), { });
                 }
                 fetch_callback(beg, end, for_walking);
             }
@@ -2071,7 +2066,6 @@ function factory() {
 
                 /* Does this grid overlap the bounds of item? */
                 if (b < e) {
-
                     /* Where in the items to take from */
                     f = b - beg;
 
@@ -2557,7 +2551,8 @@ function factory() {
                 first = href.substr(0, pos);
             var path = decode_path(first);
             if (pos !== -1 && options) {
-                href.substring(pos + 1).split("&").forEach(function(opt) {
+                href.substring(pos + 1).split("&")
+.forEach(function(opt) {
                     var last, parts = opt.split('=');
                     var name = decodeURIComponent(parts[0]);
                     var value = decodeURIComponent(parts[1]);
@@ -2621,7 +2616,7 @@ function factory() {
             replace: { value: replace },
             encode: { value: encode },
             decode: { value: decode },
-            toString: { value: function() { return href; } }
+            toString: { value: function() { return href } }
         });
     }
 
@@ -2652,7 +2647,10 @@ function factory() {
 
     cockpit.jump = function jump(path, host) {
         if (is_array(path))
-            path = "/" + path.map(encodeURIComponent).join("/").replace("%40", "@").replace("%3D", "=").replace(/%2B/g, "+");
+            path = "/" + path.map(encodeURIComponent).join("/")
+.replace("%40", "@")
+.replace("%3D", "=")
+.replace(/%2B/g, "+");
         else
             path = "" + path;
 
@@ -2834,7 +2832,7 @@ function factory() {
     }
 
     function DBusError(arg, arg1) {
-        if (typeof(arg) == "string") {
+        if (typeof (arg) == "string") {
             this.problem = arg;
             this.name = null;
             this.message = arg1 || cockpit.message(arg);
@@ -2943,7 +2941,7 @@ function factory() {
             "client": { value: client, enumerable: false, writable: false },
             "path": { value: path, enumerable: false, writable: false },
             "iface": { value: iface, enumerable: false, writable: false },
-            "valid": { get: function() { return valid; }, enumerable: false },
+            "valid": { get: function() { return valid }, enumerable: false },
             "wait": { enumerable: false, writable: false,
                 value: function(func) {
                     if (func)
@@ -2951,7 +2949,7 @@ function factory() {
                     return waits.promise;
                 }
             },
-            "call": { value: function(name, args, options) { return client.call(path, iface, name, args, options); },
+            "call": { value: function(name, args, options) { return client.call(path, iface, name, args, options) },
                       enumerable: false, writable: false },
             "data": { value: { }, enumerable: false }
         });
@@ -2981,9 +2979,9 @@ function factory() {
                     enumerable: false,
                     value: function() {
                         var dfd = cockpit.defer();
-                        client.call(path, iface, name, Array.prototype.slice.call(arguments)).
-                            done(function(reply) { dfd.resolve.apply(dfd, reply); }).
-                            fail(function(ex) { dfd.reject(ex); });
+                        client.call(path, iface, name, Array.prototype.slice.call(arguments))
+                            .done(function(reply) { dfd.resolve.apply(dfd, reply) })
+                            .fail(function(ex) { dfd.reject(ex) });
                         return dfd.promise;
                     }
                 });
@@ -2995,16 +2993,16 @@ function factory() {
 
                 var config = {
                     enumerable: true,
-                    get: function() { return self.data[name]; },
-                    set: function(v) { throw name + "is not writable"; }
+                    get: function() { return self.data[name] },
+                    set: function(v) { throw name + "is not writable" }
                 };
 
                 var prop = meta.properties[name];
                 if (prop.flags && prop.flags.indexOf('w') !== -1) {
                     config.set = function(v) {
                         client.call(path, "org.freedesktop.DBus.Properties", "Set",
-                                [ iface, name, cockpit.variant(prop.type, v) ]).
-                            fail(function(ex) {
+                                [ iface, name, cockpit.variant(prop.type, v) ])
+                            .fail(function(ex) {
                                 console.log("Couldn't set " + iface + " " + name +
                                             " at " + path + ": " + ex);
                             });
@@ -3187,7 +3185,7 @@ function factory() {
             var msg;
             try {
                 msg = JSON.parse(payload);
-            } catch(ex) {
+            } catch (ex) {
                 console.warn("received invalid dbus json message:", ex);
             }
             if (msg === undefined) {
@@ -3208,7 +3206,6 @@ function factory() {
                     delete calls[msg.id];
                 }
                 return;
-
             } else if (msg.error) {
                 if (dfd) {
                     dfd.reject(new DBusError(msg.error));
@@ -3526,7 +3523,6 @@ function factory() {
             ensure_cache();
             return new DBusProxies(self, cache, String(iface), String(path_namespace), options);
         };
-
     }
 
     /* Well known busses */
@@ -3691,8 +3687,7 @@ function factory() {
                     file_content = null;
                 else
                     file_content = stringify(new_content);
-            }
-            catch (e) {
+            } catch (e) {
                 dfd.reject(e);
                 return dfd.promise;
             }
@@ -3747,11 +3742,11 @@ function factory() {
                 var new_content = callback(content);
                 if (new_content === undefined)
                     new_content = content;
-                replace(new_content, tag).
-                    done(function (new_tag) {
+                replace(new_content, tag)
+                    .done(function (new_tag) {
                         dfd.resolve(new_content, new_tag);
-                    }).
-                    fail(function (error) {
+                    })
+                    .fail(function (error) {
                         if (error.problem == "change-conflict")
                             read_then_update();
                         else
@@ -3760,9 +3755,9 @@ function factory() {
             }
 
             function read_then_update() {
-                read().
-                    done(update).
-                    fail (function (error) {
+                read()
+                    .done(update)
+                    .fail(function (error) {
                         dfd.reject(error);
                     });
             }
@@ -3793,8 +3788,7 @@ function factory() {
                 watch_channel = cockpit.channel(opts);
                 watch_channel.addEventListener("message", function (event, message_string) {
                     var message;
-                    try      { message = JSON.parse(message_string); }
-                    catch(e) { message = null; }
+                    try { message = JSON.parse(message_string) } catch (e) { message = null }
                     if (message && message.path == path && message.tag && message.tag != watch_tag)
                         read();
                 });
@@ -3894,7 +3888,6 @@ function factory() {
         /* Translate all the things */
         var w, wlen, val, i, ilen, t, tlen, list, tasks, el;
 	for (w = 0, wlen = what.length; w < wlen; w++) {
-
             /* The list of things to translate */
             list = null;
             if (what[w].querySelectorAll)
@@ -3943,8 +3936,8 @@ function factory() {
         return string;
     };
 
-    function imply( val ) {
-        return (val === true ? 1 : val ? val : 0);
+    function imply(val) {
+        return (val === true ? 1 : val || 0);
     }
 
     cockpit.ngettext = function ngettext(context, string1, stringN, num) {
@@ -4081,7 +4074,10 @@ function factory() {
         function param(obj) {
             return Object.keys(obj).map(function(k) {
                 return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]);
-            }).join('&').split('%20').join('+'); /* split/join because phantomjs */
+            })
+.join('&')
+.split('%20')
+.join('+'); /* split/join because phantomjs */
         }
 
         self.request = function request(req) {
@@ -4162,7 +4158,6 @@ function factory() {
                 if (options.problem) {
                     http_debug("http problem: ", options.problem);
                     dfd.reject(new BasicError(options.problem));
-
                 } else {
                     var body = buffer.squash();
 
@@ -4176,7 +4171,6 @@ function factory() {
                         }
                         http_debug("http status: ", resp.status);
                         dfd.reject(new HttpError(resp.status, resp.reason, message), body);
-
                     } else {
                         http_debug("http done");
                         dfd.resolve(body);
@@ -4257,7 +4251,6 @@ function factory() {
             for (var i = 0; i < reqs.length; i++)
                 reqs[i].close(problem);
         };
-
     }
 
     /* public */
@@ -4279,9 +4272,9 @@ function factory() {
         var dfd = cockpit.defer();
         var ch = cockpit.channel({ payload: "null", superuser: "require" });
         ch.wait()
-            .then(function () { dfd.resolve(true); })
-            .fail(function () { dfd.resolve(false); })
-            .always(function () { ch.close(); });
+            .then(function () { dfd.resolve(true) })
+            .fail(function () { dfd.resolve(false) })
+            .always(function () { ch.close() });
 
         return dfd.promise();
     }
@@ -4451,7 +4444,6 @@ function factory() {
 
                 /* A data message */
                 } else if (meta) {
-
                     /* Data decompression */
                     for (i = 0; i < message_len; i++) {
                         data = message[i];
@@ -4606,5 +4598,4 @@ if (is_function(window.define) && window.define.amd) {
     else
         define([], factory);
 }
-
 })();

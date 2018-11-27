@@ -25,7 +25,7 @@ function MockPeer() {
 
     /* send a message from peer back to channel */
     this.send = function(payload) {
-        if (typeof(payload) != "string")
+        if (typeof (payload) != "string")
             payload = String(payload);
         if (!channel)
             console.log("dropping message before open");
@@ -61,7 +61,7 @@ function MockPeer() {
         var channel = this;
 
         function Transport() {
-            this.close = function(problem) { console.assert(arguments.length == 1); };
+            this.close = function(problem) { console.assert(arguments.length == 1) };
         }
 
         this.transport = new Transport();
@@ -99,7 +99,7 @@ function MockSink(expected, callback) {
 
     function input(beg, items, mapping) {
         for (var i = 0; i < items.length; i++)
-            self.samples[beg+i] = items[i];
+            self.samples[beg + i] = items[i];
     }
 
     self.series = { input: input };
@@ -114,13 +114,13 @@ QUnit.test("non-instanced decompression", function() {
 
     var metrics = cockpit.metrics(1000, { source: "source",
                                           metrics: [ { name: "m1" } ],
-                                        });
+    });
     metrics.series = sink.series;
 
     metrics.follow();
     peer.send_json({ timestamp: 0, now: 0, interval: 1000,
                      metrics: [ { name: "m1" } ]
-                   });
+    });
     peer.send_json([ [ 10 ] ]);
     peer.send_json([ [ ] ]);
 

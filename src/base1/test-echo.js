@@ -53,7 +53,6 @@ QUnit.asyncTest("binary empty", function() {
     channel.send("");
 });
 
-
 QUnit.asyncTest("binary", function() {
     assert.expect(3);
 

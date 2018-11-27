@@ -875,7 +875,7 @@ function Channel(options) {
         options = options || { };
         if (!options.command)
             options.command = "options";
-	if (options.command === "done")
+        if (options.command === "done")
             sent_done = true;
         options.channel = id;
         if (!transport)
@@ -1482,7 +1482,7 @@ function factory() {
          * non-localised conversions (and in both cases, show no
          * fractional part).
          */
-	var lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
+        var lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
 
         if (!number && number !== 0)
             return "";
@@ -3896,10 +3896,10 @@ function factory() {
     };
 
     cockpit.translate = function translate(/* ... */) {
-	var what;
+        var what;
 
         /* Called without arguments, entire document */
-	if (arguments.length === 0)
+        if (arguments.length === 0)
             what = [ document ];
 
         /* Called with a single array like argument */
@@ -3912,7 +3912,7 @@ function factory() {
 
         /* Translate all the things */
         var w, wlen, val, i, ilen, t, tlen, list, tasks, el;
-	for (w = 0, wlen = what.length; w < wlen; w++) {
+        for (w = 0, wlen = what.length; w < wlen; w++) {
             /* The list of things to translate */
             list = null;
             if (what[w].querySelectorAll)

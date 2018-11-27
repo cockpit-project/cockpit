@@ -36,7 +36,7 @@ table.listing-ct > thead td > a {
 table.listing-ct > thead th {
     border-top: 1px solid @gray-lighter;
     font-weight: normal;
-    padding: @listing-ct-padding;
+    padding: @listing-ct-padding @listing-ct-padding * 2;
     color: @listing-ct-metadata;
 }
 
@@ -91,11 +91,11 @@ tbody.open td div.listing-ct-head {
     background-color: @color-pf-white;
 }
 
-tbody.open .listing-ct-panel {
+tbody.open > .listing-ct-panel {
     border: 1px solid @listing-ct-border;
 }
 
-tbody.open .listing-ct-panel .listing-ct-body {
+tbody.open > .listing-ct-panel > td > .listing-ct-body {
     border: none;
 }
 
@@ -124,7 +124,7 @@ tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: @listing-ct-hover;
 }
 
-tr.listing-ct-item .listing-ct-toggle {
+tr.listing-ct-item .listing-ct-toggle:not(:empty) {
     width: 35px;
     color: @color-pf-black-800;
 }
@@ -135,10 +135,15 @@ tbody.open .listing-ct-toggle {
     color: @listing-ct-active;
 }
 
-.listing-ct > thead > .listing-ct-toggle + th,
+.listing-ct .listing-ct-toggle:empty {
+    width: 0;
+    padding: 0;
+}
+
+.listing-ct > thead > tr > .listing-ct-toggle + th,
 .listing-ct-item > .listing-ct-toggle + td,
 .listing-ct-item > .listing-ct-toggle + th {
-    padding-left: 10px;
+    padding-left: @listing-ct-padding;
     position: relative;
 }
 
@@ -180,8 +185,9 @@ tbody.open td.listing-ct-toggle i:before {
 }
 
 /* Listing items have decent padding ... */
-tr.listing-ct-item td,
-tr.listing-ct-item th {
+.listing-ct > thead > tr > th,
+tr.listing-ct-item > th,
+tr.listing-ct-item > td {
     padding: @listing-ct-padding * 1.5;
     vertical-align: text-top; /* baseline doesn't support wrapped lines */
 }
@@ -321,7 +327,7 @@ tbody.active .listing-ct-head {
     background-color: @color-pf-white;
 }
 
-.listing-ct-inline > .listing-ct-body {
+.listing-ct-inline > td > .listing-ct-body {
     border: none;
     padding-top: 0px;
     padding-left: @listing-ct-padding * 2;
@@ -418,16 +424,16 @@ table.listing-ct tbody.open {
 
 /* By default these are hidden */
 /* (HACK: Special-case the user auth dialog) */
-tbody:not(.ssh-key-body) tr.listing-ct-head,
-tbody tr.listing-ct-panel,
-tbody tr.listing-ct-body {
+tbody:not(.ssh-key-body) > tr.listing-ct-head,
+tbody > tr.listing-ct-panel,
+tbody > tr.listing-ct-body {
     display: none;
 }
 
 /* ... unless they are in the right state */
-tbody.open tr.listing-ct-head,
-tbody.open tr.listing-ct-panel,
-tbody.open tr.listing-ct-body {
+tbody.open > tr.listing-ct-head,
+tbody.open > tr.listing-ct-panel,
+tbody.open > tr.listing-ct-body {
     display: table-row;
 }
 
@@ -517,14 +523,13 @@ tbody + thead.listing-ct-empty {
         padding: @listing-ct-padding / 2;
     }
 
-    > tbody > tr > .listing-ct-toggle + th,
-    > tbody > tr > .listing-ct-toggle + td {
+    > tbody > tr > .listing-ct-toggle:not(:empty) + th,
+    > tbody > tr > .listing-ct-toggle:not(:empty) + td {
         padding-left: @listing-ct-padding / 2;
-    }
 
-    .listing-ct-item > .listing-ct-toggle:not(:empty) + td::before,
-    .listing-ct-item > .listing-ct-toggle:not(:empty) + th::before {
-        top: @listing-ct-padding / 2;
+        &::before {
+            top: @listing-ct-padding / 2;
+        }
     }
 }
 

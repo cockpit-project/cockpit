@@ -1,7 +1,4 @@
-/* global $, cockpit, QUnit, direct_address, common_dbus_tests, bus_address, dbus_track_tests */
-
-/* To help with future migration */
-var assert = QUnit;
+/* global QUnit, direct_address, common_dbus_tests, bus_address, dbus_track_tests */
 
 /* no name */
 var direct_options = {

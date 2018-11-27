@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape, WebSocket:true, XMLHttpRequest */
+/* global cockpit, QUnit, unescape, escape, WebSocket:true, XMLHttpRequest */
 
 /* To help with future migration */
 var assert = QUnit;

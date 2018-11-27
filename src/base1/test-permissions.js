@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit, unescape, escape */
 
 /* To help with future migration */
 var assert = QUnit;
@@ -13,12 +13,6 @@ var priv_user = {
     name: "user",
     id: 1000,
     groups: ["user", "agroup"]
-};
-
-var limited_user = {
-    name: "limited",
-    id: 1001,
-    groups: ["limited"]
 };
 
 QUnit.module("Permission tests", {

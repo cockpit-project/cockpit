@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit, unescape, escape */
 
 /* To help with future migration */
 var assert = QUnit;
@@ -97,7 +97,7 @@ QUnit.asyncTest("multi cache", function() {
     }
 
     var cache1 = cockpit.cache("test-key-b", provider1, consumer1);
-    var cache2 = cockpit.cache("test-key-b", provider2, consumer2);
+    cockpit.cache("test-key-b", provider2, consumer2);
 });
 
 QUnit.start();

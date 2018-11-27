@@ -66,13 +66,6 @@
         return params;
     }
 
-    function unquote(str) {
-        str = str.trim();
-        if (str[0] == '"')
-            str = str.substr(1, str.length - 2);
-        return str;
-    }
-
     if (!console)
         console = function() { };
 
@@ -773,7 +766,6 @@
     function run(response) {
         var wanted = window.sessionStorage.getItem('login-wanted');
         var machine = id("server-field").value;
-        var str;
 
         if (machine && application != org_application) {
             wanted = "/=" + machine;

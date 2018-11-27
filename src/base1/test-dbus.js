@@ -302,7 +302,7 @@ QUnit.asyncTest("watch no default name", function() {
         $.extend(true, cache, data);
     });
 
-    var ret = dbus.watch({ "path": "/otree/frobber", "name": "com.redhat.Cockpit.DBusTests.Second" })
+    dbus.watch({ "path": "/otree/frobber", "name": "com.redhat.Cockpit.DBusTests.Second" })
             .then(function() {
                 assert.equal(typeof cache["/otree/frobber"], "object", "has path");
             }, function(ex) {
@@ -457,7 +457,7 @@ QUnit.asyncTest("emit signal no meta", function() {
 });
 
 QUnit.asyncTest("publish object", function() {
-    assert.expect(3);
+    assert.expect(4);
 
     var info = {
         "org.Interface": {
@@ -479,15 +479,13 @@ QUnit.asyncTest("publish object", function() {
         }
     };
 
-    var resolved = false;
-
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.meta(info);
     dbus.wait().then(function() {
         var published = dbus.publish("/a/path", "org.Interface", object);
 
         published.then(function() {
-            resolved = true;
+            assert.ok(true, "should resolve");
         }, function() {
             assert.ok(!true, "should not have failed");
         });
@@ -533,7 +531,7 @@ QUnit.asyncTest("publish object promise", function() {
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.meta(info);
     dbus.wait().then(function() {
-        var published = dbus.publish("/a/path", "org.Interface", object);
+        dbus.publish("/a/path", "org.Interface", object);
 
         /* Note that we're calling ourselves, but via the bus */
         dbus.call("/a/path", "org.Interface", "Add", [ 3, 44 ], { name: dbus.unique_name })
@@ -575,7 +573,7 @@ QUnit.asyncTest("publish object failure", function() {
     var dbus = cockpit.dbus(null, { bus: "session" });
     dbus.meta(info);
     dbus.wait().then(function() {
-        var published = dbus.publish("/a/path", "org.Interface", object);
+        dbus.publish("/a/path", "org.Interface", object);
 
         /* Note that we're calling ourselves, but via the bus */
         dbus.call("/a/path", "org.Interface", "Fails", [ 3, 44 ], { name: dbus.unique_name })

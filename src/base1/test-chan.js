@@ -61,8 +61,8 @@ function MockPeer() {
     };
 
     /* Methods filled in by MockWebSocket */
-    self.send = function(channel, payload) { throw "not reached" };
-    self.close = function(options) { throw "not reached" };
+    self.send = function(channel, payload) { throw Error("not reached") };
+    self.close = function(options) { throw Error("not reached") };
 }
 
 window.mock = { url: "ws://url" };
@@ -77,9 +77,9 @@ QUnit.testDone(function() {
 /* Mock WebSocket */
 function MockWebSocket(url, protocol) {
     if (typeof url != "string")
-        throw "WebSocket(@url) is not a string: " + typeof url;
+        throw Error("WebSocket(@url) is not a string: " + typeof url);
     if (typeof protocol != "string")
-        throw "WebSocket(@protocol) is not a string: " + typeof protocol;
+        throw Error("WebSocket(@protocol) is not a string: " + typeof protocol);
 
     this.onopen = function(event) { };
     this.onclose = function(event) { };
@@ -96,10 +96,10 @@ function MockWebSocket(url, protocol) {
 
     this.send = function(data) {
         if (typeof data != "string")
-            throw "WebSocket.send(@data) is not a string: " + typeof data;
+            throw Error("WebSocket.send(@data) is not a string: " + typeof data);
         var pos = data.indexOf("\n");
         if (pos == -1)
-            throw "Invalid frame sent to WebSocket: " + data;
+            throw Error("Invalid frame sent to WebSocket: " + data);
         var channel = data.substring(0, pos);
         var payload = data.substring(pos + 1);
         window.setTimeout(function() { $(mock).triggerHandler("recv", [channel, payload]) }, 5);
@@ -107,11 +107,11 @@ function MockWebSocket(url, protocol) {
 
     this.close = function(code, reason) {
         if (typeof code != "number" && typeof code != "undefined")
-            throw "WebSocket.close(@code) is not a number: " + typeof code;
+            throw Error("WebSocket.close(@code) is not a number: " + typeof code);
         if (typeof reason != "string" && typeof reason != "undefined")
-            throw "WebSocket.close(@reason) is not a number: " + typeof string;
+            throw Error("WebSocket.close(@reason) is not a number: " + typeof string);
         if (this.readyState > 1)
-            throw "WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason;
+            throw Error("WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason);
         this.readyState = 3;
         this.onclose({ "name": "close", "code": code || 1000, "reason": reason, "wasClean": true });
     };

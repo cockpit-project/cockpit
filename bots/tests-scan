@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-BASELINE_PRIORITY = 10
+BASELINE_PRIORITY = 5
+MAX_PRIORITY = 9
 
 BRANCHES = [ 'master', 'rhel-7.6', 'rhel-7.7', 'rhel-8.0' ]
 
@@ -85,10 +86,10 @@ REDHAT_EXTERNAL_PROJECTS = {
 LABEL_TEST_EXTERNAL = "test-external"
 
 import argparse
+import contextlib
 import os
 import json
 import pipes
-import random
 import sys
 import time
 import itertools
@@ -97,6 +98,12 @@ import urllib.request, urllib.parse, urllib.error
 sys.dont_write_bytecode = True
 
 from task import github, label, REDHAT_PING
+
+no_amqp = False
+try:
+    import amqp
+except ImportError:
+    no_amqp = True
 
 # Check if we have access to Red Hat network
 try:
@@ -116,7 +123,17 @@ def main():
                         help='Repository to scan and checkout.')
     parser.add_argument('-c', '--context', action="append", default=[ ],
                         help='Test contexts to use.')
+    parser.add_argument('-p', '--pull-number', default=None,
+                        help='Pull request to scan for tasks')
+    parser.add_argument('--amqp', default=None,
+                        help='The URL of the AMQP server to publish to')
+    parser.add_argument('--queue', default='tasks',
+                        help='The name of the queue to publish to')
+
     opts = parser.parse_args()
+    if opts.amqp and no_amqp:
+        sys.stderr.write("AMQP URL specified but python-amqp not available\n")
+        return 1
     api = github.GitHub(repo=opts.repo)
 
     try:
@@ -143,6 +160,18 @@ def default_policy():
     policy = DEFAULT_VERIFY
     policy.update(REDHAT_VERIFY)
     return policy
+
+@contextlib.contextmanager
+def distributed_queue(host, queue):
+    connection = amqp.Connection(host=host)
+    connection.connect()
+    channel = connection.channel()
+    arguments = {
+        "x-max-priority": MAX_PRIORITY
+    }
+    channel.queue_declare(queue=queue, arguments=arguments)
+    yield channel
+    connection.close()
 
 # Prepare a human readable output
 def tests_human(priority, name, revision, ref, context, base, repo, bots_ref):
@@ -215,6 +244,22 @@ def tests_invoke(priority, name, revision, ref, context, base, repo, bots_ref, o
         repo=pipes.quote(repo),
     )
 
+def queue_test(priority, name, revision, ref, context, base, repo, bots_ref, queue, options):
+    command = tests_invoke(priority, name, revision, ref, context, base, repo, bots_ref, options)
+    if command:
+        if priority > MAX_PRIORITY:
+            priority = MAX_PRIORITY
+
+        body = {
+            "command": command,
+            "type": "test",
+            "sha": revision,
+            "ref": ref,
+            "name": name,
+        }
+        msg = amqp.Message(body=json.dumps(body), priority=priority)
+        queue.basic_publish(msg, routing_key=options.queue)
+
 def prioritize(status, title, labels, priority, context):
     state = status.get("state", None)
     update = { "state": "pending" }
@@ -226,7 +271,7 @@ def prioritize(status, title, labels, priority, context):
 
     # This test errored, we try again but low priority
     elif state in [ "error" ]:
-        priority -= 6
+        priority -= 2
 
     elif state in [ "pending" ]:
         update = None
@@ -240,17 +285,13 @@ def prioritize(status, title, labels, priority, context):
 
         # Pull requests where the title starts with WIP get penalized
         if title.startswith("WIP") or "needswork" in values:
-            priority -= 3
+            priority -= 1
 
         # Is testing already in progress?
         description = status.get("description", "")
         if description.startswith(github.TESTING):
             priority = description
             update = None
-
-        # Prefer "local" operating system
-        elif os.environ.get("TEST_OS", "?") not in context:
-            priority -= random.randint(1, 2)
 
     if update:
         if priority <= 0:
@@ -280,7 +321,7 @@ def update_status(api, revision, context, last, changes):
         return False
     return True
 
-def cockpit_tasks(api, update, contexts, repo):
+def cockpit_tasks(api, update, contexts, repo, pull_number, amqp):
     results = []
     branch_contexts = { }
     for (context, branches) in contexts.items():
@@ -289,8 +330,23 @@ def cockpit_tasks(api, update, contexts, repo):
                 branch_contexts[branch] = [ ]
             branch_contexts[branch].append(context)
 
+    pulls = []
+    if pull_number:
+        # Avoid processing pull requests with the same number on external
+        # repositories: if repo is None, the api is querying the repo the pull
+        # request belongs to
+        if repo is None:
+            pull = api.get("pulls/{0}".format(pull_number))
+            if pull:
+                pulls.append(pull)
+            else:
+                sys.stderr.write("Can't find pull request {0}\n".format(pull_number))
+                return 1
+    else:
+        pulls = api.pulls()
+
     whitelist = api.whitelist()
-    for pull in api.pulls():
+    for pull in pulls:
         title = pull["title"]
         number = pull["number"]
         revision = pull["head"]["sha"]
@@ -307,9 +363,11 @@ def cockpit_tasks(api, update, contexts, repo):
         have = len(statuses.keys()) > 0
 
         baseline = BASELINE_PRIORITY
-        # modify the baseline slightly to favor older pull requests, so that we don't
-        # end up with a bunch of half tested pull requests
-        baseline += 1.0 - (min(100000, float(number)) / 100000)
+        # amqp automatically prioritizes on age
+        if not amqp:
+            # modify the baseline slightly to favor older pull requests, so that we don't
+            # end up with a bunch of half tested pull requests
+            baseline += 1.0 - (min(100000, float(number)) / 100000)
 
         for context in contexts:
             status = statuses.get(context, None)
@@ -377,14 +435,18 @@ def scan_for_pull_tasks(api, policy, opts, repo):
         sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
         return []
 
-    results = cockpit_tasks(api, not opts.dry, policy, repo)
+    results = cockpit_tasks(api, not opts.dry, policy, repo, opts.pull_number, opts.amqp)
 
     if opts.human_readable:
         func = lambda x: tests_human(*x)
         results.sort(reverse=True, key=lambda x: str(x))
-    else:
+        return list(map(func, results))
+    if not opts.amqp:
         func = lambda x: tests_invoke(*x, options=opts)
-    return list(map(func, results))
+        return list(map(func, results))
+    with distributed_queue(opts.amqp, opts.queue) as queue:
+        func = lambda x: queue_test(*x, queue=queue, options=opts)
+        return list(map(func, results))
 
 def scan_external_projects(opts):
     tests = []

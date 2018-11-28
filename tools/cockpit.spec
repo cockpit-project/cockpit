@@ -401,7 +401,6 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/README.md
 %dir %{_datadir}/cockpit
 %{_datadir}/metainfo/cockpit.appdata.xml
-%{_datadir}/applications/cockpit.desktop
 %{_datadir}/pixmaps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 

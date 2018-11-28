@@ -98,6 +98,30 @@ tbody.open > .listing-ct-panel {
 tbody.open > .listing-ct-panel > td > .listing-ct-body {
     border: none;
     overflow: auto;
+    max-height: calc(80vh - 5rem);
+    position: relative;
+
+    /* FIXME: these two lines are for debugging only. Remove! */
+    .machines-disks { display: inline; }
+    .machines-disks-source-value { height: 900vh; }
+
+    .listing-ct {
+        margin-top: 0;
+
+        > caption {
+            @sticky-offset-hack: 50px;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            bottom: calc(100% - @sticky-offset-hack);
+            //margin-top: -@sticky-offset-hack;
+            //margin-bottom: @sticky-offset-hack;
+            background: #fff;
+
+            > div {
+            }
+        }
+    }
 }
 
 tbody.open > tr.listing-ct-panel + tr.listing-ct-body {

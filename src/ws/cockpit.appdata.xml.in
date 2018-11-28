@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
-<component type="desktop-application">
+<component type="web-application">
   <id>cockpit.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-2.0+</project_license>
   <name>Cockpit</name>
-  <_summary>User interface for Linux servers</_summary>
+  <_summary>Web Console for Linux servers</_summary>
   <description>
     <_p>
       Cockpit is a server manager that makes it easy to administer your Linux
@@ -23,27 +23,28 @@
       Just add them with a single click and your machines will look after its
       buddies.
     </_p>
+    <_p>
+      Once Cockpit is installed, enable it with "systemctl enable --now cockpit.socket".
+    </_p>
   </description>
+  <translation type="gettext">cockpit</translation>
+  <icon type="local" width="128" height="128">/usr/share/pixmaps/cockpit.png</icon>
+  <launchable type="url">https://localhost:9090</launchable>
   <screenshots>
-    <!-- FIXME: we need some 16:9 screenshots of the latest code; also putting
-                them on https://cockpit-project.org/ would be best to control
-                them in the future -->
     <screenshot type="default">
-        <image>https://cockpit-project.org/screenshots/cockpit-overview.png</image>
+        <image>https://cockpit-project.org/images/site/screenshot-storage.png</image>
     </screenshot>
     <screenshot>
-        <image>https://cockpit-project.org/screenshots/cockpit-services.png</image>
+        <image>https://cockpit-project.org/images/site/screenshot-docker.png</image>
     </screenshot>
     <screenshot>
-        <image>https://cockpit-project.org/screenshots/cockpit-journal.png</image>
+        <image>https://cockpit-project.org/images/site/screenshot-network.png</image>
     </screenshot>
     <screenshot>
-        <image>https://cockpit-project.org/screenshots/cockpit-network.png</image>
-    </screenshot>
-    <screenshot>
-        <image>https://cockpit-project.org/screenshots/cockpit-storage.png</image>
+        <image>https://cockpit-project.org/images/site/screenshot-dashboard.png</image>
     </screenshot>
   </screenshots>
   <url type="homepage">https://cockpit-project.org/</url>
+  <url type="help">https://cockpit-project.org/running.html</url>
   <update_contact>anilsson_at_redhat.com</update_contact>
 </component>

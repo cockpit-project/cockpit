@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu -o noglob
 
-CONNECTION_URI="qemu:///$1" # ex: qemu:///system
+CONNECTION_URI="qemu:///$1" # example: qemu:///system
 VM_NAME="$2"
 SOURCE="$3"
 OS="$4"

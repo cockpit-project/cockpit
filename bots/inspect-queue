@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+MAX_PRIORITY = 9
+
+import argparse
+import sys
+import time
+
+import amqp
+
+def main():
+    parser = argparse.ArgumentParser(description='Read and print messages from the queue without acknowleding them')
+    parser.add_argument('--amqp', default='localhost',
+                        help='The URL of the AMQP server to consume from')
+    parser.add_argument('--queue', default='tasks',
+                        help='The name of the queue to consume from')
+    parser.add_argument('-n', '--number', default=0,
+                        help='Number of queue items to show, starting from the front (0=all)')
+    parser.add_argument('-t', '--timeout', default=0.5,
+                        help='Time to wait for messages')
+    opts = parser.parse_args()
+
+    connection = amqp.Connection(host=opts.amqp)
+    connection.connect()
+    channel = connection.channel()
+    try:
+        channel.queue_declare(queue=opts.queue, passive=True, auto_delete=False)
+    except amqp.exceptions.NotFound:
+        sys.stdout.write('queue is empty\n')
+        return 0
+    channel.basic_qos(0, opts.number, True)
+
+    def callback(msg):
+        sys.stdout.write("{0}\n".format(msg.body))
+        msg.channel.basic_reject(msg.delivery_tag, requeue=True)
+
+    channel.basic_consume(callback=callback, queue=opts.queue)
+    time.sleep(opts.timeout)
+    sys.stdout.flush()
+    connection.close()
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,61 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+MAX_PRIORITY = 9
+
+import argparse
+import json
+import subprocess
+import sys
+
+import amqp
+
+def main():
+    parser = argparse.ArgumentParser(description='Bot: read a single test command from the queue and execute it')
+    parser.add_argument('--amqp', default='localhost',
+                        help='The URL of the AMQP server to consume from')
+    parser.add_argument('--queue', default='tasks',
+                        help='The name of the queue to consume from')
+    opts = parser.parse_args()
+
+    connection = amqp.Connection(host=opts.amqp)
+    connection.connect()
+    channel = connection.channel()
+    try:
+        channel.queue_declare(queue=opts.queue, passive=True, auto_delete=False)
+    except amqp.exceptions.NotFound:
+        sys.stdout.write('queue is empty\n')
+        return 0
+
+    channel.basic_qos(0, 1, True)
+
+    # Get one item from the queue if present
+    msg = channel.basic_get(queue=opts.queue)
+    if msg:
+        body = json.loads(msg.body)
+        sys.stderr.write("Consuming {0} task:\n{1}\n".format(body['type'],json.dumps(body, indent=2, sort_keys=True)))
+        sys.stderr.flush()
+        subprocess.check_call(body['command'], shell=True)
+        channel.basic_ack(msg.delivery_tag)
+
+    channel.close()
+    connection.close()
+
+if __name__ == '__main__':
+    sys.exit(main())

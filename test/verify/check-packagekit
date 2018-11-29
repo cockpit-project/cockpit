@@ -861,10 +861,11 @@ class TestAutoUpdates(PackageCase):
             b.wait_present("#automatic .disabled")
             b.wait_not_present("#automatic .disabled")
 
-        def assertTimerDnf(time, dow):
+        def assertTimerDnf(hour, dow):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
-            if time:
-                self.assertIn(" %s:00 " % time, out)
+            if hour:
+                # allow some wiggle room in the minutes, due to RandomizedDelaySec=
+                self.assertRegexpMatches(out, " %s:0[0-9]:" % hour)
             else:
                 self.assertEqual(out, "")
             if dow:
@@ -878,14 +879,14 @@ class TestAutoUpdates(PackageCase):
 
             # automatic reboots should be enabled whenever timer is enabled
             out = m.execute("systemctl cat dnf-automatic-install.service")
-            if time:
+            if hour:
                 self.assertRegexpMatches(out, "ExecStartPost=/.*shutdown")
             else:
                 self.assertNotIn("ExecStartPost", out)
 
-        def assertTimer(time, dow=None):
+        def assertTimer(hour, dow=None):
             if self.backend == "dnf":
-                assertTimerDnf(time, dow)
+                assertTimerDnf(hour, dow)
             else:
                 raise NotImplementedError(self.backend)
 
@@ -916,7 +917,7 @@ class TestAutoUpdates(PackageCase):
         b.click("#automatic div.btn-onoff-ct label.active span")
         wait_pending()
         b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
-        assertTimer("06:00")
+        assertTimer("06")
         assertType("all")
         b.wait_present("#auto-update-type button")
         b.wait_in_text("#auto-update-type button", "Apply all updates")
@@ -932,7 +933,7 @@ class TestAutoUpdates(PackageCase):
         wait_pending()
         b.wait_in_text("#auto-update-type button", "Apply security updates")
         assertType("security")
-        assertTimer("06:00")
+        assertTimer("06")
 
         # change it back
         b.click("#auto-update-type button")
@@ -941,7 +942,7 @@ class TestAutoUpdates(PackageCase):
         wait_pending()
         b.wait_in_text("#auto-update-type button", "Apply all updates")
         assertType("all")
-        assertTimer("06:00")
+        assertTimer("06")
 
         # change day
         b.click("#auto-update-day button")
@@ -950,7 +951,7 @@ class TestAutoUpdates(PackageCase):
         wait_pending()
         b.wait_in_text("#auto-update-day button", "Thursday")
         assertType("all")
-        assertTimer("06:00", "Thu")
+        assertTimer("06", "Thu")
 
         # change time
         b.click("#auto-update-time button")
@@ -959,7 +960,7 @@ class TestAutoUpdates(PackageCase):
         wait_pending()
         b.wait_in_text("#auto-update-time button", "21:00")
         assertType("all")
-        assertTimer("21:00", "Thu")
+        assertTimer("21", "Thu")
 
         # change back to daily
         b.click("#auto-update-day button")
@@ -968,7 +969,7 @@ class TestAutoUpdates(PackageCase):
         wait_pending()
         b.wait_in_text("#auto-update-day button", "every day")
         assertType("all")
-        assertTimer("21:00")
+        assertTimer("21")
 
         # disable
         b.click("#automatic div.btn-onoff-ct label.active span")

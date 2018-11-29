@@ -193,10 +193,17 @@ tr.listing-ct-item > td {
     vertical-align: text-top; /* baseline doesn't support wrapped lines */
 }
 
-tr.listing-ct-item > td > .btn {
-    /* .btn has padding of 6px and 1px border */
-    margin-top: -7px;
-    margin-bottom: -7px;
+tr.listing-ct-item > td {
+    > .btn {
+        /* .btn has padding of 6px and 1px border */
+        margin-top: -7px;
+        margin-bottom: -7px;
+    }
+    > .btn-control-ct {
+        /* Adapt for Cockpit's modified button, which is larger by 8px */
+        margin-top: -3px;
+        margin-bottom: -3px;
+    }
 }
 
 /* Listing caption is text next to the actions, text should be similar to nav (.nav-tabs-pf > li > a)*/

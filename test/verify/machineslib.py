@@ -557,7 +557,7 @@ class TestMachines(MachineCase):
 
         b.wait_present("#vm-subVmTest1-disks-adddisk") # button
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog label:contains(Create New)") # radio button label in the modal dialog
+        b.wait_present("#vm-subVmTest1-disks-adddisk-createnew") # radio button in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
 
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
@@ -598,8 +598,8 @@ class TestMachines(MachineCase):
                        "mydiskofpoolone_permanent") # should survive the shut down
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
-        b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
+        b.wait_present("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         # since both disks are already attached
@@ -608,8 +608,8 @@ class TestMachines(MachineCase):
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
-        b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
+        b.wait_present("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume")
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-permanent")
         b.click("#vm-subVmTest1-disks-adddisk-existing-permanent")
@@ -643,8 +643,8 @@ class TestMachines(MachineCase):
 
         # check the autoselected options
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in modal dialog
-        b.click(".add-disk-dialog label:contains(Use Existing)")
+        b.wait_present("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk-useexisting") # radio button in the modal dialog
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
         b.wait_present('#vm-subVmTest1-disks-adddisk-existing-target')

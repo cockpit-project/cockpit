@@ -311,7 +311,7 @@ for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosrepo
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
-for data in applications doc locale man pixmaps; do
+for data in doc locale man pixmaps; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 for lib in systemd tmpfiles.d firewalld; do

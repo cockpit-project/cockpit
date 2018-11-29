@@ -257,6 +257,8 @@ class TestRealms(MachineCase):
         b.wait_popdown("realms-op")
 
         self.allow_restart_journal_messages()
+        # sometimes polling for info and joining a domain creates this noise
+        self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
     def testIpaUnqualifiedUsers(self):
         m = self.machine
@@ -319,6 +321,8 @@ class TestRealms(MachineCase):
 
         self.allow_authorize_journal_messages()
         self.allow_restart_journal_messages()
+        # sometimes polling for info and joining a domain creates this noise
+        self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
     def testNotSupported(self):
         m = self.machine

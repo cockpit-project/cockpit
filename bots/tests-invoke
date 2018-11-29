@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--publish', dest='publish', default=os.environ.get("TEST_PUBLISH", ""),
             action='store', help='Publish results centrally to a sink')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    parser.add_argument('--pull-number', help="The number of the pull request to test")
     parser.add_argument('context', help="The context or type of integration tests to run")
     parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
     opts = parser.parse_args()
@@ -83,10 +84,25 @@ class PullTask(object):
         self.sink = None
         self.github_status_data = None
 
-    def start_publishing(self, host):
+    def detect_collisions(self, opts):
         api = github.GitHub()
         if not self.github_revision:
             self.github_revision = self.revision
+
+        if opts.pull_number:
+            pull = api.get("pulls/{0}".format(opts.pull_number))
+            if pull and pull["head"]["sha"] != self.revision:
+                return "Newer revision available on GitHub for this pull request"
+
+        statuses = api.get("commits/{0}/statuses".format(self.github_revision))
+        for status in statuses:
+            if status.get("context") == self.context and status.get("state") != "pending":
+                return "Status of context isn't pending"
+            else: # only check the newest status of the supplied context
+                return None
+
+    def start_publishing(self, host):
+        api = github.GitHub()
 
         # build a unique file name for this test run
         id_context = self.context
@@ -250,6 +266,7 @@ class PullTask(object):
         if isinstance(ret, str):
             message = ret
             mark_failed()
+            ret = 0
         elif ret == 0:
             message = "Tests passed"
             mark_passed()
@@ -269,6 +286,12 @@ class PullTask(object):
         return ret
 
     def run(self, opts):
+        # Collision detection
+        ret = self.detect_collisions(opts)
+        if ret:
+            sys.stderr.write('Collision detected: {0}\n'.format(ret))
+            return None
+
         if opts.publish:
             self.start_publishing(opts.publish)
             os.environ["TEST_ATTACHMENTS"] = self.sink.attachments

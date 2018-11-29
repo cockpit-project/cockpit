@@ -1323,6 +1323,7 @@ class TestMachines(MachineCase):
 
         def createAndExpectError(self, errors, ui_validation):
             b = self.browser
+            m = self.machine
 
             def waitForError(errors, error_location):
                 for retry in range(0, 60):

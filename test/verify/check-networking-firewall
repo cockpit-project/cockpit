@@ -133,8 +133,8 @@ class TestFirewall(MachineCase):
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
         b.wait_present("#cockpit_modal_dialog li input#pop3")
-        b.wait_present("#cockpit_modal_dialog .btn-primary")
-        b.click("#cockpit_modal_dialog .btn-primary")
+        b.wait_present("#add-services-dialog .modal-footer .btn-primary")
+        b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")
 
         # now add pop3
@@ -142,7 +142,7 @@ class TestFirewall(MachineCase):
         b.click("caption button.btn-primary")
         b.wait_present("#cockpit_modal_dialog li input#pop3")
         b.click("#cockpit_modal_dialog li input#pop3")
-        b.click("#cockpit_modal_dialog .btn-primary")
+        b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_present("tr[data-row-id='pop3']")
 
 

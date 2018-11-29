@@ -121,7 +121,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
                             target: disk.target,
                             idPrefixRow,
                         });
-                        columns.push(<div>{removeDiskAction}</div>);
+                        columns.push(removeDiskAction);
                     }
 
                     return (<ListingRow key={idPrefixRow} columns={columns} navigateToItem={disk.onNavigate} />);

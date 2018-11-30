@@ -83,16 +83,21 @@ typedef struct {
   const char *bridge;
 } TestFixture;
 
-static void
-on_init_ready (GObject *object,
-               GAsyncResult *result,
-               gpointer data)
+static gboolean
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer data)
 {
   gboolean *flag = data;
-  g_assert (*flag == FALSE);
-  cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
-                                               result);
-  *flag = TRUE;
+  g_assert (flag != NULL);
+
+  if (g_str_equal (command, "init"))
+    *flag = TRUE;
+
+  return FALSE;
 }
 
 static void
@@ -397,6 +402,7 @@ start_web_service_and_create_client (TestCase *test,
   cockpit_config_file = fixture ? fixture->config : NULL;
   const char *origin = fixture ? fixture->origin : NULL;
   gboolean ready = FALSE;
+  gulong handler;
 
   if (!origin)
     origin = "http://127.0.0.1";
@@ -416,16 +422,17 @@ start_web_service_and_create_client (TestCase *test,
   cockpit_ws_default_protocol_header = fixture ? fixture->forward : NULL;
 
   *service = cockpit_web_service_new (test->creds, test->mock_bridge);
-  /* Manually created services won't be init'd yet,
-   * wait for that before sending data
-   */
-  cockpit_web_service_get_init_message_aysnc (*service, on_init_ready, &ready);
+
+  /* Manually created services won't be init'd yet, wait for that before sending data */
+  handler = g_signal_connect (test->mock_bridge, "control", G_CALLBACK (on_transport_control), &ready);
 
   while (!ready)
     g_main_context_iteration (NULL, TRUE);
 
   /* Note, we are forcing the websocket to parse its own headers */
   cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL);
+
+  g_signal_handler_disconnect (test->mock_bridge, handler);
 }
 
 static void

@@ -115,11 +115,10 @@ typedef struct {
 
 
 static void
-on_init_ready (GObject *object,
-               GAsyncResult *result,
-               gpointer user_data)
+serve_branding_css_with_init_data (CockpitWebService *service,
+                                   CockpitWebResponse *response,
+                                   const gchar *path)
 {
-  CockpitBrandingData *data = user_data;
   CockpitTransport *transport = NULL;
   GHashTable *os_release = NULL;
   gchar **roots = NULL;
@@ -127,12 +126,11 @@ on_init_ready (GObject *object,
   gboolean responded = FALSE;
   JsonObject *init = NULL;
 
-  init = cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
-                                                      result);
+  init = cockpit_web_service_get_init (service);
   if (!init)
     goto out;
 
-  transport = cockpit_web_service_get_transport (COCKPIT_WEB_SERVICE (object));
+  transport = cockpit_web_service_get_transport (service);
   if (!transport)
     goto out;
 
@@ -164,30 +162,12 @@ on_init_ready (GObject *object,
       os_release = g_object_get_data (G_OBJECT (transport), "os-release");
     }
 
-  serve_branding_css_file (data->response, data->path,
-                           (const gchar **)roots, os_release);
+  serve_branding_css_file (response, path, (const gchar **)roots, os_release);
   responded = TRUE;
 
 out:
   if (!responded)
-    cockpit_web_response_error (data->response, 502, NULL, NULL);
-
-  g_object_unref (data->response);
-  g_free (data);
-}
-
-
-
-static void
-serve_branding_css_with_init_data (CockpitWebService *service,
-                                   CockpitWebResponse *response,
-                                   const gchar *path)
-{
-  CockpitBrandingData *cbd = NULL;
-  cbd = g_new0 (CockpitBrandingData, 1);
-  cbd->response = g_object_ref (response);
-  cbd->path = path;
-  cockpit_web_service_get_init_message_aysnc (service, on_init_ready, cbd);
+    cockpit_web_response_error (response, 502, NULL, NULL);
 }
 
 void

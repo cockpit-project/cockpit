@@ -60,7 +60,7 @@ typedef struct {
   gchar *id;
   WebSocketConnection *connection;
   GHashTable *channels;
-  gboolean init_received;
+  JsonObject *init_received;
 } CockpitSocket;
 
 typedef struct {
@@ -74,6 +74,8 @@ cockpit_socket_free (gpointer data)
 {
   CockpitSocket *socket = data;
   g_hash_table_unref (socket->channels);
+  if (socket->init_received)
+    json_object_unref (socket->init_received);
   g_object_unref (socket->connection);
   g_free (socket->id);
   g_free (socket);
@@ -210,7 +212,7 @@ struct _CockpitWebService {
   gint credential_requests;
 
   CockpitTransport *transport;
-  gboolean init_received;
+  JsonObject *init_received;
   gulong control_sig;
   gulong recv_sig;
   gulong closed_sig;
@@ -226,7 +228,6 @@ typedef struct {
 
 static guint sig_idling = 0;
 static guint sig_destroy = 0;
-static guint sig_transport_init = 0;
 
 G_DEFINE_TYPE (CockpitWebService, cockpit_web_service, G_TYPE_OBJECT);
 
@@ -278,6 +279,8 @@ cockpit_web_service_finalize (GObject *object)
 
   if (self->transport)
     g_object_unref (self->transport);
+  if (self->init_received)
+    json_object_unref (self->init_received);
 
   g_bytes_unref (self->control_prefix);
   cockpit_creds_unref (self->creds);
@@ -627,10 +630,9 @@ process_transport_init (CockpitWebService *self,
   if (version == 1)
     {
       g_debug ("received init message");
-      self->init_received = TRUE;
-      g_object_set_data_full (G_OBJECT (transport), "init",
-                              json_object_ref (options),
-                              (GDestroyNotify) json_object_unref);
+      if (self->init_received)
+        json_object_unref (self->init_received);
+      self->init_received = json_object_ref (options);
 
       /* Always send an init message down the new transport */
       object = cockpit_transport_build_json ("command", "init", NULL);
@@ -647,7 +649,6 @@ process_transport_init (CockpitWebService *self,
       return "not-supported";
     }
 
-  g_signal_emit (self, sig_transport_init, 0);
   return NULL;
 }
 
@@ -761,9 +762,6 @@ on_transport_closed (CockpitTransport *transport,
 
   /* Close all sockets */
   cockpit_sockets_close (&self->sockets, problem);
-
-  /* Emit the init changed signal */
-  g_signal_emit (self, sig_transport_init, 0);
 
   /* Dispose web service */
   g_object_run_dispose (G_OBJECT (self));
@@ -953,7 +951,9 @@ process_socket_init (CockpitWebService *self,
   if (version == 1)
     {
       g_debug ("received web socket init message");
-      socket->init_received = TRUE;
+      if (socket->init_received)
+        json_object_unref (socket->init_received);
+      socket->init_received = json_object_ref (options);
       return NULL;
     }
   else
@@ -1254,10 +1254,6 @@ cockpit_web_service_class_init (CockpitWebServiceClass *klass)
   sig_destroy = g_signal_new ("destroy", COCKPIT_TYPE_WEB_SERVICE,
                               G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
                               G_TYPE_NONE, 0);
-
-  sig_transport_init = g_signal_new ("transport-init-changed", COCKPIT_TYPE_WEB_SERVICE,
-                                     G_SIGNAL_RUN_LAST, 0, NULL, NULL, NULL,
-                                     G_TYPE_NONE, 0);
 }
 
 /**
@@ -1426,56 +1422,11 @@ cockpit_web_service_get_transport (CockpitWebService *self)
   return self->transport;
 }
 
-static void
-on_transport_init (CockpitWebService *service,
-                   gpointer user_data)
-{
-  GSimpleAsyncResult *result = user_data;
-  g_signal_handlers_disconnect_by_data (service, result);
-  g_simple_async_result_complete_in_idle (result);
-  g_object_unref (result);
-}
-
-void
-cockpit_web_service_get_init_message_aysnc (CockpitWebService *self,
-                                            GAsyncReadyCallback callback,
-                                            gpointer user_data)
-{
-  GSimpleAsyncResult *result;
-  gboolean waiting = FALSE;
-
-  g_return_if_fail (COCKPIT_IS_WEB_SERVICE (self));
-
-  result = g_simple_async_result_new (G_OBJECT (self), callback, user_data,
-                                      cockpit_web_service_get_init_message_aysnc);
-
-  if (!g_object_get_data (G_OBJECT (self->transport), "init"))
-    {
-      g_signal_connect (self, "transport-init-changed",
-                        (GCallback) on_transport_init, g_object_ref (result));
-      waiting = TRUE;
-    }
-
-  if (!waiting)
-    g_simple_async_result_complete_in_idle (result);
-
-  g_object_unref (result);
-}
-
 JsonObject *
-cockpit_web_service_get_init_message_finish (CockpitWebService *self,
-                                             GAsyncResult *result)
+cockpit_web_service_get_init (CockpitWebService *self)
 {
-  JsonObject *init = NULL;
-
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVICE (self), NULL);
-  g_return_val_if_fail (g_simple_async_result_is_valid (result, G_OBJECT (self),
-                        cockpit_web_service_get_init_message_aysnc), NULL);
-
-  if (self->transport)
-    init = g_object_get_data (G_OBJECT (self->transport), "init");
-
-  return init;
+  return self->init_received;
 }
 
 const gchar *

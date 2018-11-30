@@ -1123,7 +1123,7 @@ class TestMachines(MachineCase):
         runner.destroy()
 
     class TestCreateConfig:
-        VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
+        VALID_URL = 'https://mirror.i3d.net/pub/centos/7/os/x86_64/'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
 

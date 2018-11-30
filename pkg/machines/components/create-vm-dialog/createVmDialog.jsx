@@ -373,10 +373,10 @@ function validateParams(vmParams) {
             break;
         case URL_SOURCE:
         default:
-            if (!vmParams.source.startsWith("http") &&
+            if (!vmParams.source.startsWith("https") &&
                     !vmParams.source.startsWith("ftp") &&
                     !vmParams.source.startsWith("nfs")) {
-                return _("Source should start with http, ftp or nfs protocol");
+                return _("Source should start with https, ftp or nfs protocol");
             }
             break;
         }

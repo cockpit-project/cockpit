@@ -43,17 +43,12 @@ if [ "$OS" = "other-os" -o  -z "$OS" ]; then
     OS="auto"
 fi
 
-FIRST_1_SOURCE="`echo "$SOURCE" | cut -c 1`"
-FIRST_3_SOURCE="`echo "$SOURCE" | cut -c -3`"
-FIRST_4_SOURCE="`echo "$SOURCE" | cut -c -4`"
-
-if [ "$START_VM" = "true" -a "$FIRST_1_SOURCE" = "/" -a ! -f "$SOURCE" ]; then
-    echo "$SOURCE does not exist or is not a file" 1>&2
-    exit 1
-fi
-
-if [ "$START_VM" = "true" -a \( "$FIRST_1_SOURCE" = "/" -o "$FIRST_4_SOURCE" = "http" -o "$FIRST_3_SOURCE" = "ftp" -o "$FIRST_3_SOURCE" = "nfs" \) ]; then
-    LOCATION_PARAM="--cdrom $SOURCE"
+if [ "$START_VM" = "true" ]; then
+    if [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
+        LOCATION_PARAM="--cdrom $SOURCE"
+    else
+        LOCATION_PARAM="--location $SOURCE"
+    fi
 else
     # prevents creating duplicate cdroms if start vm is false
     # or if no source received

@@ -47,19 +47,10 @@ else
     GRAPHICS_PARAM="$CREATE_OPTIONS_RESULT"
 fi
 
-FIRST_1_SOURCE="`echo "$SOURCE" | cut -c 1`"
-FIRST_3_SOURCE="`echo "$SOURCE" | cut -c -3`"
-FIRST_4_SOURCE="`echo "$SOURCE" | cut -c -4`"
-
-if [ "$FIRST_1_SOURCE" = "/" -a ! -f "$SOURCE" ]; then
-    echo "$SOURCE does not exist or is not a file" 1>&2
-    exit 1
-fi
-
-if [ "$FIRST_1_SOURCE" = "/" -o "$FIRST_4_SOURCE" = "http" -o "$FIRST_3_SOURCE" = "ftp" -o "$FIRST_3_SOURCE" = "nfs" ]; then
+if [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
     LOCATION_PARAM="--cdrom $SOURCE"
 else
-    LOCATION_PARAM=""
+    LOCATION_PARAM="--location $SOURCE"
 fi
 
 # backup

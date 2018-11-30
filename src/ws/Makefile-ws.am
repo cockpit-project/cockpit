@@ -219,12 +219,10 @@ pixmap_DATA = src/ws/cockpit.png
 
 CLEANFILES += \
 	$(nodist_appdata_DATA) \
-	$(nodist_desktop_DATA) \
 	$(NULL)
 
 EXTRA_DIST += \
 	$(appdata_in) \
-	$(desktop_in) \
 	$(pixmap_DATA) \
 	$(NULL)
 
@@ -414,8 +412,4 @@ prepare-po-appdata: $(appdata_in)
 	cp $< .
 	$(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $(appdata_in))
 
-prepare-po-desktop: $(desktop_in)
-	cp $< .
-	$(INTLTOOL_EXTRACT) -l --type=gettext/ini $(notdir $(desktop_in))
-
-prepare-po:: prepare-po-appdata prepare-po-desktop
+prepare-po:: prepare-po-appdata

@@ -75,6 +75,8 @@ setup (TestCase *tc,
   g_assert_no_error (error);
   g_clear_object (&cert);
 
+  cockpit_web_server_start (tc->web_server);
+
   /* Automatically chosen by the web server */
   g_object_get (tc->web_server, "port", &port, NULL);
   tc->localport = g_strdup_printf ("localhost:%d", port);
@@ -879,6 +881,7 @@ test_bad_address (TestCase *tc,
 
   cockpit_expect_warning ("Couldn't parse IP address from: bad");
   server = cockpit_web_server_new ("bad", 0, NULL, NULL, &error);
+  cockpit_web_server_start (server);
 
   g_assert_no_error (error);
   g_object_get (server, "port", &port, NULL);

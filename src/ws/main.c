@@ -215,6 +215,8 @@ main (int argc,
   g_signal_connect (server, "handle-resource",
                     G_CALLBACK (cockpit_handler_default), &data);
 
+  cockpit_web_server_start (server);
+
   /* Debugging issues during testing */
 #if WITH_DEBUG
   signal (SIGABRT, cockpit_test_signal_backtrace);

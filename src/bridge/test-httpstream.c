@@ -69,6 +69,7 @@ setup_general (TestGeneral *tt,
                gconstpointer host_fixture)
 {
   tt->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL);
+  cockpit_web_server_start (tt->web_server);
   tt->port = cockpit_web_server_get_port (tt->web_server);
   tt->transport = mock_transport_new ();
   tt->host = host_fixture;
@@ -353,6 +354,8 @@ test_http_chunked (void)
   g_signal_connect (web_server, "handle-resource::/",
                     G_CALLBACK (handle_chunked), NULL);
 
+  cockpit_web_server_start (web_server);
+
   transport = mock_transport_new ();
   g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
 
@@ -485,6 +488,8 @@ setup_tls (TestTls *test,
 
   test->port = cockpit_web_server_get_port (test->web_server);
   g_signal_connect (test->web_server, "handle-resource::/test", G_CALLBACK (handle_test), test);
+
+  cockpit_web_server_start (test->web_server);
 
   test->transport = mock_transport_new ();
   g_signal_connect (test->transport, "closed", G_CALLBACK (on_transport_closed), NULL);

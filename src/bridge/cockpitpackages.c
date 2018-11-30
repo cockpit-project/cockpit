@@ -1197,6 +1197,8 @@ cockpit_packages_new (void)
   g_signal_connect (packages->web_server, "handle-resource",
                     G_CALLBACK (handle_packages), packages);
 
+  cockpit_web_server_start (packages->web_server);
+
   build_packages (packages);
   ret = TRUE;
 

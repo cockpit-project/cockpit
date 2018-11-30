@@ -483,6 +483,13 @@ cockpit_web_server_new (const gchar *address,
     return NULL;
 }
 
+void
+cockpit_web_server_start (CockpitWebServer *self)
+{
+  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
+  g_socket_service_start (self->socket_service);
+}
+
 /* ---------------------------------------------------------------------------------------------------- */
 
 gboolean
@@ -1344,6 +1351,9 @@ cockpit_web_server_initable_init (GInitable *initable,
   int n, fd;
 
   server->socket_service = g_socket_service_new ();
+
+  /* The web server has to be explicitly started */
+  g_socket_service_stop (server->socket_service);
 
   n = sd_listen_fds (0);
   if (n > 0)

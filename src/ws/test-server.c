@@ -669,6 +669,8 @@ server_ready (void)
   server_port = cockpit_web_server_get_port (server);
   url = g_strdup_printf("http://localhost:%d", server_port);
 
+  cockpit_web_server_start (server);
+
   if (!isatty (1))
     {
       g_print ("%s\n", url);

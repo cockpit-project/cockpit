@@ -63,6 +63,8 @@ gchar *                 cockpit_web_service_unique_channel   (CockpitWebService 
 
 CockpitTransport *      cockpit_web_service_get_transport    (CockpitWebService *self);
 
+JsonObject *            cockpit_web_service_get_init         (CockpitWebService *self);
+
 gboolean                cockpit_web_service_parse_binary     (JsonObject *open,
                                                               WebSocketDataType *type);
 
@@ -82,12 +84,6 @@ void                    cockpit_web_service_set_host_checksum       (CockpitWebS
                                                                      const gchar *host,
                                                                      const gchar *checksum);
 
-void                    cockpit_web_service_get_init_message_aysnc  (CockpitWebService *self,
-                                                                     GAsyncReadyCallback callback,
-                                                                     gpointer user_data);
-
-JsonObject *            cockpit_web_service_get_init_message_finish (CockpitWebService *self,
-                                                                     GAsyncResult *result);
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVICE_H__ */

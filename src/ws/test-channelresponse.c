@@ -64,16 +64,21 @@ typedef struct {
   gboolean org_path;
 } TestResourceFixture;
 
-static void
-on_init_ready (GObject *object,
-               GAsyncResult *result,
-               gpointer data)
+static gboolean
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer data)
 {
   gboolean *flag = data;
-  g_assert (*flag == FALSE);
-  cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
-                                               result);
-  *flag = TRUE;
+  g_assert (flag != NULL);
+
+  if (g_str_equal (command, "init"))
+    *flag = TRUE;
+
+  return FALSE;
 }
 
 static void
@@ -90,6 +95,7 @@ setup_resource (TestResourceCase *tc,
   const gchar *home = NULL;
   gboolean ready = FALSE;
   GBytes *password;
+  gulong handler;
 
   const gchar *argv[] = {
     BUILDDIR "/cockpit-bridge",
@@ -118,10 +124,9 @@ setup_resource (TestResourceCase *tc,
   transport = cockpit_pipe_transport_new (tc->pipe);
   tc->service = cockpit_web_service_new (creds, transport);
 
-  /* Manually created services won't be init'd yet,
-   * wait for that before sending data
-   */
-  cockpit_web_service_get_init_message_aysnc (tc->service, on_init_ready, &ready);
+  /* Manually created services won't be init'd yet, wait for that before sending data */
+  handler = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), &ready);
+
   while (!ready)
     g_main_context_iteration (NULL, TRUE);
 
@@ -137,6 +142,8 @@ setup_resource (TestResourceCase *tc,
 
   tc->headers = cockpit_web_server_new_table ();
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Encoding"), g_strdup ("gzip, identity"));
+
+  g_signal_handler_disconnect (transport, handler);
 }
 
 static void

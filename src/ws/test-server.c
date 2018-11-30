@@ -263,16 +263,21 @@ on_handle_mock (CockpitWebServer *server,
 static CockpitWebService *service;
 static CockpitPipe *bridge;
 
-static void
-on_init_ready (GObject *object,
-               GAsyncResult *result,
-               gpointer data)
+static gboolean
+on_transport_control (CockpitTransport *transport,
+                      const char *command,
+                      const gchar *channel,
+                      JsonObject *options,
+                      GBytes *payload,
+                      gpointer data)
 {
   gboolean *flag = data;
-  g_assert (*flag == FALSE);
-  cockpit_web_service_get_init_message_finish (COCKPIT_WEB_SERVICE (object),
-                                               result);
-  *flag = TRUE;
+  g_assert (flag != NULL);
+
+  if (g_str_equal (command, "init"))
+    *flag = TRUE;
+
+  return FALSE;
 }
 
 static gboolean
@@ -292,6 +297,7 @@ on_handle_stream_socket (CockpitWebServer *server,
   int session_stdout = -1;
   GError *error = NULL;
   gboolean ready = FALSE;
+  gulong handler;
   GPid pid = 0;
 
   gchar *value;
@@ -352,10 +358,9 @@ on_handle_stream_socket (CockpitWebServer *server,
 
       transport = cockpit_pipe_transport_new (bridge);
       service = cockpit_web_service_new (creds, transport);
-      /* Manually created services won't be init'd yet,
-       * wait for that before sending data
-       */
-      cockpit_web_service_get_init_message_aysnc (service, on_init_ready, &ready);
+
+      /* Manually created services won't be init'd yet, wait for that before sending data */
+      handler = g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), &ready);
 
       while (!ready)
         g_main_context_iteration (NULL, TRUE);
@@ -365,6 +370,8 @@ on_handle_stream_socket (CockpitWebServer *server,
 
       /* Clear the pointer automatically when service is done */
       g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
+
+      g_signal_handler_disconnect (transport, handler);
     }
 
   cockpit_web_service_socket (service, path, io_stream, headers, input);

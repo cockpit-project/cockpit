@@ -118,6 +118,7 @@ setup (TestCase *test,
 {
   test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL);
   test->port = cockpit_web_server_get_port (test->server);
+  cockpit_web_server_start (test->server);
   test->transport = mock_transport_new ();
   test->ws_closed = FALSE;
   test->origin = g_strdup_printf ("http://localhost:%u", test->port);
@@ -234,6 +235,8 @@ setup_tls (TestTls *test,
   g_assert_no_error (error);
   test->server = cockpit_web_server_new (NULL, 0, test->certificate, NULL, &error);
   g_assert_no_error (error);
+
+  cockpit_web_server_start (test->server);
 
   test->port = cockpit_web_server_get_port (test->server);
   test->transport = mock_transport_new ();

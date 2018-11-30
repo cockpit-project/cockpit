@@ -144,6 +144,8 @@ setup_mock_webserver (TestCase *test,
   test->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
 
+  cockpit_web_server_start (test->web_server);
+
   password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
   test->creds = cockpit_creds_new ("cockpit",
                                    COCKPIT_CRED_USER, "me",

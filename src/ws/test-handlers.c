@@ -96,6 +96,8 @@ base_setup (Test *test)
   test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
   g_assert_no_error (error);
 
+  cockpit_web_server_start (test->server);
+
   /* Other test->data fields are fine NULL */
   memset (&test->data, 0, sizeof (test->data));
 

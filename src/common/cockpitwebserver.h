@@ -41,6 +41,8 @@ CockpitWebServer * cockpit_web_server_new           (const gchar *address,
                                                      GCancellable *cancellable,
                                                      GError **error);
 
+void               cockpit_web_server_start         (CockpitWebServer *self);
+
 gboolean           cockpit_web_server_add_socket    (CockpitWebServer *self,
                                                      GSocket *socket,
                                                      GError **error);

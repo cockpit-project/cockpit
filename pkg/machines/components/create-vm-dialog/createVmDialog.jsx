@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import { Alert, Button, Modal } from 'patternfly-react';
 
 import cockpit from 'cockpit';
+import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import * as Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.es6';
@@ -32,7 +33,6 @@ import {
     timeoutedPromise,
     units,
     LIBVIRT_SYSTEM_CONNECTION,
-    LIBVIRT_SESSION_CONNECTION,
 } from "../../helpers.es6";
 
 import {
@@ -70,8 +70,10 @@ class CreateVM extends React.Component {
             storageSizeUnit: units.GiB.name,
             sourceType: props.vmParams.sourceType,
             startVm: props.vmParams.startVm,
-            connection: props.vmParams.connection,
+            connectionName: props.vmParams.connectionName,
         };
+
+        this.onChangedValue = this.onChangedValue.bind(this);
     }
 
     onChangedEventValue(key, e) {
@@ -144,10 +146,8 @@ class CreateVM extends React.Component {
             this.setState({ [key]: value });
             break;
         }
-        case 'connection':
+        case 'connectionName':
             this.setState({ [key]: value });
-            notifyValuesChanged('connection', null);
-            notifyValuesChanged('error', null);
             break;
         default:
             break;
@@ -210,20 +210,6 @@ class CreateVM extends React.Component {
             break;
         }
 
-        let connectionUris = [
-            <Select.SelectEntry data={LIBVIRT_SYSTEM_CONNECTION}
-                                key={LIBVIRT_SYSTEM_CONNECTION}>{_("QEMU/KVM System connection")}
-            </Select.SelectEntry>,
-        ];
-
-        // Root user should not be presented the session connection
-        if (this.props.loggedUser.id != 0)
-            connectionUris.push(
-                <Select.SelectEntry data={LIBVIRT_SESSION_CONNECTION}
-                    key={LIBVIRT_SESSION_CONNECTION}>{_("QEMU/KVM User connection")}
-                </Select.SelectEntry>
-            );
-
         return (
             <div className="modal-body modal-dialog-body-table">
                 <table className="form-table-ct">
@@ -235,11 +221,10 @@ class CreateVM extends React.Component {
                                 </label>
                             </td>
                             <td>
-                                <Select.Select id="connection"
-                                               initial={this.state.connection}
-                                               onChange={this.onChangedValue.bind(this, 'connection')}>
-                                    {connectionUris}
-                                </Select.Select>
+                                <MachinesConnectionSelector id='connection'
+                                    dialogValues={this.state}
+                                    onValueChanged={this.onChangedValue}
+                                    loggedUser={this.props.loggedUser} />
                             </td>
                         </tr>
                         <tr>
@@ -404,7 +389,7 @@ class CreateVmModal extends React.Component {
         this.state = {
             'inProgress': false,
             'vmName': '',
-            'connection': LIBVIRT_SYSTEM_CONNECTION,
+            'connectionName': LIBVIRT_SYSTEM_CONNECTION,
             "sourceType": COCKPIT_FILESYSTEM_SOURCE,
             'source': '',
             'vendor': NOT_SPECIFIED,

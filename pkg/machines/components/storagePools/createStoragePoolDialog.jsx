@@ -21,11 +21,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Checkbox, Form, FormGroup, HelpBlock, Grid, Modal } from 'patternfly-react';
 
+import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.es6';
+import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import { ModalError } from '../notification/inlineNotification.jsx';
 import FileAutoComplete from 'cockpit-components-file-autocomplete.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 import { createStoragePool } from '../../actions/provider-actions.es6';
-import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../../helpers.es6';
 import cockpit from 'cockpit';
 
 import './createStoragePoolDialog.css';
@@ -33,31 +34,16 @@ import './createStoragePoolDialog.css';
 const _ = cockpit.gettext;
 
 const StoragePoolConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
-    let connectionUris = [
-        <Select.SelectEntry data={LIBVIRT_SYSTEM_CONNECTION}
-                            key={LIBVIRT_SYSTEM_CONNECTION}>{_("QEMU/KVM System connection")}
-        </Select.SelectEntry>,
-    ];
-
-    // Root user should not be presented the session connection
-    if (loggedUser.id != 0)
-        connectionUris.push(
-            <Select.SelectEntry data={LIBVIRT_SESSION_CONNECTION}
-                key={LIBVIRT_SESSION_CONNECTION}>{_("QEMU/KVM User connection")}
-            </Select.SelectEntry>
-        );
-
     return (
         <FormGroup controlId='connection'>
             <Grid.Col componentClass={Form.ControlLabel} sm={3}>
                 {_("Connection")}
             </Grid.Col>
             <Grid.Col sm={9}>
-                <Select.Select id='storage-pool-dialog-connection'
-                               initial={dialogValues.connectionName}
-                               onChange={value => onValueChanged('connectionName', value)}>
-                    {connectionUris}
-                </Select.Select>
+                <MachinesConnectionSelector id='storage-pool-dialog-connection'
+                    dialogValues={dialogValues}
+                    onValueChanged={onValueChanged}
+                    loggedUser={loggedUser} />
             </Grid.Col>
         </FormGroup>
     );

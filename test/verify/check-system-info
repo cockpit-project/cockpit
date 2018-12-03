@@ -270,7 +270,7 @@ class TestSystemInfo(MachineCase):
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
     @skipImage("No NTP servers config", "centos-7", "continuous-atomic",
-               "rhel-7-6", "rhel-7-6-distropkg", "rhel-x", "rhel-atomic")
+               "rhel-7-6", "rhel-7-6-distropkg", "rhel-8-0", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

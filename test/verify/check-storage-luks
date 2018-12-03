@@ -233,7 +233,7 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        luks_2 = m.image in ["rhel-x"]
+        luks_2 = m.image in ["rhel-8-0"]
 
         self.login_and_go("/storage")
 

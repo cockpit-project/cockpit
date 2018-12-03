@@ -25,7 +25,7 @@ df -Th /
 # subscriptions, adding repos, deleting existing entries
 SKIP_REPO_FLAG="/root/.skip_repos"
 
-if [ "$IMAGE" != "rhel-x" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
+if [ "$IMAGE" != "rhel-8-0" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Remove any internal files
     rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
 
@@ -81,7 +81,7 @@ EOF
         sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
         yum -y install yum-utils
 
-    elif [ "$IMAGE" = "rhel-x" ]; then
+    elif [ "$IMAGE" = "rhel-8-0" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-8-NIGHTLY-BaseOS]
 name=baseos
@@ -99,7 +99,7 @@ EOF
         dnf module enable -y idm:client
     fi
 
-    if [ "$IMAGE" != "rhel-x" ]; then
+    if [ "$IMAGE" != "rhel-8-0" ]; then
         # needed for atomic-openshift-clients
         yum-config-manager --enable rhel-7-server-ose-3.9-rpms
 
@@ -182,14 +182,14 @@ if [ "$IMAGE" == "rhel-7-6" ]; then
     # needed for composer testing
     TEST_PACKAGES="${TEST_PACKAGES} gcc-c++ lorax-composer"
 fi
-if [ "$IMAGE" = "rhel-x" ]; then
+if [ "$IMAGE" = "rhel-8-0" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     TEST_PACKAGES="${TEST_PACKAGES} dnf-automatic"
     # some packages are still missing from RHEL 8
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
-    # docker is not a rhel-x thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
+    # docker is not a rhel-8-0 thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
     COCKPIT_DEPS="${COCKPIT_DEPS} podman"
     COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-daemon-kvm libvirt-dbus"
@@ -232,8 +232,8 @@ debuginfo-install -y udisks2
 
 # only install mock and build if TEST_SOURCE is set
 if [ -n "$TEST_SOURCE" ]; then
-    if [ "$IMAGE" = "rhel-x" ]; then
-        # no EPEL for rhel-x yet, so install mock from Fedora 28
+    if [ "$IMAGE" = "rhel-8-0" ]; then
+        # no EPEL for rhel-8-0 yet, so install mock from Fedora 28
         dnf install -y rpm-build
 
         cat <<EOF > /etc/yum.repos.d/fedora.repo
@@ -287,7 +287,7 @@ fi
 yum clean all || true
 
 if [ ! -f "$SKIP_REPO_FLAG" ]; then
-    [ "$IMAGE" = "rhel-x" ] || subscription-manager unregister
+    [ "$IMAGE" = "rhel-8-0" ] || subscription-manager unregister
 fi
 
 # For the D-Bus test server
@@ -327,7 +327,7 @@ fi
 #
 systemctl disable kdump.service
 
-if [ "$IMAGE" = "rhel-x" ]; then
+if [ "$IMAGE" = "rhel-8-0" ]; then
     # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600823
     # dnf-makecache.timer causes dependency loops and excessive boot times
     systemctl disable dnf-makecache.timer

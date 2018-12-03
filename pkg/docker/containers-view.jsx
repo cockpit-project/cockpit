@@ -125,7 +125,7 @@ class ContainerDetails extends React.Component {
     render() {
         var container = this.props.container;
         return (
-            <div className='listing-ct-body'>
+            <React.Fragment>
                 <dl>
                     <dt>{_("Id")}      </dt> <dd>{ container.Id }</dd>
                     <dt>{_("Created")} </dt>
@@ -134,7 +134,7 @@ class ContainerDetails extends React.Component {
                     <dt>{_("Command")}</dt> <dd>{ util.render_container_cmdline(container) }</dd>
                     <dt>{_("State")}   </dt> <dd>{ util.render_container_state(container.State) }</dd>
                 </dl>
-            </div>
+            </React.Fragment>
         );
     }
 }
@@ -405,7 +405,7 @@ class ImageDetails extends React.Component {
         var author = (image.Labels && image.Labels.maintainer) || image.Author;
 
         return (
-            <div className='listing-ct-body'>
+            <React.Fragment>
                 <dl>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
                     <dt>{_("Tags")}</dt>       <dd>{ repotags.join(" ") }</dd>
@@ -415,7 +415,7 @@ class ImageDetails extends React.Component {
                     <dt>{_("Author")}</dt>     <dd>{ author }</dd>
                     <dt>{_("Ports")}</dt>      <dd>{ ports.join(', ') }</dd>
                 </dl>
-            </div>
+            </React.Fragment>
         );
     }
 }

@@ -298,11 +298,11 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
-  g_test_add_func ("/bridge/init-message", test_bridge_init);
+  g_test_add_data_func ("/bridge/wrong-host", &wrong_host, test_bridge_open_problem);
   g_test_add_data_func ("/bridge/bad-version", &bad_version, test_bridge_init_problem);
   g_test_add_data_func ("/bridge/missing-version", &missing_version, test_bridge_init_problem);
   g_test_add_data_func ("/bridge/missing-host", &missing_host, test_bridge_init_problem);
-  g_test_add_data_func ("/bridge/wrong-host", &wrong_host, test_bridge_open_problem);
+  g_test_add_func ("/bridge/init-message", test_bridge_init);
 
   return g_test_run ();
 }

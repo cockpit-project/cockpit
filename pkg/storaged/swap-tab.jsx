@@ -83,10 +83,12 @@ class SwapTab extends React.Component {
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Used")}</td>
-                        <td>{used}</td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>{_("Used")}</td>
+                            <td>{used}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         );

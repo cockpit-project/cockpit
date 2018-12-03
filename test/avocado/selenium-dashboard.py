@@ -16,7 +16,6 @@ class TestDashboard(SeleniumTest):
     def testDashboard(self):
         # FIXME edge contains bug https://github.com/cockpit-project/cockpit/issues/10767
         if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
-            self.error = False
             return
 
         self.login()
@@ -38,4 +37,3 @@ class TestDashboard(SeleniumTest):
             self.click(connect_element)
         self.click(self.wait_id("dashboard-enable-edit", cond=clickable))
         self.click(self.wait_xpath("//button[contains(@class,'delete-%s')]" % ip_addr, cond=clickable))
-        self.error = False

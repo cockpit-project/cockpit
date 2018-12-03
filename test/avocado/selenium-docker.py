@@ -38,4 +38,3 @@ class DockerTestSuite(SeleniumTest):
         self.wait_id('containers-search-image-dialog', cond=invisible)
         self.wait_text('cockpit/ws')
         self.mainframe()
-        self.error = False

@@ -25,19 +25,15 @@ class NeworkTestSuite(SeleniumTest):
         self.wait_id("networking-interfaces")
         self.assertNotEqual(main_interface, '')
         self.wait_xpath("//tr[@data-interface='{}']".format(main_interface))
-        self.error = False
-
 
     def testGraphs(self):
         self.wait_id("networking-interfaces", cond=visible)
         self.wait_id("networking-tx-graph", cond=visible)
-        self.error = False
 
     def testSanityVlans(self):
         self.click(self.wait_id("networking-add-vlan", cond=clickable))
         self.click(self.wait_id("network-vlan-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
-        self.error = False
 
     def testSanityBridge(self):
         self.click(self.wait_id("networking-add-bridge", cond=clickable))
@@ -45,11 +41,9 @@ class NeworkTestSuite(SeleniumTest):
         self.click(self.wait_id(
             "network-bridge-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
-        self.error = False
 
     def testSanityBond(self):
         self.click(self.wait_id("networking-add-bond", cond=clickable))
         self.wait_text("Bond Settings")
         self.click(self.wait_id("network-bond-settings-cancel", cond=clickable))
         self.wait_id("networking-interfaces", cond=visible)
-        self.error = False

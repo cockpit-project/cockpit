@@ -39,5 +39,3 @@ class NavigateTestSuite(SeleniumTest):
         self.click(self.wait_link('System', cond=clickable))
         self.wait_frame("system")
         self.wait_id('system_information_change_systime', cond=visible)
-
-        self.error = False

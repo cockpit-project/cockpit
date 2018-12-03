@@ -42,4 +42,3 @@ class SosReportingTab(SeleniumTest):
         self.click(self.wait_id("sos-cancel", cond=clickable))
         self.wait_text("This tool will collect system configuration and diagnostic")
         self.mainframe()
-        self.error = False

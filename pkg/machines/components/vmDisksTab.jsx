@@ -78,6 +78,8 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
             columnTitles.push(_("Readonly"));
         }
         columnTitles.push(_("Source"));
+        // An empty string header is needed for detach actions
+        columnTitles.push("");
 
         if (notificationText) {
             notification = (<Info text={notificationText}

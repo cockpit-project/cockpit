@@ -77,11 +77,15 @@ class StorageControl extends React.Component {
             excuse = <span dangerouslySetInnerHTML={markup} />;
         }
 
-        return (
-            <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
-                { this.props.content(excuse) }
-            </OverlayTrigger>
-        );
+        if (excuse) {
+            return (
+                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
+                    { this.props.content(excuse) }
+                </OverlayTrigger>
+            );
+        } else {
+            return this.props.content();
+        }
     }
 }
 

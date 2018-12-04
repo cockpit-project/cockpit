@@ -107,7 +107,7 @@ on_pipe_close (CockpitPipe *pipe,
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
       is_cockpit = g_str_equal (self->name, "cockpit-bridge") ||
-                   g_str_equal (self->name, "cockpit-session");
+                   g_str_has_suffix (self->name, "/cockpit-session");
 
       if (problem == NULL ||
           g_str_equal (problem, "internal-error"))

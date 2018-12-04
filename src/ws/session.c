@@ -1032,7 +1032,7 @@ session (char **env)
     execvp (argv[0], argv);
 
   warn ("can't exec %s", argv[0]);
-  return 127;
+  return EX;
 }
 
 static int
@@ -1276,5 +1276,5 @@ main (int argc,
   else if (WIFSIGNALED(status))
     raise (WTERMSIG(status));
   else
-    exit (127);
+    exit (EX);
 }

@@ -80,14 +80,14 @@ def output(*args):
         sys.stderr.write("+ " + " ".join(args) + "\n")
     return subprocess.check_output(args, cwd=BASE, universal_newlines=True)
 
-def run(package, verbose=False, **kwargs):
+def run(specified_package, verbose=False, **kwargs):
     # Force all current dependencies in place
     execute("npm", "install")
 
     orig_package_json = package_json()
 
-    if package:
-        packages = [ package ]
+    if specified_package:
+        packages = [ specified_package ]
     else:
         packages = list(orig_package_json["dependencies"].keys())
         random.shuffle(packages)
@@ -95,7 +95,7 @@ def run(package, verbose=False, **kwargs):
     def prefix(name, version):
         if not version[0].isdigit():
             return version
-        if name == package or name not in FRAGILE:
+        if name == specified_package or name not in FRAGILE:
             return "^" + version
         return "~" + version
 

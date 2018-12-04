@@ -314,7 +314,13 @@ class BlockVolTab extends React.Component {
         var { info, shrink_excuse, grow_excuse } = get_info(block);
 
         if (!grow_excuse && !pool && vgroup.FreeSize == 0) {
-            grow_excuse = _("No free space");
+            grow_excuse = (
+                <div>
+                    {_("Not enough space to grow.")}
+                    <br />
+                    {_("Free up space in this group: Shrink or delete other logical volumes or add another physical volume.")}
+                </div>
+            );
         }
 
         function shrink() {

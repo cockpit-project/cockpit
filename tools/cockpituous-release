@@ -24,7 +24,6 @@ job release-srpm
 
 # Do fedora builds for the tag, using tarball
 job release-koji -k master
-job release-koji f28
 job release-koji f29
 
 # Upload release to github, using tarball
@@ -38,7 +37,6 @@ job release-dockerhub cockpit-project/cockpit-container
 job release-dockerhub cockpituous/cockpit cockpit-project/cockpit
 
 # Push out a Bodhi update
-job release-bodhi F28
 job release-bodhi F29
 
 # Upload documentation

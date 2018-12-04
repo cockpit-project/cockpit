@@ -843,11 +843,13 @@ on_transport_closed (CockpitTransport *transport,
       pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
       if (cockpit_pipe_get_pid (pipe, NULL))
         status = cockpit_pipe_exit_status (pipe);
-      g_debug ("%s: authentication process exited: %d", session->name, status);
+      g_debug ("%s: authentication process exited: %d; problem %s", session->name, status, problem);
       if (problem)
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
-                       "Internal error in login process");
+                       g_strcmp0 (problem, "no-cockpit") == 0
+                           ? "The cockpit package is not installed"
+                           : "Internal error in login process");
         }
       else
         {

@@ -92,35 +92,16 @@
       <div class="panel-heading">{{Unit.Description}}</div>
       <div class="list-group">
         <div class="list-group-item">
-          <table>
-            <tr>
-              <td>
-                <span>{{Unit.ActiveState}}</span>
-                ({{Unit.SubState}})
-                <br/>
-                {{Since}}
-              </td>
-              <td>
-                {{{UnitButton}}}
-              </td>
-            </tr>
+
+          <table class="form-table-ct">
+            <tr><td class="top-right">Status</td><td>{{Unit.ActiveState}} {{{UnitButton}}}</td></tr>
+            <tr><td class="top-right">Running Since</td><td>{{Since}}</td></tr>
+            <tr><td class="top-right">Automatic Startup</td><td>{{Unit.UnitFileState}} {{{FileButton}}}</td></tr>
+            <tr><td class="top-right">Path</td><td>{{Unit.FragmentPath}}</td></tr>
           </table>
         </div>
         <div class="list-group-item">
           <table>
-            <tr>
-              <td>
-                {{#HasLoadError}}
-                {{Unit.LoadState}} (Reason: {{LoadError}})
-                {{/HasLoadError}}
-                {{^HasLoadError}}
-                {{Unit.LoadState}} ({{Unit.FragmentPath}}; {{Unit.UnitFileState}})
-                {{/HasLoadError}}
-              </td>
-              <td>
-                {{{FileButton}}}
-              </td>
-            </tr>
             {{#TemplateDescription}}
             <tr>
               <td>{{{.}}}</td>

@@ -67,9 +67,16 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("DISK1")')
         b.wait_visible('#storage-detail')
 
-        def check_type(type):
+        def check_type(type, label_limit):
             self.content_tab_action(1, 1, "Format")
-            self.dialog({"type": type})
+            self.dialog_wait_open()
+            self.dialog_set_val("type", type)
+            self.dialog_set_val("name", "X" * (label_limit + 1))
+            self.dialog_apply()
+            self.dialog_wait_error("name", "Name cannot be longer than %d characters" % label_limit)
+            self.dialog_set_val("name", "X" * label_limit)
+            self.dialog_apply()
+            self.dialog_wait_close()
             self.content_row_wait_in_col(1, 1, type + " File System")
 
         def check_unsupported_type(type):
@@ -79,18 +86,18 @@ class TestStorage(StorageCase):
             self.dialog_cancel()
             self.dialog_wait_close()
 
-        check_type("xfs")
-        check_type("ext4")
+        check_type("xfs", 12)
+        check_type("ext4", 16)
 
         if self.storaged_is_old_udisks:
             check_unsupported_type("vfat")
         else:
-            check_type("vfat")
+            check_type("vfat", 11)
 
         if self.storaged_is_old_udisks or m.image in ["rhel-7-6", "rhel-7-6-distropkg", "centos-7", "rhel-8-0"]:
             check_unsupported_type("ntfs")
         else:
-            check_type("ntfs")
+            check_type("ntfs", 128)
 
 
 if __name__ == '__main__':

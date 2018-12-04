@@ -263,7 +263,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                 { choices: filesystem_options
                                 }),
                       TextInput("name", _("Name"),
-                                { visible: is_filesystem
+                                { validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
+                                  visible: is_filesystem
                                 }),
                       TextInput("custom", _("Filesystem type"),
                                 { visible: function (vals) {

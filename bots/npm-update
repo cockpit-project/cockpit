@@ -95,7 +95,7 @@ def run(package, verbose=False, **kwargs):
     def prefix(name, version):
         if not version[0].isdigit():
             return version
-        if name == package or name not in FRAGILE:
+        if name == package and name not in FRAGILE:
             return "^" + version
         return "~" + version
 

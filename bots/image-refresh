@@ -31,13 +31,9 @@ TRIGGERS = {
     "debian-stable": [
         "verify/debian-stable"
     ],
-    "fedora-28": [
-        "selenium/edge",
-        "verify/fedora-28",
-        "verify/fedora-atomic",
-    ],
     "fedora-29": [
         "verify/fedora-29",
+        "verify/fedora-atomic",
         "selenium/chrome",
         "selenium/firefox",
         "selenium/edge",
@@ -66,7 +62,7 @@ TRIGGERS = {
         "verify/rhel-7-6"
     ],
     "ipa": [
-        "verify/fedora-28",
+        "verify/fedora-29",
         "verify/rhel-7-6",
         "verify/rhel-7-6-distropkg",
         "verify/ubuntu-1804",

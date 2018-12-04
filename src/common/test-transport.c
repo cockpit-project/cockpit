@@ -61,7 +61,7 @@ setup_with_child (TestCase *tc,
   g_assert_no_error (error);
 
   tc->pipe = g_object_new (COCKPIT_TYPE_PIPE,
-                           "name", "mock",
+                           "name", argv[0],
                            "in-fd", out,
                            "out-fd", in,
                            "pid", pid,
@@ -353,6 +353,32 @@ test_terminate_problem (TestCase *tc,
   WAIT_UNTIL (problem != NULL);
 
   g_assert_cmpstr (problem, ==, "terminated");
+  g_free (problem);
+}
+
+static void
+test_exception_problem (TestCase *tc,
+                        gconstpointer data)
+{
+  gchar *problem = NULL;
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  WAIT_UNTIL (problem != NULL);
+  g_assert_cmpstr (problem, ==, "internal-error");
+  g_free (problem);
+}
+
+static void
+test_nocockpit_problem (TestCase *tc,
+                        gconstpointer data)
+{
+  gchar *problem = NULL;
+
+  g_signal_connect (tc->transport, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  WAIT_UNTIL (problem != NULL);
+  g_assert_cmpstr (problem, ==, "no-cockpit");
   g_free (problem);
 }
 
@@ -751,6 +777,14 @@ main (int argc,
   g_test_add ("/transport/terminate-problem", TestCase,
               BUILDDIR "/mock-echo", setup_with_child,
               test_terminate_problem, teardown_transport);
+
+  g_test_add ("/transport/exception-problem", TestCase,
+              SRCDIR "/src/ws/mock-pipes/someprogram", setup_with_child,
+              test_exception_problem, teardown_transport);
+
+  g_test_add ("/transport/nocockpit-problem", TestCase,
+              SRCDIR "/src/ws/mock-pipes/cockpit-session", setup_with_child,
+              test_nocockpit_problem, teardown_transport);
 
   g_test_add_func ("/transport/ping/pong", test_ping_pong);
   g_test_add_func ("/transport/ping/channel", test_ping_channel);

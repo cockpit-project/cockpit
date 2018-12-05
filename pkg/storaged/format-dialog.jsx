@@ -151,6 +151,18 @@ function crypto_options_dialog_options(vals) {
     return unparse_options(opts);
 }
 
+function initial_tab_options(client, block) {
+    var options = { };
+
+    utils.get_parent_blocks(client, block.path).forEach(p => {
+        if (utils.is_netdev(client, p)) {
+            options["_netdev"] = true;
+        }
+    });
+
+    return Object.keys(options).join(",");
+}
+
 function format_dialog(client, path, start, size, enable_dos_extended) {
     var block = client.blocks[path];
     var block_ptable = client.blocks_ptable[path];
@@ -244,6 +256,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
         return;
     }
 
+    var initial_options = initial_tab_options(client, block);
+
     dialog_open({ Title: title,
                   Footer: TeardownMessage(usage),
                   Fields: [
@@ -287,8 +301,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                 }),
                       CheckBox("store_passphrase", _("Store passphrase"),
                                { visible: is_encrypted_and_not_old_udisks2 })
-                  ].concat(crypto_options_dialog_fields("", is_encrypted_and_not_old_udisks2))
-                          .concat(mounting_dialog_fields(false, "", "", is_filesystem_and_not_old_udisks2)),
+                  ].concat(crypto_options_dialog_fields(initial_options, is_encrypted_and_not_old_udisks2))
+                          .concat(mounting_dialog_fields(false, "", initial_options, is_filesystem_and_not_old_udisks2)),
                   update: function (dlg, vals, trigger) {
                       if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
                           dlg.set_values({ "mount_auto": false });
@@ -406,6 +420,7 @@ module.exports = {
     mounting_dialog_options: mounting_dialog_options,
     crypto_options_dialog_fields: crypto_options_dialog_fields,
     crypto_options_dialog_options: crypto_options_dialog_options,
+    initial_tab_options: initial_tab_options,
     format_dialog: format_dialog,
     FormatButton: FormatButton
 };

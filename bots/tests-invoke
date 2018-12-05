@@ -118,7 +118,7 @@ class PullTask(object):
                 "requests": [
                     # Set status to pending
                     { "method": "POST",
-                      "resource": api.qualify("statuses/" + self.github_revision),
+                      "resource": api.qualify("commits/" + self.github_revision + "/statuses"),
                       "data": self.github_status_data
                     }
                 ],

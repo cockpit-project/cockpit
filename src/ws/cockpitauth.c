@@ -1649,7 +1649,7 @@ cockpit_auth_empty_cookie_value (const gchar *path)
   gchar *application = cockpit_auth_parse_application (path, NULL);
   gchar *cookie = application_cookie_name (application);
 
-  gchar *cookie_line = g_strdup_printf ("%s=deleted; PATH=/", cookie);
+  gchar *cookie_line = g_strdup_printf ("%s=deleted; PATH=/; HttpOnly", cookie);
 
   g_free (application);
   g_free (cookie);

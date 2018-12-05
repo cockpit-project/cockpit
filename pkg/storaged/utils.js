@@ -484,6 +484,39 @@
             return client.lvols[path].VolumeGroup;
     };
 
+    utils.get_direct_parent_blocks = function(client, path) {
+        var parent = utils.get_parent(client, path);
+        if (!parent)
+            return [ ];
+        if (client.blocks[parent])
+            return [ parent ];
+        if (client.mdraids[parent])
+            return client.mdraids_members[parent].map(function (m) { return m.path });
+        if (client.lvols[parent])
+            parent = client.lvols[parent].VolumeGroup;
+        if (client.vgroups[parent])
+            return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
+        return [ ];
+    };
+
+    utils.get_parent_blocks = function(client, path) {
+        var direct_parents = utils.get_direct_parent_blocks(client, path);
+        var direct_and_indirect_parents = utils.flatten(direct_parents.map(function (p) {
+            return utils.get_parent_blocks(client, p);
+        }));
+        return [ path ].concat(direct_and_indirect_parents);
+    };
+
+    utils.is_netdev = function(client, path) {
+        var block = client.blocks[path];
+        var drive = block && client.drives[block.Drive];
+        if (drive && drive.Vendor == "LIO-ORG")
+            return true;
+        if (block && block.Major == 43) // NBD
+            return true;
+        return false;
+    };
+
     function get_children(client, path) {
         var children = [ ];
 

@@ -814,6 +814,22 @@ function getDomainMaxVCPU(capsXML) {
     return vcpuMaxAttr;
 }
 
+export function getStorageVolumeUsed(storagePool, vms, storageVolumeName) {
+    let usedBy = [];
+
+    for (let vm of vms) {
+        for (let disk in vm.disks) {
+            const diskProps = vm.disks[disk];
+
+            if ((diskProps.type == 'volume' && diskProps.source.pool == storagePool.name && diskProps.source.volume == storageVolumeName) ||
+                (diskProps.type == 'file' && diskProps.source.file == [storagePool.path, storageVolumeName].join('/'))) {
+                usedBy.push(vm.name);
+            }
+        }
+    }
+    return usedBy;
+}
+
 /**
  * Calculates disk statistics.
  * @param  {info} Object returned by GetStats method call.

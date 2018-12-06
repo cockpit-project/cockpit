@@ -22,13 +22,21 @@ import PropTypes from 'prop-types';
 
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { storagePoolId, convertToUnit, units } from '../../helpers.js';
+import { getStorageVolumeUsed } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const StoragePoolVolumesTab = ({ storagePool }) => {
+export const StoragePoolVolumesTab = ({ storagePool, vms }) => {
     const storagePoolIdPrefix = storagePoolId(storagePool.name, storagePool.connectionName);
-    const columnTitles = ['Name', 'Size'];
+    const columnTitles = ['Name', 'Used by', 'Size'];
+    const volumes = storagePool.volumes || [];
+    const usedBy = volumes.reduce((resultDict, volume) => {
+        const domainsUsingVolume = getStorageVolumeUsed(storagePool, vms, volume.name);
+
+        resultDict[volume.name] = domainsUsingVolume;
+        return resultDict;
+    }, {});
 
     if (!storagePool.volumes || storagePool.volumes.length === 0) {
         return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>{_("No Storage Volumes defined for this Storage Pool")}</div>);
@@ -48,6 +56,11 @@ export const StoragePoolVolumesTab = ({ storagePool }) => {
                     ];
                     columns.push(
                         {
+                            name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{usedBy[volume.name].join(', ')}</div>),
+                        }
+                    );
+                    columns.push(
+                        {
                             name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div>),
                         }
                     );
@@ -60,4 +73,5 @@ export const StoragePoolVolumesTab = ({ storagePool }) => {
 };
 StoragePoolVolumesTab.propTypes = {
     storagePool: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
 };

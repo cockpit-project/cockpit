@@ -175,6 +175,10 @@ class AddServicesBody extends React.Component {
         else
             services = this.state.services;
 
+        // hide already enabled services
+        if (services)
+            services = services.filter(s => !firewall.enabledServices.has(s.id));
+
         let body;
         if (this.state.services) {
             body = (

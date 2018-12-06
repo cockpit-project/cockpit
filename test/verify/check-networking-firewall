@@ -123,6 +123,7 @@ class TestFirewall(MachineCase):
         # "Add Services…" button should be disabled again
         b.wait_present("caption button.btn-primary:disabled")
 
+    @skipImage("Filtering got fixed in 184", "rhel-7-6-distropkg")
     def testAddServices(self):
         b = self.browser
 
@@ -154,7 +155,15 @@ class TestFirewall(MachineCase):
         b.wait_present("#cockpit_modal_dialog li input#pop3")
         b.click("#cockpit_modal_dialog li input#pop3")
         b.click("#add-services-dialog .modal-footer .btn-primary")
+        b.wait_not_present("#cockpit_modal_dialog")
         b.wait_present("tr[data-row-id='pop3']")
+
+        # pop3 should now not appear any more in Add Services dialog
+        b.click("caption button.btn-primary")
+        b.wait_present("#cockpit_modal_dialog li input#imap")
+        b.wait_not_present("#cockpit_modal_dialog li input#pop3")
+        b.click("#add-services-dialog .modal-footer .btn-cancel")
+        b.wait_not_present("#cockpit_modal_dialog")
 
 
 if __name__ == '__main__':

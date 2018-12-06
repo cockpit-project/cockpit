@@ -1064,6 +1064,20 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
             }
         }
     );
+
+    /* Subscribe to signals on StoragePool Interface */
+    dbus_client(connectionName).subscribe(
+        { interface: 'org.libvirt.StoragePool' },
+        (path, iface, signal, args) => {
+            switch (signal) {
+            case 'Refresh':
+            /* These signals imply possible changes in what we display, so re-read the state */
+                dispatch(getStoragePool({ connectionName, id:path }));
+                break;
+            default:
+                logDebug(`handleEvent StoragePoolEvent on ${connectionName} : ignoring event ${signal}`);
+            }
+        });
 }
 
 /**

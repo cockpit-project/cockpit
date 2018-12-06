@@ -151,7 +151,7 @@ class AddServicesBody extends React.Component {
     }
 
     onToggleService(event) {
-        var service = event.target.id;
+        var service = event.target.getAttribute("data-id");
         var enabled = event.target.checked;
 
         this.setState(oldState => {
@@ -204,7 +204,7 @@ class AddServicesBody extends React.Component {
                             services.map(s => (
                                 <li key={s.id} className="list-group-item">
                                     <label>
-                                        <input id={s.id}
+                                        <input data-id={s.id}
                                                type="checkbox"
                                                checked={this.state.selected.has(s.id)}
                                                onChange={this.onToggleService} />

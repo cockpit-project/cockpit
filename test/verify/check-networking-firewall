@@ -129,10 +129,21 @@ class TestFirewall(MachineCase):
         self.login_and_go("/network/firewall")
 
         # click on the "Add Services…" button
-        # don't select anything in the dialog
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
         b.wait_present("#cockpit_modal_dialog li input#pop3")
+
+        # filter for pop3
+        b.wait_present("#cockpit_modal_dialog li input#imap")
+        b.set_input_text("#filter-services-input", "pop")
+        b.wait_not_present("#cockpit_modal_dialog li input#imap")
+        b.wait_present("#cockpit_modal_dialog li input#pop3")
+        # clear filter
+        b.set_input_text("#filter-services-input", "")
+        b.wait_present("#cockpit_modal_dialog li input#imap")
+        b.wait_present("#cockpit_modal_dialog li input#pop3")
+
+        # don't select anything in the dialog
         b.wait_present("#add-services-dialog .modal-footer .btn-primary")
         b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")

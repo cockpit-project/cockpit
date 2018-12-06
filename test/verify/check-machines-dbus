@@ -307,6 +307,34 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
         self.assertEqual(m.execute("ls -A /mnt/vm_two"), "")
 
+        # Recreate the myPoolTwo to test Used By column
+        self.startVm("subVmTest1")
+
+        m.execute("mkdir -p /mnt/vm_two; chmod a+rwx /mnt/vm_two")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
+        m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2 && virsh pool-refresh myPoolTwo")
+
+        wait(lambda: "VolumeOne" in m.execute("virsh vol-list myPoolTwo"))
+        diskXML = """'<disk type="volume" device="disk">
+          <driver name="qemu"/>
+          <source pool="myPoolTwo" volume="VolumeOne"/>
+          <target dev="vdc" bus="virtio"/>
+        </disk>'""".replace("\n", "")
+
+        m.execute("echo {0} > /tmp/disk.xml; virsh attach-device --file /tmp/disk.xml subVmTest1".format(diskXML))
+
+        # Expand row for myPoolTwo and check list of storage volumes
+        b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName))
+        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        b.wait_present("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName))
+        b.click("#pool-myPoolTwo-{0}-storage-volumes".format(connectionName)) # open the "Storage Volumes" subtab
+
+        b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName))
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "subVmTest1")
+
+        m.execute("virsh detach-disk --target vdc subVmTest1".format(diskXML))
+        b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
+
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine

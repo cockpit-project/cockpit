@@ -62,6 +62,7 @@ class App extends React.Component {
                 }
                 { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools}
                     dispatch={dispatch}
+                    vms={vms}
                     changeActiveList={this.changeActiveList}
                     loggedUser={systemInfo.loggedUser} />
                 }

@@ -51,7 +51,7 @@ export class StoragePool extends React.Component {
     }
 
     render() {
-        const { storagePool } = this.props;
+        const { storagePool, vms } = this.props;
         const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
         const name = (
             <span id={`${idPrefix}-name`}>
@@ -114,7 +114,7 @@ export class StoragePool extends React.Component {
             {
                 name: storageVolsTabName,
                 renderer: StoragePoolVolumesTab,
-                data: { storagePool }
+                data: { storagePool, vms }
             },
         ];
 
@@ -128,6 +128,7 @@ export class StoragePool extends React.Component {
 }
 StoragePool.propTypes = {
     storagePool: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
 };
 
 class StoragePoolActions extends React.Component {
@@ -173,4 +174,5 @@ class StoragePoolActions extends React.Component {
 }
 StoragePool.propTypes = {
     storagePool: PropTypes.object.isRequired,
+    vms: PropTypes.array.isRequired,
 };

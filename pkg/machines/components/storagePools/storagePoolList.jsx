@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
     render() {
-        const { storagePools, dispatch, loggedUser } = this.props;
+        const { storagePools, dispatch, loggedUser, vms } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} />);
 
@@ -52,8 +52,12 @@ export class StoragePoolList extends React.Component {
                         {storagePools
                                 .sort(sortFunction)
                                 .map(storagePool => {
+                                    const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
+
                                     return (
-                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`} storagePool={storagePool} />
+                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
+                                            storagePool={storagePool}
+                                            vms={filterVmsByConnection} />
                                     );
                                 })
                         }
@@ -65,5 +69,6 @@ export class StoragePoolList extends React.Component {
 }
 StoragePoolList.propTypes = {
     storagePools: PropTypes.array.isRequired,
+    vms: PropTypes.array.isRequired,
     changeActiveList: PropTypes.func.isRequired,
 };

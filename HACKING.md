@@ -34,10 +34,13 @@ To actually build the Cockpit binaries themselves from source
 (including to run the integration tests locally), you will need
 additional header files and other components. Check
 `tools/cockpit.spec` for the concrete Fedora build dependencies.
+
+Note that `tools/cockpit.spec` is a template filled in by
+`tools/gen-spec-dependencies`, and cannot be directly parsed by yum/dnf.
 The following should work in a fresh Git clone:
 
     $ sudo yum install yum-utils
-    $ sudo yum-builddep tools/cockpit.spec
+    $ sed 's/%{npm-version:.*}/0/' tools/cockpit.spec | sudo yum-builddep --spec /dev/stdin
 
 In addition, for testing, the following dependencies are required:
 

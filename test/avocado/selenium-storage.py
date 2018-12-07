@@ -30,5 +30,3 @@ class StorageTestSuite(SeleniumTest):
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_xpath("//*[@data-testkey='%s']" % other_shortname)
         self.mainframe()
-        self.error = False
-

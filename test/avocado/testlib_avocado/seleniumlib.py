@@ -34,6 +34,8 @@ import time
 from avocado import Test
 from .timeoutlib import Retry
 from .machine_core import ssh_connection
+from .exceptions import SeleniumFailure, SeleniumDriverFailure, SeleniumElementFailure,\
+    SeleniumScreenshotFailure, SeleniumJSFailure
 
 user = "test"
 passwd = "superhardpasswordtest5554"
@@ -56,6 +58,9 @@ class SeleniumTest(Test):
     :avocado: disable
     """
     def setUp(self):
+        # ensure that setup phase passed, otherwise handle it in tearDown
+        # tierDown is called also in case setUp fail
+        self.error_setup = True
         selenium_hub = os.environ.get("HUB", "localhost")
         browser = os.environ.get("BROWSER", "firefox")
         guest_machine = os.environ.get("GUEST", "localhost")
@@ -87,7 +92,7 @@ class SeleniumTest(Test):
         else:
             @Retry(attempts=3, timeout=30,
                    exceptions=(WebDriverException,),
-                   error=Exception('Timeout: Unable to attach remote Browser on hub'))
+                   error=SeleniumDriverFailure('Timeout: Unable to attach remote Browser on hub'))
             def connect_browser():
                 self.driver = selenium.webdriver.Remote(command_executor='http://%s:4444/wd/hub' % selenium_hub,
                                                         desired_capabilities={'browserName': browser})
@@ -105,39 +110,50 @@ class SeleniumTest(Test):
 
         @Retry(attempts=3, timeout=30,
                exceptions=(WebDriverException,),
-               error=Exception('Timeout: Unable to get page'))
+               error=SeleniumFailure('Timeout: Unable to get page'))
         def connectwebpage():
             self.driver.get('%s://%s:%s' % (url_base, guest_machine, network_port))
 
         connectwebpage()
 
-        # if self.error evaluates to True when a test finishes,
-        # an error is raised and a screenshot generated
-        self.error = True
+        self.error_setup = False
+
+    def _get_screenshot_name(self, *args):
+        sep="-"
+        if len(args) > 0:
+            suffix = sep.join(args)
+        else:
+            datesuffix = str(time.clock())[2:]
+            if inspect and inspect.stack() and len(inspect.stack())>0:
+                stackinfo = [x[3] for x in inspect.stack() if x[3].startswith("test") or x[3] in ["tearDown", "setUp"]]
+            else:
+                stackinfo = []
+            suffix = (str(sep.join(stackinfo)) + sep if stackinfo else "") + datesuffix
+        return "screenshot{}{}.png".format(sep, suffix)
+
+    def take_screenshot(self, filename=None, phase="", fatal=True, get_debug_logs_if_fail=True, relative_path=actualpath):
+        if not filename:
+            filename = self._get_screenshot_name()
+        try:
+            self.driver.save_screenshot(os.path.join(relative_path, filename))
+            self.log.info("Screenshot({}) - Wrote: {}".format(phase, filename))
+        except WebDriverException as e:
+            msg = 'Unable to store ({}) screenshot: {} (Exception: {})'.format(phase, filename, e)
+            if get_debug_logs_if_fail:
+                self.get_debug_logs()
+            if fatal:
+                raise SeleniumScreenshotFailure(msg)
+            else:
+                self.log.info(msg)
 
     def tearDown(self):
-        if self.error:
-            screenshot_file = ""
-            try:
-                # use time.clock() to ensure that snapshot files are unique and ordered
-                # sample name is like: screenshot-teardown-172434.png
-                screenshot_file = "screenshotTeardown%s.png" % str(time.clock())[2:]
-
-                self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
-                self.log.error("Screenshot(teardown) - Wrote: " + screenshot_file)
-                self.get_debug_logs()
-            except Exception as e:
-                screenshot_file = "Unable to catch screenshot: {0}".format(screenshot_file)
-                raise Exception('ERR: Unable to store screenshot: %s' % screenshot_file, str(e))
+        if self.error_setup:
+            # use time instead because this is not related to any test
+            self.take_screenshot(phase="tearDown", fatal=False)
         try:
-            self.driver.close()
             self.driver.quit()
-        except Exception as e:
-            self.get_debug_logs()
-            if self.error:
-                raise Exception('ERR: Unable to close WEBdriver', str(e))
-            else:
-                self.log.info('ERR: Unable to close WEBdriver: {0}'.format(e))
+        except WebDriverException as e:
+            self.log.info('Unable to quit WEBdriver: {0}'.format(e))
 
     def get_debug_logs(self, logs=None):
         if logs is None:
@@ -153,13 +169,25 @@ class SeleniumTest(Test):
         except WebDriverException as e:
             self.log.info("ERR: Unable to get logs: " + e.msg)
 
+    def _driver_excecute(self, *args, fatal=True):
+
+        try:
+            return self.driver.execute_script(*args)
+        except WebDriverException as e:
+            msg = "Unable to execute JavaScript code: {} ({})".format(args, e)
+            if fatal:
+                self.take_screenshot(fatal=False)
+                raise SeleniumJSFailure(msg)
+            else:
+                self.log.info(msg)
+
     def everything_loaded(self, element):
         """
 This function is only for internal purposes:
     It via javascript check that attribute data-loaded is in element
         """
         if javascript_operations:
-            return self.driver.execute_script("return arguments[0].getAttribute('data-loaded')", element)
+            return self._driver_excecute("return arguments[0].getAttribute('data-loaded')", element)
         else:
             return True
 
@@ -169,7 +197,7 @@ This function is only for internal purposes:
         for foo in range(0, self.default_try):
             try:
                 if javascript_operations:
-                    self.driver.execute_script("arguments[0].click();", element)
+                    self._driver_excecute("arguments[0].click();", element)
                 else:
                     element.click()
                 failure = None
@@ -183,19 +211,28 @@ This function is only for internal purposes:
             except:
                 pass
         if failure:
-            raise Exception('ERR: Unable to CLICK on element ', str(failure))
+            self.take_screenshot(fatal=False)
+            raise SeleniumElementFailure('Unable to CLICK on element {}'.format(failure))
 
-    def send_keys(self, element, text, clear = True):
-        if clear:
-            element.clear()
-        element.send_keys(text)
+    def send_keys(self, element, text, clear=True):
+        try:
+            if clear:
+                element.clear()
+            element.send_keys(text)
+        except WebDriverException as e:
+            self.take_screenshot(fatal=False)
+            raise SeleniumElementFailure('Unable to SEND_KEYS to element ({})'.format(e))
         if javascript_operations:
-            self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
-            self.driver.execute_script('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
+            self._driver_excecute('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
+            self._driver_excecute('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
 
     def check_box(self, element, checked=True):
-        if element.get_attribute('checked') != checked:
-            element.click()
+        try:
+            if element.get_attribute('checked') != checked:
+                element.click()
+        except WebDriverException as e:
+            self.take_screenshot(fatal=False)
+            raise SeleniumElementFailure('Unable to CHECKBOX element ({})'.format(e))
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
         """
@@ -229,19 +266,8 @@ parameters:
                 pass
         if returned is None:
             if fatal:
-                # sample screenshot name is: screenshot-test20Login.png
-                # it stores super caller method to name via inspection code stack
-                screenshot_file = "screenshot%s.png" % str(inspect.stack()[2][3])
-                try:
-                    self.driver.save_screenshot(os.path.join(actualpath,screenshot_file))
-                    self.error = False
-                except Exception as e:
-                    screenshot_file = "Unable to catch screenshot: {0} ({1})".format(screenshot_file, e)
-                    pass
-                finally:
-                    self.log.error("Screenshot(test) - Wrote: " + screenshot_file)
-                    self.get_debug_logs()
-                    raise Exception('ERR: Unable to locate name: %s' % str(text), screenshot_file)
+                self.take_screenshot(fatal=False)
+                raise SeleniumElementFailure('Unable to locate name: {}'.format(text))
         self.element_wait_functions[returned] = usedfunction
         return returned
 
@@ -279,7 +305,11 @@ parameters:
         return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck)
 
     def mainframe(self):
-        self.driver.switch_to.default_content()
+        try:
+            self.driver.switch_to.default_content()
+        except WebDriverException as e:
+            self.get_debug_logs()
+            raise SeleniumDriverFailure('Unable to return to main web context ({})'.format(e))
 
     def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True, add_ssh_key=True):
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
@@ -308,9 +338,9 @@ parameters:
             self.send_keys(self.wait_id("authorized-keys-text", cond=visible), ssh_public_key)
             self.click((self.wait_id("add-authorized-key", cond=clickable)))
             self.wait_id("authorized-key-add", cond=clickable)
-        self.driver.switch_to.default_content()
+        self.mainframe()
 
     def logout(self):
-        self.driver.switch_to.default_content()
+        self.mainframe()
         self.click(self.wait_id('navbar-dropdown', cond=clickable))
         self.click(self.wait_id('go-logout', cond=clickable))

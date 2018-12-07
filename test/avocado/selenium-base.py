@@ -16,7 +16,6 @@ class BasicTestSuite(SeleniumTest):
     def test10Base(self):
         # this is minimal cockpit test what checks login page
         self.wait_id('server-name')
-        self.error = False
 
     def test15BaseSSHKeyAdded(self):
         # calling self.login() ensures there is added public ssh key to user to be able to call
@@ -26,7 +25,6 @@ class BasicTestSuite(SeleniumTest):
         out = self.machine.execute("hostname")
         server_element = self.wait_id('server-name')
         self.assertTrue(out.strip() in str(server_element.text))
-        self.error = False
 
     def test20Login(self):
         self.login()
@@ -40,7 +38,6 @@ class BasicTestSuite(SeleniumTest):
         self.login()
         username_element = self.wait_id("content-user-name")
         self.assertEqual(username_element.text, user)
-        self.error = False
 
     def test30ChangeTabServices(self):
         self.login()
@@ -57,7 +54,6 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("services-list-enabled")
         self.wait_text("dbus.service")
         self.mainframe()
-        self.error = False
 
     def test50ChangeTabLogs(self):
         self.login()
@@ -137,7 +133,6 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_text(checkt, cond=clickable))
         self.wait_id('journal-entry')
         self.mainframe()
-        self.error = False
 
     def test70ChangeTabNetworking(self):
         self.login()
@@ -150,13 +145,11 @@ class BasicTestSuite(SeleniumTest):
         self.click(self.wait_xpath("//tr[@data-interface='%s']" % out, cond=clickable))
         self.wait_text("Carrier", element="td")
         self.mainframe()
-        self.error = False
 
     def test80TerminalTool(self):
         self.login()
         # TODO edge support for terminal test
         if self.driver.capabilities['browserName'] == 'MicrosoftEdge':
-            self.error = False
             return
 
         self.click(self.wait_link('Terminal', cond=clickable))
@@ -180,7 +173,6 @@ class BasicTestSuite(SeleniumTest):
         self.machine.execute("ls {0}abc |wc -l |grep 0".format(prefix), quiet=True)
         self.machine.execute("ls {0}abd |wc -l |grep 0".format(prefix), quiet=True)
         self.mainframe()
-        self.error = False
 
     def test90Accounts(self):
         self.login()
@@ -213,4 +205,3 @@ class BasicTestSuite(SeleniumTest):
         self.wait_id("accounts", cond=visible)
         self.wait_id("accounts-list", cond=visible)
         self.mainframe()
-        self.error = False

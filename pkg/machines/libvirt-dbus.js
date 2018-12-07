@@ -936,6 +936,17 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
     if (connectionName !== 'session' && connectionName !== 'system')
         return;
 
+    /* Handlers for libvirtd status changes */
+    startEventMonitorLibvirtd(connectionName, dispatch, libvirtServiceName);
+
+    /* Handlers for domain events */
+    startEventMonitorDomains(connectionName, dispatch);
+
+    /* Handlers for storage pool events */
+    startEventMonitorStoragePools(connectionName, dispatch);
+}
+
+function startEventMonitorDomains(connectionName, dispatch) {
     /* Subscribe to Domain Lifecycle signals on Connect Interface */
     dbus_client(connectionName).subscribe(
         { interface: 'org.libvirt.Connect', member: 'DomainEvent' },
@@ -1020,10 +1031,12 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
                 break;
 
             default:
-                logDebug(`handleEvent ${connectionName} ${name}: ignoring event ${signal}`);
+                logDebug(`handle DomainEvent on ${connectionName}: ignoring event ${signal}`);
             }
         });
+}
 
+function startEventMonitorLibvirtd(connectionName, dispatch, libvirtServiceName) {
     /* Listen on a stopped libvirtd on systemd D-Bus. If user is using libvirtd not started
      * by systemd this handler will not be triggered.
      */
@@ -1040,8 +1053,9 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
             }
         );
     }
+}
 
-    /* Handler for storage pool events */
+function startEventMonitorStoragePools(connectionName, dispatch) {
     dbus_client(connectionName).subscribe(
         { interface: 'org.libvirt.Connect', member: 'StoragePoolEvent' },
         (path, iface, signal, args) => {

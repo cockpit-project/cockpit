@@ -212,6 +212,7 @@ echo '%{_libexecdir}/cockpit-ssh' >> dashboard.list
 %else
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
+echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
 %endif
 
 %if %{defined build_dashboard}
@@ -311,7 +312,7 @@ for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosrepo
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
-for data in doc locale man pixmaps; do
+for data in doc locale man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 for lib in systemd tmpfiles.d firewalld; do

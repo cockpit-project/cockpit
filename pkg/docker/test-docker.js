@@ -23,9 +23,8 @@
     var docker = require("./docker");
     var util = require("./util");
     var QUnit = require("qunit-tests");
-    var assert = QUnit;
 
-    QUnit.test("bytes_from_format", function() {
+    QUnit.test("bytes_from_format", function (assert) {
         var checks = [
             [ "999", 999 ],
             [ "1.9 kb", 1945.6 ],
@@ -44,7 +43,7 @@
         }
     });
 
-    QUnit.test("json_skip", function() {
+    QUnit.test("json_skip", function (assert) {
         var checks = [
             [ "number", "0123456789",
                 [ 10, 0 ] ],
@@ -111,7 +110,7 @@
         }
     });
 
-    QUnit.test("quote_cmdline", function() {
+    QUnit.test("quote_cmdline", function (assert) {
         var checks = [
             [ [ "foo" ], "foo" ],
             [ [ "foo", "bar" ], "foo bar" ],
@@ -128,7 +127,7 @@
                                "quote(" + String(checks[i][0]) + ") = " + checks[i][1]);
     });
 
-    QUnit.test("unquote_cmdline", function() {
+    QUnit.test("unquote_cmdline", function (assert) {
         var checks = [
             [ [ "foo" ], "  foo  " ],
             [ [ "foo", "bar" ], "foo    bar  " ],
@@ -148,7 +147,7 @@
                              "unquote(" + String(checks[i][1]) + ") = " + checks[i][0]);
     });
 
-    QUnit.test("render_container_status", function() {
+    QUnit.test("render_container_status", function (assert) {
         var checks = [
             [ { Status: "blah", Running: true }, "blah" ],
             [ { Running: true, Paused: false }, "running" ],

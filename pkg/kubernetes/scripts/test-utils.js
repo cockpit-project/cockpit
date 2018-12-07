@@ -27,22 +27,16 @@ function suite() {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("kubeUtils.tests", [
         "kubeUtils",
     ]);
 
-    function utilsTest(name, count, func) {
-        QUnit.test(name, function() {
-            assert.expect(count);
-            inject(func);
-        });
-    }
+    QUnit.test("map Named Array", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
 
-    utilsTest("map Named Array", 4, [
-        "KubeMapNamedArray",
-        function lala(mapNamedArray) {
+        inject(["KubeMapNamedArray", function lala(mapNamedArray) {
             var target = {
                 "one": {
                     "name": "one",
@@ -82,12 +76,15 @@ function suite() {
             assert.deepEqual(mapNamedArray([]), {});
             assert.deepEqual(mapNamedArray(source), target);
             assert.deepEqual(mapNamedArray(source, "other"), target2);
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    utilsTest("Kube string to bytes", 20, [
-        "KubeStringToBytes",
-        function(stringToBytes) {
+    QUnit.test("Kube string to bytes", function (assert) {
+        var done = assert.async();
+        assert.expect(20);
+
+        inject(["KubeStringToBytes", function(stringToBytes) {
             assert.deepEqual(stringToBytes(), undefined);
             assert.deepEqual(stringToBytes("bad"), undefined);
             assert.deepEqual(stringToBytes("10"), undefined);
@@ -108,8 +105,9 @@ function suite() {
             assert.deepEqual(stringToBytes("10Gi"), 10737418240);
             assert.deepEqual(stringToBytes("10Mi"), 10485760);
             assert.deepEqual(stringToBytes("10Ki"), 10240);
-        }
-    ]);
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

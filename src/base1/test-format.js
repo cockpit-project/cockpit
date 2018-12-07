@@ -1,9 +1,6 @@
 /* global cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("format", function() {
+QUnit.test("format", function (assert) {
     assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),
                  "My special message with lots of things", "named keys");
     assert.equal(cockpit.format("My $0 message with $1 of things", [ "special", "lots" ]),
@@ -21,7 +18,7 @@ QUnit.test("format", function() {
     assert.equal(cockpit.format("$0", null), "", "`null` as argument");
 });
 
-QUnit.test("format_number", function () {
+QUnit.test("format_number", function (assert) {
     var checks = [
         [ 23.4, "23.4", "23,4" ],
         [ 23.46, "23.5", "23,5" ],
@@ -70,7 +67,7 @@ QUnit.test("format_number", function () {
     cockpit.language = saved_language;
 });
 
-QUnit.test("format_bytes", function() {
+QUnit.test("format_bytes", function (assert) {
     var checks = [
         [ 999, 1000, "999" ],
         [ 1934, undefined, "1.89 KiB" ],
@@ -108,7 +105,7 @@ QUnit.test("format_bytes", function() {
     }
 });
 
-QUnit.test("get_byte_units", function() {
+QUnit.test("get_byte_units", function (assert) {
     var mib = 1024 * 1024;
     var gib = mib * 1024;
     var tib = gib * 1024;
@@ -140,7 +137,7 @@ QUnit.test("get_byte_units", function() {
     }
 });
 
-QUnit.test("format_bytes_per_sec", function() {
+QUnit.test("format_bytes_per_sec", function (assert) {
     var checks = [
         [ 2555, "2.50 KiB/s" ]
     ];
@@ -152,7 +149,7 @@ QUnit.test("format_bytes_per_sec", function() {
     }
 });
 
-QUnit.test("format_bits_per_sec", function() {
+QUnit.test("format_bits_per_sec", function (assert) {
     var checks = [
         [ 55, "55 bps" ],
         [ 55.23456789, "55.2 bps" ],

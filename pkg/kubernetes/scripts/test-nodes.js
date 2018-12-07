@@ -28,7 +28,6 @@ function suite(fixtures) {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("kubernetes.nodes.tests", [
         "kubeClient",
@@ -45,25 +44,24 @@ function suite(fixtures) {
                 }
             ]);
 
-    function nodesTest(name, count, fixtures, func) {
-        QUnit.test(name, function() {
-            assert.expect(count);
-            inject([
-                "kubeLoader",
-                function(loader, data) {
-                    loader.reset(true);
-                    if (fixtures)
-                        loader.handle(fixtures);
-                }
-            ]);
-            inject(func);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            function(loader, data) {
+                loader.reset(true);
+                if (fixtures)
+                    loader.handle(fixtures);
+            }
+        ]);
     }
 
-    nodesTest("nodeStatus tests", 10, fixtures, [
-        "nodeData",
-        "kubeSelect",
-        function(nodeData, select) {
+    QUnit.test("nodeStatus tests", function (assert) {
+        var done = assert.async();
+        assert.expect(10);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["nodeData", "kubeSelect", function(nodeData, select) {
             var nodes = select().kind("Node");
             assert.equal(nodeData.nodeStatus(), "Unknown", "undefined node");
             assert.equal(nodeData.nodeStatus({}), "Unknown", "empty node");
@@ -75,13 +73,17 @@ function suite(fixtures) {
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/unschedulable-failed-node']), "Not Ready", "not ready and unschedulable");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/disk-node']), "Ready", "out of disk");
             assert.equal(nodeData.nodeStatus(nodes['/api/v1/nodes/mem-node']), "Ready", "out of memory");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    nodesTest("nodeStatusIcon tests", 10, fixtures, [
-        "nodeData",
-        "kubeSelect",
-        function(nodeData, select) {
+    QUnit.test("nodeStatusIcon tests", function (assert) {
+        var done = assert.async();
+        assert.expect(10);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["nodeData", "kubeSelect", function(nodeData, select) {
             var nodes = select().kind("Node");
             assert.equal(nodeData.nodeStatusIcon(), "wait", "undefined node");
             assert.equal(nodeData.nodeStatusIcon({}), "wait", "empty node");
@@ -93,13 +95,17 @@ function suite(fixtures) {
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/unschedulable-failed-node']), "fail", "not ready and unschedulable");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/disk-node']), "warn", "out of disk");
             assert.equal(nodeData.nodeStatusIcon(nodes['/api/v1/nodes/mem-node']), "warn", "out of memory");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    nodesTest("nodeConditions tests", 5, fixtures, [
-        "nodeData",
-        "kubeSelect",
-        function(nodeData, select) {
+    QUnit.test("nodeConditions tests", function (assert) {
+        var done = assert.async();
+        assert.expect(5);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["nodeData", "kubeSelect", function(nodeData, select) {
             var nodes = select().kind("Node");
             assert.equal(nodeData.nodeConditions(), undefined);
             assert.equal(nodeData.nodeConditions(null), undefined);
@@ -116,8 +122,9 @@ function suite(fixtures) {
                 }
             }, "Correct object");
             assert.strictEqual(conditions, nodeData.nodeConditions(nodes['/api/v1/nodes/unschedulable-node']), "identical when called with the same object");
-        }
-    ]);
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

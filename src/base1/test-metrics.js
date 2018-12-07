@@ -1,8 +1,5 @@
 /* global $, cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
 function MockPeer() {
     /*
      * Events triggered here:
@@ -106,7 +103,7 @@ function MockSink(expected, callback) {
     return self;
 }
 
-QUnit.test("non-instanced decompression", function() {
+QUnit.test("non-instanced decompression", function (assert) {
     assert.expect(1);
 
     var peer = new MockPeer();

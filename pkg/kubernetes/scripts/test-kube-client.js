@@ -32,7 +32,6 @@ var FIXTURE_LARGE = require("./fixture-large");
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("kubeClient.tests", [
         "kubeClient",
@@ -48,44 +47,25 @@ var FIXTURE_LARGE = require("./fixture-large");
                 }
             ]);
 
-    function kubeTest(name, count, fixtures, func) {
-        QUnit.asyncTest(name, function() {
-            assert.expect(count);
-            inject([
-                "$q",
-                '$exceptionHandler',
-                "kubeLoader",
-                "MockKubeData",
-                function($q, $exceptionHandler, loader, data) {
-                    if (fixtures)
-                        data.load(fixtures);
-                    loader.reset(true);
-
-                    var result;
-                    try {
-                        result = inject(func);
-                    } catch (ex) {
-                        $exceptionHandler(ex);
-                        assert.ok(!true, "test failed with exception: " + String(ex));
-                        QUnit.start();
-                        return;
-                    }
-
-                    $q.when(result, function() {
-                        QUnit.start();
-                    }, function(ex) {
-                        $exceptionHandler(ex);
-                        assert.ok(!true, "test failed with exception: " + String(ex));
-                        QUnit.start();
-                    });
-                }
-            ]);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            "MockKubeData",
+            function(loader, data) {
+                if (fixtures)
+                    data.load(fixtures);
+                loader.reset(true);
+            }
+        ]);
     }
 
-    kubeTest("loader load", 7, FIXTURE_BASIC, [
-        "kubeLoader",
-        function(loader) {
+    QUnit.test("loader load", function (assert) {
+        var done = assert.async();
+        assert.expect(7);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", function(loader) {
             var promise = loader.load("nodes");
             assert.ok(!!promise, "promise returned");
             assert.equal(typeof promise.then, "function", "promise has then");
@@ -96,15 +76,18 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.ok(angular.isArray(items), "got items array");
                 assert.equal(items.length, 1, "one node");
                 assert.equal(items[0].metadata.name, "127.0.0.1", "localhost node");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("loader load encoding", 2, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        "$q",
-        function(loader, select, $q) {
+    QUnit.test("loader load encoding", function (assert) {
+        var done = assert.async();
+        assert.expect(2);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", "$q", function(loader, select, $q) {
             assert.equal(select().kind("Encoded").length, 0);
 
             var defer = $q.defer();
@@ -112,6 +95,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.equal(select().kind("Image").length, 1);
                 x.cancel();
                 defer.resolve();
+                done();
             });
 
             loader.handle([{
@@ -146,12 +130,16 @@ var FIXTURE_LARGE = require("./fixture-large");
             }]);
 
             return defer.promise;
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("loader load fail", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        function(loader) {
+    QUnit.test("loader load fail", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", function(loader) {
             var promise = loader.load("nonexistant");
             return promise.then(function(data) {
                 assert.ok(!true, "successfully loaded");
@@ -159,26 +147,35 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.equal(response.code, 404, "not found");
                 assert.equal(response.message, "Not found here", "not found message");
                 assert.ok(true, "not sucessfully loaded");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("loader watch", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        function(loader) {
+    QUnit.test("loader watch", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", function(loader) {
             return loader.watch("nodes").then(function(response) {
                 assert.ok("/api/v1/nodes/127.0.0.1" in loader.objects, "found node");
                 var node = loader.objects["/api/v1/nodes/127.0.0.1"];
                 assert.equal(node.metadata.name, "127.0.0.1", "localhost node");
                 assert.equal(typeof node.spec.capacity, "object", "node has resources");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("list nodes", 6, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+    QUnit.test("list nodes", function (assert) {
+        var done = assert.async();
+        assert.expect(6);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("nodes").then(function() {
                 var nodes = select().kind("Node");
                 assert.ok("/api/v1/nodes/127.0.0.1" in nodes, "found node");
@@ -194,29 +191,37 @@ var FIXTURE_LARGE = require("./fixture-large");
                 var parsed = JSON.parse(JSON.stringify(node));
                 assert.ok(!("key" in parsed), "key should not be serialized");
                 assert.strictEqual(parsed.key, undefined, "key not be undefined after serialize");
-            });
-        }
-    ]);
 
-    kubeTest("list pods", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+                done();
+            });
+        }]);
+    });
+
+    QUnit.test("list pods", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "found pods");
                 var pod = pods["/api/v1/namespaces/default/pods/apache"];
                 assert.equal(typeof pod, "object", "found pod");
                 assert.equal(pod.metadata.labels.name, "apache", "pod has label");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("set namespace", 7, FIXTURE_BASIC, [
-        "$q",
-        "kubeLoader",
-        "kubeSelect",
-        function($q, loader, select) {
+    QUnit.test("set namespace", function (assert) {
+        var done = assert.async();
+        assert.expect(7);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["$q", "kubeLoader", "kubeSelect", function($q, loader, select) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "number of pods");
@@ -239,21 +244,23 @@ var FIXTURE_LARGE = require("./fixture-large");
                         assert.equal(pods.length, 3, "all pods back");
                         x.cancel();
                         defer.resolve();
+                        done();
                     }
                     listened = true;
                 });
 
                 return defer.promise;
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("add pod", 3, FIXTURE_BASIC, [
-        "$q",
-        "kubeLoader",
-        "kubeSelect",
-        "MockKubeData",
-        function($q, loader, select, data) {
+    QUnit.test("add pod", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["$q", "kubeLoader", "kubeSelect", "MockKubeData", function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "number of pods");
@@ -268,6 +275,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                                      "aardvark", "new pod present in items");
                         x.cancel();
                         defer.resolve();
+                        done();
                     }
                 });
 
@@ -290,15 +298,16 @@ var FIXTURE_LARGE = require("./fixture-large");
 
                 return defer.promise;
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("update pod", 3, FIXTURE_BASIC, [
-        "$q",
-        "kubeLoader",
-        "kubeSelect",
-        "MockKubeData",
-        function($q, loader, select, data) {
+    QUnit.test("update pod", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["$q", "kubeLoader", "kubeSelect", "MockKubeData", function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "number of pods");
@@ -315,6 +324,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                                      "apachepooo", "pod has changed");
                         x.cancel();
                         defer.resolve();
+                        done();
                     }
                     listened = true;
                 });
@@ -333,15 +343,16 @@ var FIXTURE_LARGE = require("./fixture-large");
 
                 return defer.promise;
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("remove pod", 5, FIXTURE_BASIC, [
-        "$q",
-        "kubeLoader",
-        "kubeSelect",
-        "MockKubeData",
-        function($q, loader, select, data) {
+    QUnit.test("remove pod", function (assert) {
+        var done = assert.async();
+        assert.expect(5);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["$q", "kubeLoader", "kubeSelect", "MockKubeData", function($q, loader, select, data) {
             return loader.watch("pods").then(function() {
                 var pods = select().kind("Pod");
                 assert.equal(pods.length, 3, "number of pods");
@@ -360,6 +371,7 @@ var FIXTURE_LARGE = require("./fixture-large");
                                      "wordpressreplica", "other pod");
                         x.cancel();
                         defer.resolve();
+                        done();
                     }
                     listened = true;
                 });
@@ -367,13 +379,16 @@ var FIXTURE_LARGE = require("./fixture-large");
                 data.update("namespaces/default/pods/apache", null);
                 return defer.promise;
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("list services", 4, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+    QUnit.test("list services", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("services").then(function() {
                 var services = select().kind("Service");
                 var x;
@@ -386,9 +401,11 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.equal(services.length, 2, "number of services");
                 assert.equal(svc.metadata.name, "kubernetes", "service id");
                 assert.equal(svc.spec.selector.component, "apiserver", "service has label");
+
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
     var CREATE_ITEMS = [
         {
@@ -425,24 +442,31 @@ var FIXTURE_LARGE = require("./fixture-large");
         }
     ];
 
-    kubeTest("create", 2, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("create", function (assert) {
+        var done = assert.async();
+        assert.expect(2);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
             return methods.create(CREATE_ITEMS, "namespace1").then(function() {
                 assert.equal(loader.objects["/api/v1/namespaces/namespace1/pods/pod1"].metadata.name, "pod1", "pod object");
                 assert.equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node object");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("create namespace exists", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("create namespace exists", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
@@ -459,29 +483,37 @@ var FIXTURE_LARGE = require("./fixture-large");
                 return methods.create(CREATE_ITEMS, "namespace1").then(function() {
                     assert.ok("/api/v1/namespaces/namespace1/pods/pod1" in loader.objects, "pod created");
                     assert.ok("/api/v1/nodes/node1" in loader.objects, "node created");
+                    done();
                 });
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("create namespace default", 2, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("create namespace default", function (assert) {
+        var done = assert.async();
+        assert.expect(2);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
             return methods.create(CREATE_ITEMS).then(function() {
                 assert.equal(loader.objects["/api/v1/namespaces/default/pods/pod1"].metadata.name, "pod1", "pod created");
                 assert.equal(loader.objects["/api/v1/nodes/node1"].metadata.name, "node1", "node created");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("create object exists", 1, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("create object exists", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             loader.watch("pods");
             loader.watch("nodes");
             loader.watch("namespaces");
@@ -491,16 +523,21 @@ var FIXTURE_LARGE = require("./fixture-large");
 
             return methods.create(items).then(function(response) {
                 assert.equal(response, false, "should have failed");
+                done();
             }, function(response) {
                 assert.equal(response.code, 409, "http already exists");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("delete pod", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("delete pod", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             var watch = loader.watch("pods");
 
             return methods.create(CREATE_ITEMS, "namespace2").then(function() {
@@ -509,16 +546,20 @@ var FIXTURE_LARGE = require("./fixture-large");
                     assert.ok(true, "remove succeeded");
                     return watch.finally(function() {
                         assert.ok(!("/api/v1/namespaces/namespace2/pods/pod1" in loader.objects), "pod was removed");
+                        done();
                     });
                 });
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("patch pod", 4, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("patch pod", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             var watch = loader.watch("pods");
             var path = "/api/v1/namespaces/namespace2/pods/pod1";
 
@@ -531,79 +572,111 @@ var FIXTURE_LARGE = require("./fixture-large");
                             var pod = loader.objects[path];
                             assert.equal(pod.extra, "blah", "pod has changed");
                             assert.equal(pod.second, "test", "pod changed by own object");
+                            done();
                         });
                     });
                 });
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("post", 1, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("post", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             return methods.post("/api/v1/namespaces/namespace1/pods", CREATE_ITEMS[0]).then(function(response) {
                 assert.equal(response.metadata.name, "pod1", "pod object");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("post fail", 1, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("post fail", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             return methods.post("/api/v1/nodes", FIXTURE_BASIC["nodes/127.0.0.1"]).then(function() {
                 assert.ok(false, "shouldn't succeed");
             }, function(response) {
                 assert.deepEqual(response, { "code": 409, "message": "Already exists" }, "got failure code");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("put", 1, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeMethods",
-        function(loader, methods) {
+    QUnit.test("put", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeMethods", function(loader, methods) {
             var node = { "kind": "Node", "metadata": { "name": "127.0.0.1", labels: { "test": "value" } } };
             return methods.put("/api/v1/nodes/127.0.0.1", node).then(function(response) {
                 assert.deepEqual(response.metadata.labels, { "test": "value" }, "put returned object");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("check resource ok", 0, null, [
-        "kubeMethods",
-        function(methods) {
+    QUnit.test("check resource ok", function (assert) {
+        var done = assert.async();
+        assert.expect(0);
+
+        injectLoadFixtures(null);
+
+        inject(["kubeMethods", function(methods) {
             var data = { kind: "Blah", metadata: { name: "test" } };
+            done();
             return methods.check(data);
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("check resource name empty", 3, null, [
-        "kubeMethods",
-        function(methods) {
+    QUnit.test("check resource name empty", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(null);
+
+        inject(["kubeMethods", function(methods) {
             var data = { kind: "Blah", metadata: { name: "" } };
             return methods.check(data).catch(function(ex) {
                 assert.ok(angular.isArray(ex), "threw array of failures");
                 assert.equal(ex.length, 1, "number of errors");
                 assert.ok(ex[0] instanceof Error, "threw an error");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("check resource name missing", 1, null, [
-        "kubeMethods",
-        function(methods) {
+    QUnit.test("check resource name missing", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        injectLoadFixtures(null);
+
+        inject(["kubeMethods", function(methods) {
             var data = { kind: "Blah", metadata: { } };
             return methods.check(data).then(function() {
                 assert.ok(true, "passed check");
+                done();
             }, null);
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("check resource name namespace bad", 6, null, [
-        "kubeMethods",
-        function(methods) {
+    QUnit.test("check resource name namespace bad", function (assert) {
+        var done = assert.async();
+        assert.expect(6);
+
+        injectLoadFixtures(null);
+
+        inject(["kubeMethods", function(methods) {
             var data = { kind: "Blah", metadata: { name: "a#a", namespace: "" } };
             var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
             return methods.check(data, targets).catch(function(ex) {
@@ -613,13 +686,18 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.equal(ex[0].target, "#name", "correct name target");
                 assert.ok(ex[1] instanceof Error, "threw an error");
                 assert.equal(ex[1].target, "#namespace", "correct name target");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("check resource namespace bad", 4, null, [
-        "kubeMethods",
-        function(methods) {
+    QUnit.test("check resource namespace bad", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(null);
+
+        inject(["kubeMethods", function(methods) {
             var data = { kind: "Blah", metadata: { name: "aa", namespace: "" } };
             var targets = { "metadata.name": "#name", "metadata.namespace": "#namespace" };
             return methods.check(data, targets).catch(function(ex) {
@@ -627,14 +705,18 @@ var FIXTURE_LARGE = require("./fixture-large");
                 assert.equal(ex.length, 1, "number of errors");
                 assert.ok(ex[0] instanceof Error, "threw an error");
                 assert.equal(ex[0].target, "#namespace", "correct name target");
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
-    kubeTest("lookup uid", 3, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+    QUnit.test("lookup uid", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("pods").then(function() {
                 /* Get the item */
                 var item = select().kind("Pod")
@@ -650,14 +732,19 @@ var FIXTURE_LARGE = require("./fixture-large");
                 item = select().uid("bad")
                         .one();
                 assert.strictEqual(item, null, "mismatch uid");
-            });
-        }
-    ]);
 
-    kubeTest("lookup host", 2, FIXTURE_BASIC, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+                done();
+            });
+        }]);
+    });
+
+    QUnit.test("lookup host", function (assert) {
+        var done = assert.async();
+        assert.expect(2);
+
+        injectLoadFixtures(FIXTURE_BASIC);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("pods").then(function() {
                 /* Get the item */
                 var item = select().host("127.0.0.1")
@@ -668,14 +755,19 @@ var FIXTURE_LARGE = require("./fixture-large");
                 item = select().host("127.0.0.2")
                         .one();
                 assert.strictEqual(item, null, "mismatch host");
-            });
-        }
-    ]);
 
-    kubeTest("lookup", 6, FIXTURE_LARGE, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+                done();
+            });
+        }]);
+    });
+
+    QUnit.test("lookup", function (assert) {
+        var done = assert.async();
+        assert.expect(6);
+
+        injectLoadFixtures(FIXTURE_LARGE);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             var expected = {
                 "apiVersion": "v1",
                 "kind": "ReplicationController",
@@ -724,14 +816,19 @@ var FIXTURE_LARGE = require("./fixture-large");
                         .namespace("baddefault")
                         .one();
                 assert.strictEqual(item, null, "mismatch namespace");
-            });
-        }
-    ]);
 
-    kubeTest("select", 12, FIXTURE_LARGE, [
-        "kubeLoader",
-        "kubeSelect",
-        function(loader, select) {
+                done();
+            });
+        }]);
+    });
+
+    QUnit.test("select", function (assert) {
+        var done = assert.async();
+        assert.expect(12);
+
+        injectLoadFixtures(FIXTURE_LARGE);
+
+        inject(["kubeLoader", "kubeSelect", function(loader, select) {
             return loader.watch("pods").then(function() {
                 var image = { kind: "Image" };
 
@@ -793,9 +890,11 @@ var FIXTURE_LARGE = require("./fixture-large");
                 /* Nothing selected when empty selector */
                 results = select().label({ });
                 assert.equal(results.length, 0, "nothing selected");
+
+                done();
             });
-        }
-    ]);
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

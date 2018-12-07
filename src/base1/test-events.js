@@ -1,9 +1,6 @@
 /* global cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("event dispatch", function() {
+QUnit.test("event dispatch", function (assert) {
     var obj = { };
     cockpit.event_target(obj);
 

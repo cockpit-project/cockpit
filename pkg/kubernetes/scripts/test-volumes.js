@@ -28,7 +28,6 @@ function suite(fixtures) {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("kubernetes.volumes.tests", [
         "kubeClient",
@@ -46,25 +45,24 @@ function suite(fixtures) {
                 }
             ]);
 
-    function volumesTest(name, count, fixtures, func) {
-        QUnit.test(name, function() {
-            assert.expect(count);
-            inject([
-                "kubeLoader",
-                function(loader, data) {
-                    loader.reset(true);
-                    if (fixtures)
-                        loader.handle(fixtures);
-                }
-            ]);
-            inject(func);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            function(loader, data) {
+                loader.reset(true);
+                if (fixtures)
+                    loader.handle(fixtures);
+            }
+        ]);
     }
 
-    volumesTest("pods for Claim", 4, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+    QUnit.test("pods for Claim", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var claim = select().kind("PersistentVolumeClaim")
                     .name("bound-claim")
                     .one();
@@ -77,13 +75,18 @@ function suite(fixtures) {
 
             pods = volumeData.podsForClaim({});
             assert.deepEqual(pods.length, 0, "empty claim pods");
-        }
-    ]);
 
-    volumesTest("volumes for Pod", 4, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+            done();
+        }]);
+    });
+
+    QUnit.test("volumes for Pod", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var pod = select().kind("Pod")
                     .one();
             var volumes = volumeData.volumesForPod(pod);
@@ -145,13 +148,18 @@ function suite(fixtures) {
 
             assert.deepEqual(volumeData.volumesForPod(), {}, "No null volumes");
             assert.deepEqual(volumeData.volumesForPod({}), {}, "No empty volumes");
-        }
-    ]);
 
-    volumesTest("claim From Volume Source", 4, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+            done();
+        }]);
+    });
+
+    QUnit.test("claim From Volume Source", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var pod = select().kind("Pod")
                     .one();
             var volumes = volumeData.volumesForPod(pod);
@@ -162,13 +170,18 @@ function suite(fixtures) {
 
             assert.deepEqual(volumeData.claimFromVolumeSource(), null, "No null volumes");
             assert.deepEqual(volumeData.claimFromVolumeSource({}), null, "No empty volumes");
-        }
-    ]);
 
-    volumesTest("claim For Volume", 5, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+            done();
+        }]);
+    });
+
+    QUnit.test("claim For Volume", function (assert) {
+        var done = assert.async();
+        assert.expect(5);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var bound = select().kind("PersistentVolume")
                     .name("bound")
                     .one();
@@ -184,13 +197,17 @@ function suite(fixtures) {
 
             assert.equal(volumeData.claimForVolume(), null, "null volume");
             assert.equal(volumeData.claimForVolume(), null, "empty volume");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("claim phases", 2, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+    QUnit.test("claim phases", function (assert) {
+        var done = assert.async();
+        assert.expect(2);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var claim = select().kind("PersistentVolumeClaim")
                     .statusPhase("Bound")
                     .one();
@@ -200,13 +217,17 @@ function suite(fixtures) {
                     .statusPhase("Pending")
                     .one();
             assert.equal(pending.metadata.name, "unbound-claim", "select unbound claims");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("volume Types", 4, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+    QUnit.test("volume Types", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var pv = select().kind("PersistentVolume")
                     .name("bound")
                     .one();
@@ -216,26 +237,34 @@ function suite(fixtures) {
             assert.equal(volumeData.getVolumeType(volumes["default-token-luvqo"]), "secret", "secret volume");
             assert.equal(volumeData.getVolumeType(), undefined, "null volume");
             assert.equal(volumeData.getVolumeType({}), undefined, "empty volume");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("volume Labels", 3, fixtures, [
-        "volumeData",
-        'kubeSelect',
-        function(volumeData, select) {
+    QUnit.test("volume Labels", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["volumeData", 'kubeSelect', function(volumeData, select) {
             var pv = select().kind("PersistentVolume")
                     .name("bound")
                     .one();
             assert.equal(volumeData.getVolumeLabel(), "Unknown", "null volume");
             assert.equal(volumeData.getVolumeLabel({}), "Unknown", "empty volume");
             assert.equal(volumeData.getVolumeLabel(pv.spec), "NFS Mount", "volume label");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("default volume build", 3, fixtures, [
-        "defaultVolumeFields",
-        "kubeSelect",
-        function(volumeFields, select) {
+    QUnit.test("default volume build", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["defaultVolumeFields", "kubeSelect", function(volumeFields, select) {
             var blank_fields = {
                 "accessModes": {
                     "ReadOnlyMany": "Read only from multiple nodes",
@@ -269,13 +298,17 @@ function suite(fixtures) {
                 }
             }, volumeFields.build(select().name("available")
                     .one()), "default fields");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("default volume validate", 15, fixtures, [
-        "defaultVolumeFields",
-        "kubeSelect",
-        function(volumeFields, select) {
+    QUnit.test("default volume validate", function (assert) {
+        var done = assert.async();
+        assert.expect(15);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["defaultVolumeFields", "kubeSelect", function(volumeFields, select) {
             var result = volumeFields.validate(null, {});
             assert.equal(result.data, null, "blank fields blank data");
             assert.equal(result.errors.length, 4);
@@ -329,13 +362,18 @@ function suite(fixtures) {
 
             result = volumeFields.validate({}, valid);
             assert.deepEqual(result.data, { "spec": spec }, "with item only spec");
-        }
-    ]);
 
-    volumesTest("gluster volume build", 3, fixtures, [
-        "glusterfsVolumeFields",
-        "kubeSelect",
-        function(gfs, select) {
+            done();
+        }]);
+    });
+
+    QUnit.test("gluster volume build", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["glusterfsVolumeFields", "kubeSelect", function(gfs, select) {
             var endpoints = select().kind("Endpoints");
             var blank_fields = {
                 "glusterfsPath": undefined,
@@ -359,12 +397,18 @@ function suite(fixtures) {
                 "endpoint": "my-gluster-endpoint",
             }, gfs.build(select().name("gfs-volume")
                     .one()), "gluster fields");
-        }
-    ]);
 
-    volumesTest("gfs volume validate", 9, fixtures, [
-        "glusterfsVolumeFields",
-        function(nfsVolumeFields) {
+            done();
+        }]);
+    });
+
+    QUnit.test("gfs volume validate", function (assert) {
+        var done = assert.async();
+        assert.expect(9);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["glusterfsVolumeFields", function(nfsVolumeFields) {
             var result = nfsVolumeFields.validate(null, {});
             assert.equal(result.data, null, "blank fields blank data");
             assert.equal(result.errors.length, 2);
@@ -392,13 +436,17 @@ function suite(fixtures) {
             result = nfsVolumeFields.validate(null, valid);
             assert.deepEqual(result.data, source, "valid source result");
             assert.equal(result.errors.length, 0, "no errors when valid");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("nfs volume build", 3, fixtures, [
-        "nfsVolumeFields",
-        "kubeSelect",
-        function(nfsVolumeFields, select) {
+    QUnit.test("nfs volume build", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["nfsVolumeFields", "kubeSelect", function(nfsVolumeFields, select) {
             var blank_fields = {
                 "path": undefined,
                 "readOnly": undefined,
@@ -421,12 +469,17 @@ function suite(fixtures) {
                 "server": "host-or.ip:port",
             }, nfsVolumeFields.build(select().name("bound")
                     .one()), "nfs fields");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    volumesTest("nfs volume validate", 10, fixtures, [
-        "nfsVolumeFields",
-        function(nfsVolumeFields) {
+    QUnit.test("nfs volume validate", function (assert) {
+        var done = assert.async();
+        assert.expect(10);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["nfsVolumeFields", function(nfsVolumeFields) {
             var result = nfsVolumeFields.validate(null, {});
             assert.equal(result.data, null, "blank fields blank data");
             assert.equal(result.errors.length, 2);
@@ -455,8 +508,9 @@ function suite(fixtures) {
             result = nfsVolumeFields.validate(null, valid);
             assert.deepEqual(result.data, source, "valid source result");
             assert.equal(result.errors.length, 0, "no errors when valid");
-        }
-    ]);
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

@@ -19,10 +19,9 @@
 
 /* global cockpit, QUnit, $ */
 
-var assert = QUnit;
-
 function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
-    QUnit.asyncTest("call method", function() {
+    QUnit.test("call method", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -34,11 +33,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("call method with timeout", function() {
+    QUnit.test("call method with timeout", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -52,16 +52,17 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call timed out");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("close immediately", function() {
+    QUnit.test("close immediately", function (assert) {
+        let done = assert.async();
         assert.expect(1);
         var dbus = cockpit.dbus(bus_name, channel_options);
         $(dbus).on("close", function(event, options) {
             assert.equal(options.problem, "test-code", "got right code");
-            QUnit.start();
+            done();
         });
 
         window.setTimeout(function() {
@@ -69,7 +70,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         }, 100);
     });
 
-    QUnit.asyncTest("call close", function() {
+    QUnit.test("call close", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -80,13 +82,14 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call rejected");
-                    QUnit.start();
+                    done();
                 });
 
         dbus.close();
     });
 
-    QUnit.asyncTest("call closed", function() {
+    QUnit.test("call closed", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -99,11 +102,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call rejected");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("primitive types", function() {
+    QUnit.test("primitive types", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -121,17 +125,18 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("integer bounds", function() {
+    QUnit.test("integer bounds", function (assert) {
         assert.expect(35);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
 
         function testNumber(type, value, valid) {
-            QUnit.stop();
+            let done = assert.async();
+
             dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                       "TestVariant", [ { t: type, v: value } ])
                     .fail(function(ex) {
@@ -142,7 +147,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             assert.equal(this.state(), "resolved", "accepted in bounds number");
                         else
                             assert.equal(this.state(), "rejected", "rejected out of bounds number");
-                        QUnit.start();
+                        done();
                     });
         }
 
@@ -170,11 +175,10 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         testNumber('x', 0xfffffffff, true);
         testNumber('t', 0xfffffffff, true);
         testNumber('t', -1, false);
-
-        QUnit.start();
     });
 
-    QUnit.asyncTest("non-primitive types", function() {
+    QUnit.test("non-primitive types", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -194,11 +198,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("variants", function() {
+    QUnit.test("variants", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -217,11 +222,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad variants", function() {
+    QUnit.test("bad variants", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -239,11 +245,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad variants", function() {
+    QUnit.test("bad variants", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -261,11 +268,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("get all", function() {
+    QUnit.test("get all", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -296,11 +304,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("call unimplemented", function() {
+    QUnit.test("call unimplemented", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -312,11 +321,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("call bad base64", function() {
+    QUnit.test("call bad base64", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -329,11 +339,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("call unknown", function() {
+    QUnit.test("call unknown", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -345,11 +356,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("signals", function() {
+    QUnit.test("signals", function (assert) {
+        let done = assert.async();
         assert.expect(6);
 
         var received = false;
@@ -373,11 +385,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .always(function() {
                     assert.equal(this.state(), "resolved", "emmision requested");
                     assert.equal(received, true, "signal received");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("signal unsubscribe", function() {
+    QUnit.test("signal unsubscribe", function (assert) {
+        let done = assert.async();
         assert.expect(4);
 
         var received = true;
@@ -405,12 +418,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "second emmision requested");
                                 assert.equal(received, false, "signal not received");
-                                QUnit.start();
+                                done();
                             });
                 });
     });
 
-    QUnit.asyncTest("with types", function() {
+    QUnit.test("with types", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -423,11 +437,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("with meta", function() {
+    QUnit.test("with meta", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var meta = {
@@ -457,11 +472,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     dbus.close();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("empty base64", function() {
+    QUnit.test("empty base64", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -474,11 +490,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad object path", function() {
+    QUnit.test("bad object path", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -488,11 +505,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(ex.message, "object path is invalid in dbus \"call\": invalid/path", "error message");
                 })
                 .always(function() {
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad interface name", function() {
+    QUnit.test("bad interface name", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -502,11 +520,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(ex.message, "interface name is invalid in dbus \"call\": !invalid!interface!", "error message");
                 })
                 .always(function() {
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad method name", function() {
+    QUnit.test("bad method name", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -516,11 +535,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(ex.message, "member name is invalid in dbus \"call\": !Invalid!Method!", "error message");
                 })
                 .always(function() {
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad flags", function() {
+    QUnit.test("bad flags", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -530,11 +550,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
                 })
                 .always(function() {
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad types", function() {
+    QUnit.test("bad types", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -546,11 +567,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad type invalid", function() {
+    QUnit.test("bad type invalid", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -561,11 +583,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad dict type", function() {
+    QUnit.test("bad dict type", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -577,11 +600,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad object path", function() {
+    QUnit.test("bad object path", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -593,11 +617,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("bad signature", function() {
+    QUnit.test("bad signature", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -609,11 +634,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("flags", function() {
+    QUnit.test("flags", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -625,11 +651,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("without introspection", function() {
+    QUnit.test("without introspection", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -639,11 +666,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 })
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("watch path", function() {
+    QUnit.test("watch path", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var cache = { };
@@ -665,11 +693,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                        "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                                        "y": 42 }, "correct data");
                     $(dbus).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("watch object manager", function() {
+    QUnit.test("watch object manager", function (assert) {
+        let done = assert.async();
         assert.expect(1);
 
         var cache = { };
@@ -690,11 +719,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                             "y": 42 } } }, "correct data");
                     $(dbus).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("watch change", function() {
+    QUnit.test("watch change", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var cache = { };
@@ -718,11 +748,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     "y": 42 }
             } }, "correct data");
             $(dbus).off();
-            QUnit.start();
+            done();
         });
     });
 
-    QUnit.asyncTest("watch barrier", function() {
+    QUnit.test("watch barrier", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var cache = { };
@@ -749,11 +780,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfuly");
                     $(dbus).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("watch interfaces", function() {
+    QUnit.test("watch interfaces", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var cache = { };
@@ -798,13 +830,14 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                                                                          "com.redhat.Cockpit.DBusTests.Alpha": null
                                             } }, "correct data");
                                             $(dbus).off();
-                                            QUnit.start();
+                                            done();
                                         });
                             });
                 });
     });
 
-    QUnit.asyncTest("path loop", function() {
+    QUnit.test("path loop", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var name = "yo" + new Date().getTime();
@@ -834,12 +867,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "method called");
                                 $(dbus).off();
-                                QUnit.start();
+                                done();
                             });
                 });
     });
 
-    QUnit.asyncTest("path signal", function() {
+    QUnit.test("path signal", function (assert) {
+        let done = assert.async();
         assert.expect(4);
 
         var name = "yo" + new Date().getTime();
@@ -860,7 +894,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             "com.redhat.Cockpit.DBusTests.Hidden": { "Name": name }
                         }, "got data before signal");
                         $(dbus).off();
-                        QUnit.start();
+                        done();
                     });
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                               "EmitHidden", [ name ])
@@ -870,7 +904,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 });
     });
 
-    QUnit.asyncTest("proxy", function() {
+    QUnit.test("proxy", function (assert) {
+        let done = assert.async();
         assert.expect(7);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -898,12 +933,13 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     .always(function() {
                         assert.equal(this.state(), "resolved", "method called");
                         $(dbus).off();
-                        QUnit.start();
+                        done();
                     });
         });
     });
 
-    QUnit.asyncTest("proxy call", function() {
+    QUnit.test("proxy call", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -917,11 +953,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .always(function() {
                     assert.equal(this.state(), "resolved", "method called");
                     $(dbus).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("proxy call with timeout", function() {
+    QUnit.test("proxy call with timeout", function (assert) {
+        let done = assert.async();
         assert.expect(2);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -934,11 +971,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call timed out");
                     $(dbus).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("proxy signal", function() {
+    QUnit.test("proxy signal", function (assert) {
+        let done = assert.async();
         assert.expect(4);
 
         var received = false;
@@ -960,11 +998,12 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                     assert.equal(received, true, "signal received");
                     $(dbus).off();
                     $(proxy).off();
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("proxy explicit notify", function() {
+    QUnit.test("proxy explicit notify", function (assert) {
+        let done = assert.async();
         assert.expect(1);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -974,7 +1013,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
             $(proxy).on("changed", function () {
                 assert.equal(proxy.FinallyNormalName, "externally injected");
                 $(proxy).off("changed");
-                QUnit.start();
+                done();
             });
             dbus.notify({
                 "/otree/frobber": {
@@ -986,7 +1025,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         });
     });
 
-    QUnit.asyncTest("proxies", function() {
+    QUnit.test("proxies", function (assert) {
+        let done = assert.async();
         assert.expect(13);
 
         var dbus = cockpit.dbus(bus_name, channel_options);
@@ -1040,7 +1080,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                                             assert.strictEqual(removed.valid, false, "removed is invalid");
                                                             dbus.close();
                                                             $(dbus).off();
-                                                            QUnit.start();
+                                                            done();
                                                         });
                                             });
                                 });
@@ -1050,7 +1090,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 }
 
 function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
-    QUnit.asyncTest("track name", function() {
+    QUnit.test("track name", function (assert) {
+        let done = assert.async();
         assert.expect(4);
 
         var name = "yo.x" + new Date().getTime();
@@ -1070,7 +1111,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                         assert.strictEqual(data.problem, undefined, "no problem");
                         gone = true;
                         if (released && gone)
-                            QUnit.start();
+                            done();
                     });
 
                     other.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
@@ -1084,13 +1125,14 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                                             assert.equal(this.state(), "resolved", "name released");
                                             released = true;
                                             if (released && gone)
-                                                QUnit.start();
+                                                done();
                                         });
                             });
                 });
     });
 
-    QUnit.asyncTest("no track name", function() {
+    QUnit.test("no track name", function (assert) {
+        let done = assert.async();
         assert.expect(5);
 
         var name = "yo.y" + new Date().getTime();
@@ -1122,14 +1164,15 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                                                     .always(function() {
                                                         assert.equal(this.state(), "rejected", "call after release should fail");
                                                         assert.equal(gone, false, "is not gone");
-                                                        QUnit.start();
+                                                        done();
                                                     });
                                         });
                             });
                 });
     });
 
-    QUnit.asyncTest("receive readable fd", function() {
+    QUnit.test("receive readable fd", function (assert) {
+        let done = assert.async();
         assert.expect(4);
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
@@ -1141,21 +1184,21 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
 
                     var channel = cockpit.channel(fd);
 
-                    /* QUnit.start() and .stop() are ref-counted. Stop again until the message comes back */
-                    QUnit.stop();
+                    let messageReceived = assert.async();
                     channel.onmessage = function (event, data) {
                         assert.equal(data, 'Hello, fd');
                         channel.close();
-                        QUnit.start();
+                        messageReceived();
                     };
                 })
                 .always(function () {
                     assert.equal(this.state(), "resolved", "fd received");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("receive readable fd and ensure opening more than once fails", function() {
+    QUnit.test("receive readable fd and ensure opening more than once fails", function (assert) {
+        let done = assert.async();
         assert.expect(7);
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
@@ -1169,22 +1212,22 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                     assert.ok(channel1);
                     var channel2 = cockpit.channel(fd);
 
-                    /* QUnit.start() and .stop() are ref-counted. Stop again until the channel is closed */
-                    QUnit.stop();
+                    let closed = assert.async();
                     channel2.onclose = function (event, options) {
                         assert.equal(options.channel, channel2.id);
                         assert.equal(options.command, 'close');
                         assert.equal(options.problem, 'not-found');
-                        QUnit.start();
+                        closed();
                     };
                 })
                 .always(function () {
                     assert.equal(this.state(), "resolved", "fd received");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("receive readable fd and ensure writing fails", function() {
+    QUnit.test("receive readable fd and ensure writing fails", function (assert) {
+        let done = assert.async();
         assert.expect(6);
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
@@ -1197,23 +1240,22 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                     var channel = cockpit.channel(fd);
                     channel.send('Hello, fd');
 
-                    /* QUnit.start() and .stop() are ref-counted. Stop again until the channel is closed */
-                    QUnit.stop();
-
+                    let closed = assert.async();
                     channel.onclose = function (event, options) {
                         assert.equal(options.channel, channel.id);
                         assert.equal(options.command, 'close');
                         assert.equal(options.problem, 'protocol-error');
-                        QUnit.start();
+                        closed();
                     };
                 })
                 .always(function () {
                     assert.equal(this.state(), "resolved", "fd received");
-                    QUnit.start();
+                    done();
                 });
     });
 
-    QUnit.asyncTest("receive writable fd", function() {
+    QUnit.test("receive writable fd", function (assert) {
+        let done = assert.async();
         assert.expect(3);
 
         var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", channel_options);
@@ -1229,7 +1271,7 @@ function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no
                 })
                 .always(function () {
                     assert.equal(this.state(), "resolved", "fd received and not writable");
-                    QUnit.start();
+                    done();
                 });
     });
 }

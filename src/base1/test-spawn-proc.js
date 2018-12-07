@@ -1,9 +1,7 @@
 /* global cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.asyncTest("simple process", function() {
+QUnit.test("simple process", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi"])
             .done(function(resp) {
@@ -11,20 +9,22 @@ QUnit.asyncTest("simple process", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("path", function() {
+QUnit.test("path", function (assert) {
+    let done = assert.async();
     assert.expect(1);
     cockpit.spawn(["true"])
             .always(function() {
                 assert.equal(this.state(), "resolved", "found executable");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("directory", function() {
+QUnit.test("directory", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.spawn(["pwd"], { directory: "/tmp" })
             .done(function(resp) {
@@ -32,11 +32,12 @@ QUnit.asyncTest("directory", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("error log", function() {
+QUnit.test("error log", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"])
             .done(function(resp) {
@@ -44,11 +45,12 @@ QUnit.asyncTest("error log", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("error output", function() {
+QUnit.test("error output", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" })
             .done(function(resp) {
@@ -56,11 +58,12 @@ QUnit.asyncTest("error output", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("error message", function() {
+QUnit.test("error message", function (assert) {
+    let done = assert.async();
     assert.expect(3);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" })
             .done(function(resp, message) {
@@ -69,11 +72,12 @@ QUnit.asyncTest("error message", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("error message fail", function() {
+QUnit.test("error message fail", function (assert) {
+    let done = assert.async();
     assert.expect(3);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2; exit 2"], { err: "message" })
             .fail(function(ex, resp) {
@@ -82,11 +86,12 @@ QUnit.asyncTest("error message fail", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("write eof read", function() {
+QUnit.test("write eof read", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var proc = cockpit.spawn(["/usr/bin/sort"]);
@@ -97,14 +102,15 @@ QUnit.asyncTest("write eof read", function() {
 
     proc.always(function() {
         assert.equal(this.state(), "resolved", "didn't fail");
-        QUnit.start();
+        done();
     });
 
     proc.input("2\n", true);
     proc.input("3\n1\n");
 });
 
-QUnit.asyncTest("stream", function() {
+QUnit.test("stream", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var streamed = 0;
@@ -121,7 +127,7 @@ QUnit.asyncTest("stream", function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 assert.equal(result, "11\n22\n33\n", "stream data");
                 assert.ok(streamed > 0, "stream handler called");
-                QUnit.start();
+                done();
             });
 
     proc.input("11\n", true);
@@ -129,7 +135,8 @@ QUnit.asyncTest("stream", function() {
     proc.input("33\n");
 });
 
-QUnit.asyncTest("stream packets", function() {
+QUnit.test("stream packets", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var streamed = "";
@@ -143,7 +150,7 @@ QUnit.asyncTest("stream packets", function() {
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 assert.equal(streamed, "11\n22\n33\n", "stream data");
-                QUnit.start();
+                done();
             });
 
     proc.input("11\n", true);
@@ -151,7 +158,8 @@ QUnit.asyncTest("stream packets", function() {
     proc.input("33\n");
 });
 
-QUnit.asyncTest("stream replaced", function() {
+QUnit.test("stream replaced", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var first = false;
@@ -168,7 +176,7 @@ QUnit.asyncTest("stream replaced", function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 assert.ok(!first, "first stream handler not called");
                 assert.ok(second, "second stream handler called");
-                QUnit.start();
+                done();
             });
 
     proc.input("11\n", true);
@@ -176,7 +184,8 @@ QUnit.asyncTest("stream replaced", function() {
     proc.input("33\n");
 });
 
-QUnit.asyncTest("stream partial", function() {
+QUnit.test("stream partial", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var streamed = "";
@@ -193,13 +202,14 @@ QUnit.asyncTest("stream partial", function() {
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 assert.equal(streamed, "1", "stream data");
-                QUnit.start();
+                done();
             });
 
     proc.input("1234");
 });
 
-QUnit.asyncTest("stream partial binary", function() {
+QUnit.test("stream partial binary", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var streamed = [];
@@ -216,13 +226,14 @@ QUnit.asyncTest("stream partial binary", function() {
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 assert.deepEqual(streamed, [49], "stream data");
-                QUnit.start();
+                done();
             });
 
     proc.input("1234");
 });
 
-QUnit.asyncTest("script with input", function() {
+QUnit.test("script with input", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
@@ -235,14 +246,15 @@ QUnit.asyncTest("script with input", function() {
 
     proc.always(function() {
         assert.equal(this.state(), "resolved", "didn't fail");
-        QUnit.start();
+        done();
     });
 
     proc.input("2\n", true);
     proc.input("3\n1\n");
 });
 
-QUnit.asyncTest("script with options", function() {
+QUnit.test("script with options", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
@@ -255,14 +267,15 @@ QUnit.asyncTest("script with options", function() {
 
     proc.always(function() {
         assert.equal(this.state(), "resolved", "didn't fail");
-        QUnit.start();
+        done();
     });
 
     proc.input("2\n", true);
     proc.input("3\n1\n");
 });
 
-QUnit.asyncTest("script without args", function() {
+QUnit.test("script without args", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";
@@ -275,7 +288,7 @@ QUnit.asyncTest("script without args", function() {
 
     proc.always(function() {
         assert.equal(this.state(), "resolved", "didn't fail");
-        QUnit.start();
+        done();
     });
 
     proc.input("2\n", true);

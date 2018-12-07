@@ -19,7 +19,6 @@
 
 var QUnit = require("qunit-tests");
 var cockpit = require("cockpit");
-var assert = QUnit;
 
 var kdump = require("./config-client.es6");
 
@@ -44,7 +43,8 @@ var changedConfig = [
     ""
 ].join("\n");
 
-QUnit.asyncTest("config_update", function() {
+QUnit.test("config_update", function (assert) {
+    var done = assert.async();
     assert.expect(10);
     var dataWasChanged = cockpit.defer();
     var config;
@@ -77,7 +77,7 @@ QUnit.asyncTest("config_update", function() {
                                 assert.equal(this.state(), "resolved", "writing to config didn't fail");
                                 dataWasChanged.promise().done(function() {
                                     assert.equal(this.state(), "resolved", "waiting for config change didn't fail");
-                                    QUnit.start();
+                                    done();
                                 });
                             });
                 });

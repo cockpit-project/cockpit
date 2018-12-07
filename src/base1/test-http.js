@@ -1,8 +1,5 @@
 /* global cockpit, QUnit, ArrayBuffer, Uint8Array */
 
-/* To help with future migration */
-var assert = QUnit;
-
 /* Set this to a regexp to ignore that warning once */
 /*
 function console_ignore_warning(exp) {
@@ -15,14 +12,15 @@ function console_ignore_warning(exp) {
 }
 */
 
-QUnit.test("public api", function() {
+QUnit.test("public api", function (assert) {
     var client = cockpit.http("/test");
     assert.equal(typeof client, "object", "http is an object");
     assert.equal(typeof client.get, "function", "http.get() is a function");
     assert.equal(typeof client.post, "function", "http.post() is a function");
 });
 
-QUnit.asyncTest("simple request", function() {
+QUnit.test("simple request", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
@@ -54,11 +52,12 @@ QUnit.asyncTest("simple request", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("with params", function() {
+QUnit.test("with params", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" })
@@ -68,11 +67,12 @@ QUnit.asyncTest("with params", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("not found", function() {
+QUnit.test("not found", function (assert) {
+    let done = assert.async();
     assert.expect(7);
 
     var promise = cockpit.http({ "internal": "/test-server" })
@@ -89,11 +89,12 @@ QUnit.asyncTest("not found", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("streaming", function() {
+QUnit.test("streaming", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var at = 0;
@@ -112,11 +113,12 @@ QUnit.asyncTest("streaming", function() {
                     expected += String(i) + " ";
                 assert.equal(got, expected, "stream got right data");
                 assert.equal(this.state(), "resolved", "split response didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("close", function() {
+QUnit.test("close", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var req = cockpit.http({ "internal": "/test-server" }).get("/mock/stream");
@@ -133,11 +135,12 @@ QUnit.asyncTest("close", function() {
             .always(function() {
                 assert.equal(at, 1, "stream got cancelled");
                 assert.equal(this.state(), "rejected", "cancelling a response rejects it");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("close all", function() {
+QUnit.test("close all", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var http = cockpit.http({ "internal": "/test-server" });
@@ -156,11 +159,12 @@ QUnit.asyncTest("close all", function() {
                 assert.equal(at, 1, "stream got cancelled");
                 assert.equal(this.state(), "rejected", "cancelling a response rejects it");
                 http.close("closed"); // This should be a no-op now
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("headers", function() {
+QUnit.test("headers", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
@@ -178,11 +182,12 @@ QUnit.asyncTest("headers", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "split response didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("escape host header", function() {
+QUnit.test("escape host header", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server" })
@@ -193,11 +198,12 @@ QUnit.asyncTest("escape host header", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "split response didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("connection headers", function() {
+QUnit.test("connection headers", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     cockpit.http({ "internal": "/test-server", "headers": { "Header1": "booo", "Header2": "not this" } })
@@ -216,11 +222,11 @@ QUnit.asyncTest("connection headers", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "split response didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.test("http promise recursive", function() {
+QUnit.test("http promise recursive", function (assert) {
     assert.expect(7);
 
     var promise = cockpit.http({ "internal": "/test-server" }).get("/");
@@ -238,7 +244,8 @@ QUnit.test("http promise recursive", function() {
     assert.equal(typeof promise3.input, "function", "promise3.input()");
 });
 
-QUnit.asyncTest("http keep alive", function() {
+QUnit.test("http keep alive", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     /*
@@ -259,12 +266,13 @@ QUnit.asyncTest("http keep alive", function() {
                         })
                         .always(function() {
                             assert.equal(this.state(), "resolved", "response didn't fail");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("http connection different", function() {
+QUnit.test("http connection different", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     /*
@@ -285,12 +293,13 @@ QUnit.asyncTest("http connection different", function() {
                         })
                         .always(function() {
                             assert.equal(this.state(), "resolved", "response didn't fail");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("http connection without address ", function() {
+QUnit.test("http connection without address ", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     /*
@@ -310,12 +319,13 @@ QUnit.asyncTest("http connection without address ", function() {
                         })
                         .always(function() {
                             assert.equal(this.state(), "resolved", "response didn't fail");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("no dns address", function() {
+QUnit.test("no dns address", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "port": 8080,
@@ -329,11 +339,12 @@ QUnit.asyncTest("no dns address", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("address with params", function() {
+QUnit.test("address with params", function (assert) {
+    let done = assert.async();
     // use our window's host and port to request external
     assert.expect(2);
 
@@ -345,7 +356,7 @@ QUnit.asyncTest("address with params", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 

@@ -19,9 +19,8 @@
 
 var utils = require("./utils");
 var QUnit = require("qunit-tests");
-var assert = QUnit;
 
-QUnit.test("format_delay", function() {
+QUnit.test("format_delay", function (assert) {
     var checks = [
         [ 15550000, "4 hours" ]
     ];
@@ -33,7 +32,7 @@ QUnit.test("format_delay", function() {
     }
 });
 
-QUnit.test("compare_versions", function() {
+QUnit.test("compare_versions", function (assert) {
     var checks = [
         [ "", "", 0 ],
         [ "0", "0", 0 ],
@@ -56,21 +55,21 @@ QUnit.test("compare_versions", function() {
     }
 });
 
-QUnit.test("mdraid_name_nohostnamed", function() {
+QUnit.test("mdraid_name_nohostnamed", function (assert) {
     var orig_hostnamed = utils.hostnamed;
     utils.hostnamed = { StaticHostname: undefined };
     assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev", "remote host name is skipped when hostnamed is not available");
     utils.hostnamed = orig_hostnamed;
 });
 
-QUnit.test("mdraid_name_remote", function() {
+QUnit.test("mdraid_name_remote", function (assert) {
     var orig_hostnamed = utils.hostnamed;
     utils.hostnamed = { StaticHostname: "sweethome" };
     assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev (from somehost)", "expected name for remote host");
     utils.hostnamed = orig_hostnamed;
 });
 
-QUnit.test("mdraid_name_local", function() {
+QUnit.test("mdraid_name_local", function (assert) {
     var orig_hostnamed = utils.hostnamed;
     utils.hostnamed = { StaticHostname: "sweethome" };
     assert.strictEqual(utils.mdraid_name({ "Name": "sweethome:mydev" }), "mydev", "expected name for local host");

@@ -1,9 +1,6 @@
 /* global cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
-function test_storage (storage, cockpitStorage) {
+function test_storage (assert, storage, cockpitStorage) {
     assert.expect(29);
     storage.clear();
     window.mock = {
@@ -71,12 +68,12 @@ function test_storage (storage, cockpitStorage) {
     assert.equal(storage.getItem("cockpit+test:key2"), null, "clear full removes our application's key2");
 }
 
-QUnit.test("local-storage", function() {
-    test_storage(window.localStorage, cockpit.localStorage);
+QUnit.test("local-storage", function (assert) {
+    test_storage(assert, window.localStorage, cockpit.localStorage);
 });
 
-QUnit.test("session-storage", function() {
-    test_storage(window.sessionStorage, cockpit.sessionStorage);
+QUnit.test("session-storage", function (assert) {
+    test_storage(assert, window.sessionStorage, cockpit.sessionStorage);
 });
 
 // Start tests after we have a user object

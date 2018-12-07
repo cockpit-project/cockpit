@@ -1,8 +1,5 @@
 /* global cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
 var dbus = cockpit.dbus(null, { "bus": "internal" });
 var configDir;
 
@@ -14,7 +11,8 @@ function cleanUp() {
  * Tests for parsing on-disk JSON configuration
  */
 
-function machinesParseTest(machines_defs, expectedProperty) {
+function machinesParseTest(assert, machines_defs, expectedProperty) {
+    let done = assert.async();
     assert.expect(3);
 
     var setup = [];
@@ -38,7 +36,7 @@ function machinesParseTest(machines_defs, expectedProperty) {
                 .always(function() {
                     assert.equal(this.state(), "resolved", "finished successfully");
                     cleanUp()
-                            .done(QUnit.start)
+                            .done(done)
                             .fail(function(err) {
                                 console.error("cleanup failed:", err);
                             });
@@ -46,16 +44,17 @@ function machinesParseTest(machines_defs, expectedProperty) {
     });
 }
 
-QUnit.asyncTest("no machine definitions", function() {
-    machinesParseTest({}, {});
+QUnit.test("no machine definitions", function (assert) {
+    machinesParseTest(assert, {}, {});
 });
 
-QUnit.asyncTest("empty json", function() {
-    machinesParseTest({ "01.json": "" }, {});
+QUnit.test("empty json", function (assert) {
+    machinesParseTest(assert, { "01.json": "" }, {});
 });
 
-QUnit.asyncTest("two definitions", function() {
-    machinesParseTest({ "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
+QUnit.test("two definitions", function (assert) {
+    machinesParseTest(assert,
+                      { "01.json": '{"green": {"visible": true, "address": "1.2.3.4"}, ' +
                                    ' "9.8.7.6": {"visible": false, "address": "9.8.7.6", "user": "admin"}}' },
                       { "green": {
                           "address": { "t": "s", "v": "1.2.3.4" },
@@ -69,18 +68,19 @@ QUnit.asyncTest("two definitions", function() {
                       });
 });
 
-QUnit.asyncTest("invalid json", function() {
-    machinesParseTest({ "01.json": '{"green":' }, {});
+QUnit.test("invalid json", function (assert) {
+    machinesParseTest(assert, { "01.json": '{"green":' }, {});
 });
 
-QUnit.asyncTest("invalid data types", function() {
-    machinesParseTest({ "01.json": '{"green": []}' }, {});
+QUnit.test("invalid data types", function (assert) {
+    machinesParseTest(assert, { "01.json": '{"green": []}' }, {});
 });
 
-QUnit.asyncTest("merge several JSON files", function() {
+QUnit.test("merge several JSON files", function (assert) {
     /* 99-webui.json changes a property in green, adds a
      * property to blue, and adds an entire new host yellow */
     machinesParseTest(
+        assert,
         { "01-green.json": '{"green": {"visible": true, "address": "1.2.3.4"}}',
           "02-blue.json":  '{"blue": {"address": "9.8.7.6"}}',
           "09-webui.json": '{"green": {"visible": false}, ' +
@@ -103,8 +103,9 @@ QUnit.asyncTest("merge several JSON files", function() {
     );
 });
 
-QUnit.asyncTest("merge JSON files with errors", function() {
+QUnit.test("merge JSON files with errors", function (assert) {
     machinesParseTest(
+        assert,
         { "01-valid.json":    '{"green": {"visible": true, "address": "1.2.3.4"}}',
           "02-syntax.json":   '[a',
           "03-toptype.json":  '["green"]',
@@ -132,7 +133,8 @@ QUnit.asyncTest("merge JSON files with errors", function() {
  * Tests for Update()
  */
 
-function machinesUpdateTest(origJson, host, props, expectedJson) {
+function machinesUpdateTest(assert, origJson, host, props, expectedJson) {
+    let done = assert.async();
     assert.expect(3);
 
     var f = configDir + "/machines.d/99-webui.json";
@@ -153,7 +155,7 @@ function machinesUpdateTest(origJson, host, props, expectedJson) {
                         .always(function() {
                             assert.equal(this.state(), "resolved", "finished successfully");
                             cleanUp()
-                                    .done(QUnit.start)
+                                    .done(done)
                                     .fail(function(err) {
                                         console.error("cleanup failed:", err);
                                     });
@@ -161,59 +163,71 @@ function machinesUpdateTest(origJson, host, props, expectedJson) {
             });
 }
 
-QUnit.asyncTest("no config files", function() {
-    machinesUpdateTest(null, "green", { "visible": cockpit.variant('b', true), "address": cockpit.variant('s', "1.2.3.4") },
+QUnit.test("no config files", function (assert) {
+    machinesUpdateTest(assert, null, "green", { "visible": cockpit.variant('b', true), "address": cockpit.variant('s', "1.2.3.4") },
                        { "green": { "address": "1.2.3.4", "visible": true } });
 });
 
-QUnit.asyncTest("add host to existing map", function() {
-    machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
+QUnit.test("add host to existing map", function (assert) {
+    machinesUpdateTest(assert,
+                       '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "blue",
                        { "visible": cockpit.variant('b', false), "address": cockpit.variant('s', "9.8.7.6") },
                        { "green": { "address": "1.2.3.4", "visible": true },
                          "blue":  { "address": "9.8.7.6", "visible": false } });
 });
 
-QUnit.asyncTest("change bool host property", function() {
-    machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
+QUnit.test("change bool host property", function (assert) {
+    machinesUpdateTest(assert,
+                       '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
                        { "visible": cockpit.variant('b', false) },
                        { "green": { "address": "1.2.3.4", "visible": false } });
 });
 
-QUnit.asyncTest("change string host property", function() {
-    machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
+QUnit.test("change string host property", function (assert) {
+    machinesUpdateTest(assert,
+                       '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
                        { "address": cockpit.variant('s', "fe80::1") },
                        { "green": { "address": "fe80::1", "visible": true } });
 });
 
-QUnit.asyncTest("add host property", function() {
-    machinesUpdateTest('{"green": {"visible": true, "address": "1.2.3.4"}}',
+QUnit.test("add host property", function (assert) {
+    machinesUpdateTest(assert,
+                       '{"green": {"visible": true, "address": "1.2.3.4"}}',
                        "green",
                        { "color": cockpit.variant('s', "pitchblack") },
                        { "green": { "address": "1.2.3.4", "visible": true, "color": "pitchblack" } });
 });
 
-QUnit.asyncTest("Update() only writes delta", function() {
+QUnit.test("Update() only writes delta", function (assert) {
+    let done = assert.async();
+
     cockpit.file(configDir + "/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')
             .done(function(tag) {
-                machinesUpdateTest(null,
+                machinesUpdateTest(assert,
+                                   null,
                                    "green",
                                    { "color": cockpit.variant('s', "pitchblack") },
                                    { "green": { "color": "pitchblack" } });
+                done();
             });
 });
 
-QUnit.asyncTest("updating and existing delta file", function() {
+QUnit.test("updating and existing delta file", function (assert) {
+    let done = assert.async();
+
     cockpit.file(configDir + "/machines.d/01-green.json")
             .replace('{"green": {"address": "1.2.3.4"}, "blue": {"address": "fe80::1"}}')
             .done(function(tag) {
-                machinesUpdateTest('{"green": {"address": "9.8.7.6", "user": "joe"}}',
+                machinesUpdateTest(assert,
+                                   '{"green": {"address": "9.8.7.6", "user": "joe"}}',
                                    "green",
                                    { "color": cockpit.variant('s', "pitchblack") },
                                    { "green": { "address": "9.8.7.6", "user": "joe", "color": "pitchblack" } });
+                done();
             });
 });
 

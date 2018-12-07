@@ -140,13 +140,13 @@ base_QUNIT_DEPS = \
 
 dist/base1/qunit.js:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/node_modules/qunitjs/qunit/qunit.js \
+	cat $(srcdir)/node_modules/qunit/qunit/qunit.js \
 	    $(srcdir)/node_modules/qunit-tap/lib/qunit-tap.js \
             $(srcdir)/pkg/lib/qunit-config.js > $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/qunit.css:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
-	cp $(srcdir)/node_modules/qunitjs/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
+	cp $(srcdir)/node_modules/qunit/qunit/qunit.css $@.tmp && $(MV) $@.tmp $@
 
 dist/base1/test-dbus-common.js: src/base1/test-dbus-common.js
 	$(ESLINT_RULE)

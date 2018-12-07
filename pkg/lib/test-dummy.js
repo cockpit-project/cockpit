@@ -18,10 +18,9 @@
  */
 
 var QUnit = require("qunit-tests");
-var assert = QUnit;
 
 function run_tests() {
-    QUnit.test("hello test", function() {
+    QUnit.test("hello test", function(assert) {
         assert.ok(1 == "1", "Dummy test case");
     });
     QUnit.start();

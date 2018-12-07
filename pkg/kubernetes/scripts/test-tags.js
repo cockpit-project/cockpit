@@ -29,31 +29,27 @@ function suite() {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("registry.tags.tests", [
         "registry.tags"
     ]);
 
-    function tagsTest(name, count, func) {
-        QUnit.test(name, function() {
-            /* Nothing happening with fixtures yet */
-            assert.expect(count);
-            inject(func);
-        });
-    }
+    QUnit.test("parseSpec", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
 
-    tagsTest("parseSpec", 1, [
-        "imageTagData",
-        function(data) {
+        inject(["imageTagData", function(data) {
             var names = data.parseSpec(specData);
             assert.deepEqual(names, [ "1", "1.23", "1.24.0", "1.24.2", "latest" ], "parsed names correctly");
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    tagsTest("buildSpec with spec", 1, [
-        "imageTagData",
-        function(data) {
+    QUnit.test("buildSpec with spec", function (assert) {
+        var done = assert.async();
+        assert.expect(1);
+
+        inject(["imageTagData", function(data) {
             var spec = angular.extend({ }, specData);
             spec = data.buildSpec(["2.5", "latest", "second"], spec, true, 'docker.io/busybox');
             assert.deepEqual(spec, {
@@ -67,8 +63,9 @@ function suite() {
                       "from": { "kind": "DockerImage", "name": "docker.io/busybox:second" }}
                 ]
             }, "build spec correctly");
-        }
-    ]);
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

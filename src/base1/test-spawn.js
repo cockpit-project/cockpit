@@ -1,8 +1,5 @@
 /* global $, cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
 /* Seems like something jQuery should provide */
 if (!console.assert) {
     console.assert = function(cond, msg) {
@@ -130,11 +127,12 @@ function MockPeer() {
     };
 }
 
-QUnit.test("public api", function() {
+QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.spawn, "function", "spawn is a function");
 });
 
-QUnit.asyncTest("simple request", function() {
+QUnit.test("simple request", function (assert) {
+    let done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();
@@ -155,24 +153,26 @@ QUnit.asyncTest("simple request", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("string command", function() {
+QUnit.test("string command", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel, options) {
         assert.deepEqual(channel.options["spawn"], ["/the/path"], "passed spawn correctly");
         assert.equal(channel.options["host"], "hostname", "had host");
-        QUnit.start();
+        done();
     });
 
     cockpit.spawn("/the/path", { "host": "hostname" });
 });
 
-QUnit.asyncTest("channel options", function() {
+QUnit.test("channel options", function (assert) {
+    let done = assert.async();
     assert.expect(1);
 
     var peer = new MockPeer();
@@ -183,7 +183,7 @@ QUnit.asyncTest("channel options", function() {
             "extra-option": "zerogjuggs",
             "payload": "stream"
         }, "sent correctly");
-        QUnit.start();
+        done();
     });
 
     /* Don't care about the result ... */
@@ -191,7 +191,8 @@ QUnit.asyncTest("channel options", function() {
     cockpit.spawn(["/the/path", "arg"], options);
 });
 
-QUnit.asyncTest("streaming", function() {
+QUnit.test("streaming", function (assert) {
+    let done = assert.async();
     assert.expect(15);
 
     var peer = new MockPeer();
@@ -216,11 +217,12 @@ QUnit.asyncTest("streaming", function() {
             .always(function() {
                 assert.equal(this.state(), "resolved", "split response didn't fail");
                 assert.strictEqual(this, promise, "always got right this");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("with problem", function() {
+QUnit.test("with problem", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var peer = new MockPeer();
@@ -236,11 +238,12 @@ QUnit.asyncTest("with problem", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("with status", function() {
+QUnit.test("with status", function (assert) {
+    let done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();
@@ -258,11 +261,12 @@ QUnit.asyncTest("with status", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("with signal", function() {
+QUnit.test("with signal", function (assert) {
+    let done = assert.async();
     assert.expect(5);
 
     var peer = new MockPeer();
@@ -280,11 +284,11 @@ QUnit.asyncTest("with signal", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.test("spawn promise recursive", function() {
+QUnit.test("spawn promise recursive", function (assert) {
     assert.expect(7);
 
     var promise = cockpit.spawn(["/the/path", "arg1", "arg2"]);

@@ -1,9 +1,6 @@
 /* global cockpit, QUnit, Uint8Array */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("base64 array", function() {
+QUnit.test("base64 array", function (assert) {
     var data = new Array(5);
     for (var i = 0; i < 5; i++)
         data[i] = i;
@@ -23,7 +20,7 @@ QUnit.test("base64 array", function() {
     assert.ok(match, "right data");
 });
 
-QUnit.test("base64 arraybuffer", function() {
+QUnit.test("base64 arraybuffer", function (assert) {
     var view = new Uint8Array(5);
     for (var i = 0; i < 5; i++)
         view[i] = i;
@@ -43,12 +40,12 @@ QUnit.test("base64 arraybuffer", function() {
     assert.ok(match, "right data");
 });
 
-QUnit.test("base64 string", function() {
+QUnit.test("base64 string", function (assert) {
     assert.equal(cockpit.base64_encode("blah"), "YmxhaA==", "encoded right");
     assert.strictEqual(cockpit.base64_decode("YmxhaA==", String), "blah", "decoded right");
 });
 
-QUnit.test("base64 round trip", function() {
+QUnit.test("base64 round trip", function (assert) {
     function random_int(min, max) {
         return Math.floor(Math.random() * (max - min)) + min;
     }

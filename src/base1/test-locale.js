@@ -1,8 +1,5 @@
 /* global $, cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
 var pig_latin = {
     "": { "language": "pig", "plural-forms": function(n) {
         var plural = (n != 1);
@@ -34,11 +31,11 @@ var ru = {
     "$0 bit": [ "$0 bits", "$0 бит", "$0 бита", "$0 бит" ]
 };
 
-QUnit.test("public api", function() {
+QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.locale, "function", "cockpit.locale is a function");
 });
 
-QUnit.test("gettext", function() {
+QUnit.test("gettext", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(pig_latin);
     assert.equal(cockpit.language, "pig", "correct lang");
@@ -48,7 +45,7 @@ QUnit.test("gettext", function() {
     assert.equal(cockpit.gettext("verb", "Empty"), "Empty", "english default context");
 });
 
-QUnit.test("underscore", function() {
+QUnit.test("underscore", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(pig_latin);
     var _ = cockpit.gettext;
@@ -59,7 +56,7 @@ QUnit.test("underscore", function() {
     assert.equal(C_("verb", "Empty"), "Empty", "with context");
 });
 
-QUnit.test("ngettext simple", function() {
+QUnit.test("ngettext simple", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(pig_latin);
     assert.equal(cockpit.ngettext("$0 disk is missing", "$0 disks are missing", 0), "$0 isksbay are issingmay", "zero things");
@@ -77,7 +74,7 @@ QUnit.test("ngettext simple", function() {
     assert.equal(cockpit.ngettext("memory", "$0 byte", "$0 bytes", 2), "$0 bytes", "default multiple context");
 });
 
-QUnit.test("ngettext complex", function() {
+QUnit.test("ngettext complex", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(ru);
     assert.equal(cockpit.ngettext("$0 bit", "$0 bits", 0), "$0 бит", "zero things");
@@ -88,7 +85,7 @@ QUnit.test("ngettext complex", function() {
     assert.equal(cockpit.ngettext("$0 byte", "$0 bytes", 2), "$0 bytes", "default multiple");
 });
 
-QUnit.test("translate document", function() {
+QUnit.test("translate document", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
@@ -101,7 +98,7 @@ QUnit.test("translate document", function() {
     assert.strictEqual($("#translatable-html").attr("translate"), undefined, "translate element attribute removed");
 });
 
-QUnit.test("translate elements", function() {
+QUnit.test("translate elements", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
@@ -123,7 +120,7 @@ QUnit.test("translate elements", function() {
     assert.strictEqual($("#translatable-context-html").attr("translate"), undefined, "translate context attribute removed");
 });
 
-QUnit.test("translate array", function() {
+QUnit.test("translate array", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
@@ -145,7 +142,7 @@ QUnit.test("translate array", function() {
     assert.strictEqual($("#translatable-context-html").attr("translate"), undefined, "translate context attribute removed");
 });
 
-QUnit.test("translate glade", function() {
+QUnit.test("translate glade", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 
@@ -162,7 +159,7 @@ QUnit.test("translate glade", function() {
     assert.strictEqual($("#translatable-glade-context").attr("translatable"), undefined, "translatable context attribute removed");
 });
 
-QUnit.test("translate attributes", function() {
+QUnit.test("translate attributes", function (assert) {
     cockpit.locale(null);
     cockpit.locale(pig_latin);
 

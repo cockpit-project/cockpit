@@ -273,6 +273,25 @@ EXTRA_DIST += \
 	$(NULL)
 
 # -----------------------------------------------------------------------------
+# polkit
+
+polkitdir        = $(datadir)/polkit-1/actions
+polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
+polkit_DATA = $(polkit_in_files:.policy.in=.policy)
+
+%.policy: %.policy.in $(PO_FILES)
+	$(AM_V_GEN) $(INTLTOOL_MERGE) -x $(top_srcdir)/po $< $@
+
+EXTRA_DIST += $(polkit_in_files)
+CLEANFILES += $(polkit_DATA)
+
+prepare-po-bridge-policy: $(polkit_in_files)
+	cp $< .
+	$(AM_V_GEN) $(INTLTOOL_EXTRACT) -l --type=gettext/xml $(notdir $<)
+
+prepare-po:: prepare-po-bridge-policy
+
+# -----------------------------------------------------------------------------
 # PCP
 
 # make sure this ends up in the tarball, even with --disable-pcp

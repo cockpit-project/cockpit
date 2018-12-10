@@ -151,16 +151,31 @@ function crypto_options_dialog_options(vals) {
     return unparse_options(opts);
 }
 
-function initial_tab_options(client, block) {
+function initial_tab_options(client, block, for_fstab) {
     var options = { };
 
     utils.get_parent_blocks(client, block.path).forEach(p => {
         if (utils.is_netdev(client, p)) {
             options["_netdev"] = true;
         }
+        // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1589541
+        if (client.vdo_overlay.find_by_block(client.blocks[p])) {
+            options["_netdev"] = true;
+            options["x-systemd.device-timeout=0"] = true;
+            if (for_fstab)
+                options["x-systemd.requires=vdo.service"] = true;
+        }
     });
 
     return Object.keys(options).join(",");
+}
+
+function initial_crypto_options(client, block) {
+    return initial_tab_options(client, block, false);
+}
+
+function initial_mount_options(client, block) {
+    return initial_tab_options(client, block, true);
 }
 
 function format_dialog(client, path, start, size, enable_dos_extended) {
@@ -256,7 +271,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
         return;
     }
 
-    var initial_options = initial_tab_options(client, block);
+    var crypto_options = initial_crypto_options(client, block);
+    var mount_options = initial_mount_options(client, block);
 
     dialog_open({ Title: title,
                   Footer: TeardownMessage(usage),
@@ -301,8 +317,8 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
                                 }),
                       CheckBox("store_passphrase", _("Store passphrase"),
                                { visible: is_encrypted_and_not_old_udisks2 })
-                  ].concat(crypto_options_dialog_fields(initial_options, is_encrypted_and_not_old_udisks2))
-                          .concat(mounting_dialog_fields(false, "", initial_options, is_filesystem_and_not_old_udisks2)),
+                  ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2))
+                          .concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
                   update: function (dlg, vals, trigger) {
                       if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
                           dlg.set_values({ "mount_auto": false });
@@ -418,9 +434,10 @@ module.exports = {
 
     mounting_dialog_fields: mounting_dialog_fields,
     mounting_dialog_options: mounting_dialog_options,
+    initial_mount_options: initial_mount_options,
     crypto_options_dialog_fields: crypto_options_dialog_fields,
     crypto_options_dialog_options: crypto_options_dialog_options,
-    initial_tab_options: initial_tab_options,
+    initial_crypto_options: initial_crypto_options,
     format_dialog: format_dialog,
     FormatButton: FormatButton
 };

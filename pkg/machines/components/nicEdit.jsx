@@ -20,9 +20,6 @@ import React from 'react';
 import cockpit from 'cockpit';
 import PropTypes from 'prop-types';
 import {
-    Form,
-    FormGroup,
-    Grid,
     Modal,
     Button
 } from 'patternfly-react';
@@ -35,6 +32,7 @@ import {
 } from '../actions/provider-actions.es6';
 
 import './nicEdit.css';
+import 'form-layout.less';
 
 const _ = cockpit.gettext;
 
@@ -51,26 +49,24 @@ const NetworkModelRow = ({ idPrefix, onValueChanged, dialogValues, network, osTy
     }
 
     return (
-        <FormGroup controlId='model' disabled={false}>
-            <Grid.Col componentClass={Form.ControlLabel} sm={2}>
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-select-model`}>
                 {_("Model")}
-            </Grid.Col>
-            <Grid.Col sm={4}>
-                <Select.Select id={`${idPrefix}-select-model`}
-                               onChange={value => onValueChanged('networkModel', value)}
-                               initial={defaultModelType}
-                               extraClass='form-control'>
-                    {availableModelTypes
-                            .map(networkModel => {
-                                return (
-                                    <Select.SelectEntry data={networkModel.name} key={networkModel.name}>
-                                        {networkModel.name} ({networkModel.desc})
-                                    </Select.SelectEntry>
-                                );
-                            })}
-                </Select.Select>
-            </Grid.Col>
-        </FormGroup>
+            </label>
+            <Select.Select id={`${idPrefix}-select-model`}
+                           onChange={value => onValueChanged('networkModel', value)}
+                           initial={defaultModelType}
+                           extraClass='form-control ct-form-layout-split'>
+                {availableModelTypes
+                        .map(networkModel => {
+                            return (
+                                <Select.SelectEntry data={networkModel.name} key={networkModel.name}>
+                                    {networkModel.name} ({networkModel.desc})
+                                </Select.SelectEntry>
+                            );
+                        })}
+            </Select.Select>
+        </React.Fragment>
     );
 };
 
@@ -124,56 +120,50 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     };
 
     return (
-        <FormGroup controlId="type" disabled={false}>
-            <Grid.Col componentClass={Form.ControlLabel} sm={2}>
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
                 {_("Network Type")}
-            </Grid.Col>
-            <Grid.Col sm={4}>
-                <Select.Select id={`${idPrefix}-select-type`}
-                               onChange={value => onNetworkTypeChanged(value)}
-                               initial={defaultNetworkType}
-                               extraClass='form-control'>
-                    {availableNetworkTypes
-                            .map(networkType => {
-                                return (
-                                    <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false} >
-                                        {networkType.desc}
-                                    </Select.SelectEntry>
-                                );
-                            })}
-                </Select.Select>
-            </Grid.Col>
+            </label>
+            <Select.Select id={`${idPrefix}-select-type`}
+                           onChange={value => onNetworkTypeChanged(value)}
+                           initial={defaultNetworkType}
+                           extraClass='form-control ct-form-layout-split'>
+                {availableNetworkTypes
+                        .map(networkType => {
+                            return (
+                                <Select.SelectEntry data={networkType.name} key={networkType.name} disabled={networkType.disabled || false} >
+                                    {networkType.desc}
+                                </Select.SelectEntry>
+                            );
+                        })}
+            </Select.Select>
             {(dialogValues.networkType === 'network') && (
                 <React.Fragment>
-                    <Grid.Col componentClass={Form.ControlLabel} sm={2}>
+                    <label className='control-label' htmlFor={`${idPrefix}-select-source`}>
                         {_("Source")}
-                    </Grid.Col>
-                    <Grid.Col sm={4}>
-                        <Select.Select id={`${idPrefix}-select-source`}
-                                       onChange={value => onValueChanged('networkSource', value)}
-                                       initial={defaultNetworkSource}
-                                       extraClass='form-control'>
-                            {networkSourcesContent}
-                        </Select.Select>
-                    </Grid.Col>
+                    </label>
+                    <Select.Select id={`${idPrefix}-select-source`}
+                                   onChange={value => onValueChanged('networkSource', value)}
+                                   initial={defaultNetworkSource}
+                                   extraClass='form-control ct-form-layout-split'>
+                        {networkSourcesContent}
+                    </Select.Select>
                 </React.Fragment>
             )}
-        </FormGroup>
+        </React.Fragment>
     );
 };
 
 const NetworkMacRow = ({ network }) => {
     return (
-        <FormGroup controlId='mac' disabled >
-            <Grid.Col componentClass={Form.ControlLabel} sm={2}>
+        <React.Fragment>
+            <label className='control-label' htmlFor='mac'>
                 {_("Mac Address")}
-            </Grid.Col>
-            <Grid.Col sm={2}>
-                <samp className='form-text'>
-                    {network.mac}
-                </samp>
-            </Grid.Col>
-        </FormGroup>
+            </label>
+            <samp className='form-text' id='mac'>
+                {network.mac}
+            </samp>
+        </React.Fragment>
     );
 };
 
@@ -235,7 +225,7 @@ export class EditNICAction extends React.Component {
         const { idPrefix, vm, network, networks } = this.props;
         const networksFiltered = networks.filter(network => network.connectionName == vm.connectionName);
         const defaultBody = (
-            <Form horizontal>
+            <form className='ct-form-layout'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
@@ -243,6 +233,7 @@ export class EditNICAction extends React.Component {
                                          networks={networksFiltered}
                                          connectionName={vm.connectionName}
                                          isRunning={vm.state == 'running'} />
+                <hr />
                 <NetworkModelRow idPrefix={idPrefix}
                                  dialogValues={this.state}
                                  onValueChanged={this.onValueChanged}
@@ -250,8 +241,9 @@ export class EditNICAction extends React.Component {
                                  osTypeArch={vm.arch}
                                  osTypeMachine={vm.emulatedMachines}
                                  isRunning={vm.state == 'running'} />
+                <hr />
                 <NetworkMacRow network={network} />
-            </Form>
+            </form>
         );
         const showFooterWarning = () => {
             if (vm.state === 'running' && (

@@ -71,7 +71,9 @@ class FilesystemTab extends React.Component {
             dialog_open({ Title: _("Filesystem Name"),
                           Fields: [
                               TextInput("name", _("Name"),
-                                        { value: block.IdLabel })
+                                        { validate: name => utils.validate_fsys_label(name, block.IdType),
+                                          value: block.IdLabel
+                                        })
                           ],
                           Action: {
                               Title: _("Apply"),

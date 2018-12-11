@@ -132,6 +132,26 @@
         }
     };
 
+    utils.validate_fsys_label = function validate_fsys_label(label, type) {
+        var fs_label_max = {
+            "xfs":   12,
+            "ext4":  16,
+            "vfat":  11,
+            "ntfs": 128,
+        };
+
+        var limit = fs_label_max[type.replace("luks+", "")];
+        var bytes = cockpit.utf8_encoder().encode(label);
+        if (limit && bytes.length > limit) {
+            // Let's not confuse people with encoding issues unless
+            // they use funny characters.
+            if (bytes.length == label.length)
+                return cockpit.format(_("Name cannot be longer than $0 characters"), limit);
+            else
+                return cockpit.format(_("Name cannot be longer than $0 bytes"), limit);
+        }
+    };
+
     utils.block_name = function block_name(block) {
         return utils.decode_filename(block.PreferredDevice);
     };

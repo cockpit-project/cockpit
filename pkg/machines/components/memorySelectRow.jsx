@@ -27,42 +27,30 @@ const _ = cockpit.gettext;
 
 const MemorySelectRow = ({ label, id, value, initialUnit, onValueChange, onUnitChange }) => {
     return (
-        <tr>
-            <td className="top">
-                <label className="control-label" htmlFor={id}>
-                    {label}
-                </label>
-            </td>
-            <td>
-                <div className="thirty-five-spaced-table">
-                    <span className="evenly-spaced-cell">
-                        <div className="evenly-spaced-table">
-                            <span className="evenly-spaced-cell">
-                                <input id={id} className="form-control"
-                                       type="number"
-                                       value={toFixedPrecision(value)}
-                                       onKeyPress={digitFilter}
-                                       step={1}
-                                       min={0}
-                                       onChange={onValueChange} />
-                            </span>
-                            <span className="thirty-five-spaced-cell padding-left">
-                                <Select.Select id={id + "-unit-select"}
-                                               initial={initialUnit}
-                                               onChange={onUnitChange}>
-                                    <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
-                                        {_("MiB")}
-                                    </Select.SelectEntry>
-                                    <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
-                                        {_("GiB")}
-                                    </Select.SelectEntry>
-                                </Select.Select>
-                            </span>
-                        </div>
-                    </span>
-                </div>
-            </td>
-        </tr>
+        <React.Fragment>
+            <label className="control-label" htmlFor={id}>
+                {label}
+            </label>
+            <div role="group">
+                <input id={id} className="form-control"
+                       type="number"
+                       value={toFixedPrecision(value)}
+                       onKeyPress={digitFilter}
+                       step={1}
+                       min={0}
+                       onChange={onValueChange} />
+                <Select.Select id={id + "-unit-select"}
+                               initial={initialUnit}
+                               onChange={onUnitChange}>
+                    <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
+                        {_("MiB")}
+                    </Select.SelectEntry>
+                    <Select.SelectEntry data={units.GiB.name} key={units.GiB.name}>
+                        {_("GiB")}
+                    </Select.SelectEntry>
+                </Select.Select>
+            </div>
+        </React.Fragment>
     );
 };
 

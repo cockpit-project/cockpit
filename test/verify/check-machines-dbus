@@ -303,11 +303,10 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     # Check incomplete dialog
                     if (not self.name):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form .has-error:nth-child(2)")
+                        b.wait_present("#create-storage-pool-dialog .modal-body form div:nth-of-type(2).has-error")
 
                     if (not self.target):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form .has-error:nth-child(4)")
-
+                        b.wait_present("#create-storage-pool-dialog .modal-body form div:nth-of-type(4).has-error")
                     # Check errors from backend
                     if self.xfail_error:
                         error_location = "#create-storage-pool-dialog .modal-footer .alert-danger"

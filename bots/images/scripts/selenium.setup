@@ -27,7 +27,7 @@ docker \
 dnf -y upgrade
 dnf -y install $SELENIUM_DEPS
 
-dnf -y remove firewalld
+systemctl disable firewalld
 
 # HACK: docker falls over regularly, print its log if it does
 systemctl start docker || journalctl -u docker

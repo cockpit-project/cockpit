@@ -25,7 +25,7 @@ import { ModalError } from './notification/inlineNotification.jsx';
 import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.es6';
 
-import './diskAdd.css';
+import 'form-layout.less';
 
 const _ = cockpit.gettext;
 
@@ -85,22 +85,18 @@ const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStorag
     }
 
     return (
-        <div className="row">
-            <div className="col-sm-1 dialog-field">
-                <label htmlFor={`${idPrefix}-select-volume`}>
-                    {_("Volume")}
-                </label>
-            </div>
-            <div className="col-sm-11 dialog-field">
-                <Select.Select id={`${idPrefix}-select-volume`}
-                               onChange={value => onValueChanged('existingVolumeName', value)}
-                               initial={initiallySelected}
-                               enabled={filteredVolumes.length > 0}
-                               extraClass='form-control'>
-                    {content}
-                </Select.Select>
-            </div>
-        </div>
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-select-volume`}>
+                {_("Volume")}
+            </label>
+            <Select.Select id={`${idPrefix}-select-volume`}
+                           onChange={value => onValueChanged('existingVolumeName', value)}
+                           initial={initiallySelected}
+                           enabled={filteredVolumes.length > 0}
+                           extraClass='form-control'>
+                {content}
+            </Select.Select>
+        </React.Fragment>
     );
 };
 
@@ -111,53 +107,43 @@ const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm 
     }
 
     return (
-        <div className="row">
-            <div className="col-sm-1 dialog-field" />
-
-            <div className="col-sm-11 dialog-field add-disk-attach-perm">
+        <React.Fragment>
+            <label className="control-label"> {_("Persistence")} </label>
+            <label className='checkbox-inline'>
                 <input id={`${idPrefix}-permanent`}
                        type="checkbox"
                        checked={dialogValues.permanent}
                        onChange={e => onValueChanged('permanent', e.target.checked)} />
-                <label>
-                    {_("Attach permanently")}
-                </label>
-            </div>
-        </div>
+                {_("Always attach")}
+            </label>
+        </React.Fragment>
     );
 };
 
 const VolumeName = ({ idPrefix, dialogValues, onValueChanged }) => {
     return (
-        <div className="row">
-            <div className="col-sm-1 dialog-field">
-                <label htmlFor={`${idPrefix}-name`}>
-                    {_("Name")}
-                </label>
-            </div>
-            <div className="col-sm-11 dialog-field">
-                <input id={`${idPrefix}-name`}
-                       className="form-control"
-                       type="text"
-                       minLength={1}
-                       placeholder={_("New Volume Name")}
-                       value={dialogValues.volumeName || ""}
-                       onChange={e => onValueChanged('volumeName', e.target.value)} />
-
-            </div>
-        </div>
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-name`}>
+                {_("Name")}
+            </label>
+            <input id={`${idPrefix}-name`}
+                   className="form-control"
+                   type="text"
+                   minLength={1}
+                   placeholder={_("New Volume Name")}
+                   value={dialogValues.volumeName || ""}
+                   onChange={e => onValueChanged('volumeName', e.target.value)} />
+        </React.Fragment>
     );
 };
 
 const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
     return (
-        <div className="row">
-            <div className="col-sm-1 dialog-field">
-                <label htmlFor={`${idPrefix}-size`}>
-                    {_("Size")}
-                </label>
-            </div>
-            <div className="col-sm-3 dialog-field">
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-size`}>
+                {_("Size")}
+            </label>
+            <div role="group" className="ct-form-layout-split">
                 <input id={`${idPrefix}-size`}
                        className="form-control add-disk-size"
                        type="number"
@@ -178,101 +164,93 @@ const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
                     </Select.SelectEntry>
                 </Select.Select>
             </div>
-
-            <div className="col-sm-4 dialog-field add-disk-file-format">
-                <label htmlFor={`${idPrefix}-fileformat`}>
-                    {_("Format")}
-                </label>
-                <Select.Select id={`${idPrefix}-diskfileformat`}
-                               onChange={value => onValueChanged('diskFileFormat', value)}
-                               initial={dialogValues.diskFileFormat}
-                               extraClass='form-control'>
-                    <Select.SelectEntry data='qcow2' key='qcow2'>
-                        {_("qcow2")}
-                    </Select.SelectEntry>
-                    <Select.SelectEntry data='raw' key='raw'>
-                        {_("raw")}
-                    </Select.SelectEntry>
-                </Select.Select>
-            </div>
-
-            <div className="col-sm-4" />
-        </div>
+            <label className='control-label' htmlFor={`${idPrefix}-fileformat`}>
+                {_("Format")}
+            </label>
+            <Select.Select id={`${idPrefix}-diskfileformat`}
+                           onChange={value => onValueChanged('diskFileFormat', value)}
+                           initial={dialogValues.diskFileFormat}
+                           extraClass='form-control ct-form-layout-split'>
+                <Select.SelectEntry data='qcow2' key='qcow2'>
+                    {_("qcow2")}
+                </Select.SelectEntry>
+                <Select.SelectEntry data='raw' key='raw'>
+                    {_("raw")}
+                </Select.SelectEntry>
+            </Select.Select>
+        </React.Fragment>
     );
 };
 
 const PoolAndTargetRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => {
     return (
-        <div className="row">
-            <div className="col-sm-1 dialog-field">
-                <label htmlFor={`${idPrefix}-select-pool`}>
-                    {_("Pool")}
-                </label>
-            </div>
-            <div className="col-sm-5 dialog-field">
-                <Select.Select id={`${idPrefix}-select-pool`}
-                               onChange={value => onValueChanged('storagePoolName', value)}
-                               initial={dialogValues.storagePoolName}
-                               extraClass="form-control">
-                    {Object.getOwnPropertyNames(vmStoragePools)
-                            .sort((a, b) => a.localeCompare(b))
-                            .map(poolName => {
-                                return (
-                                    <Select.SelectEntry data={poolName} key={poolName}>
-                                        {poolName}
-                                    </Select.SelectEntry>
-                                );
-                            })}
-                </Select.Select>
-            </div>
-
-            <div className="col-sm-6 dialog-field add-disk-target">
-                <label htmlFor={`${idPrefix}-target`}>
-                    {_("Target")}
-                </label>
-                <Select.Select id={`${idPrefix}-target`}
-                               onChange={value => onValueChanged('target', value)}
-                               initial={dialogValues.target}
-                               extraClass="form-control">
-                    {dialogValues.availableTargets.map(target => {
-                        return (
-                            <Select.SelectEntry data={target} key={target}>
-                                {target}
-                            </Select.SelectEntry>
-                        );
-                    })}
-                </Select.Select>
-            </div>
-        </div>
+        <React.Fragment>
+            <label className='control-label' htmlFor={`${idPrefix}-select-pool`}>
+                {_("Pool")}
+            </label>
+            <Select.Select id={`${idPrefix}-select-pool`}
+                           onChange={value => onValueChanged('storagePoolName', value)}
+                           initial={dialogValues.storagePoolName}
+                           extraClass="form-control ct-form-layout-split">
+                {Object.getOwnPropertyNames(vmStoragePools)
+                        .sort((a, b) => a.localeCompare(b))
+                        .map(poolName => {
+                            return (
+                                <Select.SelectEntry data={poolName} key={poolName}>
+                                    {poolName}
+                                </Select.SelectEntry>
+                            );
+                        })}
+            </Select.Select>
+            <label className='control-label' htmlFor={`${idPrefix}-target`}>
+                {_("Target")}
+            </label>
+            <Select.Select id={`${idPrefix}-target`}
+                           onChange={value => onValueChanged('target', value)}
+                           initial={dialogValues.target}
+                           extraClass="form-control  ct-form-layout-split">
+                {dialogValues.availableTargets.map(target => {
+                    return (
+                        <Select.SelectEntry data={target} key={target}>
+                            {target}
+                        </Select.SelectEntry>
+                    );
+                })}
+            </Select.Select>
+        </React.Fragment>
     );
 };
 
 const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
     return (
-        <div className='container-fluid add-disk-body'>
+        <React.Fragment>
+            <hr />
             <PoolAndTargetRow idPrefix={idPrefix}
                               dialogValues={dialogValues}
                               onValueChanged={onValueChanged}
                               vmStoragePools={vmStoragePools} />
-
+            <hr />
             <VolumeName idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
             <VolumeDetails idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
+            <hr />
             <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
-        </div>
+        </React.Fragment>
     );
 };
 
 const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
     return (
-        <div className='container-fluid add-disk-body'>
+        <React.Fragment>
+            <hr />
             <PoolAndTargetRow idPrefix={idPrefix}
                               dialogValues={dialogValues}
                               onValueChanged={onValueChanged}
                               vmStoragePools={vmStoragePools} />
-
+            <hr />
             <SelectExistingVolume idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} vmStoragePools={vmStoragePools} vmDisks={vm.disks} />
+            <hr />
             <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
-        </div>
+        </React.Fragment>
     );
 };
 
@@ -430,41 +408,32 @@ class AddDiskModalBody extends React.Component {
         const vmStoragePools = storagePools;
 
         const defaultBody = (
-            <div className='modal-body add-disk-dialog'>
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-sm-1 dialog-field add-disk-source-label">
-                            <label className="control-label" htmlFor={`${idPrefix}-source`}>
-                                {_("Source")}
-                            </label>
-                        </div>
-                        <div className="col-sm-11 dialog-field add-disk-source" id={`${idPrefix}-source`}>
-                            <div key='one' className="col-sm-3 add-disk-select-source">
-                                <input id={`${idPrefix}-createnew`}
-                                       type="radio"
-                                       name="source"
-                                       checked={this.state.mode === CREATE_NEW}
-                                       onChange={e => this.onValueChanged('mode', CREATE_NEW)}
-                                       className={this.state.mode === CREATE_NEW ? "active" : ''} />
-                                <label className="control-label" htmlFor={`${idPrefix}-createnew`}>
-                                    {_("Create New")}
-                                </label>
-                            </div>
-
-                            <div key='two' className="col-sm-3 add-disk-select-source">
-                                <input id={`${idPrefix}-useexisting`}
-                                       type="radio"
-                                       name="source"
-                                       checked={this.state.mode === USE_EXISTING}
-                                       onChange={e => this.onValueChanged('mode', USE_EXISTING)}
-                                       className={this.state.mode === USE_EXISTING ? "active" : ''} />
-                                <label className="control-label" htmlFor={`${idPrefix}-useexisting`}>
-                                    {_("Use Existing")}
-                                </label>
-                            </div>
-                        </div>
+            <form className='ct-form-layout'>
+                <label className='control-label' htmlFor={`${idPrefix}-source`}>
+                    {_("Source")}
+                </label>
+                <fieldset className='form-inline'>
+                    <div className='radio'>
+                        <label>
+                            <input id={`${idPrefix}-createnew`}
+                                   type="radio"
+                                   name="source"
+                                   checked={this.state.mode === CREATE_NEW}
+                                   onChange={e => this.onValueChanged('mode', CREATE_NEW)}
+                                   className={this.state.mode === CREATE_NEW ? "active" : ''} />
+                            {_("Create New")}
+                        </label>
+                        <label>
+                            <input id={`${idPrefix}-useexisting`}
+                                   type="radio"
+                                   name="source"
+                                   checked={this.state.mode === USE_EXISTING}
+                                   onChange={e => this.onValueChanged('mode', USE_EXISTING)}
+                                   className={this.state.mode === USE_EXISTING ? "active" : ''} />
+                            {_("Use Existing")}
+                        </label>
                     </div>
-                </div>
+                </fieldset>
                 {this.state.mode === CREATE_NEW && (
                     <CreateNewDisk idPrefix={`${idPrefix}-new`}
                                    onValueChanged={this.onValueChanged}
@@ -481,7 +450,7 @@ class AddDiskModalBody extends React.Component {
                                      provider={provider}
                                      vm={vm} />
                 )}
-            </div>
+            </form>
         );
 
         return (

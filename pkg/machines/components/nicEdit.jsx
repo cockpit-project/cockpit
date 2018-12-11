@@ -160,7 +160,7 @@ const NetworkMacRow = ({ network }) => {
             <label className='control-label' htmlFor='mac'>
                 {_("Mac Address")}
             </label>
-            <samp className='form-text' id='mac'>
+            <samp id='mac'>
                 {network.mac}
             </samp>
         </React.Fragment>

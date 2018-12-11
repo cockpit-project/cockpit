@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Form, FormGroup, HelpBlock, Grid, Modal } from 'patternfly-react';
+import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.es6';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -35,17 +35,15 @@ const _ = cockpit.gettext;
 
 const StoragePoolConnectionRow = ({ onValueChanged, dialogValues, loggedUser }) => {
     return (
-        <FormGroup controlId='connection'>
-            <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+        <React.Fragment>
+            <label className='control-label'>
                 {_("Connection")}
-            </Grid.Col>
-            <Grid.Col sm={9}>
-                <MachinesConnectionSelector id='storage-pool-dialog-connection'
-                    dialogValues={dialogValues}
-                    onValueChanged={onValueChanged}
-                    loggedUser={loggedUser} />
-            </Grid.Col>
-        </FormGroup>
+            </label>
+            <MachinesConnectionSelector id='storage-pool-dialog-connection'
+                dialogValues={dialogValues}
+                onValueChanged={onValueChanged}
+                loggedUser={loggedUser} />
+        </React.Fragment>
     );
 };
 
@@ -53,11 +51,11 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.name.length == 0 && dialogValues.validationFailed.name ? 'error' : undefined;
 
     return (
-        <FormGroup validationState={validationState} controlId='name'>
-            <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+        <React.Fragment>
+            <label className='control-label'>
                 {_("Name")}
-            </Grid.Col>
-            <Grid.Col sm={9}>
+            </label>
+            <FormGroup validationState={validationState} controlId='name'>
                 <input id='storage-pool-dialog-name'
                        type='text'
                        placeholder={_("Storage Pool Name")}
@@ -68,8 +66,8 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
                 <HelpBlock>
                     <p className="text-danger">{_("Name should not be empty")}</p>
                 </HelpBlock> }
-            </Grid.Col>
-        </FormGroup>
+            </FormGroup>
+        </React.Fragment>
     );
 };
 
@@ -93,26 +91,24 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues }) => {
      */
 
     return (
-        <FormGroup controlId='type' disabled={false}>
-            <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+        <React.Fragment>
+            <label className='control-label'>
                 {_("Type")}
-            </Grid.Col>
-            <Grid.Col sm={9}>
-                <Select.Select id='storage-pool-dialog-type'
-                               initial={dialogValues.type}
-                               onChange={value => onValueChanged('type', value)}>
-                    { poolTypes
-                            .map(pool => {
-                                return (
-                                    <Select.SelectEntry data={pool.type} key={pool.type}>
-                                        {pool.detail}
-                                    </Select.SelectEntry>
-                                );
-                            })
-                    }
-                </Select.Select>
-            </Grid.Col>
-        </FormGroup>
+            </label>
+            <Select.Select id='storage-pool-dialog-type'
+                           initial={dialogValues.type}
+                           onChange={value => onValueChanged('type', value)}>
+                { poolTypes
+                        .map(pool => {
+                            return (
+                                <Select.SelectEntry data={pool.type} key={pool.type}>
+                                    {pool.detail}
+                                </Select.SelectEntry>
+                            );
+                        })
+                }
+            </Select.Select>
+        </React.Fragment>
     );
 };
 
@@ -121,11 +117,11 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
 
     if (['dir', 'netfs'].includes(dialogValues.type)) {
         return (
-            <FormGroup validationState={validationState} controlId='target'>
-                <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+            <React.Fragment>
+                <label className='control-label'>
                     {_("Target Path")}
-                </Grid.Col>
-                <Grid.Col sm={9}>
+                </label>
+                <FormGroup validationState={validationState} controlId='target'>
                     <FileAutoComplete.FileAutoComplete id='storage-pool-dialog-target'
                         placeholder={_("Path on host's filesystem")}
                         onChange={value => onValueChanged('target', value)} />
@@ -133,8 +129,8 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                     <HelpBlock>
                         <p className="text-danger">{_("Target path should not be empty")}</p>
                     </HelpBlock> }
-                </Grid.Col>
-            </FormGroup>
+                </FormGroup>
+            </React.Fragment>
         );
     }
 };
@@ -144,11 +140,11 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs'].includes(dialogValues.type))
         return (
-            <FormGroup validationState={validationState} controlId='host'>
-                <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+            <React.Fragment>
+                <label className='control-label'>
                     {_("Host")}
-                </Grid.Col>
-                <Grid.Col sm={9}>
+                </label>
+                <FormGroup validationState={validationState} controlId='host'>
                     <input id='storage-pool-dialog-host'
                            type='text'
                            placeholder={_("Host Name")}
@@ -159,8 +155,9 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                     <HelpBlock>
                         <p className="text-danger">{_("Host should not be empty")}</p>
                     </HelpBlock> }
-                </Grid.Col>
-            </FormGroup>
+                </FormGroup>
+                <hr />
+            </React.Fragment>
         );
     return null;
 };
@@ -170,11 +167,11 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
 
     if (['netfs'].includes(dialogValues.type))
         return (
-            <FormGroup validationState={validationState} controlId='source'>
-                <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+            <React.Fragment>
+                <label className='control-label'>
                     {_("Source Path")}
-                </Grid.Col>
-                <Grid.Col sm={9}>
+                </label>
+                <FormGroup validationState={validationState} controlId='source'>
                     <input id='storage-pool-dialog-source'
                            type='text'
                            minLength={1}
@@ -186,26 +183,27 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     <HelpBlock>
                         <p className="text-danger">{_("Source path should not be empty")}</p>
                     </HelpBlock> }
-                </Grid.Col>
-            </FormGroup>
+                </FormGroup>
+                <hr />
+            </React.Fragment>
         );
     return null;
 };
 
 const StoragePoolAutostartRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <FormGroup controlId='autostart'>
-            <Grid.Col componentClass={Form.ControlLabel} sm={3}>
+        <React.Fragment>
+            <label className='control-label'>
                 {_("Startup")}
-            </Grid.Col>
-            <Grid.Col sm={9}>
-                <Checkbox id='storage-pool-dialog-autostart'
+            </label>
+            <label className='checkbox-inline'>
+                <input id='storage-pool-dialog-autostart'
+                    type='checkbox'
                     checked={dialogValues.autostart}
-                    onChange={e => onValueChanged('autostart', e.target.checked)}>
-                    {_("Start pool when host boots")}
-                </Checkbox>
-            </Grid.Col>
-        </FormGroup>
+                    onChange={e => onValueChanged('autostart', e.target.checked)} />
+                {_("Start pool when host boots")}
+            </label>
+        </React.Fragment>
     );
 };
 
@@ -286,23 +284,27 @@ class CreateStoragePoolModal extends React.Component {
 
     render() {
         const defaultBody = (
-            <Form horizontal>
+            <form className="ct-form-layout">
                 <StoragePoolConnectionRow dialogValues={this.state}
                                           onValueChanged={this.onValueChanged}
                                           loggedUser={this.props.loggedUser} />
+                <hr />
                 <StoragePoolNameRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
+                <hr />
                 <StoragePoolTypeRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
+                <hr />
                 <StoragePoolTargetRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
+                <hr />
                 <StoragePoolHostRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
                 <StoragePoolSourceRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
                 <StoragePoolAutostartRow dialogValues={this.state}
                                          onValueChanged={this.onValueChanged} />
-            </Form>
+            </form>
         );
 
         return (

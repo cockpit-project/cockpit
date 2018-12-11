@@ -28,32 +28,30 @@ function suite(fixtures) {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("registry.images.tests", [
         "kubeClient",
         "registry.images",
     ]);
 
-    function imagesTest(name, count, fixtures, func) {
-        QUnit.test(name, function() {
-            assert.expect(count);
-            inject([
-                "kubeLoader",
-                function(loader) {
-                    loader.reset(true);
-                    if (fixtures)
-                        loader.handle(fixtures);
-                }
-            ]);
-            inject(func);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            function(loader) {
+                loader.reset(true);
+                if (fixtures)
+                    loader.handle(fixtures);
+            }
+        ]);
     }
 
-    imagesTest("filter containsTagImage", 7, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+    QUnit.test("filter containsTagImage", function (assert) {
+        var done = assert.async();
+        assert.expect(7);
+
+        injectLoadFixtures(fixtures);
+
+        inject([ "kubeSelect", "imageData", function(select, data) {
             var streams = select().containsTagImage("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
             assert.equal(streams.length, 2, "number ofstreams");
             assert.ok("/oapi/v1/namespaces/marmalade/imagestreams/busybee" in streams, "matched busybee");
@@ -67,13 +65,18 @@ function suite(fixtures) {
             /* An unknown image */
             streams = select().containsTagImage("sha256:2077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1");
             assert.equal(streams.length, 0, "no streams selected");
-        }
-    ]);
 
-    imagesTest("filter taggedBy", 4, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+            done();
+        }]);
+    });
+
+    QUnit.test("filter taggedBy", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["kubeSelect", "imageData", function(select, data) {
             var tag = { "tag": "2.5", "items": [
                 { "image": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb" },
                 { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
@@ -93,13 +96,18 @@ function suite(fixtures) {
             images = select().kind("Image")
                     .taggedBy(tag);
             assert.equal(images.length, 0, "no images matched");
-        }
-    ]);
 
-    imagesTest("filter taggedFirst", 4, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+            done();
+        }]);
+    });
+
+    QUnit.test("filter taggedFirst", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["kubeSelect", "imageData", function(select, data) {
             var tag = { "tag": "2.5", "items": [
                 { "image": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb" },
                 { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
@@ -119,13 +127,18 @@ function suite(fixtures) {
             images = select().kind("Image")
                     .taggedFirst(tag);
             assert.equal(images.length, 0, "no images matched");
-        }
-    ]);
 
-    imagesTest("filter listTagNames", 3, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+            done();
+        }]);
+    });
+
+    QUnit.test("filter listTagNames", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["kubeSelect", "imageData", function(select, data) {
             var names = select().listTagNames("sha256:c1ee91e9f0f96ea280d17befdd968ce4e37653939fc9e5e36429cd9674a28719");
             assert.deepEqual(names, ["marmalade/busybee:latest", "marmalade/juggs:extratag"], "got right names");
 
@@ -134,13 +147,18 @@ function suite(fixtures) {
 
             names = select().listTagNames("sha256:2077956b196342f92271663ec85124aef44ee486f141b7d48e6ce5be410d78f1");
             assert.deepEqual(names, [], "no names returned");
-        }
-    ]);
 
-    imagesTest("split dockerImageManifest", 3, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+            done();
+        }]);
+    });
+
+    QUnit.test("split dockerImageManifest", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["kubeSelect", "imageData", function(select, data) {
             var items = select().kind("DockerImageManifest")
                     .name("sha256:63da16dc866fa7bfca4dd9d45b70feda28aa383c9ca1f1766c127ccc715a8cb7");
             assert.equal(items.length, 1, "only manifest returned");
@@ -149,13 +167,18 @@ function suite(fixtures) {
             assert.ok(!!item, "got right manifest");
 
             assert.equal(item.manifest.history[0].v1Compatibility.config.Hostname, "13709f13afe1", "parsed manifest and compat");
-        }
-    ]);
 
-    imagesTest("filter dockerConfigLabels", 3, fixtures, [
-        "kubeSelect",
-        "imageData",
-        function(select, data) {
+            done();
+        }]);
+    });
+
+    QUnit.test("filter dockerConfigLabels", function (assert) {
+        var done = assert.async();
+        assert.expect(3);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["kubeSelect", "imageData", function(select, data) {
             var results = select().kind("Image")
                     .dockerImageConfig()
                     .dockerConfigLabels();
@@ -168,8 +191,10 @@ function suite(fixtures) {
 
             var labels = results["/oapi/v1/images/sha256:63da16dc866fa7bfca4dd9d45b70feda28aa383c9ca1f1766c127ccc715a8cb7"];
             assert.deepEqual(labels, { "Test": "Value", "version": "1.0" }, "got right labels");
-        }
-    ]);
+
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

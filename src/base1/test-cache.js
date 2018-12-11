@@ -1,13 +1,11 @@
 /* global cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("public api", function() {
+QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.cache, "function", "cockpit.cache is a function");
 });
 
-QUnit.asyncTest("single cache", function() {
+QUnit.test("single cache", function (assert) {
+    let done = assert.async();
     assert.expect(6);
 
     var closed = false;
@@ -36,13 +34,14 @@ QUnit.asyncTest("single cache", function() {
         cache.close();
         assert.equal(closed, true, "cache is closed");
 
-        QUnit.start();
+        done();
     }
 
     var cache = cockpit.cache("test-key-1", provider, consumer);
 });
 
-QUnit.asyncTest("multi cache", function() {
+QUnit.test("multi cache", function (assert) {
+    let done = assert.async();
     assert.expect(12);
 
     var closed1 = false;
@@ -92,7 +91,7 @@ QUnit.asyncTest("multi cache", function() {
             assert.equal(closed1, true, "cache1 is closed");
         } else if (count === 2) {
             assert.deepEqual(value, { myobject: "value2" }, "cache2 provided another value");
-            QUnit.start();
+            done();
         }
     }
 

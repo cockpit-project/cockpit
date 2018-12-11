@@ -31,7 +31,6 @@ var QUnit = require("qunit-tests");
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("kubernetes.connection.tests", [
         "kubeClient",
@@ -39,38 +38,44 @@ var QUnit = require("qunit-tests");
         "kubernetes.connection",
     ]);
 
-    function connectionTest(name, count, fixtures, func) {
-        QUnit.test(name, function() {
-            assert.expect(count);
-            inject([
-                "kubeLoader",
-                function(loader, data) {
-                    loader.reset(true);
-                    if (fixtures)
-                        loader.handle(fixtures);
-                }
-            ]);
-            inject(func);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            function(loader, data) {
+                loader.reset(true);
+                if (fixtures)
+                    loader.handle(fixtures);
+            }
+        ]);
     }
 
-    connectionTest("sessionCertificates test", 5, fixtures, [
-        "sessionCertificates",
-        function(sessionCertificates) {
-            sessionCertificates.trustCert(null, "data");
-            assert.equal(sessionCertificates.getCert("localhost"), "data", "data retrive");
-            assert.equal(sessionCertificates.getCert(null), "data", "null is localhost");
-            sessionCertificates.trustCert({}, "data1");
-            assert.equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
-            assert.equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
-            sessionCertificates.trustCert({ server: "address" }, "address-data");
-            assert.equal(sessionCertificates.getCert("address"), undefined, "address data");
-        }
-    ]);
+    QUnit.test("sessionCertificates test", function(assert) {
+        var done = assert.async();
+        assert.expect(5);
 
-    connectionTest("cockpitKubectlConfig parseKubeConfig", 5, fixtures, [
-        "cockpitKubectlConfig",
-        function (ckg) {
+        injectLoadFixtures(fixtures);
+        inject([
+            "sessionCertificates",
+            function(sessionCertificates) {
+                sessionCertificates.trustCert(null, "data");
+                assert.equal(sessionCertificates.getCert("localhost"), "data", "data retrive");
+                assert.equal(sessionCertificates.getCert(null), "data", "null is localhost");
+                sessionCertificates.trustCert({}, "data1");
+                assert.equal(sessionCertificates.getCert("localhost"), "data1", "blank server retrive");
+                assert.equal(sessionCertificates.getCert("address"), undefined, "missing is undefined");
+                sessionCertificates.trustCert({ server: "address" }, "address-data");
+                assert.equal(sessionCertificates.getCert("address"), undefined, "address data");
+                done();
+            }
+        ]);
+    });
+
+    QUnit.test("cockpitKubectlConfig parseKubeConfig", function (assert) {
+        var done = assert.async();
+        assert.expect(5);
+
+        injectLoadFixtures(fixtures);
+        inject(["cockpitKubectlConfig", function (ckg) {
             var alpha = {
                 "address": "alfa.org",
                 "headers": {
@@ -144,12 +149,16 @@ var QUnit = require("qunit-tests");
             assert.deepEqual(ckg.parseKubeConfig(configData, "charlie-with-token"), charlie);
             assert.deepEqual(ckg.parseKubeConfig(configData, "delta-with-cert"), delta1);
             assert.deepEqual(ckg.parseKubeConfig(configData, "delta-with-basic"), delta2);
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    connectionTest("connectionActions prepareData", 6, fixtures, [
-        "connectionActions",
-        function(connectionActions) {
+    QUnit.test("connectionActions prepareData", function (assert) {
+        var done = assert.async();
+        assert.expect(6);
+
+        injectLoadFixtures(fixtures);
+        inject(["connectionActions", function(connectionActions) {
             var cluster, context, user, data, config;
             data = connectionActions.prepareData();
             assert.deepEqual(data, {
@@ -250,8 +259,10 @@ var QUnit = require("qunit-tests");
             data = connectionActions.prepareData(config, cluster, user);
             pos = data.user.name.indexOf("user/127-0-0-1:8000");
             assert.ok(data.user.name != "user/127-0-0-1:8000" && pos === 0, "dedup user name");
-        }
-    ]);
+
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

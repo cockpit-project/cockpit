@@ -1,9 +1,7 @@
 /* global cockpit, QUnit, unescape, escape, WebSocket:true, XMLHttpRequest */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.asyncTest("external get", function() {
+QUnit.test("external get", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     /* The query string used to open the channel */
@@ -21,13 +19,14 @@ QUnit.asyncTest("external get", function() {
             assert.equal(req.statusText, "OK", "got right reason");
             assert.equal(req.getResponseHeader("Content-Type"), "application/octet-stream", "default type");
             assert.ok(req.responseText.indexOf('"present"'), "got listing");
-            QUnit.start();
+            done();
         }
     };
     req.send();
 });
 
-QUnit.asyncTest("external headers", function() {
+QUnit.test("external headers", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -47,13 +46,14 @@ QUnit.asyncTest("external headers", function() {
             assert.equal(this.status, 200, "got right status");
             assert.equal(this.getResponseHeader("Content-Type"), "test/blah", "got type");
             assert.equal(this.getResponseHeader("Content-Disposition"), "my disposition; blah", "got disposition");
-            QUnit.start();
+            done();
         }
     };
     req.send();
 });
 
-QUnit.asyncTest("external invalid", function() {
+QUnit.test("external invalid", function (assert) {
+    let done = assert.async();
     assert.expect(1);
 
     var req = new XMLHttpRequest();
@@ -61,13 +61,14 @@ QUnit.asyncTest("external invalid", function() {
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
             assert.equal(this.status, 404, "got not found");
-            QUnit.start();
+            done();
         }
     };
     req.send();
 });
 
-QUnit.asyncTest("external no token", function() {
+QUnit.test("external no token", function (assert) {
+    let done = assert.async();
     assert.expect(1);
 
     /* The query string used to open the channel */
@@ -82,13 +83,14 @@ QUnit.asyncTest("external no token", function() {
     req.onreadystatechange = function() {
         if (req.readyState == 4) {
             assert.equal(this.status, 404, "got not found");
-            QUnit.start();
+            done();
         }
     };
     req.send();
 });
 
-QUnit.asyncTest("external websocket", function() {
+QUnit.test("external websocket", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -116,7 +118,7 @@ QUnit.asyncTest("external websocket", function() {
         }
     };
     ws.onclose = function() {
-        QUnit.start();
+        done();
     };
 });
 

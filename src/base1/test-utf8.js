@@ -1,9 +1,6 @@
 /* global cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("utf8 basic", function() {
+QUnit.test("utf8 basic", function (assert) {
     var str = "Base 64 \u2014 Mozilla Developer Network";
     var expect = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, 128, 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
@@ -34,7 +31,7 @@ QUnit.test("utf8 basic", function() {
 
 // Helpers for test_utf_roundtrip.
 
-QUnit.test("utf8 round trip", function() {
+QUnit.test("utf8 round trip", function (assert) {
     var MIN_CODEPOINT = 0;
     var MAX_CODEPOINT = 0x10FFFF;
     var BLOCK_SIZE = 0x1000;
@@ -82,7 +79,7 @@ QUnit.test("utf8 round trip", function() {
     assert.ok(true, "round trip all code points");
 });
 
-QUnit.test("utf8 samples", function() {
+QUnit.test("utf8 samples", function (assert) {
     // z, cent, CJK water, G-Clef, Private-use character
     var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
     var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
@@ -94,7 +91,7 @@ QUnit.test("utf8 samples", function() {
     assert.deepEqual(decoded, sample, "decoded");
 });
 
-QUnit.test("utf8 stream", function() {
+QUnit.test("utf8 stream", function (assert) {
     // z, cent, CJK water, G-Clef, Private-use character
     var sample = "z\xA2\u6C34\uD834\uDD1E\uDBFF\uDFFD";
     var expected = [0x7A, 0xC2, 0xA2, 0xE6, 0xB0, 0xB4, 0xF0, 0x9D, 0x84, 0x9E, 0xF4, 0x8F, 0xBF, 0xBD];
@@ -109,7 +106,7 @@ QUnit.test("utf8 stream", function() {
     assert.deepEqual(decoded, sample, "decoded");
 });
 
-QUnit.test("utf8 invalid", function() {
+QUnit.test("utf8 invalid", function (assert) {
     var sample = "Base 64 \ufffd\ufffd Mozilla Developer Network";
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
@@ -120,7 +117,7 @@ QUnit.test("utf8 invalid", function() {
     assert.deepEqual(decoded, sample, "decoded");
 });
 
-QUnit.test("utf8 fatal", function() {
+QUnit.test("utf8 fatal", function (assert) {
     var data = [ 66, 97, 115, 101, 32, 54, 52, 32, 226, /* 128 */ 148, 32, 77,
         111, 122, 105, 108, 108, 97, 32, 68, 101, 118, 101, 108,
         111, 112, 101, 114, 32, 78, 101, 116, 119, 111, 114, 107 ];

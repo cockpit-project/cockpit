@@ -1,9 +1,8 @@
 var QUnit = require("qunit-tests");
-var assert = QUnit;
 
 var helpers = require("./helpers.es6");
 
-QUnit.test("toFixedPrecision", function() {
+QUnit.test("toFixedPrecision", function (assert) {
     assert.equal("1.0", helpers.toFixedPrecision("1", 1));
     assert.equal("1.0", helpers.toFixedPrecision("1.0", 1));
     assert.equal("1.0", helpers.toFixedPrecision("1.01", 1));

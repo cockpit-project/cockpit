@@ -1,9 +1,6 @@
 /* global $, cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("basic", function() {
+QUnit.test("basic", function (assert) {
     window.location.hash = "";
 
     assert.equal(typeof cockpit.location, "object", "cockpit.location exists");
@@ -18,7 +15,7 @@ QUnit.test("basic", function() {
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
 });
 
-QUnit.test("decode", function() {
+QUnit.test("decode", function (assert) {
     window.location.hash = "#/base/test";
 
     var checks = [
@@ -112,7 +109,7 @@ QUnit.test("decode", function() {
     }
 });
 
-QUnit.test("encode", function() {
+QUnit.test("encode", function (assert) {
     /* We don't check options here since we can't predict the order in
        which they appear in the hash.  Encoding of options is covered
        in the "roundtrip" test.
@@ -161,7 +158,7 @@ QUnit.test("encode", function() {
     }
 });
 
-QUnit.test("roundtrip", function() {
+QUnit.test("roundtrip", function (assert) {
     var checks = [
         { path: [ "path", "sub" ],
           options: { a: "1", b: "2" }
@@ -185,7 +182,7 @@ QUnit.test("roundtrip", function() {
     }
 });
 
-QUnit.test("external change", function() {
+QUnit.test("external change", function (assert) {
     var location = cockpit.location;
 
     window.location.hash = "#/a/b/c?x=1&y=2";
@@ -196,7 +193,7 @@ QUnit.test("external change", function() {
     assert.strictEqual(cockpit.location.options["y"], "2", "option y is correct");
 });
 
-QUnit.test("internal change", function() {
+QUnit.test("internal change", function (assert) {
     cockpit.location.go([ "x", "y", "z" ]);
 
     assert.strictEqual(window.location.hash, "#/x/y/z", "hash is correct");
@@ -204,7 +201,7 @@ QUnit.test("internal change", function() {
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
 });
 
-QUnit.test("string change", function() {
+QUnit.test("string change", function (assert) {
     cockpit.location = "/p/x/../q/r?a=b";
 
     assert.strictEqual(window.location.hash, "#/p/q/r?a=b", "hash is correct");
@@ -212,7 +209,7 @@ QUnit.test("string change", function() {
     assert.deepEqual(cockpit.location.options, { "a": "b" }, "options are empty");
 });
 
-QUnit.test("string change", function() {
+QUnit.test("string change", function (assert) {
     window.location.href = "#/top/file";
     cockpit.location = "another";
 
@@ -220,7 +217,7 @@ QUnit.test("string change", function() {
     assert.deepEqual(cockpit.location.path, [ "top", "another" ], "path is correct");
 });
 
-QUnit.test("change options", function() {
+QUnit.test("change options", function (assert) {
     window.location.hash = "";
     assert.deepEqual(cockpit.location.path, [ ], "path is empty");
     assert.deepEqual(cockpit.location.options, { }, "options are empty");
@@ -234,7 +231,8 @@ QUnit.test("change options", function() {
     assert.strictEqual(window.location.hash, "#/", "hash is correct");
 });
 
-QUnit.asyncTest("event", function() {
+QUnit.test("test", function (assert) {
+    let done = assert.async();
     window.location.hash = "#/hello";
 
     var triggered = false;
@@ -244,14 +242,15 @@ QUnit.asyncTest("event", function() {
         assert.strictEqual(window.location.hash, "#/gonna-happen", "hash has changed");
         $(cockpit).off("locationchanged");
         triggered = true;
-        QUnit.start();
+        done();
     });
 
     cockpit.location.go(["gonna-happen"]);
     assert.ok(!triggered, "not yet triggered");
 });
 
-QUnit.asyncTest("delayed", function() {
+QUnit.test("test", function (assert) {
+    let done = assert.async();
     window.location.hash = "#/hello";
 
     var location = cockpit.location;
@@ -264,7 +263,7 @@ QUnit.asyncTest("delayed", function() {
         cockpit.location.go(["gonna-happen"]);
         assert.strictEqual(window.location.hash, "#/gonna-happen", "hash has changed");
 
-        QUnit.start();
+        done();
     }, 100);
 
     /* User or something else navigates */

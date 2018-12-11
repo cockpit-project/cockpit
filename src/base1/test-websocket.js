@@ -1,9 +1,7 @@
 /* global cockpit, QUnit, WebSocket */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.asyncTest("external channel websocket", function() {
+QUnit.test("external channel websocket", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -34,11 +32,12 @@ QUnit.asyncTest("external channel websocket", function() {
         }
     };
     ws.onclose = function(ev) {
-        QUnit.start();
+        done();
     };
 });
 
-QUnit.asyncTest("bad channel options websocket", function() {
+QUnit.test("bad channel options websocket", function (assert) {
+    let done = assert.async();
     var payloads = [
         window.btoa(JSON.stringify({
             payload: "websocket-stream1",
@@ -68,7 +67,7 @@ QUnit.asyncTest("bad channel options websocket", function() {
             assert.notEqual(ev.code, 0, url + "websocket error code");
             ws = null;
             if (payloads.length === 0)
-                QUnit.start();
+                done();
             else
                 step();
         };

@@ -27,41 +27,30 @@ function suite(fixtures) {
 
     /* Filled in with a function */
     var inject;
-    var assert = QUnit;
 
     var module = angular.module("registry.projects.tests", [
         "kubeClient",
         "registry.projects",
     ]);
 
-    function projectsTest(name, count, fixtures, func) {
-        QUnit.asyncTest(name, function() {
-            assert.expect(count);
-
-            inject([
-                "kubeLoader",
-                "kubeSelect",
-                "projectPolicy",
-                function(loader, select, pol, data) {
-                    loader.reset(true);
-                    if (fixtures)
-                        loader.handle(fixtures);
-
-                    var interval = window.setInterval(function () {
-                        if (select().kind("RoleBinding").length == 6) {
-                            window.clearInterval(interval);
-                            inject(func);
-                        }
-                    }, 10);
-                }
-            ]);
-        });
+    function injectLoadFixtures(fixtures) {
+        inject([
+            "kubeLoader",
+            function(loader, data) {
+                loader.reset(true);
+                if (fixtures)
+                    loader.handle(fixtures);
+            }
+        ]);
     }
 
-    projectsTest("format Users", 4, fixtures, [
-        "projectData",
-        'kubeSelect',
-        function(projectUtil, select) {
+    QUnit.test("format Users", function (assert) {
+        var done = assert.async();
+        assert.expect(4);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["projectData", 'kubeSelect', function(projectUtil, select) {
             var user = select().kind("User")
                     .name("amanda");
             assert.equal(user.length, 1, "number of users");
@@ -73,14 +62,17 @@ function suite(fixtures) {
                          "4 Groups", "number of groups");
             assert.equal(projectUtil.formatMembers(user.one().groups, 'Users'),
                          "4 Users", "number of users");
-            QUnit.start();
-        }
-    ]);
+            done();
+        }]);
+    });
 
-    projectsTest("policy checks", 11, fixtures, [
-        "projectData",
-        'kubeSelect',
-        function(projectUtil, select) {
+    QUnit.test("policy checks", function (assert) {
+        var done = assert.async();
+        assert.expect(11);
+
+        injectLoadFixtures(fixtures);
+
+        inject(["projectData", 'kubeSelect', function(projectUtil, select) {
             var user = select().kind("User")
                     .name("amanda");
             var policybinding = select().kind("PolicyBinding")
@@ -105,9 +97,9 @@ function suite(fixtures) {
             assert.equal(projectUtil.isRegistryRole(user.one(), "Admin", "financeprj"), true, "check if Admin registry role");
             assert.equal(projectUtil.isRegistryRole("system:unauthenticated", "Pull", "financeprj"), true, "check if Pull registry role");
             assert.equal(projectUtil.isRoles(user.one(), "financeprj"), true, "check if any role exist");
-            QUnit.start();
-        }
-    ]);
+            done();
+        }]);
+    });
 
     angular.module('exceptionOverride', []).factory('$exceptionHandler', function() {
         return function(exception, cause) {

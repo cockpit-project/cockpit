@@ -18,12 +18,11 @@
  */
 
 var QUnit = require("qunit-tests");
-var assert = QUnit;
 
 var $ = require("jquery");
 require("patterns");
 
-QUnit.test("update_privileged", function() {
+QUnit.test("update_privileged", function (assert) {
     var p_true = { 'allowed' : true };
     var p_false = { 'allowed' : false };
     var p_unknown = { };

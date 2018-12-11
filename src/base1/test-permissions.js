@@ -1,8 +1,5 @@
 /* global cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
 var root_user = {
     name: "weird-root",
     id: 0,
@@ -27,7 +24,7 @@ QUnit.module("Permission tests", {
     }
 });
 
-QUnit.test("root-all-permissions", function() {
+QUnit.test("root-all-permissions", function (assert) {
     assert.expect(2);
 
     var p1 = cockpit.permission({ user: priv_user });
@@ -37,7 +34,7 @@ QUnit.test("root-all-permissions", function() {
     assert.equal(p2.allowed, true, "is root, allowed");
 });
 
-QUnit.test("group-permissions", function() {
+QUnit.test("group-permissions", function (assert) {
     assert.expect(4);
 
     var p1 = cockpit.permission({ user: priv_user, group: "badgroup" });
@@ -53,7 +50,7 @@ QUnit.test("group-permissions", function() {
     assert.equal(p4.allowed, true, "no group match but root, allowed");
 });
 
-QUnit.test("admin-permissions", function() {
+QUnit.test("admin-permissions", function (assert) {
     assert.expect(2);
 
     var p1 = cockpit.permission({ user: priv_user, _is_superuser: false, admin: true });

@@ -1,11 +1,9 @@
 /* global cockpit, QUnit, unescape, escape, Uint8Array */
 
-/* To help with future migration */
-var assert = QUnit;
-
 var dir;
 
-QUnit.asyncTest("simple read", function() {
+QUnit.test("simple read", function (assert) {
+    let done = assert.async();
     assert.expect(3);
     var file = cockpit.file(dir + "/foo");
     assert.equal(file.path, dir + "/foo", "file has path");
@@ -15,11 +13,12 @@ QUnit.asyncTest("simple read", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("read non-existent", function() {
+QUnit.test("read non-existent", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/blah").read()
             .done(function(resp) {
@@ -27,11 +26,12 @@ QUnit.asyncTest("read non-existent", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("parse read", function() {
+QUnit.test("parse read", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.json", { syntax: JSON }).read()
             .done(function(resp) {
@@ -39,11 +39,12 @@ QUnit.asyncTest("parse read", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("parse read error", function() {
+QUnit.test("parse read error", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.bin", { syntax: JSON }).read()
             .fail(function(error) {
@@ -51,11 +52,12 @@ QUnit.asyncTest("parse read error", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "failed");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("binary read", function() {
+QUnit.test("binary read", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/foo.bin", { binary: true }).read()
             .done(function(resp) {
@@ -63,11 +65,12 @@ QUnit.asyncTest("binary read", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("read non-regular", function() {
+QUnit.test("read non-regular", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir, { binary: true }).read()
             .fail(function(error) {
@@ -75,11 +78,12 @@ QUnit.asyncTest("read non-regular", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "failed");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("read large", function() {
+QUnit.test("read large", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/large.bin", { binary: true }).read()
             .done(function(resp) {
@@ -87,11 +91,12 @@ QUnit.asyncTest("read large", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("read too large", function() {
+QUnit.test("read too large", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/large.bin", { binary: true, max_read_size: 8 * 1024 }).read()
             .fail(function(error) {
@@ -99,21 +104,23 @@ QUnit.asyncTest("read too large", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "failed");
-                QUnit.start();
+                done();
             });
 });
 
 /* regression: passing 'binary: false' made cockpit-ws close the whole connection */
-QUnit.asyncTest("binary false", function() {
+QUnit.test("binary false", function (assert) {
+    let done = assert.async();
     assert.expect(1);
     cockpit.file(dir + "/foo.bin", { binary: false }).read()
             .done(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("simple replace", function() {
+QUnit.test("simple replace", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar").replace("4321\n")
             .always(function() {
@@ -121,12 +128,13 @@ QUnit.asyncTest("simple replace", function() {
                 cockpit.spawn([ "cat", dir + "/bar" ])
                         .done(function (res) {
                             assert.equal(res, "4321\n", "correct content");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("stringify replace", function() {
+QUnit.test("stringify replace", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar", { syntax: JSON }).replace({ foo: 4321 })
             .always(function() {
@@ -134,12 +142,13 @@ QUnit.asyncTest("stringify replace", function() {
                 cockpit.spawn([ "cat", dir + "/bar" ])
                         .done(function (res) {
                             assert.deepEqual(JSON.parse(res), { foo: 4321 }, "correct content");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("stringify replace error", function() {
+QUnit.test("stringify replace error", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     var cycle = { };
     cycle.me = cycle;
@@ -149,11 +158,12 @@ QUnit.asyncTest("stringify replace error", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "failed");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("binary replace", function() {
+QUnit.test("binary replace", function (assert) {
+    let done = assert.async();
     assert.expect(2);
     cockpit.file(dir + "/bar", { binary: true }).replace(new Uint8Array([3, 2, 1, 0]))
             .always(function() {
@@ -161,12 +171,13 @@ QUnit.asyncTest("binary replace", function() {
                 cockpit.spawn([ "cat", dir + "/bar" ], { binary: true })
                         .done(function (res) {
                             assert.deepEqual(res, new Uint8Array([3, 2, 1, 0]), "correct content");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("replace large", function() {
+QUnit.test("replace large", function (assert) {
+    let done = assert.async();
     assert.expect(3);
     var str = new Array(23 * 1023).join('abcdef12345');
     cockpit.file(dir + "/large").replace(str)
@@ -176,12 +187,13 @@ QUnit.asyncTest("replace large", function() {
                         .done(function(res) {
                             assert.equal(res.length, str.length, "correct large length");
                             assert.ok(res == str, "correct large data");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("binary replace large", function() {
+QUnit.test("binary replace large", function (assert) {
+    let done = assert.async();
     assert.expect(4);
     var data = new Uint8Array(249 * 1023);
     var i;
@@ -205,12 +217,13 @@ QUnit.asyncTest("binary replace large", function() {
                                 }
                             }
                             assert.ok(eq, "got back same data");
-                            QUnit.start();
+                            done();
                         });
             });
 });
 
-QUnit.asyncTest("remove", function() {
+QUnit.test("remove", function (assert) {
+    let done = assert.async();
     assert.expect(3);
     cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar && echo exists" ])
             .done(function (res) {
@@ -221,13 +234,14 @@ QUnit.asyncTest("remove", function() {
                             cockpit.spawn([ "bash", "-c", "test -f " + dir + "/bar || echo gone" ])
                                     .done(function (res) {
                                         assert.equal(res, "gone\n", "gone");
-                                        QUnit.start();
+                                        done();
                                     });
                         });
             });
 });
 
-QUnit.asyncTest("abort replace", function() {
+QUnit.test("abort replace", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var file = cockpit.file(dir + "/bar");
@@ -236,7 +250,7 @@ QUnit.asyncTest("abort replace", function() {
     function start_after_two() {
         n += 1;
         if (n == 2)
-            QUnit.start();
+            done();
     }
 
     file.replace("1234\n")
@@ -252,7 +266,8 @@ QUnit.asyncTest("abort replace", function() {
             });
 });
 
-QUnit.asyncTest("replace with tag", function() {
+QUnit.test("replace with tag", function (assert) {
+    let done = assert.async();
     var file = cockpit.file(dir + "/barfoo");
 
     file.read()
@@ -277,14 +292,15 @@ QUnit.asyncTest("replace with tag", function() {
                                         file.replace("opqr\n", tag_2)
                                                 .fail(function (error) {
                                                     assert.equal(error.problem, "change-conflict", "wrong tag is rejected");
-                                                    QUnit.start();
+                                                    done();
                                                 });
                                     });
                         });
             });
 });
 
-QUnit.asyncTest("modify", function() {
+QUnit.test("modify", function (assert) {
+    let done = assert.async();
     assert.expect(7);
 
     var file = cockpit.file(dir + "/quux");
@@ -314,13 +330,14 @@ QUnit.asyncTest("modify", function() {
                             cockpit.spawn([ "cat", dir + "/quux" ])
                                     .done(function (res) {
                                         assert.equal(res, "dcba\n", "correct content");
-                                        QUnit.start();
+                                        done();
                                     });
                         });
             });
 });
 
-QUnit.asyncTest("modify with conflict", function() {
+QUnit.test("modify with conflict", function (assert) {
+    let done = assert.async();
     assert.expect(8);
 
     var file = cockpit.file(dir + "/baz");
@@ -355,14 +372,15 @@ QUnit.asyncTest("modify with conflict", function() {
                                         cockpit.spawn([ "cat", dir + "/baz" ])
                                                 .done(function (res) {
                                                     assert.equal(res, "xyz\n", "correct content");
-                                                    QUnit.start();
+                                                    done();
                                                 });
                                     });
                         });
             });
 });
 
-QUnit.asyncTest("watching", function() {
+QUnit.test("watching", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var file = cockpit.file(dir + "/foobar");
@@ -380,12 +398,13 @@ QUnit.asyncTest("watching", function() {
         } else if (n == 3) {
             assert.equal(content, null, "finally non-existent");
             watch.remove();
-            QUnit.start();
+            done();
         }
     }
 });
 
-QUnit.asyncTest("syntax watching", function() {
+QUnit.test("syntax watching", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var file = cockpit.file(dir + "/foobar.json", { syntax: JSON });
@@ -403,13 +422,14 @@ QUnit.asyncTest("syntax watching", function() {
         } else if (n == 3) {
             assert.ok(err instanceof SyntaxError, "got SyntaxError error");
             watch.remove();
-            QUnit.start();
+            done();
         } else
             assert.ok(false, "not reached");
     }
 });
 
-QUnit.asyncTest("closing", function() {
+QUnit.test("closing", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var file = cockpit.file(dir + "/foobarbaz");
@@ -420,7 +440,7 @@ QUnit.asyncTest("closing", function() {
         n += 1;
         if (n == 2) {
             watch.remove();
-            QUnit.start();
+            done();
         }
     }
 
@@ -445,23 +465,25 @@ QUnit.asyncTest("closing", function() {
     file.close();
 });
 
-QUnit.asyncTest("channel options", function() {
+QUnit.test("channel options", function (assert) {
+    let done = assert.async();
     assert.expect(1);
     cockpit.file(dir + "/foo", { binary: true }).read()
             .done(function(data) {
                 assert.ok(data instanceof window.Uint8Array, "options applied, got binary data");
             })
             .always(function() {
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("remove testdir", function() {
+QUnit.test("remove testdir", function (assert) {
+    let done = assert.async();
     assert.expect(1);
     cockpit.spawn([ "rm", "-rf", dir ])
             .always(function () {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 

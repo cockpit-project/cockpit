@@ -1,9 +1,6 @@
 /* global $, cockpit, QUnit, unescape, escape */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.test("public api", function() {
+QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.grid, "function", "cockpit.grid is a function");
     assert.equal(typeof cockpit.series, "function", "cockpit.series is a function");
 
@@ -31,7 +28,7 @@ QUnit.test("public api", function() {
     assert.equal(typeof sink.load, "function", "series.load()");
 });
 
-QUnit.test("calculated row", function() {
+QUnit.test("calculated row", function (assert) {
     var grid = cockpit.grid(1000, 3, 8);
     var calculated = grid.add(function(row, x, n) {
         for (var i = 0; i < n; i++)
@@ -42,7 +39,7 @@ QUnit.test("calculated row", function() {
     assert.deepEqual(calculated, [ undefined, 0, 1, 2, 3 ], "array contents");
 });
 
-QUnit.test("calculated order", function() {
+QUnit.test("calculated order", function (assert) {
     var grid = cockpit.grid(1000, 3, 8);
 
     var calculated = grid.add(function(row, x, n) {
@@ -60,7 +57,7 @@ QUnit.test("calculated order", function() {
     assert.deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
 });
 
-QUnit.test("calculated early", function() {
+QUnit.test("calculated early", function (assert) {
     var grid = cockpit.grid(1000, 3, 8);
 
     var calculated;
@@ -81,7 +78,7 @@ QUnit.test("calculated early", function() {
     assert.deepEqual(dependant, [ undefined, 10, 11, 12, 13 ], "dependant array contents");
 });
 
-QUnit.test("notify limit", function() {
+QUnit.test("notify limit", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
 
     var called = -1;
@@ -99,7 +96,7 @@ QUnit.test("notify limit", function() {
     assert.strictEqual(called, 9, "truncated to right limit");
 });
 
-QUnit.test("sink row", function() {
+QUnit.test("sink row", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -141,7 +138,7 @@ QUnit.test("sink row", function() {
     grid.close();
 });
 
-QUnit.test("sink no path", function() {
+QUnit.test("sink no path", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -154,7 +151,7 @@ QUnit.test("sink no path", function() {
     assert.deepEqual(row, [undefined, undefined, undefined, 567, 768, { "hello": "scruffy" }], "row without a path");
 });
 
-QUnit.test("sink after close", function() {
+QUnit.test("sink after close", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -174,7 +171,7 @@ QUnit.test("sink after close", function() {
     assert.deepEqual(row, [1, 2, 3, 1, 2, 3], "row got no more values");
 });
 
-QUnit.test("sink mapping", function() {
+QUnit.test("sink mapping", function (assert) {
     var grid = cockpit.grid(1000, 5, 15);
     var sink = cockpit.series(1000);
 
@@ -211,7 +208,7 @@ QUnit.test("sink mapping", function() {
     grid.close();
 });
 
-QUnit.test("cache simple", function() {
+QUnit.test("cache simple", function (assert) {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -261,7 +258,7 @@ QUnit.test("cache simple", function() {
     grid.close();
 });
 
-QUnit.test("cache multiple", function() {
+QUnit.test("cache multiple", function (assert) {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -311,7 +308,7 @@ QUnit.test("cache multiple", function() {
     grid.close();
 });
 
-QUnit.test("cache overlap", function() {
+QUnit.test("cache overlap", function (assert) {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -362,7 +359,7 @@ QUnit.test("cache overlap", function() {
     grid.close();
 });
 
-QUnit.test("cache limit", function() {
+QUnit.test("cache limit", function (assert) {
     var series = cockpit.series(1000, null);
     series.limit = 5;
     series.input(8, [ "eight" ]);
@@ -393,7 +390,7 @@ QUnit.test("cache limit", function() {
     grid.close();
 });
 
-QUnit.test("move", function() {
+QUnit.test("move", function (assert) {
     var fetched = [];
     function fetch(beg, end) {
         fetched.push([ beg, end ]);
@@ -447,7 +444,7 @@ QUnit.test("move", function() {
     grid.close();
 });
 
-QUnit.test("move negative", function() {
+QUnit.test("move negative", function (assert) {
     var now = $.now();
     var grid = cockpit.grid(1000, -20, -5);
 
@@ -462,7 +459,8 @@ QUnit.test("move negative", function() {
     grid.close();
 });
 
-QUnit.asyncTest("walk", function() {
+QUnit.test("test", function (assert) {
+    let done = assert.async();
     assert.expect(5);
 
     var fetched = [];
@@ -485,7 +483,7 @@ QUnit.asyncTest("walk", function() {
 
         if (count == 5) {
             grid.close();
-            QUnit.start();
+            done();
         }
     });
 });

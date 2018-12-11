@@ -1,9 +1,7 @@
 /* global $, cockpit, QUnit, ArrayBuffer, Uint8Array */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.asyncTest("basic", function() {
+QUnit.test("basic", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var channel = cockpit.channel({ "payload": "echo" });
@@ -17,7 +15,7 @@ QUnit.asyncTest("basic", function() {
             assert.equal(options.command, "done", "got done");
             channel.close();
             $(channel).off();
-            QUnit.start();
+            done();
         }
     });
 
@@ -30,7 +28,8 @@ QUnit.asyncTest("basic", function() {
     channel.send("the payload");
 });
 
-QUnit.asyncTest("binary empty", function() {
+QUnit.test("binary empty", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var channel = cockpit.channel({
@@ -45,13 +44,14 @@ QUnit.asyncTest("binary empty", function() {
             assert.ok($.isArray(payload), "got a byte array");
         assert.strictEqual(payload.length, 0, "got the right payload");
         $(channel).off();
-        QUnit.start();
+        done();
     });
 
     channel.send("");
 });
 
-QUnit.asyncTest("binary", function() {
+QUnit.test("binary", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var channel = cockpit.channel({ "payload": "echo", "binary": true });
@@ -69,7 +69,7 @@ QUnit.asyncTest("binary", function() {
 
         channel.close();
         $(channel).off();
-        QUnit.start();
+        done();
     });
 
     var i, buffer;
@@ -89,7 +89,8 @@ QUnit.asyncTest("binary", function() {
     channel.send(buffer);
 });
 
-QUnit.asyncTest("fence", function() {
+QUnit.test("fence", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     var before = cockpit.channel({ "payload": "echo" });
@@ -111,7 +112,7 @@ QUnit.asyncTest("fence", function() {
             assert.deepEqual(received, [ "1", "2", "3", "4", "5" ], "got back data in right order");
             before.close();
             after.close();
-            QUnit.start();
+            done();
         }
     }
 

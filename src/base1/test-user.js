@@ -1,9 +1,7 @@
 /* global $, cockpit, QUnit */
 
-/* To help with future migration */
-var assert = QUnit;
-
-QUnit.asyncTest("load user info", function() {
+QUnit.test("load user info", function (assert) {
+    let done = assert.async();
     assert.expect(9);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
@@ -23,11 +21,12 @@ QUnit.asyncTest("load user info", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "finished successfuly");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("user object", function() {
+QUnit.test("user object", function (assert) {
+    let done = assert.async();
     assert.expect(6);
 
     cockpit.user().done(function (user) {
@@ -37,11 +36,12 @@ QUnit.asyncTest("user object", function() {
         assert.equal(typeof user.home, "string", "user home");
         assert.equal(typeof user.id, "number", "user id");
         assert.ok($.isArray(user.groups), "user groups");
-        QUnit.start();
+        done();
     });
 });
 
-QUnit.asyncTest("user environment", function() {
+QUnit.test("user environment", function (assert) {
+    let done = assert.async();
     assert.expect(6);
 
     cockpit.spawn([ "/bin/sh", "-c", "echo $USER~$SHELL~$HOME" ])
@@ -58,7 +58,7 @@ QUnit.asyncTest("user environment", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "finished successfully");
-                QUnit.start();
+                done();
             });
 });
 

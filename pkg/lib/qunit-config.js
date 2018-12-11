@@ -80,6 +80,3 @@ window.setTimeout(function() {
 }, 20000);
 
 window.tests_included = true;
-
-if (module && module.exports)
-    module.exports = QUnit;

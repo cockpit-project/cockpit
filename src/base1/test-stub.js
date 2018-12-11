@@ -1,13 +1,11 @@
 /* global $, cockpit, QUnit, unescape, escape, WebSocket */
 
-/* To help with future migration */
-var assert = QUnit;
-
 /* Tell cockpit to use an alternate url to connect to test-server */
 window.mock.url = cockpit.transport.uri();
 window.mock.url += "?cockpit-stub";
 
-function internal_test(options) {
+function internal_test(assert, options) {
+    let done = assert.async();
     assert.expect(2);
     var dbus = cockpit.dbus(null, options);
     dbus.call("/", "org.freedesktop.DBus.Introspectable", "Introspect")
@@ -16,23 +14,24 @@ function internal_test(options) {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "called internal");
-                QUnit.start();
+                done();
             });
 }
 
-QUnit.asyncTest("internal dbus", function() {
-    internal_test({"bus": "internal"});
+QUnit.test("internal dbus", function (assert) {
+    internal_test(assert, {"bus": "internal"});
 });
 
-QUnit.asyncTest("internal dbus bus none", function() {
-    internal_test({"bus": "none"});
+QUnit.test("internal dbus bus none", function (assert) {
+    internal_test(assert, {"bus": "none"});
 });
 
-QUnit.asyncTest("internal dbus bus none with address", function() {
-    internal_test({"bus": "none", "address": "internal"});
+QUnit.test("internal dbus bus none with address", function (assert) {
+    internal_test(assert, {"bus": "none", "address": "internal"});
 });
 
-QUnit.asyncTest("echo", function() {
+QUnit.test("echo", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var channel = cockpit.channel({ "payload": "echo" });
@@ -46,7 +45,7 @@ QUnit.asyncTest("echo", function() {
             assert.equal(options.command, "done", "got done");
             channel.close();
             $(channel).off();
-            QUnit.start();
+            done();
         }
     });
 
@@ -59,7 +58,8 @@ QUnit.asyncTest("echo", function() {
     channel.send("the payload");
 });
 
-QUnit.asyncTest("http", function() {
+QUnit.test("http", function (assert) {
+    let done = assert.async();
     assert.expect(2);
 
     cockpit.http({ "internal": "/test-server" }).get("/pkg/playground/manifest.json.in")
@@ -91,22 +91,24 @@ QUnit.asyncTest("http", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("internal dbus environment", function() {
+QUnit.test("internal dbus environment", function (assert) {
+    let done = assert.async();
     assert.expect(1);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
     var proxy = dbus.proxy("cockpit.Environment", "/environment");
     proxy.wait(function () {
         assert.ok(typeof proxy.Variables["PATH"] === 'string', "has PATH environment var");
-        QUnit.start();
+        done();
     });
 });
 
-QUnit.asyncTest("internal user dbus", function() {
+QUnit.test("internal user dbus", function (assert) {
+    let done = assert.async();
     assert.expect(4);
 
     var dbus = cockpit.dbus(null, { "bus": "internal" });
@@ -120,11 +122,12 @@ QUnit.asyncTest("internal user dbus", function() {
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "finished successfuly");
-                QUnit.start();
+                done();
             });
 });
 
-QUnit.asyncTest("not supported types", function() {
+QUnit.test("not supported types", function (assert) {
+    let done = assert.async();
     var failures = 7;
     var seen = 0;
     assert.expect(failures);
@@ -133,7 +136,7 @@ QUnit.asyncTest("not supported types", function() {
         assert.equal(ex.problem, "not-supported", "not-supported");
         seen++;
         if (failures == seen)
-            QUnit.start();
+            done();
     }
 
     var flist = cockpit.channel({"payload":"fslist1", "path":"/foo"});
@@ -160,11 +163,12 @@ QUnit.asyncTest("not supported types", function() {
     $(metrics).on("close", failed);
 
     window.setTimeout(function () {
-        QUnit.start();
+        done();
     }, 5000);
 });
 
-QUnit.asyncTest("external channel websocket", function() {
+QUnit.test("external channel websocket", function (assert) {
+    let done = assert.async();
     assert.expect(3);
 
     var query = window.btoa(JSON.stringify({
@@ -195,7 +199,7 @@ QUnit.asyncTest("external channel websocket", function() {
         }
     };
     ws.onclose = function(ev) {
-        QUnit.start();
+        done();
     };
 });
 

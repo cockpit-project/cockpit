@@ -18,11 +18,10 @@
  */
 
 var QUnit = require("qunit-tests");
-var assert = QUnit;
 
 var machines = require("machines");
 
-QUnit.test("colors.parse()", function() {
+QUnit.test("colors.parse()", function (assert) {
     var colors = [
         [ "#960064", "rgb(150, 0, 100)" ],
         [ "rgb(150, 0, 100)", "rgb(150, 0, 100)" ],

@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import "form-layout.less";
 import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
@@ -27,28 +28,21 @@ const Items = ({ items, idPrefix, divider, colClass }) => {
         return null;
     }
 
-    colClass = colClass || 'col-lg-6 col-md-6 col-sm-6 col-xs-12';
     return (
-        <div className={`col-lg-${divider} col-md-${divider} col-sm-${divider} col-xs-${divider}`}>
-            <div className='row'>
-                {items.map(item => {
-                    let content = item.value;
-                    if (item.title) {
-                        content = (
-                            <dl>
-                                <dt>{item.title}</dt>
-                                <dd id={`${idPrefix}-${item.idPostfix}`}>{item.value}</dd>
-                            </dl>
-                        );
-                    }
-
-                    return (
-                        <div key={item.title} className={`${colClass} ${item.className || ''}`}>
-                            {content}
-                        </div>
+        <div className="ct-form-layout">
+            {items.map(item => {
+                let content = item.value;
+                if (item.title) {
+                    content = (
+                        <React.Fragment key={item.title}>
+                            <label className="control-label" htmlFor={`${idPrefix}-${item.idPostfix}`}>{item.title}</label>
+                            <div id={`${idPrefix}-${item.idPostfix}`} className="ct-form-layout-split">{item.value}</div>
+                        </React.Fragment>
                     );
-                })}
-            </div>
+                }
+
+                return content;
+            })}
         </div>
     );
 };

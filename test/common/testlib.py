@@ -881,6 +881,10 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
 
+        if self.image in ['rhel-8-0']:
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { setsched } for .* comm="rngd".*')
+
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
         if self.image in ["debian-stable"]:
             self.allowed_messages.append('com.redhat.tuned: .*org.freedesktop.DBus.Error.ServiceUnknown.*')

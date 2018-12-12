@@ -23,7 +23,7 @@ import { Breadcrumb } from 'patternfly-react';
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
 import { StoragePool } from './storagePool.jsx';
-import { storagePoolId } from '../../helpers.es6';
+import { storagePoolId } from '../../helpers.js';
 import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
 
 const _ = cockpit.gettext;

@@ -19,7 +19,7 @@
 import cockpit from 'cockpit';
 import React from "react";
 
-import { formatDateTime } from '../helpers.es6';
+import { formatDateTime } from '../helpers.js';
 
 import './VmOverviewColumn.css';
 

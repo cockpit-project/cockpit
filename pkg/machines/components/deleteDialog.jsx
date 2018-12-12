@@ -21,8 +21,8 @@ import cockpit from 'cockpit';
 import React from 'react';
 import { Modal, Button } from 'patternfly-react';
 
-import { vmId } from '../helpers.es6';
-import { deleteVm } from '../actions/provider-actions.es6';
+import { vmId } from '../helpers.js';
+import { deleteVm } from '../actions/provider-actions.js';
 
 import './deleteDialog.css';
 

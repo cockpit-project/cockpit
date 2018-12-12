@@ -19,17 +19,17 @@
 import React from "react";
 import cockpit from 'cockpit';
 
-import CONFIG from '../config.es6';
+import CONFIG from '../config.js';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import StateIcon from "../../machines/components/vm/stateIcon.jsx";
 import DropdownButtons from "../../machines/components/dropdownButtons.jsx";
 import VCPUModal from './vcpuModal.jsx';
 
-import { toGigaBytes, valueOrDefault, isSameHostAddress } from '../helpers.es6';
-import { startVm, goToSubpage } from '../actions.es6';
-import rephraseUI from '../rephraseUI.es6';
-import { getCurrentCluster, getHost } from '../selectors.es6';
+import { toGigaBytes, valueOrDefault, isSameHostAddress } from '../helpers.js';
+import { startVm, goToSubpage } from '../actions.js';
+import rephraseUI from '../rephraseUI.js';
+import { getCurrentCluster, getHost } from '../selectors.js';
 
 const _ = cockpit.gettext;
 

@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row } from 'patternfly-react';
 
-import { storagePoolId } from '../../helpers.es6';
+import { storagePoolId } from '../../helpers.js';
 
 export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;

@@ -62,7 +62,7 @@ po/POTFILES.html.in:
 	( cd $(srcdir) && find $(TRANSLATE) -name '*.html' ) > $@
 po/POTFILES.js.in:
 	$(MKDIR_P) $(notdir $@)
-	( cd $(srcdir) && find src/base1/ $(TRANSLATE) -name '*.js' -o -name '*.jsx' -o -name '*.es6' ) > $@
+	( cd $(srcdir) && find src/base1/ $(TRANSLATE) -name '*.js' -o -name '*.jsx' ) > $@
 po/POTFILES.manifest.in:
 	$(MKDIR_P) $(notdir $@)
 	( cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json' ) > $@

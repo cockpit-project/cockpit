@@ -24,7 +24,7 @@ import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
 import { VCPUModal } from './vcpuModal.jsx';
 
-import { rephraseUI, vmId } from "../helpers.es6";
+import { rephraseUI, vmId } from "../helpers.js";
 
 const _ = cockpit.gettext;
 

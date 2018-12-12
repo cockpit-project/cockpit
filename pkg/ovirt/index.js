@@ -21,13 +21,13 @@ import '../lib/polyfills.js'; // once per application
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import store from './store.es6';
-import { initDataRetrieval } from '../machines/actions/provider-actions.es6';
-import { logDebug } from '../machines/helpers.es6';
+import store from './store.js';
+import { initDataRetrieval } from '../machines/actions/provider-actions.js';
+import { logDebug } from '../machines/helpers.js';
 
-import Provider from './provider.es6';
+import Provider from './provider.js';
 import App from './components/App.jsx';
-import { setVirtProvider } from '../machines/provider.es6';
+import { setVirtProvider } from '../machines/provider.js';
 
 (function() {
     "use strict";

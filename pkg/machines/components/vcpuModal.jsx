@@ -6,7 +6,7 @@ import cockpit from 'cockpit';
 import { ModalError } from './notification/inlineNotification.jsx';
 import * as SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
-import { setVCPUSettings } from "../actions/provider-actions.es6";
+import { setVCPUSettings } from "../actions/provider-actions.js";
 
 const _ = cockpit.gettext;
 

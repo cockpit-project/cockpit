@@ -20,7 +20,7 @@
 var QUnit = require("qunit-tests");
 var cockpit = require("cockpit");
 
-var kdump = require("./config-client.es6");
+var kdump = require("./config-client.js");
 
 var basicConfig = [
     "# top comment",

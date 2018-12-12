@@ -30,7 +30,7 @@ import {
     deleteUnlistedVMs,
     updateStorageVolumes,
     setHypervisorMaxVCPU,
-} from './actions/store-actions.es6';
+} from './actions/store-actions.js';
 
 import {
     attachDisk,
@@ -42,14 +42,14 @@ import {
     getStoragePool,
     getStorageVolumes,
     getVm,
-} from './actions/provider-actions.es6';
+} from './actions/provider-actions.js';
 
-import { usagePollingEnabled } from './selectors.es6';
-import { spawnScript, spawnProcess } from './services.es6';
+import { usagePollingEnabled } from './selectors.js';
+import { spawnScript, spawnProcess } from './services.js';
 import {
     isEmpty,
     logDebug,
-} from './helpers.es6';
+} from './helpers.js';
 
 import {
     buildFailHandler,
@@ -77,9 +77,9 @@ import {
     INIT_DATA_RETRIEVAL,
     INSTALL_VM,
     START_LIBVIRT,
-} from './libvirt-common.es6';
+} from './libvirt-common.js';
 
-import VMS_CONFIG from './config.es6';
+import VMS_CONFIG from './config.js';
 
 const _ = cockpit.gettext;
 
@@ -116,7 +116,7 @@ LIBVIRT_PROVIDER = {
      * Initialize the provider.
      * Arguments are used for reference only, they are actually not needed for this Libvirt provider.
      *
-     * @param providerContext - contains context details, like the dispatch function, see provider.es6
+     * @param providerContext - contains context details, like the dispatch function, see provider.js
      * @returns {boolean} - true, if initialization succeeded; or Promise
      */
     init({ dispatch }) {

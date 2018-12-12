@@ -29,7 +29,7 @@ import * as Select from 'cockpit-components-select.jsx';
 import {
     changeNetworkSettings,
     getVm
-} from '../actions/provider-actions.es6';
+} from '../actions/provider-actions.js';
 
 import './nicEdit.css';
 import 'form-layout.less';

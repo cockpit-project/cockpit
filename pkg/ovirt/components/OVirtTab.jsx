@@ -19,13 +19,13 @@
 import cockpit from 'cockpit';
 import React from "react";
 
-import { isSameHostAddress } from '../helpers.es6';
-import { vmId } from '../../machines/helpers.es6';
-import { migrateVm } from '../actions.es6';
+import { isSameHostAddress } from '../helpers.js';
+import { vmId } from '../../machines/helpers.js';
+import { migrateVm } from '../actions.js';
 
 import ConfirmButtons from './ConfirmButtons.jsx';
 import VmProperty from '../../machines/components/infoRecord.jsx';
-import rephraseUI from '../rephraseUI.es6';
+import rephraseUI from '../rephraseUI.js';
 
 import './OVirtTab.css';
 

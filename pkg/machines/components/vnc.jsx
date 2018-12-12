@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 
 import { VncConsole } from '@patternfly/react-console';
 
-import { logDebug } from '../helpers.es6';
+import { logDebug } from '../helpers.js';
 
 const _ = cockpit.gettext;
 

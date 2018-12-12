@@ -20,10 +20,10 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { INSTALL_SH, OVIRT_DEFAULT_PORT } from '../config.es6';
-import { httpGet } from '../ovirtApiAccess.es6';
-import { logError } from '../../machines/helpers.es6';
-import { isNumeric } from '../helpers.es6';
+import { INSTALL_SH, OVIRT_DEFAULT_PORT } from '../config.js';
+import { httpGet } from '../ovirtApiAccess.js';
+import { logError } from '../../machines/helpers.js';
+import { isNumeric } from '../helpers.js';
 
 import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 
@@ -151,7 +151,7 @@ function configureOvirtUrl(oVirtFqdn, oVirtPort) {
 
 function doRegisterOvirt(oVirtFqdn, oVirtPort, dfd) {
     console.info('configureOvirtUrl() - oVirt engine connection can be established', oVirtFqdn, oVirtPort);
-    // CONNECTION URI is not passed as an argument here, so oVirt default will be farther used - see configFuncs.es6:readConfiguration()
+    // CONNECTION URI is not passed as an argument here, so oVirt default will be farther used - see configFuncs.js:readConfiguration()
     cockpit.spawn(['bash', INSTALL_SH, oVirtFqdn, oVirtPort], {"superuser": "try"})
             .done(function () {
                 console.info('oVirt installation script was successful');

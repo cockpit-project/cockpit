@@ -19,7 +19,7 @@
 
 import {
     getTodayYearShifted,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 export const OTHER_OS = "Other OS";
 export const OTHER_OS_SHORT_ID = "other-os";

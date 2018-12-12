@@ -21,8 +21,8 @@ import cockpit from 'cockpit';
 
 import './VdsmView.css';
 
-import { VDSM_CONF_FILE } from '../config.es6';
-import { logDebug, logError } from '../../machines/helpers.es6';
+import { VDSM_CONF_FILE } from '../config.js';
+import { logDebug, logError } from '../../machines/helpers.js';
 
 const _ = cockpit.gettext;
 

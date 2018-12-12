@@ -19,7 +19,7 @@
 import React from "react";
 import cockpit from 'cockpit';
 
-import rephraseUI from '../rephraseUI.es6';
+import rephraseUI from '../rephraseUI.js';
 
 import './HostStatus.css';
 

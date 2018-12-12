@@ -24,7 +24,7 @@ var React = require("react");
 var ReactDOM = require("react-dom");
 
 var troubleshootClient = require("./setroubleshoot-client");
-var selinuxClient = require("./selinux-client.es6");
+var selinuxClient = require("./selinux-client.js");
 var troubleshootView = require("./setroubleshoot-view.jsx");
 
 var initStore = function(rootElement) {

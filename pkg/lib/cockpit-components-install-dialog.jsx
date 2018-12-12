@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import * as PK from "packagekit.es6";
+import * as PK from "packagekit.js";
 
 import "cockpit-components-install-dialog.css";
 

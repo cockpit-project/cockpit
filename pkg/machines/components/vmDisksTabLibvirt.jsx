@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { vmId } from '../helpers.es6';
+import { vmId } from '../helpers.js';
 import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import DiskSourceCell from './vmDiskSourceCell.jsx';

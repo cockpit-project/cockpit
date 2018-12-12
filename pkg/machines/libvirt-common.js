@@ -10,7 +10,7 @@ import {
     vmActionFailed,
     updateLibvirtState,
     updateOsInfoList,
-} from './actions/store-actions.es6';
+} from './actions/store-actions.js';
 
 import {
     checkLibvirtStatus,
@@ -18,7 +18,7 @@ import {
     getHypervisorMaxVCPU,
     getLoggedInUser,
     getOsInfoList
-} from './actions/provider-actions.es6';
+} from './actions/provider-actions.js';
 
 import {
     convertToUnit,
@@ -26,12 +26,12 @@ import {
     fileDownload,
     rephraseUI,
     units,
-} from './helpers.es6';
+} from './helpers.js';
 
 import {
     prepareDisksParam,
     prepareDisplaysParam,
-} from './libvirtUtils.es6';
+} from './libvirtUtils.js';
 
 import {
     finishVmCreateInProgress,
@@ -40,10 +40,10 @@ import {
     setVmCreateInProgress,
     setVmInstallInProgress,
     clearVmUiState,
-} from './components/create-vm-dialog/uiState.es6';
+} from './components/create-vm-dialog/uiState.js';
 
-import store from './store.es6';
-import VMS_CONFIG from './config.es6';
+import store from './store.js';
+import VMS_CONFIG from './config.js';
 
 const _ = cockpit.gettext;
 const METADATA_NAMESPACE = "https://github.com/cockpit-project/cockpit/tree/master/pkg/machines";

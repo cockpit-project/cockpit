@@ -25,8 +25,8 @@ import SerialConsole from './serialConsole.jsx';
 import Vnc from './vnc.jsx';
 import DesktopConsole from './desktopConsole.jsx';
 
-import { logDebug } from '../helpers.es6';
-import { vmDesktopConsole } from '../actions/provider-actions.es6';
+import { logDebug } from '../helpers.js';
+import { vmDesktopConsole } from '../actions/provider-actions.js';
 
 import './consoles.css';
 

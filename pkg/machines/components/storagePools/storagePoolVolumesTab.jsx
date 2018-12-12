@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { storagePoolId, convertToUnit, units } from '../../helpers.es6';
+import { storagePoolId, convertToUnit, units } from '../../helpers.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;

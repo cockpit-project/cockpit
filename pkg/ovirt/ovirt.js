@@ -29,20 +29,20 @@ import {
     updateCluster,
     removeCluster,
     downloadIcons,
-} from './actions.es6';
+} from './actions.js';
 
 import {
     clusterConverter,
     vmConverter,
     templateConverter,
     hostConverter,
-} from './ovirtConverters.es6';
+} from './ovirtConverters.js';
 
-import { logDebug, logError } from '../machines/helpers.es6';
-import { ovirtApiGet } from './ovirtApiAccess.es6';
-import CONFIG from './config.es6';
-import { isOvirtApiCheckPassed } from './provider.es6';
-import { waitForCurrentCluster } from './selectors.es6';
+import { logDebug, logError } from '../machines/helpers.js';
+import { ovirtApiGet } from './ovirtApiAccess.js';
+import CONFIG from './config.js';
+import { isOvirtApiCheckPassed } from './provider.js';
+import { waitForCurrentCluster } from './selectors.js';
 
 let lastOvirtPoll = -1; // timestamp
 /**

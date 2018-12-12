@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import { logDebug } from '../machines/helpers.es6';
+import { logDebug } from '../machines/helpers.js';
 const _ = cockpit.gettext;
 
 const transform = {

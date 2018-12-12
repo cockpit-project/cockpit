@@ -35,7 +35,7 @@ import {
     getStoragePool,
     getStorageVolumes,
     getVm,
-} from './actions/provider-actions.es6';
+} from './actions/provider-actions.js';
 
 import {
     deleteUnlistedVMs,
@@ -47,21 +47,21 @@ import {
     updateVm,
     setHypervisorMaxVCPU,
     vmActionFailed,
-} from './actions/store-actions.es6';
+} from './actions/store-actions.js';
 
 import {
     getDiskXML,
     getPoolXML,
     getVolumeXML
-} from './xmlCreator.es6';
+} from './xmlCreator.js';
 
 import {
     usagePollingEnabled
-} from './selectors.es6';
+} from './selectors.js';
 
 import {
     logDebug
-} from './helpers.es6';
+} from './helpers.js';
 
 import {
     canConsole,
@@ -90,7 +90,7 @@ import {
     INIT_DATA_RETRIEVAL,
     INSTALL_VM,
     START_LIBVIRT,
-} from './libvirt-common.es6';
+} from './libvirt-common.js';
 
 const _ = cockpit.gettext;
 
@@ -797,7 +797,7 @@ function calculateDiskStats(info) {
        'sources'
 
        Note 2: Casting to string happens for return types to be same with
-       results from libvirt.es6 file.
+       results from libvirt.js file.
      */
     for (let i = 0; i < count; i++) {
         const target = info[`block.${i}.name`].v.v;

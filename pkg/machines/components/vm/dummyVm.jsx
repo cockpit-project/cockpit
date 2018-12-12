@@ -24,7 +24,7 @@ import { ListingRow } from "cockpit-components-listing.jsx";
 import {
     rephraseUI,
     vmId,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 import StateIcon from './stateIcon.jsx';
 

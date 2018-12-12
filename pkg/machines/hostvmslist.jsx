@@ -30,12 +30,12 @@ import {
     installVm,
     usageStartPolling,
     usageStopPolling,
-} from "./actions/provider-actions.es6";
+} from "./actions/provider-actions.js";
 import {
     clearNotification,
-} from "./actions/store-actions.es6";
+} from "./actions/store-actions.js";
 
-import { vmId } from "./helpers.es6";
+import { vmId } from "./helpers.js";
 
 import { Listing } from "cockpit-components-listing.jsx";
 import NotificationArea from './components/notification/notificationArea.jsx';

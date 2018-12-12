@@ -18,7 +18,7 @@
  */
 import React from "react";
 import cockpit from 'cockpit';
-import { vmId } from '../helpers.es6';
+import { vmId } from '../helpers.js';
 
 import './consoles.css';
 

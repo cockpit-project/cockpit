@@ -20,7 +20,7 @@
 import React from 'react';
 
 import * as Select from 'cockpit-components-select.jsx';
-import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../helpers.es6';
+import { LIBVIRT_SYSTEM_CONNECTION, LIBVIRT_SESSION_CONNECTION } from '../helpers.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;

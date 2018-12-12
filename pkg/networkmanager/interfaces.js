@@ -20,12 +20,12 @@
 var $ = require('jquery');
 var cockpit = require('cockpit');
 
-var firewall = require('./firewall-client.es6').default;
+var firewall = require('./firewall-client.js').default;
 var utils = require('./utils');
 var service = require('service');
 
 var Mustache = require('mustache');
-var plot = require('plot.es6');
+var plot = require('plot.js');
 var journal = require('journal');
 
 /* jQuery extensions */

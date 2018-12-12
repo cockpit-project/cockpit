@@ -20,11 +20,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import cockpit from 'cockpit';
-import { mouseClick } from "../helpers.es6";
+import { mouseClick } from "../helpers.js";
 import {
     startLibvirt,
     enableLibvirt,
-} from "../actions/provider-actions.es6";
+} from "../actions/provider-actions.js";
 
 import './libvirtSlate.css';
 

@@ -27,7 +27,7 @@ import {
     Tooltip
 } from "patternfly-react";
 
-import firewall from "./firewall-client.es6";
+import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 

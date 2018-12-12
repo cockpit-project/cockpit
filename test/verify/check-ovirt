@@ -85,7 +85,7 @@ class TestOVirtMachines(MachineCase):
         self.ovirt = self.machines['ovirt']
         m = self.machine
 
-        # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.es6:getHost()
+        # used as fallback when resolving based on browser's URL is not matching, see ovirt/helpers.js:getHost()
         m.execute("hostname ovirt.cockpit.lan")
 
         self.engine_url = "https://{0}/ovirt-engine/".format(self.ovirt.forward['443']) # from phantomJS

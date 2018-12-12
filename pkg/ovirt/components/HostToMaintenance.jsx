@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 import './HostToMaintenance.css';
 
 import DialogPattern from 'cockpit-components-dialog.jsx';
-import { switchHostToMaintenance } from '../actions.es6';
+import { switchHostToMaintenance } from '../actions.js';
 
 const _ = cockpit.gettext;
 

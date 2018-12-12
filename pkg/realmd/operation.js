@@ -3,7 +3,7 @@
 
     var jQuery = require("jquery");
     var cockpit = require("cockpit");
-    var packagekit = require("packagekit.es6");
+    var packagekit = require("packagekit.js");
     var install_dialog = require("cockpit-components-install-dialog.jsx").install_dialog;
     require("patterns");
 

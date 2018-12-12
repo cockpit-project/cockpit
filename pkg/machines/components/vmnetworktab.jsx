@@ -21,10 +21,10 @@ import PropTypes from 'prop-types';
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from 'cockpit';
-import { changeNetworkState } from "../actions/provider-actions.es6";
+import { changeNetworkState } from "../actions/provider-actions.js";
 import VmLastMessage from './vmLastMessage.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { rephraseUI, vmId } from "../helpers.es6";
+import { rephraseUI, vmId } from "../helpers.js";
 import EditNICAction from './nicEdit.jsx';
 import './nicEdit.css';
 

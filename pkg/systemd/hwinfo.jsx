@@ -25,7 +25,7 @@ import ReactDOM from 'react-dom';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
-import detect from "./hw-detect.es6";
+import detect from "./hw-detect.js";
 
 const _ = cockpit.gettext;
 

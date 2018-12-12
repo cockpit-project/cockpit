@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import {proxy as serviceProxy} from 'service';
-import {ConfigFile} from './config-client.es6';
+import {ConfigFile} from './config-client.js';
 
 import crashKernelScript from 'raw!./crashkernel.sh';
 import testWritableScript from 'raw!./testwritable.sh';

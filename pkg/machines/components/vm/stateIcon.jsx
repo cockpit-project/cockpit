@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 
 import {
     rephraseUI,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 const _ = cockpit.gettext;
 

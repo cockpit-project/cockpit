@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import $ from "jquery";
 
-import * as plot from "plot.es6";
+import * as plot from "plot.js";
 import { decode_filename } from "./utils.js";
 
 const _ = cockpit.gettext;

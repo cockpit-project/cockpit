@@ -26,7 +26,7 @@ import {
     toReadableNumber,
     units,
     toFixedPrecision,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 import DonutChart from "../../c3charts.jsx";
 

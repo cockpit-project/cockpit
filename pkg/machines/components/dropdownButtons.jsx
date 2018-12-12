@@ -19,7 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { mouseClick } from '../helpers.es6';
+import { mouseClick } from '../helpers.js';
 import './dropdownButtons.css';
 
 /**

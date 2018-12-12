@@ -18,20 +18,20 @@
  */
 import cockpit from 'cockpit';
 
-import { buildFailHandler } from '../machines/libvirt-common.es6';
-import LIBVIRT_PROVIDER from '../machines/libvirt-virsh.es6';
-import { logDebug, logError, fileDownload } from '../machines/helpers.es6';
-import { readConfiguration } from './configFuncs.es6';
-import { CONSOLE_TYPE_ID_MAP } from './config.es6';
-import { ovirtApiGet, ovirtApiPost, ovirtApiPut } from './ovirtApiAccess.es6';
-import { pollOvirt, forceNextOvirtPoll } from './ovirt.es6';
-import { oVirtIconToInternal } from './ovirtConverters.es6';
+import { buildFailHandler } from '../machines/libvirt-common.js';
+import LIBVIRT_PROVIDER from '../machines/libvirt-virsh.js';
+import { logDebug, logError, fileDownload } from '../machines/helpers.js';
+import { readConfiguration } from './configFuncs.js';
+import { CONSOLE_TYPE_ID_MAP } from './config.js';
+import { ovirtApiGet, ovirtApiPost, ovirtApiPut } from './ovirtApiAccess.js';
+import { pollOvirt, forceNextOvirtPoll } from './ovirt.js';
+import { oVirtIconToInternal } from './ovirtConverters.js';
 
-import { updateIcon, downloadIcon } from './actions.es6';
-import { getHypervisorMaxVCPU } from '../machines/actions/provider-actions.es6';
+import { updateIcon, downloadIcon } from './actions.js';
+import { getHypervisorMaxVCPU } from '../machines/actions/provider-actions.js';
 
-import { getAllIcons, isVmManagedByOvirt } from './selectors.es6';
-import { ovirtReducer } from './reducers.es6';
+import { getAllIcons, isVmManagedByOvirt } from './selectors.js';
+import { ovirtReducer } from './reducers.js';
 
 import VmActions from './components/VmActions.jsx';
 import vmOverviewExtra from './components/VmOverviewColumn.jsx';
@@ -39,13 +39,13 @@ import ConsoleClientResources from './components/ConsoleClientResources.jsx';
 import OVirtTab from './components/OVirtTab.jsx';
 import VCPUModal from './components/vcpuModal.jsx';
 
-import { waitForReducerSubtreeInit } from './store.es6';
+import { waitForReducerSubtreeInit } from './store.js';
 
 const _ = cockpit.gettext;
 
 const OVIRT_PROVIDER = Object.create(LIBVIRT_PROVIDER); // inherit whatever is not implemented here
 
-const QEMU_SYSTEM = 'system'; // conforms connection name defined in parent's cockpit:machines/config.es6
+const QEMU_SYSTEM = 'system'; // conforms connection name defined in parent's cockpit:machines/config.js
 
 OVIRT_PROVIDER.name = 'oVirt';
 OVIRT_PROVIDER.ovirtApiMetadata = {

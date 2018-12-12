@@ -27,7 +27,7 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
 
-import * as PK from "packagekit.es6";
+import * as PK from "packagekit.js";
 
 import "listing.less";
 

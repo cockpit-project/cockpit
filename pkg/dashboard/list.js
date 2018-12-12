@@ -21,12 +21,12 @@ import $ from "jquery";
 import Mustache from "mustache";
 
 import cockpit from "cockpit";
-import * as plot from "plot.es6";
+import * as plot from "plot.js";
 import machines from "machines";
 import * as mdialogs from "machine-dialogs";
-import { cpu_ram_info } from "machine-info.es6";
+import { cpu_ram_info } from "machine-info.js";
 import "patterns";
-import image_editor from "./image-editor.es6";
+import image_editor from "./image-editor.js";
 
 var _ = cockpit.gettext;
 

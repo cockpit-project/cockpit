@@ -16,15 +16,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import store from '../machines/store.js';
+import { logDebug } from '../machines/helpers.js';
 
-import { createStore, applyMiddleware, compose } from 'redux';
-import reducer from './reducers.es6';
-import thunkMiddleware from 'redux-thunk';
+export function waitForReducerSubtreeInit(delayedFunc) {
+    const state = store.getState();
+    if (state && state.config && state.config.providerState && state.config.providerState.ovirtConfig) {
+        delayedFunc();
+    } else {
+        logDebug('waitForReducerSubtreeInit(): subtree not yet initialized, waiting ...');
+        window.setTimeout(() => waitForReducerSubtreeInit(delayedFunc), 500);
+    }
+}
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(
-    reducer,
-    composeEnhancers(applyMiddleware(thunkMiddleware))
-);
-
+// Let pkg/machines build the Redux store and extend it at runtime.
 export default store;

@@ -21,15 +21,15 @@ import '../lib/polyfills.js'; // once per application
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import store from './store.es6';
+import store from './store.js';
 import App from './app.jsx';
-import { initDataRetrieval } from './actions/provider-actions.es6';
-import { logDebug } from './helpers.es6';
+import { initDataRetrieval } from './actions/provider-actions.js';
+import { logDebug } from './helpers.js';
 
 import cockpit from 'cockpit';
-import LibvirtDbus from './libvirt-dbus.es6';
-import Libvirt from './libvirt-virsh.es6';
-import { setVirtProvider } from './provider.es6';
+import LibvirtDbus from './libvirt-dbus.js';
+import Libvirt from './libvirt-virsh.js';
+import { setVirtProvider } from './provider.js';
 
 /**
  * Returns promise that will have as return value the Provider that should be set.
@@ -76,10 +76,10 @@ function renderApp() {
  * Start the application.
  */
 function appMain() {
-    logDebug('index.es6: initial state: ' + JSON.stringify(store.getState()));
+    logDebug('index.js: initial state: ' + JSON.stringify(store.getState()));
 
     detectLibvirtProvider().then((providerVal) => {
-        console.info(`index.es6: Setting ${providerVal.name} as virt provider.`);
+        console.info(`index.js: Setting ${providerVal.name} as virt provider.`);
         setVirtProvider(providerVal);
         renderApp();
     });

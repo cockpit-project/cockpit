@@ -251,7 +251,7 @@ def main():
 
     opts = parser.parse_args()
 
-    regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
+    regular_tests = ["checklogin-basic.py", "checklogin-raw.py"]
     browser_tests = [
         "selenium-base.py",
         "selenium-navigate.py",
@@ -259,6 +259,7 @@ def main():
         "selenium-docker.py",
         "selenium-sosreport.py",
         "selenium-dashboard.py",
+        "selenium-tuned.py",
         "selenium-network.py"
     ]
 

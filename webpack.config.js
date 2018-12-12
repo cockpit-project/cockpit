@@ -414,11 +414,9 @@ module.exports = {
                 loader: "babel-loader"
             },
             {
-                test: /\.jsx$/,
-                loader: "babel-loader"
-            },
-            {
-                test: /\.es6$/,
+                test: /\.(js|jsx|es6)$/,
+                // exclude external dependencies; it's too slow, and they are already plain JS except the above
+                exclude: /\/node_modules\/.*\//,
                 loader: "babel-loader"
             },
             {

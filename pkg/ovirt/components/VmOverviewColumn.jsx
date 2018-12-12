@@ -54,7 +54,7 @@ const vmOverviewExtra = (vm, providerState) => {
             { title: _("Running Since:"), value: formatDateTime(clusterVm.startTime), idPostfix: 'ovirt-starttime' },
         ],
         [
-            { title: null, value: (<VmIcon icons={providerState.icons} iconId={clusterVm.icons.largeId} />), idPostfix: 'ovirt-icon' },
+            { title: null, value: (<VmIcon key={`${vm.id}-icon`} icons={providerState.icons} iconId={clusterVm.icons.largeId} />), idPostfix: 'ovirt-icon' },
         ],
     ];
 };

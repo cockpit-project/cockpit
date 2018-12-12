@@ -23,6 +23,7 @@ import json
 import os
 import sys
 import subprocess
+from fmf import Tree
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
@@ -231,6 +232,16 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         if selenium:
             selenium.kill()
 
+
+def get_test_dict(filters, relative_dir=CURRENT_DIR):
+    test_element = "test"
+    path_element = "path"
+    output = {}
+    for x in Tree(relative_dir).prune(keys=[test_element], filters=filters):
+        output[x.name] = x.data.get(path_element, "") + x.data[test_element]
+    return output
+
+
 def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
@@ -251,25 +262,14 @@ def main():
 
     opts = parser.parse_args()
 
-    regular_tests = [ "checklogin-basic.py", "checklogin-raw.py" ]
-    browser_tests = [
-        "selenium-base.py",
-        "selenium-navigate.py",
-        "selenium-storage.py",
-        "selenium-docker.py",
-        "selenium-sosreport.py",
-        "selenium-dashboard.py",
-        "selenium-network.py"
-    ]
-
     if opts.regular_tests:
-        opts.tests += regular_tests
+        opts.tests += get_test_dict(filters=["tags:regular"]).values()
     if opts.selenium_tests:
-        opts.tests += browser_tests
+        opts.tests += get_test_dict(filters=["tags:selenium"]).values()
 
     # if we don't have a browser but are supposed to run selenium related tests, fail
     if opts.browser is 'none':
-        for t in browser_tests:
+        for t in get_test_dict(filters=["tags:selenium"]).values():
             if t in opts.tests:
                 sys.stderr.write("Unable to run test {0} because browser isn't set.\n".format(t))
                 return 1

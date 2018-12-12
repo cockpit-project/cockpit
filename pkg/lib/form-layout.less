@@ -1,3 +1,7 @@
+/* Form layout */
+
+@import "./variables.less";
+
 :root {
   // CSS variable to define the number of (label + control) columns.
   // It dynamically changes on narrow pages (see media query below).
@@ -43,8 +47,17 @@
 // a <form class="ct-form-layout"> and layout magic happens.
 
 .ct-form-layout {
+  // Locally redefine padding to Bootstrap values for this LESS block
+  @padding-large-vertical: 10px;
+  @padding-small-vertical: 5px;
+  @padding-small-horizontal: 10px;
+  // Bootstrap & PatternFly use a 1px border around widgets
+  @border-width: 1px;
+  // Compute widget height based on (font-size * line height) + extra
+  @widget-height: @line-height-computed + (@padding-base-vertical * 2) + (@border-width * 2);
+
   display: grid;
-  grid-gap: 0 10px;
+  grid-gap: 0 @padding-large-vertical;
   // Repeat a label that is a minimum of 4em and its control that
   // fills the remaining space by a CSS variable (default: 2)
   grid-template-columns: repeat(var(--ct-form-layout-columns), minmax(4em, max-content) 1fr);
@@ -61,7 +74,8 @@
     // LESS needs this to be escaped with ~"". You'll see it below too.
     // CSS wants the string to be 1 / -1 without escaping.
     grid-column: ~"1 / -1";
-    height: 15px;
+    height: @padding-small-vertical * 3;
+    // Reset margin & padding to ensure all browsers treat this the same
     margin: 0;
     padding: 0;
   }
@@ -69,7 +83,7 @@
   label {
     // Make labels are the same height as controls,
     // to ensure vertical alignment happens properly
-    line-height: 26px;
+    line-height: @widget-height;
   }
 
   // All <label> elements describing form elements in PatternFly are
@@ -77,7 +91,7 @@
   // These precede control elements.
   > .control-label {
     align-self: flex-start;
-    padding-left: 1em;
+    padding-left: @padding-small-horizontal;
     text-align: right;
   }
 
@@ -97,7 +111,7 @@
   > kbd,
   > label:not(.control-label) {
     grid-column: ~"2 / -1";
-    line-height: 26px;
+    line-height: @widget-height;
     margin: 0;
     width: auto;
   }
@@ -129,7 +143,7 @@
   > [role=group] {
     align-self: start;
     display: grid;
-    grid-gap: 5px;
+    grid-gap: @padding-small-vertical;
     grid-auto-flow: column;
     grid-template-columns: max-content;
     justify-content: start;
@@ -151,12 +165,14 @@
   .radio-inline {
     display: inline-flex;
     padding-left: 0;
-    padding-right: 10px;
+    padding-right: @padding-small-horizontal;
 
     > input[type="checkbox"],
     > input[type="radio"] {
+      // Typical browser widget height for radios & checks; standardized here
       height: 16px;
-      margin: 5px 0.5em 5px 0;
+      margin: @padding-small-vertical 0;
+      margin-right: @padding-small-horizontal;
       position: static;
     }
   }
@@ -178,7 +194,7 @@
 
   // List groups override the grid gap, so we're adding it manually
   .list-group {
-    margin-bottom: 5px;
+    margin-bottom: @padding-small-vertical;
   }
 
   // Relax split elements to only take up one column
@@ -212,9 +228,13 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: @screen-xs) {
   // When the page is very narrow, collapse the grid further,
   // so labels are above controls
+  //
+  // Note: Padding variables below are outside the local scope of the
+  // .ct-form-layout block, so they default to the global PatternFly
+  // values.
   .ct-form-layout {
     // Completely deconstruct the grid layout
     grid-template-columns: initial;
@@ -223,7 +243,7 @@
       // Don't restrict grid placement
       grid-column: auto;
       // Use default PatternFly line height
-      line-height: inherit;
+      line-height: @line-height-base;
       max-width: 100%;
       overflow: auto;
     }
@@ -235,13 +255,13 @@
 
       // Everything but the first label should have space to breathe
       &:not(:first-child) {
-        padding: 10px 0 0;
+        margin: @padding-large-vertical 0 0;
       }
     }
 
     // Reduce vertical height spacing between groups of elements
     > hr {
-      height: 10px;
+      height: @padding-large-vertical * 2;
     }
   }
 }

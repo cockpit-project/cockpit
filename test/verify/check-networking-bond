@@ -43,7 +43,7 @@ class TestNetworking(NetworkCase):
         # Bond them
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
@@ -114,7 +114,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
@@ -141,7 +141,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_present("#networking-interfaces tr[data-interface='tbond']")
@@ -155,7 +155,7 @@ class TestNetworking(NetworkCase):
 
         b.click("tr:contains('Bond') a")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond3000")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond3000")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
         b.wait_text("#network-interface-name", "tbond3000")
@@ -173,7 +173,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
@@ -198,7 +198,7 @@ class TestNetworking(NetworkCase):
         # Put the main interface into a bond.  Everything should keep working.
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
@@ -235,7 +235,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")

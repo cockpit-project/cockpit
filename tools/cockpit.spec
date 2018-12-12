@@ -205,6 +205,7 @@ echo '{ "linguas": null }' > %{buildroot}%{_datadir}/cockpit/shell/override.json
 echo '%dir %{_datadir}/cockpit/base1' > base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
+echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
 # RHEL 7 needs to keep cockpit-ssh in dashboard for backwards compat
 %if 0%{?rhel} == 7
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> dashboard.list
@@ -212,7 +213,6 @@ echo '%{_libexecdir}/cockpit-ssh' >> dashboard.list
 %else
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
-echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list
 %endif
 
 %if %{defined build_dashboard}

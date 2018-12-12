@@ -23,7 +23,6 @@ import json
 import os
 import sys
 import subprocess
-from fmf import Tree
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
@@ -232,12 +231,21 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         if selenium:
             selenium.kill()
 
+def _install_fmf():
+    try:
+        import fmf
+    except ImportError:
+        subprocess.check_output(["pip3", "install", "fmf"])
+        import fmf
+    globals()["fmf"] = fmf
+
 
 def get_test_dict(filters, relative_dir=CURRENT_DIR):
     test_element = "test"
     path_element = "path"
     output = {}
-    for x in Tree(relative_dir).prune(keys=[test_element], filters=filters):
+    _install_fmf()
+    for x in fmf.Tree(relative_dir).prune(keys=[test_element], filters=filters):
         output[x.name] = x.data.get(path_element, "") + x.data[test_element]
     return output
 

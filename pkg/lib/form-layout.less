@@ -114,7 +114,10 @@
     grid-column: ~"2 / -1";
     line-height: @widget-height;
     margin: 0;
-    width: auto;
+
+    &:not(.ct-form-layout-relax) {
+      width: auto;
+    }
   }
 
   // Auto-relax inputs with size
@@ -127,7 +130,9 @@
   > .bootstrap-select,
   > .btn-group,
   > .dropdown {
-    width: auto !important;
+    &:not(.ct-form-layout-relax) {
+      width: auto !important;
+    }
   }
 
   // Elements with role="group" are used to group elements —
@@ -150,7 +155,7 @@
     justify-content: start;
 
     // Allow dropdowns to be less wide
-    > .dropdown {
+    &:not(.ct-form-layout-relax) > .dropdown {
       width: auto !important;
     }
 

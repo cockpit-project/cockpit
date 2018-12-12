@@ -27,11 +27,11 @@ import ClusterVms from './ClusterVms.jsx';
 import ClusterTemplates from './ClusterTemplates.jsx';
 import VdsmView from './VdsmView.jsx';
 
-import { goToSubpage } from '../actions.es6';
+import { goToSubpage } from '../actions.js';
 import hostToMaintenance from './HostToMaintenance.jsx';
 import HostStatus from './HostStatus.jsx';
-import { getHost } from "../selectors.es6";
-import CONFIG from '../config.es6';
+import { getHost } from "../selectors.js";
+import CONFIG from '../config.js';
 
 const _ = cockpit.gettext;
 

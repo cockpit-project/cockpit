@@ -1,6 +1,6 @@
 var QUnit = require("qunit-tests");
 
-var helpers = require("./helpers.es6");
+var helpers = require("./helpers.js");
 
 QUnit.test("toFixedPrecision", function (assert) {
     assert.equal("1.0", helpers.toFixedPrecision("1", 1));

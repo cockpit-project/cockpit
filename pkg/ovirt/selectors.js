@@ -18,8 +18,8 @@
  */
 import cockpit from 'cockpit';
 
-import { getHostAddress } from './helpers.es6';
-import { logDebug, logError } from '../machines/helpers.es6';
+import { getHostAddress } from './helpers.js';
+import { logDebug, logError } from '../machines/helpers.js';
 
 export function getAllIcons (state) {
     return state.config && state.config.providerState ? state.config.providerState.icons : {};

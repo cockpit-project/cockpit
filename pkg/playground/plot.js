@@ -1,5 +1,5 @@
 var $ = require("jquery");
-var plot = require("plot.es6");
+var plot = require("plot.js");
 
 require("plot.css");
 

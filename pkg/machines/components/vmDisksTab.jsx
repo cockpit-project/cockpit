@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { Info } from './notification/inlineNotification.jsx';
-import { convertToUnit, toReadableNumber, units } from "../helpers.es6";
+import { convertToUnit, toReadableNumber, units } from "../helpers.js";
 import RemoveDiskAction from './diskRemove.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
 

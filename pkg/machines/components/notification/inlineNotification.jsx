@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { mouseClick } from '../../helpers.es6';
+import { mouseClick } from '../../helpers.js';
 import { Alert } from 'patternfly-react';
 import './inlineNotification.css';
 

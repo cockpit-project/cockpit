@@ -22,7 +22,7 @@
 
     var $ = require('jquery');
     var cockpit = require('cockpit');
-    var PK = require('packagekit.es6');
+    var PK = require('packagekit.js');
 
     var utils = require('./utils');
 

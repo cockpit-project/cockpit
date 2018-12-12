@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import * as PK from "packagekit.es6";
+import * as PK from "packagekit.js";
 
 function progress_reporter(base, range, callback) {
     if (callback) {

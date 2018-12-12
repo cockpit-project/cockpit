@@ -21,12 +21,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
 
-import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.es6';
+import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import { ModalError } from '../notification/inlineNotification.jsx';
 import FileAutoComplete from 'cockpit-components-file-autocomplete.jsx';
 import * as Select from 'cockpit-components-select.jsx';
-import { createStoragePool } from '../../actions/provider-actions.es6';
+import { createStoragePool } from '../../actions/provider-actions.js';
 import cockpit from 'cockpit';
 
 import './createStoragePoolDialog.css';

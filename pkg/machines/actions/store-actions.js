@@ -36,7 +36,7 @@ import {
     UPDATE_UI_VM,
     UPDATE_VM,
     VM_ACTION_FAILED,
-} from '../constants/store-action-types.es6';
+} from '../constants/store-action-types.js';
 
 /**
  * All actions dispatchable by in the application

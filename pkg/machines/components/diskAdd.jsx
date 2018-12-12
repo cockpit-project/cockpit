@@ -22,8 +22,8 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 import { ModalError } from './notification/inlineNotification.jsx';
-import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.es6';
-import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.es6';
+import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.js';
+import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
 
 import 'form-layout.less';
 

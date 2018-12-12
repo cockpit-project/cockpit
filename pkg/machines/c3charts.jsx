@@ -20,7 +20,7 @@ import $ from 'jquery';
 import React from "react";
 
 import c3 from "c3/c3";
-import {logDebug} from "./helpers.es6";
+import {logDebug} from "./helpers.js";
 
 var idCounter = 0; // To keep <div id=""> unique
 

@@ -25,15 +25,15 @@ import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import * as Select from "cockpit-components-select.jsx";
 import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
-import { createVm } from '../../actions/provider-actions.es6';
-import { addErrorNotification } from '../../actions/store-actions.es6';
+import { createVm } from '../../actions/provider-actions.js';
+import { addErrorNotification } from '../../actions/store-actions.js';
 import {
     isEmpty,
     convertToUnit,
     timeoutedPromise,
     units,
     LIBVIRT_SYSTEM_CONNECTION,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 import {
     NOT_SPECIFIED,
@@ -41,12 +41,12 @@ import {
     DIVIDER_FAMILY,
     prepareVendors,
     getOSStringRepresentation,
-} from "./createVmDialogUtils.es6";
+} from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
 
 import './createVmDialog.less';
 import 'form-layout.less';
-import VMS_CONFIG from '../../config.es6';
+import VMS_CONFIG from '../../config.js';
 
 const _ = cockpit.gettext;
 

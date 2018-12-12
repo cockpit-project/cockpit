@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import VMS_CONFIG from './config.es6';
+import VMS_CONFIG from './config.js';
 
 const _ = cockpit.gettext;
 

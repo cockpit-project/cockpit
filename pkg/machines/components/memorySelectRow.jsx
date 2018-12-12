@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
 
-import { digitFilter, toFixedPrecision, units } from "../helpers.es6";
+import { digitFilter, toFixedPrecision, units } from "../helpers.js";
 
 const _ = cockpit.gettext;
 

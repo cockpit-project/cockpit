@@ -26,7 +26,7 @@ import {
     rephraseUI,
     storagePoolId,
     units
-} from '../../helpers.es6';
+} from '../../helpers.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
 import cockpit from 'cockpit';

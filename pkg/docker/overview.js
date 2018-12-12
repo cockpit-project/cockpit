@@ -26,8 +26,8 @@
     var React = require("react");
     var ReactDOM = require("react-dom");
 
-    var plot = require("plot.es6");
-    var cpu_ram_info = require("machine-info.es6").cpu_ram_info;
+    var plot = require("plot.js");
+    var cpu_ram_info = require("machine-info.js").cpu_ram_info;
 
     var util = require("./util");
     var storage = require("./storage.jsx");

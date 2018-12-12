@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import { getRefreshInterval } from '../selectors.es6';
-import VMS_CONFIG from "../config.es6";
-import { logDebug } from '../helpers.es6';
-import { virt } from '../provider.es6';
+import { getRefreshInterval } from '../selectors.js';
+import VMS_CONFIG from "../config.js";
+import { logDebug } from '../helpers.js';
+import { virt } from '../provider.js';
 import {
     ATTACH_DISK,
     CHANGE_NETWORK_SETTINGS,
@@ -55,7 +55,7 @@ import {
     START_VM,
     USAGE_START_POLLING,
     USAGE_STOP_POLLING,
-} from '../constants/provider-action-types.es6';
+} from '../constants/provider-action-types.js';
 
 /**
  * All actions dispatchable by in the application

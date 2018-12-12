@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import { logDebug } from './helpers.es6';
+import { logDebug } from './helpers.js';
 
 export function spawnProcess({ cmd, args = [], stdin, failHandler }) {
     const spawnArgs = [cmd, ...args];

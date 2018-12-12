@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import { combineReducers } from 'redux/dist/redux';
-import VMS_CONFIG from "./config.es6";
-import { logDebug } from './helpers.es6';
+import VMS_CONFIG from "./config.js";
+import { logDebug } from './helpers.js';
 import {
     ADD_NOTIFICATION,
     ADD_UI_VM,
@@ -38,7 +38,7 @@ import {
     UPDATE_UI_VM,
     UPDATE_VM,
     VM_ACTION_FAILED,
-} from './constants/store-action-types.es6';
+} from './constants/store-action-types.js';
 
 // --- helpers -------------------
 function getFirstIndexOfResource(state, field, value, connectionName) {

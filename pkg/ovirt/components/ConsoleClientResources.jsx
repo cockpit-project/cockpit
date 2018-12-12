@@ -19,7 +19,7 @@
 import cockpit from 'cockpit';
 import React from "react";
 
-import CONFIG from '../config.es6';
+import CONFIG from '../config.js';
 
 const _ = cockpit.gettext;
 

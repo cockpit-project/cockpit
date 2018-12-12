@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import {
     vmId,
     mouseClick,
-} from "../../helpers.es6";
+} from "../../helpers.js";
 
 import { DeleteDialog } from "../deleteDialog.jsx";
 import DropdownButtons from '../dropdownButtons.jsx';

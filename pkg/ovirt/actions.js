@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import { virt } from '../machines/provider.es6';
+import { virt } from '../machines/provider.js';
 
 export function suspendVm({ id, name, connectionName }) {
     return virt('SUSPEND_VM', { id, name, connectionName });
@@ -38,7 +38,7 @@ export function downloadIcon ({ iconId }) {
     return virt('DOWNLOAD_ICON', { iconId });
 }
 
-export function startVm(vm, hostName) { // matches action creator in ../machines/actions.es6
+export function startVm(vm, hostName) { // matches action creator in ../machines/actions.js
     return virt('START_VM', { name: vm.name, id: vm.id, connectionName: vm.connectionName, hostName });
 }
 

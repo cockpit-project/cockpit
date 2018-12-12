@@ -23,7 +23,7 @@ var React = require("react");
 var ReactDOM = require("react-dom");
 
 var kdumpView = require("./kdump-view.jsx");
-var kdumpClient = require("./kdump-client.es6");
+var kdumpClient = require("./kdump-client.js");
 
 var initStore = function(rootElement) {
     var dataStore = { };

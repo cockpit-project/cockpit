@@ -19,8 +19,8 @@
 
 import cockpit from 'cockpit';
 
-import { logDebug } from './helpers.es6';
-import { setProvider } from './actions/store-actions.es6';
+import { logDebug } from './helpers.js';
+import { setProvider } from './actions/store-actions.js';
 
 var provider = null;
 

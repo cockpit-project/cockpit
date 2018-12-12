@@ -18,9 +18,9 @@
  */
 import cockpit from 'cockpit';
 
-import CONFIG, { PEM_FILE } from './config.es6';
-import { logDebug, logError } from '../machines/helpers.es6';
-import { redirectToOvirtSSO } from './configFuncs.es6';
+import CONFIG, { PEM_FILE } from './config.js';
+import { logDebug, logError } from '../machines/helpers.js';
+import { redirectToOvirtSSO } from './configFuncs.js';
 
 let httpClient = null;
 

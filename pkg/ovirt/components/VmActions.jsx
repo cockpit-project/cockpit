@@ -19,8 +19,8 @@
 import cockpit from 'cockpit';
 import React from "react";
 
-import { suspendVm } from '../actions.es6';
-import { vmId } from '../../machines/helpers.es6';
+import { suspendVm } from '../actions.js';
+import { vmId } from '../../machines/helpers.js';
 
 const _ = cockpit.gettext;
 

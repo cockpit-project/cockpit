@@ -22,9 +22,9 @@ import cockpit from 'cockpit';
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 
 import { VmLastMessage, VmDescription, VmMemory, VmCpu, VmOS, VmHA, VmStateless } from './ClusterVms.jsx';
-import { createVmFromTemplate } from '../actions.es6';
-import { getCurrentCluster } from '../selectors.es6';
-import { logDebug } from '../../machines/helpers.es6';
+import { createVmFromTemplate } from '../actions.js';
+import { getCurrentCluster } from '../selectors.js';
+import { logDebug } from '../../machines/helpers.js';
 
 const NoTemplate = () => (<div>{_("No VM found in oVirt.")}</div>);
 const NoTemplateUnitialized = () => (<div>{_("Please wait till list of templates is loaded from the server.")}</div>);

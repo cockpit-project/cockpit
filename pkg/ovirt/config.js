@@ -62,10 +62,10 @@ const CONFIG = { // will be dynamically replaced by content of CONFIG_FILE_URL w
 
     /**
      * If optional 'Virsh' property is provided here, it will be injected
-     * to machines/config.es6 to adjust virsh connection parameters.
+     * to machines/config.js to adjust virsh connection parameters.
      *
-     * See machines/config.es6
-     * See ovirt/configFuncs.es6:readConfiguration()
+     * See machines/config.js
+     * See ovirt/configFuncs.js:readConfiguration()
      */
     Virsh: {
         connections: null,
@@ -76,12 +76,12 @@ const CONFIG = { // will be dynamically replaced by content of CONFIG_FILE_URL w
      */
     token: null,
     /**
-         * The hostname found in configFuncs.es6:doReadHostname required for auto calculating
+         * The hostname found in configFuncs.js:doReadHostname required for auto calculating
          * the 'Virsh' connection URI property, if libvirt connection URI is not provided by oVirt config file.
          * The auto calculated libvirt URI is as follows: qemu+tls://${hostName}/system
          *
-         * See ovirt/config.es6
-         * See ovirt/configFuncs.es6:readConfiguration()
+         * See ovirt/config.js
+         * See ovirt/configFuncs.js:readConfiguration()
          */
     hostName: null,
 };

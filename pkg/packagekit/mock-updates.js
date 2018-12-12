@@ -2,7 +2,7 @@
  * Mock "available updates" entries for interactively testing layout changes with large updates
  * To use it, import it in updates.jsx:
  *
- *    import { injectMockUpdates } from "./mock-updates.es6";
+ *    import { injectMockUpdates } from "./mock-updates.js";
  *
  * and call it in loadUpdates()'s then Handler:
  *

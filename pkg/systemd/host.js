@@ -21,12 +21,12 @@ import $ from "jquery";
 
 import "polyfills.js";
 import cockpit from "cockpit";
-import * as machine_info from "machine-info.es6";
-import * as packagekit from "packagekit.es6";
+import * as machine_info from "machine-info.js";
+import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import * as plot from "plot.es6";
+import * as plot from "plot.js";
 import * as service from "service.js";
-import shutdown from "./shutdown.es6";
+import shutdown from "./shutdown.js";
 import host_keys_script from "raw!./ssh-list-host-keys.sh";
 
 /* These add themselves to jQuery so just including is enough */

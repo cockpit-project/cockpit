@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import * as machine_info from "machine-info.es6";
+import * as machine_info from "machine-info.js";
 
 // map an info.system key to a /sys/class/dmi/id/* attribute name
 const InfoDMIKey = {

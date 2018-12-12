@@ -18,16 +18,16 @@
  */
 import cockpit from 'cockpit';
 
-import { logDebug, logError } from '../machines/helpers.es6';
-import CONFIG, { OVIRT_CONF_FILE, REQUIRED_OVIRT_API_VERSION, getOvirtBaseUrl } from './config.es6';
-import MACHINES_CONFIG from '../machines/config.es6';
-import { setOvirtApiCheckResult } from './provider.es6';
-import { ovirtApiGet } from './ovirtApiAccess.es6';
-import { startOvirtPolling } from './ovirt.es6';
-import { loginInProgress, setHostname, setHostIPs } from './actions.es6';
+import { logDebug, logError } from '../machines/helpers.js';
+import CONFIG, { OVIRT_CONF_FILE, REQUIRED_OVIRT_API_VERSION, getOvirtBaseUrl } from './config.js';
+import MACHINES_CONFIG from '../machines/config.js';
+import { setOvirtApiCheckResult } from './provider.js';
+import { ovirtApiGet } from './ovirtApiAccess.js';
+import { startOvirtPolling } from './ovirt.js';
+import { loginInProgress, setHostname, setHostIPs } from './actions.js';
 import installationDialog from './components/InstallationDialog.jsx';
 
-import store, { waitForReducerSubtreeInit } from './store.es6';
+import store, { waitForReducerSubtreeInit } from './store.js';
 
 export function readConfiguration ({ dispatch }) {
     logDebug(`readConfiguration() called for configUrl='${OVIRT_CONF_FILE}'`);

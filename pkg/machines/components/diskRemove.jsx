@@ -18,7 +18,7 @@
  */
 import React from 'react';
 
-import { detachDisk } from '../actions/provider-actions.es6';
+import { detachDisk } from '../actions/provider-actions.js';
 
 const onDetachDisk = (dispatch, vm, target) => {
     return () => {

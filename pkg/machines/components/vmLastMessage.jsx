@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from "react";
-import { vmId } from '../helpers.es6';
-import { deleteVmMessage } from '../actions/store-actions.es6';
+import { vmId } from '../helpers.js';
+import { deleteVmMessage } from '../actions/store-actions.js';
 import { WarningAlert } from './notification/inlineNotification.jsx';
 
 const VmLastMessage = ({ vm, dispatch, tab }) => {

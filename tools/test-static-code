@@ -49,7 +49,7 @@ fi
 # wrongly marked translatable strings
 #
 
-if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' -o -name '*.es6' | xargs grep "_('"); then
+if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' | xargs grep "_('"); then
     echo 'ERROR: translatable strings must be marked with _("")' >&2
     echo "$out" >&2
     echo "not ok 3 js-translatable-strings"

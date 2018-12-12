@@ -21,9 +21,9 @@ import {
     addUiVm,
     updateUiVm,
     deleteUiVm,
-} from '../../actions/store-actions.es6';
+} from '../../actions/store-actions.js';
 
-import VMS_CONFIG from "../../config.es6";
+import VMS_CONFIG from "../../config.js";
 
 const INSTALL_TIMEOUT = 'INSTALL_TIMEOUT';
 const CREATE_TIMEOUT = 'CREATE_TIMEOUT';

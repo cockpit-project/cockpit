@@ -332,103 +332,60 @@
   </script>
 
   <script id="network-bond-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Name</label>
-        </td>
-        <td>
-          <input id="network-bond-settings-interface-name-input" class="form-control"
-                 value="{{interface_name}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td class="top">
-          <label class="control-label" translatable="yes">Members</label>
-        </td>
-        <td id="network-bond-settings-members">
-          {{! member interfaces will be rendered into here as a list of checkboxes }}
-        </td>
-      </tr>
-      <tr id="network-bond-settings-mac-row">
-        <td>
-          <label class="control-label" translatable="yes">MAC</label>
-        </td>
-        <td>
-          <div class="input-group">
-            <input id="network-bond-settings-mac-input" class="form-control" type="text"
-                   value="{{assigned_mac_address}}"/>
-            <div class="input-group-btn dropdown">
-              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="fa fa-caret-down"></span>
-              </button>
-              <ul id="network-bond-settings-mac-menu" class="dropdown-menu add-button" role="menu">
-              </ul>
-            </div>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Mode</label>
-        </td>
-        <td id="network-bond-settings-mode-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Primary</label>
-        </td>
-        <td id="network-bond-settings-primary-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link Monitoring</label>
-        </td>
-        <td id="network-bond-settings-link-monitoring-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Monitoring Interval</label>
-        </td>
-        <td>
-          <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{monitoring_interval}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Monitoring Targets</label>
-        </td>
-        <td>
-          <input id="network-bond-settings-monitoring-targets-input" class="form-control"
-                 type="text" value="{{monitoring_targets}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link up delay</label>
-        </td>
-        <td>
-          <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{link_up_delay}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link down delay</label>
-        </td>
-        <td>
-          <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{link_down_delay}}"/>
-        </td>
-      </tr>
-    </table>
+    <form class="ct-form-layout">
+      <label class="control-label" translatable="yes">Name</label>
+      <input id="network-bond-settings-interface-name-input" class="form-control"
+             value="{{interface_name}}"/>
+
+      <label class="control-label" translatable="yes">Members</label>
+      <div id="network-bond-settings-members">
+      {{! member interfaces will be rendered into here as a list of checkboxes }}
+      </div>
+
+      <label class="control-label" translatable="yes">MAC</label>
+      <div class="input-group">
+        <input id="network-bond-settings-mac-input" class="form-control" type="text"
+               value="{{assigned_mac_address}}"/>
+        <div class="input-group-btn dropdown">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-caret-down"></span>
+          </button>
+          <ul id="network-bond-settings-mac-menu" class="dropdown-menu add-button" role="menu">
+          </ul>
+        </div>
+      </div>
+
+      <label class="control-label" translatable="yes">Mode</label>
+      <div id="network-bond-settings-mode-select">
+        {{! the rather complex dropdown-select will be created dynamically via jquery }}
+      </div>
+
+      <label class="control-label" translatable="yes">Primary</label>
+      <div id="network-bond-settings-primary-select">
+        {{! the rather complex dropdown-select will be created dynamically via jquery }}
+      </div>
+
+      <label class="control-label" translatable="yes">Link Monitoring</label>
+      <div id="network-bond-settings-link-monitoring-select">
+        {{! the rather complex dropdown-select will be created dynamically via jquery }}
+      </div>
+
+      <label class="control-label" translatable="yes">Monitoring Interval</label>
+      <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{monitoring_interval}}"/>
+
+      <label class="control-label" translatable="yes">Monitoring Targets</label>
+      <input id="network-bond-settings-monitoring-targets-input" class="form-control"
+             type="text" value="{{monitoring_targets}}"/>
+
+      <label class="control-label" translatable="yes">Link up delay</label>
+      <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{link_up_delay}}"/>
+
+      <label class="control-label" translatable="yes">Link down delay</label>
+      <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{link_down_delay}}"/>
+    </form>
   </script>
 
   <script id="network-team-settings-template" type="x-template/mustache">

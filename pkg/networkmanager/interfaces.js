@@ -36,6 +36,7 @@ import "table.css";
 import "plot.css";
 import "journal.css";
 import "./networking.css";
+import "form-layout.less";
 
 const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -3421,7 +3422,7 @@ function slave_interface_choices(model, master) {
 }
 
 function render_slave_interface_choices(model, master) {
-    return $('<ul class="list-group available-interfaces-group dialog-list-ct">').append(
+    return $('<ul class="list-group dialog-list-ct">').append(
         slave_interface_choices(model, master).map(function (iface) {
             return $('<li class="list-group-item">').append(
                 $('<div class="checkbox">')
@@ -3670,7 +3671,8 @@ PageNetworkBondSettings.prototype = {
         function change_mode() {
             options.mode = select_btn_selected(mode_btn);
 
-            primary_btn.parents("tr").toggle(options.mode == "active-backup");
+            primary_btn.toggle(options.mode == "active-backup");
+            primary_btn.prev().toggle(options.mode == "active-backup");
             if (options.mode == "active-backup")
                 options.primary = select_btn_selected(primary_btn);
             else
@@ -3680,9 +3682,12 @@ PageNetworkBondSettings.prototype = {
         function change_monitoring() {
             var use_mii = select_btn_selected(monitoring_btn) == "mii";
 
-            targets_input.parents("tr").toggle(!use_mii);
-            updelay_input.parents("tr").toggle(use_mii);
-            downdelay_input.parents("tr").toggle(use_mii);
+            targets_input.toggle(!use_mii);
+            targets_input.prev().toggle(!use_mii);
+            updelay_input.toggle(use_mii);
+            updelay_input.prev().toggle(use_mii);
+            downdelay_input.toggle(use_mii);
+            downdelay_input.prev().toggle(use_mii);
 
             if (use_mii) {
                 options.miimon = interval_input.val();
@@ -3716,18 +3721,18 @@ PageNetworkBondSettings.prototype = {
                     self.settings.connection.interface_name = val;
                 });
         body.find('#network-bond-settings-members')
-                .append(slaves_element = render_slave_interface_choices(model, master)
+                .replaceWith(slaves_element = render_slave_interface_choices(model, master)
                         .change(change_slaves));
         fill_mac_menu(body.find('#network-bond-settings-mac-menu'),
                       mac_input = body.find('#network-bond-settings-mac-input'),
                       model);
         mac_input.change(change_mac);
         body.find('#network-bond-settings-mode-select')
-                .append(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
+                .replaceWith(mode_btn = select_btn(change_mode, bond_mode_choices, "form-control"));
         body.find('#network-bond-settings-primary-select')
-                .append(primary_btn = slave_chooser_btn(change_mode, slaves_element, "form-control"));
+                .replaceWith(primary_btn = slave_chooser_btn(change_mode, slaves_element, "form-control"));
         body.find('#network-bond-settings-link-monitoring-select')
-                .append(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
+                .replaceWith(monitoring_btn = select_btn(change_monitoring, bond_monitoring_choices, "form-control"));
 
         interval_input = body.find('#network-bond-settings-monitoring-interval-input');
         interval_input.change(change_monitoring);

@@ -71,7 +71,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bond')")
         b.wait_popup("network-bond-settings-dialog")
-        b.set_val("#network-bond-settings-dialog tr:contains('Name') input", "tbond")
+        b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")

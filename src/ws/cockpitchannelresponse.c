@@ -238,16 +238,17 @@ cockpit_channel_response_close (CockpitChannel *channel,
       else if (g_str_equal (problem, "no-host") ||
                g_str_equal (problem, "no-cockpit") ||
                g_str_equal (problem, "unknown-hostkey") ||
+               g_str_equal (problem, "unknown-host") ||
                g_str_equal (problem, "authentication-failed") ||
                g_str_equal (problem, "disconnected"))
         {
           g_debug ("%s: remote server unavailable: %s", self->logname, problem);
-          cockpit_web_response_error (self->response, 502, NULL, NULL);
+          cockpit_web_response_error (self->response, 502, NULL, "%s", problem);
         }
       else
         {
           g_message ("%s: external channel failed: %s", self->logname, problem);
-          cockpit_web_response_error (self->response, 500, NULL, NULL);
+          cockpit_web_response_error (self->response, 500, NULL, "%s", problem);
         }
     }
   else

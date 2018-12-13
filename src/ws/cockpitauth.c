@@ -1174,16 +1174,19 @@ cockpit_auth_class_init (CockpitAuthClass *klass)
   cockpit_authorize_logger (authorize_logger, 0);
 }
 
-static char *
+static gchar *
 base64_decode_string (const char *enc)
 {
+  gchar *dec;
+  gsize len;
+
   if (enc == NULL)
     return NULL;
 
-  char *dec = g_strdup (enc);
-  gsize len;
-  g_base64_decode_inplace (dec, &len);
-  dec[len] = '\0';
+  dec = (gchar *)g_base64_decode (enc, &len);
+  if (dec)
+    dec[len] = '\0';
+
   return dec;
 }
 

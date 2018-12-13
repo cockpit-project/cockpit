@@ -286,6 +286,12 @@ test_headers_bad (Test *test,
   if (cockpit_auth_check_cookie (test->auth, "/cockpit", headers))
       g_assert_not_reached ();
 
+  /* Bad encoding */
+  g_hash_table_remove_all (headers);
+  g_hash_table_insert (headers, g_strdup ("Cookie"), g_strdup ("cockpit=d"));
+  if (cockpit_auth_check_cookie (test->auth, "/cockpit", headers))
+      g_assert_not_reached ();
+
   g_hash_table_destroy (headers);
 }
 

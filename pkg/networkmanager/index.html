@@ -196,26 +196,20 @@
   </script>
 
   <script id="network-mac-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">MAC</label>
-        </td>
-        <td>
-          <div class="input-group">
-            <input id="network-mac-settings-input" class="form-control" type="text"
-                   value="{{assigned_mac_address}}"/>
-            <div class="input-group-btn dropdown">
-              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="fa fa-caret-down"></span>
-              </button>
-              <ul id="network-mac-settings-menu" class="dropdown-menu add-button" role="menu">
-              </ul>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </table>
+    <form class="ct-form-layout">
+      <label class="control-label" translatable="yes">MAC</label>
+      <div class="input-group">
+        <input id="network-mac-settings-input" class="form-control" type="text"
+               value="{{assigned_mac_address}}"/>
+        <div class="input-group-btn dropdown">
+          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-caret-down"></span>
+          </button>
+          <ul id="network-mac-settings-menu" class="dropdown-menu add-button" role="menu">
+          </ul>
+        </div>
+      </div>
+    </form>
   </script>
 
   <script id="network-bridge-settings-template" type="x-template/mustache">

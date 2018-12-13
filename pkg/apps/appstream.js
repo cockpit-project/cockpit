@@ -19,8 +19,8 @@
 
 var cockpit = require("cockpit");
 var python = require("python.js");
-var inotify_py = require("raw!inotify.py");
-var watch_appstream_py = require("raw!./watch-appstream.py");
+var inotify_py = require("raw-loader!inotify.py");
+var watch_appstream_py = require("raw-loader!./watch-appstream.py");
 
 var metainfo_db = null;
 

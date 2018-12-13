@@ -406,7 +406,7 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
-                loader: 'strict' // Adds "use strict"
+                loader: 'strict-loader' // Adds "use strict"
             },
             /* these are called *.js, but are ES6 */
             {
@@ -429,11 +429,11 @@ module.exports = {
             },
             {
                 test: /views\/[^\/]+\.html$/,
-                loader: "ng-cache?prefix=[dir]"
+                loader: "ng-cache-loader?prefix=[dir]"
             },
             {
                 test: /[\/]angular\.js$/,
-                loader: "exports?angular"
+                loader: "exports-loader?angular"
             }
         ],
     }

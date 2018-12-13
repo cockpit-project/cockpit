@@ -29,15 +29,15 @@
     var credentials = require("credentials");
     require("patterns");
 
-    var add_tmpl = require("raw!machine-add.html");
-    var auth_failed_tmpl = require("raw!machine-auth-failed.html");
-    var change_auth_tmpl = require("raw!machine-change-auth.html");
-    var change_port_tmpl = require("raw!machine-change-port.html");
-    var color_picker_tmpl = require("raw!machine-color-picker.html");
-    var invalid_hostkey_tmpl = require("raw!machine-invalid-hostkey.html");
-    var not_supported_tmpl = require("raw!machine-not-supported.html");
-    var sync_users_tmpl = require("raw!machine-sync-users.html");
-    var unknown_hosts_tmpl = require("raw!machine-unknown-hostkey.html");
+    var add_tmpl = require("raw-loader!machine-add.html");
+    var auth_failed_tmpl = require("raw-loader!machine-auth-failed.html");
+    var change_auth_tmpl = require("raw-loader!machine-change-auth.html");
+    var change_port_tmpl = require("raw-loader!machine-change-port.html");
+    var color_picker_tmpl = require("raw-loader!machine-color-picker.html");
+    var invalid_hostkey_tmpl = require("raw-loader!machine-invalid-hostkey.html");
+    var not_supported_tmpl = require("raw-loader!machine-not-supported.html");
+    var sync_users_tmpl = require("raw-loader!machine-sync-users.html");
+    var unknown_hosts_tmpl = require("raw-loader!machine-unknown-hostkey.html");
 
     var _ = cockpit.gettext;
 

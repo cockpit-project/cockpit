@@ -22,7 +22,7 @@ var $ = require("jquery");
 
 var _ = cockpit.gettext;
 
-var run_sosreport_sh = require("raw!./run-sosreport.sh");
+var run_sosreport_sh = require("raw-loader!./run-sosreport.sh");
 
 var sos_task;
 var sos_archive_url;

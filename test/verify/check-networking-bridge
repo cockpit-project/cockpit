@@ -47,7 +47,7 @@ class TestNetworking(NetworkCase):
         # Bridge them
         b.click("button:contains('Add Bridge')")
         b.wait_popup("network-bridge-settings-dialog")
-        b.set_val("#network-bridge-settings-dialog tr:contains('Name') input", "tbridge")
+        b.set_val("#network-bridge-settings-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
@@ -80,7 +80,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Bridge')")
         b.wait_popup("network-bridge-settings-dialog")
-        b.set_val("#network-bridge-settings-dialog tr:contains('Name') input", "tbridge")
+        b.set_val("#network-bridge-settings-name-input", "tbridge")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")

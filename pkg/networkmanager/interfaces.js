@@ -4152,10 +4152,14 @@ PageNetworkBridgeSettings.prototype = {
             options.hello_time = parseInt(hello_time_input.val(), 10);
             options.max_age = parseInt(max_age_input.val(), 10);
 
-            priority_input.parents("tr").toggle(options.stp);
-            forward_delay_input.parents("tr").toggle(options.stp);
-            hello_time_input.parents("tr").toggle(options.stp);
-            max_age_input.parents("tr").toggle(options.stp);
+            priority_input.toggle(options.stp);
+            priority_input.prev().toggle(options.stp);
+            forward_delay_input.toggle(options.stp);
+            forward_delay_input.prev().toggle(options.stp);
+            hello_time_input.toggle(options.stp);
+            hello_time_input.prev().toggle(options.stp);
+            max_age_input.toggle(options.stp);
+            max_age_input.prev().toggle(options.stp);
         }
 
         var body = $(mustache.render(self.bridge_settings_template, {
@@ -4173,10 +4177,11 @@ PageNetworkBridgeSettings.prototype = {
                     self.settings.connection.id = val;
                     self.settings.connection.interface_name = val;
                 });
-        body.find('#network-bridge-settings-slave-interfaces')
-                .append(render_slave_interface_choices(model, con).change(change_slaves))
-                .parent()
-                .toggle(!con);
+        var slave_interfaces = body.find('#network-bridge-settings-slave-interfaces')
+                .replaceWith(render_slave_interface_choices(model, con).change(change_slaves));
+        slave_interfaces.toggle(!con);
+        slave_interfaces.prev().toggle(!con);
+
         stp_input = body.find('#network-bridge-settings-stp-enabled-input');
         stp_input.change(change_stp);
         priority_input = body.find('#network-bridge-settings-stp-priority-input');

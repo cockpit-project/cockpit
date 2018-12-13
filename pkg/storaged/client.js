@@ -26,7 +26,7 @@
 
     var utils = require('./utils');
 
-    var python = require("python.jsx");
+    var python = require("python.js");
     var inotify_py = require("raw!inotify.py");
     var nfs_mounts_py = require("raw!./nfs-mounts.py");
     var vdo_monitor_py = require("raw!./vdo-monitor.py");

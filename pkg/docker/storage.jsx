@@ -25,7 +25,7 @@ import ReactDOM from "react-dom";
 
 import dialog_view from "cockpit-components-dialog.jsx";
 
-import * as python from "python.jsx";
+import * as python from "python.js";
 import cockpit_atomic_storage from "raw!./cockpit-atomic-storage";
 
 (function() {

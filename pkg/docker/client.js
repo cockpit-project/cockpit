@@ -222,7 +222,8 @@
             "init.scope/system.slice/docker-",
             "system.slice/docker/",
             "system.slice/docker-",
-            "docker/"
+            "docker/",
+            "kubepods"
         ];
 
         function update_usage_grid() {
@@ -239,7 +240,24 @@
                 cgroup_prefixes.forEach(function(prefix) {
                     instances.forEach(function(cgroup) {
                         if (cgroup.indexOf(prefix) === 0) {
-                            var id = cgroup.substr(prefix.length, 64);
+                            var id;
+
+                            if (prefix === "kubepods") {
+                                /* k8s containers have a long and irregular/impredictable prefix
+
+                                   systemd driver looks like kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-pod2e7[...].slice/docker-DOCKERID.scope/
+                                   cgroupfs driver looks like kubepods/besteffort/pod5827[...]/DOCKERID
+                                */
+                                var offset = cgroup.lastIndexOf("docker-");
+                                if (offset > 0)
+                                    id = cgroup.substr(offset + 7, 64);
+                                else
+                                    id = cgroup.substr(cgroup.lastIndexOf('/') + 1);
+                            } else {
+                                // normal docker containers have a predictable prefix
+                                id = cgroup.substr(prefix.length, 64);
+                            }
+
                             if (self.containers[id] && !usage_samples[id]) {
                                 self.containers[id].CGroup = cgroup;
                                 usage_samples[id] = [

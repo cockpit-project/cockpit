@@ -54,7 +54,12 @@ export class VDODetails extends React.Component {
         this.state = { stats: null };
     }
 
-    ensure_polling(client, path) {
+    ensure_polling(enable) {
+        var client = this.props.client;
+        var vdo = this.props.vdo;
+        var block = client.slashdevs_block[vdo.dev];
+        var path = enable && block ? vdo.dev : null;
+
         var buf = "";
 
         if (this.poll_path === path)
@@ -79,8 +84,16 @@ export class VDODetails extends React.Component {
         this.poll_path = path;
     }
 
+    componentDidMount() {
+        this.ensure_polling(true);
+    }
+
+    componentDidUpdate() {
+        this.ensure_polling(true);
+    }
+
     componentWillUnmount() {
-        this.ensure_polling(null, null);
+        this.ensure_polling(false);
     }
 
     render() {
@@ -108,8 +121,6 @@ export class VDODetails extends React.Component {
             );
             return <StdDetailsLayout client={this.props.client} alert={broken} />;
         }
-
-        this.ensure_polling(client, block ? vdo.dev : null);
 
         var alert = null;
         if (backing_block && backing_block.Size > vdo.physical_size)

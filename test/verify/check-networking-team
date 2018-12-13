@@ -50,7 +50,7 @@ class TestNetworking(NetworkCase):
         # team them
         b.click("button:contains('Add Team')")
         b.wait_popup("network-team-settings-dialog")
-        b.set_val("#network-team-settings-dialog tr:contains('Name') input", "tteam")
+        b.set_val("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface1, True)
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
@@ -105,7 +105,7 @@ class TestNetworking(NetworkCase):
 
         b.click("button:contains('Add Team')")
         b.wait_popup("network-team-settings-dialog")
-        b.set_val("#network-team-settings-dialog tr:contains('Name') input", "tteam")
+        b.set_val("#network-team-settings-interface-name-input", "tteam")
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-team-settings-dialog")

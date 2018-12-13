@@ -364,6 +364,26 @@ var aliases = {
 if (production)
     aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
 
+
+var babel_loader = {
+    loader: "babel-loader",
+    options: {
+        presets: [
+            ["@babel/env", {
+                "targets": {
+                    "chrome": "57",
+                    "firefox": "52",
+                    "safari": "10.3",
+                    "edge": "16",
+                    "opera": "44"
+                }
+            }],
+            "@babel/preset-react"
+        ],
+        plugins: ["@babel/plugin-transform-modules-commonjs"]
+    }
+}
+
 module.exports = {
     mode: production ? 'production' : 'development',
     resolve: {
@@ -400,13 +420,13 @@ module.exports = {
             /* these are called *.js, but are ES6 */
             {
                 test: /\/node_modules\/@novnc.*\.js$/,
-                loader: "babel-loader"
+                use: babel_loader
             },
             {
                 test: /\.(js|jsx|es6)$/,
                 // exclude external dependencies; it's too slow, and they are already plain JS except the above
                 exclude: /\/node_modules\/.*\//,
-                loader: "babel-loader"
+                use: babel_loader
             },
             {
                 test: /\.css$/,

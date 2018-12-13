@@ -89,9 +89,6 @@ class TestStorage(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Mounted At", "/run/data")
         self.content_tab_wait_in_info(1, 1, "Used", "of 4.99 GiB", "of 5.0 GiB")
 
-        # XXX - Clicking "Mount" above triggers this React warning.
-        self.allow_browser_errors("Warning: Cannot update during an existing state transition")
-
         # Grow physical
 
         m.execute("lvresize vdo_vgroup/lvol -L 9G")

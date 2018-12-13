@@ -248,35 +248,21 @@
   </script>
 
   <script id="network-bridge-port-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Priority</label>
-        </td>
-        <td>
-          <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field" type="text"
-                 value="{{priority}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Path cost</label>
-        </td>
-        <td>
-          <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field" type="text"
-                 value="{{path_cost}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Hair Pin mode</label>
-        </td>
-        <td>
-          <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
-                 {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
-        </td>
-      </tr>
-    </table>
+    <form class="ct-form-layout">
+      <label class="control-label" translatable="yes">Priority</label>
+      <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" value="{{priority}}"/>
+
+      <label class="control-label" translatable="yes">Path cost</label>
+      <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" value="{{path_cost}}"/>
+
+      <label class="control-label" translatable="yes">Hair Pin mode</label>
+      <label class="checkbox-inline">
+        <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
+               {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
+      </label>
+    </form>
   </script>
 
   <script id="network-bond-settings-template" type="x-template/mustache">

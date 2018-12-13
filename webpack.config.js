@@ -320,11 +320,6 @@ info.files.forEach(function(value) {
 info.files = files;
 
 var plugins = [
-    new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': JSON.stringify(production ? 'production' : 'development')
-        }
-    }),
     new copy(info.files),
     new extract("[name].css"),
 ];
@@ -337,13 +332,6 @@ var output = {
 
 /* Only minimize when in production mode */
 if (production) {
-    plugins.unshift(new webpack.optimize.UglifyJsPlugin({
-        beautify: true,
-        compress: {
-            warnings: false
-        },
-    }));
-
     /* Rename output files when minimizing */
     output.filename = "[name].min.js";
 }
@@ -377,13 +365,11 @@ if (production)
     aliases["redux/dist/redux"] = "redux/dist/redux.min.js";
 
 module.exports = {
+    mode: production ? 'production' : 'development',
     resolve: {
         alias: aliases,
-        modulesDirectories: [ libdir, nodedir ],
-        extensions: ["", ".js", ".json", ".less"]
-    },
-    resolveLoader: {
-        root: nodedir
+        modules: [ libdir, nodedir ],
+        extensions: ["*", ".js", ".json", ".less"]
     },
     entry: info.entries,
     output: output,
@@ -392,15 +378,20 @@ module.exports = {
 
     devtool: "source-map",
 
+    // disable noisy warnings about exceeding the recommended size limit
+    performance: {
+        maxAssetSize: 20000000,
+        maxEntrypointSize: 20000000,
+    },
+
     module: {
-        preLoaders: [
+        rules: [
             {
+                enforce: 'pre',
                 test: /\.(js|es6|jsx)$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
                 loader: "eslint-loader"
-            }
-        ],
-        loaders: [
+            },
             {
                 test: /\.js$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies
@@ -427,11 +418,23 @@ module.exports = {
             },
             {
                 test: /views\/[^\/]+\.html$/,
-                loader: "ng-cache-loader?prefix=[dir]"
+                use: [{
+                    loader: 'ng-cache-loader',
+
+                    options: {
+                        prefix: '[dir]'
+                    }
+                }]
             },
             {
                 test: /[\/]angular\.js$/,
-                loader: "exports-loader?angular"
+                use: [{
+                    loader: 'exports-loader',
+
+                    options: {
+                        angular: true
+                    }
+                }]
             }
         ],
     }

@@ -82,6 +82,9 @@ function generateDeps(makefile, stats) {
     var stampfile = pkgdir + '/stamp';
 
     stats.compilation.modules.forEach(function(module) {
+        // skip external, multi, and other "not quite" modules
+        if (module.constructor.name !== 'NormalModule')
+            return;
         var parts = module.identifier().split("!");
         parts.concat(module.fileDependencies || []).forEach(function(part) {
             var input = part.split("?")[0];

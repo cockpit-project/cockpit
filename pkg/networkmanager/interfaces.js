@@ -4062,10 +4062,17 @@ PageNetworkTeamPortSettings.prototype = {
         lacp_key_input = body.find('#network-team-port-settings-lacp-key-input');
         lacp_key_input.change(change);
 
-        ab_prio_input.parents("tr").toggle(master_config.runner.name == "activebackup");
-        ab_sticky_input.parents("tr").toggle(master_config.runner.name == "activebackup");
-        lacp_prio_input.parents("tr").toggle(master_config.runner.name == "lacp");
-        lacp_key_input.parents("tr").toggle(master_config.runner.name == "lacp");
+        ab_prio_input.toggle(master_config.runner.name == "activebackup");
+        ab_prio_input.prev().toggle(master_config.runner.name == "activebackup");
+        ab_sticky_input.toggle(master_config.runner.name == "activebackup");
+        ab_sticky_input
+                .parent()
+                .prev()
+                .toggle(master_config.runner.name == "activebackup");
+        lacp_prio_input.toggle(master_config.runner.name == "lacp");
+        lacp_prio_input.prev().toggle(master_config.runner.name == "lacp");
+        lacp_key_input.toggle(master_config.runner.name == "lacp");
+        lacp_key_input.prev().toggle(master_config.runner.name == "lacp");
 
         $('#network-teamport-settings-body').html(body);
     },

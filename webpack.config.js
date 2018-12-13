@@ -211,7 +211,6 @@ var info = {
         "playground/metrics.html",
         "playground/pkgs.html",
         "playground/plot.html",
-        "playground/po.js",
         "playground/react-patterns.html",
         "playground/service.html",
         "playground/speed.html",

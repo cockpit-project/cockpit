@@ -389,85 +389,47 @@
   </script>
 
   <script id="network-team-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Name</label>
-        </td>
-        <td>
-          <input id="network-team-settings-interface-name-input" class="form-control"
-                 value="{{interface_name}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td class="top">
-          <label class="control-label" translatable="yes">Ports</label>
-        </td>
-        <td id="network-team-settings-members">
+    <form class="ct-form-layout">
+      <label class="control-label" translatable="yes">Name</label>
+      <input id="network-team-settings-interface-name-input" class="form-control"
+             value="{{interface_name}}"/>
+
+      <label class="control-label" translatable="yes">Ports</label>
+      <div id="network-team-settings-members">
           {{! ports will be rendered into here as a list of checkboxes }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Runner</label>
-        </td>
-        <td id="network-team-settings-runner-select">
+      </div>
+
+      <label class="control-label" translatable="yes">Runner</label>
+      <div id="network-team-settings-runner-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Balancer</label>
-        </td>
-        <td id="network-team-settings-balancer-select">
+      </div>
+
+      <label class="control-label" translatable="yes">Balancer</label>
+      <div id="network-team-settings-balancer-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link Watch</label>
-        </td>
-        <td id="network-team-settings-link-watch-select">
+      </div>
+
+      <label class="control-label" translatable="yes">Link Watch</label>
+      <div id="network-team-settings-link-watch-select">
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Ping Interval</label>
-        </td>
-        <td>
-          <input id="network-team-settings-ping-interval-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Ping Target</label>
-        </td>
-        <td>
-          <input id="network-team-settings-ping-target-input" class="form-control"
-                 type="text" value="{{config.link_watch.target_host}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link up delay</label>
-        </td>
-        <td>
-          <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Link down delay</label>
-        </td>
-        <td>
-          <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field"
-                 type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
-        </td>
-      </tr>
-    </table>
+      </div>
+
+      <label class="control-label" translatable="yes">Ping Interval</label>
+      <input id="network-team-settings-ping-interval-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
+
+      <label class="control-label" translatable="yes">Ping Target</label>
+      <input id="network-team-settings-ping-target-input" class="form-control"
+             type="text" value="{{config.link_watch.target_host}}"/>
+
+      <label class="control-label" translatable="yes">Link up delay</label>
+      <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
+
+      <label class="control-label" translatable="yes">Link down delay</label>
+      <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field ct-form-layout-relax"
+             type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
+    </form>
   </script>
 
   <script id="network-team-port-settings-template" type="x-template/mustache">

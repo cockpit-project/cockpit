@@ -3873,8 +3873,9 @@ PageNetworkTeamSettings.prototype = {
 
         function change_runner() {
             config.runner.name = select_btn_selected(runner_btn);
-            balancer_btn.parents("tr").toggle(config.runner.name == "loadbalance" ||
-                                              config.runner.name == "lacp");
+            var toggle_condition = config.runner.name == "loadbalance" || config.runner.name == "lacp";
+            balancer_btn.toggle(toggle_condition);
+            balancer_btn.prev().toggle(toggle_condition);
         }
 
         function change_balancer() {
@@ -3891,11 +3892,16 @@ PageNetworkTeamSettings.prototype = {
 
         function change_watch() {
             var name = select_btn_selected(watch_btn);
+            var toggle_condition = name != "ethtool";
 
-            interval_input.parents("tr").toggle(name != "ethtool");
-            target_input.parents("tr").toggle(name != "ethtool");
-            updelay_input.parents("tr").toggle(name == "ethtool");
-            downdelay_input.parents("tr").toggle(name == "ethtool");
+            interval_input.toggle(toggle_condition);
+            interval_input.prev().toggle(toggle_condition);
+            target_input.toggle(toggle_condition);
+            target_input.prev().toggle(toggle_condition);
+            updelay_input.toggle(!toggle_condition);
+            updelay_input.prev().toggle(!toggle_condition);
+            downdelay_input.toggle(!toggle_condition);
+            downdelay_input.prev().toggle(!toggle_condition);
 
             config.link_watch = { "name": name };
 
@@ -3921,13 +3927,13 @@ PageNetworkTeamSettings.prototype = {
                     self.settings.connection.interface_name = val;
                 });
         body.find('#network-team-settings-members')
-                .append(render_slave_interface_choices(model, master).change(change_slaves));
+                .replaceWith(render_slave_interface_choices(model, master).change(change_slaves));
         body.find('#network-team-settings-runner-select')
-                .append(runner_btn = select_btn(change_runner, team_runner_choices, "form-control"));
+                .replaceWith(runner_btn = select_btn(change_runner, team_runner_choices, "form-control"));
         body.find('#network-team-settings-balancer-select')
-                .append(balancer_btn = select_btn(change_balancer, team_balancer_choices, "form-control"));
+                .replaceWith(balancer_btn = select_btn(change_balancer, team_balancer_choices, "form-control"));
         body.find('#network-team-settings-link-watch-select')
-                .append(watch_btn = select_btn(change_watch, team_watch_choices, "form-control"));
+                .replaceWith(watch_btn = select_btn(change_watch, team_watch_choices, "form-control"));
 
         interval_input = body.find('#network-team-settings-ping-interval-input');
         interval_input.change(change_watch);

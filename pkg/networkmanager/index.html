@@ -160,34 +160,20 @@
   </div>
 
   <script id="network-vlan-settings-template" type="x-template/mustache">
-    <table class="form-table-ct">
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Parent</label>
-        </td>
-        <td id="network-vlan-settings-parent-select">
-          {{! the rather complex dropdown-select will be created dynamically via jquery }}
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">VLAN Id</label>
-        </td>
-        <td>
-          <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
-                 value="{{vlan_id}}"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label class="control-label" translatable="yes">Name</label>
-        </td>
-        <td>
-          <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
-                 value="{{interface_name}}"/>
-        </td>
-      </tr>
-    </table>
+    <form class="ct-form-layout">
+      <label class="control-label" translatable="yes">Parent</label>
+      <div id="network-vlan-settings-parent-select">
+        {{! the rather complex dropdown-select will be created dynamically via jquery }}
+      </div>
+
+      <label class="control-label" translatable="yes">VLAN Id</label>
+      <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
+             value="{{vlan_id}}"/>
+
+      <label class="control-label" translatable="yes">Name</label>
+      <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
+             value="{{interface_name}}"/>
+    </form>
   </script>
 
   <script id="network-mtu-settings-template" type="x-template/mustache">

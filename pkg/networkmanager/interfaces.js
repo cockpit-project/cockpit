@@ -4400,7 +4400,7 @@ PageNetworkVlanSettings.prototype = {
             interface_name: options.interface_name
         }));
         parent_btn = select_btn(change, parent_choices, "form-control");
-        body.find('#network-vlan-settings-parent-select').html(parent_btn);
+        body.find('#network-vlan-settings-parent-select').replaceWith(parent_btn);
         id_input = body.find('#network-vlan-settings-vlan-id-input')
                 .change(change)
                 .on('input', change);

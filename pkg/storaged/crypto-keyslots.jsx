@@ -22,7 +22,7 @@ import React from "react";
 import sha1 from "js-sha1";
 import stable_stringify from "json-stable-stringify-without-jsonify";
 
-import * as python from "python.jsx";
+import * as python from "python.js";
 
 import {
     dialog_open,

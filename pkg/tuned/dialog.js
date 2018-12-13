@@ -35,7 +35,7 @@
     function setup() {
         var tuned_service = service.proxy('tuned.service');
 
-        var element = $(require("raw!./link.html"));
+        var element = $(require("raw-loader!./link.html"));
 
         var button = element.find(".action-trigger");
         var tooltip = element.find("#tuned-status-tooltip");

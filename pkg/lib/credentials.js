@@ -23,8 +23,8 @@
     var $ = require("jquery");
     var cockpit = require("cockpit");
 
-    var lister = require("raw!credentials-ssh-private-keys.sh");
-    var remove_key = require("raw!credentials-ssh-remove-key.sh");
+    var lister = require("raw-loader!credentials-ssh-private-keys.sh");
+    var remove_key = require("raw-loader!credentials-ssh-remove-key.sh");
 
     var _ = cockpit.gettext;
 

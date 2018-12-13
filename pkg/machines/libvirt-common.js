@@ -1,9 +1,9 @@
 import cockpit from 'cockpit';
 import service from '../lib/service.js';
-import createVmScript from 'raw!./scripts/create_machine.sh';
-import installVmScript from 'raw!./scripts/install_machine.sh';
-import getOSListScript from 'raw!./scripts/get_os_list.sh';
-import getLibvirtServiceNameScript from 'raw!./scripts/get_libvirt_service_name.sh';
+import createVmScript from 'raw-loader!./scripts/create_machine.sh';
+import installVmScript from 'raw-loader!./scripts/install_machine.sh';
+import getOSListScript from 'raw-loader!./scripts/get_os_list.sh';
+import getLibvirtServiceNameScript from 'raw-loader!./scripts/get_libvirt_service_name.sh';
 
 import {
     setLoggedInUser,

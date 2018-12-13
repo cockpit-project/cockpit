@@ -22,9 +22,9 @@
 
     var cockpit = require("cockpit");
     var Mustache = require("mustache");
-    var day_header_template = require('raw!journal_day_header.mustache');
-    var line_template = require('raw!journal_line.mustache');
-    var reboot_template = require('raw!journal_reboot.mustache');
+    var day_header_template = require('raw-loader!journal_day_header.mustache');
+    var line_template = require('raw-loader!journal_line.mustache');
+    var reboot_template = require('raw-loader!journal_reboot.mustache');
 
     var _ = cockpit.gettext;
     var C_ = cockpit.gettext;

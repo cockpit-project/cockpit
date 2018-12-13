@@ -18,7 +18,7 @@
     var REALM = "org.freedesktop.realmd.Realm";
 
     function instance(realmd, mode, realm, button) {
-        var dialog = jQuery.parseHTML(require("raw!./operation.html"))[0];
+        var dialog = jQuery.parseHTML(require("raw-loader!./operation.html"))[0];
 
         /* Scope the jQuery selector to our dialog */
         var $ = function(selector, context) {

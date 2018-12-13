@@ -436,21 +436,25 @@ test_resource_failure (TestResourceCase *tc,
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
     g_main_context_iteration (NULL, TRUE);
 
+  /* Null terminate for str-match below */
+  g_output_stream_write_all (G_OUTPUT_STREAM (tc->output), "\0", 1, NULL, NULL, &error);
+  g_assert_no_error (error);
+
   g_output_stream_close (G_OUTPUT_STREAM (tc->output), NULL, &error);
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 500 Internal Server Error\r\n"
+  cockpit_assert_strmatch (g_bytes_get_data (bytes, NULL),
+                           "HTTP/1.1 500 *\r\n"
                            "Content-Type: text/html; charset=utf8\r\n"
                            "Transfer-Encoding: chunked\r\n"
                            "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
                            "\r\n13\r\n"
-                           "<html><head><title>\r\n15\r\n"
-                           "Internal Server Error\r\n15\r\n"
-                           "</title></head><body>\r\n15\r\n"
-                           "Internal Server Error\r\nf\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n", -1);
+                           "<html><head><title>\r\n*\r\n"
+                           "*\r\n"
+                           "</title></head><body>\r\n*\r\n"
+                           "*\r\n"
+                           "</body></html>\n\r\n0\r\n\r\n");
   g_bytes_unref (bytes);
   g_object_unref (response);
 }

@@ -25,8 +25,6 @@
 
 #include <json-glib/json-glib.h>
 
-#include <gssapi/gssapi.h>
-
 G_BEGIN_DECLS
 
 typedef struct _CockpitCreds       CockpitCreds;

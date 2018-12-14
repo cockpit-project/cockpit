@@ -60,6 +60,14 @@ class KubernetesCase(testlib.MachineCase):
         self.machine.execute(
             """sed -i '/KUBELET_ARGS=/ { s/"$/ --eviction-hard=imagefs.available<0% --eviction-soft=imagefs.available<0%"/ }' /etc/kubernetes/kubelet""")
 
+        # HACK: default systemd cgroup driver has been broken for a long time (https://bugzilla.redhat.com/show_bug.cgi?id=1558425)
+        if self.machine.image in ["fedora-29", "fedora-testing"]:
+            self.machine.execute("""
+sed -i 's/--cgroup-driver=systemd/--cgroup-driver=cgroupfs/' /etc/kubernetes/kubelet
+sed -i 's/native.cgroupdriver=systemd/native.cgroupdriver=cgroupfs/' /usr/lib/systemd/system/docker.service
+systemctl daemon-reload
+systemctl try-restart docker""")
+
         # HACK: These are the default container secrets that which conflict
         # with kubernetes secrets and cause the pod to not start
         self.machine.execute("rm -rf /usr/share/rhel/secrets/* || true")
@@ -533,11 +541,17 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
+        # localhost node should be up and healthy
+        b.wait_present(".card-pf-aggregate-status .pficon-ok")
+        b.wait_not_present(".card-pf-aggregate-status .pficon-error-circle-o")
+        b.wait_in_text("#content", "All healthy")
+
         b.click("#node-list tbody tr:first-child")
 
         b.wait_present(".listing-ct-inline")
         b.wait_in_text(".listing-ct-inline", "Node")
         b.wait_in_text(".listing-ct-inline", "Capacity")
+        b.wait_in_text(".listing-ct-inline", "KubeletReady")
         b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "127.0.0.1")
         b.click("a.hidden-xs")

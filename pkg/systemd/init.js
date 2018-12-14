@@ -639,7 +639,7 @@ $(function() {
 
             var since = "";
             if (timestamp)
-                since = cockpit.format(_("Since $0"), moment(timestamp / 1000).format('LLL'));
+                since = moment(timestamp / 1000).format('LLL');
 
             var unit_action_btn = mustache.render(action_btn_template,
                                                   {

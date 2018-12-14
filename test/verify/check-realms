@@ -181,10 +181,10 @@ class TestRealms(MachineCase):
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
         b.wait_present('#service-unit')
-        b.wait_in_text('#service-unit', "waiting")
+        b.wait_in_text('#service-unit', "active")
         b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]:not(.disabled)')
         b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-        b.wait_in_text('#service-unit', "dead")
+        b.wait_in_text('#service-unit', "inactive")
         b.logout()
         b.password = orig_password
         m.execute("chown -R admin /home/admin")
@@ -309,10 +309,10 @@ class TestRealms(MachineCase):
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
         b.wait_present('#service-unit')
-        b.wait_in_text('#service-unit', "waiting")
+        b.wait_in_text('#service-unit', "active")
         b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]')
         b.click('#service-unit-primary-action button[data-action="StopUnit"]')
-        b.wait_in_text('#service-unit', "dead")
+        b.wait_in_text('#service-unit', "inactive")
 
         b.go('/system')
         b.enter_page('/system')

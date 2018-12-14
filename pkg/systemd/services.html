@@ -92,42 +92,30 @@
       <div class="panel-heading">{{Unit.Description}}</div>
       <div class="list-group">
         <div class="list-group-item">
-          <table>
-            <tr>
-              <td>
-                <span>{{Unit.ActiveState}}</span>
-                ({{Unit.SubState}})
-                <br/>
-                {{Since}}
-              </td>
-              <td>
-                {{{UnitButton}}}
-              </td>
-            </tr>
+          {{#HasLoadError}}
+            <div class="alert alert-danger">
+              <span class="pficon pficon-error-circle-o"></span>
+              <strong>{{Unit.LoadState}}</strong> {{LoadError}}
+            </div>
+          {{/HasLoadError}}
+          <table class="form-table-ct">
+            <tr><td class="top-right" translate>Status</td><td><span>{{Unit.ActiveState}}</span> ({{Unit.LoadState}}) {{{UnitButton}}}</td></tr>
+            {{#Since}}
+              <tr><td class="top-right" translate>Running Since</td><td>{{Since}}</td></tr>
+            {{/Since}}
+            <tr><td class="top-right" translate>Automatic Startup</td><td>{{Unit.UnitFileState}} {{{FileButton}}}</td></tr>
+            <tr><td class="top-right" translate>Path</td><td>{{Unit.FragmentPath}}</td></tr>
           </table>
         </div>
+        {{#TemplateDescription}}
         <div class="list-group-item">
           <table>
             <tr>
-              <td>
-                {{#HasLoadError}}
-                {{Unit.LoadState}} (Reason: {{LoadError}})
-                {{/HasLoadError}}
-                {{^HasLoadError}}
-                {{Unit.LoadState}} ({{Unit.FragmentPath}}; {{Unit.UnitFileState}})
-                {{/HasLoadError}}
-              </td>
-              <td>
-                {{{FileButton}}}
-              </td>
-            </tr>
-            {{#TemplateDescription}}
-            <tr>
               <td>{{{.}}}</td>
             </tr>
-            {{/TemplateDescription}}
           </table>
         </div>
+        {{/TemplateDescription}}
         {{#NotMetConditions.length}}
         <div class="list-group-item cond-fail">
           <table>

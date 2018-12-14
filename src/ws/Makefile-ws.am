@@ -345,8 +345,8 @@ test_webservice_LDADD = \
 	$(NULL)
 
 test_kerberos_SOURCES = src/ws/test-kerberos.c
-test_kerberos_LDADD = libcockpit-ws.a $(cockpit_ws_LDADD)
-test_kerberos_CFLAGS = $(cockpit_ws_CFLAGS)
+test_kerberos_LDADD =  $(cockpit_ws_LDADD) $(cockpit_session_LDADD)
+test_kerberos_CFLAGS = $(cockpit_ws_CFLAGS) $(cockpit_session_CFLAGS)
 
 mock_echo_SOURCES = src/ws/mock-echo.c
 mock_echo_CFLAGS = $(COCKPIT_WS_CFLAGS)

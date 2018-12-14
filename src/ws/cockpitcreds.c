@@ -24,11 +24,6 @@
 #include "common/cockpitmemory.h"
 #include "common/cockpitjson.h"
 
-#include <krb5/krb5.h>
-#include <gssapi/gssapi.h>
-#include <gssapi/gssapi_krb5.h>
-#include <gssapi/gssapi_ext.h>
-
 #include <string.h>
 
 struct _CockpitCreds {
@@ -39,9 +34,6 @@ struct _CockpitCreds {
   GBytes *password;
   gchar *rhost;
   gchar *csrf_token;
-  krb5_context krb5_ctx;
-  krb5_ccache krb5_ccache;
-  gchar *krb5_ccache_name;
   JsonObject *login_data;
   GList *bytes;
 };
@@ -61,15 +53,6 @@ cockpit_creds_free (gpointer data)
   g_free (creds->application);
   g_free (creds->rhost);
   g_free (creds->csrf_token);
-
-  if (creds->krb5_ctx)
-    {
-      if (creds->krb5_ccache)
-        krb5_cc_destroy (creds->krb5_ctx, creds->krb5_ccache);
-      if (creds->krb5_ccache_name)
-        krb5_free_string (creds->krb5_ctx, creds->krb5_ccache_name);
-      krb5_free_context (creds->krb5_ctx);
-    }
 
   if (creds->login_data)
     json_object_unref (creds->login_data);

@@ -55,9 +55,6 @@ gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
 gchar **           cockpit_web_server_parse_languages (GHashTable *headers,
                                                        const gchar *first);
 
-gboolean           cockpit_web_server_parse_encoding  (GHashTable *headers,
-                                                       const gchar *encoding);
-
 gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
 
 gint               cockpit_web_server_get_port             (CockpitWebServer *self);

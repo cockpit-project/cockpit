@@ -319,58 +319,6 @@ test_languages_order (void)
 }
 
 static void
-test_encoding_simple (void)
-{
-  GHashTable *table = cockpit_web_server_new_table ();
-  gboolean result;
-
-  g_hash_table_insert (table, g_strdup ("Accept-Encoding"), g_strdup ("booyah, test"));
-
-  result = cockpit_web_server_parse_encoding (table, "test");
-  g_assert (result == TRUE);
-
-  result = cockpit_web_server_parse_encoding (table, "booyah");
-  g_assert (result == TRUE);
-
-  result = cockpit_web_server_parse_encoding (table, "notpresent");
-  g_assert (result == FALSE);
-
-  g_hash_table_unref (table);
-}
-
-static void
-test_encoding_no_header (void)
-{
-  GHashTable *table = cockpit_web_server_new_table ();
-  gboolean result;
-
-  result = cockpit_web_server_parse_encoding (table, "test");
-  g_assert (result == TRUE);
-
-  result = cockpit_web_server_parse_encoding (table, "notpresent");
-  g_assert (result == TRUE);
-
-  g_hash_table_unref (table);
-}
-
-static void
-test_encoding_zero_qvalue (void)
-{
-  GHashTable *table = cockpit_web_server_new_table ();
-  gboolean result;
-
-  g_hash_table_insert (table, g_strdup ("Accept-Encoding"), g_strdup ("booyah;q=0, test"));
-
-  result = cockpit_web_server_parse_encoding (table, "test");
-  g_assert (result == TRUE);
-
-  result = cockpit_web_server_parse_encoding (table, "notpresent");
-  g_assert (result == FALSE);
-
-  g_hash_table_unref (table);
-}
-
-static void
 on_ready_get_result (GObject *source,
                      GAsyncResult *result,
                      gpointer user_data)
@@ -922,10 +870,6 @@ main (int argc,
   g_test_add_func ("/web-server/languages/cookie", test_languages_cookie);
   g_test_add_func ("/web-server/languages/no-header", test_languages_no_header);
   g_test_add_func ("/web-server/languages/order", test_languages_order);
-
-  g_test_add_func ("/web-server/encoding/simple", test_encoding_simple);
-  g_test_add_func ("/web-server/encoding/no-header", test_encoding_no_header);
-  g_test_add_func ("/web-server/encoding/zero-qvalue", test_encoding_zero_qvalue);
 
   g_test_add ("/web-server/query-string", TestCase, NULL,
               setup, test_with_query_string, teardown);

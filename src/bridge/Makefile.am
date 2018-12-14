@@ -280,7 +280,7 @@ polkit_in_files  = src/bridge/org.cockpit-project.cockpit-bridge.policy.in
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
 %.policy: %.policy.in $(PO_FILES)
-	$(AM_V_GEN) $(INTLTOOL_MERGE) -x $(top_srcdir)/po $< $@
+	$(AM_V_GEN) $(INTLTOOL_MERGE) -q -x $(top_srcdir)/po $< $@
 
 EXTRA_DIST += $(polkit_in_files)
 CLEANFILES += $(polkit_DATA)

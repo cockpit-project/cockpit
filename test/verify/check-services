@@ -121,9 +121,9 @@ Unit=test.service
         wait_service_state("test.service", "inactive")
         wait_service_state("test.service", "inactive")
 
-        unit_primary_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(1)'
-        unit_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(2)'
-        file_action_btn = '#service-valid .list-group-item:nth-child(2) .btn-group'
+        unit_primary_action_btn = '#service-unit-primary-action'
+        unit_action_btn = '#service-unit-action'
+        file_action_btn = '#service-file-action'
 
         # Selects Timer tab
         b.click('#services-filter :nth-child(4)')
@@ -543,7 +543,7 @@ WantedBy=multi-user.target
         def svc_sel(service):
             return 'tr[data-goto-unit="%s"]' % service
 
-        unit_primary_action_btn = '#service-valid .list-group-item:nth-child(1) .btn-group:nth-child(1)'
+        unit_primary_action_btn = '#service-unit-primary-action'
 
         # Selects Services tab
         b.click('#services-filter :nth-child(2)')

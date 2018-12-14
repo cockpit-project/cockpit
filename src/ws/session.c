@@ -358,9 +358,10 @@ pam_conv_func (int num_msg,
   char *authorization = NULL;
   char *prompt_resp = NULL;
 
+  /* For keeping track of messages returned by PAM */
   char *err_msg = NULL;
   char *txt_msg = NULL;
-  char *buf;
+  char *buf, **msgp;
   int ar;
 
   struct pam_response *resp;
@@ -368,6 +369,7 @@ pam_conv_func (int num_msg,
   int success = 1;
   int i;
 
+  /* Any messages from the last conversation pass? */
   txt_msg = last_txt_msg;
   last_txt_msg = NULL;
   err_msg = last_err_msg;
@@ -390,37 +392,26 @@ pam_conv_func (int num_msg,
             resp[i].resp_retcode = 0;
             *password = NULL;
         }
-      else if (msg[i]->msg_style == PAM_ERROR_MSG)
+      else if (msg[i]->msg_style == PAM_ERROR_MSG || msg[i]->msg_style == PAM_TEXT_INFO)
         {
-          if (err_msg)
+          if (msg[i]->msg_style == PAM_ERROR_MSG)
+            msgp = &err_msg;
+          else
+            msgp = &txt_msg;
+
+          if (*msgp)
             {
-              buf = err_msg;
-              ar = asprintf (&err_msg, "%s\n%s", buf, msg[i]->msg);
+              buf = *msgp;
+              ar = asprintf (msgp, "%s\n%s", buf, msg[i]->msg);
               free (buf);
             }
           else
             {
-              ar = asprintf (&err_msg, "%s", msg[i]->msg);
+              ar = asprintf (msgp, "%s", msg[i]->msg);
             }
 
           if (ar < 0)
-            errx (EX, "couldn't allocate memory for error variable");
-          warnx ("pam: %s", msg[i]->msg);
-        }
-      else if (msg[i]->msg_style == PAM_TEXT_INFO)
-        {
-          if (txt_msg)
-            {
-              buf = txt_msg;
-              ar = asprintf (&txt_msg, "%s\n%s", txt_msg, msg[i]->msg);
-              free (buf);
-            }
-          else
-            {
-              ar = asprintf (&txt_msg, "%s", msg[i]->msg);
-            }
-          if (ar < 0)
-            errx (EX, "couldn't allocate memory for text variable");
+            errx (EX, "couldn't allocate memory for message variable");
           warnx ("pam: %s", msg[i]->msg);
         }
       else

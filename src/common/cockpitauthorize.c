@@ -492,7 +492,6 @@ cockpit_authorize_parse_x_conversation (const char *challenge,
       return NULL;
     }
 
-  /* Decode and find split point */
   res = cockpit_base64_pton (challenge, len, buf, len);
   if (res < 0)
     {

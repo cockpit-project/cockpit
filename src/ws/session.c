@@ -1163,8 +1163,8 @@ main (int argc,
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
 
-  /* argv[1] is ignored */
-  if (argc != 2)
+  /* COMPAT: argv[1] used ot be used, but is now ignored */
+  if (argc != 1 && argc != 2)
     errx (2, "invalid arguments to cockpit-session");
 
   /* Cleanup the umask */

@@ -205,10 +205,11 @@ dist/%/Makefile.deps:
 	  cp -p $(srcdir)/$@ $@.tmp && \
 	  mv $@.tmp $@)
 
-# This is the primary rule for running webpack
+# This is the primary rule for running webpack; some pkgs like ssh or pcp only
+# have a manifest, no actual webpack, so don't call webpack-make for these
 dist/%/stamp: $(WEBPACK_CONFIG) $(srcdir)/tools/webpack-make
 	$(V_WEBPACK) $(MKDIR_P) dist/$* && \
-	  $(WEBPACK_MAKE) -d dist/$*/Makefile.deps $(WEBPACK_CONFIG) && \
+	(if ls $(srcdir)/pkg/$*/*.html >/dev/null 2>&1; then $(WEBPACK_MAKE) -d dist/$*/Makefile.deps $(WEBPACK_CONFIG); else touch dist/$*/Makefile.deps; fi ) && \
 	  touch $@
 
 dist/%/manifest.json: pkg/%/manifest.json

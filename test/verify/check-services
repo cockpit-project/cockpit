@@ -651,6 +651,38 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         b.wait_js_cond('window.location.hash === "#/test-b.service"')
         wait_relationship("After", "test-a.service")
 
+    @skipImage("Don't run upstream tests against distro packages", "rhel-7-6-distropkg")
+    def testNotFound(self):
+        m = self.machine
+        b = self.browser
+
+        m.write("/etc/systemd/system/test.service",
+                """
+[Unit]
+Description=Test Service
+Requires=not-found.service
+
+[Service]
+ExecStart=/bin/true
+""")
+        m.execute("systemctl daemon-reload")
+        self.machine.execute("systemctl start default.target")
+
+        self.login_and_go("/system/services")
+
+        def svc_sel(service):
+            return 'tr[data-goto-unit="%s"]' % service
+
+        def rel_link_sel(service):
+            return "table.systemd-unit-relationship-table a:contains('%s')" % service
+
+        b.wait_in_text("#services", "test.service")
+        b.wait_not_in_text("#services", "not-found.service")
+
+        b.click(svc_sel("test.service"))
+        b.wait_js_cond('window.location.hash === "#/test.service"')
+        b.wait_present(rel_link_sel("not-found.service"))
+        b.wait_attr(rel_link_sel("not-found.service"), "class", "disabled")
 
 if __name__ == '__main__':
     test_main()

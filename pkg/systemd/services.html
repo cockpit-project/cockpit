@@ -154,7 +154,7 @@
               <td>
                 <ul class="comma-list">
                 {{#Units}}
-                  <li><a href='#/{{.}}'>{{.}}</a></li>
+                  <li><a {{#disabled}}class="disabled"{{/disabled}} href='#/{{Id}}'>{{Id}}</a></li>
                 {{/Units}}
                 </ul>
               </td>

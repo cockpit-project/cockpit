@@ -145,6 +145,9 @@ $(function() {
     var units_initialized = false;
     var clock_realtime_now, clock_monotonic_now;
 
+    var units_by_path = { };
+    var path_by_id = { };
+
     function ensure_units() {
         if (!units_initialized) {
             units_initialized = true;
@@ -153,9 +156,6 @@ $(function() {
     }
 
     function init_units() {
-        var units_by_path = { };
-        var path_by_id = { };
-
         function get_unit(path) {
             var unit = units_by_path[path];
             if (!unit) {
@@ -280,6 +280,8 @@ $(function() {
             sorted_keys.forEach(function(path) {
                 var unit = units_by_path[path];
                 if (!(unit.Id && pattern && unit.Id.match(pattern)))
+                    return;
+                if (unit.LoadState == "not-found")
                     return;
                 if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled'))
                     enabled.push(unit);
@@ -668,6 +670,15 @@ $(function() {
                 }
             }
 
+            function runits(ids) {
+                if (ids) {
+                    return ids.map(id => {
+                        let unit = units_by_path[path_by_id[id]];
+                        return { Id: id, disabled: !unit || unit.LoadState == "not-found" };
+                    });
+                }
+            }
+
             var text = mustache.render(unit_template,
                                        {
                                            Unit: cur_unit,
@@ -680,26 +691,26 @@ $(function() {
                                            FileButton: file_action_btn,
                                            NotMetConditions: not_met_conditions,
                                            Relationships: [
-                                               { Name: _("Requires"), Units: cur_unit.Requires },
-                                               { Name: _("Requisite"), Units: cur_unit.Requisite },
-                                               { Name: _("Wants"), Units: cur_unit.Wants },
-                                               { Name: _("Binds To"), Units: cur_unit.BindsTo },
-                                               { Name: _("Part Of"), Units: cur_unit.PartOf },
-                                               { Name: _("Required By"), Units: cur_unit.RequiredBy },
-                                               { Name: _("Requisite Of"), Units: cur_unit.RequisiteOf },
-                                               { Name: _("Wanted By"), Units: cur_unit.WantedBy },
-                                               { Name: _("Bound By"), Units: cur_unit.BoundBy },
-                                               { Name: _("Consists Of"), Units: cur_unit.ConsistsOf },
-                                               { Name: _("Conflicts"), Units: cur_unit.Conflicts },
-                                               { Name: _("Conflicted By"), Units: cur_unit.ConflictedBy },
-                                               { Name: _("Before"), Units: cur_unit.Before },
-                                               { Name: _("After"), Units: cur_unit.After },
-                                               { Name: _("On Failure"), Units: cur_unit.OnFailure },
-                                               { Name: _("Triggers"), Units: cur_unit.Triggers },
-                                               { Name: _("Triggered By"), Units: cur_unit.TriggeredBy },
-                                               { Name: _("Propagates Reload To"), Units: cur_unit.PropagatesReloadTo },
-                                               { Name: _("Reload Propagated From"), Units: cur_unit.ReloadPropagatedFrom },
-                                               { Name: _("Joins Namespace Of"), Units: cur_unit.JoinsNamespaceOf }
+                                               { Name: _("Requires"), Units: runits(cur_unit.Requires) },
+                                               { Name: _("Requisite"), Units: runits(cur_unit.Requisite) },
+                                               { Name: _("Wants"), Units: runits(cur_unit.Wants) },
+                                               { Name: _("Binds To"), Units: runits(cur_unit.BindsTo) },
+                                               { Name: _("Part Of"), Units: runits(cur_unit.PartOf) },
+                                               { Name: _("Required By"), Units: runits(cur_unit.RequiredBy) },
+                                               { Name: _("Requisite Of"), Units: runits(cur_unit.RequisiteOf) },
+                                               { Name: _("Wanted By"), Units: runits(cur_unit.WantedBy) },
+                                               { Name: _("Bound By"), Units: runits(cur_unit.BoundBy) },
+                                               { Name: _("Consists Of"), Units: runits(cur_unit.ConsistsOf) },
+                                               { Name: _("Conflicts"), Units: runits(cur_unit.Conflicts) },
+                                               { Name: _("Conflicted By"), Units: runits(cur_unit.ConflictedBy) },
+                                               { Name: _("Before"), Units: runits(cur_unit.Before) },
+                                               { Name: _("After"), Units: runits(cur_unit.After) },
+                                               { Name: _("On Failure"), Units: runits(cur_unit.OnFailure) },
+                                               { Name: _("Triggers"), Units: runits(cur_unit.Triggers) },
+                                               { Name: _("Triggered By"), Units: runits(cur_unit.TriggeredBy) },
+                                               { Name: _("Propagates Reload To"), Units: runits(cur_unit.PropagatesReloadTo) },
+                                               { Name: _("Reload Propagated From"), Units: runits(cur_unit.ReloadPropagatedFrom) },
+                                               { Name: _("Joins Namespace Of"), Units: runits(cur_unit.JoinsNamespaceOf) }
                                            ]
                                        });
             $('#service-unit').html(text);
@@ -851,9 +862,10 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
 
+        ensure_units();
+
         if (path.length === 0) {
             show_unit(null);
-            ensure_units();
             $("#services").show();
         } else if (path.length == 1) {
             $("#services").hide();

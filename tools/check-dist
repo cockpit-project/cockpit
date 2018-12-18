@@ -8,35 +8,6 @@ find $1/dist -name '*.gz' -print | tee /dev/stderr | sort | while read file; do
         exit 1
 done
 
-# Make sure files are patchable
-find $1/dist -type f | while read file; do
-    # We don't care about these files
-    case $file in
-    *.png|*.svg|*.gif|*.map|*.woff|*.ttf|*.gz| \
-    *machines/include/logo.js|*machines/include/keysymdef.js)
-        continue
-        ;;
-    esac
-
-    # The ratio between lines and characters must be below 1:x
-    ratio=100
-
-    wc $file | while read lines words bytes rest; do
-        if [ "$lines" -eq 0 ]; then
-            lines=1
-        fi
-        if [ "$bytes" -eq 0 ]; then
-            bytes=1
-        fi
-
-        value=$(expr "$bytes" / "$lines")
-        if [ "$value" -gt "$ratio" ]; then
-            echo "Refusing to distribute unpatchable file: $file (line:byte 1:$value)" >&2
-            exit 1
-        fi
-    done
-done
-
 # Make sure all po files are valid
 find $1/po -name '*.po' -print | while read file; do
     if ! msgfmt "$file" -o /dev/null; then

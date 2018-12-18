@@ -96,6 +96,9 @@ function generateDeps(makefile, stats) {
 
     stats.compilation.fileDependencies.forEach(function(file) {
         maybePushInput(inputs, po_locations, file);
+        moduleLicenses(file).forEach(function(input) {
+            maybePushInput(inputs, { }, input);
+        });
     });
 
     // All the dependent files

@@ -46,9 +46,8 @@
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
     "babel-loader": "^7.1.5",
-    "babel-plugin-transform-async-to-generator": "~6.24.1",
     "babel-plugin-transform-regenerator": "6.26.0",
-    "babel-preset-es2015": "~6.24.1",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-react": "~6.24.1",
     "chrome-remote-interface": "^0.25.2",
     "clean-css": "~3.4.20",
@@ -87,14 +86,5 @@
   "scripts": {
     "eslint": "eslint --ext .js --ext .jsx pkg/",
     "eslint:fix": "eslint --fix --ext .js --ext .jsx pkg/"
-  },
-  "babel": {
-    "presets": [
-      "react",
-      "es2015"
-    ],
-    "plugins": [
-      "transform-async-to-generator"
-    ]
   }
 }

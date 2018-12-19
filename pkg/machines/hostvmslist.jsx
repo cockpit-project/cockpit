@@ -73,7 +73,7 @@ class HostVmsList extends React.Component {
     }
 
     render() {
-        const { vms, config, ui, storagePools, dispatch, actions, networks } = this.props;
+        const { vms, config, ui, storagePools, dispatch, actions, networks, nodeDevices } = this.props;
         const combinedVms = [...vms, ...this.asDummVms(vms, ui.vms)];
 
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
@@ -155,6 +155,7 @@ class HostVmsList extends React.Component {
                                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
                                     dispatch={dispatch}
                                     networks={networks}
+                                    nodeDevices={nodeDevices}
                                     key={`${vmId(vm.name)}`}
                                 />);
                         })}
@@ -172,6 +173,7 @@ HostVmsList.propTypes = {
     networks: PropTypes.array.isRequired,
     resourceHasError: PropTypes.object.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
 };
 
 export default HostVmsList;

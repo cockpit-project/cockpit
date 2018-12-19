@@ -88,6 +88,7 @@ import {
     resolveUiState,
     serialConsoleCommand,
     unknownConnectionName,
+    updateBootOrder,
     updateVCPUSettings,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
@@ -198,6 +199,18 @@ LIBVIRT_DBUS_PROVIDER = {
 
         // Error handling is done from the calling side
         return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
+    },
+
+    CHANGE_BOOT_ORDER({
+        id: objPath,
+        connectionName,
+        devices,
+    }) {
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXML = updateBootOrder(domXml, devices);
+                    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
+                });
     },
 
     CHANGE_NETWORK_SETTINGS({

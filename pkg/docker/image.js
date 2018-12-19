@@ -17,167 +17,165 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-    "use strict";
+"use strict";
 
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
-    var React = require("react");
-    var ReactDOM = require("react-dom");
+var $ = require("jquery");
+var cockpit = require("cockpit");
+var React = require("react");
+var ReactDOM = require("react-dom");
 
-    var util = require("./util");
-    var view = require("./containers-view.jsx");
+var util = require("./util");
+var view = require("./containers-view.jsx");
 
-    require("./run");
+require("./run");
 
-    var _ = cockpit.gettext;
-    var C_ = cockpit.gettext;
+var _ = cockpit.gettext;
+var C_ = cockpit.gettext;
 
-    PageImageDetails.prototype = {
-        _init: function(client) {
-            this.client = client;
-            this.danger_enabled = false;
-        },
+PageImageDetails.prototype = {
+    _init: function(client) {
+        this.client = client;
+        this.danger_enabled = false;
+    },
 
-        getTitle: function() {
-            return C_("page-title", "Images");
-        },
+    getTitle: function() {
+        return C_("page-title", "Images");
+    },
 
-        toggle_danger: function(val) {
-            var self = this;
-            self.danger_enabled = val;
-            $('#image-details-containers button.enable-danger').toggleClass('active', self.danger_enabled);
-            $("#image-details-containers td.container-column-actions").toggle(!self.danger_enabled);
-            $("#image-details-containers td.container-column-danger").toggle(self.danger_enabled);
-        },
+    toggle_danger: function(val) {
+        var self = this;
+        self.danger_enabled = val;
+        $('#image-details-containers button.enable-danger').toggleClass('active', self.danger_enabled);
+        $("#image-details-containers td.container-column-actions").toggle(!self.danger_enabled);
+        $("#image-details-containers td.container-column-danger").toggle(self.danger_enabled);
+    },
 
-        setup: function() {
-            var self = this;
+    setup: function() {
+        var self = this;
 
-            $('#image-details .content-filter a').on("click", function() {
-                cockpit.location.go('/');
-            });
+        $('#image-details .content-filter a').on("click", function() {
+            cockpit.location.go('/');
+        });
 
-            util.setup_danger_button('#image-details-containers', "#image-details",
-                                     function() {
-                                         self.toggle_danger(!self.danger_enabled);
-                                     });
+        util.setup_danger_button('#image-details-containers', "#image-details",
+                                 function() {
+                                     self.toggle_danger(!self.danger_enabled);
+                                 });
 
-            $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
-        },
+        $('#image-details-delete').on('click', $.proxy(this, "delete_image"));
+    },
 
-        enter: function(image_id) {
-            var self = this;
+    enter: function(image_id) {
+        var self = this;
 
-            /* Tells the image run dialog which image we're working with */
-            $('#image-details-run').attr("data-image", image_id);
+        /* Tells the image run dialog which image we're working with */
+        $('#image-details-run').attr("data-image", image_id);
 
-            this.image_id = image_id;
-            this.name = cockpit.format(_("Image $0"), this.image_id.slice(0, 12));
+        this.image_id = image_id;
+        this.name = cockpit.format(_("Image $0"), this.image_id.slice(0, 12));
 
-            $('#image-details-containers table tbody tr').remove();
-            $('#image-details-containers button.enable-danger').toggle(false);
-            $(this.client).on('image.image-details', function (event, id, image) {
-                if (id == self.image_id)
-                    self.update();
-            });
+        $('#image-details-containers table tbody tr').remove();
+        $('#image-details-containers button.enable-danger').toggle(false);
+        $(this.client).on('image.image-details', function (event, id, image) {
+            if (id == self.image_id)
+                self.update();
+        });
 
-            $('#image-details .image-details-used').toggle(false);
+        $('#image-details .image-details-used').toggle(false);
 
-            $(this.client).on('container.image-details', function(event, id, container) {
-                self.maybe_render_container(id, container);
-            });
+        $(this.client).on('container.image-details', function(event, id, container) {
+            self.maybe_render_container(id, container);
+        });
 
-            for (var cid in this.client.containers) {
-                var c = this.client.containers[cid];
-                self.maybe_render_container(c.Id, c);
-            }
+        for (var cid in this.client.containers) {
+            var c = this.client.containers[cid];
+            self.maybe_render_container(c.Id, c);
+        }
 
-            this.update();
-        },
+        this.update();
+    },
 
-        update: function() {
-            var info = this.client.images[this.image_id];
-            util.docker_debug("image-details", this.image_id, info);
+    update: function() {
+        var info = this.client.images[this.image_id];
+        util.docker_debug("image-details", this.image_id, info);
 
-            ReactDOM.render(React.createElement(view.ImageInline, {
-                image: info
-            }), document.querySelector('#image-details .content'));
+        ReactDOM.render(React.createElement(view.ImageInline, {
+            image: info
+        }), document.querySelector('#image-details .content'));
 
-            var waiting = !!(this.client.waiting[this.image_id]);
-            $('#image-details-buttons div.spinner').toggle(info && waiting);
-            $('#image-details-buttons button').toggle(info && !waiting);
+        var waiting = !!(this.client.waiting[this.image_id]);
+        $('#image-details-buttons div.spinner').toggle(info && waiting);
+        $('#image-details-buttons button').toggle(info && !waiting);
 
-            if (info) {
-                if (info.RepoTags && info.RepoTags.length > 0)
-                    this.name = info.RepoTags[0];
-            }
+        if (info) {
+            if (info.RepoTags && info.RepoTags.length > 0)
+                this.name = info.RepoTags[0];
+        }
 
-            $('#image-details .content-filter h3 span').text(this.name || this.image_id);
-        },
+        $('#image-details .content-filter h3 span').text(this.name || this.image_id);
+    },
 
-        maybe_render_container: function(id, container) {
-            /* Does this container match? */
-            if (container &&
-                container.ImageID !== this.image_id &&
-                container.Image != this.image_id &&
-                (container.Config && container.Config.Image != this.image_id)) {
-                container = null;
-            }
+    maybe_render_container: function(id, container) {
+        /* Does this container match? */
+        if (container &&
+            container.ImageID !== this.image_id &&
+            container.Image != this.image_id &&
+            (container.Config && container.Config.Image != this.image_id)) {
+            container = null;
+        }
 
-            var panel = $('#image-details-containers');
-            util.render_container(this.client, panel, "I", id, container, this.danger_enabled);
+        var panel = $('#image-details-containers');
+        util.render_container(this.client, panel, "I", id, container, this.danger_enabled);
 
-            /* Hide the entire block if no containers listed */
-            $('#image-details .image-details-used').toggle(panel.find('table > tbody > tr > td').length > 0);
-        },
+        /* Hide the entire block if no containers listed */
+        $('#image-details .image-details-used').toggle(panel.find('table > tbody > tr > td').length > 0);
+    },
 
-        delete_image: function () {
-            var self = this;
-            var location = cockpit.location;
-            util.delete_image_confirm(this.client, this).done(function(runningContainers, force) {
-                var stop_promises = [];
-                if (runningContainers.length > 0)
-                    $(runningContainers).each(function(index, value) {
-                        stop_promises.push(self.client.stop(value));
-                    });
-                cockpit.all(stop_promises).done(function() {
-                    self.client.rmi(self.image_id, force).fail(function(ex) {
-                        util.show_unexpected_error(ex);
-                    })
-                            .done(function() {
-                                location.go("/");
-                            });
+    delete_image: function () {
+        var self = this;
+        var location = cockpit.location;
+        util.delete_image_confirm(this.client, this).done(function(runningContainers, force) {
+            var stop_promises = [];
+            if (runningContainers.length > 0)
+                $(runningContainers).each(function(index, value) {
+                    stop_promises.push(self.client.stop(value));
                 });
+            cockpit.all(stop_promises).done(function() {
+                self.client.rmi(self.image_id, force).fail(function(ex) {
+                    util.show_unexpected_error(ex);
+                })
+                        .done(function() {
+                            location.go("/");
+                        });
             });
-        }
-
-    };
-
-    function PageImageDetails(client) {
-        this._init(client);
+        });
     }
 
-    function init_image_details(client) {
-        var page = new PageImageDetails(client);
-        page.setup();
+};
 
-        function hide() {
-            $('#image-details').hide();
-        }
+function PageImageDetails(client) {
+    this._init(client);
+}
 
-        function show(id) {
-            page.enter(id);
-            $('#image-details').show();
-        }
+function init_image_details(client) {
+    var page = new PageImageDetails(client);
+    page.setup();
 
-        return {
-            show: show,
-            hide: hide
-        };
+    function hide() {
+        $('#image-details').hide();
     }
 
-    module.exports = {
-        init: init_image_details
+    function show(id) {
+        page.enter(id);
+        $('#image-details').show();
+    }
+
+    return {
+        show: show,
+        hide: hide
     };
-}());
+}
+
+module.exports = {
+    init: init_image_details
+};

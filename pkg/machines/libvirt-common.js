@@ -82,22 +82,6 @@ export function createTempFile(content) {
     return dfd.promise;
 }
 
-function getBootableDeviceType(device) {
-    const tagName = device.tagName;
-    let type = _("other");
-    switch (tagName) {
-    case 'disk':
-        type = rephraseUI('bootableDisk', device.getAttribute('device')); // Example: disk, cdrom
-        break;
-    case 'interface':
-        type = rephraseUI('bootableDisk', 'interface');
-        break;
-    default:
-        console.info(`Unrecognized type of bootable device: ${tagName}`);
-    }
-    return type;
-}
-
 export function getDiskElemByTarget(domxml, targetOriginal) {
     const domainElem = getDomainElem(domxml);
 
@@ -197,11 +181,13 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
     const devicesElem = domainElem.getElementsByTagName("devices")[0];
     const osTypeElem = osElem.getElementsByTagName("type")[0];
+    const osBootElems = osElem.getElementsByTagName("boot");
     const metadataElem = getSingleOptionalElem(domainElem, "metadata");
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
     const id = id_overwrite || domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
     const osType = osTypeElem.nodeValue;
+    const osBoot = parseDumpxmlForOsBoot(osBootElems);
     const arch = osTypeElem.getAttribute("arch");
     const emulatedMachine = osTypeElem.getAttribute("machine");
 
@@ -211,10 +197,11 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const vcpus = parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr);
 
     const disks = parseDumpxmlForDisks(devicesElem);
-    const bootOrder = parseDumpxmlForBootOrder(osElem, devicesElem);
     const cpu = parseDumpxmlForCpu(cpuElem);
     const displays = parseDumpxmlForConsoles(devicesElem);
     const interfaces = parseDumpxmlForInterfaces(devicesElem);
+    const redirectedDevices = parseDumpxmlForRedirectedDevices(devicesElem);
+    const hostDevices = parseDumpxmlForHostDevices(devicesElem);
 
     const hasInstallPhase = parseDumpxmlMachinesMetadataElement(metadataElem, 'has_install_phase') === 'true';
     const installSourceType = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source_type');
@@ -233,58 +220,36 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         name,
         id,
         osType,
+        osBoot,
         arch,
         currentMemory,
         vcpus,
         disks,
         emulatedMachine,
         cpu,
-        bootOrder,
         displays,
         interfaces,
+        redirectedDevices,
+        hostDevices,
         metadata,
     };
 }
 
-export function parseDumpxmlForBootOrder(osElem, devicesElem) {
-    const bootOrder = {
-        devices: [],
-    };
+export function parseDumpxmlForOsBoot(osBootElems) {
+    let osBoot = [];
 
-    // Prefer boot order defined in domain/os element
-    const osBootElems = osElem.getElementsByTagName('boot');
-    if (osBootElems.length > 0) {
-        for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
-            const bootElem = osBootElems[bootNum];
-            const dev = bootElem.getAttribute('dev');
-            if (dev) {
-                bootOrder.devices.push({
-                    order: bootNum,
-                    type: rephraseUI('bootableDisk', dev) // Example: hd, network, fd, cdrom
-                });
-            }
-        }
-        return bootOrder; // already sorted
-    }
-
-    // domain/os/boot elements not found, decide from device's boot elements
-    // VM can be theoretically booted from any device.
-    const bootableDevices = [];
-    for (let devNum = 0; devNum < devicesElem.childNodes.length; devNum++) {
-        const deviceElem = devicesElem.childNodes[devNum];
-        if (deviceElem.nodeType === 1) { // XML elements only
-            const bootElem = getSingleOptionalElem(deviceElem, 'boot');
-            if (bootElem && bootElem.getAttribute('order')) {
-                bootableDevices.push({
-                    // so far just the 'type' is rendered, skipping redundant attributes
-                    order: parseInt(bootElem.getAttribute('order')),
-                    type: getBootableDeviceType(deviceElem),
-                });
-            }
+    for (let bootNum = 0; bootNum < osBootElems.length; bootNum++) {
+        const bootElem = osBootElems[bootNum];
+        const dev = bootElem.getAttribute('dev');
+        if (dev) {
+            osBoot.push({
+                order: bootNum + 1,
+                type: rephraseUI('bootableDisk', dev) // Example: hd, network, fd, cdrom
+            });
         }
     }
-    bootOrder.devices = bootableDevices.sort((devA, devB) => devA.order - devB.order);
-    return bootOrder;
+
+    return osBoot; // already sorted
 }
 
 export function parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr) {
@@ -430,6 +395,162 @@ export function parseDumpxmlForDisks(devicesElem) {
     return disks;
 }
 
+export function parseDumpxmlForRedirectedDevices(devicesElem) {
+    const redirdevs = [];
+    const redirdevElems = devicesElem.getElementsByTagName('redirdev');
+
+    if (redirdevElems) {
+        for (let i = 0; i < redirdevElems.length; i++) {
+            const redirdevElem = redirdevElems[i];
+
+            const addressElem = redirdevElem.getElementsByTagName('address')[0];
+            const sourceElem = getSingleOptionalElem(redirdevElem, 'source');
+            const bootElem = getSingleOptionalElem(redirdevElem, 'boot');
+
+            const dev = { // see https://libvirt.org/formatdomain.html#elementsRedir
+                bus: redirdevElem.getAttribute('bus'),
+                type: redirdevElem.getAttribute('type'),
+                bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                address: {
+                    type: addressElem.getAttribute('type'),
+                    bus: addressElem.getAttribute('bus'),
+                    port: addressElem.getAttribute('port'),
+                },
+                source: {
+                    mode: sourceElem ? sourceElem.getAttribute('mode') : undefined,
+                    host: sourceElem ? sourceElem.getAttribute('host') : undefined,
+                    service: sourceElem ? sourceElem.getAttribute('service') : undefined,
+                },
+            };
+            redirdevs.push(dev);
+        }
+    }
+    return redirdevs;
+}
+
+// TODO Parse more attributes. Right now it parses only necessary
+export function parseDumpxmlForHostDevices(devicesElem) {
+    const hostdevs = [];
+    const hostdevElems = devicesElem.getElementsByTagName('hostdev');
+
+    if (hostdevElems) {
+        for (let i = 0; i < hostdevElems.length; i++) {
+            const hostdevElem = hostdevElems[i];
+            const bootElem = getSingleOptionalElem(hostdevElem, 'boot');
+            const type = hostdevElem.getAttribute('type');
+            let dev;
+
+            switch (type) {
+            case "usb": {
+                const addressElem = getSingleOptionalElem(hostdevElem, 'address');
+                const sourceElem = getSingleOptionalElem(hostdevElem, 'source');
+
+                let vendorElem, productElem;
+                if (sourceElem) {
+                    vendorElem = sourceElem.getElementsByTagName('vendor')[0];
+                    productElem = sourceElem.getElementsByTagName('product')[0];
+                }
+                dev = {
+                    type: type,
+                    bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                    address: {
+                        port: addressElem ? addressElem.getAttribute('port') : undefined,
+                    },
+                    source: {
+                        vendor: {
+                            id: vendorElem ? vendorElem.getAttribute('id') : undefined,
+                        },
+                        product: {
+                            id: productElem ? productElem.getAttribute('id') : undefined,
+                        },
+                    },
+                };
+                hostdevs.push(dev);
+                break;
+            }
+            case "pci": {
+                const sourceElem = hostdevElem.getElementsByTagName('source')[0];
+                const addressElem = sourceElem.getElementsByTagName('address')[0];
+
+                dev = {
+                    type: type,
+                    bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                    source: {
+                        address: {
+                            domain: addressElem.getAttribute('domain'),
+                            bus: addressElem.getAttribute('bus'),
+                            slot: addressElem.getAttribute('slot'),
+                            func: addressElem.getAttribute('function'),
+                        },
+                    },
+                };
+                hostdevs.push(dev);
+                break;
+            }
+            case "scsi": {
+                const sourceElem = hostdevElem.getElementsByTagName('source')[0];
+                const addressElem = getSingleOptionalElem(sourceElem, 'address');
+                const adapterElem = getSingleOptionalElem(sourceElem, 'adapter');
+                const protocol = sourceElem.getAttribute('protocol');
+                let name;
+                if (protocol === "iscsi")
+                    name = sourceElem.getAttribute('name');
+
+                dev = {
+                    type: type,
+                    bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                    source: {
+                        protocol: protocol,
+                        name: name,
+                        address: {
+                            bus: addressElem ? addressElem.getAttribute('bus') : undefined,
+                            target: addressElem ? addressElem.getAttribute('target') : undefined,
+                            unit: addressElem ? addressElem.getAttribute('unit') : undefined,
+                        },
+                        adapter: {
+                            name: adapterElem ? adapterElem.getAttribute('name') : undefined,
+                        },
+                    },
+                };
+                hostdevs.push(dev);
+                break;
+            }
+            case "scsi_host": {
+                const sourceElem = hostdevElem.getElementsByTagName('source')[0];
+
+                dev = {
+                    type: type,
+                    bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                    source: {
+                        protocol: sourceElem.getAttribute('protocol'),
+                        wwpn: sourceElem.getAttribute('wwpn'),
+                    },
+                };
+                hostdevs.push(dev);
+                break;
+            }
+            case "mdev": {
+                const sourceElem = hostdevElem.getElementsByTagName('source')[0];
+                const addressElem = sourceElem.getElementsByTagName('address')[0];
+
+                dev = {
+                    type: type,
+                    bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
+                    source: {
+                        address: {
+                            uuid: addressElem.getAttribute('uuid'),
+                        },
+                    },
+                };
+                hostdevs.push(dev);
+                break;
+            }
+            }
+        }
+    }
+    return hostdevs;
+}
+
 export function parseDumpxmlForInterfaces(devicesElem) {
     const interfaces = [];
     const interfaceElems = devicesElem.getElementsByTagName('interface');
@@ -448,6 +569,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
             const linkElem = getSingleOptionalElem(interfaceElem, 'link');
             const mtuElem = getSingleOptionalElem(interfaceElem, 'mtu');
             const localElem = addressElem ? getSingleOptionalElem(addressElem, 'local') : null;
+            const bootElem = getSingleOptionalElem(interfaceElem, 'boot');
 
             const networkInterface = { // see https://libvirt.org/formatdomain.html#elementsNICS
                 type: interfaceElem.getAttribute('type'), // Only one required parameter
@@ -461,6 +583,7 @@ export function parseDumpxmlForInterfaces(devicesElem) {
                 driverName: driverElem ? driverElem.getAttribute('name') : undefined,
                 state: linkElem ? linkElem.getAttribute('state') : 'up', // State of interface, up/down (plug/unplug)
                 mtu: mtuElem ? mtuElem.getAttribute('size') : undefined,
+                bootOrder: bootElem ? bootElem.getAttribute('order') : undefined,
                 source: {
                     bridge: sourceElem ? sourceElem.getAttribute('bridge') : undefined,
                     network: sourceElem ? sourceElem.getAttribute('network') : undefined,
@@ -592,10 +715,46 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
     const capabilityElem = deviceElem.getElementsByTagName("capability")[0];
 
     let capability = {};
+    let path = {};
 
     capability.type = capabilityElem.getAttribute("type");
     if (capability.type == 'net')
         capability.interface = capabilityElem.getElementsByTagName("interface")[0].childNodes[0].nodeValue;
+    else if (capability.type == 'usb_device' || capability.type == 'pci') {
+        capability.product = {};
+        capability.vendor = {};
+
+        const productElem = capabilityElem.getElementsByTagName("product")[0];
+        const vendorElem = capabilityElem.getElementsByTagName("vendor")[0];
+        if (productElem) {
+            capability.product.id = productElem.getAttribute("id");
+            capability.product._value = productElem.childNodes[0] ? productElem.childNodes[0].nodeValue : undefined;
+        }
+        if (vendorElem) {
+            capability.vendor.id = vendorElem.getAttribute("id");
+            capability.vendor._value = vendorElem.childNodes[0] ? vendorElem.childNodes[0].nodeValue : undefined;
+        }
+    } else if (capability.type == 'scsi') {
+        capability.bus = {};
+        capability.lun = {};
+        capability.target = {};
+
+        const busElem = capabilityElem.getElementsByTagName("bus")[0];
+        const lunElem = capabilityElem.getElementsByTagName("lun")[0];
+        const targetElem = capabilityElem.getElementsByTagName("target")[0];
+
+        if (busElem)
+            capability.bus._value = busElem.childNodes[0] ? busElem.childNodes[0].nodeValue : undefined;
+        if (lunElem)
+            capability.lun._value = lunElem.childNodes[0] ? lunElem.childNodes[0].nodeValue : undefined;
+        if (targetElem)
+            capability.target._value = targetElem.childNodes[0] ? targetElem.childNodes[0].nodeValue : undefined;
+    } else if (capability.type == 'mdev') {
+        const pathElem = deviceElem.getElementsByTagName("bus")[0];
+
+        if (pathElem)
+            path._value = pathElem.childNodes[0] ? pathElem.childNodes[0].nodeValue : undefined;
+    }
 
     return { name, capability };
 }
@@ -725,6 +884,202 @@ export function unknownConnectionName(action, libvirtServiceName) {
             return cockpit.all(promises);
         });
     };
+}
+
+export function updateBootOrder(domXml, devices) {
+    const domainElem = getDomainElem(domXml);
+    if (!domainElem)
+        throw new Error("updateBootOrder: domXML has no domain element");
+
+    let deviceElem = domainElem.getElementsByTagName("devices")[0];
+    let disks = deviceElem.getElementsByTagName("disk");
+    let interfaces = deviceElem.getElementsByTagName("interface");
+    let hostdevs = deviceElem.getElementsByTagName("hostdev");
+    let redirdevs = deviceElem.getElementsByTagName("redirdev");
+
+    if (devices) {
+        // only boot option in devices shall be used, boot options in OS therefore has to be removed
+        let osBootElems = domainElem.getElementsByTagName("os")[0].getElementsByTagName("boot");
+        while (osBootElems.length)
+            osBootElems[0].remove();
+    }
+
+    // Update Disks
+    for (let i = 0; i < disks.length; i++) {
+        const disk = disks[i];
+        const target = disk.getElementsByTagName("target")[0].getAttribute("dev");
+        const index = devices.findIndex(t => t.device.target === target);
+
+        let bootElem = getSingleOptionalElem(disk, "boot");
+        if (index >= 0) { // it will have bootorder
+            if (!bootElem) {
+                bootElem = document.createElement("boot");
+                disk.appendChild(bootElem);
+            }
+            bootElem.setAttribute("order", index + 1);
+        } else {
+            if (bootElem) // it's has boot order, but it's ought to not have one, so we delete it
+                bootElem.remove();
+        }
+    }
+
+    // Update interfaces
+    for (let i = 0; i < interfaces.length; i++) {
+        const iface = interfaces[i];
+        const mac = iface.getElementsByTagName("mac")[0].getAttribute("address");
+        const index = devices.findIndex(t => t.device.mac === mac);
+
+        let bootElem = getSingleOptionalElem(iface, "boot");
+        if (index >= 0) { // it will have bootorder
+            if (!bootElem) {
+                bootElem = document.createElement("boot");
+                iface.appendChild(bootElem);
+            }
+            bootElem.setAttribute("order", index + 1);
+        } else {
+            if (bootElem) // it's has boot order, but it's ought to not have one, so we delete it
+                bootElem.remove();
+        }
+    }
+
+    // Update redirected devices
+    for (let i = 0; i < redirdevs.length; i++) {
+        const redirdev = redirdevs[i];
+        const port = redirdev.getElementsByTagName("address")[0].getAttribute("port");
+        const index = devices.findIndex(t => {
+            if (t.device.address)
+                return t.device.address.port === port;
+        });
+
+        let bootElem = getSingleOptionalElem(redirdev, "boot");
+        if (index >= 0) { // it will have bootorder
+            if (!bootElem) {
+                bootElem = document.createElement("boot");
+                redirdev.appendChild(bootElem);
+            }
+            bootElem.setAttribute("order", index + 1);
+        } else {
+            if (bootElem) // it's has boot order, but it's ought to not have one, so we delete it
+                bootElem.remove();
+        }
+    }
+
+    // Update host devices
+    for (let i = 0; i < hostdevs.length; i++) {
+        const hostdev = hostdevs[i];
+        const type = hostdev.getAttribute("type");
+        const sourceElem = hostdev.getElementsByTagName("source")[0];
+        let bootElem = getSingleOptionalElem(hostdev, "boot");
+        let index;
+
+        if (type === "usb") {
+            const vendorElem = getSingleOptionalElem(sourceElem, "vendor");
+            const productElem = getSingleOptionalElem(sourceElem, "product");
+            const addressElem = getSingleOptionalElem(hostdev, "address");
+
+            if (vendorElem && productElem) {
+                const vendorId = vendorElem.getAttribute('id');
+                const productId = productElem.getAttribute('id');
+
+                index = devices.findIndex(t => {
+                    if (t.device.source.vendor && t.device.source.product)
+                        return t.device.source.vendor.id === vendorId && t.device.source.product.id === productId;
+                    else
+                        return false;
+                });
+            } else if (addressElem) {
+                const port = addressElem.getAttribute('port');
+
+                index = devices.findIndex(t => {
+                    if (t.device.source.address)
+                        return t.device.address.port === port;
+                    else
+                        return false;
+                });
+            }
+        } else if (type === "pci") {
+            const addressElem = hostdev.getElementsByTagName("address")[0];
+
+            const domain = addressElem.getAttribute('domain');
+            const bus = addressElem.getAttribute('bus');
+            const slot = addressElem.getAttribute('slot');
+            const func = addressElem.getAttribute('function');
+
+            index = devices.findIndex(t => {
+                if (t.device.source.address)
+                    return t.device.source.address.domain === domain &&
+                           t.device.source.address.bus === bus &&
+                           t.device.source.address.slot === slot &&
+                           t.device.source.address.func === func;
+                else
+                    return false;
+            });
+        } else if (type === "scsi") {
+            const addressElem = getSingleOptionalElem(sourceElem, "address");
+            const adapterElem = getSingleOptionalElem(sourceElem, "adapter");
+
+            const protocol = addressElem.getAttribute('protocol');
+            const name = addressElem.getAttribute('name');
+
+            if (addressElem && adapterElem) {
+                const bus = addressElem.getAttribute('bus');
+                const target = addressElem.getAttribute('target');
+                const unit = addressElem.getAttribute('unit');
+                const adapterName = adapterElem.getAttribute('name');
+
+                index = devices.findIndex(t => {
+                    if (t.device.source.address && t.device.source.adapter)
+                        return t.device.source.address.bus === bus &&
+                               t.device.source.address.target === target &&
+                               t.device.source.address.unit === unit &&
+                               t.device.source.adapter.adapterName === adapterName;
+                    else
+                        return false;
+                });
+            } else if (protocol && name) {
+                index = devices.findIndex(t => {
+                    if (t.device.source.address)
+                        return t.device.source.protocol === protocol &&
+                               t.device.source.name === name;
+                    else
+                        return false;
+                });
+            }
+        } else if (type === "scsi_host") {
+            const wwpn = sourceElem.getAttribute('wwpn');
+            const protocol = sourceElem.getAttribute('protocol');
+
+            index = devices.findIndex(t => t.device.source.wwpn === wwpn &&
+                                           t.device.source.protocol === protocol);
+        } else if (type === "mdev") {
+            const addressElem = hostdev.getElementsByTagName("address")[0];
+            const uuid = addressElem.getAttribute('uuid');
+
+            index = devices.findIndex(t => {
+                if (t.device.source.address)
+                    return t.device.source.address.uuid === uuid;
+                else
+                    return false;
+            });
+        }
+
+        if (index >= 0) { // it will have bootorder
+            if (!bootElem) {
+                bootElem = document.createElement("boot");
+                hostdev.appendChild(bootElem);
+            }
+            bootElem.setAttribute("order", index + 1);
+        } else {
+            if (bootElem) // it's has boot order, but it's ought to not have one, so we delete it
+                bootElem.remove();
+        }
+    }
+
+    const tmp = document.createElement("div");
+
+    tmp.appendChild(domainElem);
+
+    return tmp.innerHTML;
 }
 
 export function updateVCPUSettings(domXml, count, max, sockets, cores, threads) {

@@ -199,6 +199,8 @@ const transform = {
         'cdrom': _("cdrom"),
         'interface': _("network"),
         'hd': _("disk"),
+        'redirdev': _("redirected device"),
+        'hostdev': _("host device"),
     },
     'cpuMode': {
         'custom': _("custom"),
@@ -374,4 +376,204 @@ export function timeoutedPromise(promise, delay, afterTimeoutHandler, afterTimeo
     });
 
     return deferred.promise;
+}
+
+export function findHostNodeDevice(hostdev, nodeDevices) {
+    let nodeDev;
+    switch (hostdev.type) {
+    case "usb": {
+        const vendorId = hostdev.source.vendor.id;
+        const productId = hostdev.source.product.id;
+
+        nodeDev = nodeDevices.find(d => {
+            if (vendorId &&
+                productId &&
+                d.capability.vendor &&
+                d.capability.product &&
+                d.capability.vendor.id == vendorId &&
+                d.capability.product.id == productId)
+                return true;
+        });
+        break;
+    }
+    case "pci": {
+        // convert hexadecimal number in string to decimal number in string
+        const domain = parseInt(hostdev.source.address.domain, 16).toString();
+        const bus = parseInt(hostdev.source.address.bus, 16).toString();
+        const slot = parseInt(hostdev.source.address.slot, 16).toString();
+        const func = parseInt(hostdev.source.address.func, 16).toString();
+
+        nodeDev = nodeDevices.find(d => {
+            if ((domain && bus && slot && func) &&
+                d.capability.domain &&
+                d.capability.bus &&
+                d.capability.slot &&
+                d.capability.function &&
+                d.capability.domain._value == domain &&
+                d.capability.bus._value == bus &&
+                d.capability.slot._value == slot &&
+                d.capability.function._value == func)
+                return true;
+        });
+        break;
+    }
+    case "scsi": {
+        const bus = hostdev.source.address.bus;
+        const target = hostdev.source.address.target;
+        const unit = hostdev.source.address.unit;
+
+        nodeDev = nodeDevices.find(d => {
+            if ((bus && target && unit) &&
+                d.capability.bus &&
+                d.capability.lun &&
+                d.capability.target &&
+                d.capability.bus._value == bus &&
+                d.capability.lun._value == unit &&
+                d.capability.target._value == target)
+                return true;
+        });
+        break;
+    }
+    case "scsi_host": {
+        // TODO add scsi_host
+        nodeDev = undefined;
+        break;
+    }
+    case "mdev": {
+        const uuid = hostdev.source.address.uuid;
+
+        nodeDev = nodeDevices.find(d => {
+            if (d.path &&
+                d.path._value.contains(uuid))
+                return true;
+        });
+        break;
+    }
+    }
+    return nodeDev;
+}
+
+/**
+ * Return and array of all devices which can possibly be assigned boot order:
+ * disks, interfaces, redirected devices, host devices
+ *
+ * @param {object} vm
+ * @returns {array}
+ */
+export function getBootOrderDevices(vm) {
+    let devices = [];
+
+    // Create temporary arrays of devices
+    const disks = Object.values(vm.disks);
+    const ifaces = Object.values(vm.interfaces);
+
+    // Some disks and interfaces may have boot order in vm's XML os->boot (legacy)
+    if (vm.osBoot) {
+        for (let i = 0; i < vm.osBoot.length; i++) {
+            const boot = vm.osBoot[i];
+
+            if (boot.type === "disk" || boot.type === "fd" || boot.type === "cdrom") {
+                // Find specific device, and remove it from array, only devices without boot order stay
+                const dev = disks.find(disk => {
+                    // Disk is default value, if device property is not defined
+                    // See: www.libvirt.org/formatdomain.html#elementsDisks
+                    const type = disk.device ? disk.device : "disk";
+                    return disk.device == type || !disk.device;
+                });
+
+                if (dev) {
+                    disks.splice(disks.indexOf(dev), 1);
+                    devices.push({
+                        device: dev,
+                        bootOrder: i + 1, // bootOrder begins at 1
+                        type: "disk"
+                    });
+                }
+            } else if (boot.type === "network") {
+                const dev = ifaces[0];
+                if (dev) {
+                    ifaces.splice(0, 1);
+                    devices.push({
+                        device: dev,
+                        bootOrder: i + 1, // bootOrder begins at 1
+                        type: "network"
+                    });
+                }
+            }
+        }
+    }
+
+    // if boot order was defined in os->boot (old way), array contains only devices without boot order
+    // in case of boot order devined in devices->boot (new way), array contains all devices
+    for (let i = 0; i < disks.length; i++) {
+        const disk = disks[i];
+
+        devices.push({
+            device: disk,
+            bootOrder: disk.bootOrder,
+            type: "disk"
+        });
+    }
+
+    // if boot order was defined in os->boot (old way), array contains only devices without boot order
+    // in case of boot order devined in devices->boot (new way), array contains all devices
+    for (let i = 0; i < ifaces.length; i++) {
+        const iface = ifaces[i];
+
+        devices.push({
+            device: iface,
+            bootOrder: iface.bootOrder,
+            type: "network"
+        });
+    }
+
+    // redirected devices cannot have boot order defined in os->boot
+    Object.values(vm.redirectedDevices)
+            .forEach(redirdev => {
+                devices.push({
+                    device: redirdev,
+                    bootOrder: redirdev.bootOrder,
+                    type: "redirdev"
+                });
+            });
+
+    // host devices cannot have boot order defined in os->boot
+    Object.values(vm.hostDevices)
+            .forEach(hostdev => {
+                devices.push({
+                    device: hostdev,
+                    bootOrder: hostdev.bootOrder,
+                    type: "hostdev"
+                });
+            });
+
+    return devices;
+}
+
+/**
+ * Sorts all devices according to their boot order ascending. Devices with no boot order
+ * will be at the end of the array.
+ *
+ * @param {object} vm
+ * @returns {array} = sorted array
+ */
+export function getSortedBootOrderDevices(vm) {
+    const devices = getBootOrderDevices(vm);
+
+    devices.sort((a, b) => {
+        // If both devices have boot order, sort them by value of their boot order
+        if (typeof a.bootOrder !== 'undefined' && typeof b.bootOrder !== 'undefined')
+            return a.bootOrder - b.bootOrder;
+        // If device A doesn't have boot order and device B has boot order, B must come before A
+        else if (typeof a.bootOrder === 'undefined' && typeof b.bootOrder !== 'undefined')
+            return 1;
+        // If device A has boot order and device B doesn't have boot order, A must come before B
+        else if (typeof a.bootOrder !== 'undefined' && typeof b.bootOrder === 'undefined')
+            return -1;
+        else
+        // If both devices don't have boot order, don't sort them
+            return 0;
+    });
+
+    return devices;
 }

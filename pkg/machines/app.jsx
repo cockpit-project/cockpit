@@ -133,7 +133,8 @@ class App extends React.Component {
                     networks={networks}
                     actions={createVmAction}
                     resourceHasError={this.state.resourceHasError}
-                    onAddErrorNotification={this.onAddErrorNotification} />
+                    onAddErrorNotification={this.onAddErrorNotification}
+                    nodeDevices={nodeDevices} />
                 }
                 { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools}
                     dispatch={dispatch}

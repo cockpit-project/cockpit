@@ -18,27 +18,19 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from 'cockpit';
 import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { rephraseUI, vmId } from "../helpers.js";
 import EditNICAction from './nicEdit.jsx';
+import WarningInactive from './warningInactive.jsx';
 import './nicEdit.css';
 
 const _ = cockpit.gettext;
 
 const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks, onAddErrorNotification }) {
     const id = vmId(vm.name);
-
-    const warningInactive = (id) => {
-        return (
-            <OverlayTrigger overlay={ <Tooltip id="tip-network">{ _("Changes will take effect after shutting down the VM") }</Tooltip> } placement='top'>
-                <i id={id} className='pficon pficon-pending' />
-            </OverlayTrigger>
-        );
-    };
 
     const nicLookupByMAC = (interfacesList, mac) => {
         return interfacesList.filter(iface => iface.mac == mac)[0];
@@ -94,7 +86,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks, on
             return (
                 <div id={`${id}-network-${networkId}-type`}>
                     {network.type}
-                    {inactiveNIC && inactiveNIC.type !== network.type && warningInactive(`${id}-network-${networkId}-type-tooltip`)}
+                    {inactiveNIC && inactiveNIC.type !== network.type && <WarningInactive iconId={`${id}-network-${networkId}-type-tooltip`} tooltipId="tip-network" />}
                 </div>
             );
         } },
@@ -103,7 +95,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks, on
             return (
                 <div id={`${id}-network-${networkId}-model`}>
                     {network.model}
-                    {inactiveNIC && inactiveNIC.model !== network.model && warningInactive(`${id}-network-${networkId}-model-tooltip`)}
+                    {inactiveNIC && inactiveNIC.model !== network.model && <WarningInactive iconId={`${id}-network-${networkId}-model-tooltip`} tooltipId="tip-network" />}
                 </div>
             );
         } },
@@ -124,7 +116,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks, on
                 return (
                     <div id={`${id}-network-${networkId}-source`}>
                         {mapSource[network.type](network.source, networkId)}
-                        {inactiveNIC && inactiveNIC.source[inactiveNIC.type] !== network.source[network.type] && warningInactive(`${id}-network-${networkId}-source-tooltip`)}
+                        {inactiveNIC && inactiveNIC.source[inactiveNIC.type] !== network.source[network.type] && <WarningInactive iconId={`${id}-network-${networkId}-source-tooltip`} tooltipId="tip-network" />}
 
                     </div>
                 );

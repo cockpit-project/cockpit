@@ -309,7 +309,7 @@ class VolumeTests(object):
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret),
                        "/var/run/secrets/kubernetes.io/serviceaccount")
         b.wait_present(".listing-ct-body div[data-id='host-tmp']")
-        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "Persistent Volume Claim")
+        b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "Persistent Volume")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-claim")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-container")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "/mount-path-tmp")

@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from "jquery";
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -90,8 +89,8 @@ class StoragePage extends React.Component {
 function init() {
     client.init(() => {
         ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
-        $("body").show();
+        document.body.style.display = "block";
     });
 }
 
-$(init);
+document.addEventListener("DOMContentLoaded", init);

@@ -21,7 +21,6 @@ import React from "react";
 
 import cockpit from "cockpit";
 import utils from "./utils.js";
-import $ from "jquery";
 
 import { dialog_open, TextInput } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
@@ -40,11 +39,11 @@ class FilesystemTab extends React.Component {
     }
 
     componentDidMount() {
-        $(this.props.client.fsys_sizes).on("changed", this.onSamplesChanged);
+        this.props.client.fsys_sizes.addEventListener("changed", this.onSamplesChanged);
     }
 
     componentWillUnmount() {
-        $(this.props.client.fsys_sizes).off("changed", this.onSamplesChanged);
+        this.props.client.fsys_sizes.removeEventListener("changed", this.onSamplesChanged);
     }
 
     render() {

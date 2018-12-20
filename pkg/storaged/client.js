@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require('jquery');
 var cockpit = require('cockpit');
 var PK = require('packagekit.js');
 
@@ -84,10 +83,10 @@ function instance_sampler(metrics, source) {
                                     source: source || "internal",
                                     metrics: metrics
     });
-    $(channel).on("closed", function (event, error) {
+    channel.addEventListener("closed", function (event, error) {
         console.log("closed", error);
     });
-    $(channel).on("message", function (event, message) {
+    channel.addEventListener("message", function (event, message) {
         var msg = JSON.parse(message);
         if (msg.length)
             handle_data(msg);
@@ -506,7 +505,7 @@ function init_model(callback) {
                 });
             });
 
-            $(client.storaged_client).on('notify', function () {
+            client.storaged_client.addEventListener('notify', function () {
                 update_indices();
                 client.dispatchEvent("changed");
             });
@@ -757,7 +756,7 @@ function vdo_overlay() {
                                     if (lines.length >= 2) {
                                         self.entries = JSON.parse(lines[lines.length - 2]);
                                         self.fsys_sizes = { };
-                                        $(self).triggerHandler('changed');
+                                        client.dispatchEvent('changed');
                                         update(JSON.parse(lines[lines.length - 2]));
                                     }
                                 })

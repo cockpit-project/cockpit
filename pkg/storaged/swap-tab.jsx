@@ -22,7 +22,6 @@
 import React from "react";
 import cockpit from "cockpit";
 import utils from "./utils.js";
-import $ from "jquery";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { FormatButton } from "./format-dialog.jsx";
@@ -40,11 +39,11 @@ class SwapTab extends React.Component {
     }
 
     componentDidMount() {
-        $(this.props.client.swap_sizes).on("changed", this.onSamplesChanged);
+        this.props.client.swap_sizes.addEventListener("changed", this.onSamplesChanged);
     }
 
     componentWillUnmount() {
-        $(this.props.client.swap_sizes).off("changed", this.onSamplesChanged);
+        this.props.client.swap_sizes.removeEventListener("changed", this.onSamplesChanged);
     }
 
     render() {

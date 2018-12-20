@@ -22,7 +22,6 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from "cockpit";
 import utils from "./utils.js";
-import $ from "jquery";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
@@ -60,11 +59,11 @@ class StorageControl extends React.Component {
     }
 
     componentDidMount() {
-        $(permission).on("changed", this.onPermissionChanged);
+        permission.addEventListener("changed", this.onPermissionChanged);
     }
 
     componentWillUnmount() {
-        $(permission).off("changed", this.onPermissionChanged);
+        permission.removeEventListener("changed", this.onPermissionChanged);
     }
 
     render() {

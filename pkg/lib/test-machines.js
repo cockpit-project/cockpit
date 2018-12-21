@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var QUnit = require("qunit-tests");
+import QUnit from "qunit-tests";
 
-var machines = require("machines");
+import machines from "machines";
 
 QUnit.test("colors.parse()", function (assert) {
     var colors = [

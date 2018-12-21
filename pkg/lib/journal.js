@@ -17,11 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var Mustache = require("mustache");
-var day_header_template = require('raw-loader!journal_day_header.mustache');
-var line_template = require('raw-loader!journal_line.mustache');
-var reboot_template = require('raw-loader!journal_reboot.mustache');
+import cockpit from "cockpit";
+import Mustache from "mustache";
+import day_header_template from 'raw-loader!journal_day_header.mustache';
+import line_template from 'raw-loader!journal_line.mustache';
+import reboot_template from 'raw-loader!journal_reboot.mustache';
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

@@ -1,4 +1,4 @@
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
 
 /* SERVICE MANAGEMENT API
  *

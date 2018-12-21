@@ -1,5 +1,5 @@
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
 $(function() {
     var proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Packages", "/packages");

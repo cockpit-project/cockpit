@@ -1,7 +1,7 @@
-var $ = require("jquery");
-var plot = require("plot.js");
+import $ from "jquery";
+import * as plot from "plot.js";
 
-require("plot.css");
+import "plot.css";
 
 var pl = new plot.Plot($('#plot'), 300);
 pl.set_options(plot.plot_simple_template());

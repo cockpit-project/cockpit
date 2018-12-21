@@ -17,15 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require('cockpit');
-var PK = require('packagekit.js');
+import cockpit from 'cockpit';
+import * as PK from 'packagekit.js';
 
-var utils = require('./utils');
+import utils from './utils';
 
-var python = require("python.js");
-var inotify_py = require("raw-loader!inotify.py");
-var nfs_mounts_py = require("raw-loader!./nfs-mounts.py");
-var vdo_monitor_py = require("raw-loader!./vdo-monitor.py");
+import * as python from "python.js";
+import inotify_py from "raw-loader!inotify.py";
+import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
+import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 
 /* STORAGED CLIENT
  */

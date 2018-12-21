@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
-var util = require("./util");
-var docker = require("./docker");
+import $ from "jquery";
+import cockpit from "cockpit";
+import util from "./util";
+import docker from "./docker";
 
 function ignoreException(ex) {
     if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {

@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var QUnit = require("qunit-tests");
-var cockpit = require("cockpit");
+import QUnit from "qunit-tests";
+import cockpit from "cockpit";
 
-var kdump = require("./config-client.js");
+import * as kdump from "./config-client.js";
 
 var basicConfig = [
     "# top comment",

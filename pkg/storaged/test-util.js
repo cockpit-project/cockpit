@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var utils = require("./utils");
-var QUnit = require("qunit-tests");
+import utils from "./utils";
+import QUnit from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
     var checks = [

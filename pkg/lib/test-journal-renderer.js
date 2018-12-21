@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var QUnit = require("qunit-tests");
-var journal = require("journal");
+import QUnit from "qunit-tests";
+import journal from "journal";
 
 var debug = false;
 

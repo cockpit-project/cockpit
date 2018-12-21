@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var $ = require("jquery");
+import cockpit from "cockpit";
+import $ from "jquery";
+
+import run_sosreport_sh from "raw-loader!./run-sosreport.sh";
 
 var _ = cockpit.gettext;
-
-var run_sosreport_sh = require("raw-loader!./run-sosreport.sh");
 
 var sos_task;
 var sos_archive_url;

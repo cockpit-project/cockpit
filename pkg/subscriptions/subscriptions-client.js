@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
 var _ = cockpit.gettext;
 
 var client = { };

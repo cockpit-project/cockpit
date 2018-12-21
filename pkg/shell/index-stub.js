@@ -17,59 +17,57 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-    var machis = require("machines");
-    var mdialogs = require("machine-dialogs");
+import machis from "machines";
+import mdialogs from "machine-dialogs";
 
-    var indexes = require("./indexes");
+import indexes from "./indexes";
 
-    var default_title = "Cockpit";
-    var manifest = cockpit.manifests["shell"] || { };
-    if (manifest.title)
-        default_title = manifest.title;
+var default_title = "Cockpit";
+var manifest = cockpit.manifests["shell"] || { };
+if (manifest.title)
+    default_title = manifest.title;
 
-    var options = {
-        brand_sel: "#index-brand",
-        logout_sel: "#go-logout",
-        oops_sel: "#navbar-oops",
-        language_sel: "#display-language",
-        about_sel: "#about-version",
-        default_title: default_title,
-        skip_brand_title: true
-    };
+var options = {
+    brand_sel: "#index-brand",
+    logout_sel: "#go-logout",
+    oops_sel: "#navbar-oops",
+    language_sel: "#display-language",
+    about_sel: "#about-version",
+    default_title: default_title,
+    skip_brand_title: true
+};
 
-    /* When alt is held down we display debugging menu items */
-    document.addEventListener("click", function(ev) {
-        var i;
-        var visible = !!ev.altKey;
-        var advanced = document.querySelectorAll(".navbar-advanced");
-        for (i = 0; i < advanced.length; i++)
-            advanced[i].style.display = visible ? "block" : "none";
-    }, true);
+/* When alt is held down we display debugging menu items */
+document.addEventListener("click", function(ev) {
+    var i;
+    var visible = !!ev.altKey;
+    var advanced = document.querySelectorAll(".navbar-advanced");
+    for (i = 0; i < advanced.length; i++)
+        advanced[i].style.display = visible ? "block" : "none";
+}, true);
 
-    var machines = machis.instance();
-    var loader = machis.loader(machines, true);
-    var dialogs = mdialogs.new_manager(machines, {
-        "no-cockpit": "not-supported",
-        "not-supported": "not-supported",
-        "protocol-error": "not-supported",
-        "authentication-not-supported": "change-auth",
-        "authentication-failed": "change-auth",
-        "no-forwarding": "change-auth",
-        "unknown-hostkey": "unknown-hostkey",
-        "unknown-host": "unknown-host",
-        "invalid-hostkey": "invalid-hostkey",
-        "no-host": "change-port",
-    });
+var machines = machis.instance();
+var loader = machis.loader(machines, true);
+var dialogs = mdialogs.new_manager(machines, {
+    "no-cockpit": "not-supported",
+    "not-supported": "not-supported",
+    "protocol-error": "not-supported",
+    "authentication-not-supported": "change-auth",
+    "authentication-failed": "change-auth",
+    "no-forwarding": "change-auth",
+    "unknown-hostkey": "unknown-hostkey",
+    "unknown-host": "unknown-host",
+    "invalid-hostkey": "invalid-hostkey",
+    "no-host": "change-port",
+});
 
-    indexes.machines_index(options, machines, loader, dialogs);
+indexes.machines_index(options, machines, loader, dialogs);
 
-    var login_data = cockpit.localStorage.getItem('login-data', true);
-    if (login_data) {
-        var data = JSON.parse(login_data);
-        $("#content-user-name").text(data["displayName"]);
-    }
-}());
+var login_data = cockpit.localStorage.getItem('login-data', true);
+if (login_data) {
+    var data = JSON.parse(login_data);
+    $("#content-user-name").text(data["displayName"]);
+}

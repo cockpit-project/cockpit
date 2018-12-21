@@ -17,8 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
+import active_pages from "./active-pages";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 var _ = cockpit.gettext;
@@ -861,7 +862,7 @@ function Index() {
     function setup_killer(id) {
         $(id).on("click", function(ev) {
             if (ev && ev.button === 0)
-                require("./active-pages").showDialog(self.frames);
+                active_pages.showDialog(self.frames);
         });
     }
 

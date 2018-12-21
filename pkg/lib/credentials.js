@@ -17,11 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-var lister = require("raw-loader!credentials-ssh-private-keys.sh");
-var remove_key = require("raw-loader!credentials-ssh-remove-key.sh");
+import lister from "raw-loader!credentials-ssh-private-keys.sh";
+import remove_key from "raw-loader!credentials-ssh-remove-key.sh";
 
 var _ = cockpit.gettext;
 

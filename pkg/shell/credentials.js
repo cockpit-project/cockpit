@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var sshFile = require("./ssh-file-autocomplete.jsx");
-var credentials = require("credentials");
-var $ = require("jquery");
+import sshFile from "./ssh-file-autocomplete.jsx";
+import credentials from "credentials";
+import $ from "jquery";
 
-require("listing.less");
-require("patterns");
+import "listing.less";
+import "patterns";
 
 function setup() {
     var keys;

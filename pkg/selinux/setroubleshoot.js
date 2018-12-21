@@ -17,15 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
+
+import React from "react";
+import ReactDOM from "react-dom";
+
+import troubleshootClient from "./setroubleshoot-client";
+import * as selinuxClient from "./selinux-client.js";
+import troubleshootView from "./setroubleshoot-view.jsx";
+
 var _ = cockpit.gettext;
-
-var React = require("react");
-var ReactDOM = require("react-dom");
-
-var troubleshootClient = require("./setroubleshoot-client");
-var selinuxClient = require("./selinux-client.js");
-var troubleshootView = require("./setroubleshoot-view.jsx");
 
 var initStore = function(rootElement) {
     var dataStore = { };

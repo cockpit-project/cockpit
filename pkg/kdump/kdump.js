@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
 
-var React = require("react");
-var ReactDOM = require("react-dom");
+import React from "react";
+import ReactDOM from "react-dom";
 
-var kdumpView = require("./kdump-view.jsx");
-var kdumpClient = require("./kdump-client.js");
+import kdumpView from "./kdump-view.jsx";
+import * as kdumpClient from "./kdump-client.js";
 
 var initStore = function(rootElement) {
     var dataStore = { };

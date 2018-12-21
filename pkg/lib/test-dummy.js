@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var QUnit = require("qunit-tests");
+import QUnit from "qunit-tests";
 
 function run_tests() {
     QUnit.test("hello test", function(assert) {

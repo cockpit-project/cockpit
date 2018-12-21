@@ -17,12 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
+import $ from "jquery";
+import cockpit from "cockpit";
+import journal from "journal";
+
 $(function() {
-    var cockpit = require("cockpit");
-
-    var journal = require("journal");
-
     cockpit.translate();
     var _ = cockpit.gettext;
 

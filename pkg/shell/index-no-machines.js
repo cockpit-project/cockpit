@@ -17,29 +17,27 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-    var indexes = require("./indexes");
+import indexes from "./indexes";
 
-    var default_title = "Cockpit";
-    var manifest = cockpit.manifests["shell"] || { };
-    if (manifest.title)
-        default_title = manifest.title;
+var default_title = "Cockpit";
+var manifest = cockpit.manifests["shell"] || { };
+if (manifest.title)
+    default_title = manifest.title;
 
-    indexes.simple_index({
-        brand_sel: "#index-brand",
-        logout_sel: "#go-logout",
-        oops_sel: "#navbar-oops",
-        language_sel: "#display-language",
-        about_sel: "#about-version",
-        default_title: default_title
-    });
+indexes.simple_index({
+    brand_sel: "#index-brand",
+    logout_sel: "#go-logout",
+    oops_sel: "#navbar-oops",
+    language_sel: "#display-language",
+    about_sel: "#about-version",
+    default_title: default_title
+});
 
-    var login_data = cockpit.localStorage.getItem('login-data', true);
-    if (login_data) {
-        var data = JSON.parse(login_data);
-        $("#content-user-name").text(data["displayName"]);
-    }
-}());
+var login_data = cockpit.localStorage.getItem('login-data', true);
+if (login_data) {
+    var data = JSON.parse(login_data);
+    $("#content-user-name").text(data["displayName"]);
+}

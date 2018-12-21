@@ -1,4 +1,6 @@
 /* An unhandled javascript exception */
+import cockpit from "cockpit";
+
 var button = document.getElementById("exception");
 button.addEventListener("click", function() {
     var obj = { };
@@ -7,7 +9,6 @@ button.addEventListener("click", function() {
     }, 0);
 });
 
-var cockpit = require("cockpit");
 cockpit.transport.wait(function() {
     document.body.removeAttribute("hidden");
 });

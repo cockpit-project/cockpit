@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var mustache = require("mustache/mustache");
+import cockpit from "cockpit";
+import mustache from "mustache/mustache";
 
 /*
  * Turns a mustache template into a translated mustache template

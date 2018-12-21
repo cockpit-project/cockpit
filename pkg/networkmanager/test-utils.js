@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var utils = require("./utils");
-var cockpit = require("cockpit");
-var QUnit = require("qunit-tests");
+import utils from "./utils";
+import cockpit from "cockpit";
+import QUnit from "qunit-tests";
 
 function assert_throws(assert, func, checks) {
     assert.expect(checks.length);

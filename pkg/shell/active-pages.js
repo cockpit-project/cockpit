@@ -17,13 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
+
+import React from "react";
+
+import dialogPattern from "cockpit-components-dialog.jsx";
+import PagesDialog from "./active-pages-dialog.jsx";
+
 var _ = cockpit.gettext;
-
-var React = require("react");
-
-var dialogPattern = require("cockpit-components-dialog.jsx");
-var PagesDialog = require("./active-pages-dialog.jsx");
 
 // The argument is a Frames object from base_index.js
 var showDialog = function(frames) {

@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-const $ = require('jquery');
-const cockpit = require('cockpit');
+import $ from 'jquery';
+import cockpit from 'cockpit';
 
-require('jquery-flot/jquery.flot');
-require('jquery-flot/jquery.flot.selection');
-require('jquery-flot/jquery.flot.time');
+import 'jquery-flot/jquery.flot';
+import 'jquery-flot/jquery.flot.selection';
+import 'jquery-flot/jquery.flot.time';
 
 const C_ = cockpit.gettext;
 

@@ -23,8 +23,6 @@ require("./connection");
 var QUnit = require("qunit-tests");
 
 (function() {
-    "use strict";
-
     var fixtures = [];
 
     var configJson;

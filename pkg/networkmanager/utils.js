@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 var cockpit = require("cockpit");
 
 var _ = cockpit.gettext;

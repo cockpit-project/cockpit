@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 var $ = require("jquery");
 var cockpit = require("cockpit");
 

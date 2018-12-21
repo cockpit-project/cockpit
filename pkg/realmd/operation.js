@@ -1,6 +1,4 @@
 (function() {
-    "use strict";
-
     var jQuery = require("jquery");
     var cockpit = require("cockpit");
     var packagekit = require("packagekit.js");

@@ -19,8 +19,6 @@
 
 var $ = require("jquery");
 $(function() {
-    "use strict";
-
     var cockpit = require("cockpit");
 
     var journal = require("journal");

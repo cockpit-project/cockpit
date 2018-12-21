@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     var docker = require("./docker");
     var util = require("./util");
     var QUnit = require("qunit-tests");

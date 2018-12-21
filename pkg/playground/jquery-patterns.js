@@ -1,7 +1,5 @@
 var $ = require("jquery");
 $(function() {
-    "use strict";
-
     require("patterns");
 
     require("page.css");

@@ -8,8 +8,6 @@ import componentsTerminal from "cockpit-components-terminal.jsx";
 const _ = cockpit.gettext;
 
 (function() {
-    "use strict";
-
     cockpit.translate();
 
     /*

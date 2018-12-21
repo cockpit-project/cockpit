@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     var angular = require('angular');
     require('object-describer/dist/object-describer.js');
     require('kubernetes-object-describer/dist/object-describer.js');

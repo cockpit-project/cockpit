@@ -88,8 +88,7 @@ CLEAN_CSS = $(srcdir)/node_modules/.bin/cleancss
 MIN_JS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	$(srcdir)/tools/missing $(UGLIFY_JS) $(filter-out %.deps, $^) --mangle --comments 'preserve' --beautify \
-		--source-map $@.map --source-map-url $(notdir $@).map --source-map-include-sources > $@.tmp && \
-	$(MV) $@.tmp $@
+		--source-map url=$(notdir $@).map,includeSources --output $@
 
 MIN_CSS_RULE = \
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \

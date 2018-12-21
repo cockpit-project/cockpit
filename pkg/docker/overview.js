@@ -17,20 +17,20 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-var React = require("react");
-var ReactDOM = require("react-dom");
+import React from "react";
+import ReactDOM from "react-dom";
 
-var plot = require("plot.js");
-var cpu_ram_info = require("machine-info.js").cpu_ram_info;
+import * as plot from "plot.js";
+import { cpu_ram_info } from "machine-info.js";
 
-var util = require("./util");
-var storage = require("./storage.jsx");
-var view = require("./containers-view.jsx");
+import util from "./util";
+import storage from "./storage.jsx";
+import view from "./containers-view.jsx";
 
-require("plot.css");
+import "plot.css";
 
 /* OVERVIEW PAGE
  */

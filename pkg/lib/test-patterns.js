@@ -17,10 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var QUnit = require("qunit-tests");
-
-var $ = require("jquery");
-require("patterns");
+import QUnit from "qunit-tests";
+import $ from "jquery";
+import "patterns";
 
 QUnit.test("update_privileged", function (assert) {
     var p_true = { 'allowed' : true };

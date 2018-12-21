@@ -17,12 +17,12 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
 /* These add themselves to jQuery so just including is enough */
-require("patterns");
-require("bootstrap-datepicker/dist/js/bootstrap-datepicker");
+import "patterns";
+import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 
 var _ = cockpit.gettext;
 

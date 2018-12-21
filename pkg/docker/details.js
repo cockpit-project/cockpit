@@ -17,17 +17,18 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
-var moment = require("moment");
+import $ from "jquery";
+import cockpit from "cockpit";
+import moment from "moment";
+
+import "patterns";
+
+import docker from "./docker";
+import util from "./util";
+
+import "console.css";
+
 moment.locale(cockpit.language);
-
-require("patterns");
-
-var docker = require("./docker");
-var util = require("./util");
-
-require("console.css");
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

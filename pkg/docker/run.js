@@ -17,16 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
+import $ from "jquery";
+import cockpit from "cockpit";
+
+import Mustache from "mustache";
+import "patterns";
+import client from "./client";
+import util from "./util";
+
 $(function() {
-    var cockpit = require("cockpit");
-
-    var Mustache = require("mustache");
-    require("patterns");
-
-    var client = require("./client");
-    var util = require("./util");
-
     var _ = cockpit.gettext;
 
     /* RUN IMAGE DIALOG */

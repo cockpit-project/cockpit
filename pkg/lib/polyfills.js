@@ -25,7 +25,7 @@
 /* eslint-disable no-extend-native */
 
 // for IE 11
-require('promise/polyfill.js');
+import 'promise/polyfill.js';
 
 // For almost everyone
 if (!Promise.prototype.finally) {

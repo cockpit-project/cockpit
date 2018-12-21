@@ -17,10 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
+import cockpit from "cockpit";
 
-var service = require("service");
-var moment = require("moment");
+import service from "service";
+import moment from "moment";
+
 moment.locale(cockpit.language);
 
 var _ = cockpit.gettext;

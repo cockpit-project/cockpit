@@ -1,45 +1,43 @@
-(function() {
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-    var service = require("service");
+import service from "service";
 
-    $(function() {
-        var proxy;
+$(function() {
+    var proxy;
 
-        function navigate() {
-            proxy = service.proxy(cockpit.location.path[0] || "");
+    function navigate() {
+        proxy = service.proxy(cockpit.location.path[0] || "");
 
-            function show() {
-                function s(t) {
-                    $('#' + t).text(JSON.stringify(proxy[t]));
-                }
-                s('exists');
-                s('state');
-                s('enabled');
+        function show() {
+            function s(t) {
+                $('#' + t).text(JSON.stringify(proxy[t]));
             }
-
-            $(proxy).on('changed', show);
-            show();
-
-            $("body").show();
+            s('exists');
+            s('state');
+            s('enabled');
         }
 
-        function b(t) {
-            $('#' + t).on('click', function () {
-                proxy[t]()
-                        .fail(function (error) {
-                            console.error("action", t, "failed:", JSON.stringify(error));
-                        });
-            });
-        }
+        $(proxy).on('changed', show);
+        show();
 
-        b('start');
-        b('stop');
-        b('enable');
-        b('disable');
+        $("body").show();
+    }
 
-        $(cockpit).on('locationchanged', navigate);
-        navigate();
-    });
-}());
+    function b(t) {
+        $('#' + t).on('click', function () {
+            proxy[t]()
+                    .fail(function (error) {
+                        console.error("action", t, "failed:", JSON.stringify(error));
+                    });
+        });
+    }
+
+    b('start');
+    b('stop');
+    b('enable');
+    b('disable');
+
+    $(cockpit).on('locationchanged', navigate);
+    navigate();
+});

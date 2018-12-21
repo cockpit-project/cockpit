@@ -17,16 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-var Mustache = require("mustache");
-require("patterns");
+import Mustache from "mustache";
+import "patterns";
 
-var docker = require("./docker");
-var bar = require("./bar");
-var journal = require("journal");
-var moment = require("moment");
+import docker from "./docker";
+import bar from "./bar";
+import journal from "journal";
+import moment from "moment";
 moment.locale(cockpit.language);
 
 var _ = cockpit.gettext;

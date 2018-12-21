@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
+import $ from "jquery";
 
 /* ----------------------------------------------------------------------------
  * Bar Graphs (in table rows)

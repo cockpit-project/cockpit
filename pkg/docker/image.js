@@ -17,15 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
-var React = require("react");
-var ReactDOM = require("react-dom");
+import $ from "jquery";
+import cockpit from "cockpit";
+import React from "react";
+import ReactDOM from "react-dom";
 
-var util = require("./util");
-var view = require("./containers-view.jsx");
+import util from "./util";
+import view from "./containers-view.jsx";
 
-require("./run");
+import "./run";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

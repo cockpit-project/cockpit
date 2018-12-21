@@ -17,139 +17,137 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-(function() {
-    var $ = require("jquery");
-    var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-    var Mustache = require("mustache");
-    var service = require("service");
+import Mustache from "mustache";
+import service from "service";
 
-    var client = require("./client");
-    var overview = require("./overview");
-    var container_details = require("./details");
-    var image_details = require("./image");
-    var storage = require("./storage.jsx");
+import client from "./client";
+import overview from "./overview";
+import container_details from "./details";
+import image_details from "./image";
+import storage from "./storage.jsx";
 
-    require("page.css");
-    require("table.css");
-    require("./docker.css");
+import "page.css";
+import "table.css";
+import "./docker.css";
 
-    var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
-    /* CURTAIN
-     */
+/* CURTAIN
+ */
 
-    var curtain_tmpl;
-    var docker_service = service.proxy("docker");
+var curtain_tmpl;
+var docker_service = service.proxy("docker");
 
-    function init_curtain(client, navigate) {
-        curtain_tmpl = $("#curtain-tmpl").html();
-        Mustache.parse(curtain_tmpl);
+function init_curtain(client, navigate) {
+    curtain_tmpl = $("#curtain-tmpl").html();
+    Mustache.parse(curtain_tmpl);
 
-        $(client).on('failure', function (event, error) {
-            show_curtain(error);
-        });
+    $(client).on('failure', function (event, error) {
+        show_curtain(error);
+    });
 
-        $('#curtain').on('click', '[data-action=docker-start]', function () {
-            show_curtain(null);
-            docker_service.start()
-                    .done(function () {
-                        client.close();
-                        client.connect().done(navigate);
-                    })
-                    .fail(function (error) {
-                        show_curtain(cockpit.format(_("Failed to start Docker: $0"), error));
-                    });
-        });
-
-        $('#curtain').on('click', '[data-action=docker-connect]', function () {
-            show_curtain(null);
-            client.close();
-            client.connect().done(navigate);
-        });
-    }
-
-    function show_curtain(ex) {
-        var info = { };
-
-        if (ex === null) {
-            info.connecting = true;
-        } else if (typeof ex == "string") {
-            info.other = ex;
-            console.warn(ex);
-        } else if (ex.problem == "not-found") {
-            info.notfound = true;
-        } else if (ex.problem == "access-denied") {
-            info.denied = true;
-        } else {
-            info.other = ex.toString();
-            console.warn(ex);
-        }
-
-        $('#curtain').html(Mustache.render(curtain_tmpl, info));
-        $('body > div').hide();
-        $('#curtain').show();
-        $("body").show();
-    }
-
-    function hide_curtain() {
-        $('#curtain').hide();
-    }
-
-    /* INITIALIZATION AND NAVIGATION
-     */
-
-    function init() {
-        var docker_client;
-        var overview_page;
-        var container_details_page;
-        var image_details_page;
-        var storage_page;
-
-        function navigate() {
-            var path = cockpit.location.path;
-
-            $("body").show();
-            hide_curtain();
-            if (path.length === 0) {
-                container_details_page.hide();
-                image_details_page.hide();
-                storage_page.hide();
-                overview_page.show();
-            } else if (path.length === 1 && path[0] == "storage") {
-                overview_page.hide();
-                container_details_page.hide();
-                image_details_page.hide();
-                storage_page.show();
-            } else if (path.length === 1) {
-                overview_page.hide();
-                image_details_page.hide();
-                storage_page.hide();
-                container_details_page.show(path[0]);
-            } else if (path.length === 2 && path[0] == "image") {
-                overview_page.hide();
-                container_details_page.hide();
-                storage_page.hide();
-                image_details_page.show(path[1]);
-            } else { /* redirect */
-                console.warn("not a containers location: " + path);
-                cockpit.location = '';
-            }
-        }
-
-        cockpit.translate();
-
-        docker_client = client.instance();
-        init_curtain(docker_client, navigate);
-        overview_page = overview.init(docker_client);
-        container_details_page = container_details.init(docker_client);
-        image_details_page = image_details.init(docker_client);
-        storage_page = storage.init(docker_client);
-
+    $('#curtain').on('click', '[data-action=docker-start]', function () {
         show_curtain(null);
-        docker_client.connect().done(navigate);
-        $(cockpit).on("locationchanged", navigate);
+        docker_service.start()
+                .done(function () {
+                    client.close();
+                    client.connect().done(navigate);
+                })
+                .fail(function (error) {
+                    show_curtain(cockpit.format(_("Failed to start Docker: $0"), error));
+                });
+    });
+
+    $('#curtain').on('click', '[data-action=docker-connect]', function () {
+        show_curtain(null);
+        client.close();
+        client.connect().done(navigate);
+    });
+}
+
+function show_curtain(ex) {
+    var info = { };
+
+    if (ex === null) {
+        info.connecting = true;
+    } else if (typeof ex == "string") {
+        info.other = ex;
+        console.warn(ex);
+    } else if (ex.problem == "not-found") {
+        info.notfound = true;
+    } else if (ex.problem == "access-denied") {
+        info.denied = true;
+    } else {
+        info.other = ex.toString();
+        console.warn(ex);
     }
 
-    $(init);
-}());
+    $('#curtain').html(Mustache.render(curtain_tmpl, info));
+    $('body > div').hide();
+    $('#curtain').show();
+    $("body").show();
+}
+
+function hide_curtain() {
+    $('#curtain').hide();
+}
+
+/* INITIALIZATION AND NAVIGATION
+ */
+
+function init() {
+    var docker_client;
+    var overview_page;
+    var container_details_page;
+    var image_details_page;
+    var storage_page;
+
+    function navigate() {
+        var path = cockpit.location.path;
+
+        $("body").show();
+        hide_curtain();
+        if (path.length === 0) {
+            container_details_page.hide();
+            image_details_page.hide();
+            storage_page.hide();
+            overview_page.show();
+        } else if (path.length === 1 && path[0] == "storage") {
+            overview_page.hide();
+            container_details_page.hide();
+            image_details_page.hide();
+            storage_page.show();
+        } else if (path.length === 1) {
+            overview_page.hide();
+            image_details_page.hide();
+            storage_page.hide();
+            container_details_page.show(path[0]);
+        } else if (path.length === 2 && path[0] == "image") {
+            overview_page.hide();
+            container_details_page.hide();
+            storage_page.hide();
+            image_details_page.show(path[1]);
+        } else { /* redirect */
+            console.warn("not a containers location: " + path);
+            cockpit.location = '';
+        }
+    }
+
+    cockpit.translate();
+
+    docker_client = client.instance();
+    init_curtain(docker_client, navigate);
+    overview_page = overview.init(docker_client);
+    container_details_page = container_details.init(docker_client);
+    image_details_page = image_details.init(docker_client);
+    storage_page = storage.init(docker_client);
+
+    show_curtain(null);
+    docker_client.connect().done(navigate);
+    $(cockpit).on("locationchanged", navigate);
+}
+
+$(init);

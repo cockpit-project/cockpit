@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var React = require("react");
-var ReactDOM = require("react-dom");
-var subscriptionsClient = require("./subscriptions-client");
-var subscriptionsRegister = require("./subscriptions-register.jsx");
-var subscriptionsView = require("./subscriptions-view.jsx");
-var Dialog = require("cockpit-components-dialog.jsx");
+import cockpit from "cockpit";
+import React from "react";
+import ReactDOM from "react-dom";
+import subscriptionsClient from "./subscriptions-client";
+import subscriptionsRegister from "./subscriptions-register.jsx";
+import subscriptionsView from "./subscriptions-view.jsx";
+import Dialog from "cockpit-components-dialog.jsx";
 
 var _ = cockpit.gettext;
 

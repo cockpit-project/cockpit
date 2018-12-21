@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cockpit = require("cockpit");
-var python = require("python.js");
-var inotify_py = require("raw-loader!inotify.py");
-var watch_appstream_py = require("raw-loader!./watch-appstream.py");
+import cockpit from "cockpit";
+import * as python from "python.js";
+import inotify_py from "raw-loader!inotify.py";
+import watch_appstream_py from "raw-loader!./watch-appstream.py";
 
 var metainfo_db = null;
 

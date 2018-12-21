@@ -17,25 +17,25 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require('jquery');
-var cockpit = require('cockpit');
+import $ from 'jquery';
+import cockpit from 'cockpit';
 
-var firewall = require('./firewall-client.js').default;
-var utils = require('./utils');
-var service = require('service');
+import firewall from './firewall-client.js';
+import utils from './utils';
+import service from 'service';
 
-var Mustache = require('mustache');
-var plot = require('plot.js');
-var journal = require('journal');
+import Mustache from 'mustache';
+import * as plot from 'plot.js';
+import journal from 'journal';
 
 /* jQuery extensions */
-require('patterns');
+import 'patterns';
 
-require("page.css");
-require("table.css");
-require("plot.css");
-require("journal.css");
-require("./networking.css");
+import "page.css";
+import "table.css";
+import "plot.css";
+import "journal.css";
+import "./networking.css";
 
 var _ = cockpit.gettext;
 var C_ = cockpit.gettext;

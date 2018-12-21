@@ -17,24 +17,24 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-var $ = require("jquery");
-var cockpit = require("cockpit");
+import $ from "jquery";
+import cockpit from "cockpit";
 
-var mustache = require("mustache");
+import mustache from "mustache";
 
-var machines = require("machines");
-var credentials = require("credentials");
-require("patterns");
+import machines from "machines";
+import credentials from "credentials";
+import "patterns";
 
-var add_tmpl = require("raw-loader!machine-add.html");
-var auth_failed_tmpl = require("raw-loader!machine-auth-failed.html");
-var change_auth_tmpl = require("raw-loader!machine-change-auth.html");
-var change_port_tmpl = require("raw-loader!machine-change-port.html");
-var color_picker_tmpl = require("raw-loader!machine-color-picker.html");
-var invalid_hostkey_tmpl = require("raw-loader!machine-invalid-hostkey.html");
-var not_supported_tmpl = require("raw-loader!machine-not-supported.html");
-var sync_users_tmpl = require("raw-loader!machine-sync-users.html");
-var unknown_hosts_tmpl = require("raw-loader!machine-unknown-hostkey.html");
+import add_tmpl from "raw-loader!machine-add.html";
+import auth_failed_tmpl from "raw-loader!machine-auth-failed.html";
+import change_auth_tmpl from "raw-loader!machine-change-auth.html";
+import change_port_tmpl from "raw-loader!machine-change-port.html";
+import color_picker_tmpl from "raw-loader!machine-color-picker.html";
+import invalid_hostkey_tmpl from "raw-loader!machine-invalid-hostkey.html";
+import not_supported_tmpl from "raw-loader!machine-not-supported.html";
+import sync_users_tmpl from "raw-loader!machine-sync-users.html";
+import unknown_hosts_tmpl from "raw-loader!machine-unknown-hostkey.html";
 
 var _ = cockpit.gettext;
 

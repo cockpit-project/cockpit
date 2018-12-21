@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     var cockpit = require("cockpit");
     var React = require("react");
 

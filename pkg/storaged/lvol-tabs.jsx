@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 import cockpit from "cockpit";
 import utils from "./utils.js";
 

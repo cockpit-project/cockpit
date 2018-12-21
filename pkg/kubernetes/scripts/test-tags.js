@@ -25,8 +25,6 @@ require("./tags");
 var specData;
 
 function suite() {
-    "use strict";
-
     /* Filled in with a function */
     var inject;
 

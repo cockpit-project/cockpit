@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     /* Tell webpack what to bundle here */
     var angular = require('angular');
     require('angular-route');

@@ -30,8 +30,6 @@ import App from './components/App.jsx';
 import { setVirtProvider } from '../machines/provider.js';
 
 (function() {
-    "use strict";
-
     function render() {
         ReactDOM.render(
             React.createElement(App, {store: store}),

@@ -63,7 +63,6 @@ if (!String.prototype.endsWith) {
 // for IE 11
 if (!String.prototype.includes) {
     String.prototype.includes = function(search, start) {
-        'use strict';
         if (typeof start !== 'number') {
             start = 0;
         }
@@ -104,7 +103,6 @@ if (typeof Object.assign != 'function') {
     // Must be writable: true, enumerable: false, configurable: true
     Object.defineProperty(Object, "assign", {
         value: function assign(target, varArgs) { // .length of function is 2
-            'use strict';
             if (target === null) { // TypeError if undefined or null
                 throw new TypeError('Cannot convert undefined or null to object');
             }

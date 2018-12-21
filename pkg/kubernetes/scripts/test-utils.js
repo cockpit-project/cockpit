@@ -23,8 +23,6 @@ var QUnit = require("qunit-tests");
 require("./utils");
 
 function suite() {
-    "use strict";
-
     /* Filled in with a function */
     var inject;
 

@@ -24,8 +24,6 @@ require('angular-gettext/dist/angular-gettext.js');
 require("./images");
 
 function suite(fixtures) {
-    "use strict";
-
     /* Filled in with a function */
     var inject;
 

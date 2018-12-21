@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     var angular = require('angular');
 
     var REGTAG = /[\u200B\s,]+/;

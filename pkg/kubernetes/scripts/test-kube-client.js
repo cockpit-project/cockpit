@@ -28,8 +28,6 @@ var FIXTURE_BASIC = require("./fixture-basic");
 var FIXTURE_LARGE = require("./fixture-large");
 
 (function() {
-    "use strict";
-
     /* Filled in with a function */
     var inject;
 

@@ -18,8 +18,6 @@
  */
 
 (function() {
-    "use strict";
-
     var machis = require("machines");
     var credentials = require("./credentials");
     var mdialogs = require("machine-dialogs");

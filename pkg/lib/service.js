@@ -1,5 +1,3 @@
-"use strict";
-
 var cockpit = require("cockpit");
 
 /* SERVICE MANAGEMENT API

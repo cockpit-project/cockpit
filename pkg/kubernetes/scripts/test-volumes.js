@@ -24,8 +24,6 @@ require("./volumes");
 require("./kube-client-cockpit");
 
 function suite(fixtures) {
-    "use strict";
-
     /* Filled in with a function */
     var inject;
 

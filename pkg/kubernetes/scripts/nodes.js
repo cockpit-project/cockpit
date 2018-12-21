@@ -24,8 +24,6 @@
 /* globals cockpit */
 
 (function() {
-    "use strict";
-
     var angular = require('angular');
     var d3 = require('d3');
     require('angular-route');

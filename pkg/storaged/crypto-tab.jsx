@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 import cockpit from "cockpit";
 import { dialog_open, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename } from "./utils.js";

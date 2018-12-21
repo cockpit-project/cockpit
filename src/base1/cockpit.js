@@ -30,8 +30,6 @@ try {
 var mock = mock || { }; // eslint-disable-line no-use-before-define
 
 (function() {
-"use strict";
-
 var cockpit = { };
 event_mixin(cockpit, { });
 

@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
-
 var sshFile = require("./ssh-file-autocomplete.jsx");
 var credentials = require("credentials");
 var $ = require("jquery");

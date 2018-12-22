@@ -684,5 +684,6 @@ ExecStart=/bin/true
         b.wait_present(rel_link_sel("not-found.service"))
         b.wait_attr(rel_link_sel("not-found.service"), "class", "disabled")
 
+
 if __name__ == '__main__':
     test_main()

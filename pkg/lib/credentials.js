@@ -23,7 +23,7 @@ import cockpit from "cockpit";
 import lister from "raw-loader!credentials-ssh-private-keys.sh";
 import remove_key from "raw-loader!credentials-ssh-remove-key.sh";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 function Keys() {
     var self = this;

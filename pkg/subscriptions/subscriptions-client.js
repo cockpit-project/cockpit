@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var client = { };
 

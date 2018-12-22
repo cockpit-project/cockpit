@@ -25,7 +25,7 @@ import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import { clevis_recover_passphrase } from "./crypto-keyslots.jsx";
 import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 function lvol_rename(lvol) {
     dialog_open({ Title: _("Rename Logical Volume"),

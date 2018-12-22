@@ -895,7 +895,7 @@
                 'fields',
                 'gettextCatalog',
                 function($q, $scope, projectData, projectPolicy, loader, kselect, fields, gettextCatalog) {
-                    var _ = gettextCatalog.getString.bind(gettextCatalog);
+                    const _ = gettextCatalog.getString.bind(gettextCatalog);
                     var selectMember = _("Select Member");
                     var NAME_RE = /^[a-z0-9_.]([-a-z0-9@._:]*[a-z0-9._:])?$/;
                     var selectRole = _("Select Role");
@@ -1005,7 +1005,7 @@
                     var project = dialogData.project || { };
                     var meta = project.metadata || { };
                     var annotations = meta.annotations || { };
-                    var _ = gettextCatalog.getString.bind(gettextCatalog);
+                    const _ = gettextCatalog.getString.bind(gettextCatalog);
 
                     var DISPLAY = "openshift.io/display-name";
                     var DESCRIPTION = "openshift.io/description";
@@ -1176,7 +1176,7 @@
                 "fields",
                 "gettextCatalog",
                 function($q, $scope, kselect, loader, methods, projectData, projectPolicy, $location, memberActions, fields, gettextCatalog) {
-                    var _ = gettextCatalog.getString.bind(gettextCatalog);
+                    const _ = gettextCatalog.getString.bind(gettextCatalog);
                     loader.watch("Group", $scope);
                     loader.watch("Project", $scope);
 
@@ -1321,7 +1321,7 @@
                 "fields",
                 'gettextCatalog',
                 function($q, $scope, loader, kselect, methods, projectData, memberActions, projectPolicy, $location, fields, gettextCatalog) {
-                    var _ = gettextCatalog.getString.bind(gettextCatalog);
+                    const _ = gettextCatalog.getString.bind(gettextCatalog);
                     loader.watch("User", $scope);
                     loader.watch("Project", $scope);
 

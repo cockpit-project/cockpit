@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import util from "./util";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 /* SEARCH DIALOG */
 

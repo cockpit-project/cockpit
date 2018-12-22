@@ -27,7 +27,7 @@ import React from "react";
 import change_profile from "./change-profile.jsx";
 import link_html from "raw-loader!./link.html";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var permission = cockpit.permission({ admin: true });
 
 function setup() {

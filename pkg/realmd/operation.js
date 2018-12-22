@@ -6,7 +6,7 @@ import "patterns";
 
 import operation_html from "raw-loader!./operation.html";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var MANAGER = "/org/freedesktop/realmd";
 

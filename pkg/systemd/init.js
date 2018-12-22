@@ -10,7 +10,7 @@ import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 $(function() {
     /* These add themselves to jQuery so just including is enough */
     cockpit.translate();
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
     moment.locale(cockpit.language);
 
     /* Notes about the systemd D-Bus API

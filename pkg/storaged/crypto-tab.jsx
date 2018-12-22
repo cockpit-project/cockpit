@@ -27,7 +27,7 @@ import { FormatButton, crypto_options_dialog_fields, crypto_options_dialog_optio
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class CryptoTab extends React.Component {
     render() {

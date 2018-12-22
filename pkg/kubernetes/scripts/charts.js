@@ -92,7 +92,7 @@
                 "KubeTranslate",
                 "$timeout",
                 function ($window, translate, $timeout) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     return {
                         restrict: 'A',

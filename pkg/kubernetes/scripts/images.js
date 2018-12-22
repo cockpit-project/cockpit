@@ -610,7 +610,7 @@
                     var stream = dialogData.stream || { };
                     var meta = stream.metadata || { };
                     var spec = stream.spec || { };
-                    var _ = gettextCatalog.getString.bind(gettextCatalog);
+                    const _ = gettextCatalog.getString.bind(gettextCatalog);
 
                     var populate = "none";
                     if (spec.dockerImageRepository)

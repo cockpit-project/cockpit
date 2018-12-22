@@ -186,7 +186,7 @@
                 "KubeTranslate",
                 "KubeMapNamedArray",
                 function (select, translate, mapNamedArray) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     var KNOWN_VOLUME_TYPES = {
                         "gcePersistentDisk" : _("GCE Persistent Disk"),
@@ -425,7 +425,7 @@
                 "KubeTranslate",
                 "KUBE_NAME_RE",
                 function (volumeData, stringToBytes, translate, NAME_RE) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function build (item, type) {
                         if (!item)
@@ -539,7 +539,7 @@
                 "KubeTranslate",
                 "kubeSelect",
                 function (volumeData, translate, select) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function build(item) {
                         if (!item)
@@ -607,7 +607,7 @@
                 "volumeData",
                 "KubeTranslate",
                 function (volumeData, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function build(item) {
                         if (!item)
@@ -673,7 +673,7 @@
                 "volumeData",
                 "KubeTranslate",
                 function (volumeData, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function build(item) {
                         if (!item)
@@ -747,7 +747,7 @@
                 "volumeData",
                 "KubeTranslate",
                 function (volumeData, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function build(item) {
                         if (!item)
@@ -855,7 +855,7 @@
                 "KubeTranslate",
                 function($q, $scope, $injector, $instance, dialogData, volumeData,
                     defaultVolumeFields, methods, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var volumeFields, valName;
 
                     angular.extend($scope, dialogData);

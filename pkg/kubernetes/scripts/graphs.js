@@ -585,7 +585,7 @@
                 "KubeTranslate",
                 "KubeFormat",
                 function kubernetesServiceGraph(ServiceGrid, KubeTranslate, KubeFormat) {
-                    var _ = KubeTranslate.gettext;
+                    const _ = KubeTranslate.gettext;
 
                     function service_graph($scope, selector, highlighter) {
                         var grid = ServiceGrid.new_grid($scope);

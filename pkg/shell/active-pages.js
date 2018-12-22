@@ -24,7 +24,7 @@ import React from "react";
 import dialogPattern from "cockpit-components-dialog.jsx";
 import PagesDialog from "./active-pages-dialog.jsx";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 // The argument is a Frames object from base_index.js
 var showDialog = function(frames) {

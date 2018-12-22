@@ -24,7 +24,7 @@ import moment from "moment";
 
 moment.locale(cockpit.language);
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 /* UTILITIES

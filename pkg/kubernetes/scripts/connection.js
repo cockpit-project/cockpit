@@ -77,7 +77,7 @@
                     cockpitConnectionInfo, CockpitKubeRequest,
                     mapNamedArray, translate, sessionCertificates) {
                     var DEFAULT_ADDRESS = "http://localhost:8080";
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function kubectlError(ex) {
                         // Because angular warns about all throws
@@ -493,7 +493,7 @@
                 "CockpitTranslate",
                 "CockpitFormat",
                 function($q, connectionActions, translate, format) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     return {
                         restrict: "E",
                         scope: true,
@@ -627,7 +627,7 @@
                 "CockpitFormat",
                 function($q, connectionActions, sessionCertificates,
                     runCommand, translate, format) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     return {
                         restrict: "E",
                         scope: true,

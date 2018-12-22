@@ -25,7 +25,7 @@ import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } f
 
 import "./application.css";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 class Application extends React.Component {
     constructor() {

@@ -25,7 +25,7 @@ import subscriptionsRegister from "./subscriptions-register.jsx";
 import subscriptionsView from "./subscriptions-view.jsx";
 import Dialog from "cockpit-components-dialog.jsx";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var dataStore = { };
 

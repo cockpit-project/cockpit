@@ -26,7 +26,7 @@ import client from "./client";
 import util from "./util";
 
 $(function() {
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
 
     /* RUN IMAGE DIALOG */
 

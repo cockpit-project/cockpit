@@ -37,7 +37,7 @@ import "plot.css";
 import "journal.css";
 import "./networking.css";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 function nm_debug() {

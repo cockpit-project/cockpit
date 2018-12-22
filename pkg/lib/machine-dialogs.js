@@ -36,7 +36,7 @@ import not_supported_tmpl from "raw-loader!machine-not-supported.html";
 import sync_users_tmpl from "raw-loader!machine-sync-users.html";
 import unknown_hosts_tmpl from "raw-loader!machine-unknown-hostkey.html";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var default_codes = {
     "no-cockpit": "not-supported",

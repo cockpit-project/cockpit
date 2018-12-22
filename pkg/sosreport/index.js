@@ -22,7 +22,7 @@ import $ from "jquery";
 
 import run_sosreport_sh from "raw-loader!./run-sosreport.sh";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var sos_task;
 var sos_archive_url;

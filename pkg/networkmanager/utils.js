@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 /* NetworkManager specific data conversions and utility functions.
  */

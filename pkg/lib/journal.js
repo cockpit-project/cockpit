@@ -23,7 +23,7 @@ import day_header_template from 'raw-loader!journal_day_header.mustache';
 import line_template from 'raw-loader!journal_line.mustache';
 import reboot_template from 'raw-loader!journal_reboot.mustache';
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 var journal = { };

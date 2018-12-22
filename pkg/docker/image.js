@@ -27,7 +27,7 @@ import view from "./containers-view.jsx";
 
 import "./run";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 PageImageDetails.prototype = {

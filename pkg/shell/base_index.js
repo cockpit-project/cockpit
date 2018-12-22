@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 import active_pages from "./active-pages";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 function component_checksum(machine, component) {
     var parts = component.split("/");

@@ -228,7 +228,7 @@ window.addEventListener("hashchange", function() {
 
 function onoff_refresh(sel) {
     /* During testing, no Cockpit dependency */
-    var _ = cockpit.gettext || function(x) { return x };
+    const _ = cockpit.gettext || function(x) { return x };
 
     sel = sel.find(".btn-onoff-ct").addBack()
             .filter(".btn-onoff-ct");

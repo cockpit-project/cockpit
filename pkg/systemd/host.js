@@ -34,7 +34,7 @@ import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 import "patternfly-bootstrap-combobox/js/bootstrap-combobox";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 var permission = cockpit.permission({ admin: true });

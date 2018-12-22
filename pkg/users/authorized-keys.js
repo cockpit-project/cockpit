@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 import lister from "raw-loader!./ssh-list-public-keys.sh";
 import adder from "raw-loader!./ssh-add-public-key.sh";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 function AuthorizedKeys (user_name, home_dir) {
     var self = this;

@@ -28,7 +28,7 @@ import { cpu_ram_info } from "machine-info.js";
 import "patterns";
 import image_editor from "./image-editor.js";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 /* Handles an href link to a server */
 $(document).on("click", "a[data-address]", function(ev) {

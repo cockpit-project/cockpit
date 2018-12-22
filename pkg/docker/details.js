@@ -30,7 +30,7 @@ import "console.css";
 
 moment.locale(cockpit.language);
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
 /* CONTAINER DETAILS PAGE

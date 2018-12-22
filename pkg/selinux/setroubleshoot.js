@@ -26,7 +26,7 @@ import troubleshootClient from "./setroubleshoot-client";
 import * as selinuxClient from "./selinux-client.js";
 import troubleshootView from "./setroubleshoot-view.jsx";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var initStore = function(rootElement) {
     var dataStore = { };

@@ -291,7 +291,7 @@
                 "KubeMapNamedArray",
                 "KubeTranslate",
                 function (mapNamedArray, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     function nodeConditions(node) {
                         var status;
@@ -379,7 +379,7 @@
                 "kubeMethods",
                 "KubeTranslate",
                 function($q, $scope, $instance, methods, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var fields = {
                         "address" : "",
                         "name" : "",
@@ -638,7 +638,7 @@
             .directive('nodeOsGraph', [
                 "KubeTranslate",
                 function(translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     return {
                         scope: {
@@ -698,7 +698,7 @@
                 "KubeTranslate",
                 "KubeFormat",
                 function(translate, format) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     return {
                         restrict: 'A',
                         scope: {
@@ -803,7 +803,7 @@
                 "KubeTranslate",
                 "KubeFormat",
                 function(translate, format) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     return {
                         restrict: 'A',
                         scope: {

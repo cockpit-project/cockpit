@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import base_index from "./base_index";
 
-var _ = cockpit.gettext;
+const _ = cockpit.gettext;
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 

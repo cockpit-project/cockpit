@@ -356,7 +356,7 @@
                 "KubeFormat",
                 "KubeTranslate",
                 function($q, $scope, $timeout, $instance, filter, methods, KubeFormat, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
 
                     var file;
                     var fields = {

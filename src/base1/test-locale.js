@@ -48,7 +48,7 @@ QUnit.test("gettext", function (assert) {
 QUnit.test("underscore", function (assert) {
     cockpit.locale(null); /* clear it */
     cockpit.locale(pig_latin);
-    var _ = cockpit.gettext;
+    const _ = cockpit.gettext;
     var C_ = _;
     assert.equal(_("Control"), "Ontrolcay", "returned translation");
     assert.equal(_("Empty"), "Empty", "english default");

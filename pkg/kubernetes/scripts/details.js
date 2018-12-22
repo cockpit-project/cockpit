@@ -207,7 +207,7 @@
                 'KubeContainers',
                 "KubeTranslate",
                 function (select, volumeData, containers, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var names = {
                         'services': {
                             'name' : _("Services")
@@ -474,7 +474,7 @@
                 "kubeMethods",
                 "KubeTranslate",
                 function($q, $scope, $instance, dialogData, methods, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var item = dialogData.item;
                     var fields = {};
 
@@ -526,7 +526,7 @@
                 "kubeMethods",
                 "KubeTranslate",
                 function($q, $scope, $instance, dialogData, methods, translate) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var fields = {};
 
                     if (!validItem(dialogData.item, "Route")) {
@@ -576,7 +576,7 @@
                 "KubeTranslate",
                 "KubeFormat",
                 function($q, $scope, $instance, dialogData, loader, select, KubeRequest, translate, format) {
-                    var _ = translate.gettext;
+                    const _ = translate.gettext;
                     var fields = {};
                     var key;
 

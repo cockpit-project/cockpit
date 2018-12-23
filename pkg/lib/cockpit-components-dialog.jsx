@@ -48,7 +48,7 @@ const _ = cockpit.gettext;
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
-class DialogFooter extends React.Component {
+export class DialogFooter extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -260,7 +260,7 @@ DialogFooter.propTypes = {
  *  - footer (react element, top element should be of class modal-footer)
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  */
-class Dialog extends React.Component {
+export class Dialog extends React.Component {
     componentDidMount() {
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)
@@ -307,7 +307,7 @@ Dialog.propTypes = {
  *     - render         render again using the stored props
  * The DOM node and React metadata are freed once the dialog has closed
  */
-var show_modal_dialog = function(props, footerProps) {
+export function show_modal_dialog(props, footerProps) {
     var dialogName = 'cockpit_modal_dialog';
     // don't allow nested dialogs, just close whatever is open
     var curElement = document.getElementById(dialogName);
@@ -366,10 +366,4 @@ var show_modal_dialog = function(props, footerProps) {
     dialogObj.render();
 
     return dialogObj;
-};
-
-module.exports = {
-    Dialog: Dialog,
-    DialogFooter: DialogFooter,
-    show_modal_dialog: show_modal_dialog,
-};
+}

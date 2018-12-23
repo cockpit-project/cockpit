@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import Mustache from "mustache";
+import { mustache } from "mustache";
 import day_header_template from 'raw-loader!journal_day_header.mustache';
 import line_template from 'raw-loader!journal_line.mustache';
 import reboot_template from 'raw-loader!journal_reboot.mustache';
@@ -26,7 +26,7 @@ import reboot_template from 'raw-loader!journal_reboot.mustache';
 const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
 
-var journal = { };
+export var journal = { };
 
 /**
  * journalctl([match, ...], [options])
@@ -214,9 +214,9 @@ function output_funcs_for_box(box) {
     if (box.jquery)
         box = box[0];
 
-    Mustache.parse(day_header_template);
-    Mustache.parse(line_template);
-    Mustache.parse(reboot_template);
+    mustache.parse(day_header_template);
+    mustache.parse(line_template);
+    mustache.parse(reboot_template);
 
     function render_line(ident, prio, message, count, time, entry) {
         var parts = {
@@ -232,18 +232,18 @@ function output_funcs_for_box(box) {
             parts['service'] = entry['PROBLEM_BINARY'];
         } else if (prio < 4)
             parts['warning'] = true;
-        return Mustache.render(line_template, parts);
+        return mustache.render(line_template, parts);
     }
 
     var reboot = _("Reboot");
-    var reboot_line = Mustache.render(reboot_template, {'message': reboot});
+    var reboot_line = mustache.render(reboot_template, {'message': reboot});
 
     function render_reboot_separator() {
         return reboot_line;
     }
 
     function render_day_header(day) {
-        return Mustache.render(day_header_template, {'day': day});
+        return mustache.render(day_header_template, {'day': day});
     }
 
     function parse_html(string) {
@@ -575,5 +575,3 @@ journal.logbox = function logbox(match, max_entries) {
     /* Both a DOM element and a promise */
     return promise.promise(box);
 };
-
-module.exports = journal;

@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 
 import './HostToMaintenance.css';
 
-import DialogPattern from 'cockpit-components-dialog.jsx';
+import { show_modal_dialog } from 'cockpit-components-dialog.jsx';
 import { switchHostToMaintenance } from '../actions.js';
 
 const _ = cockpit.gettext;
@@ -50,7 +50,7 @@ const hostToMaintenanceDialog = (dispatch, host) => {
         ],
     };
 
-    DialogPattern.show_modal_dialog(dialogProps, footerProps);
+    show_modal_dialog(dialogProps, footerProps);
 };
 
 const showHostToMaintenanceDialog = (dispatch, hosts) => {

@@ -24,7 +24,7 @@ import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import { ModalError } from '../notification/inlineNotification.jsx';
-import FileAutoComplete from 'cockpit-components-file-autocomplete.jsx';
+import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 import { createStoragePool } from '../../actions/provider-actions.js';
 import cockpit from 'cockpit';
@@ -122,7 +122,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                     {_("Target Path")}
                 </label>
                 <FormGroup validationState={validationState} controlId='target'>
-                    <FileAutoComplete.FileAutoComplete id='storage-pool-dialog-target'
+                    <FileAutoComplete id='storage-pool-dialog-target'
                         placeholder={_("Path on host's filesystem")}
                         onChange={value => onValueChanged('target', value)} />
                     { validationState == 'error' &&

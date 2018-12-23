@@ -20,7 +20,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import indexes from "./indexes";
+import * as indexes from "./indexes";
 
 var default_title = "Cockpit";
 var manifest = cockpit.manifests["shell"] || { };

@@ -20,10 +20,10 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import machis from "machines";
-import mdialogs from "machine-dialogs";
+import { machines } from "machines";
+import { new_machine_dialog_manager } from "machine-dialogs";
 
-import indexes from "./indexes";
+import * as indexes from "./indexes";
 
 var default_title = "Cockpit";
 var manifest = cockpit.manifests["shell"] || { };
@@ -49,9 +49,9 @@ document.addEventListener("click", function(ev) {
         advanced[i].style.display = visible ? "block" : "none";
 }, true);
 
-var machines = machis.instance();
-var loader = machis.loader(machines, true);
-var dialogs = mdialogs.new_manager(machines, {
+var machines_inst = machines.instance();
+var loader = machines.loader(machines_inst, true);
+var dialogs = new_machine_dialog_manager(machines_inst, {
     "no-cockpit": "not-supported",
     "not-supported": "not-supported",
     "protocol-error": "not-supported",
@@ -64,7 +64,7 @@ var dialogs = mdialogs.new_manager(machines, {
     "no-host": "change-port",
 });
 
-indexes.machines_index(options, machines, loader, dialogs);
+indexes.machines_index(options, machines_inst, loader, dialogs);
 
 var login_data = cockpit.localStorage.getItem('login-data', true);
 if (login_data) {

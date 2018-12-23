@@ -20,18 +20,18 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import Mustache from "mustache";
+import { mustache } from "mustache";
 import "patterns";
 
-import docker from "./docker";
-import bar from "./bar";
-import journal from "journal";
+import { docker } from "./docker";
+import * as bar from "./bar";
+import { journal } from "journal";
 import moment from "moment";
 moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
 
-var util = { };
+export var util = { };
 
 util.resource_debug = function resource_debug() {
     if (window.debugging == "all" || window.debugging == "resource")
@@ -116,7 +116,7 @@ util.render_container_restart_policy = function render_restart_policy(policy) {
 };
 
 util.multi_line = function multi_line(strings) {
-    return strings.map(function (str) { return Mustache.render("{{.}}", str) }).join('<br/>');
+    return strings.map(function (str) { return mustache.render("{{.}}", str) }).join('<br/>');
 };
 
 util.format_cpu_shares = function format_cpu_shares(priority) {
@@ -728,5 +728,3 @@ util.find_all_problems = function find_problems(problems, client, service, resul
         }
     });
 };
-
-module.exports = util;

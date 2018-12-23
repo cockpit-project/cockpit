@@ -20,10 +20,10 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import mustache from "mustache";
+import { mustache } from "mustache";
 
-import machines from "machines";
-import credentials from "credentials";
+import { machines } from "machines";
+import * as credentials from "credentials";
 import "patterns";
 
 import add_tmpl from "raw-loader!machine-add.html";
@@ -1053,8 +1053,6 @@ function MachineDialogManager(machines_ins, codes) {
     };
 }
 
-module.exports = {
-    new_manager: function (machines_ins, codes) {
-        return new MachineDialogManager(machines_ins, codes);
-    }
-};
+export function new_machine_dialog_manager(machines_ins, codes) {
+    return new MachineDialogManager(machines_ins, codes);
+}

@@ -161,8 +161,6 @@ function AuthorizedKeys (user_name, home_dir) {
     watch = file.watch(parse_keys);
 }
 
-module.exports = {
-    instance: function instance(user_name, home_dir) {
-        return new AuthorizedKeys(user_name, home_dir);
-    }
-};
+export function instance(user_name, home_dir) {
+    return new AuthorizedKeys(user_name, home_dir);
+}

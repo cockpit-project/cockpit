@@ -19,7 +19,7 @@
 
 import $ from "jquery";
 import cockpit from "cockpit";
-import journal from "journal";
+import { journal } from "journal";
 
 $(function() {
     cockpit.translate();

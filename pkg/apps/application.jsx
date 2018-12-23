@@ -20,14 +20,14 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import PackageKit from "./packagekit.js";
+import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 import "./application.css";
 
 const _ = cockpit.gettext;
 
-class Application extends React.Component {
+export class Application extends React.Component {
     constructor() {
         super();
         this.state = { error: null, progress: null };
@@ -148,7 +148,3 @@ class Application extends React.Component {
         );
     }
 }
-
-module.exports = {
-    Application: Application
-};

@@ -3,7 +3,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import componentsTerminal from "cockpit-components-terminal.jsx";
+import { Terminal } from "cockpit-components-terminal.jsx";
 
 const _ = cockpit.gettext;
 
@@ -69,7 +69,7 @@ const _ = cockpit.gettext;
         render() {
             var terminal;
             if (this.state.channel)
-                terminal = (<componentsTerminal.Terminal ref="terminal"
+                terminal = (<Terminal ref="terminal"
                      channel={this.state.channel}
                      onTitleChanged={this.onTitleChanged} />);
             else

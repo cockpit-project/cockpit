@@ -22,8 +22,8 @@ import cockpit from 'cockpit';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Mustache from 'mustache';
-import authorized_keys from './authorized-keys.js';
+import { mustache } from 'mustache';
+import * as authorized_keys from './authorized-keys.js';
 
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
@@ -624,10 +624,10 @@ PageAccount.prototype = {
         this.section_id = "accounts";
         this.roles = [];
         this.role_template = $("#role-entry-tmpl").html();
-        Mustache.parse(this.role_template);
+        mustache.parse(this.role_template);
 
         this.keys_template = $("#authorized-keys-tmpl").html();
-        Mustache.parse(this.keys_template);
+        mustache.parse(this.keys_template);
         this.authorized_keys = null;
 
         this.user = user;
@@ -967,7 +967,7 @@ PageAccount.prototype = {
             if (this.authorized_keys) {
                 var keys = this.authorized_keys.keys;
                 var state = this.authorized_keys.state;
-                var keys_html = Mustache.render(this.keys_template, {
+                var keys_html = mustache.render(this.keys_template, {
                     "keys": keys,
                     "empty": keys.length === 0 && state == "ready",
                     "denied": state == "access-denied",
@@ -982,7 +982,7 @@ PageAccount.prototype = {
             }
 
             if (this.account["uid"] !== 0) {
-                var html = Mustache.render(this.role_template,
+                var html = mustache.render(this.role_template,
                                            { "roles": this.roles, "changed": this.roles_changed });
                 $('#account-change-roles-roles').html(html);
                 $('#account-roles').parents('tr')

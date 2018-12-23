@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 
 import Terminal from "term";
 
-var docker = { };
+export var docker = { };
 
 function docker_debug() {
     if (window.debugging == "all" || window.debugging == "docker")
@@ -752,5 +752,3 @@ docker.truncate_id = function (id) {
         id = id.slice(c + 1);
     return id.substr(0, 12);
 };
-
-module.exports = docker;

@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
  *  - iframes          iframe elements on page to list
  *  - selectionChanged callback when the select state changed, parameters: frame object, new value
  */
-class ActivePagesDialogBody extends React.Component {
+export class ActivePagesDialogBody extends React.Component {
     render() {
         var self = this;
         var frames = self.props.iframes.map(function(frame) {
@@ -62,5 +62,3 @@ class ActivePagesDialogBody extends React.Component {
         );
     }
 }
-
-module.exports = ActivePagesDialogBody;

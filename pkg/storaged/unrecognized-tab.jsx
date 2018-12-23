@@ -24,7 +24,7 @@ import { FormatButton } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-class UnrecognizedTab extends React.Component {
+export class UnrecognizedTab extends React.Component {
     render() {
         return (
             <div>
@@ -47,7 +47,3 @@ class UnrecognizedTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    UnrecognizedTab: UnrecognizedTab
-};

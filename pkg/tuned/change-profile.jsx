@@ -69,7 +69,7 @@ TunedDialogProfile.propTypes = {
  *    - title (string)
  *    - description (string)
  */
-class TunedDialogBody extends React.Component {
+export class TunedDialogBody extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -107,7 +107,7 @@ TunedDialogBody.propTypes = {
     profiles: PropTypes.array.isRequired,
 };
 
-class TunedLink extends React.Component {
+export class TunedLink extends React.Component {
     render() {
         var self = this;
 
@@ -134,8 +134,3 @@ class TunedLink extends React.Component {
         return <a className={ classes } {...opts}>{ text }</a>;
     }
 }
-
-module.exports = {
-    dialog: TunedDialogBody,
-    link: TunedLink,
-};

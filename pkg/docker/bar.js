@@ -172,16 +172,15 @@ function setup_bar_graphs() {
 $(document).ready(setup_bar_graphs);
 
 /* Public API */
-module.exports = {
-    create: function create(graph) {
-        var div = $("<div>").addClass('bar-row')
-                .attr('graph', graph);
-        setup_bar_graph(div);
-        return div;
-    },
-    update: function update() {
-        $("div.bar-row").each(function() {
-            reflow_bar_graph_soon(this.getAttribute("graph"), this);
-        });
-    }
-};
+export function create(graph) {
+    var div = $("<div>").addClass('bar-row')
+            .attr('graph', graph);
+    setup_bar_graph(div);
+    return div;
+}
+
+export function update() {
+    $("div.bar-row").each(function() {
+        reflow_bar_graph_soon(this.getAttribute("graph"), this);
+    });
+}

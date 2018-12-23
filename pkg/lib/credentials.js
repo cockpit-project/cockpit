@@ -320,8 +320,6 @@ function Keys() {
     };
 }
 
-module.exports = {
-    keys_instance: function () {
-        return new Keys();
-    }
-};
+export function keys_instance() {
+    return new Keys();
+}

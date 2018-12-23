@@ -24,7 +24,7 @@ import React from "react";
 import moment from "moment";
 
 import { dialog_open, TeardownMessage, TextInput, TextInputChecked, ComboBox, CheckBox } from "./dialog.jsx";
-import format from "./format-dialog.jsx";
+import * as format from "./format-dialog.jsx";
 import { format_fsys_usage } from "./utils.js";
 
 import { StdDetailsLayout } from "./details.jsx";

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import Mustache from "mustache";
+import { mustache } from "mustache";
 import $ from "jquery";
 
 import "polyfills.js";
@@ -26,7 +26,7 @@ import * as packagekit from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import * as plot from "plot.js";
 import * as service from "service.js";
-import shutdown from "./shutdown.js";
+import { shutdown } from "./shutdown.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 
 /* These add themselves to jQuery so just including is enough */
@@ -262,13 +262,13 @@ PageServer.prototype = {
         });
 
         self.ntp_status_tmpl = $("#ntp-status-tmpl").html();
-        Mustache.parse(this.ntp_status_tmpl);
+        mustache.parse(this.ntp_status_tmpl);
 
         self.ntp_status_icon_tmpl = $("#ntp-status-icon-tmpl").html();
-        Mustache.parse(this.ntp_status_icon_tmpl);
+        mustache.parse(this.ntp_status_icon_tmpl);
 
         self.ssh_host_keys_tmpl = $("#ssh-host-keys-tmpl").html();
-        Mustache.parse(this.ssh_host_keys_tmpl);
+        mustache.parse(this.ssh_host_keys_tmpl);
 
         $("#system_information_ssh_keys").on("show.bs.modal", function() {
             self.host_keys_show();
@@ -311,11 +311,11 @@ PageServer.prototype = {
                     model.SubStatus = timesyncd_status;
             }
 
-            var tooltip_html = Mustache.render(self.ntp_status_tmpl, model);
+            var tooltip_html = mustache.render(self.ntp_status_tmpl, model);
             if (tooltip_html != $ntp_status.attr("data-original-title"))
                 $ntp_status.attr("data-original-title", tooltip_html);
 
-            var icon_html = Mustache.render(self.ntp_status_icon_tmpl, model);
+            var icon_html = mustache.render(self.ntp_status_icon_tmpl, model);
             $ntp_status.html(icon_html);
         }
 
@@ -817,7 +817,7 @@ PageServer.prototype = {
                         return { title: k, fps: keys[k] };
                     });
 
-                    tmp = Mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
+                    tmp = mustache.render(self.ssh_host_keys_tmpl, { keys: arr });
                     content.html(tmp);
                     spinner.toggle(false);
                     error.toggle(false);
@@ -1063,7 +1063,7 @@ PageSystemInformationChangeSystime.prototype = {
         $('#systime-date-input').on('focusout', $.proxy(this, "restore_date"));
 
         self.ntp_servers_tmpl = $("#ntp-servers-tmpl").html();
-        Mustache.parse(this.ntp_servers_tmpl);
+        mustache.parse(this.ntp_servers_tmpl);
 
         $('#systime-ntp-servers').on('click', '[data-action="add"]', function() {
             var index = $(this).attr('data-index');
@@ -1428,7 +1428,7 @@ PageSystemInformationChangeSystime.prototype = {
             })
         };
 
-        $('#systime-ntp-servers').html(Mustache.render(self.ntp_servers_tmpl, model));
+        $('#systime-ntp-servers').html(mustache.render(self.ntp_servers_tmpl, model));
     },
 
     update_minutes: function() {

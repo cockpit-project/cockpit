@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
-import Content from "./content-views.jsx";
+import { VGroup } from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink } from "./storage-controls.jsx";
 import {
     dialog_open, TextInput, SelectSpaces,
@@ -252,7 +252,7 @@ export class VGroupDetails extends React.Component {
 
         var sidebar = <VGroupSidebar client={this.props.client} vgroup={vgroup} />;
 
-        var content = <Content.VGroup client={this.props.client} vgroup={vgroup} />;
+        var content = <VGroup client={this.props.client} vgroup={vgroup} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  header={ header }

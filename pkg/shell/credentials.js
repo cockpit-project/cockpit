@@ -17,14 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import sshFile from "./ssh-file-autocomplete.jsx";
-import credentials from "credentials";
+import * as sshFile from "./ssh-file-autocomplete.jsx";
+import * as credentials from "credentials";
 import $ from "jquery";
 
 import "listing.less";
 import "patterns";
 
-function setup() {
+export function setup() {
     var keys;
 
     function hide_add_key() {
@@ -319,7 +319,3 @@ function setup() {
                 });
             });
 }
-
-module.exports = {
-    setup: setup
-};

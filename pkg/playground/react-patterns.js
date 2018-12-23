@@ -22,13 +22,13 @@ import React from "react";
 
 import "table.css";
 
-import dialogPattern from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
-import demoDialog from "./react-demo-dialog.jsx";
-import demoListing from "./react-demo-listing.jsx";
-import demoOnOff from "./react-demo-onoff.jsx";
+import { PatternDialogBody } from "./react-demo-dialog.jsx";
+import { showListingDemo } from "./react-demo-listing.jsx";
+import { showOnOffDemo } from "./react-demo-onoff.jsx";
 
-import demoFileAC from "./react-demo-file-autocomplete.jsx";
+import { showFileAcDemo } from "./react-demo-file-autocomplete.jsx";
 
 /* -----------------------------------------------------------------------------
   Modal Dialog
@@ -76,7 +76,7 @@ var onDialogDone = function(success) {
 var onStandardDemoClicked = function(staticError) {
     var dialogProps = {
         'title': "This shouldn't be seen",
-        'body': React.createElement(demoDialog, { 'clickNested': onStandardDemoClicked }),
+        'body': React.createElement(PatternDialogBody, { 'clickNested': onStandardDemoClicked }),
     };
     // also test modifying properties in subsequent render calls
     var footerProps = {
@@ -97,7 +97,7 @@ var onStandardDemoClicked = function(staticError) {
         'static_error': staticError,
         'dialog_done': onDialogDone,
     };
-    var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
+    var dialogObj = show_modal_dialog(dialogProps, footerProps);
     // if this failed, exit (trying to create a nested dialog)
     if (!dialogObj)
         return;
@@ -120,13 +120,13 @@ document.addEventListener("DOMContentLoaded", function() {
       -----------------------------------------------------------------------------
      */
     // create the listing
-    demoListing.demo(document.getElementById('demo-listing'),
-                     document.getElementById('demo-listing-selectable'),
-                     document.getElementById('demo-listing-empty'));
+    showListingDemo(document.getElementById('demo-listing'),
+                    document.getElementById('demo-listing-selectable'),
+                    document.getElementById('demo-listing-empty'));
 
     // OnOff
-    demoOnOff.demo(document.getElementById('demo-onoff'));
+    showOnOffDemo(document.getElementById('demo-onoff'));
 
     // File autocomplete
-    demoFileAC.demo(document.getElementById('demo-file-ac'));
+    showFileAcDemo(document.getElementById('demo-file-ac'));
 });

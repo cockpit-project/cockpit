@@ -25,7 +25,7 @@ import * as Select from "cockpit-components-select.jsx";
 
 const _ = cockpit.gettext;
 
-function defaultRegisterDialogSettings() {
+export function defaultSettings() {
     return {
         url: 'default',
         serverUrl: 'subscription.rhn.redhat.com',
@@ -44,7 +44,7 @@ function defaultRegisterDialogSettings() {
  *   - onChange  callback to signal when the data has changed
  *   - properties as in defaultRegisterDialogSettings()
  */
-class PatternDialogBody extends React.Component {
+export class DialogBody extends React.Component {
     render() {
         var customURL;
         if (this.props.url == 'custom') {
@@ -192,8 +192,3 @@ class PatternDialogBody extends React.Component {
         );
     }
 }
-
-module.exports = {
-    defaultSettings: defaultRegisterDialogSettings,
-    dialogBody: PatternDialogBody,
-};

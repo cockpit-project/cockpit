@@ -1,7 +1,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import service from "service";
+import * as service from "service";
 
 $(function() {
     var proxy;

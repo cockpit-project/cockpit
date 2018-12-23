@@ -22,7 +22,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import kdumpView from "./kdump-view.jsx";
+import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
 
 var initStore = function(rootElement) {
@@ -59,7 +59,7 @@ var initStore = function(rootElement) {
         });
     }
     var render = function() {
-        ReactDOM.render(React.createElement(kdumpView.page, {
+        ReactDOM.render(React.createElement(KdumpPage, {
             kdumpActive: false,
             onSetServiceState: setServiceState,
             stateChanging: dataStore.stateChanging,

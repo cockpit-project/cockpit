@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 
-import service from "service";
+import * as service from "service";
 import moment from "moment";
 
 moment.locale(cockpit.language);

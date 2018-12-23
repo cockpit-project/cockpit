@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
-import Content from "./content-views.jsx";
+import * as Content from "./content-views.jsx";
 
 const _ = cockpit.gettext;
 

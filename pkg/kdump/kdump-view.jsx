@@ -24,7 +24,7 @@ import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import * as Select from "cockpit-components-select.jsx";
-import dialogPattern from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -223,7 +223,7 @@ class KdumpTargetBody extends React.Component {
  * reservedMemory    memory reserved at boot time for kdump use
  * onCrashKernel     callback to crash the kernel via kdumpClient, expects a promise
  */
-class KdumpPage extends React.Component {
+export class KdumpPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -351,7 +351,7 @@ class KdumpPage extends React.Component {
             ],
             'dialog_done': self.dialogClosed,
         };
-        var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
+        var dialogObj = show_modal_dialog(dialogProps, footerProps);
         this.setState({ dialogObj: dialogObj });
     }
 
@@ -399,7 +399,7 @@ class KdumpPage extends React.Component {
             ],
             'dialog_done': this.dialogClosed.bind(this),
         };
-        var dialogObj = dialogPattern.show_modal_dialog(dialogProps, footerProps);
+        var dialogObj = show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
         this.setState({ dialogSettings: settings, dialogTarget: self.props.kdumpStatus.target, dialogObj: dialogObj });
     }
@@ -573,7 +573,3 @@ class KdumpPage extends React.Component {
         );
     }
 }
-
-module.exports = {
-    page: KdumpPage,
-};

@@ -217,7 +217,7 @@ function lvol_shrink(client, lvol, info) {
     });
 }
 
-class BlockVolTab extends React.Component {
+export class BlockVolTab extends React.Component {
     render() {
         var self = this;
         var client = self.props.client;
@@ -359,7 +359,7 @@ class BlockVolTab extends React.Component {
     }
 }
 
-class PoolVolTab extends React.Component {
+export class PoolVolTab extends React.Component {
     render() {
         var self = this;
 
@@ -408,8 +408,3 @@ class PoolVolTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    BlockVolTab: BlockVolTab,
-    PoolVolTab:  PoolVolTab
-};

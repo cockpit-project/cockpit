@@ -871,4 +871,4 @@ client.init = function init_storaged(callback) {
     });
 };
 
-module.exports = client;
+export default client;

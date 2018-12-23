@@ -1,9 +1,9 @@
 import $ from "jquery";
-import * as mustache from "mustache";
+import { mustache } from "mustache";
 
 import cockpit from "cockpit";
 import moment from "moment";
-import journal from "journal";
+import { journal } from "journal";
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
 

@@ -19,7 +19,7 @@
 
 import $ from "jquery";
 import cockpit from "cockpit";
-import active_pages from "./active-pages";
+import { showDialog } from "./active-pages";
 
 var shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -862,7 +862,7 @@ function Index() {
     function setup_killer(id) {
         $(id).on("click", function(ev) {
             if (ev && ev.button === 0)
-                active_pages.showDialog(self.frames);
+                showDialog(self.frames);
         });
     }
 
@@ -984,14 +984,12 @@ Object.defineProperties(window, {
     }
 });
 
-module.exports = {
-    new_index_from_proto: function (proto) {
-        var o = new Object(proto); // eslint-disable-line no-new-object
-        Index.call(o);
-        return o;
-    },
+export function new_index_from_proto(proto) {
+    var o = new Object(proto); // eslint-disable-line no-new-object
+    Index.call(o);
+    return o;
+}
 
-    new_compiled: function () {
-        return new CompiledComponents();
-    },
-};
+export function new_compiled() {
+    return new CompiledComponents();
+}

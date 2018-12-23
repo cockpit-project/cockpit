@@ -24,7 +24,7 @@ import "./cockpit-components-file-autocomplete.css";
 
 const _ = cockpit.gettext;
 
-class FileAutoComplete extends React.Component {
+export class FileAutoComplete extends React.Component {
     constructor(props) {
         super(props);
         const value = props.value || "";
@@ -295,8 +295,4 @@ FileAutoComplete.propTypes = {
     value: PropTypes.string,
     superuser: PropTypes.string,
     onChange: PropTypes.func,
-};
-
-module.exports = {
-    FileAutoComplete: FileAutoComplete,
 };

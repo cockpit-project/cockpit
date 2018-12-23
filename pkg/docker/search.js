@@ -20,7 +20,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import util from "./util";
+import { util } from "./util";
 
 const _ = cockpit.gettext;
 
@@ -182,7 +182,7 @@ $(function() {
             .on('hidden.bs.modal', function () { dialog.leave() });
 });
 
-function search(client) {
+export function search(client) {
     PageSearchImage.client = client;
     PageSearchImage.dfd = cockpit.defer();
 
@@ -190,5 +190,3 @@ function search(client) {
 
     return PageSearchImage.dfd.promise;
 }
-
-module.exports = search;

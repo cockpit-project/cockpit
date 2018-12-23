@@ -38,7 +38,7 @@ import "console.css";
  *
  * Call focus() to set the input focus on the terminal.
  */
-class Terminal extends React.Component {
+export class Terminal extends React.Component {
     constructor(props) {
         super(props);
         this.onChannelMessage = this.onChannelMessage.bind(this);
@@ -198,5 +198,3 @@ Terminal.propTypes = {
     channel: PropTypes.object.isRequired,
     onTitleChanged: PropTypes.func
 };
-
-module.exports = { Terminal: Terminal };

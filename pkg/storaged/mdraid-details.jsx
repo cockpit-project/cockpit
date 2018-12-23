@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
-import Content from "./content-views.jsx";
+import { Block } from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink, StorageOnOff } from "./storage-controls.jsx";
 import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
@@ -350,7 +350,7 @@ export class MDRaidDetails extends React.Component {
 
         var sidebar = <MDRaidSidebar client={this.props.client} mdraid={mdraid} />;
 
-        var content = <Content.Block client={this.props.client} block={block} />;
+        var content = <Block client={this.props.client} block={block} />;
 
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
                                  header={ header }

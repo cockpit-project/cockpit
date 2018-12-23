@@ -26,7 +26,7 @@ import { FormatButton } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-class PVolTab extends React.Component {
+export class PVolTab extends React.Component {
     render() {
         var block_pvol = this.props.client.blocks_pvol[this.props.block.path];
         var vgroup = block_pvol && this.props.client.vgroups[block_pvol.VolumeGroup];
@@ -57,7 +57,7 @@ class PVolTab extends React.Component {
     }
 }
 
-class MDRaidMemberTab extends React.Component {
+export class MDRaidMemberTab extends React.Component {
     render() {
         var mdraid = this.props.client.mdraids[this.props.block.MDRaidMember];
 
@@ -83,7 +83,7 @@ class MDRaidMemberTab extends React.Component {
     }
 }
 
-class VDOBackingTab extends React.Component {
+export class VDOBackingTab extends React.Component {
     render() {
         var vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
 
@@ -108,9 +108,3 @@ class VDOBackingTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    PVolTab:         PVolTab,
-    MDRaidMemberTab: MDRaidMemberTab,
-    VDOBackingTab:   VDOBackingTab
-};

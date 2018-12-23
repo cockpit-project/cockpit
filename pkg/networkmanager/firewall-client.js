@@ -18,7 +18,7 @@
  */
 
 import cockpit from 'cockpit';
-import service from 'service';
+import * as service from 'service';
 
 var firewall = {
     installed: true,

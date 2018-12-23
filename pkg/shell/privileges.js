@@ -65,10 +65,9 @@ function Privileges() {
 }
 
 var privileges = null;
-module.exports = {
-    instance: function() {
-        if (!privileges)
-            privileges = new Privileges();
-        return privileges;
-    }
-};
+
+export function instance() {
+    if (!privileges)
+        privileges = new Privileges();
+    return privileges;
+}

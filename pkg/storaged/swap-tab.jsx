@@ -26,7 +26,7 @@ import { FormatButton } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-class SwapTab extends React.Component {
+export class SwapTab extends React.Component {
     constructor(props) {
         super(props);
         this.onSamplesChanged = this.onSamplesChanged.bind(this);
@@ -91,7 +91,3 @@ class SwapTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    SwapTab: SwapTab
-};

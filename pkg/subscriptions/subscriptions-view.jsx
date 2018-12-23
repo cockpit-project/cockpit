@@ -193,7 +193,7 @@ class SubscriptionStatus extends React.Component {
  * register     callback, triggered when user clicks on register
  * unregister   callback, triggered when user clicks on unregister
  */
-class SubscriptionsPage extends React.Component {
+export class SubscriptionsPage extends React.Component {
     constructor(props) {
         super(props);
         this.renderCurtains = this.renderCurtains.bind(this);
@@ -261,7 +261,3 @@ class SubscriptionsPage extends React.Component {
         }
     }
 }
-
-module.exports = {
-    page: SubscriptionsPage,
-};

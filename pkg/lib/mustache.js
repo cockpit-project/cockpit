@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import mustache from "mustache/mustache";
+import orig_mustache from "mustache/mustache";
 
 /*
  * Turns a mustache template into a translated mustache template
@@ -38,21 +38,21 @@ function translate(template) {
 }
 
 /* Just like the mustache object, except for translated */
-module.exports = cockpit.extend({ }, mustache, {
+export var mustache = cockpit.extend({ }, orig_mustache, {
     render: function render(template, view, partials) {
         if (!view)
             view = {};
 
-        return translate(mustache.render(template, view, partials));
+        return translate(orig_mustache.render(template, view, partials));
     },
     to_html: function to_html(template, view, partials, send) {
         if (!view)
             view = {};
 
-        return translate(mustache.to_html(template, view, partials, send));
+        return translate(orig_mustache.to_html(template, view, partials, send));
     },
     clearCache: function clearCache() {
         cache = { };
-        return mustache.clearCache();
+        return orig_mustache.clearCache();
     }
 });

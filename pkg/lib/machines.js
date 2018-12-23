@@ -776,4 +776,4 @@ cockpit.transport.wait(function() {
     }
 });
 
-module.exports = mod;
+export const machines = mod;

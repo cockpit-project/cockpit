@@ -1,4 +1,4 @@
-module.exports = {
+export const FIXTURE_LARGE = {
     "namespaces/default/pods/mock-0": {
         "kind": "Pod",
         "metadata": {

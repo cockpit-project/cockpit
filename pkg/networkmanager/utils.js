@@ -26,26 +26,26 @@ const _ = cockpit.gettext;
 
 var byteorder;
 
-function set_byteorder(bo) {
+export function set_byteorder(bo) {
     byteorder = bo;
 }
 
-function ip_prefix_to_text(num) {
+export function ip_prefix_to_text(num) {
     return num.toString();
 }
 
-function ip_prefix_from_text(text) {
+export function ip_prefix_from_text(text) {
     if (/^[0-9]+$/.test(text.trim()))
         return parseInt(text, 10);
 
     throw cockpit.format(_("Invalid prefix $0"), text);
 }
 
-function ip_metric_to_text(num) {
+export function ip_metric_to_text(num) {
     return num.toString();
 }
 
-function ip_metric_from_text(text) {
+export function ip_metric_from_text(text) {
     if (text === "")
         return 0;
 
@@ -76,14 +76,14 @@ function bytes_from_nm32(num) {
     return bytes;
 }
 
-function ip4_to_text(num, zero_is_empty) {
+export function ip4_to_text(num, zero_is_empty) {
     if (num === 0 && zero_is_empty)
         return "";
     return bytes_from_nm32(num).map(toDec)
             .join('.');
 }
 
-function ip4_from_text(text, empty_is_zero) {
+export function ip4_from_text(text, empty_is_zero) {
     function invalid() {
         throw cockpit.format(_("Invalid address $0"), text);
     }
@@ -127,7 +127,7 @@ var text_to_prefix_bits = {
     "255": 8, "254": 7, "252": 6, "248": 5, "240": 4, "224": 3, "192": 2, "128": 1, "0": 0
 };
 
-function ip4_prefix_from_text(text) {
+export function ip4_prefix_from_text(text) {
     function invalid() {
         throw cockpit.format(_("Invalid prefix or netmask $0"), text);
     }
@@ -155,7 +155,7 @@ function ip4_prefix_from_text(text) {
     return prefix;
 }
 
-function ip6_to_text(data, zero_is_empty) {
+export function ip6_to_text(data, zero_is_empty) {
     var parts = [];
     var bytes = cockpit.base64_decode(data);
     for (var i = 0; i < 8; i++)
@@ -166,7 +166,7 @@ function ip6_to_text(data, zero_is_empty) {
     return result;
 }
 
-function ip6_from_text(text, empty_is_zero) {
+export function ip6_from_text(text, empty_is_zero) {
     function invalid() {
         throw cockpit.format(_("Invalid address $0"), text);
     }
@@ -212,19 +212,3 @@ function ip6_from_text(text, empty_is_zero) {
 
     return cockpit.base64_encode(bytes);
 }
-
-module.exports = {
-    set_byteorder: set_byteorder,
-
-    ip_prefix_to_text: ip_prefix_to_text,
-    ip_prefix_from_text: ip_prefix_from_text,
-    ip_metric_to_text: ip_metric_to_text,
-    ip_metric_from_text: ip_metric_from_text,
-
-    ip4_to_text: ip4_to_text,
-    ip4_from_text: ip4_from_text,
-    ip4_prefix_from_text: ip4_prefix_from_text,
-
-    ip6_to_text: ip6_to_text,
-    ip6_from_text: ip6_from_text
-};

@@ -422,7 +422,6 @@ The Cockpit bridge component installed server side and runs commands on the
 system on behalf of the web based user interface.
 
 %files bridge -f base.list
-%{_datadir}/cockpit/base1/bundle.min.js.gz
 %doc %{_mandir}/man1/cockpit-bridge.1.gz
 %{_bindir}/cockpit-bridge
 %{_libexecdir}/cockpit-askpass
@@ -482,7 +481,6 @@ Provides: bundled(js-jquery) = %{npm-version:jquery}
 Provides: bundled(js-moment) = %{npm-version:moment}
 Provides: bundled(nodejs-flot) = %{npm-version:jquery-flot}
 Provides: bundled(nodejs-promise) = %{npm-version:promise}
-Provides: bundled(nodejs-requirejs) = %{npm-version:requirejs}
 Provides: bundled(xstatic-bootstrap-datepicker-common) = %{npm-version:bootstrap-datepicker}
 Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
 

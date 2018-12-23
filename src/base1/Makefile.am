@@ -4,7 +4,6 @@ basedir = $(pkgdatadir)/base1
 nodist_base_DATA = \
 	dist/base1/cockpit.min.css.gz \
 	dist/base1/patternfly.min.css.gz \
-	dist/base1/require.min.js.gz \
 	dist/base1/mustache.min.js.gz \
 	dist/base1/jquery.min.js.gz \
 	dist/base1/cockpit.min.js.gz \
@@ -18,7 +17,6 @@ basedebug_DATA = \
 	dist/base1/cockpit.min.css.map \
 	dist/base1/patternfly.min.css.map \
 	dist/base1/mustache.min.js.map \
-	dist/base1/require.min.js.map \
 	dist/base1/jquery.min.js.map \
 	dist/base1/cockpit.min.js.map \
 	$(NULL)
@@ -30,11 +28,6 @@ dist/base1/cockpit.min.css: src/base1/cockpit.css
 	$(srcdir)/tools/missing $(CLEAN_CSS) --keep-line-breaks --output=$@ --skip-import --source-map --source-map-inline-sources $^
 dist/base1/patternfly.min.css: dist/base1/patternfly-base.css dist/base1/patternfly-additions.css
 	$(MIN_CSS_RULE)
-dist/base1/require.js: src/base1/deprecated.js src/base1/require-config.js src/base1/require-loaders.js
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
-	cat $(srcdir)/src/base1/deprecated.js $(srcdir)/src/base1/require-config.js $(srcdir)/node_modules/requirejs/require.js $(srcdir)/src/base1/require-loaders.js > $@.tmp && $(MV) $@.tmp $@
-dist/base1/require.min.js: dist/base1/require.js
-	$(MIN_JS_RULE)
 dist/base1/jquery.js:
 	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
 	cat $(srcdir)/node_modules/jquery/dist/jquery.js $(srcdir)/node_modules/bootstrap/dist/js/bootstrap.js $(srcdir)/node_modules/patternfly/dist/js/patternfly.js > $@.tmp && $(MV) $@.tmp $@
@@ -53,9 +46,6 @@ dist/base1/mustache.min.js: dist/base1/mustache.js
 dist/base1/manifest.json: src/base1/manifest.json
 	$(COPY_RULE)
 
-
-# All map files are built as side effects of minification
-dist/base1/require.min.js.map: dist/base1/require.min.js
 
 dist/base1/cockpit.min.js.map: dist/base1/cockpit.min.js
 
@@ -97,9 +87,6 @@ basefonts_DATA = \
 	dist/base1/fonts/patternfly.woff \
 	dist/base1/fonts/glyphicons.woff \
 	$(NULL)
-
-install-data-local::
-	$(LN_S) -nf require.min.js.gz $(DESTDIR)$(pkgdatadir)/base1/bundle.min.js.gz
 
 # Tests run with QUnit
 
@@ -216,16 +203,11 @@ EXTRA_DIST += \
 	dist/base1/patternfly.css.map \
 	dist/base1/patternfly-additions.css \
 	dist/base1/patternfly-additions.css.map \
-	dist/base1/require.js \
-	dist/base1/require.min.js \
-	dist/base1/require.min.js.map \
 	dist/base1/simple-tap.js \
 	src/base1/cockpit.css \
 	src/base1/cockpit.js \
 	src/base1/deprecated.js \
 	src/base1/manifest.json \
-	src/base1/require-config.js \
-	src/base1/require-loaders.js \
 	src/base1/simple-tap.js \
 	src/base1/test-dbus-common.js \
 	$(base_DATA) \
@@ -265,10 +247,6 @@ CLEANFILES += \
 	dist/base1/patternfly-additions.css.map \
 	dist/base1/qunit.css \
 	dist/base1/qunit.js \
-	dist/base1/require.js \
-	dist/base1/require.min.js \
-	dist/base1/require.min.js.gz \
-	dist/base1/require.min.js.map \
 	dist/base1/simple-tap.js \
 	dist/base1/test-dbus-common.js \
 	$(base_TESTS) \

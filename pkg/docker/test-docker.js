@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import docker from "./docker";
-import util from "./util";
+import { docker } from "./docker";
+import { util } from "./util";
 import QUnit from "qunit-tests";
 
 QUnit.test("bytes_from_format", function (assert) {

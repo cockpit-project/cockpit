@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import utils from "./utils";
+import * as utils from "./utils";
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 

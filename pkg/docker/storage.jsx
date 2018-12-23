@@ -23,7 +23,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import dialog_view from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 import * as python from "python.js";
 import cockpit_atomic_storage from "raw-loader!./cockpit-atomic-storage";
@@ -85,7 +85,7 @@ function init_model() {
 
 var storage_model = null;
 
-function get_storage_model() {
+export function get_storage_model() {
     if (!storage_model)
         storage_model = init_model();
     return storage_model;
@@ -277,7 +277,7 @@ class PoolBox extends React.Component {
  * small: If true, a small version is rendered
  *        with a link to the setup page.
  */
-class OverviewBox extends React.Component {
+export class OverviewBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -375,21 +375,21 @@ function add_storage(client, drives, model) {
     //
     var docker_will_be_stopped = false;
 
-    dialog_view.show_modal_dialog({ 'title': _("Add Additional Storage"),
-                                    'body': (
-                                        <div className="modal-body">
-                                            <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
-                                            <table className="drive-list">
-                                                <tbody>
-                                                    { render_drive_rows() }
-                                                </tbody>
-                                            </table>
-                                        </div>),
+    show_modal_dialog({ 'title': _("Add Additional Storage"),
+                        'body': (
+                            <div className="modal-body">
+                                <p>{_("All data on selected disks will be erased and disks will be added to the storage pool.")}</p>
+                                <table className="drive-list">
+                                    <tbody>
+                                        { render_drive_rows() }
+                                    </tbody>
+                                </table>
+                            </div>),
     },
-                                  { 'actions': [ { 'caption': _("Reformat and add disks"),
-                                                   'clicked': add_drives,
-                                                   'style': "danger" } ]
-                                  });
+                      { 'actions': [ { 'caption': _("Reformat and add disks"),
+                                       'clicked': add_drives,
+                                       'style': "danger" } ]
+                      });
 
     function add_drives() {
         var dfd = cockpit.defer();
@@ -438,16 +438,16 @@ function add_storage(client, drives, model) {
 }
 
 function reset_storage(client) {
-    dialog_view.show_modal_dialog({ 'title': _("Reset Storage Pool"),
-                                    'body': (
-                                        <div className="modal-body">
-                                            <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
-                                        </div>),
+    show_modal_dialog({ 'title': _("Reset Storage Pool"),
+                        'body': (
+                            <div className="modal-body">
+                                <p>{_("Resetting the storage pool will erase all containers and release disks in the pool.")}</p>
+                            </div>),
     },
-                                  { 'actions': [ { 'caption': _("Erase containers and reset storage pool"),
-                                                   'clicked': reset,
-                                                   'style': "danger" } ]
-                                  });
+                      { 'actions': [ { 'caption': _("Erase containers and reset storage pool"),
+                                       'clicked': reset,
+                                       'style': "danger" } ]
+                      });
     function reset() {
         var dfd = cockpit.defer();
         client.close();
@@ -477,7 +477,7 @@ function reset_storage(client) {
     }
 }
 
-function init_storage(client) {
+export function init_storage(client) {
     $('#storage .breadcrumb a').on("click", function() {
         cockpit.location.go('/');
     });
@@ -530,10 +530,3 @@ function init_storage(client) {
         hide: hide
     };
 }
-
-module.exports = {
-    get_storage_model: get_storage_model,
-    OverviewBox: OverviewBox,
-
-    init: init_storage
-};

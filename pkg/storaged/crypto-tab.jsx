@@ -29,7 +29,7 @@ import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
 const _ = cockpit.gettext;
 
-class CryptoTab extends React.Component {
+export class CryptoTab extends React.Component {
     render() {
         var self = this;
         var client = self.props.client;
@@ -145,7 +145,3 @@ class CryptoTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    CryptoTab: CryptoTab
-};

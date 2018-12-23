@@ -19,7 +19,7 @@
 
 import QUnit from "qunit-tests";
 
-import machines from "machines";
+import { machines } from "machines";
 
 QUnit.test("colors.parse()", function (assert) {
     var colors = [

@@ -24,7 +24,7 @@ import utils from "./utils.js";
 
 const _ = cockpit.gettext;
 
-class PartitionTab extends React.Component {
+export class PartitionTab extends React.Component {
     render() {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
@@ -54,7 +54,3 @@ class PartitionTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    PartitionTab: PartitionTab
-};

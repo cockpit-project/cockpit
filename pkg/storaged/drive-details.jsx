@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
-import Content from "./content-views.jsx";
+import { Block } from "./content-views.jsx";
 
 const _ = cockpit.gettext;
 
@@ -80,7 +80,7 @@ export class DriveDetails extends React.Component {
             </div>
         );
 
-        var content = <Content.Block client={this.props.client} block={drive_block} />;
+        var content = <Block client={this.props.client} block={drive_block} />;
 
         return <StdDetailsLayout client={this.props.client} header={header} content={content} />;
     }

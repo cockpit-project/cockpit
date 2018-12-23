@@ -23,8 +23,8 @@ import moment from "moment";
 
 import "patterns";
 
-import docker from "./docker";
-import util from "./util";
+import { docker } from "./docker";
+import { util } from "./util";
 
 import "console.css";
 
@@ -297,7 +297,7 @@ function PageContainerDetails(client) {
     this._init(client);
 }
 
-function init_container_details(client) {
+export function init_container_details(client) {
     var page = new PageContainerDetails(client);
     page.setup();
 
@@ -315,7 +315,3 @@ function init_container_details(client) {
         hide: hide
     };
 }
-
-module.exports = {
-    init: init_container_details
-};

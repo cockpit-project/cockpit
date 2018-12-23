@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import PackageKit from "./packagekit.js";
+import * as PackageKit from "./packagekit.js";
 import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 const _ = cockpit.gettext;
@@ -99,7 +99,7 @@ class ApplicationRow extends React.Component {
     }
 }
 
-class ApplicationList extends React.Component {
+export class ApplicationList extends React.Component {
     constructor() {
         super();
         this.state = { progress: false };
@@ -163,7 +163,3 @@ class ApplicationList extends React.Component {
         );
     }
 }
-
-module.exports = {
-    ApplicationList: ApplicationList
-};

@@ -105,7 +105,7 @@ function with_systemd_manager(done) {
     wait_valid(systemd_manager, done);
 }
 
-function proxy(name) {
+export function proxy(name) {
     var self = {
         exists: null,
         state: null,
@@ -328,7 +328,3 @@ function proxy(name) {
 
     return self;
 }
-
-module.exports = {
-    proxy: proxy
-};

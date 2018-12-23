@@ -24,11 +24,11 @@ import utils from "./utils.js";
 
 import { dialog_open, TextInput } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import FormatDialog from "./format-dialog.jsx";
+import * as FormatDialog from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-class FilesystemTab extends React.Component {
+export class FilesystemTab extends React.Component {
     constructor(props) {
         super(props);
         this.onSamplesChanged = this.onSamplesChanged.bind(this);
@@ -218,7 +218,3 @@ class FilesystemTab extends React.Component {
         );
     }
 }
-
-module.exports = {
-    FilesystemTab: FilesystemTab
-};

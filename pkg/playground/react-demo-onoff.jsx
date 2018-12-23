@@ -67,10 +67,6 @@ class OnOffDemo extends React.Component {
     }
 }
 
-var showOnOffDemo = function(rootElement) {
+export function showOnOffDemo(rootElement) {
     ReactDOM.render(<OnOffDemo />, rootElement);
-};
-
-module.exports = {
-    demo: showOnOffDemo,
-};
+}

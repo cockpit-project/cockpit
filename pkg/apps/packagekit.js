@@ -54,7 +54,7 @@ function reload_bridge_packages() {
     return cockpit.dbus(null, { bus: "internal" }).call("/packages", "cockpit.Packages", "Reload", [ ]);
 }
 
-function install(name, progress_cb) {
+export function install(name, progress_cb) {
     return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
                    progress_reporter(0, 1, progress_cb))
             .then(function (pkgid) {
@@ -63,7 +63,7 @@ function install(name, progress_cb) {
             });
 }
 
-function remove(name, progress_cb) {
+export function remove(name, progress_cb) {
     return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb))
             .then(function (pkgid) {
                 return PK.cancellableTransaction("RemovePackages", [ 0, [ pkgid ], true, false ], progress_reporter(1, 99, progress_cb))
@@ -71,7 +71,7 @@ function remove(name, progress_cb) {
             });
 }
 
-function refresh(origin_files, config_packages, data_packages, progress_cb) {
+export function refresh(origin_files, config_packages, data_packages, progress_cb) {
     var origin_pkgs = { };
     var update_ids = [ ];
 
@@ -149,9 +149,3 @@ function refresh(origin_files, config_packages, data_packages, progress_cb) {
             .then(maybe_update_origin_file_packages)
             .then(() => ensure_packages(data_packages, 95));
 }
-
-module.exports = {
-    install: install,
-    remove: remove,
-    refresh: refresh
-};

@@ -35,7 +35,7 @@ import $ from "jquery";
  * - editor.start_crop()
  */
 
-function image_editor(element, width, height) {
+export function image_editor(element, width, height) {
     var self = {
         load_data: load_data,
         get_data: get_data,
@@ -297,5 +297,3 @@ function image_editor(element, width, height) {
 
     return self;
 }
-
-module.exports = image_editor;

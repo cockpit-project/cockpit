@@ -33,11 +33,11 @@ var server_time = null;
 var operation = null;
 
 /* The entry point, shows the dialog */
-module.exports = function shutdown(op, st) {
+export function shutdown(op, st) {
     operation = op;
     server_time = st;
     $('#shutdown-dialog').modal('show');
-};
+}
 
 $('#shutdown-dialog .shutdown-date').datepicker({
     autoclose: true,

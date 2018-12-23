@@ -21,12 +21,12 @@ import $ from 'jquery';
 import cockpit from 'cockpit';
 
 import firewall from './firewall-client.js';
-import utils from './utils';
-import service from 'service';
+import * as utils from './utils';
+import * as service from 'service';
 
-import Mustache from 'mustache';
+import { mustache } from 'mustache';
 import * as plot from 'plot.js';
-import journal from 'journal';
+import { journal } from 'journal';
 
 /* jQuery extensions */
 import 'patterns';
@@ -3612,7 +3612,7 @@ PageNetworkBondSettings.prototype = {
     _init: function () {
         this.id = "network-bond-settings-dialog";
         this.bond_settings_template = $("#network-bond-settings-template").html();
-        Mustache.parse(this.bond_settings_template);
+        mustache.parse(this.bond_settings_template);
     },
 
     setup: function () {
@@ -3700,7 +3700,7 @@ PageNetworkBondSettings.prototype = {
         }
 
         var mac = (self.settings.ethernet && self.settings.ethernet.assigned_mac_address) || "";
-        var body = $(Mustache.render(self.bond_settings_template, {
+        var body = $(mustache.render(self.bond_settings_template, {
             interface_name: self.settings.bond.interface_name,
             assigned_mac_address: mac,
             monitoring_interval: options.miimon || options.arp_interval || "100",
@@ -3807,7 +3807,7 @@ PageNetworkTeamSettings.prototype = {
     _init: function () {
         this.id = "network-team-settings-dialog";
         this.team_settings_template = $("#network-team-settings-template").html();
-        Mustache.parse(this.team_settings_template);
+        mustache.parse(this.team_settings_template);
     },
 
     setup: function () {
@@ -3903,7 +3903,7 @@ PageNetworkTeamSettings.prototype = {
             }
         }
 
-        var body = $(Mustache.render(self.team_settings_template,
+        var body = $(mustache.render(self.team_settings_template,
                                      {
                                          interface_name: self.settings.team.interface_name,
                                          config: config
@@ -4000,7 +4000,7 @@ PageNetworkTeamPortSettings.prototype = {
     _init: function () {
         this.id = "network-teamport-settings-dialog";
         this.team_port_settings_template = $("#network-team-port-settings-template").html();
-        Mustache.parse(this.team_port_settings_template);
+        mustache.parse(this.team_port_settings_template);
     },
 
     setup: function () {
@@ -4041,7 +4041,7 @@ PageNetworkTeamPortSettings.prototype = {
             }
         }
 
-        var body = $(Mustache.render(self.team_port_settings_template, config));
+        var body = $(mustache.render(self.team_port_settings_template, config));
         ab_prio_input = body.find('#network-team-port-settings-ab-prio-input');
         ab_prio_input.change(change);
         ab_sticky_input = body.find('#network-team-port-settings-ab-sticky-input');
@@ -4092,7 +4092,7 @@ PageNetworkBridgeSettings.prototype = {
     _init: function () {
         this.id = "network-bridge-settings-dialog";
         this.bridge_settings_template = $("#network-bridge-settings-template").html();
-        Mustache.parse(this.bridge_settings_template);
+        mustache.parse(this.bridge_settings_template);
     },
 
     setup: function () {
@@ -4147,7 +4147,7 @@ PageNetworkBridgeSettings.prototype = {
             max_age_input.parents("tr").toggle(options.stp);
         }
 
-        var body = $(Mustache.render(self.bridge_settings_template, {
+        var body = $(mustache.render(self.bridge_settings_template, {
             bridge_name: options.interface_name,
             stp_checked: options.stp,
             stp_priority: options.priority,
@@ -4242,7 +4242,7 @@ PageNetworkBridgePortSettings.prototype = {
     _init: function () {
         this.id = "network-bridgeport-settings-dialog";
         this.bridge_port_settings_template = $("#network-bridge-port-settings-template").html();
-        Mustache.parse(this.bridge_port_settings_template);
+        mustache.parse(this.bridge_port_settings_template);
     },
 
     setup: function () {
@@ -4275,7 +4275,7 @@ PageNetworkBridgePortSettings.prototype = {
             options.hairpin_mode = hairpin_mode_input.prop('checked');
         }
 
-        var body = $(Mustache.render(self.bridge_port_settings_template, {
+        var body = $(mustache.render(self.bridge_port_settings_template, {
             priority: options.priority,
             path_cost: options.path_cost,
             hairpin_mode_checked: options.hairpin_mode
@@ -4324,7 +4324,7 @@ PageNetworkVlanSettings.prototype = {
     _init: function () {
         this.id = "network-vlan-settings-dialog";
         this.vlan_settings_template = $("#network-vlan-settings-template").html();
-        Mustache.parse(this.vlan_settings_template);
+        mustache.parse(this.vlan_settings_template);
     },
 
     setup: function () {
@@ -4379,7 +4379,7 @@ PageNetworkVlanSettings.prototype = {
                 parent_choices.push({ title: i.Name, choice: i.Name });
         });
 
-        var body = $(Mustache.render(self.vlan_settings_template, {
+        var body = $(mustache.render(self.vlan_settings_template, {
             vlan_id: options.id || "1",
             interface_name: options.interface_name
         }));
@@ -4445,7 +4445,7 @@ PageNetworkMtuSettings.prototype = {
     _init: function () {
         this.id = "network-mtu-settings-dialog";
         this.ethernet_settings_template = $("#network-mtu-settings-template").html();
-        Mustache.parse(this.ethernet_settings_template);
+        mustache.parse(this.ethernet_settings_template);
     },
 
     setup: function () {
@@ -4469,7 +4469,7 @@ PageNetworkMtuSettings.prototype = {
         var self = this;
         var options = self.settings.ethernet;
 
-        var body = $(Mustache.render(self.ethernet_settings_template, options));
+        var body = $(mustache.render(self.ethernet_settings_template, options));
         $('#network-mtu-settings-body').html(body);
         $('#network-mtu-settings-input').focus(function () {
             $('#network-mtu-settings-custom').prop('checked', true);
@@ -4524,7 +4524,7 @@ PageNetworkMacSettings.prototype = {
     _init: function () {
         this.id = "network-mac-settings-dialog";
         this.ethernet_settings_template = $("#network-mac-settings-template").html();
-        Mustache.parse(this.ethernet_settings_template);
+        mustache.parse(this.ethernet_settings_template);
     },
 
     setup: function () {
@@ -4548,7 +4548,7 @@ PageNetworkMacSettings.prototype = {
         var self = this;
         var options = self.settings.ethernet;
 
-        var body = $(Mustache.render(self.ethernet_settings_template, options));
+        var body = $(mustache.render(self.ethernet_settings_template, options));
         $('#network-mac-settings-body').html(body);
 
         fill_mac_menu($('#network-mac-settings-menu'),

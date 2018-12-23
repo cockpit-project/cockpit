@@ -22,7 +22,7 @@ import * as Select from "cockpit-components-select.jsx";
 
 /* Sample dialog body
  */
-class PatternDialogBody extends React.Component {
+export class PatternDialogBody extends React.Component {
     selectChanged(value) {
         console.log("new value: " + value);
     }
@@ -100,5 +100,3 @@ class PatternDialogBody extends React.Component {
         );
     }
 }
-
-module.exports = PatternDialogBody;

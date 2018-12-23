@@ -17,16 +17,15 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import machis from "machines";
-import mdialogs from "machine-dialogs";
-import credentials from "./credentials";
-import privileges from "./privileges";
+import { machines } from "machines";
+import { new_machine_dialog_manager } from "machine-dialogs";
+import * as credentials from "./credentials";
+import * as privileges from "./privileges";
+import * as indexes from "./indexes";
 
-import indexes from "./indexes";
-
-var machines = machis.instance();
-var loader = machis.loader(machines);
-var dialogs = mdialogs.new_manager(machines);
+var machines_inst = machines.instance();
+var loader = machines.loader(machines_inst);
+var dialogs = new_machine_dialog_manager(machines_inst);
 
 credentials.setup();
 
@@ -52,4 +51,4 @@ var options = {
     privileges: privileges.instance(),
 };
 
-indexes.machines_index(options, machines, loader, dialogs);
+indexes.machines_index(options, machines_inst, loader, dialogs);

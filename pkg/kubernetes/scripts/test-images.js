@@ -17,8 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import QUnit from "qunit-tests";
+
 var angular = require("angular");
-var QUnit = require("qunit-tests");
 
 require('angular-gettext/dist/angular-gettext.js');
 require("./images");

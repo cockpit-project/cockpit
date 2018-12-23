@@ -1,6 +1,6 @@
 import $ from "jquery";
 import cockpit from "cockpit";
-import mustache from "mustache";
+import { mustache } from "mustache";
 import angular from 'angular';
 import 'angular-gettext/dist/angular-gettext.js';
 

@@ -26,16 +26,16 @@ import ReactDOM from "react-dom";
 import * as plot from "plot.js";
 import { cpu_ram_info } from "machine-info.js";
 
-import util from "./util";
-import storage from "./storage.jsx";
-import view from "./containers-view.jsx";
+import { util } from "./util";
+import * as storage from "./storage.jsx";
+import * as view from "./containers-view.jsx";
 
 import "plot.css";
 
 /* OVERVIEW PAGE
  */
 
-function init_overview (client) {
+export function init_overview (client) {
     var headerNode = document.querySelector('#containers .content-filter');
     var containerNode = document.getElementById('containers-containers');
     var imageNode = document.getElementById('containers-images');
@@ -223,7 +223,3 @@ function init_overview (client) {
         hide: hide
     };
 }
-
-module.exports = {
-    init: init_overview
-};

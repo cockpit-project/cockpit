@@ -20,7 +20,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import base_index from "./base_index";
+import * as base_index from "./base_index";
 
 const _ = cockpit.gettext;
 
@@ -703,11 +703,10 @@ if (document.documentElement.getAttribute("class") === "index-page") {
     window.addEventListener("message", message_queue, false);
 }
 
-module.exports = {
-    simple_index: function (options) {
-        return new SimpleIndex(options);
-    },
-    machines_index: function (options, machines_ins, loader, mdialogs) {
-        return new MachinesIndex(options, machines_ins, loader, mdialogs);
-    }
-};
+export function simple_index(options) {
+    return new SimpleIndex(options);
+}
+
+export function machines_index(options, machines_ins, loader, mdialogs) {
+    return new MachinesIndex(options, machines_ins, loader, mdialogs);
+}

@@ -22,15 +22,10 @@ import ReactDOM from "react-dom";
 
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 
-var render = function(rootElement) {
+export function render(rootElement) {
     ReactDOM.render(<FileAutoComplete />, rootElement);
-};
+}
 
-var remove = function(rootElement) {
+export function remove(rootElement) {
     ReactDOM.unmountComponentAtNode(rootElement);
-};
-
-module.exports = {
-    render: render,
-    remove: remove
-};
+}

@@ -47,7 +47,7 @@ DemoListingTab.propTypes = {
     description: PropTypes.string.isRequired,
 };
 
-var showListingDemo = function(rootElement, rootElementSelectable, rootElementEmptyList) {
+export function showListingDemo (rootElement, rootElementSelectable, rootElementEmptyList) {
     var navigateToItem = function(msg) {
         window.alert("navigated to item: " + msg);
     };
@@ -142,8 +142,4 @@ var showListingDemo = function(rootElement, rootElementSelectable, rootElementEm
 
     var emptyListing = <cockpitListing.Listing title="Demo Empty Listing Pattern" emptyCaption="No Entries" />;
     ReactDOM.render(emptyListing, rootElementEmptyList);
-};
-
-module.exports = {
-    demo: showListingDemo,
-};
+}

@@ -18,7 +18,7 @@
  */
 
 import QUnit from "qunit-tests";
-import journal from "journal";
+import { journal } from "journal";
 
 var debug = false;
 

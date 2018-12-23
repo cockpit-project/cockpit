@@ -22,7 +22,7 @@ import React from "react";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
 import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
-import Content from "./content-views.jsx";
+import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
 
 import inotify_py from "raw-loader!inotify.py";
@@ -326,7 +326,7 @@ export class VDODetails extends React.Component {
             </div>
         );
 
-        var content = <Content.Block client={client} block={block} allow_partitions={false} />;
+        var content = <Block client={client} block={block} allow_partitions={false} />;
 
         return <StdDetailsLayout client={this.props.client}
                                  alert={alert}

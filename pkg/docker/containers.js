@@ -20,14 +20,14 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import Mustache from "mustache";
-import service from "service";
+import { mustache } from "mustache";
+import * as service from "service";
 
-import client from "./client";
-import overview from "./overview";
-import container_details from "./details";
-import image_details from "./image";
-import storage from "./storage.jsx";
+import * as client from "./client";
+import { init_overview } from "./overview";
+import { init_container_details } from "./details";
+import { init_image_details } from "./image";
+import { init_storage } from "./storage.jsx";
 
 import "page.css";
 import "table.css";
@@ -43,7 +43,7 @@ var docker_service = service.proxy("docker");
 
 function init_curtain(client, navigate) {
     curtain_tmpl = $("#curtain-tmpl").html();
-    Mustache.parse(curtain_tmpl);
+    mustache.parse(curtain_tmpl);
 
     $(client).on('failure', function (event, error) {
         show_curtain(error);
@@ -85,7 +85,7 @@ function show_curtain(ex) {
         console.warn(ex);
     }
 
-    $('#curtain').html(Mustache.render(curtain_tmpl, info));
+    $('#curtain').html(mustache.render(curtain_tmpl, info));
     $('body > div').hide();
     $('#curtain').show();
     $("body").show();
@@ -140,10 +140,10 @@ function init() {
 
     docker_client = client.instance();
     init_curtain(docker_client, navigate);
-    overview_page = overview.init(docker_client);
-    container_details_page = container_details.init(docker_client);
-    image_details_page = image_details.init(docker_client);
-    storage_page = storage.init(docker_client);
+    overview_page = init_overview(docker_client);
+    container_details_page = init_container_details(docker_client);
+    image_details_page = init_image_details(docker_client);
+    storage_page = init_storage(docker_client);
 
     show_curtain(null);
     docker_client.connect().done(navigate);

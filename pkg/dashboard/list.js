@@ -18,15 +18,15 @@
  */
 
 import $ from "jquery";
-import Mustache from "mustache";
+import { mustache } from "mustache";
 
 import cockpit from "cockpit";
 import * as plot from "plot.js";
-import machines from "machines";
-import * as mdialogs from "machine-dialogs";
+import { machines } from "machines";
+import { new_machine_dialog_manager } from "machine-dialogs";
 import { cpu_ram_info } from "machine-info.js";
+import { image_editor } from "./image-editor.js";
 import "patterns";
-import image_editor from "./image-editor.js";
 
 const _ = cockpit.gettext;
 
@@ -249,7 +249,7 @@ PageDashboard.prototype = {
         self.machines = machines.instance();
         self.infos = { };
 
-        self.mdialogs = mdialogs.new_manager(self.machines);
+        self.mdialogs = new_machine_dialog_manager(self.machines);
 
         var current_monitor = 0;
 
@@ -383,7 +383,7 @@ PageDashboard.prototype = {
 
         function host_renderer(target) {
             var template = $("#dashboard-hosts-tmpl").html();
-            Mustache.parse(template);
+            mustache.parse(template);
 
             function render_avatar() {
                 if (this.state == "failed")
@@ -423,7 +423,7 @@ PageDashboard.prototype = {
             }
 
             function render() {
-                var text = Mustache.render(template, {
+                var text = mustache.render(template, {
                     machines: self.machines.list,
                     render_avatar: render_avatar,
                     aria_role: aria_role,

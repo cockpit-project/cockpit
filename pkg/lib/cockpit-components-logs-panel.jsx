@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { journalctl, renderer } from "journal";
+import { journal } from "journal";
 
 const _ = cockpit.gettext;
 
@@ -105,10 +105,10 @@ export class LogsPanel extends React.Component {
     }
 
     componentDidMount() {
-        this.journalctl = journalctl(this.props.match, { count: this.props.max });
+        this.journalctl = journal.journalctl(this.props.match, { count: this.props.max });
 
         var out = new JournalOutput();
-        var render = renderer(out);
+        var render = journal.renderer(out);
 
         this.journalctl.stream((entries) => {
             for (var i = 0; i < entries.length; i++)

@@ -28,11 +28,11 @@ import {
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
-import StorageControls from "./storage-controls.jsx";
+import { StorageButton } from "./storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
-function parse_options(options) {
+export function parse_options(options) {
     if (options)
         return (options.split(",")
                 .map(function (s) { return s.trim() })
@@ -41,11 +41,11 @@ function parse_options(options) {
         return [ ];
 }
 
-function unparse_options(split) {
+export function unparse_options(split) {
     return split.join(",");
 }
 
-function extract_option(split, opt) {
+export function extract_option(split, opt) {
     var index = split.indexOf(opt);
     if (index >= 0) {
         split.splice(index, 1);
@@ -55,7 +55,7 @@ function extract_option(split, opt) {
     }
 }
 
-function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
+export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
     if (!visible)
         visible = function () { return true };
 
@@ -104,7 +104,7 @@ function mounting_dialog_fields(is_custom, mount_dir, mount_options, visible) {
     ];
 }
 
-function mounting_dialog_options(vals) {
+export function mounting_dialog_options(vals) {
     var opts = [ ];
     if (!vals.mount_auto)
         opts.push("noauto");
@@ -115,7 +115,7 @@ function mounting_dialog_options(vals) {
     return unparse_options(opts);
 }
 
-function crypto_options_dialog_fields(options, visible) {
+export function crypto_options_dialog_fields(options, visible) {
     var split_options = parse_options(options);
     var opt_auto = !extract_option(split_options, "noauto");
     var opt_ro = extract_option(split_options, "readonly");
@@ -138,7 +138,7 @@ function crypto_options_dialog_fields(options, visible) {
     ];
 }
 
-function crypto_options_dialog_options(vals) {
+export function crypto_options_dialog_options(vals) {
     var opts = [ ];
     if (!vals.crypto_options_auto)
         opts.push("noauto");
@@ -168,15 +168,15 @@ function initial_tab_options(client, block, for_fstab) {
     return Object.keys(options).join(",");
 }
 
-function initial_crypto_options(client, block) {
+export function initial_crypto_options(client, block) {
     return initial_tab_options(client, block, false);
 }
 
-function initial_mount_options(client, block) {
+export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
-function format_dialog(client, path, start, size, enable_dos_extended) {
+export function format_dialog(client, path, start, size, enable_dos_extended) {
     var block = client.blocks[path];
     var block_ptable = client.blocks_ptable[path];
 
@@ -405,7 +405,7 @@ function format_dialog(client, path, start, size, enable_dos_extended) {
     });
 }
 
-class FormatButton extends React.Component {
+export class FormatButton extends React.Component {
     constructor(props) {
         super(props);
         this.onClick = this.onClick.bind(this);
@@ -417,25 +417,10 @@ class FormatButton extends React.Component {
 
     render() {
         return (
-            <StorageControls.StorageButton onClick={this.onClick}
-                                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
+            <StorageButton onClick={this.onClick}
+                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
                 {_("Format")}
-            </StorageControls.StorageButton>
+            </StorageButton>
         );
     }
 }
-
-module.exports = {
-    parse_options: parse_options,
-    unparse_options: unparse_options,
-    extract_option: extract_option,
-
-    mounting_dialog_fields: mounting_dialog_fields,
-    mounting_dialog_options: mounting_dialog_options,
-    initial_mount_options: initial_mount_options,
-    crypto_options_dialog_fields: crypto_options_dialog_fields,
-    crypto_options_dialog_options: crypto_options_dialog_options,
-    initial_crypto_options: initial_crypto_options,
-    format_dialog: format_dialog,
-    FormatButton: FormatButton
-};

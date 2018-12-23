@@ -20,24 +20,24 @@
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
-import subscriptionsClient from "./subscriptions-client";
-import subscriptionsRegister from "./subscriptions-register.jsx";
-import subscriptionsView from "./subscriptions-view.jsx";
-import Dialog from "cockpit-components-dialog.jsx";
+import { client } from "./subscriptions-client";
+import * as subscriptionsRegister from "./subscriptions-register.jsx";
+import { SubscriptionsPage } from "./subscriptions-view.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
 var dataStore = { };
 
 function dismissStatusError() {
-    subscriptionsClient.subscriptionStatus.error = undefined;
+    client.subscriptionStatus.error = undefined;
     dataStore.render();
 }
 
 var registerDialogDetails;
 
 function registerSystem () {
-    return subscriptionsClient.registerSystem(registerDialogDetails);
+    return client.registerSystem(registerDialogDetails);
 }
 
 var footerProps = {
@@ -71,37 +71,37 @@ function openRegisterDialog() {
 
         var dialogProps = {
             'title': _("Register system"),
-            'body': React.createElement(subscriptionsRegister.dialogBody, registerDialogDetails),
+            'body': React.createElement(subscriptionsRegister.DialogBody, registerDialogDetails),
         };
 
         if (renderDialog)
             renderDialog.setProps(dialogProps);
         else
-            renderDialog = Dialog.show_modal_dialog(dialogProps, footerProps);
+            renderDialog = show_modal_dialog(dialogProps, footerProps);
     };
     updatedData();
 }
 
 function unregisterSystem() {
-    subscriptionsClient.unregisterSystem();
+    client.unregisterSystem();
 }
 
 function initStore(rootElement) {
-    subscriptionsClient.addEventListener("dataChanged",
-                                         function() {
-                                             dataStore.render();
-                                         }
+    client.addEventListener("dataChanged",
+                            function() {
+                                dataStore.render();
+                            }
     );
 
-    subscriptionsClient.init();
+    client.init();
 
     dataStore.render = function() {
         ReactDOM.render(React.createElement(
-            subscriptionsView.page,
+            SubscriptionsPage,
             {
-                status: subscriptionsClient.subscriptionStatus.status,
-                products:subscriptionsClient.subscriptionStatus.products,
-                error: subscriptionsClient.subscriptionStatus.error,
+                status: client.subscriptionStatus.status,
+                products:client.subscriptionStatus.products,
+                error: client.subscriptionStatus.error,
                 dismissError: dismissStatusError,
                 register: openRegisterDialog,
                 unregister: unregisterSystem,

@@ -20,11 +20,11 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import dialog_view from "cockpit-components-dialog.jsx";
-import service from "service";
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import * as service from "service";
 import React from "react";
 
-import change_profile from "./change-profile.jsx";
+import { TunedDialogBody } from "./change-profile.jsx";
 import link_html from "raw-loader!./link.html";
 
 const _ = cockpit.gettext;
@@ -185,7 +185,7 @@ function setup() {
             dialog_selected = active_profile;
             var dialog_props = {
                 'title': _("Change Performance Profile"),
-                'body': React.createElement(change_profile.dialog, {
+                'body': React.createElement(TunedDialogBody, {
                     'active_profile': active_profile,
                     'change_selected': update_selected_item,
                     'profiles': profiles,
@@ -199,7 +199,7 @@ function setup() {
                 ],
                 'static_error': static_error,
             };
-            dialog_view.show_modal_dialog(dialog_props, footer_props);
+            show_modal_dialog(dialog_props, footer_props);
         }
 
         function with_info(active, recommended, profiles) {

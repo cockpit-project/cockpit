@@ -24,21 +24,21 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import ApplicationList from "./application-list.jsx";
-import Application from "./application.jsx";
-import appstream from "./appstream.js";
+import { ApplicationList } from "./application-list.jsx";
+import { Application } from "./application.jsx";
+import { get_metainfo_db } from "./appstream.js";
 
 import "page.css";
 
-var metainfo_db = appstream.get_metainfo_db();
+var metainfo_db = get_metainfo_db();
 
 function render_list() {
-    ReactDOM.render(<ApplicationList.ApplicationList metainfo_db={metainfo_db} />,
+    ReactDOM.render(<ApplicationList metainfo_db={metainfo_db} />,
                     document.getElementById('list'));
 }
 
 function render_app() {
-    ReactDOM.render(<Application.Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />,
+    ReactDOM.render(<Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />,
                     document.getElementById('app'));
 }
 

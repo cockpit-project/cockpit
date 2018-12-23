@@ -19,8 +19,8 @@
 
 import $ from "jquery";
 import cockpit from "cockpit";
-import util from "./util";
-import docker from "./docker";
+import { util } from "./util";
+import { docker } from "./docker";
 
 function ignoreException(ex) {
     if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {
@@ -760,10 +760,8 @@ function DockerClient() {
 
 var client;
 
-module.exports = {
-    instance: function() {
-        if (!client)
-            client = new DockerClient();
-        return client;
-    }
-};
+export function instance() {
+    if (!client)
+        client = new DockerClient();
+    return client;
+}

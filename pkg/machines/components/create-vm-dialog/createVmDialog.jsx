@@ -24,7 +24,7 @@ import { Alert, Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import * as Select from "cockpit-components-select.jsx";
-import FileAutoComplete from "cockpit-components-file-autocomplete.jsx";
+import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
 import { addErrorNotification } from '../../actions/store-actions.js';
 import {
@@ -192,7 +192,7 @@ class CreateVM extends React.Component {
         case COCKPIT_FILESYSTEM_SOURCE:
             installationSourceId = "source-file";
             installationSource = (
-                <FileAutoComplete.FileAutoComplete id={installationSourceId}
+                <FileAutoComplete id={installationSourceId}
                     placeholder={_("Path to ISO file on host's file system")}
                     onChange={this.onChangedValue.bind(this, 'source')} />
             );

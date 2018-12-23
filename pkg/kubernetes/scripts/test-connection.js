@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import QUnit from "qunit-tests";
+
 var angular = require("angular");
 require("./connection");
-
-var QUnit = require("qunit-tests");
 
 (function() {
     var fixtures = [];

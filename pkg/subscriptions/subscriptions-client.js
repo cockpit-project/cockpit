@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-var client = { };
+export var client = { };
 
 cockpit.event_target(client);
 
@@ -415,5 +415,3 @@ client.init = function() {
     // get initial status
     requestUpdate();
 };
-
-module.exports = client;

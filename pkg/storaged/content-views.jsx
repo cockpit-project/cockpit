@@ -544,7 +544,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     );
 };
 
-const Block = ({client, block, allow_partitions}) => {
+export const Block = ({client, block, allow_partitions}) => {
     return (
         <BlockContent client={client}
                       block={block}
@@ -609,7 +609,7 @@ function vgroup_rows(client, vgroup) {
     return rows;
 }
 
-class VGroup extends React.Component {
+export class VGroup extends React.Component {
     render() {
         var self = this;
         var vgroup = this.props.vgroup;
@@ -700,8 +700,3 @@ class VGroup extends React.Component {
         );
     }
 }
-
-module.exports = {
-    Block: Block,
-    VGroup: VGroup
-};

@@ -22,8 +22,8 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import util from "./util";
-import view from "./containers-view.jsx";
+import { util } from "./util";
+import { ImageInline } from "./containers-view.jsx";
 
 import "./run";
 
@@ -97,7 +97,7 @@ PageImageDetails.prototype = {
         var info = this.client.images[this.image_id];
         util.docker_debug("image-details", this.image_id, info);
 
-        ReactDOM.render(React.createElement(view.ImageInline, {
+        ReactDOM.render(React.createElement(ImageInline, {
             image: info
         }), document.querySelector('#image-details .content'));
 
@@ -155,7 +155,7 @@ function PageImageDetails(client) {
     this._init(client);
 }
 
-function init_image_details(client) {
+export function init_image_details(client) {
     var page = new PageImageDetails(client);
     page.setup();
 
@@ -173,7 +173,3 @@ function init_image_details(client) {
         hide: hide
     };
 }
-
-module.exports = {
-    init: init_image_details
-};

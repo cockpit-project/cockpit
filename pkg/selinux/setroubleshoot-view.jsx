@@ -322,7 +322,7 @@ class SELinuxStatus extends React.Component {
  * changeSelinuxMode  function to use for changing the selinux enforcing mode
  * dismissStatusError function that is triggered to dismiss the selinux status error
  */
-class SETroubleshootPage extends React.Component {
+export class SETroubleshootPage extends React.Component {
     constructor(props) {
         super(props);
         this.handleDeleteAlert = this.handleDeleteAlert.bind(this);
@@ -479,7 +479,3 @@ class SETroubleshootPage extends React.Component {
         );
     }
 }
-
-module.exports = {
-    SETroubleshootPage: SETroubleshootPage,
-};

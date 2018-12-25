@@ -118,12 +118,13 @@ class VmDisksTabLibvirt extends React.Component {
         const idPrefix = `${vmId(vm.name)}-disks`;
         const areDiskStatsSupported = this.getDiskStatsSupport(vm);
 
+        const filteredStoragePools = storagePools.filter(pool => pool.connectionName == vm.connectionName);
         const disks = Object.getOwnPropertyNames(vm.disks)
                 .sort() // by 'target'
                 .map(target => this.prepareDiskData(vm.disks[target],
                                                     vm.disksStats && vm.disksStats[target],
                                                     `${idPrefix}-${target}`,
-                                                    storagePools));
+                                                    filteredStoragePools));
         let actions = [];
 
         if (config.provider.name != 'oVirt')

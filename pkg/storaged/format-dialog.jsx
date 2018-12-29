@@ -149,7 +149,7 @@ export function crypto_options_dialog_options(vals) {
     return unparse_options(opts);
 }
 
-function initial_tab_options(client, block, for_fstab) {
+export function initial_tab_options(client, block, for_fstab) {
     var options = { };
 
     utils.get_parent_blocks(client, block.path).forEach(p => {

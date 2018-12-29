@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
 import { DriveDetails } from "./drive-details.jsx";
 import { VGroupDetails } from "./vgroup-details.jsx";

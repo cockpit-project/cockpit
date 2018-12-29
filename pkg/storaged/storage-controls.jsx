@@ -21,7 +21,7 @@ import React from "react";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from "cockpit";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 

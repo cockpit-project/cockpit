@@ -25,14 +25,12 @@ import moment from "moment";
 moment.locale(cockpit.language);
 
 const _ = cockpit.gettext;
-var C_ = cockpit.gettext;
+const C_ = cockpit.gettext;
 
 /* UTILITIES
  */
 
-var utils = { };
-
-utils.compare_versions = function compare_versions(a, b) {
+export function compare_versions(a, b) {
     function to_ints(str) {
         return str.split(".").map(function (s) { return s ? parseInt(s, 10) : 0 });
     }
@@ -49,55 +47,67 @@ utils.compare_versions = function compare_versions(a, b) {
     }
 
     return a_ints.length - b_ints.length;
-};
+}
 
-utils.hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
+export var hostnamed = cockpit.dbus("org.freedesktop.hostname1").proxy();
 
-utils.array_find = function array_find(array, pred) {
+// for unit tests
+var orig_hostnamed;
+
+export function mock_hostnamed(value) {
+    if (value) {
+        orig_hostnamed = hostnamed;
+        hostnamed = value;
+    } else {
+        hostnamed = orig_hostnamed;
+    }
+}
+
+export function array_find(array, pred) {
     for (var i = 0; i < array.length; i++)
         if (pred(array[i]))
             return array[i];
     return undefined;
-};
+}
 
-utils.flatten = function flatten(array_of_arrays) {
+export function flatten(array_of_arrays) {
     if (array_of_arrays.length > 0)
         return Array.prototype.concat.apply([], array_of_arrays);
     else
         return [ ];
-};
+}
 
-utils.decode_filename = function decode_filename(encoded) {
+export function decode_filename(encoded) {
     return cockpit.utf8_decoder().decode(cockpit.base64_decode(encoded).slice(0, -1));
-};
+}
 
-utils.encode_filename = function encode_filename(decoded) {
+export function encode_filename(decoded) {
     return cockpit.base64_encode(cockpit.utf8_encoder().encode(decoded)
             .concat([0]));
-};
+}
 
-utils.fmt_size = function fmt_size(bytes) {
+export function fmt_size(bytes) {
     return cockpit.format_bytes(bytes, 1024);
-};
+}
 
-utils.fmt_size_long = function fmt_size_long(bytes) {
+export function fmt_size_long(bytes) {
     var with_binary_unit = cockpit.format_bytes(bytes, 1024);
     var with_decimal_unit = cockpit.format_bytes(bytes, 1000);
     /* Translators: Used in "..." */
     return with_binary_unit + ", " + with_decimal_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
-};
+}
 
-utils.fmt_rate = function fmt_rate(bytes_per_sec) {
+export function fmt_rate(bytes_per_sec) {
     return cockpit.format_bytes_per_sec(bytes_per_sec, 1024);
-};
+}
 
-utils.format_temperature = function format_temperature(kelvin) {
+export function format_temperature(kelvin) {
     var celcius = kelvin - 273.15;
     var fahrenheit = 9.0 * celcius / 5.0 + 32.0;
     return celcius.toFixed(1) + "° C / " + fahrenheit.toFixed(1) + "° F";
-};
+}
 
-utils.format_fsys_usage = function format_fsys_usage(used, total) {
+export function format_fsys_usage(used, total) {
     var text = "";
     var units = 1024;
     var parts = cockpit.format_bytes(total, units, true);
@@ -106,17 +116,17 @@ utils.format_fsys_usage = function format_fsys_usage(used, total) {
 
     parts = cockpit.format_bytes(used, units, true);
     return parts[0] + text;
-};
+}
 
-utils.format_delay = function format_delay(d) {
+export function format_delay(d) {
     return moment.duration(d).humanize();
-};
+}
 
-utils.format_size_and_text = function format_size_and_text(size, text) {
-    return cockpit.format(_("${size} ${desc}"), { size: utils.fmt_size(size), desc: text });
-};
+export function format_size_and_text(size, text) {
+    return cockpit.format(_("${size} ${desc}"), { size: fmt_size(size), desc: text });
+}
 
-utils.validate_lvm2_name = function validate_lvm2_name(name) {
+export function validate_lvm2_name(name) {
     if (name === "")
         return _("Name cannot be empty.");
     if (name.length > 127)
@@ -128,9 +138,9 @@ utils.validate_lvm2_name = function validate_lvm2_name(name) {
         else
             return cockpit.format(_("Name cannot contain whitespace."), m[0]);
     }
-};
+}
 
-utils.validate_fsys_label = function validate_fsys_label(label, type) {
+export function validate_fsys_label(label, type) {
     var fs_label_max = {
         "xfs":   12,
         "ext4":  16,
@@ -148,13 +158,13 @@ utils.validate_fsys_label = function validate_fsys_label(label, type) {
         else
             return cockpit.format(_("Name cannot be longer than $0 bytes"), limit);
     }
-};
+}
 
-utils.block_name = function block_name(block) {
-    return utils.decode_filename(block.PreferredDevice);
-};
+export function block_name(block) {
+    return decode_filename(block.PreferredDevice);
+}
 
-utils.mdraid_name = function mdraid_name(mdraid) {
+export function mdraid_name(mdraid) {
     if (!mdraid.Name)
         return "";
 
@@ -166,16 +176,16 @@ utils.mdraid_name = function mdraid_name(mdraid) {
     /* if we call hostnamed too early, before the dbus.proxy() promise is fulfilled,
      * it will not be valid yet; it's too inconvenient to make this
      * function asynchronous, so just don't show the host name in this case */
-    if (utils.hostnamed.StaticHostname === undefined || parts[0] == utils.hostnamed.StaticHostname)
+    if (hostnamed.StaticHostname === undefined || parts[0] == hostnamed.StaticHostname)
         return parts[1];
     else
         return cockpit.format(_("$name (from $host)"),
                               { name: parts[1],
                                 host: parts[0]
                               });
-};
+}
 
-utils.lvol_name = function lvol_name(lvol) {
+export function lvol_name(lvol) {
     var type;
     if (lvol.Type == "pool")
         type = _("Pool for Thin Logical Volumes");
@@ -186,9 +196,9 @@ utils.lvol_name = function lvol_name(lvol) {
     else
         type = _("Logical Volume");
     return cockpit.format('$0 "$1"', type, lvol.Name);
-};
+}
 
-utils.drive_name = function drive_name(drive) {
+export function drive_name(drive) {
     var name_parts = [ ];
     if (drive.Vendor)
         name_parts.push(drive.Vendor);
@@ -202,9 +212,9 @@ utils.drive_name = function drive_name(drive) {
         name += " (" + drive.WWN + ")";
 
     return name;
-};
+}
 
-utils.get_block_link_parts = function get_block_link_parts(client, path) {
+export function get_block_link_parts(client, path) {
     var is_part, is_crypt, is_lvol;
 
     while (true) {
@@ -228,7 +238,7 @@ utils.get_block_link_parts = function get_block_link_parts(client, path) {
     var location, link;
     if (client.mdraids[block.MDRaid]) {
         location = [ "mdraid", client.mdraids[block.MDRaid].UUID ];
-        link = cockpit.format(_("RAID Device $0"), utils.mdraid_name(client.mdraids[block.MDRaid]));
+        link = cockpit.format(_("RAID Device $0"), mdraid_name(client.mdraids[block.MDRaid]));
     } else if (client.blocks_lvm2[path] &&
                client.lvols[client.blocks_lvm2[path].LogicalVolume] &&
                client.vgroups[client.lvols[client.blocks_lvm2[path].LogicalVolume].VolumeGroup]) {
@@ -241,11 +251,11 @@ utils.get_block_link_parts = function get_block_link_parts(client, path) {
             location = [ "vdo", vdo.name ];
             link = cockpit.format(_("VDO Device $0"), vdo.name);
         } else {
-            location = [ utils.block_name(block).replace(/^\/dev\//, "") ];
+            location = [ block_name(block).replace(/^\/dev\//, "") ];
             if (client.drives[block.Drive])
-                link = utils.drive_name(client.drives[block.Drive]);
+                link = drive_name(client.drives[block.Drive]);
             else
-                link = utils.block_name(block);
+                link = block_name(block);
         }
     }
 
@@ -269,14 +279,14 @@ utils.get_block_link_parts = function get_block_link_parts(client, path) {
         format: format,
         link: link
     };
-};
+}
 
-utils.go_to_block = function (client, path) {
-    var parts = utils.get_block_link_parts(client, path);
+export function go_to_block(client, path) {
+    var parts = get_block_link_parts(client, path);
     cockpit.location.go(parts.location);
-};
+}
 
-utils.get_partitions = function get_partitions(client, block) {
+export function get_partitions(client, block) {
     var partitions = client.blocks_partitions[block.path];
 
     function process_level(level, container_start, container_size) {
@@ -347,9 +357,9 @@ utils.get_partitions = function get_partitions(client, block) {
     }
 
     return process_level(0, 0, block.Size);
-};
+}
 
-utils.get_available_spaces = function get_available_spaces(client) {
+export function get_available_spaces(client) {
     function is_free(path) {
         var block = client.blocks[path];
         var block_ptable = client.blocks_ptable[path];
@@ -396,22 +406,22 @@ utils.get_available_spaces = function get_available_spaces(client) {
 
     function make(path) {
         var block = client.blocks[path];
-        var parts = utils.get_block_link_parts(client, path);
+        var parts = get_block_link_parts(client, path);
         var text = cockpit.format(parts.format, parts.link);
         return { type: 'block', block: block, size: block.Size, desc: text };
     }
 
     var spaces = Object.keys(client.blocks).filter(is_free)
-            .sort(utils.make_block_path_cmp(client))
+            .sort(make_block_path_cmp(client))
             .map(make);
 
     function add_free_spaces(block) {
-        var parts = utils.get_partitions(client, block);
+        var parts = get_partitions(client, block);
         var i, p, link_parts, text;
         for (i in parts) {
             p = parts[i];
             if (p.type == 'free') {
-                link_parts = utils.get_block_link_parts(client, block.path);
+                link_parts = get_block_link_parts(client, block.path);
                 text = cockpit.format(link_parts.format, link_parts.link);
                 spaces.push({ type: 'free', block: block, start: p.start, size: p.size,
                               desc: cockpit.format(_("unpartitioned space on $0"), text) });
@@ -423,9 +433,9 @@ utils.get_available_spaces = function get_available_spaces(client) {
         add_free_spaces(client.blocks[p]);
 
     return spaces;
-};
+}
 
-utils.prepare_available_spaces = function prepare_available_spaces(client, spcs) {
+export function prepare_available_spaces(client, spcs) {
     function prepare(spc) {
         if (spc.type == 'block')
             return cockpit.resolve(spc.block.path);
@@ -435,7 +445,7 @@ utils.prepare_available_spaces = function prepare_available_spaces(client, spcs)
         }
     }
     return cockpit.all(spcs.map(prepare));
-};
+}
 
 /* Comparison function for sorting lists of block devices.
 
@@ -449,25 +459,25 @@ utils.prepare_available_spaces = function prepare_available_spaces(client, spcs)
    Sorting by major:minor is an easy way to do the right thing.
 */
 
-utils.block_cmp = function block_cmp(a, b) {
+export function block_cmp(a, b) {
     return a.DeviceNumber - b.DeviceNumber;
-};
+}
 
-utils.make_block_path_cmp = function(client) {
+export function make_block_path_cmp(client) {
     return function(path_a, path_b) {
-        return utils.block_cmp(client.blocks[path_a], client.blocks[path_b]);
+        return block_cmp(client.blocks[path_a], client.blocks[path_b]);
     };
-};
+}
 
 var multipathd_service;
 
-utils.get_multipathd_service = function() {
+export function get_multipathd_service () {
     if (!multipathd_service)
         multipathd_service = service.proxy("multipathd");
     return multipathd_service;
-};
+}
 
-utils.get_parent = function(client, path) {
+export function get_parent(client, path) {
     if (client.blocks_part[path] && client.blocks[client.blocks_part[path].Table])
         return client.blocks_part[path].Table;
     if (client.blocks[path] && client.blocks[client.blocks[path].CryptoBackingDevice])
@@ -480,10 +490,10 @@ utils.get_parent = function(client, path) {
         return client.blocks_lvm2[path].LogicalVolume;
     if (client.lvols[path] && client.vgroups[client.lvols[path].VolumeGroup])
         return client.lvols[path].VolumeGroup;
-};
+}
 
-utils.get_direct_parent_blocks = function(client, path) {
-    var parent = utils.get_parent(client, path);
+export function get_direct_parent_blocks(client, path) {
+    var parent = get_parent(client, path);
     if (!parent)
         return [ ];
     if (client.blocks[parent])
@@ -495,17 +505,17 @@ utils.get_direct_parent_blocks = function(client, path) {
     if (client.vgroups[parent])
         return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
     return [ ];
-};
+}
 
-utils.get_parent_blocks = function(client, path) {
-    var direct_parents = utils.get_direct_parent_blocks(client, path);
-    var direct_and_indirect_parents = utils.flatten(direct_parents.map(function (p) {
-        return utils.get_parent_blocks(client, p);
+export function get_parent_blocks(client, path) {
+    var direct_parents = get_direct_parent_blocks(client, path);
+    var direct_and_indirect_parents = flatten(direct_parents.map(function (p) {
+        return get_parent_blocks(client, p);
     }));
     return [ path ].concat(direct_and_indirect_parents);
-};
+}
 
-utils.is_netdev = function(client, path) {
+export function is_netdev(client, path) {
     var block = client.blocks[path];
     var drive = block && client.drives[block.Drive];
     if (drive && drive.Vendor == "LIO-ORG")
@@ -513,7 +523,7 @@ utils.is_netdev = function(client, path) {
     if (block && block.Major == 43) // NBD
         return true;
     return false;
-};
+}
 
 function get_children(client, path) {
     var children = [ ];
@@ -547,7 +557,7 @@ function get_children(client, path) {
     return children;
 }
 
-utils.get_active_usage = function get_active_usage(client, path) {
+export function get_active_usage(client, path) {
     function get_usage(path) {
         var block = client.blocks[path];
         var fsys = client.blocks_fsys[path];
@@ -556,7 +566,7 @@ utils.get_active_usage = function get_active_usage(client, path) {
         var vgroup = pvol && client.vgroups[pvol.VolumeGroup];
         var vdo = block && client.vdo_overlay.find_by_backing_block(block);
 
-        var usage = utils.flatten(get_children(client, path).map(get_usage));
+        var usage = flatten(get_children(client, path).map(get_usage));
 
         if (fsys && fsys.MountPoints.length > 0)
             usage.push({ usage: 'mounted',
@@ -610,15 +620,15 @@ utils.get_active_usage = function get_active_usage(client, path) {
 
         if (use.usage == 'mounted') {
             res.Teardown.Mounts.push({
-                Name: utils.block_name(use.block),
-                MountPoint: utils.decode_filename(use.fsys.MountPoints[0])
+                Name: block_name(use.block),
+                MountPoint: decode_filename(use.fsys.MountPoints[0])
             });
         } else if (use.usage == 'mdraid-member') {
             entry = {
-                Name: utils.block_name(use.block),
-                MDRaid: utils.mdraid_name(use.mdraid)
+                Name: block_name(use.block),
+                MDRaid: mdraid_name(use.mdraid)
             };
-            active_state = utils.array_find(use.mdraid.ActiveDevices, function (as) {
+            active_state = array_find(use.mdraid.ActiveDevices, function (as) {
                 return as[0] == use.block.path;
             });
             if (active_state && active_state[1] < 0)
@@ -627,7 +637,7 @@ utils.get_active_usage = function get_active_usage(client, path) {
                 res.Blocking.MDRaidMembers.push(entry);
         } else if (use.usage == 'pvol') {
             entry = {
-                Name: utils.block_name(use.block),
+                Name: block_name(use.block),
                 VGroup: use.vgroup.Name
             };
             if (use.pvol.FreeSize == use.pvol.Size) {
@@ -637,7 +647,7 @@ utils.get_active_usage = function get_active_usage(client, path) {
             }
         } else if (use.usage == 'vdo-backing') {
             entry = {
-                Name: utils.block_name(use.block),
+                Name: block_name(use.block),
                 VDO: use.vdo.name
             };
             res.Blocking.VDOs.push(entry);
@@ -661,9 +671,9 @@ utils.get_active_usage = function get_active_usage(client, path) {
         res.Blocking = null;
 
     return res;
-};
+}
 
-utils.teardown_active_usage = function teardown_active_usage(client, usage) {
+export function teardown_active_usage(client, usage) {
     // The code below is complicated by the fact that the last
     // physical volume of a volume group can not be removed
     // directly (even if it is completely empty).  We want to
@@ -720,24 +730,22 @@ utils.teardown_active_usage = function teardown_active_usage(client, usage) {
         mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
     ]);
-};
+}
 
-utils.get_config = function get_config(name, def) {
+export function get_config(name, def) {
     if (cockpit.manifests["storage"] && cockpit.manifests["storage"]["config"]) {
         var val = cockpit.manifests["storage"]["config"][name];
         return val !== undefined ? val : def;
     } else {
         return def;
     }
-};
+}
 
 // TODO - generalize this to arbitrary number of arguments (when needed)
-utils.fmt_to_array = function fmt_to_array(fmt, arg) {
+export function fmt_to_array(fmt, arg) {
     var index = fmt.indexOf("$0");
     if (index >= 0)
         return [ fmt.slice(0, index), arg, fmt.slice(index + 2) ];
     else
         return [ fmt ];
-};
-
-module.exports = utils;
+}

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageBlockNavLink, StorageOnOff } from "./storage-controls.jsx";

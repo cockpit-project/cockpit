@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import * as PK from 'packagekit.js';
 
-import utils from './utils';
+import * as utils from './utils';
 
 import * as python from "python.js";
 import inotify_py from "raw-loader!inotify.py";

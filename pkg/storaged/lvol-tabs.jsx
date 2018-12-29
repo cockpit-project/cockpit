@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 
 import React from "react";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";

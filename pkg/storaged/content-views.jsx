@@ -22,7 +22,7 @@ import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 
 import React from "react";
 

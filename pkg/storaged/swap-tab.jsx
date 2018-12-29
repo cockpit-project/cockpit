@@ -19,7 +19,7 @@
 
 import React from "react";
 import cockpit from "cockpit";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { FormatButton } from "./format-dialog.jsx";

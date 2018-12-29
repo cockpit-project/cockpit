@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import utils from "./utils";
+import * as utils from "./utils";
 import QUnit from "qunit-tests";
 
 QUnit.test("format_delay", function (assert) {
@@ -56,24 +56,21 @@ QUnit.test("compare_versions", function (assert) {
 });
 
 QUnit.test("mdraid_name_nohostnamed", function (assert) {
-    var orig_hostnamed = utils.hostnamed;
-    utils.hostnamed = { StaticHostname: undefined };
+    utils.mock_hostnamed({ StaticHostname: undefined });
     assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev", "remote host name is skipped when hostnamed is not available");
-    utils.hostnamed = orig_hostnamed;
+    utils.mock_hostnamed(null);
 });
 
 QUnit.test("mdraid_name_remote", function (assert) {
-    var orig_hostnamed = utils.hostnamed;
-    utils.hostnamed = { StaticHostname: "sweethome" };
+    utils.mock_hostnamed({ StaticHostname: "sweethome" });
     assert.strictEqual(utils.mdraid_name({ "Name": "somehost:mydev" }), "mydev (from somehost)", "expected name for remote host");
-    utils.hostnamed = orig_hostnamed;
+    utils.mock_hostnamed(null);
 });
 
 QUnit.test("mdraid_name_local", function (assert) {
-    var orig_hostnamed = utils.hostnamed;
-    utils.hostnamed = { StaticHostname: "sweethome" };
+    utils.mock_hostnamed({ StaticHostname: "sweethome" });
     assert.strictEqual(utils.mdraid_name({ "Name": "sweethome:mydev" }), "mydev", "expected name for local host");
-    utils.hostnamed = orig_hostnamed;
+    utils.mock_hostnamed(null);
 });
 
 /* Wait until the hostnamed dbus proxy is actually ready; otherwise the test

@@ -20,7 +20,7 @@
 import React from "react";
 
 import cockpit from "cockpit";
-import utils from "./utils.js";
+import * as utils from "./utils.js";
 
 import {
     dialog_open,

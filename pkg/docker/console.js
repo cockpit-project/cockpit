@@ -1,6 +1,6 @@
 import $ from "jquery";
 import cockpit from "cockpit";
-import * as docker from "./docker";
+import { docker } from "./docker";
 
 var box;
 

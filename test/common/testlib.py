@@ -880,6 +880,11 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662441
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="find" path="/proc.*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { mount } for .* comm="find" .*pcp_pmlogger_t.*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662866
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { execute } for .* comm="which" .*pcp_pmlogger_t.*')
 
         if self.image in ['rhel-8-0']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872

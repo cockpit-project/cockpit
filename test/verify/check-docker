@@ -609,7 +609,7 @@ CMD ["/bin/sh"]
         m.execute('docker run -dit --name crashing_container busybox /bin/sh')
 
         # crash in container
-        m.execute('docker exec crashing_container timeout -s ABRT -t 1 sleep 5 || true')
+        m.execute('docker exec crashing_container sh -c "sleep 5 & sleep 1; pkill -ABRT sleep"')
 
         # login and go to docker page (Containers)
         self.login_and_go("/docker")

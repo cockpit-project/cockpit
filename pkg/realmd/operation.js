@@ -26,6 +26,7 @@ function instance(realmd, mode, realm, button) {
     $.fn = $.prototype = jQuery.fn;
     jQuery.extend($, jQuery);
 
+    var error_message = null;
     var operation = null;
     var checking = null;
     var checked = null;
@@ -151,23 +152,22 @@ function instance(realmd, mode, realm, button) {
                         dfd.reject(error);
                     }
 
-                    var message;
                     if (arguments[0][1])
                         result = arguments[0][1];
                     path = result[0]; /* the first realm */
 
                     if (!path) {
                         if (name) {
-                            message = cockpit.format(_("Domain $0 could not be contacted"), name);
+                            error_message = cockpit.format(_("Domain $0 could not be contacted"), name);
                             $(".realms-op-address-error").show()
-                                    .attr('title', message);
+                                    .attr('title', error_message);
                         }
 
                         realm = null;
                         kerberos_membership = null;
                         kerberos = null;
 
-                        dfd.reject(new Error(message));
+                        dfd.reject(new Error(error_message));
                     } else {
                         kerberos_membership = realmd.proxy(KERBEROS_MEMBERSHIP, path);
                         $(kerberos_membership).on("changed", update);
@@ -236,7 +236,7 @@ function instance(realmd, mode, realm, button) {
             $(".realms-op-address-spinner").hide();
             $(".realms-op-address-error").show()
                     .attr('title', message);
-        } else {
+        } else if (!error_message) {
             $(".realms-op-address-error").hide();
         }
 

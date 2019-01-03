@@ -89,6 +89,10 @@ class TestAccounts(MachineCase):
         b.wait_popdown('accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
+        # Check home directory
+        self.assertIn(":/home/berta:", m.execute("getent passwd berta"))
+        self.assertEqual(m.execute("stat -c '%U' /home/berta").strip(), "berta")
+
         # Delete it externally
         m.execute("userdel berta")
         b.wait_not_in_text('#accounts-list', "Berta Bestimmt")

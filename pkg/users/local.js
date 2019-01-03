@@ -490,7 +490,7 @@ PageAccountsCreate.prototype = {
     create: function() {
         var tasks = [
             function create_user() {
-                var prog = ["/usr/sbin/useradd", "-s", "/bin/bash"];
+                var prog = ["/usr/sbin/useradd", "--create-home", "-s", "/bin/bash"];
                 if ($('#accounts-create-real-name').val()) {
                     prog.push('-c');
                     prog.push($('#accounts-create-real-name').val());

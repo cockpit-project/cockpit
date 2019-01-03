@@ -21,9 +21,12 @@ import os
 import re
 import subprocess
 import shutil
-
 from avocado.utils import process
-from testlib import Browser
+
+from . import parent
+from .common.testlib import Browser
+
+parent  # pyflakes
 
 class Cockpit():
 
@@ -53,7 +56,7 @@ class Cockpit():
         self.label = ("avocado")
         self.browser = Browser("localhost", self.label)
         self.journal_start = re.sub('.*cursor: ', '',
-                                    subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True))
+                                    subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True).decode("utf-8"))
 
     def tearDown(self):
         pass

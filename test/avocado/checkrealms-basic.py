@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -22,7 +22,7 @@ from avocado import job
 from avocado.utils import process
 
 from testlib import wait
-import cockpit
+from testlib_avocado import cockpit
 
 class checkrealms_basic(cockpit.Test):
     def test(self):

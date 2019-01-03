@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -22,16 +22,13 @@ import argparse
 import json
 import os
 import sys
+import subprocess
 
-# we use symlinked files
-# the directory structure breaks on the second run with .pyc files
-sys.dont_write_bytecode = True
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(1, CURRENT_DIR)
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from verify import parent
-parent # pyflakes
-
-import testvm
+from testlib_avocado.machine_core import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
 
@@ -64,7 +61,7 @@ def tap_output(machine):
     counter = 1
     for t in json_info['tests']:
         test_status = t['status']
-        test_name = os.path.basename(t['test'])
+        test_name = os.path.basename(t['id'])
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
         print("# ----------------------------------------------------------------------")
@@ -86,7 +83,7 @@ def tap_output(machine):
     else:
         print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
-def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
+def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
         run_avocado(machine,
@@ -97,15 +94,16 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
         If 'print_failed' is True, attempt to print a list of failed tests
     """
     return_state = True
-    cmd_parts = env + ["avocado run",
+    cmd_parts = ["python3 -m avocado run",
                  "--job-results-dir " + avocado_results_dir,
                  ' '.join([machine_test_dir + os.sep + x for x in avocado_tests]),
                  ">&2"
                  ]
 
+    # HACK override env for LC_ALL to utf, python3 avocado fails with LANG set to C
     try:
-        machine.execute(" ".join(cmd_parts), timeout=3600)
-    except:
+        machine.execute(script=" ".join(cmd_parts), timeout=3600, environment=env)
+    except subprocess.CalledProcessError:
         if print_failed:
             # try to get the list of failed tests
             try:
@@ -118,12 +116,12 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env=[]):
                 for t in failed_tests['tests']:
                     test_status = t['status']
                     if test_status != 'PASS':
-                        test_name = t['test']
+                        test_id, test_name = t['id'].split("-", 1)
                         if test_name.startswith(machine_test_dir + '/'):
                             test_name = test_name[(len(machine_test_dir) + 1):]
                         fail_reason = t['fail_reason']
                         print("[" + test_status + "] " + test_name + " (" + fail_reason + ")")
-            except:
+            except subprocess.CalledProcessError:
                 print("Unable to show avocado test result summary")
         return_state = False
     tap_output(machine)
@@ -145,7 +143,7 @@ def copy_avocado_logs(machine, title):
 
         # create a compressed archive on the remote host
         remote_archive = os.path.join(remote_archive_dir, "avocado_logs.tar.gz")
-        machine.execute("cd {0} && tar cfz {1} {2} --exclude='*.png'".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
+        machine.execute("cd {0} && tar czf {1} --exclude='*.png' {2}".format(remote_archive_dir, remote_archive, os.path.split(avocado_results_dir)[1]))
 
         # download and attach to our test
         local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.label, title))
@@ -162,15 +160,13 @@ done;
 
 def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     use_selenium = (browser != 'none')
-    image = os.environ.get("TEST_OS", "fedora-27")
+    image = os.environ.get("TEST_OS", "fedora-29")
     network = testvm.VirtNetwork()
     machine = testvm.VirtMachine(verbose=verbose, networking=network.host(), image=image)
     selenium = windows = None
 
     if use_selenium:
-        if "explorer" in browser:
-            windows = testvm.VirtMachine(image="windows-8", verbose=verbose, networking=network.host())
-        elif 'edge' in browser:
+        if 'edge' in browser:
             windows = testvm.VirtMachine(image='windows-10', verbose=verbose, networking=network.host())
         else:
             selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
@@ -213,7 +209,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
 
         # Now actually run the tests
         selenium_address = "10.111.112.10" if selenium else ""
-        env = [ "HUB=" + selenium_address, "GUEST=10.111.113.1", "BROWSER=" + browser ]
+        env = {"HUB": selenium_address, "GUEST": "10.111.113.1", "BROWSER": browser}
         success = run_avocado_tests(machine, avocado_tests, env=env)
 
         if not success:
@@ -240,7 +236,7 @@ def main():
     parser.add_argument('-v', '--verbose', dest="verbosity", action='store_true',
                         help='Verbose output')
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'explorer', 'edge'],
+    parser.add_argument("-b", "--browser", choices=['none', 'firefox', 'chrome', 'edge'],
                     default='none',
                     help="selenium browser choice - in case of none, selenium isn't started")
     parser.add_argument("-s", "--selenium-tests", dest='selenium_tests', action='store_true',
@@ -261,7 +257,9 @@ def main():
         "selenium-navigate.py",
         "selenium-storage.py",
         "selenium-docker.py",
-        "selenium-sosreport.py"
+        "selenium-sosreport.py",
+        "selenium-dashboard.py",
+        "selenium-network.py"
     ]
 
     if opts.regular_tests:

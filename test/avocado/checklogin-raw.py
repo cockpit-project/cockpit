@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
@@ -27,7 +27,7 @@ from avocado import Test
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-import cockpit
+from testlib_avocado import cockpit
 
 
 machine = "localhost"
@@ -39,13 +39,13 @@ class checklogin_raw(Test):
     """
 
     def curl_auth(self, url, userpass):
-        header = "Authorization: Basic " + base64.b64encode(userpass)
+        header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
                                         '--header', header,
                                         'http://%s:9090%s' % (machine, url)])
 
     def curl_auth_code(self, url, userpass):
-        lines = self.curl_auth(url, userpass).splitlines()
+        lines = self.curl_auth(url, userpass).decode("utf-8").splitlines()
         assert len(lines) > 0
         tokens = lines[0].split(' ', 2)
         assert len(tokens) == 3

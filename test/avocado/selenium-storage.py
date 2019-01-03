@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
 import os
@@ -7,9 +7,8 @@ machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from avocado import main
-import libdisc
-from seleniumlib import *
+from testlib_avocado import libdisc
+from testlib_avocado.seleniumlib import SeleniumTest, clickable
 
 class StorageTestSuite(SeleniumTest):
     """
@@ -20,7 +19,6 @@ class StorageTestSuite(SeleniumTest):
         other_discname = other_disc.adddisc("d1")
         other_shortname = os.path.basename(other_discname)
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_frame("storage")
         self.wait_id("drives")
@@ -32,7 +30,3 @@ class StorageTestSuite(SeleniumTest):
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_xpath("//*[@data-testkey='%s']" % other_shortname)
         self.mainframe()
-        self.error=False
-
-if __name__ == '__main__':
-    main()

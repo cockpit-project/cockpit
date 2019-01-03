@@ -45,19 +45,6 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Configure repositories.
 
     if [ "$IMAGE" = "rhel-7-6" ]; then
-cat <<EOF > /etc/yum.repos.d/nightly.repo
-[RHEL-7.6-NIGHTLY]
-name=rhel-base-nightly
-baseurl=http://download.devel.redhat.com/nightly/updates/RHEL-7.6/latest-RHEL-7.6/compose/Server/x86_64/os/
-enabled=1
-gpgcheck=0
-
-[EXTRAS-7.6-NIGHTLY]
-name=rhel-extras-nightly
-baseurl=http://download.eng.bos.redhat.com/nightly/EXTRAS-RHEL-7.6/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
-enabled=1
-gpgcheck=0
-EOF
         # if disabling the repos doesn't work, do without
         yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
         yum-config-manager --enable rhel-7-server-optional-rpms

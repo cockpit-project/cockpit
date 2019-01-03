@@ -276,11 +276,11 @@ LIBVIRT_PROVIDER = {
         return dispatch => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
                 .then(() => {
                     logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName);
-                    return dispatch(attachDisk({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }));
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmName, permanent, hotplug }));
                 });
     },
 
-    ATTACH_DISK({ connectionName, poolName, volumeName, target, vmName, permanent, hotplug }) {
+    ATTACH_DISK({ connectionName, poolName, volumeName, format, target, vmName, permanent, hotplug }) {
         logDebug(`${this.name}.ATTACH_DISK("`, connectionName, '", "', poolName, '", "', volumeName, '", "', target, '", "', vmName, '"');
         const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
         const volpathCommand = `virsh ${connection} vol-path --pool ${poolName} ${volumeName}`;
@@ -289,7 +289,7 @@ LIBVIRT_PROVIDER = {
                 .then((volPath) => {
                     let scope = permanent ? '--config' : '';
                     scope = scope + (hotplug ? ' --live' : '');
-                    const command = `virsh ${connection} attach-disk ${vmName} ${volPath.trim()} ${target} ${scope}`;
+                    const command = `virsh ${connection} attach-disk ${vmName} --driver qemu --subdriver ${format} ${volPath.trim()} ${target} ${scope}`;
 
                     logDebug('ATTACH_DISK command: ', command);
                     return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});

@@ -66,8 +66,8 @@ import {
  *  The naming convention for action creator names is: <verb><Noun>
  *  with the present tense.
  */
-export function attachDisk({ connectionName, poolName, volumeName, target, permanent, hotplug, vmName, vmId }) {
-    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, target, permanent, hotplug, vmName, vmId });
+export function attachDisk({ connectionName, poolName, volumeName, format, target, permanent, hotplug, vmName, vmId }) {
+    return virt(ATTACH_DISK, { connectionName, poolName, volumeName, format, target, permanent, hotplug, vmName, vmId });
 }
 
 export function changeNetworkSettings({ vm, macAddress, networkType, networkSource, networkModel }) {

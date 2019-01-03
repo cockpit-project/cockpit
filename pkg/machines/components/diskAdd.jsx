@@ -372,6 +372,7 @@ class AddDiskModalBody extends React.Component {
         return dispatch(attachDisk({ connectionName: vm.connectionName,
                                      poolName: this.state.storagePoolName,
                                      volumeName: this.state.existingVolumeName,
+                                     format: this.state.diskFileFormat,
                                      target: this.state.target,
                                      permanent: this.state.permanent,
                                      hotplug: this.state.hotplug,

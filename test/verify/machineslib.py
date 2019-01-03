@@ -611,6 +611,12 @@ class TestMachines(MachineCase):
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "mydiskofpooltwo_permanent")
 
+        detect_format_cmd = "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/devices/disk[@type=\"{0}\"]/driver[@type=\"qcow2\"]' -"
+        if self.provider == "libvirt-dbus":
+            m.execute(detect_format_cmd.format("volume"))
+        else:
+            m.execute(detect_format_cmd.format("file"))
+
         # FIXME: This causes either "unable to execute QEMU command 'device_add': Failed to get "write" lock"
         # or adding the _temporary volume results in showing that the _permanent one actually gets added
         # See https://github.com/cockpit-project/cockpit/issues/9945

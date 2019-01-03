@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
 import os
@@ -7,8 +7,7 @@ machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from avocado import main
-from seleniumlib import *
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, invisible
 
 class DockerTestSuite(SeleniumTest):
     """
@@ -16,7 +15,6 @@ class DockerTestSuite(SeleniumTest):
     """
     def test10ContainerTab(self):
         self.login()
-        self.wait_id("host-apps")
         self.click(self.wait_link('Containers', cond=clickable))
         self.wait_frame("docker")
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
@@ -40,7 +38,3 @@ class DockerTestSuite(SeleniumTest):
         self.wait_id('containers-search-image-dialog', cond=invisible)
         self.wait_text('cockpit/ws')
         self.mainframe()
-        self.error=False
-
-if __name__ == '__main__':
-    main()

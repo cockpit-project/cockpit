@@ -1,9 +1,8 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2013 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -18,25 +17,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-from avocado import main
-from avocado import Test
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from testlib_avocado import cockpit
+
+class SeleniumFailure(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 
-class checkexample_foo(Test):
-    """
-    Example test for cockpit
-    """
+class SeleniumDriverFailure(SeleniumFailure):
+    pass
 
-    def test(self):
-        c = cockpit.Cockpit()
-        b = c.browser
 
-        b.open("/system")
-        b.wait_visible("#login")
+class SeleniumScreenshotFailure(SeleniumFailure):
+    pass
 
-if __name__ == "__main__":
-    main()
+
+class SeleniumElementFailure(SeleniumFailure):
+    pass
+
+class SeleniumJSFailure(SeleniumFailure):
+    pass

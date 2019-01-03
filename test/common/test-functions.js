@@ -145,7 +145,7 @@ function ph_set_checked (sel, val)
 function ph_is_visible (sel)
 {
     var el = ph_find(sel);
-    return (el.offsetWidth > 0 || el.offsetHeight > 0) && el.style.visibility != "hidden";
+    return (el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none");
 }
 
 function ph_is_present(sel)

@@ -235,7 +235,8 @@ def _install_fmf():
     try:
         import fmf
     except ImportError:
-        subprocess.check_output(["pip3", "install", "fmf"])
+        print("installing fmf package")
+        print(subprocess.getstatusoutput("pip3 install fmf"))
         import fmf
     globals()["fmf"] = fmf
 

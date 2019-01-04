@@ -26,7 +26,7 @@ accessible via SSH.
 ### Development
 
  * [Making changes to Cockpit](HACKING.md)
- * [Adding a new part of Cockpit](https://github.com/cockpit-project/cockpit/wiki/Hackfest)
+ * [How to contribute, developer documentation](https://github.com/cockpit-project/cockpit/wiki/Contributing)
  * IRC Channel: #cockpit on FreeNode
  * [Mailing List](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/)
  * [Guiding Principles](https://cockpit-project.org/ideals.html)

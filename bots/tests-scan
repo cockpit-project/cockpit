@@ -20,7 +20,7 @@
 
 BASELINE_PRIORITY = 10
 
-BRANCHES = [ 'master', 'rhel-7.6', 'rhel-8.0' ]
+BRANCHES = [ 'master', 'rhel-7.6', 'rhel-7.7', 'rhel-8.0' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora': BRANCHES,
@@ -42,7 +42,8 @@ DEFAULT_VERIFY = {
 
 # Non-public images used for testing
 REDHAT_VERIFY = {
-    "verify/rhel-7-6": [ 'rhel-7.6' ],
+    # FIXME: We don't have a rhel-7-7 image yet, so test rhel-7.7 branch on 7.6 for now
+    "verify/rhel-7-6": [ 'rhel-7.6', 'rhel-7.7' ],
     "verify/rhel-7-6-distropkg": [ 'master' ],
     "verify/rhel-8-0": [ 'master', 'rhel-8.0' ],
     "verify/rhel-atomic": [ 'master' ],

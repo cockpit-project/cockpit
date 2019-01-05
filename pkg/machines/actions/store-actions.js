@@ -26,6 +26,7 @@ import {
     SET_HYPERVISOR_MAX_VCPU,
     SET_LOGGED_IN_USER,
     SET_PROVIDER,
+    UNDEFINE_STORAGE_POOL,
     UNDEFINE_VM,
     UPDATE_ADD_NETWORK,
     UPDATE_ADD_STORAGE_POOL,
@@ -132,6 +133,16 @@ export function setProvider(provider) {
     return {
         type: SET_PROVIDER,
         provider,
+    };
+}
+
+export function undefineStoragePool({connectionName, id}) {
+    return {
+        type: UNDEFINE_STORAGE_POOL,
+        payload: {
+            connectionName,
+            id,
+        }
     };
 }
 

@@ -28,6 +28,7 @@ import {
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
     SET_LOGGED_IN_USER,
+    UNDEFINE_STORAGE_POOL,
     UNDEFINE_VM,
     UPDATE_ADD_NETWORK,
     UPDATE_ADD_VM,
@@ -248,6 +249,12 @@ function storagePools(state, action) {
     }
 
     switch (action.type) {
+    case UNDEFINE_STORAGE_POOL: {
+        const { connectionName, id } = action.payload;
+
+        return state
+                .filter(storagePool => (connectionName !== storagePool.connectionName || id != storagePool.id));
+    }
     case UPDATE_ADD_STORAGE_POOL: {
         const { storagePool } = action.payload;
         const connectionName = storagePool.connectionName;

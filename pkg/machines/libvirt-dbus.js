@@ -39,6 +39,7 @@ import {
 
 import {
     deleteUnlistedVMs,
+    undefineStoragePool,
     undefineVm,
     updateOrAddNetwork,
     updateOrAddVm,
@@ -115,6 +116,7 @@ const Enum = {
     VIR_CONNECT_LIST_STORAGE_POOLS_ACTIVE: 2,
     VIR_CONNECT_LIST_STORAGE_POOLS_DIR: 64,
     VIR_STORAGE_POOL_CREATE_NORMAL: 0,
+    VIR_STORAGE_POOL_DELETE_NORMAL: 0,
     // Storage Pools Event Lifecycle Type
     VIR_STORAGE_POOL_EVENT_DEFINED: 0,
     VIR_STORAGE_POOL_EVENT_UNDEFINED: 1,
@@ -1041,6 +1043,8 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
                 dispatch(getStoragePool({connectionName, id:objPath}));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_UNDEFINED:
+                dispatch(undefineStoragePool({connectionName, id:objPath}));
+                break;
             case Enum.VIR_STORAGE_POOL_EVENT_DELETED:
             default:
                 logDebug(`handle StoragePoolEvent on ${connectionName}: ignoring event ${signal}`);
@@ -1142,6 +1146,15 @@ export function storagePoolActivate(connectionName, objPath) {
 
 export function storagePoolDeactivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Destroy', [], TIMEOUT);
+}
+
+export function storagePoolUndefine(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Undefine', [], TIMEOUT);
+}
+
+export function storageVolumeDelete(connectionName, path) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [path], TIMEOUT)
+            .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT));
 }
 
 export default LIBVIRT_DBUS_PROVIDER;

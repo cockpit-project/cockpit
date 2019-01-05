@@ -20,17 +20,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storagePoolId } from '../../helpers.js';
+import { WarningAlert } from '../notification/inlineNotification.jsx';
 import cockpit from 'cockpit';
 
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
 
-export const StoragePoolOverviewTab = ({ storagePool }) => {
+export const StoragePoolOverviewTab = ({ storagePool, actionError, actionErrorDetail, onActionErrorDismiss }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
 
     return (
         <div className='ct-form-layout'>
+            { actionError && <WarningAlert text={actionError} textId={`${idPrefix}-error`} detail={actionErrorDetail} onDismiss={onActionErrorDismiss} /> }
+
             { storagePool.path && <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-path`}> {_("Path")} </label>
                 <div id={`${idPrefix}-path`}> {storagePool.path} </div>
@@ -49,4 +52,7 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
 };
 StoragePoolOverviewTab.propTypes = {
     storagePool: PropTypes.object.isRequired,
+    actionError: PropTypes.string,
+    actionErrorDetail: PropTypes.string,
+    onActionErrorDismiss: PropTypes.func,
 };

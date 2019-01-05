@@ -235,6 +235,40 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
 
+        # Backup pool XML to redefine right after
+        m.execute("virsh pool-dumpxml myPoolTwo > /tmp/myPoolTwo.xml")
+
+        b.click("#deactivate-pool-myPoolTwo-{0}".format(connectionName))
+
+        # Delete an inactive Pool. It's volumes won't be deleted
+        b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_present("div.modal-dialog")
+        b.wait_in_text("div.modal-dialog div.modal-body div.ct-form-layout", "Its content will not be deleted.")
+        b.click('div.modal-footer button:contains("Delete")')
+        b.wait_not_present("div.modal-dialog")
+        b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
+        self.assertNotEqual(m.execute("ls -A /mnt/vm_two"), "")
+
+        # Redefine the deleted Pool
+        m.execute("virsh pool-define /tmp/myPoolTwo.xml")
+        b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName))
+
+        # Activate the Pool
+        b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}] th".format(connectionName)) # click on the row header
+        b.click("#activate-pool-myPoolTwo-{0}".format(connectionName))
+
+        # Delete and active Pool and also its volumes
+        b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
+        b.wait_present("div.modal-dialog")
+        b.wait_present("input#storage-pool-delete-volumes")
+        b.set_checked("input#storage-pool-delete-volumes", True)
+        b.click('div.modal-footer button:contains("Delete")')
+        b.wait_not_present("div.modal-dialog")
+        b.wait_not_present("#pool-myPoolTwo-{0}-storage-volumes-list".format(connectionName))
+        self.assertEqual(m.execute("ls -A /mnt/vm_two"), "")
+
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine

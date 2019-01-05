@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, UtilizationBar, Tooltip } from 'patternfly-react';
+import { Button, Tooltip, UtilizationBar } from 'patternfly-react';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -29,6 +29,7 @@ import {
 } from '../../helpers.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
+import { StoragePoolDelete } from './storagePoolDelete.jsx';
 import { storagePoolActivate, storagePoolDeactivate } from '../../libvirt-dbus.js';
 
 import cockpit from 'cockpit';
@@ -165,7 +166,11 @@ class StoragePoolActions extends React.Component {
                     {_("Activate")}
                 </Button>
                 }
+                <StoragePoolDelete storagePool={storagePool} />
             </React.Fragment>
         );
     }
 }
+StoragePool.propTypes = {
+    storagePool: PropTypes.object.isRequired,
+};

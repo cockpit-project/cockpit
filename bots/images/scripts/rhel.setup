@@ -155,6 +155,7 @@ kmod-kvdo \
 dracut-fips \
 clevis-luks \
 tang \
+boom-boot \
 "
 
 if [ "$IMAGE" = "centos-7" ]; then
@@ -185,7 +186,10 @@ if [ "$IMAGE" = "rhel-8-0" ]; then
     TEST_PACKAGES="${TEST_PACKAGES} nodejs"
 fi
 
-COCKPIT_DEPS="$COCKPIT_DEPS"
+# in RHEL/CentOS 7, boom is shipped in a different package
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "${IMAGE#centos-7}" != "$IMAGE" ] ; then
+    TEST_PACKAGES="${TEST_PACKAGES/boom-boot/lvm2-python-boom}"
+fi
 
 pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES"
 yum install -y $pkgs

@@ -160,7 +160,8 @@ function instance(realmd, mode, realm, button) {
                         if (name) {
                             error_message = cockpit.format(_("Domain $0 could not be contacted"), name);
                             $(".realms-op-address-error").show()
-                                    .attr('title', error_message);
+                                    .attr('title', error_message)
+                                    .tooltip();
                         }
 
                         realm = null;
@@ -235,7 +236,8 @@ function instance(realmd, mode, realm, button) {
             message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
             $(".realms-op-address-spinner").hide();
             $(".realms-op-address-error").show()
-                    .attr('title', message);
+                    .attr('title', message)
+                    .tooltip();
         } else if (!error_message) {
             $(".realms-op-address-error").hide();
         }

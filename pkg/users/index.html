@@ -164,62 +164,36 @@
           <h4 class="modal-title" translatable="yes">Create New Account</h4>
         </div>
         <div class="modal-body">
-          <table class="form-table-ct">
-            <tr>
-              <td><label class="control-label" for="accounts-create-real-name"
-                         translatable="yes">Full Name</label></td>
-              <td><input class="form-control" type="text"
-                         id="accounts-create-real-name" value=""/></td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="accounts-create-user-name"
-                         translatable="yes">User Name</label></td>
-              <td><input class="form-control" type="text"
-                         id="accounts-create-user-name" value=""/></td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="accounts-create-pw1"
-                         translatable="yes">Password</label></td>
-              <td>
-                <div class="check-passwords">
-                  <input class="form-control" type="password"
-                         id="accounts-create-pw1" value=""/>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="top">
-                <label class="control-label" for="accounts-create-pw2"
-                       translatable="yes">Confirm</label>
-              </td>
-              <td>
-                <div class="check-passwords dialog-wrapper">
-                  <input class="form-control" type="password"
-                         id="accounts-create-pw2" value=""/>
-                  <div id="accounts-create-password-meter" class="progress password-strength-meter">
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                  </div>
-                  <div>
-                    <span id="accounts-create-password-meter-message" class="help-block"></span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" translatable="yes">Access</label></td>
-              <td>
-                <div>
-                  <label>
-                    <input type="checkbox" id="accounts-create-locked">
-                    <span translatable="yes">Lock Account</span>
-                  </label>
-                </div>
-              </td>
-            </tr>
-          </table>
+          <form class="ct-form-layout">
+            <label class="control-label" for="accounts-create-real-name" translatable="yes">Full Name</label>
+            <input class="form-control" type="text" id="accounts-create-real-name" value=""/>
+
+            <label class="control-label" for="accounts-create-user-name" translatable="yes">User Name</label>
+            <input class="form-control" type="text" id="accounts-create-user-name" value=""/>
+
+            <label class="control-label" for="accounts-create-pw1" translatable="yes">Password</label>
+            <input class="form-control check-passwords" type="password" id="accounts-create-pw1" value=""/>
+
+            <label class="control-label" for="accounts-create-pw2" translatable="yes">Confirm</label>
+            <div class="check-passwords dialog-wrapper">
+              <input class="form-control" type="password" id="accounts-create-pw2" value=""/>
+              <div id="accounts-create-password-meter" class="progress password-strength-meter">
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+              </div>
+              <div>
+                <span id="accounts-create-password-meter-message" class="help-block"></span>
+              </div>
+            </div>
+
+            <label class="control-label" translatable="yes">Access</label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="accounts-create-locked" />
+              <span translatable="yes">Lock Account</span>
+            </label>
+          </form>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" data-dismiss="modal" translate>Cancel</button>
@@ -238,52 +212,27 @@
           <h4 class="modal-title" translatable="yes">Set Password</h4>
         </div>
         <div class="modal-body">
-          <table class="form-table-ct">
-            <tr>
-              <td><label class="control-label" for="account-set-password-old"
-                         translatable="yes">Old Password</label></td>
-              <td>
-                <div class="check-passwords">
-                  <input class="form-control" type="password"
-                         id="account-set-password-old"/>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td><label class="control-label" for="account-set-password-pw1"
-                         translatable="yes">New Password</label></td>
-              <td>
-                <div class="check-passwords">
-                  <input class="form-control" type="password"
-                         id="account-set-password-pw1"/>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="top">
-                <label class="control-label" for="account-set-password-pw2"
-                       translatable="yes">Confirm New Password</label>
-              </td>
-              <td>
-                <div class="check-passwords dialog-wrapper">
-                  <input class="form-control" type="password"
-                         id="account-set-password-pw2" value=""/>
-                  <div id="account-set-password-meter" class="progress password-strength-meter">
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                    <div class="progress-bar"></div>
-                  </div>
-                  <div>
-                    <span id="account-set-password-meter-message" class="help-block" hidden></span>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-            </tr>
-          </table>
+          <form class="ct-form-layout">
+            <label class="control-label" for="account-set-password-old" translatable="yes">Old Password</label>
+            <input class="form-control check-passwords" type="password" id="account-set-password-old"/>
+
+            <label class="control-label" for="account-set-password-pw1" translatable="yes">New Password</label>
+            <input class="form-control check-passwords" type="password" id="account-set-password-pw1"/>
+
+            <label class="control-label" for="account-set-password-pw2" translatable="yes">Confirm New Password</label>
+            <div class="check-passwords dialog-wrapper">
+              <input class="form-control" type="password" id="account-set-password-pw2" value=""/>
+              <div id="account-set-password-meter" class="progress password-strength-meter">
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+                <div class="progress-bar"></div>
+              </div>
+              <div>
+                <span id="account-set-password-meter-message" class="help-block" hidden></span>
+              </div>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" translate data-dismiss="modal">Cancel</button>

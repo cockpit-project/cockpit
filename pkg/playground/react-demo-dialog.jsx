@@ -20,6 +20,8 @@
 import React from "react";
 import * as Select from "cockpit-components-select.jsx";
 
+import "form-layout.less";
+
 /* Sample dialog body
  */
 export class PatternDialogBody extends React.Component {
@@ -30,72 +32,36 @@ export class PatternDialogBody extends React.Component {
     render() {
         return (
             <div className="modal-body">
-                <table className="form-table-ct">
-                    <tbody>
-                        <tr>
-                            <td className="top">
-                                <label className="control-label" htmlFor="control-1">
-                                    Label
-                                </label>
-                            </td>
-                            <td>
-                                <input id="control-1" className="form-control" type="text" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="top">
-                                <label className="control-label">
-                                    Select
-                                </label>
-                            </td>
-                            <td>
-                                <Select.Select onChange={this.selectChanged} id="primary-select">
-                                    <Select.SelectEntry data='one'>One</Select.SelectEntry>
-                                    <Select.SelectEntry data='two'>Two</Select.SelectEntry>
-                                    <Select.SelectEntry data='three'>Three</Select.SelectEntry>
-                                    <Select.SelectEntry data='four' />
-                                </Select.Select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="top">
-                                <label className="control-label">
-                                    Preselected
-                                </label>
-                            </td>
-                            <td>
-                                <Select.Select initial="two">
-                                    <Select.SelectEntry data="one">One</Select.SelectEntry>
-                                    <Select.SelectEntry data="two">Two</Select.SelectEntry>
-                                    <Select.SelectEntry data="three">Three</Select.SelectEntry>
-                                </Select.Select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="top">
-                                <label className="control-label">
-                                    Empty Select
-                                </label>
-                            </td>
-                            <td>
-                                <Select.Select />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="top">
-                                <label className="control-label">
-                                    Nested dialog
-                                </label>
-                            </td>
-                            <td>
-                                <button id="open-nested" onClick={ this.props.clickNested }>
-                                    Try to nest dialog
-                                </button>
-                                <span>Doesn't open a dialog, only shows a warning in the console.</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <form className="ct-form-layout">
+                    <label className="control-label" htmlFor="control-1">Label</label>
+                    <input id="control-1" className="form-control" type="text" />
+
+                    <label className="control-label">Select</label>
+                    <Select.Select onChange={this.selectChanged} id="primary-select">
+                        <Select.SelectEntry data='one'>One</Select.SelectEntry>
+                        <Select.SelectEntry data='two'>Two</Select.SelectEntry>
+                        <Select.SelectEntry data='three'>Three</Select.SelectEntry>
+                        <Select.SelectEntry data='four' />
+                    </Select.Select>
+
+                    <label className="control-label">Preselected</label>
+                    <Select.Select initial="two">
+                        <Select.SelectEntry data="one">One</Select.SelectEntry>
+                        <Select.SelectEntry data="two">Two</Select.SelectEntry>
+                        <Select.SelectEntry data="three">Three</Select.SelectEntry>
+                    </Select.Select>
+
+                    <label className="control-label">Empty Select</label>
+                    <Select.Select />
+
+                    <label className="control-label">Nested dialog</label>
+                    <div role="group">
+                        <button id="open-nested" onClick={ this.props.clickNested }>
+                            Try to nest dialog
+                        </button>
+                        <span>Doesn't open a dialog, only shows a warning in the console.</span>
+                    </div>
+                </form>
             </div>
         );
     }

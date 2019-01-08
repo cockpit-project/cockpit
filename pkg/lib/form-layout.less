@@ -80,7 +80,12 @@
     padding: 0;
   }
 
-  label {
+  > label,
+  > [role="group"] > label,
+  .checkbox > label,
+  .radio > label,
+  .checkbox-inline,
+  .radio-inline {
     // Make labels are the same height as controls,
     // to ensure vertical alignment happens properly
     line-height: @widget-height;

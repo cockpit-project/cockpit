@@ -27,6 +27,7 @@ import * as authorized_keys from './authorized-keys.js';
 
 import 'patterns';
 import 'bootstrap-datepicker/dist/js/bootstrap-datepicker';
+import 'form-layout.less';
 
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;
@@ -1350,13 +1351,15 @@ PageAccountSetPassword.prototype = {
     show: function() {
         if (this.user.name !== PageAccountSetPassword.user_name) {
             $('#account-set-password-old')
-                    .parents('tr')
+                    .toggle(false);
+            $('#account-set-password-old').prev()
                     .toggle(false);
             $('#account-set-password-pw1')
                     .focus();
         } else {
             $('#account-set-password-old')
-                    .parents('tr')
+                    .toggle(true);
+            $('#account-set-password-old').prev()
                     .toggle(true);
             $('#account-set-password-old')
                     .focus();

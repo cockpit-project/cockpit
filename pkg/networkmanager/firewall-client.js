@@ -34,7 +34,7 @@ const firewalld_service = service.proxy('firewalld');
 var firewalld_dbus = null;
 
 function initFirewalldDbus() {
-    firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1');
+    firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
         firewall.enabled = !!owner;

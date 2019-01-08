@@ -26,6 +26,8 @@ import { OverlayTrigger, Tooltip } from "patternfly-react";
 import * as Select from "cockpit-components-select.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
+import "form-layout.less";
+
 const _ = cockpit.gettext;
 
 /* kdump: dump target dialog body
@@ -80,39 +82,27 @@ class KdumpTargetBody extends React.Component {
 
         if (this.state.storeDest == "local") {
             detailRows = (
-                <tr key="directory">
-                    <td className="top">
-                        <label className="control-label">
-                            {_("Directory")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id="kdump-settings-local-directory" className="form-control" type="text"
-                               placeholder="/var/crash" value={directory}
-                               data-stored={directory}
-                               onChange={this.changeValue.bind(this, "path")} />
-                    </td>
-                </tr>
+                <React.Fragment>
+                    <label className="control-label" htmlFor="kdump-settings-local-directory">{_("Directory")}</label>
+                    <input id="kdump-settings-local-directory" key="directory" className="form-control" type="text"
+                           placeholder="/var/crash" value={directory}
+                           data-stored={directory}
+                           onChange={this.changeValue.bind(this, "path")} />
+                </React.Fragment>
             );
         } else if (this.state.storeDest == "nfs") {
             var nfs = "";
             if (this.props.settings && "nfs" in this.props.settings)
                 nfs = this.props.settings["nfs"].value;
             detailRows = (
-                <tr key="mount">
-                    <td className="top">
-                        <label className="control-label">
-                            {_("Mount")}
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input id="kdump-settings-nfs-mount" className="form-control" type="text"
-                                   placeholder="penguin.example.com:/export/cores" value={nfs}
-                                   onChange={this.changeValue.bind(this, "nfs")} />
-                        </label>
-                    </td>
-                </tr>
+                <React.Fragment>
+                    <label className="control-label" htmlFor="kdump-settings-nfs-mount">{_("Mount")}</label>
+                    <label>
+                        <input id="kdump-settings-nfs-mount" key="mount" className="form-control" type="text"
+                               placeholder="penguin.example.com:/export/cores" value={nfs}
+                               onChange={this.changeValue.bind(this, "nfs")} />
+                    </label>
+                </React.Fragment>
             );
         } else if (this.state.storeDest == "ssh") {
             var ssh = "";
@@ -121,45 +111,25 @@ class KdumpTargetBody extends React.Component {
             var sshkey = "";
             if (this.props.settings && "sshkey" in this.props.settings)
                 sshkey = this.props.settings["sshkey"].value;
-            detailRows = [
-                (<tr key="server">
-                    <td className="top">
-                        <label className="control-label">
-                            {_("Server")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id="kdump-settings-ssh-server" className="form-control" type="text"
-                               placeholder="user@server.com" value={ssh}
-                               onChange={this.changeValue.bind(this, "ssh")} />
-                    </td>
-                </tr>),
-                (<tr key="ssh-key">
-                    <td className="top">
-                        <label className="control-label">
-                            {_("ssh key")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id="kdump-settings-ssh-key" className="form-control" type="text"
-                               placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                               onChange={this.changeValue.bind(this, "sshkey")} />
-                    </td>
-                </tr>),
-                (<tr key="directory">
-                    <td className="top">
-                        <label className="control-label">
-                            {_("Directory")}
-                        </label>
-                    </td>
-                    <td>
-                        <input id="kdump-settings-local-directory" className="form-control" type="text"
-                               placeholder="/var/crash" value={directory}
-                               data-stored={directory}
-                               onChange={this.changeValue.bind(this, "path")} />
-                    </td>
-                </tr>),
-            ];
+            detailRows = (
+                <React.Fragment>
+                    <label className="control-label" htmlFor="kdump-settings-ssh-server">{_("Server")}</label>
+                    <input id="kdump-settings-ssh-server" key="server" className="form-control" type="text"
+                           placeholder="user@server.com" value={ssh}
+                           onChange={this.changeValue.bind(this, "ssh")} />
+
+                    <label className="control-label" htmlFor="kdump-settings-ssh-key">{_("ssh key")}</label>
+                    <input id="kdump-settings-ssh-key" key="ssh" className="form-control" type="text"
+                           placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
+                           onChange={this.changeValue.bind(this, "sshkey")} />
+
+                    <label className="control-label" htmlFor="kdump-settings-local-directory">{_("Directory")}</label>
+                    <input id="kdump-settings-local-directory" key="directory" className="form-control" type="text"
+                           placeholder="/var/crash" value={directory}
+                           data-stored={directory}
+                           onChange={this.changeValue.bind(this, "path")} />
+                </React.Fragment>
+            );
         }
 
         var targetDescription = {
@@ -171,43 +141,27 @@ class KdumpTargetBody extends React.Component {
         var storageDest = this.state.storeDest;
         return (
             <div className="modal-body">
-                <table className="form-table-ct">
-                    <tbody>
-                        <tr key="location">
-                            <td className="top">
-                                <label className="control-label" htmlFor="kdump-settings-location">
-                                    {_("Location")}
-                                </label>
-                            </td>
-                            <td>
-                                <Select.Select key='location' onChange={this.changeLocation}
-                                               id="kdump-settings-location" initial={storageDest}>
-                                    <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
-                                    <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
-                                    <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
-                                </Select.Select>
-                            </td>
-                        </tr>
-                        {detailRows}
-                        <tr key="compression">
-                            <td className="top">
-                                <label className="control-label">
-                                    {_("Compression")}
-                                </label>
-                            </td>
-                            <td>
-                                <div className="checkbox">
-                                    <label>
-                                        <input id="kdump-settings-compression" type="checkbox" checked={this.props.compressionEnabled}
-                                               onChange={this.handleCompressionClick.bind(this)}
-                                               enabled={compressionPossible.toString()} />
-                                        {_("Compress crash dumps to save space")}
-                                    </label>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <form className="ct-form-layout">
+                    <label className="control-label" htmlFor="kdump-settings-location">{_("Location")}</label>
+                    <Select.Select key="location" onChange={this.changeLocation}
+                                   id="kdump-settings-location" initial={storageDest}>
+                        <Select.SelectEntry data='local' key='local'>{targetDescription.local}</Select.SelectEntry>
+                        <Select.SelectEntry data='ssh' key='ssh'>{targetDescription.ssh}</Select.SelectEntry>
+                        <Select.SelectEntry data='nfs' key='nfs'>{targetDescription.nfs}</Select.SelectEntry>
+                    </Select.Select>
+
+                    {detailRows}
+                    <hr />
+
+                    <label className="control-label">{_("Compression")}</label>
+                    <label className="checkbox-inline" key="compression">
+                        <input id="kdump-settings-compression" type="checkbox"
+                               checked={this.props.compressionEnabled}
+                               onChange={this.handleCompressionClick.bind(this)}
+                               enabled={compressionPossible.toString()} />
+                        {_("Compress crash dumps to save space")}
+                    </label>
+                </form>
             </div>
         );
     }
@@ -330,6 +284,8 @@ export class KdumpPage extends React.Component {
         // only consider primary mouse button
         if (!e || e.button !== 0)
             return;
+        // don't let the click "fall through" to the dialog that we are about to open
+        e.preventDefault();
         // open a dialog to confirm crashing the kernel to test the settings - then do it
         var self = this;
         // open the confirmation dialog
@@ -533,42 +489,30 @@ export class KdumpPage extends React.Component {
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
         return (
             <div className="container-fluid">
-                <table className="form-table-ct">
-                    <tbody>
-                        <tr>
-                            <td><label className="control-label">{_("kdump status")}</label></td>
-                            <td colSpan="2">
-                                <div>
-                                    <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
-                                        enabled={(!this.props.stateChanging).toString()} />
-                                    {serviceWaiting}
-                                    {kdumpServiceDetails}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label className="control-label">{_("Reserved memory")}</label></td>
-                            <td colSpan="2">
-                                {reservedMemory}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label className="control-label">{_("Crash dump location")}</label></td>
-                            <td colSpan="2">{settingsLink}</td>
-                        </tr>
-                        <tr>
-                            <td />
-                            <td>
-                                {testButton}
-                                <a className="popover-ct-kdump">
-                                    <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
-                                        <span className="fa fa-lg fa-info-circle" />
-                                    </OverlayTrigger>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <form className="ct-form-layout">
+                    <label className="control-label">{_("kdump status")}</label>
+                    <div role="group">
+                        <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
+                            enabled={(!this.props.stateChanging).toString()} />
+                        {serviceWaiting}
+                        {kdumpServiceDetails}
+                    </div>
+
+                    <label className="control-label">{_("Reserved memory")}</label>
+                    {reservedMemory}
+
+                    <label className="control-label">{_("Crash dump location")}</label>
+                    {settingsLink}
+
+                    <div role="group">
+                        {testButton}
+                        <a className="popover-ct-kdump">
+                            <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
+                                <span className="fa fa-lg fa-info-circle" />
+                            </OverlayTrigger>
+                        </a>
+                    </div>
+                </form>
             </div>
         );
     }

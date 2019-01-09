@@ -37,7 +37,7 @@ const _ = cockpit.gettext;
 class StoragePage extends React.Component {
     constructor() {
         super();
-        this.state = { path: [ ] };
+        this.state = { path: cockpit.location.path };
         this.on_client_changed = () => { this.setState({}) };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }

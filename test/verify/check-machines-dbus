@@ -182,8 +182,8 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one; mkdir /mnt/vm_two; chmod a+rwx /mnt/vm_one /mnt/vm_two")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
+        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one; virsh pool-start myPoolOne")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
 
         m.execute("virsh vol-create-as myPoolTwo VolumeOne --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo VolumeTwo --capacity 1G --format qcow2")
@@ -225,6 +225,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-name".format(connectionName), "VolumeOne")
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeTwo-name".format(connectionName), "VolumeTwo")
+
+        # Test operations on storage pools
+        b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
+
+        # Try activating a pool
+        m.execute("virsh pool-destroy myPoolOne")
+        b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "inactive")
+        b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
+        b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")
 
     def testStoragePoolsCreate(self):
         b = self.browser

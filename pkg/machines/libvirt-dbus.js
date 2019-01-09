@@ -1136,4 +1136,8 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
     return null;
 }
 
+export function storagePoolActivate(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
+}
+
 export default LIBVIRT_DBUS_PROVIDER;

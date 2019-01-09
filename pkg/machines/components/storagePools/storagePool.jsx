@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UtilizationBar, Tooltip } from 'patternfly-react';
+import { Button, UtilizationBar, Tooltip } from 'patternfly-react';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -29,68 +29,131 @@ import {
 } from '../../helpers.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
+import { storagePoolActivate } from '../../libvirt-dbus.js';
+
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const StoragePool = ({ storagePool }) => {
-    const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
-    const name = (
-        <span id={`${idPrefix}-name`}>
-            { storagePool.name }
-        </span>);
-    const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
-    const capacity = parseFloat(convertToUnit(storagePool.capacity, units.B, units.GiB).toFixed(2));
-    const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
-    const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
-    const size = (
-        <React.Fragment>
-            <UtilizationBar
-                now={allocation}
-                max={capacity}
-                availableTooltipFunction={availableTooltipFunction}
-                usedTooltipFunction={usedTooltipFunction}
-            />
-        </React.Fragment>
-    );
-    const sizeLabel = (
-        <React.Fragment>
-            {`${allocation} / ${capacity} GB`}
-        </React.Fragment>
-    );
-    const state = (
-        <span id={`${idPrefix}-state`}>
-            { storagePool.active ? _("active") : _("inactive") }
-        </span>);
-    const cols = [
-        {name, 'header': true},
-        size,
-        sizeLabel,
-        rephraseUI('connections', storagePool.connectionName),
-        state,
-    ];
+export class StoragePool extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            actionError: undefined,
+            actionErrorDetail: undefined
+        };
+        this.actionErrorSet = this.actionErrorSet.bind(this);
+    }
 
-    const overviewTabName = (
-        <div id={`${idPrefix}-overview`}>
-            {_("Overview")}
-        </div>
-    );
-    const storageVolsTabName = (
-        <div id={`${idPrefix}-storage-volumes`}>
-            {_("Storage Volumes")}
-        </div>
-    );
-    let tabRenderers = [
-        {name: overviewTabName, renderer: StoragePoolOverviewTab, data: { storagePool }},
-        {name: storageVolsTabName, renderer: StoragePoolVolumesTab, data: { storagePool }},
-    ];
+    actionErrorSet(error, detail) {
+        this.setState({ actionError: error, actionErrorDetail: detail });
+    }
 
-    return (
-        <ListingRow rowId={idPrefix}
-            columns={cols}
-            tabRenderers={tabRenderers} />
-    );
-};
+    render() {
+        const { storagePool } = this.props;
+        const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
+        const name = (
+            <span id={`${idPrefix}-name`}>
+                { storagePool.name }
+            </span>);
+        const allocation = parseFloat(convertToUnit(storagePool.allocation, units.B, units.GiB).toFixed(2));
+        const capacity = parseFloat(convertToUnit(storagePool.capacity, units.B, units.GiB).toFixed(2));
+        const availableTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-available'> Available {((max - now) / max).toFixed(2) * 100}% </Tooltip>;
+        const usedTooltipFunction = (max, now) => <Tooltip id='utilization-bar-tooltip-used'> Used {(now / max).toFixed(2) * 100}% </Tooltip>;
+        const size = (
+            <React.Fragment>
+                <UtilizationBar
+                    now={allocation}
+                    max={capacity}
+                    availableTooltipFunction={availableTooltipFunction}
+                    usedTooltipFunction={usedTooltipFunction}
+                />
+            </React.Fragment>
+        );
+        const sizeLabel = (
+            <React.Fragment>
+                {`${allocation} / ${capacity} GB`}
+            </React.Fragment>
+        );
+        const state = (
+            <React.Fragment>
+                { this.state.actionError && <span className='pficon-warning-triangle-o machines-status-alert' /> }
+                <span id={`${idPrefix}-state`}>
+                    { storagePool.active ? _("active") : _("inactive") }
+                </span>
+            </React.Fragment>);
+        const cols = [
+            {name, 'header': true},
+            size,
+            sizeLabel,
+            rephraseUI('connections', storagePool.connectionName),
+            state,
+        ];
+
+        const overviewTabName = (
+            <div id={`${idPrefix}-overview`}>
+                {_("Overview")}
+            </div>
+        );
+        const storageVolsTabName = (
+            <div id={`${idPrefix}-storage-volumes`}>
+                {_("Storage Volumes")}
+            </div>
+        );
+        let tabRenderers = [
+            {
+                name: overviewTabName,
+                renderer: StoragePoolOverviewTab,
+                data: {
+                    storagePool, actionError: this.state.actionError,
+                    actionErrorDetail: this.state.actionErrorDetail,
+                    onActionErrorDismiss: () => { this.setState({ actionError:  undefined }) }
+                }
+            },
+            {
+                name: storageVolsTabName,
+                renderer: StoragePoolVolumesTab,
+                data: { storagePool }
+            },
+        ];
+
+        return (
+            <ListingRow rowId={idPrefix}
+                columns={cols}
+                tabRenderers={tabRenderers}
+                listingActions={<StoragePoolActions actionErrorSet={this.actionErrorSet} storagePool={storagePool} />} />
+        );
+    }
+}
 StoragePool.propTypes = {
     storagePool: PropTypes.object.isRequired,
 };
+
+class StoragePoolActions extends React.Component {
+    constructor() {
+        super();
+        this.onActivate = this.onActivate.bind(this);
+    }
+
+    onActivate() {
+        storagePoolActivate(this.props.storagePool.connectionName, this.props.storagePool.id)
+                .fail(exc => {
+                    this.props.actionErrorSet(_("Storage Pool failed to get activated"), exc.message);
+                });
+    }
+
+    render() {
+        const { storagePool } = this.props;
+        const id = storagePoolId(storagePool.name, storagePool.connectionName);
+
+        return (
+            <React.Fragment>
+                { !storagePool.active &&
+                <Button id={`activate-${id}`} onClick={this.onActivate}>
+                    {_("Activate")}
+                </Button>
+                }
+            </React.Fragment>
+        );
+    }
+}

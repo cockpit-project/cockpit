@@ -84,8 +84,18 @@ class TestAccounts(MachineCase):
         b.set_val('#accounts-create-user-name', "berta")
         b.set_val('#accounts-create-real-name', "Berta Bestimmt")
         b.set_val('#accounts-create-pw1', good_password)
+
+        # wrong password confirmation
+        b.set_val('#accounts-create-pw2', good_password + 'b')
+        b.click('#accounts-create-create')
+        b.wait_present("#accounts-create-dialog .dialog-error")
+        b.wait_visible("#accounts-create-dialog .dialog-error")
+        b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "The passwords do not match")
+
+        # correct password confirmation
         b.set_val('#accounts-create-pw2', good_password)
         b.click('#accounts-create-create')
+        b.wait_not_visible("#accounts-create-dialog .dialog-error")
         b.wait_popdown('accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
@@ -146,12 +156,19 @@ class TestAccounts(MachineCase):
         b.click('#account-set-password')
         b.wait_popup('account-set-password-dialog')
 
-        # Something invalid
+        # weak password
         b.set_val("#account-set-password-pw1", 'a')
         b.set_val("#account-set-password-pw2", 'a')
         b.click('#account-set-password-apply')
         b.wait_present(".check-passwords.has-error")
         b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "Password quality check failed:")
+
+        # password mismatch
+        b.set_val("#account-set-password-pw1", good_password + 'a')
+        b.set_val("#account-set-password-pw2", good_password + 'b')
+        b.click('#account-set-password-apply')
+        b.wait_present(".check-passwords.has-error")
+        b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "The passwords do not match")
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
         # Now set to something valid

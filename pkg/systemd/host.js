@@ -247,7 +247,12 @@ PageServer.prototype = {
             cockpit.jump("/updates", cockpit.transport.host);
         });
 
-        $('#system_information_hostname_button').on('click', function() {
+        $('#system_information_hostname_button').on('click', function(ev) {
+            // you can't disable standard links, so implement this manually; realmd might disable host name changing
+            if (ev.target.getAttribute("disabled")) {
+                ev.preventDefault();
+                return;
+            }
             PageSystemInformationChangeHostname.client = self.client;
             $('#system_information_change_hostname').modal('show');
         });
@@ -708,10 +713,13 @@ PageServer.prototype = {
 
             if (!str)
                 str = _("Set Host name");
-            $("#system_information_hostname_button").text(str);
-            $("#system_information_hostname_button")
-                    .attr("title", str)
-                    .tooltip('fixTitle');
+            var hostname_button = $("#system_information_hostname_button");
+            hostname_button.text(str);
+            if (!hostname_button.attr("disabled")) {
+                hostname_button
+                        .attr("title", str)
+                        .tooltip('fixTitle');
+            }
             $("#system_information_os_text").text(self.hostname_proxy.OperatingSystemPrettyName || "");
         }
 

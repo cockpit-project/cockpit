@@ -149,18 +149,18 @@ function slot_remove(block, slot) {
 /* Dialogs
  */
 
-function existing_passphrase_fields() {
+export function existing_passphrase_fields(explanation) {
     return [
         Skip("medskip", { visible: vals => vals.needs_explicit_passphrase }),
         PassInput("passphrase", _("Disk passphrase"),
                   { visible: vals => vals.needs_explicit_passphrase,
                     validate: val => !val.length && _("Passphrase cannot be empty"),
-                    explanation: _("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")
+                    explanation: explanation
                   })
     ];
 }
 
-function get_existing_passphrase(dlg, block) {
+export function get_existing_passphrase(dlg, block) {
     let prom = clevis_recover_passphrase(block).then(passphrase => {
         if (passphrase == "") {
             dlg.set_values({ needs_explicit_passphrase: true });
@@ -223,7 +223,7 @@ function add_dialog(client, block) {
                                           { visible: vals => vals.type == "tang",
                                             validate: validate_url
                                           })
-                            ].concat(existing_passphrase_fields()),
+                            ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
                             Action: {
                                 Title: _("Add"),
                                 action: function (vals) {
@@ -273,7 +273,7 @@ function edit_clevis_dialog(client, block, key) {
                                           { validate: validate_url,
                                             value: key.url
                                           })
-                            ].concat(existing_passphrase_fields()),
+                            ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
                             Action: {
                                 Title: _("Save"),
                                 action: function (vals) {

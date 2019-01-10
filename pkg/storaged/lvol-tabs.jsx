@@ -22,8 +22,8 @@ import * as utils from "./utils.js";
 
 import React from "react";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import { clevis_recover_passphrase } from "./crypto-keyslots.jsx";
-import { dialog_open, TextInput, PassInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
+import { existing_passphrase_fields, get_existing_passphrase } from "./crypto-keyslots.jsx";
+import { dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -117,23 +117,6 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     }
 }
 
-function figure_out_passphrase(block, dlg) {
-    // TODO - absorb this step into the dialog, like the key slot
-    // dialogs do, once this is rewritten in React.
-
-    if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2) {
-        clevis_recover_passphrase(block).then(passphrase => {
-            if (passphrase == "") {
-                dlg(true);
-            } else {
-                dlg(false, passphrase);
-            }
-        });
-    } else {
-        dlg(false, null);
-    }
-}
-
 function lvol_grow(client, lvol, info) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
@@ -148,33 +131,37 @@ function lvol_grow(client, lvol, info) {
         return;
     }
 
-    figure_out_passphrase(block, (need_explicit_passphrase, passphrase) => {
-        dialog_open({ Title: _("Grow Logical Volume"),
-                      Footer: TeardownMessage(usage),
-                      Fields: [
-                          SizeSlider("size", _("Size"),
-                                     { value: lvol.Size,
-                                       min: lvol.Size,
-                                       max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
-                                       allow_infinite: !!pool,
-                                       round: vgroup.ExtentSize
-                                     }),
-                          PassInput("passphrase", _("Passphrase"),
-                                    { visible: () => need_explicit_passphrase })
-                      ],
-                      Action: {
-                          Title: _("Grow"),
-                          action: function (vals) {
-                              return utils.teardown_active_usage(client, usage)
-                                      .then(function () {
-                                          return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                      info.grow_needs_unmount,
-                                                                      passphrase || vals.passphrase);
-                                      });
-                          }
-                      }
-        });
+    let recovered_passphrase;
+    let passphrase_fields = [ ];
+    if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
+        passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
+
+    let dlg = dialog_open({ Title: _("Grow Logical Volume"),
+                            Footer: TeardownMessage(usage),
+                            Fields: [
+                                SizeSlider("size", _("Size"),
+                                           { value: lvol.Size,
+                                             min: lvol.Size,
+                                             max: (pool ? pool.Size * 3 : lvol.Size + vgroup.FreeSize),
+                                             allow_infinite: !!pool,
+                                             round: vgroup.ExtentSize
+                                           })
+                            ].concat(passphrase_fields),
+                            Action: {
+                                Title: _("Grow"),
+                                action: function (vals) {
+                                    return utils.teardown_active_usage(client, usage)
+                                            .then(function () {
+                                                return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                            info.grow_needs_unmount,
+                                                                            vals.passphrase || recovered_passphrase);
+                                            });
+                                }
+                            }
     });
+
+    if (passphrase_fields.length)
+        get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function lvol_shrink(client, lvol, info) {
@@ -190,31 +177,35 @@ function lvol_shrink(client, lvol, info) {
         return;
     }
 
-    figure_out_passphrase(block, (need_explicit_passphrase, passphrase) => {
-        dialog_open({ Title: _("Shrink Logical Volume"),
-                      Footer: TeardownMessage(usage),
-                      Fields: [
-                          SizeSlider("size", _("Size"),
-                                     { value: lvol.Size,
-                                       max: lvol.Size,
-                                       round: vgroup.ExtentSize
-                                     }),
-                          PassInput("passphrase", _("Passphrase"),
-                                    { visible: () => need_explicit_passphrase })
-                      ],
-                      Action: {
-                          Title: _("Shrink"),
-                          action: function (vals) {
-                              return utils.teardown_active_usage(client, usage)
-                                      .then(function () {
-                                          return lvol_and_fsys_resize(client, lvol, vals.size,
-                                                                      info.shrink_needs_unmount,
-                                                                      passphrase || vals.passphrase);
-                                      });
-                          }
-                      }
-        });
+    let recovered_passphrase;
+    let passphrase_fields = [ ];
+    if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
+        passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
+
+    let dlg = dialog_open({ Title: _("Shrink Logical Volume"),
+                            Footer: TeardownMessage(usage),
+                            Fields: [
+                                SizeSlider("size", _("Size"),
+                                           { value: lvol.Size,
+                                             max: lvol.Size,
+                                             round: vgroup.ExtentSize
+                                           })
+                            ].concat(passphrase_fields),
+                            Action: {
+                                Title: _("Shrink"),
+                                action: function (vals) {
+                                    return utils.teardown_active_usage(client, usage)
+                                            .then(function () {
+                                                return lvol_and_fsys_resize(client, lvol, vals.size,
+                                                                            info.shrink_needs_unmount,
+                                                                            vals.passphrase || recovered_passphrase);
+                                            });
+                                }
+                            }
     });
+
+    if (passphrase_fields.length)
+        get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 export class BlockVolTab extends React.Component {

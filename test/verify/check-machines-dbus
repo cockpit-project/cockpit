@@ -229,8 +229,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Test operations on storage pools
         b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
 
-        # Try activating a pool
-        m.execute("virsh pool-destroy myPoolOne")
+        # Try deactivating and activating a pool
+        b.click("#deactivate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "inactive")
         b.click("#activate-pool-myPoolOne-{0}".format(connectionName))
         b.wait_in_text("#pool-myPoolOne-{0}-state".format(connectionName), "active")

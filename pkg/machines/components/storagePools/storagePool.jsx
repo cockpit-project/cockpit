@@ -29,7 +29,7 @@ import {
 } from '../../helpers.js';
 import { StoragePoolOverviewTab } from './storagePoolOverviewTab.jsx';
 import { StoragePoolVolumesTab } from './storagePoolVolumesTab.jsx';
-import { storagePoolActivate } from '../../libvirt-dbus.js';
+import { storagePoolActivate, storagePoolDeactivate } from '../../libvirt-dbus.js';
 
 import cockpit from 'cockpit';
 
@@ -133,6 +133,7 @@ class StoragePoolActions extends React.Component {
     constructor() {
         super();
         this.onActivate = this.onActivate.bind(this);
+        this.onDeactivate = this.onDeactivate.bind(this);
     }
 
     onActivate() {
@@ -142,12 +143,23 @@ class StoragePoolActions extends React.Component {
                 });
     }
 
+    onDeactivate() {
+        storagePoolDeactivate(this.props.storagePool.connectionName, this.props.storagePool.id)
+                .fail(exc => {
+                    this.props.actionErrorSet(_("Storage Pool failed to get deactivated"), exc.message);
+                });
+    }
+
     render() {
         const { storagePool } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
 
         return (
             <React.Fragment>
+                { storagePool.active &&
+                <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
+                    {_("Deactivate")}
+                </Button> }
                 { !storagePool.active &&
                 <Button id={`activate-${id}`} onClick={this.onActivate}>
                     {_("Activate")}

@@ -52,6 +52,7 @@ class TestStorage(StorageCase):
 
         self.content_tab_action(1, 2, "Format")
         self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", fsys)
         if fsys.startswith("luks+"):
@@ -68,6 +69,7 @@ class TestStorage(StorageCase):
         if can_grow:
             self.content_tab_action(1, 1, "Grow")
             self.dialog_wait_open()
+            self.dialog_wait_apply_enabled()
             if grow_needs_unmount:
                 b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
             self.dialog_set_val("size", 400)
@@ -86,6 +88,7 @@ class TestStorage(StorageCase):
         if can_shrink:
             self.content_tab_action(1, 1, "Shrink")
             self.dialog_wait_open()
+            self.dialog_wait_apply_enabled()
             if shrink_needs_unmount:
                 b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
             self.dialog_set_val("size", 200)

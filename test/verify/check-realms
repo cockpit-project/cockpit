@@ -124,6 +124,16 @@ class TestRealms(MachineCase):
             # Check that this has worked
             wait_number_domains(1)
 
+        # when joined to a domain, changing the hostname is fatal, so should be disabled
+        if m.image != "rhel-7-6-distropkg":
+            # fixed in Cockpit 186
+            b.wait_present("#system_information_hostname_button[disabled]")
+            b.mouse("#system_information_hostname_button", "mouseover")
+            b.wait_present(".tooltip-inner")
+            b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
+            b.mouse("#system_information_hostname_button", "mouseout")
+            b.wait_not_present(".tooltip-inner")
+
         # should not have any leftover tickets from the joining
         m.execute("! klist")
         m.execute("! su -c klist admin")
@@ -211,6 +221,8 @@ class TestRealms(MachineCase):
         b.click(".realms-op-apply")
         b.wait_popdown("realms-op")
         wait_number_domains(0)
+        # re-enables hostname changing
+        b.wait_present("#system_information_hostname_button:not([disabled])")
 
         # should have cleaned up ws keytab
         m.execute("! klist -k /etc/cockpit/krb5.keytab | grep COCKPIT.LAN")

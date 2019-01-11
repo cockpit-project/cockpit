@@ -481,7 +481,7 @@ PageAccountsCreate.prototype = {
                     ex.target = "#accounts-create-user-name";
                 });
 
-        return cockpit.all(dfd, promise_password, promise_username);
+        return cockpit.all(dfd.promise(), promise_password, promise_username);
     },
 
     cancel: function() {
@@ -1414,7 +1414,7 @@ PageAccountSetPassword.prototype = {
                     }
                 });
 
-        return cockpit.all(dfd, promise);
+        return cockpit.all(dfd.promise(), promise);
     },
 
     apply: function() {

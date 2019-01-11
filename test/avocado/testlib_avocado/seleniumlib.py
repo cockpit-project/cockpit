@@ -73,6 +73,8 @@ class SeleniumTest(Test):
         if not os.path.exists(identity_file):
             raise FileNotFoundError("IDENTITY envvar does not contain file to proper private key,"
                                     " or {} file does not exist".format(identity_file))
+        # ensure that private key has proper file attributes
+        os.chmod(identity_file, 0o600)
         self.ssh_identity_file = identity_file
         self.machine = ssh_connection.SSHConnection(user=user,
                                                     address=guest_machine,

@@ -459,6 +459,9 @@ function init_model(callback) {
         };
 
         if (client.manager.SupportedFilesystems && client.manager.CanResize) {
+            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+            // https://github.com/cockpit-project/cockpit/issues/10956
+            // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all(client.manager.SupportedFilesystems.map(function (fs) {
                 return client.manager.CanFormat(fs).then(
                     function (canformat_result) {

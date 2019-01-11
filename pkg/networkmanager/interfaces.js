@@ -2397,14 +2397,20 @@ PageNetworkInterface.prototype = {
         var self = this;
 
         function delete_connection_and_slaves(con) {
+            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+            // https://github.com/cockpit-project/cockpit/issues/10956
+            // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all(con.delete_(),
+                               // eslint-disable-next-line cockpit/no-cockpit-all
                                cockpit.all(con.Slaves.map(function (s) {
                                    return free_slave_connection(s);
                                })));
-
         }
 
         function delete_connections(cons) {
+            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+            // https://github.com/cockpit-project/cockpit/issues/10956
+            // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all(cons.map(delete_connection_and_slaves));
         }
 

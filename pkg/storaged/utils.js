@@ -444,6 +444,10 @@ export function prepare_available_spaces(client, spcs) {
             return block_ptable.CreatePartition(spc.start, spc.size, "", "", { });
         }
     }
+
+    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+    // https://github.com/cockpit-project/cockpit/issues/10956
+    // eslint-disable-next-line cockpit/no-cockpit-all
     return cockpit.all(spcs.map(prepare));
 }
 
@@ -684,6 +688,9 @@ export function teardown_active_usage(client, usage) {
     // condition upfront by reshuffling the data structures.
 
     function unmount(mounteds) {
+        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+        // https://github.com/cockpit-project/cockpit/issues/10956
+        // eslint-disable-next-line cockpit/no-cockpit-all
         return cockpit.all(mounteds.map(function (m) {
             if (m.fsys.MountPoints.length > 0)
                 return m.fsys.Unmount({});
@@ -693,6 +700,9 @@ export function teardown_active_usage(client, usage) {
     }
 
     function mdraid_remove(members) {
+        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+        // https://github.com/cockpit-project/cockpit/issues/10956
+        // eslint-disable-next-line cockpit/no-cockpit-all
         return cockpit.all(members.map(function (m) {
             return m.mdraid.RemoveDevice(m.block.path, { wipe: { t: 'b', v: true } });
         }));
@@ -716,6 +726,9 @@ export function teardown_active_usage(client, usage) {
                 return vg.Delete({ 'tear-down': { t: 'b', v: true }
                 });
             } else {
+                // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                // https://github.com/cockpit-project/cockpit/issues/10956
+                // eslint-disable-next-line cockpit/no-cockpit-all
                 return cockpit.all(pvs.map(function (pv) {
                     return vg.RemoveDevice(pv.path, true, {});
                 }));
@@ -726,6 +739,9 @@ export function teardown_active_usage(client, usage) {
             handle_vg(p);
     }
 
+    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+    // https://github.com/cockpit-project/cockpit/issues/10956
+    // eslint-disable-next-line cockpit/no-cockpit-all
     return cockpit.all([ unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
         mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
         pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))

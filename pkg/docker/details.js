@@ -87,6 +87,10 @@ PageContainerDetails.prototype = {
                     var prom = self.client.change_cpu_priority(self.container_id, self.cpu_priority.value);
                     if (self.client.info.MemoryLimit) {
                         mem = self.client.change_memory_limit(self.container_id, self.memory_limit.value);
+
+                        // Can't use Promise.all() here, because dialog expects
+                        // a promise with a progress() method (see pkg/lib/patterns.js)
+                        // eslint-disable-next-line cockpit/no-cockpit-all
                         prom = cockpit.all(mem, prom);
                     }
                     $('#container-resources-dialog').dialog('promise', prom);

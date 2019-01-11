@@ -927,6 +927,10 @@ PageSystemInformationChangeHostname.prototype = {
 
         var one = self.hostname_proxy.call("SetStaticHostname", [new_name, true]);
         var two = self.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
+
+        // We can't use Promise.all() here, because dialg expects a promise
+        // with a progress() method (see pkg/lib/patterns.js)
+        // eslint-disable-next-line cockpit/no-cockpit-all
         $("#system_information_change_hostname").dialog("promise", cockpit.all([one, two]));
     },
 
@@ -1344,6 +1348,9 @@ PageSystemInformationChangeSystime.prototype = {
                         }));
         }
 
+        // We can't use Promise.all() here, because dialg expects a promise
+        // with a progress() method (see pkg/lib/patterns.js)
+        // eslint-disable-next-line cockpit/no-cockpit-all
         $("#system_information_change_systime").dialog("promise", cockpit.all(promises));
     },
 

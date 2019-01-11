@@ -155,6 +155,9 @@ function doRefreshEvents(dispatch, getState) {
                                 .forEach(id => promises.push(doRefreshTemplates(dispatch, getState, id)));
                     }
 
+                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                    // https://github.com/cockpit-project/cockpit/issues/10956
+                    // eslint-disable-next-line cockpit/no-cockpit-all
                     cockpit.all(promises)
                             .then(() => deferred.resolve())
                             .catch((r) => deferred.reject(r));

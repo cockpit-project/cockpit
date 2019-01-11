@@ -157,7 +157,7 @@ function doRefreshEvents(dispatch, getState) {
 
                     cockpit.all(promises)
                             .then(() => deferred.resolve())
-                            .fail((r) => deferred.reject(r));
+                            .catch((r) => deferred.reject(r));
                 } else {
                     if (result && Object.getOwnPropertyNames(result).length === 0) { // no new events
                         logDebug('No new oVirt events received');

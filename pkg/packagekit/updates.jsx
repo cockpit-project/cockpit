@@ -567,7 +567,7 @@ class OsUpdates extends React.Component {
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
                     cockpit.all(promises)
-                            .done(roles => {
+                            .then(roles => {
                                 // any transaction with UPDATE_PACKAGES role?
                                 for (let idx = 0; idx < roles.length; ++idx) {
                                     if (roles[idx].v === PK.Enum.ROLE_UPDATE_PACKAGES) {
@@ -579,7 +579,7 @@ class OsUpdates extends React.Component {
                                 // no running updates found, proceed to showing available updates
                                 this.initialLoadOrRefresh();
                             })
-                            .fail(ex => {
+                            .catch(ex => {
                                 console.warn("GetTransactionList: failed to read PackageKit transaction roles:", ex.message);
                                 // be robust, try to continue with loading updates anyway
                                 this.initialLoadOrRefresh();

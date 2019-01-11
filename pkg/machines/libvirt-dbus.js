@@ -334,7 +334,7 @@ LIBVIRT_DBUS_PROVIDER = {
                                 call(connectionName, storageVolPaths[i][0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT)
                             );
                         }
-                        return Promise.all(storageVolPathsPromises);
+                        return cockpit.all(storageVolPathsPromises);
                     })
                     .then(() => {
                         call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);

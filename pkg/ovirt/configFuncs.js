@@ -37,7 +37,7 @@ export function readConfiguration ({ dispatch }) {
     promises.push(doReadHostname({ dispatch }));
     promises.push(doReadIpAddresses({ dispatch }));
 
-    return cockpit.all(promises).done(setDefaultLibvirtConnection);
+    return Promise.all(promises).then(setDefaultLibvirtConnection);
 }
 
 function setDefaultLibvirtConnection () {

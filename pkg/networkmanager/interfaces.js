@@ -2151,7 +2151,7 @@ function with_checkpoint(model, modify, options) {
 
                 show_curtain();
                 modify()
-                        .done(function () {
+                        .then(function () {
                             window.setTimeout(function () {
                                 manager.checkpoint_destroy(cp)
                                         .always(hide_curtain)
@@ -2168,7 +2168,7 @@ function with_checkpoint(model, modify, options) {
                                         });
                             }, settle_time * 1000);
                         })
-                        .fail(function () {
+                        .catch(function () {
                             hide_curtain();
 
                             // HACK
@@ -2316,10 +2316,12 @@ PageNetworkInterface.prototype = {
         });
 
         $('#networking-firewall-switch').on('change', function () {
-            $(this).onoff('disabled');
+            var self = $(this);
+
+            self.onoff('disabled');
 
             function enableSwitch() {
-                $(this).onoff('disabled', false);
+                self.onoff('disabled', false);
             }
 
             if ($(this).onoff('value'))
@@ -2399,6 +2401,7 @@ PageNetworkInterface.prototype = {
                                cockpit.all(con.Slaves.map(function (s) {
                                    return free_slave_connection(s);
                                })));
+
         }
 
         function delete_connections(cons) {
@@ -2413,10 +2416,10 @@ PageNetworkInterface.prototype = {
 
         function modify () {
             return delete_iface_connections(self.iface)
-                    .done(function () {
+                    .then(function () {
                         location.go("/");
                     })
-                    .fail(show_unexpected_error);
+                    .catch(show_unexpected_error);
         }
 
         if (self.iface) {
@@ -3577,7 +3580,7 @@ function apply_master_slave(choices, model, apply_master, master_connection, mas
                                  $(elt).attr("data-iface"), $(elt).prop('checked'));
             });
         });
-        return cockpit.all(deferreds.get());
+        return Promise.all(deferreds.get());
     }
 
     return set_all_slaves().then(function () {
@@ -3777,7 +3780,7 @@ PageNetworkBondSettings.prototype = {
                         if (PageNetworkBondSettings.done)
                             return PageNetworkBondSettings.done();
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         show_dialog_error('#network-bond-settings-error', error);
                     });
         }
@@ -3976,7 +3979,7 @@ PageNetworkTeamSettings.prototype = {
                         if (PageNetworkTeamSettings.done)
                             return PageNetworkTeamSettings.done();
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         show_dialog_error('#network-team-settings-error', error);
                     });
         }
@@ -4228,7 +4231,7 @@ PageNetworkBridgeSettings.prototype = {
                         if (PageNetworkBridgeSettings.done)
                             return PageNetworkBridgeSettings.done();
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         $('#network-bridge-settings-error').show()
                                 .find('span')
                                 .text(error.message || error.toString());

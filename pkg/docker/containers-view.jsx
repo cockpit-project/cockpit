@@ -552,7 +552,7 @@ export class ImageList extends React.Component {
         util.delete_image_confirm(this.props.client, image).done(
             (runningContainers, force) => {
                 var stopPromises = runningContainers.map(id => this.props.client.stop(id));
-                cockpit.all(stopPromises).done(() =>
+                Promise.all(stopPromises).then(() =>
                     this.props.client.rmi(image.Id, force).fail((ex) => {
                         util.show_unexpected_error(ex);
                     }));

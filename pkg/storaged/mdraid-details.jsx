@@ -268,9 +268,7 @@ export class MDRaidDetails extends React.Component {
                 // members.
 
                 function wipe_members() {
-                    return cockpit.all(client.mdraids_members[mdraid.path].map(function (member) {
-                        return member.Format('empty', { });
-                    }));
+                    return cockpit.all(client.mdraids_members[mdraid.path].map(member => member.Format('empty', { })));
                 }
 
                 if (mdraid.ActiveDevices && mdraid.ActiveDevices.length > 0)

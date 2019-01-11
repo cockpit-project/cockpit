@@ -138,11 +138,11 @@ PageImageDetails.prototype = {
                 $(runningContainers).each(function(index, value) {
                     stop_promises.push(self.client.stop(value));
                 });
-            cockpit.all(stop_promises).done(function() {
+            Promise.all(stop_promises).then(function() {
                 self.client.rmi(self.image_id, force).fail(function(ex) {
                     util.show_unexpected_error(ex);
                 })
-                        .done(function() {
+                        .then(function() {
                             location.go("/");
                         });
             });

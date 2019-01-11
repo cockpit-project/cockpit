@@ -741,9 +741,9 @@ QUnit.test("separate dbus connections for channel groups", function (assert) {
     var channel3 = cockpit.channel({ payload: 'dbus-json3', group: 'foo', bus: 'session' });
     var channel4 = cockpit.channel({ payload: 'dbus-json3', group: 'baz', bus: 'session' });
 
-    cockpit.all([
+    Promise.all([
         channel1.wait(), channel2.wait(), channel3.wait(), channel4.wait()
-    ]).then(function (ready1, ready2, ready3, ready4) {
+    ]).then(function ([ ready1, ready2, ready3, ready4 ]) {
         assert.equal(ready1['unique-name'], ready3['unique-name']);
         assert.notEqual(ready1['unique-name'], ready2['unique-name']);
         assert.notEqual(ready1['unique-name'], ready4['unique-name']);

@@ -282,7 +282,7 @@ function Machines() {
             mod = update_saved_machine(host, values);
 
         if (call)
-            return cockpit.all(call, mod);
+            return cockpit.all([call, mod]);
 
         return mod;
     };

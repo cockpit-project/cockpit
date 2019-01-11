@@ -77,18 +77,18 @@ export class KdumpClient {
 
     ensureOn() {
         // we consider the state to be "on" when it's enabled and running
-        return cockpit.all(
+        return Promise.all([
             this.kdumpService.enable(),
             this.kdumpService.start()
-        );
+        ]);
     }
 
     ensureOff() {
         // we consider the state to be "off" when it's disabled and stopped
-        return cockpit.all(
+        return Promise.all([
             this.kdumpService.stop(),
             this.kdumpService.disable()
-        );
+        ]);
     }
 
     crashKernel() {

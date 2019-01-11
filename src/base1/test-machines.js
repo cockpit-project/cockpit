@@ -25,7 +25,7 @@ function machinesParseTest(assert, machines_defs, expectedProperty) {
         setup.push(cockpit.file(path).replace(machines_defs[fname]));
     }
 
-    cockpit.all(setup).done(function() {
+    Promise.all(setup).then(function() {
         dbus.call("/machines", "org.freedesktop.DBus.Properties",
                   "Get", [ "cockpit.Machines", "Machines" ],
                   { "type": "ss" })

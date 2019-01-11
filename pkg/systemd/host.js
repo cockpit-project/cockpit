@@ -393,21 +393,22 @@ PageServer.prototype = {
                 return;
 
             if ($(this).onoff('value')) {
-                pmlogger_promise = cockpit.all(pmcd_service.enable(),
-                                               pmcd_service.start(),
-                                               pmlogger_service.enable(),
-                                               pmlogger_service.start())
-                        .fail(function(error) {
+                pmlogger_promise = Promise.all([
+                    pmcd_service.enable(),
+                    pmcd_service.start(),
+                    pmlogger_service.enable(),
+                    pmlogger_service.start()
+                ])
+                        .catch(function(error) {
                             console.warn("Enabling pmlogger failed", error);
                         });
             } else {
-                pmlogger_promise = cockpit.all(pmlogger_service.disable(),
-                                               pmlogger_service.stop())
-                        .fail(function(error) {
+                pmlogger_promise = Promise.all([pmlogger_service.disable(), pmlogger_service.stop()])
+                        .catch(function(error) {
                             console.warn("Disabling pmlogger failed", error);
                         });
             }
-            pmlogger_promise.always(function() {
+            pmlogger_promise.finally(function() {
                 pmlogger_promise = null;
                 pmlogger_service_changed();
             });
@@ -926,7 +927,7 @@ PageSystemInformationChangeHostname.prototype = {
 
         var one = self.hostname_proxy.call("SetStaticHostname", [new_name, true]);
         var two = self.hostname_proxy.call("SetPrettyHostname", [new_full_name, true]);
-        $("#system_information_change_hostname").dialog("promise", cockpit.all(one, two));
+        $("#system_information_change_hostname").dialog("promise", cockpit.all([one, two]));
     },
 
     _on_full_name_changed: function(event) {

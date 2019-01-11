@@ -53,7 +53,7 @@ var initStore = function(rootElement) {
         var promise = desiredState ? dataStore.kdumpClient.ensureOn() : dataStore.kdumpClient.ensureOff();
         dataStore.stateChanging = true;
         dataStore.render();
-        promise.always(function() {
+        promise.finally(function() {
             dataStore.stateChanging = false;
             dataStore.render();
         });

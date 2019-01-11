@@ -65,11 +65,11 @@ function updateVulnerableInfo() {
                         return cockpit.file(infos[id].json_file, { syntax: JSON }).read();
                     });
 
-                    cockpit.all(promises).done(function () {
+                    Promise.all(promises).then(function (infos) {
                         var detailedInfos = {};
 
-                        for (var i = 0; i < arguments.length; i++)
-                            detailedInfos[ids[i]] = sanitizeVulnerableInfo(ids[i], arguments[i]);
+                        for (var i = 0; i < infos.length; i++)
+                            detailedInfos[ids[i]] = sanitizeVulnerableInfo(ids[i], infos[i]);
 
                         atomic.dispatchEvent("vulnerableInfoChanged", detailedInfos);
                     });

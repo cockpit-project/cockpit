@@ -99,6 +99,9 @@ firewalld_service.addEventListener('changed', () => {
 });
 
 function fetchServiceInfos(services) {
+    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+    // https://github.com/cockpit-project/cockpit/issues/10956
+    // eslint-disable-next-line cockpit/no-cockpit-all
     var promises = cockpit.all(services.map(service => {
         if (firewall.services[service])
             return firewall.services[service];

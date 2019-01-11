@@ -12,7 +12,7 @@
         },
         "sourceType": "module"
     },
-    "plugins": ["flowtype", "react"],
+    "plugins": ["flowtype", "react", "cockpit"],
     "rules": {
         "indent": ["error", 4,
             {
@@ -44,7 +44,9 @@
         "eqeqeq": "off",
         "import/no-webpack-loader-syntax": "off",
         "object-property-newline": "off",
-        "react/jsx-no-bind": "off"
+        "react/jsx-no-bind": "off",
+
+        "cockpit/no-cockpit-all": "error"
     },
     "globals": {
         "require": false,

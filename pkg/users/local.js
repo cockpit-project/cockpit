@@ -481,6 +481,10 @@ PageAccountsCreate.prototype = {
                     ex.target = "#accounts-create-user-name";
                 });
 
+        // Can't use Promise.all() here, because this promise is passed to
+        // dialog(), which expects a promise with a progress() method (see
+        // pkg/lib/patterns.js)
+        // eslint-disable-next-line cockpit/no-cockpit-all
         return cockpit.all(dfd.promise(), promise_password, promise_username);
     },
 
@@ -1414,6 +1418,10 @@ PageAccountSetPassword.prototype = {
                     }
                 });
 
+        // Can't use Promise.all() here, because this promise is passed to
+        // dialog(), which expects a promise with a progress() method (see
+        // pkg/lib/patterns.js)
+        // eslint-disable-next-line cockpit/no-cockpit-all
         return cockpit.all(dfd.promise(), promise);
     },
 

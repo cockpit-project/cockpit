@@ -601,6 +601,9 @@ export function unknownConnectionName(action, libvirtServiceName) {
                         connectionName => canLoggedUserConnectSession(connectionName, loggedUser))
                     .map(connectionName => dispatch(action(connectionName, libvirtServiceName)));
 
+            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+            // https://github.com/cockpit-project/cockpit/issues/10956
+            // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all(promises);
         });
     };

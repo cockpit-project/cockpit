@@ -282,6 +282,10 @@ function Machines() {
             mod = update_saved_machine(host, values);
 
         if (call)
+            // Can't use Promise.all() here, because this promise is sometimes
+            // passed to the dialog() function from pkg/lib/patterns.js, which
+            // expects a promise with a progress() method
+            // eslint-disable-next-line cockpit/no-cockpit-all
             return cockpit.all([call, mod]);
 
         return mod;

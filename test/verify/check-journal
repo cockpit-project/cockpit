@@ -309,6 +309,45 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1665421", "rhel-7-6-distropkg")
+    def testLogLevel(self):
+        def select_from_dropdown(browser, selector, value):
+            button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
+
+            browser.wait_visible(selector)
+            if not browser.text(button_text_selector) == value:
+                item_selector = "{0} ul li a:contains({1})".format(selector, value)
+                browser.click("{0} button".format(selector))
+                browser.wait_present(item_selector)
+                browser.click(item_selector)
+                browser.wait_in_text(button_text_selector, value)
+
+        b = self.browser
+        m = self.machine
+
+        m.execute("logger -p user.info --tag check-journal INFO_MESSAGE")
+        m.execute("logger -p user.warn --tag check-journal WARNING_MESSAGE")
+        m.execute("logger -p user.emerg --tag check-journal EMERGENCY_MESSAGE")
+
+        self.login_and_go("/system/logs")
+
+        journal_line_selector = "#journal-box .cockpit-logline:has(span:contains({0}))"
+
+        select_from_dropdown(b, "#journal-prio-menu", "Only Emergency")
+        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_not_present(journal_line_selector.format("WARNING_MESSAGE"))
+        b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
+
+        select_from_dropdown(b, "#journal-prio-menu", "Warning and above")
+        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
+        b.wait_not_present(journal_line_selector.format("INFO_MESSAGE"))
+
+        select_from_dropdown(b, "#journal-prio-menu", "Info and above")
+        b.wait_present(journal_line_selector.format("EMERGENCY_MESSAGE"))
+        b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
+        b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
+
     @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",

@@ -288,7 +288,7 @@ $(function() {
             }
         }
 
-        if (prio_level) {
+        if (!isNaN(prio_level)) {
             for (var i = 0; i <= prio_level; i++)
                 match.push('PRIORITY=' + i.toString());
         }

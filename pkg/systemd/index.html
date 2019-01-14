@@ -83,113 +83,96 @@
 
     <div id="server" class="container-fluid page-ct">
         <div class="col-md-4 col-lg-3 info-table-ct-container">
-            <table class="info-table-ct">
-                <tr>
-                    <td translatable="yes">Hardware</td>
-                    <td><a id="system_information_hardware_text"></a></td>
-                </tr>
-                <tr id="system-info-asset-row">
-                    <td translatable="yes">Asset Tag</td>
-                    <td id="system_information_asset_tag_text"></td>
-                </tr>
-                <tr id="system_information_machine_id_row">
-                    <td translatable="yes">Machine ID</td>
-                    <td><span id="system_machine_id"></span></td>
-                </tr>
-                <tr id="system_information_os">
-                    <td translatable="yes">Operating System</td>
-                    <td id="system_information_os_text"></td>
-                </tr>
-                <tr id="system_information_updates">
-                    <td>
-                        <span id="system_information_updates_icon" hidden></span>
-                    </td>
-                    <td id="system_information_updates_text"></td>
-                </tr>
-                <tr id="system-ssh-keys">
-                    <td translatable="yes">Secure Shell Keys</td>
-                    <td><a id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
-                           data-target="#system_information_ssh_keys">Show fingerprints</a></td>
-                </tr>
-                <tr id="system-ostree-version" class="hidden">
-                    <td translatable="yes">Version</td>
-                    <td><a id="system-ostree-version-link"></a></td>
-                </tr>
-                <tr>
-                    <td translatable="yes">Host Name</td>
-                    <td><span id="hostname-tooltip"><a class="hostname-privileged"
-                            id="system_information_hostname_button"></a></span></td>
-                </tr>
-                <tr id="system-info-domain" hidden>
-                    <td translatable="yes">Domain</td>
-                    <td class="button-location">
-                    </td>
-                </tr>
-                <tr>
-                    <td translatable="yes">System Time</td>
-                    <td><span id="systime-tooltip">
-                        <a class="systime-privileged"
-                           id="system_information_systime_button"></a></span>
+            <form class="ct-form-layout">
+                <label class="control-label" for="system_information_hardware_text" translatable="yes">Hardware</label>
+                <span> <!-- wrap the <a> so that it doesn't stretch to the whole page width; otherwise tooltip looks bad -->
+                    <a id="system_information_hardware_text"></a>
+                </span>
+
+                <label class="control-label" for="system_information_asset_tag_text" translatable="yes">Asset Tag</label>
+                <span id="system_information_asset_tag_text"></span>
+
+                <label class="control-label" for="system_machine_id" translatable="yes">Machine ID</label>
+                <span class="system_information_machine_id_tooltip">
+                    <span id="system_machine_id"></span>
+                </span>
+
+                <label class="control-label" for="system_information_os_text" translatable="yes">Operating System</label>
+                <span id="system_information_os_text"></span>
+
+                <div role="group">
+                    <span id="system_information_updates_icon" hidden></span>
+                    <span id="system_information_updates_text"></span>
+                </div>
+
+                <label class="control-label" for="system-ssh-keys-link" translatable="yes">Secure Shell Keys</label>
+                <a id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
+                   data-target="#system_information_ssh_keys">Show fingerprints</a>
+
+                <label class="control-label hidden" for="system-ostree-version-link" translatable="yes">Version</label>
+                <a id="system-ostree-version-link" class="hidden"></a>
+
+                <label class="control-label" for="system_information_hostname_button" translatable="yes">Host Name</label>
+                <span id="hostname-tooltip">
+                    <a class="hostname-privileged" id="system_information_hostname_button"></a>
+                </span>
+
+                <label class="control-label" for="system-info-domain" translatable="yes" hidden>Domain</label>
+                <span id="system-info-domain" hidden></span>
+
+                <label class="control-label" for="system_information_systime_button" translatable="yes">System Time</label>
+                <div role="group">
+                    <span id="systime-tooltip">
+                        <a class="systime-privileged" id="system_information_systime_button"></a>
+                    </span>
                       <a hidden id="system_information_systime_ntp_status"
                          tabindex="0" role="button" data-toggle="tooltip"
                          data-placement="bottom" data-html="true" >
                       </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td translatable="yes" id="system_information_power_options_label">Power Options</td>
-                    <td id="shutdown-group">
-                        <div class="btn-group">
-                            <button class="btn btn-default btn-danger shutdown-privileged" data-action="restart"
-                                data-container="body" translatable="yes">Restart</button>
-                            <button data-toggle="dropdown" class="btn
-                                btn-default dropdown-toggle
-                                shutdown-privileged"
-                                aria-labelledby="system_information_power_options_label">
-                                <span class="caret"></span>
-                            </button>
-                            <ul role="menu" class="dropdown-menu">
-                                <li class="presentation">
-                                    <a role="menuitem" data-action="restart" translatable="yes">Restart</a>
-                                </li>
-                                <li class="presentation">
-                                    <a role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="system-info-performance" hidden>
-                    <td translatable="yes">Performance Profile</td>
-                    <td class="button-location">
-                    </td>
-                </tr>
-                <tr id="server-pmlogger-onoff-row" hidden>
-                    <td translatable="yes">Store metrics</td>
-                    <td>
-                        <div class="btn-group btn-onoff-ct" id="server-pmlogger-switch" data-toggle="buttons">
-                            <label class="btn">
-                                <input type="radio" name="pmlogger-switch" autocomplete="off">
-                                <span translatable="yes">On</span>
-                            </label>
-                            <label class="btn active">
-                                <input type="radio" name="pmlogger-switch" autocomplete="off" checked>
-                                <span translatable="yes">Off</span>
-                            </label>
-                        </div>
-                    </td>
-                </tr>
-                <tr id="system-information-enable-pcp" hidden>
-                    <td></td>
-                    <td>
-                        <a id="system-information-enable-pcp-link">
-                            <span class="pficon pficon-info"></span>
-                            <span translate>Enable stored metrics…</span>
-                        </a>
-                    </td>
-                </tr>
-            </table>
+                </div>
+
+                <label class="control-label" translatable="yes">Power Options</label>
+                <div id="shutdown-group" class="btn-group">
+                    <button class="btn btn-default btn-danger shutdown-privileged" data-action="restart"
+                        data-container="body" translatable="yes">Restart</button>
+                    <button data-toggle="dropdown" class="btn
+                        btn-default dropdown-toggle
+                        shutdown-privileged"
+                        aria-labelledby="system_information_power_options_label">
+                        <span class="caret"></span>
+                    </button>
+                    <ul role="menu" class="dropdown-menu">
+                        <li class="presentation">
+                            <a role="menuitem" data-action="restart" translatable="yes">Restart</a>
+                        </li>
+                        <li class="presentation">
+                            <a role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <label class="control-label" translatable="yes">Performance Profile</label>
+                <span id="system-info-performance" hidden></span>
+
+                <label class="control-label" for="server-pmlogger-switch" translatable="yes" hidden>Store Metrics</label>
+                <div class="btn-group btn-onoff-ct" id="server-pmlogger-switch" data-toggle="buttons" hidden>
+                    <label class="btn">
+                        <input type="radio" name="pmlogger-switch" autocomplete="off">
+                        <span translatable="yes">On</span>
+                    </label>
+                    <label class="btn active">
+                        <input type="radio" name="pmlogger-switch" autocomplete="off" checked>
+                        <span translatable="yes">Off</span>
+                    </label>
+                </div>
+
+                <a id="system-information-enable-pcp-link" hidden>
+                    <span class="pficon pficon-info"></span>
+                    <span translate>Enable stored metrics…</span>
+                </a>
+            </form>
         </div>
+
         <div id="server-graph-columns" class="col-md-8 col-lg-9" role="presentation">
             <div id="server-graph-toolbar" class="zoom-controls standard-zoom-controls">
                 <div class="dropdown">

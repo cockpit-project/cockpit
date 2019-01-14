@@ -289,7 +289,7 @@ function setup() {
 }
 
 $(permission).on('changed', function () {
-    $('#system-info-performance').removeAttr('hidden');
-    $('#system-info-performance').find('.button-location')
-            .append(setup());
+    var element = $('#system-info-performance');
+    element.append(setup());
+    element.removeAttr('hidden');
 });

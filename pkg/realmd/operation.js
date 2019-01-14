@@ -660,7 +660,8 @@ function setup() {
 jQuery(function() {
     var placeholder = jQuery("#system-info-domain");
     if (placeholder.length) {
-        placeholder.find(".button-location").append(setup());
+        placeholder.append(setup());
         placeholder.removeAttr('hidden');
+        placeholder.prev().removeAttr('hidden');
     }
 });

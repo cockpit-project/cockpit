@@ -29,6 +29,8 @@ import * as service from "service.js";
 import { shutdown } from "./shutdown.js";
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 
+import "form-layout.less";
+
 /* These add themselves to jQuery so just including is enough */
 import "patterns";
 import "bootstrap-datepicker/dist/js/bootstrap-datepicker";
@@ -239,7 +241,9 @@ PageServer.prototype = {
             $('#motd-box').hide();
         });
 
-        $('#shutdown-group [data-action]').on("click", function() {
+        $('#shutdown-group [data-action]').on("click", function(ev) {
+            // don't let the click "fall through" to the dialog that we are about to open
+            ev.preventDefault();
             self.shutdown($(this).attr('data-action'));
         });
 
@@ -352,13 +356,17 @@ PageServer.prototype = {
         var packagekit_exists = false;
 
         function update_pmlogger_row() {
+            var logger_switch = $("#server-pmlogger-switch");
+            var enable_pcp = $('#system-information-enable-pcp-link');
             if (!pmlogger_exists) {
-                $('#system-information-enable-pcp').toggle(packagekit_exists);
-                $('#server-pmlogger-onoff-row').hide();
+                enable_pcp.toggle(packagekit_exists);
+                logger_switch.hide();
+                logger_switch.prev().hide();
             } else if (!pmlogger_promise) {
-                $('#system-information-enable-pcp').hide();
-                $("#server-pmlogger-switch").onoff('value', pmlogger_service.enabled);
-                $('#server-pmlogger-onoff-row').show();
+                enable_pcp.hide();
+                logger_switch.onoff('value', pmlogger_service.enabled);
+                logger_switch.show();
+                logger_switch.prev().show();
             }
         }
 
@@ -691,9 +699,10 @@ PageServer.prototype = {
                             .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
                             .text(fields.sys_vendor + " " + fields.product_name);
                     var present = !!(fields.product_serial || fields.chassis_serial);
-                    $("#system_information_asset_tag_text")
-                            .text(fields.product_serial || fields.chassis_serial);
-                    $("#system-info-asset-row").toggle(present);
+                    let text = $("#system_information_asset_tag_text");
+                    text.text(fields.product_serial || fields.chassis_serial);
+                    text.toggle(present);
+                    text.prev().toggle(present);
                 })
                 .fail(function(ex) {
                     debug("couldn't read dmi info: " + ex);
@@ -851,6 +860,7 @@ PageServer.prototype = {
 
     sysroot_changed: function() {
         var self = this;
+        var link = $("#system-ostree-version-link");
 
         if (self.sysroot.Booted && self.ostree_client) {
             var version = "";
@@ -868,12 +878,13 @@ PageServer.prototype = {
                         console.log(ex);
                     })
                     .always(function() {
-                        $("#system-ostree-version").toggleClass("hidden", !version);
-                        $("#system-ostree-version-link").text(version);
+                        link.toggleClass("hidden", !version);
+                        link.prev().toggleClass("hidden", !version);
+                        link.text(version);
                     });
         } else {
-            $("#system-ostree-version").toggleClass("hidden", true);
-            $("#system-ostree-version-link").text("");
+            link.toggleClass("hidden", true);
+            link.text("");
         }
     },
 

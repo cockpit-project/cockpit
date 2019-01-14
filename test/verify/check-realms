@@ -566,10 +566,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_present("#system-info-domain a.disabled")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
-        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.mouse("#system-info-domain span", "mouseover")
         b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "realmd is not available on this system")
-        b.mouse("#system-info-domain .button-location span", "mouseout")
+        b.mouse("#system-info-domain span", "mouseout")
         b.logout()
 
         # case 2: enable PackageKit, but no realmd package available
@@ -579,10 +579,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_text("#system-info-domain a", "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
-        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.mouse("#system-info-domain span", "mouseover")
         b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
-        b.mouse("#system-info-domain .button-location span", "mouseout")
+        b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
         b.wait_present("#cockpit_modal_dialog .dialog-error")
@@ -603,10 +603,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_text("#system-info-domain a", "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
-        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.mouse("#system-info-domain span", "mouseover")
         b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
-        b.mouse("#system-info-domain .button-location span", "mouseout")
+        b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
@@ -632,10 +632,10 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_text("#system-info-domain a", "Join Domain")
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
-        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.mouse("#system-info-domain span", "mouseover")
         b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
-        b.mouse("#system-info-domain .button-location span", "mouseout")
+        b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
@@ -653,7 +653,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b.wait_popdown("realms-op")
 
         # should not have a tooltip any more
-        b.mouse("#system-info-domain .button-location span", "mouseover")
+        b.mouse("#system-info-domain span", "mouseover")
         time.sleep(2)
         self.assertFalse(b.is_present(".tooltip-inner"))
 

@@ -71,18 +71,18 @@
       {{/SubStatus}}
     </script>
 
-    <div id="motd-box" class="container-fluid page-ct" hidden>
-      <div class="alert alert-info">
-        <button type="button" class="close" aria-hidden="true">
-          <span class="pficon pficon-close"></span>
-        </button>
-        <span class="pficon pficon-info"></span>
-        <pre id="motd"></pre>
-      </div>
-    </div>
+    <div id="server" class="container-fluid page-ct server-overview">
+        <div id="motd-box" class="motd-box" hidden>
+          <div class="alert alert-info">
+            <button type="button" class="close" aria-hidden="true">
+              <span class="pficon pficon-close"></span>
+            </button>
+            <span class="pficon pficon-info"></span>
+            <pre id="motd"></pre>
+          </div>
+        </div>
 
-    <div id="server" class="container-fluid page-ct">
-        <div class="col-md-4 col-lg-3 info-table-ct-container">
+        <div class="info-table-ct-container">
             <form class="ct-form-layout">
                 <label class="control-label" for="system_information_hardware_text" translatable="yes">Hardware</label>
                 <span> <!-- wrap the <a> so that it doesn't stretch to the whole page width; otherwise tooltip looks bad -->
@@ -173,7 +173,7 @@
             </form>
         </div>
 
-        <div id="server-graph-columns" class="col-md-8 col-lg-9" role="presentation">
+        <div id="server-graph-columns" class="server-graphs" role="presentation">
             <div id="server-graph-toolbar" class="zoom-controls standard-zoom-controls">
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">

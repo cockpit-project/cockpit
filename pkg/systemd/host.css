@@ -20,6 +20,48 @@ a.disabled {
     white-space: nowrap;
 }
 
+body {
+  /* Work around a pesky scrollbar on the page, due to 100% height */
+  height: auto;
+}
+
+.server-overview {
+    display: grid;
+    grid-gap: 0 2rem;
+    /* By default, horizontally stack the grid elements */
+    grid-template-areas: "motd" "info" "graphs";
+    grid-template-columns: 1fr;
+    margin: 2rem;
+    padding: 0;
+}
+
+@media screen and (min-width: 640px) {
+    /* Lay out overview in a grid, if there's enough width */
+    .server-overview {
+        grid-template-areas: "motd motd" "info graphs";
+        grid-template-columns: auto 1fr;
+    }
+}
+
+.server-overview > .info-table-ct-container {
+    grid-area: info;
+}
+
+.server-overview > .server-graphs {
+    grid-area: graphs;
+}
+
+.server-overview > .motd-box {
+    grid-area: motd;
+}
+
+/* Flot needs a little coaxing to behave */
+.server-graphs canvas,
+.server-graphs .flot-text {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .systime-inline form .pficon-close,
 .systime-inline form .fa-plus {
     height: 26px;

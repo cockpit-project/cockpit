@@ -559,6 +559,7 @@ open_session (pam_handle_t *pamh)
       debug ("opening pam session for %s", name);
 
       pam_putenv (pamh, "XDG_SESSION_CLASS=user");
+      pam_putenv (pamh, "XDG_SESSION_TYPE=web");
 
       res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (res != PAM_SUCCESS)

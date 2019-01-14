@@ -807,6 +807,9 @@ class SizeSliderElement extends React.Component {
                     value = round(value);
                 else
                     value = Math.round(value / round) * round;
+            } else {
+                // Only produce integers by default
+                value = Math.round(value);
             }
 
             onChange(Math.max(min, value));

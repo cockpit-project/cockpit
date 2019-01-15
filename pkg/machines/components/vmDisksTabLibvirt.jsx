@@ -61,15 +61,9 @@ class VmDisksTabLibvirt extends React.Component {
     }
 
     getNotification(vm, areDiskStatsSupported) {
-        if (areDiskStatsSupported) {
-            return null;
-        }
-
-        if (vm.state === 'running') {
+        if (!areDiskStatsSupported && vm.state === 'running') {
             return _("Upgrade to a more recent version of libvirt to view disk statistics");
         }
-
-        return _("Start the VM to see disk statistics.");
     }
 
     prepareDiskData(disk, diskStats, idPrefix, storagePools) {

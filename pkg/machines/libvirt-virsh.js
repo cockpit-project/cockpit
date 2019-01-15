@@ -536,8 +536,6 @@ function parseDomstatsForDisks(domstatsLines) {
         return;
     }
 
-    // Libvirt reports disk capacity since version 1.2.18 (year 2015)
-    // TODO: If disk stats is required for old systems, find a way how to get it when 'block.X.capacity' is not present, consider various options for 'sources'
     const disksStats = {};
     for (let i = 0; i < count; i++) {
         const target = getValueFromLine(domstatsLines, `block.${i}.name=`);

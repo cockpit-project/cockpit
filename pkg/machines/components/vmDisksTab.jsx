@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { Info } from './notification/inlineNotification.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.js";
 import RemoveDiskAction from './diskRemove.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
@@ -56,8 +55,7 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notificationText, dispatch, provider }) => {
-    let notification = null;
+const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, provider }) => {
     const columnTitles = [_("Device")];
     let renderCapacityUsed, renderReadOnly;
     const currentTab = 'disk';
@@ -80,16 +78,10 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, notification
         columnTitles.push(_("Source"));
         // An empty string header is needed for detach actions
         columnTitles.push("");
-
-        if (notificationText) {
-            notification = (<Info text={notificationText}
-                                  textId={`${idPrefix}-notification`} />);
-        }
     }
 
     return (
         <div className="machines-disks">
-            {notification}
             {message}
             <Listing compact columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
@@ -135,7 +127,6 @@ VmDisksTab.propTypes = {
     actions: PropTypes.arrayOf(PropTypes.node),
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
-    notificationText: PropTypes.string,
     provider: PropTypes.string,
 };
 

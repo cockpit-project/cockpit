@@ -18,14 +18,11 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import cockpit from 'cockpit';
 
 import { vmId } from '../helpers.js';
 import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
 import DiskSourceCell from './vmDiskSourceCell.jsx';
-
-const _ = cockpit.gettext;
 
 class VmDisksTabLibvirt extends React.Component {
     componentWillMount() {
@@ -43,7 +40,6 @@ class VmDisksTabLibvirt extends React.Component {
         /* Possible states for disk stats:
             available ~ already read
             supported, but not available yet ~ will be read soon
-            unsupported ~ failed attempt to read (old libvirt)
          */
         let areDiskStatsSupported = false;
         if (vm.disksStats) {
@@ -58,12 +54,6 @@ class VmDisksTabLibvirt extends React.Component {
         }
 
         return areDiskStatsSupported;
-    }
-
-    getNotification(vm, areDiskStatsSupported) {
-        if (!areDiskStatsSupported && vm.state === 'running') {
-            return _("Upgrade to a more recent version of libvirt to view disk statistics");
-        }
     }
 
     prepareDiskData(disk, diskStats, idPrefix, storagePools) {
@@ -130,7 +120,6 @@ class VmDisksTabLibvirt extends React.Component {
                 vm={vm}
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
-                notificationText={this.getNotification(vm, areDiskStatsSupported)}
                 dispatch={dispatch}
                 provider={config.provider.name} />
         );

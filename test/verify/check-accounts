@@ -241,6 +241,41 @@ class TestAccounts(MachineCase):
         self.allow_restart_journal_messages()
         self.allow_authorize_journal_messages()
 
+    def testRootLogin(self):
+        m = self.machine
+        b = self.browser
+        new_password = "tqymuVh.Zf5"
+
+        # defaults to empty shell on debian-stable (Debian 9 only), so specify it explicitly
+        m.execute("useradd --shell /bin/bash anton; echo anton:foobar | chpasswd")
+        self.login_and_go("/users", user="root", authorized=False)
+
+        # test this on root and a normal user account
+        for user in ["anton", "root"]:
+            b.go("#/" + user)
+            b.wait_text("#account-user-name", user)
+            b.wait_present('#account-set-password:enabled')
+            b.click('#account-set-password')
+            b.wait_popup('account-set-password-dialog')
+            b.wait_visible("#account-set-password-pw1")
+            # root does not need to know old password
+            b.wait_not_visible("#account-set-password-old")
+            b.set_val("#account-set-password-pw1", new_password)
+            b.set_val("#account-set-password-pw2", new_password)
+            b.click('#account-set-password-apply')
+            b.wait_popdown('account-set-password-dialog')
+
+        # Logout and login with the new password
+        for user in ["anton", "root"]:
+            b.logout()
+            b.open("/users")
+            b.wait_visible("#login")
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", new_password)
+            b.click('#login-button')
+            b.expect_load()
+            b.wait_present('#content')
+
     def accountExpiryInfo(self, account, field):
         for line in self.machine.execute("LC_ALL=C chage -l {0}".format(account)).split("\n"):
             if line.startswith(field):

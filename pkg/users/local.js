@@ -1353,7 +1353,7 @@ PageAccountSetPassword.prototype = {
     },
 
     show: function() {
-        if (this.user.name !== PageAccountSetPassword.user_name) {
+        if (this.user.id === 0 || this.user.name !== PageAccountSetPassword.user_name) {
             $('#account-set-password-old')
                     .toggle(false);
             $('#account-set-password-old').prev()

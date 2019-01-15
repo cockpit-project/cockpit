@@ -57,11 +57,30 @@
   @widget-height: @line-height-computed + (@padding-base-vertical * 2) + (@border-width * 2);
 
   display: grid;
-  grid-gap: 0 @padding-large-vertical;
+  grid-gap: @padding-small-vertical @padding-small-horizontal;
   // Repeat a label that is a minimum of 4em and its control that
   // fills the remaining space by a CSS variable (default: 2)
   grid-template-columns: repeat(var(--ct-form-layout-columns), max-content 1fr);
   place-items: baseline stretch;
+
+  // All <label> elements describing form elements in PatternFly are
+  // supposed to have a `control-label` class.
+  // These precede control elements.
+  > .control-label {
+    align-self: flex-start;
+    text-align: right;
+  }
+
+  // Put all control elements to the right of the labels,
+  // stretching to the rightmost column
+  > :not(.control-label):not(hr):not(.ct-form-layout-split) {
+    grid-column: ~"2 / -1";
+  }
+
+  // Auto-stretch elements to the grid (except when relaxed)
+  > :not(.ct-form-layout-relax) {
+    width: auto;
+  }
 
   // Horizontal rules directly under a form-layout container serve to
   // add some vertical space in forms. This is useful for visually
@@ -74,56 +93,10 @@
     // LESS needs this to be escaped with ~"". You'll see it below too.
     // CSS wants the string to be 1 / -1 without escaping.
     grid-column: ~"1 / -1";
-    height: @padding-small-vertical * 3;
-    // Reset margin & padding to ensure all browsers treat this the same
+    height: @padding-small-vertical * 2;
+    // Reset padding to ensure all browsers treat this the same
     margin: 0;
     padding: 0;
-  }
-
-  > label,
-  > [role="group"] > label,
-  .checkbox > label,
-  .radio > label,
-  .checkbox-inline,
-  .radio-inline {
-    // Make labels are the same height as controls,
-    // to ensure vertical alignment happens properly
-    line-height: @widget-height;
-  }
-
-  // All <label> elements describing form elements in PatternFly are
-  // supposed to have a `control-label` class.
-  // These precede control elements.
-  > .control-label {
-    align-self: flex-start;
-    padding-left: @padding-small-horizontal;
-    text-align: right;
-  }
-
-  // Put all control elements to the right of the labels,
-  // stretching to the rightmost column
-  > div,
-  > span,
-  > a,
-  > p,
-  > dl,
-  > ol,
-  > ul,
-  > fieldset,
-  > input,
-  > textarea,
-  > samp,
-  > pre,
-  > code,
-  > kbd,
-  > label:not(.control-label) {
-    grid-column: ~"2 / -1";
-    line-height: @widget-height;
-    margin: 0;
-
-    &:not(.ct-form-layout-relax) {
-      width: auto;
-    }
   }
 
   // Auto-relax inputs with size
@@ -131,11 +104,31 @@
     justify-self: start;
   }
 
-  // Some elements need special width considerations
-  // as PatternFly normally fixes the width
+  // Hack to allow number inputs to be sized on WebKit-based browsers
+  input[type=number] {
+    -webkit-appearance: textarea;
+  }
+
+  // Special considerations for widgets (and widget-like elements)
+  > input,
+  > textarea,
+  > select,
   > .bootstrap-select,
+  > .dropdown,
+  > .combobox-container,
+  > fieldset,
+  > [role=group],
+  > .form-group,
   > .btn-group,
-  > .dropdown {
+  > .checkbox-inline,
+  > .radio-inline {
+    // Vertically align elements with text
+    margin-top: -(@padding-small-vertical - @padding-base-vertical);
+    // Ensure widgets are a at least a minimum widget size
+    min-height: @widget-height;
+
+    // Some elements need special width considerations
+    // as PatternFly normally fixes the width
     &:not(.ct-form-layout-relax) {
       width: auto !important;
     }
@@ -152,11 +145,16 @@
   // <div role="group">
   //
   // And non-div elements are also supported.
+  fieldset,
   > [role=group] {
+    // appearance: none is needed for WebKit
+    -webkit-appearance: none;
+    appearance: none;
+    align-content: center;
     align-self: start;
     display: grid;
-    grid-gap: @padding-small-vertical;
     grid-auto-flow: column;
+    grid-gap: @padding-small-vertical;
     grid-template-columns: max-content;
     justify-content: start;
 
@@ -178,13 +176,14 @@
     display: inline-flex;
     padding-left: 0;
     padding-right: @padding-small-horizontal;
+    align-items: center;
 
     > input[type="checkbox"],
     > input[type="radio"] {
       // Typical browser widget height for radios & checks; standardized here
       height: 16px;
       margin: @padding-small-vertical 0;
-      margin-right: @padding-small-horizontal;
+      margin-right: 0.5rem;
       position: static;
     }
   }
@@ -215,6 +214,12 @@
   }
 }
 
+// Apply left-padding to control-labels when in a modal dialog
+.modal .ct-form-layout > .control-label {
+  padding-left: 0.5rem;
+}
+
+
 // Force a form element to stretch. Add as a class to `form-control`.
 .ct-form-layout-stretch {
   justify-content: stretch !important;
@@ -233,46 +238,50 @@
 }
 
 @media (max-width: 640px) {
-  // When the page isn't wide enough, collapse (label + control) columns
-  // down to 1, to force splits on their own lines
-  :root {
+  // When inside of lists or modals & the page isn't wide enough,
+  // collapse (label + control) columns down to 1, to force splits on
+  // their own lines
+  .listing-ct-body,
+  .modal {
     --ct-form-layout-columns: 1;
   }
 }
 
 @media (max-width: @screen-xs) {
-  // When the page is very narrow, collapse the grid further,
-  // so labels are above controls
+  // When inside of lists or modals & the page is *very* narrow,
+  // collapse the grid further, so labels are above controls
   //
   // Note: Padding variables below are outside the local scope of the
   // .ct-form-layout block, so they default to the global PatternFly
   // values.
-  .ct-form-layout {
-    // Completely deconstruct the grid layout
-    grid-template-columns: initial;
 
-    > * {
-      // Don't restrict grid placement
-      grid-column: auto;
-      // Use default PatternFly line height
-      line-height: @line-height-base;
-      max-width: 100%;
-    }
+  .listing-ct-body,
+  .modal {
+    .ct-form-layout {
+      // Completely deconstruct the grid layout
+      grid-template-columns: initial;
 
-    // As control labels fill the row, left align and remove padding
-    > .control-label {
-      padding: 0;
-      text-align: left;
-
-      // Everything but the first label should have space to breathe
-      &:not(:first-child) {
-        margin: @padding-large-vertical 0 0;
+      > * {
+        // Don't restrict grid placement
+        grid-column: auto;
+        max-width: 100%;
       }
-    }
 
-    // Reduce vertical height spacing between groups of elements
-    > hr {
-      height: @padding-large-vertical * 2;
+      // As control labels fill the row, left align and remove padding
+      > .control-label {
+        padding: 0;
+        text-align: left;
+
+        // Everything but the first label should have space to breathe
+        &:not(:first-child) {
+          margin: @padding-large-vertical 0 0;
+        }
+      }
+
+      // Reduce vertical height spacing between groups of elements
+      > hr {
+        height: @padding-large-vertical * 2;
+      }
     }
   }
 }

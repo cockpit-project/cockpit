@@ -471,7 +471,7 @@ export class CreateVmAction extends React.Component {
 
     render() {
         return (
-            <div>
+            <React.Fragment>
                 <Button className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
                     {_("Create VM")}
                 </Button>
@@ -480,7 +480,7 @@ export class CreateVmAction extends React.Component {
                     close={this.close} dispatch={this.props.dispatch}
                     osInfoList={this.props.systemInfo.osInfoList}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
-            </div>
+            </React.Fragment>
         );
     }
 }

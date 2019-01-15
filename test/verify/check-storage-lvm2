@@ -159,7 +159,7 @@ class TestStorage(StorageCase):
 
         # unmount it
         self.content_tab_action(1, 2, "Unmount")
-        b.wait_not_present(self.content_tab_info_row(1, 2, "Mounted At"))
+        b.wait_not_present(self.content_tab_info_label(1, 2, "Mounted At"))
 
         # shrink it, this time with a filesystem.
         self.content_tab_action(1, 1, "Shrink")
@@ -175,7 +175,7 @@ class TestStorage(StorageCase):
         b.wait_present('#detail-sidebar tr:nth-child(2) button')
         b.click('#detail-sidebar tr:nth-child(2) button')
         b.wait_not_in_text("#detail-sidebar", "DISK2")
-        b.wait_in_text("#detail-header .info-table-ct", "48 MiB")
+        b.wait_in_text("#detail-header label:contains(Capacity) + div", "48 MiB")
 
         # create thin pool and volume
         # the pool will be maximum size, 48 MiB
@@ -199,7 +199,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#detail-sidebar", "DISK2")
-        b.wait_in_text("#detail-header .info-table-ct", "96 MiB")
+        b.wait_in_text("#detail-header label:contains(Capacity) + div", "96 MiB")
 
         self.content_tab_action(1, 1, "Grow")
         self.dialog({"size": 70})

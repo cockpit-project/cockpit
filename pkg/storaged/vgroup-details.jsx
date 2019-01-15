@@ -238,18 +238,13 @@ export class VGroupDetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <table className="info-table-ct">
-                        <tbody>
-                            <tr>
-                                <td>{_("storage", "UUID")}</td>
-                                <td>{ vgroup.UUID }</td>
-                            </tr>
-                            <tr>
-                                <td>{_("storage", "Capacity")}</td>
-                                <td>{ utils.fmt_size_long(vgroup.Size) }</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="ct-form-layout">
+                        <label className="control-label">{_("storage", "UUID")}</label>
+                        <div>{ vgroup.UUID }</div>
+
+                        <label className="control-label">{_("storage", "Capacity")}</label>
+                        <div>{ utils.fmt_size_long(vgroup.Size) }</div>
+                    </div>
                 </div>
             </div>
         );

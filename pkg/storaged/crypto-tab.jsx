@@ -123,22 +123,22 @@ export class CryptoTab extends React.Component {
                 <div className="tab-actions">
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tbody>
-                        { !self.props.client.is_old_udisks2
-                            ? <tr>
-                                <td>{_("Stored passphrase")}</td>
-                                <td><StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton></td>
-                            </tr> : null
-                        }
-                        { !self.props.client.is_old_udisks2
-                            ? <tr>
-                                <td>{_("Options")}</td>
-                                <td><StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink></td>
-                            </tr> : null
-                        }
-                    </tbody>
-                </table>
+                <div className="ct-form-layout">
+                    { !self.props.client.is_old_udisks2
+                        ? <React.Fragment>
+                            <label className="control-label">{_("Stored passphrase")}</label>
+                            <div className="ct-form-layout-stretch">
+                                <StorageButton onClick={edit_stored_passphrase}>{_("Edit")}</StorageButton>
+                            </div>
+                        </React.Fragment> : null
+                    }
+                    { !self.props.client.is_old_udisks2
+                        ? <React.Fragment>
+                            <label className="control-label">{_("Options")}</label>
+                            <StorageLink onClick={edit_options}>{old_options || _("(none)")}</StorageLink>
+                        </React.Fragment> : null
+                    }
+                </div>
                 <br />
                 <CryptoKeyslots client={client} block={block} />
             </div>

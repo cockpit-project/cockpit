@@ -36,22 +36,19 @@ export class PVolTab extends React.Component {
                 <div className="tab-actions">
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tr>
-                        <td>{_("Volume Group")}</td>
-                        <td>{vgroup
-                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
-                                {vgroup.Name}
-                            </a>
-                            : "-"
-                        }
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>{_("Free")}</td>
-                        <td>{block_pvol ? utils.fmt_size(block_pvol.FreeSize) : "-"}</td>
-                    </tr>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("Volume Group")}</label>
+                    <div>{vgroup
+                        ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vg", vgroup.Name ])}>
+                            {vgroup.Name}
+                        </a>
+                        : "-"
+                    }
+                    </div>
+
+                    <label className="control-label">{_("Free")}</label>
+                    <div>{block_pvol ? utils.fmt_size(block_pvol.FreeSize) : "-"}</div>
+                </div>
             </div>
         );
     }
@@ -66,18 +63,16 @@ export class MDRaidMemberTab extends React.Component {
                 <div className="tab-actions">
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tr>
-                        <td>{_("RAID Device")}</td>
-                        <td>{mdraid
-                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
-                                {utils.mdraid_name(mdraid)}
-                            </a>
-                            : "-"
-                        }
-                        </td>
-                    </tr>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("RAID Device")}</label>
+                    <div>{mdraid
+                        ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}>
+                            {utils.mdraid_name(mdraid)}
+                        </a>
+                        : "-"
+                    }
+                    </div>
+                </div>
             </div>
         );
     }
@@ -92,18 +87,16 @@ export class VDOBackingTab extends React.Component {
                 <div className="tab-actions">
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tr>
-                        <td>{_("VDO Device")}</td>
-                        <td>{vdo
-                            ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
-                                {vdo.name}
-                            </a>
-                            : "-"
-                        }
-                        </td>
-                    </tr>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("VDO Device")}</label>
+                    <div>{vdo
+                        ? <a role="link" tabIndex="0" onClick={() => cockpit.location.go([ "vdo", vdo.name ])}>
+                            {vdo.name}
+                        </a>
+                        : "-"
+                    }
+                    </div>
+                </div>
             </div>
         );
     }

@@ -81,14 +81,14 @@ class TestStorage(StorageCase):
 
         self.content_tab_action(1, 1, "Unmount")
         if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
+            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
 
         self.content_tab_info_action(1, 1, "Name")
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
         if not self.storaged_is_old_udisks:
-            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point"),
+            self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount Point", wrapped=True),
                                    expect={"mounting": "custom",
                                            "mount_point": mount_point_foo},
                                    values={"mount_point": mount_point_bar})
@@ -126,13 +126,13 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
-            return b.wait_text('#detail-header tr:contains("%s") td:nth-child(2)' % name, value)
+            return b.wait_text('#detail-header label:contains("%s") + div' % name, value)
 
         wait_info_field_value("Serial Number", "MYDISK")
 
         if not self.storaged_is_old_udisks:
-            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
-            self.content_tab_info_action(1, 1, "Mount Point")
+            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
+            self.content_tab_info_action(1, 1, "Mount Point", wrapped=True)
             self.dialog(values={"mounting": "default"})
             self.wait_not_in_storaged_configuration(mount_point_bar)
 
@@ -140,7 +140,7 @@ class TestStorage(StorageCase):
             self.content_tab_wait_in_info(1, 1, "Mounted At", self.mount_root + "/admin/filesystem")
 
             self.content_tab_action(1, 1, "Unmount")
-            b.wait_not_present(self.content_tab_info_row(1, 1, "Mounted At"))
+            b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
 
         self.content_tab_action(1, 1, "Format")
         self.dialog({"type": "empty"})
@@ -174,35 +174,35 @@ class TestStorage(StorageCase):
         def wait_not_checked(field):
             b.wait_present(self.dialog_field(field) + ":not(:checked)")
 
-        wait_checked("crypto_options_auto")
-        wait_checked("mount_auto")
-        wait_not_checked("crypto_options_ro")
-        wait_not_checked("mount_ro")
+        wait_checked("crypto_options.auto")
+        wait_checked("mount_options.auto")
+        wait_not_checked("crypto_options.ro")
+        wait_not_checked("mount_options.ro")
 
         # Uncheck crypto auto.  This gets propagated to mount auto.
-        self.dialog_set_val("crypto_options_auto", False)
-        wait_not_checked("mount_auto")
+        self.dialog_set_val("crypto_options.auto", False)
+        wait_not_checked("mount_options.auto")
 
         # Check crypto ro.  This gets propagated to mount ro.
-        self.dialog_set_val("crypto_options_ro", True)
-        wait_checked("mount_ro")
+        self.dialog_set_val("crypto_options.ro", True)
+        wait_checked("mount_options.ro")
 
         # Check mount auto.  This gets propagated to crypto auto.
-        self.dialog_set_val("mount_auto", True)
-        wait_checked("crypto_options_auto")
+        self.dialog_set_val("mount_options.auto", True)
+        wait_checked("crypto_options.auto")
 
         # Uncheck mount ro.  This gets propagated to crypto ro.
-        self.dialog_set_val("mount_ro", False)
-        wait_not_checked("crypto_options_ro")
+        self.dialog_set_val("mount_options.ro", False)
+        wait_not_checked("crypto_options.ro")
 
         # Uncheck crypto auto and check crypto_ro again to verify that
         # they have the expected effect.
-        self.dialog_set_val("crypto_options_auto", False)
-        self.dialog_set_val("crypto_options_ro", True)
+        self.dialog_set_val("crypto_options.auto", False)
+        self.dialog_set_val("crypto_options.ro", True)
 
         # Set extra options.
-        self.dialog_set_val("crypto_extra_options", "foo")
-        self.dialog_set_val("mount_extra_options", "foo")
+        self.dialog_set_val("crypto_options.extra", "foo")
+        self.dialog_set_val("mount_options.extra", "foo")
 
         # Fill in the erst and do the format
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")

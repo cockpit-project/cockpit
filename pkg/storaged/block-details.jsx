@@ -33,18 +33,13 @@ export class BlockDetails extends React.Component {
             <div className="panel panel-default">
                 <div className="panel-heading">{_("Block")}</div>
                 <div className="panel-body">
-                    <table className="info-table-ct">
-                        <tbody>
-                            <tr>
-                                <td>{_("storage", "Capacity")}</td>
-                                <td>{ utils.fmt_size_long(block.Size) }</td>
-                            </tr>
-                            <tr>
-                                <td>{_("storage", "Device File")}</td>
-                                <td>{ utils.block_name(block) }</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="ct-form-layout">
+                        <label className="control-label">{_("storage", "Capacity")}</label>
+                        <div>{ utils.fmt_size_long(block.Size) }</div>
+
+                        <label className="control-label">{_("storage", "Device File")}</label>
+                        <div>{ utils.block_name(block) }</div>
+                    </div>
                 </div>
             </div>
         );

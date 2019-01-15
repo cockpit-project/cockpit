@@ -62,7 +62,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         def detail(index):
-            return '#detail-header tr:nth-child(%s) td:nth-child(2)' % index
+            return '#detail-header div.ct-form-layout label:nth-of-type(%s) + div' % index
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
         b.wait_in_text(detail(2), "vdo_vgroup")

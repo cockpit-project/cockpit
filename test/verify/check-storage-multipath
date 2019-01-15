@@ -31,17 +31,14 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        def detail_row(index):
-            return '#detail-header tr:nth-child(%s)' % index
-
         def detail_row_name(index):
-            return '#detail-header tr:nth-child(%s) td:nth-child(1)' % index
+            return '#detail-header div.ct-form-layout label:nth-of-type(%s)' % index
 
         def detail_row_value(index):
-            return '#detail-header tr:nth-child(%s) td:nth-child(2)' % index
+            return '#detail-header div.ct-form-layout label:nth-of-type(%s) + div' % index
 
         def wait_detail_row(index, name):
-            b.wait_present(detail_row(index))
+            b.wait_present(detail_row_name(index))
             b.wait_text(detail_row_name(index), name)
 
         def check_free_block_devices(expected):

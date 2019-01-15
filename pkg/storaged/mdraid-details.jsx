@@ -200,10 +200,10 @@ export class MDRaidDetails extends React.Component {
         if (mdraid.BitmapLocation) {
             var value = utils.decode_filename(mdraid.BitmapLocation) != "none";
             bitmap = (
-                <tr>
-                    <td>{_("storage", "Bitmap")}</td>
-                    <td><StorageOnOff state={value} onChange={toggle_bitmap} /></td>
-                </tr>
+                <React.Fragment>
+                    <label className="control-label">{_("storage", "Bitmap")}</label>
+                    <StorageOnOff state={value} onChange={toggle_bitmap} />
+                </React.Fragment>
             );
         }
 
@@ -324,31 +324,24 @@ export class MDRaidDetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <table className="info-table-ct">
-                        <tbody>
-                            <tr>
-                                <td>{_("storage", "Device")}</td>
-                                <td>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</td>
-                            </tr>
-                            <tr>
-                                <td>{_("storage", "UUID")}</td>
-                                <td>{ mdraid.UUID }</td>
-                            </tr>
-                            <tr>
-                                <td>{_("storage", "Capacity")}</td>
-                                <td>{ utils.fmt_size_long(mdraid.Size) }</td>
-                            </tr>
-                            <tr>
-                                <td>{_("storage", "RAID Level")}</td>
-                                <td>{ level }</td>
-                            </tr>
-                            { bitmap }
-                            <tr>
-                                <td>{_("storage", "State")}</td>
-                                <td>{ running ? _("Running") : _("Not running") }</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="ct-form-layout">
+                        <label className="control-label">{_("storage", "Device")}</label>
+                        <div>{ block ? utils.decode_filename(block.PreferredDevice) : "-" }</div>
+
+                        <label className="control-label">{_("storage", "UUID")}</label>
+                        <div>{ mdraid.UUID }</div>
+
+                        <label className="control-label">{_("storage", "Capacity")}</label>
+                        <div>{ utils.fmt_size_long(mdraid.Size) }</div>
+
+                        <label className="control-label">{_("storage", "RAID Level")}</label>
+                        <div>{ level }</div>
+
+                        { bitmap }
+
+                        <label className="control-label">{_("storage", "State")}</label>
+                        <div>{ running ? _("Running") : _("Not running") }</div>
+                    </div>
                 </div>
             </div>
         );

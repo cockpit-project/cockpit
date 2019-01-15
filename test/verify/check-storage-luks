@@ -54,10 +54,10 @@ class TestStorage(StorageCase):
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         if not self.storaged_is_old_udisks:
-            self.dialog_set_val("store_passphrase", True)
+            self.dialog_set_val("store_passphrase.val", True)
             self.dialog_set_val("mounting", "custom")
             self.dialog_set_val("mount_point", mount_point_secret)
-            self.dialog_set_val("crypto_extra_options", "crypto,options")
+            self.dialog_set_val("crypto_options.extra", "crypto,options")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -84,14 +84,14 @@ class TestStorage(StorageCase):
             # Change options.  We keep trying until the stack has synched
             # up with crypttab and we see the old options.
             self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 2, "Options"),
-                                   expect={"crypto_extra_options": "crypto,options"},
-                                   values={"crypto_extra_options": "weird,options"})
+                                   expect={"crypto_options.extra": "crypto,options"},
+                                   values={"crypto_options.extra": "weird,options"})
 
             assert m.execute("grep 'weird,options' /etc/crypttab") != ""
             self.wait_in_storaged_configuration("weird,options")
 
             # Change passphrase
-            edit_button = self.content_tab_info_row(1, 2, "Stored passphrase") + " button"
+            edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
             self.dialog_with_retry(trigger=lambda: b.click(edit_button),
                                    expect={"passphrase": "vainu-reku-toma-rolle-kaja"},
                                    values={"passphrase": "wrong-passphrase"})
@@ -99,7 +99,7 @@ class TestStorage(StorageCase):
             assert m.execute("cat /etc/luks-keys/*") == "wrong-passphrase"
 
             # Remove passphrase
-            edit_button = self.content_tab_info_row(1, 2, "Stored passphrase") + " button"
+            edit_button = self.content_tab_info_label(1, 2, "Stored passphrase") + " + div button"
             self.dialog_with_retry(trigger=lambda: b.click(edit_button),
                                    expect={"passphrase": "wrong-passphrase"},
                                    values={"passphrase": ""})

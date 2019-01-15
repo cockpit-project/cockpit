@@ -334,26 +334,19 @@ export class BlockVolTab extends React.Component {
                 <div className="tab-actions">
                     <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton>
                 </div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Name")}</td>
-                            <td>
-                                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{_("Size")}</td>
-                            <td>
-                                {utils.fmt_size(this.props.lvol.Size)}
-                                <div className="tab-row-actions">
-                                    <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
-                                    <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("Name")}</label>
+                    <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+
+                    <label className="control-label">{_("Size")}</label>
+                    <div>
+                        {utils.fmt_size(this.props.lvol.Size)}
+                        <div className="tab-row-actions">
+                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
+                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -376,34 +369,23 @@ export class PoolVolTab extends React.Component {
         }
 
         return (
-            <div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Name")}</td>
-                            <td>
-                                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{_("Size")}</td>
-                            <td>
-                                {utils.fmt_size(this.props.lvol.Size)}
-                                <div className="tab-row-actions">
-                                    <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{_("Data Used")}</td>
-                            <td>{perc(this.props.lvol.DataAllocatedRatio)}</td>
-                        </tr>
-                        <tr>
-                            <td>{_("Metadata Used")}</td>
-                            <td>{perc(this.props.lvol.MetadataAllocatedRatio)}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className="ct-form-layout">
+                <label className="control-label">{_("Name")}</label>
+                <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
+
+                <label className="control-label">{_("Size")}</label>
+                <div>
+                    {utils.fmt_size(this.props.lvol.Size)}
+                    <div className="tab-row-actions">
+                        <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                    </div>
+                </div>
+
+                <label className="control-label">{_("Data Used")}</label>
+                <div>{perc(this.props.lvol.DataAllocatedRatio)}</div>
+
+                <label className="control-label">{_("Metadata Used")}</label>
+                <div>{perc(this.props.lvol.MetadataAllocatedRatio)}</div>
             </div>
         );
     }

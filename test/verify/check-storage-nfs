@@ -72,8 +72,8 @@ class TestStorage(StorageCase):
         # Go to details of /home/bar
         b.click("#nfs-mounts tr:contains(/home/bar)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/bar")
-        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/bar")
+        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/bar")
+        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/bar")
 
         # Change mount point of /home/bar
         b.click('#detail-header button:contains("Edit")')
@@ -82,7 +82,7 @@ class TestStorage(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/barbar")
+        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/barbar")
         m.execute("! test -e /mounts/bar")
         m.execute("test -d /mounts/barbar")
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
@@ -97,11 +97,11 @@ class TestStorage(StorageCase):
             b.wait_present(self.dialog_field(field) + ":not(:checked)")
 
         self.dialog_wait_open()
-        wait_checked("mount_auto")
-        wait_not_checked("mount_ro")
-        self.dialog_set_val("mount_auto", False)
-        self.dialog_set_val("mount_ro", True)
-        self.dialog_set_val("mount_extra_options", "ac")
+        wait_checked("mount_options.auto")
+        wait_not_checked("mount_options.ro")
+        self.dialog_set_val("mount_options.auto", False)
+        self.dialog_set_val("mount_options.ro", True)
+        self.dialog_set_val("mount_options.extra", "ac")
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -112,8 +112,8 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         b.click("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mnt")
+        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mnt")
 
         # Unmount and remount /home/foo
         b.click("#detail-header button:contains(Unmount)")
@@ -183,8 +183,8 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         b.click("#nfs-mounts tr:contains(/home/foo)")
         b.wait_present('#storage-detail')
-        b.wait_text('#detail-header tr:contains("Server") td:nth-child(2)', "127.0.0.1:/home/foo")
-        b.wait_text('#detail-header tr:contains("Mount Point") td:nth-child(2)', "/mounts/foo")
+        b.wait_text('#detail-header label:contains("Server") + div', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header label:contains("Mount Point") + div', "/mounts/foo")
 
         m.spawn("cd /mounts/foo; sleep infinity", "busy")
         b.click('#detail-header button:contains("Edit")')

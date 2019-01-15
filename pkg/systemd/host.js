@@ -518,9 +518,7 @@ PageServer.prototype = {
         var machine_id = cockpit.file("/etc/machine-id");
         machine_id.read()
                 .done(function(content) {
-                    $("#system_machine_id")
-                            .text(content)
-                            .tooltip({ title: content, placement: "bottom" });
+                    $("#system_machine_id").text(content);
                 })
                 .fail(function(ex) {
                     console.error("Error reading machine id", ex);

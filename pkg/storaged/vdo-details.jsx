@@ -263,65 +263,56 @@ export class VDODetails extends React.Component {
                     </span>
                 </div>
                 <div className="panel-body">
-                    <table className="info-table-ct">
-                        <tbody>
-                            <tr>
-                                <td>{_("Device File")}</td>
-                                <td>{vdo.dev}</td>
-                            </tr>
-                            <tr>
-                                <td>{_("Backing Device")}</td>
-                                <td>
-                                    { backing_block
-                                        ? <StorageBlockNavLink client={client} block={backing_block} />
-                                        : vdo.backing_dev
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>{_("Physical")}</td>
-                                <td>
-                                    { stats
-                                        ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
-                                                         fmt_size(stats.dataBlocksUsed * stats.blockSize),
-                                                         fmt_size(stats.overheadBlocksUsed * stats.blockSize),
-                                                         fmt_size(vdo.physical_size),
-                                                         fmt_perc(stats.usedPercent))
-                                        : fmt_size(vdo.physical_size)
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>{_("Logical")}</td>
-                                <td>
-                                    { stats
-                                        ? cockpit.format(_("$0 used of $1 ($2 saved)"),
-                                                         fmt_size(stats.logicalBlocksUsed * stats.blockSize),
-                                                         fmt_size(vdo.logical_size),
-                                                         fmt_perc(stats.savingPercent))
-                                        : fmt_size(vdo.logical_size)
-                                    }
-                                    &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>{_("Index Memory")}</td>
-                                <td>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</td>
-                            </tr>
-                            <tr>
-                                <td>{_("Compression")}</td>
-                                <td><StorageOnOff state={vdo.compression}
-                                                  onChange={() => vdo.set_compression(!vdo.compression)} />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>{_("Deduplication")}</td>
-                                <td><StorageOnOff state={vdo.deduplication}
-                                                  onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div className="ct-form-layout">
+                        <label className="control-label">{_("Device File")}</label>
+                        <div>{vdo.dev}</div>
+
+                        <label className="control-label">{_("Backing Device")}</label>
+                        <div>
+                            { backing_block ? <StorageBlockNavLink client={client} block={backing_block} />
+                                : vdo.backing_dev
+                            }
+                        </div>
+
+                        <label className="control-label">{_("Physical")}</label>
+                        <div>
+                            { stats
+                                ? cockpit.format(_("$0 data + $1 overhead used of $2 ($3)"),
+                                                 fmt_size(stats.dataBlocksUsed * stats.blockSize),
+                                                 fmt_size(stats.overheadBlocksUsed * stats.blockSize),
+                                                 fmt_size(vdo.physical_size),
+                                                 fmt_perc(stats.usedPercent))
+                                : fmt_size(vdo.physical_size)
+                            }
+                        </div>
+
+                        <label className="control-label">{_("Logical")}</label>
+                        <div>
+                            { stats
+                                ? cockpit.format(_("$0 used of $1 ($2 saved)"),
+                                                 fmt_size(stats.logicalBlocksUsed * stats.blockSize),
+                                                 fmt_size(vdo.logical_size),
+                                                 fmt_perc(stats.savingPercent))
+                                : fmt_size(vdo.logical_size)
+                            }
+                            &nbsp; <StorageButton onClick={grow_logical}>{_("Grow")}</StorageButton>
+                        </div>
+
+                        <label className="control-label">{_("Index Memory")}</label>
+                        <div>{fmt_size(vdo.index_mem * 1024 * 1024 * 1024)}</div>
+
+                        <label className="control-label">{_("Compression")}</label>
+                        <div>
+                            <StorageOnOff state={vdo.compression}
+                                          onChange={() => vdo.set_compression(!vdo.compression)} />
+                        </div>
+
+                        <label className="control-label">{_("Deduplication")}</label>
+                        <div>
+                            <StorageOnOff state={vdo.deduplication}
+                                           onChange={() => vdo.set_deduplication(!vdo.deduplication)} />
+                        </div>
+                    </div>
                 </div>
             </div>
         );

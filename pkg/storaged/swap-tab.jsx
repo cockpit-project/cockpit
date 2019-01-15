@@ -79,14 +79,10 @@ export class SwapTab extends React.Component {
                     }
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Used")}</td>
-                            <td>{used}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("Used")}</label>
+                    <div>{used}</div>
+                </div>
             </div>
         );
     }

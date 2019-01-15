@@ -139,48 +139,6 @@
     text-overflow: ellipsis;
 }
 
-.available-disks-group {
-    margin-bottom: 0px;
-}
-
-.available-disks-group input[type='checkbox'],
-.available-disks-group input[type='radio'] {
-    margin: 4px 4px 4px -20px;
-}
-
-
-/* Make the whole row a hit target */
-.available-disks-group .list-group-item {
-    padding: 0;
-}
-
-.available-disks-group .list-group-item label {
-    padding: 3px 10px;
-}
-
-.available-disks-group .checkbox label,
-.available-disks-group .radio label {
-    width: 100%;
-}
-
-.available-disks-group .checkbox label span,
-.available-disks-group .radio label span {
-    display: block;
-    margin-left: 20px;
-    margin-top: 6px;
-    line-height: 20px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 450px;
-}
-
-.available-disks-group .checkbox label input[type="checkbox"],
-.available-disks-group .radio label input[type="radio"] {
-    margin-left: auto;
-    margin-top: 8px;
-}
-
 @media (min-width: 768px) {
     .storage-graph-container:nth-child(1) {
         padding-right: 5px;
@@ -238,12 +196,6 @@
 
 .dialog-select-row-table th:last-child {
     padding-right: 0.75em;
-}
-
-.form-table-ct .checkbox,
-.form-table-ct .radio {
-    margin-top: 0px;
-    margin-bottom: 0px;
 }
 
 .arming-zone .needs-arming {
@@ -463,10 +415,6 @@ td.vgroup-action {
     text-align: right;
 }
 
-.available-disks-group .checkbox {
-    margin: 0px;
-}
-
 .dialog-arrow {
     color: black;
     cursor: pointer;
@@ -549,7 +497,7 @@ td.vgroup-action {
     margin-top: 4px;
 }
 
-#detail-sidebar .table td.storage-action {
+#detail-sidebar td.storage-action {
     width: 51px;
 }
 
@@ -581,10 +529,6 @@ a.disabled {
 
 /* Make tooltips inside tables visible.
  */
-
-.info-table-ct td {
-    overflow: visible !important;
-}
 
 td.storage-action {
     overflow: visible !important;
@@ -621,7 +565,7 @@ td.storage-action {
     padding-right: 10px;
 }
 
-.form-table-ct .combobox-container .input-group {
+.combobox-container .input-group {
     width: 100%;
 }
 
@@ -737,12 +681,6 @@ td.storage-action {
     color: #a30000; /* pf-red-200 */
 }
 
-/* Reset line-height for help texts inside form-table-ct
- */
-.form-table-ct td .help-block {
-    line-height: 1.666666;
-}
-
 .modal-dialog .key-source .radio-horizontal {
     margin-bottom: 2ex;
 }
@@ -766,4 +704,18 @@ td.storage-action {
 
 .size-sliderx .size-unit {
     width: 5em !important;
+}
+
+.select-space-row {
+    display: flex;
+    align-items: center;
+}
+
+.select-space-row :nth-child(1) {
+    margin-top: 0px;
+}
+
+.select-space-row :nth-child(2) {
+    flex-grow: 1;
+    margin-left: 10px;
 }

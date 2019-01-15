@@ -27,7 +27,7 @@ import {
     get_config
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
-import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBox } from "./dialog.jsx";
+import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBoxes } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -75,17 +75,25 @@ export class VDOsPanel extends React.Component {
                                            value: 256 * 1024 * 1024,
                                            allow_infinite: true,
                                          }),
-                              CheckBox("compression", _("Compression"),
-                                       { value: true,
-                                         row_title: _("Options"),
-                                         tooltip: _("Save space by compressing individual blocks with LZ4") }),
-                              CheckBox("deduplication", _("Deduplication"),
-                                       { value: true,
-                                         tooltip: _("Save space by storing identical data blocks just once") }),
-                              CheckBox("emulate_512", _("Use 512 Byte emulation"),
-                                       { value: false,
-                                         tooltip: _("For legacy applications only. Reduces performance.")
-                                       })
+                              CheckBoxes("options", _("Options"),
+                                         {
+                                             fields: [
+                                                 { tag: "compression", title: _("Compression"),
+                                                   tooltip: _("Save space by compressing individual blocks with LZ4")
+                                                 },
+                                                 { tag: "deduplication", title: _("Deduplication"),
+                                                   tooltip: _("Save space by storing identical data blocks just once")
+                                                 },
+                                                 { tag: "emulate_512", title: _("Use 512 Byte emulation"),
+                                                   tooltip: _("For legacy applications only. Reduces performance.")
+                                                 }
+                                             ],
+                                             value: {
+                                                 compression: true,
+                                                 deduplication: true,
+                                                 emulate_512: false
+                                             }
+                                         })
                           ],
                           update: (dlg, vals, trigger) => {
                               if (trigger == "space") {
@@ -108,8 +116,8 @@ export class VDOsPanel extends React.Component {
                                                       block: block,
                                                       logical_size: vals.lsize,
                                                       index_mem: vals.index_mem,
-                                                      compression: vals.compression,
-                                                      deduplication: vals.deduplication,
+                                                      compression: vals.options.compression,
+                                                      deduplication: vals.options.deduplication,
                                                       emulate_512: vals.emulate_512
                                                   });
                                               });

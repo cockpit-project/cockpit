@@ -36,15 +36,20 @@ export class DriveDetails extends React.Component {
         const DriveDetailsRow = ({ title, value }) => {
             if (!value)
                 return null;
-            return (<tr><td>{title}</td><td>{value}</td></tr>);
+            return (
+                <React.Fragment>
+                    <label className="control-label">{title}</label>
+                    <div>{value}</div>
+                </React.Fragment>
+            );
         };
 
         var assessment = null;
         if (drive_ata) {
             assessment = (
-                <tr>
-                    <td>{_("storage", "Assessment")}</td>
-                    <td>
+                <React.Fragment>
+                    <label className="control-label">{_("storage", "Assessment")}</label>
+                    <div>
                         { drive_ata.SmartFailing
                             ? <span className="cockpit-disk-failing">{_("DISK IS FAILING")}</span>
                             : <span>{_("Disk is OK")}</span>
@@ -53,8 +58,8 @@ export class DriveDetails extends React.Component {
                             ? <span>({utils.format_temperature(drive_ata.SmartTemperature)})</span>
                             : null
                         }
-                    </td>
-                </tr>
+                    </div>
+                </React.Fragment>
             );
         }
 
@@ -62,20 +67,18 @@ export class DriveDetails extends React.Component {
             <div className="panel panel-default">
                 <div className="panel-heading">{_("Drive")}</div>
                 <div className="panel-body">
-                    <table className="info-table-ct">
-                        <tbody>
-                            <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
-                            <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
-                            <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />
-                            <DriveDetailsRow title={_("storage", "World Wide Name")} value={drive.WWN} />
-                            <DriveDetailsRow title={_("storage", "Capacity")} value={drive.Size ? utils.fmt_size_long(drive.Size) : _("No media inserted")} />
-                            { assessment }
-                            <DriveDetailsRow title={_("storage", "Device File")} value={drive_block ? utils.block_name(drive_block) : "-"} />
-                            {multipath_blocks.length > 0 && (
-                                <DriveDetailsRow title={_("storage", "Multipathed Devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
-                            )}
-                        </tbody>
-                    </table>
+                    <div className="ct-form-layout">
+                        <DriveDetailsRow title={_("storage", "Model")} value={drive.Model} />
+                        <DriveDetailsRow title={_("storage", "Firmware Version")} value={drive.Revision} />
+                        <DriveDetailsRow title={_("storage", "Serial Number")} value={drive.Serial} />
+                        <DriveDetailsRow title={_("storage", "World Wide Name")} value={drive.WWN} />
+                        <DriveDetailsRow title={_("storage", "Capacity")} value={drive.Size ? utils.fmt_size_long(drive.Size) : _("No media inserted")} />
+                        { assessment }
+                        <DriveDetailsRow title={_("storage", "Device File")} value={drive_block ? utils.block_name(drive_block) : "-"} />
+                        {multipath_blocks.length > 0 && (
+                            <DriveDetailsRow title={_("storage", "Multipathed Devices")} value={multipath_blocks.map(utils.block_name).join(" ")} />
+                        )}
+                    </div>
                 </div>
             </div>
         );

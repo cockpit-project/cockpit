@@ -146,7 +146,7 @@ class StorageCase(MachineCase):
             row_item = row + " tr.listing-ct-item"
             tab_btn = row + " .listing-ct-head li:nth-child(%d) a" % tab_index
             tab = row + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
-            cell = tab + " table.info-table-ct tr:contains(%s) > td:nth-child(2)" % title
+            cell = tab + " div.ct-form-layout label:contains(%s) + *" % title
 
             if not b.is_present(row + ".open"):
                 if not b.is_present(row_item):
@@ -170,13 +170,16 @@ class StorageCase(MachineCase):
             pass
         self.retry(setup, check, teardown)
 
-    def content_tab_info_row(self, row_index, tab_index, title):
+    def content_tab_info_label(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        return tab + " table.info-table-ct tr:contains(%s)" % title
+        return tab + " div.ct-form-layout label:contains(%s)" % title
 
-    def content_tab_info_action(self, row_index, tab_index, title):
-        tab = self.content_tab_expand(row_index, tab_index)
-        link = tab + " table.info-table-ct tr:contains(%s) td:nth-child(2) a" % title
+    def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
+        label = self.content_tab_info_label(row_index, tab_index, title)
+        if wrapped:
+            link = label + " + div a"
+        else:
+            link = label + " + a"
         self.browser.wait_present(link)
         self.browser.click(link)
 
@@ -199,7 +202,7 @@ class StorageCase(MachineCase):
             if self.browser.is_present(sel + " input[type=checkbox]:not(:checked)"):
                 return False
             else:
-                return self.browser.val(sel + " input[type=text]")
+                return self.browser.val(sel + "+ input[type=text]")
         elif ftype == "select":
             return self.browser.attr(sel, "data-value")
         else:
@@ -229,7 +232,7 @@ class StorageCase(MachineCase):
                 self.browser.set_checked(sel + " input[type=checkbox]", False)
             else:
                 self.browser.set_checked(sel + " input[type=checkbox]", True)
-                self.browser.set_input_text(sel + " input[type=text]", val)
+                self.browser.set_input_text(sel + "+ input[type=text]", val)
         elif ftype == "combobox":
             self.browser.set_input_text(sel + " input[type=text]", val)
         else:

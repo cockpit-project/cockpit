@@ -24,7 +24,7 @@ import * as utils from "./utils.js";
 
 import {
     dialog_open,
-    TextInput, PassInput, CheckBox, SelectOne, TextInputChecked, SizeSlider,
+    TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
 
@@ -82,36 +82,31 @@ export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visi
                             return _("Mount point can not be empty");
                     }
                   }),
-        CheckBox("mount_auto", _("Mount at boot"),
-                 { row_title: _("Mount options"),
-                   value: opt_auto,
-                   visible: function (vals) {
-                       return visible(vals) && vals.mounting == "custom";
-                   }
-                 }),
-        CheckBox("mount_ro", _("Mount read only"),
-                 { value: opt_ro,
-                   visible: function (vals) {
-                       return visible(vals) && vals.mounting == "custom";
-                   }
-                 }),
-        TextInputChecked("mount_extra_options", _("Custom mount options"),
-                         { value: extra_options == "" ? false : extra_options,
-                           visible: function (vals) {
-                               return visible(vals) && vals.mounting == "custom";
-                           }
-                         })
+        CheckBoxes("mount_options", _("Mount Options"),
+                   { visible: function (vals) { return visible(vals) && vals.mounting == "custom" },
+                     value: {
+                         auto: opt_auto,
+                         ro: opt_ro,
+                         extra: extra_options === "" ? false : extra_options
+                     },
+                     fields: [
+                         { title: _("Mount at boot"), tag: "auto" },
+                         { title: _("Mount read only"), tag: "ro" },
+                         { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                     ]
+                   },
+        ),
     ];
 }
 
 export function mounting_dialog_options(vals) {
     var opts = [ ];
-    if (!vals.mount_auto)
+    if (!vals.mount_options || !vals.mount_options.auto)
         opts.push("noauto");
-    if (vals.mount_ro)
+    if (vals.mount_options && vals.mount_options.ro)
         opts.push("ro");
-    if (vals.mount_extra_options !== false)
-        opts = opts.concat(parse_options(vals.mount_extra_options));
+    if (vals.mount_options && vals.mount_options.extra !== false)
+        opts = opts.concat(parse_options(vals.mount_options.extra));
     return unparse_options(opts);
 }
 
@@ -122,30 +117,31 @@ export function crypto_options_dialog_fields(options, visible) {
     var extra_options = unparse_options(split_options);
 
     return [
-        CheckBox("crypto_options_auto", _("Unlock at boot"),
-                 { row_title: _("Encryption Options"),
-                   value: opt_auto,
-                   visible: visible
-                 }),
-        CheckBox("crypto_options_ro", _("Unlock read only"),
-                 { value: opt_ro,
-                   visible: visible
-                 }),
-        TextInputChecked("crypto_extra_options", _("Custom encryption options"),
-                         { value: extra_options == "" ? false : extra_options,
-                           visible: visible
-                         })
+        CheckBoxes("crypto_options", _("Encryption Options"),
+                   { visible: visible,
+                     value: {
+                         auto: opt_auto,
+                         ro: opt_ro,
+                         extra: extra_options === "" ? false : extra_options
+                     },
+                     fields: [
+                         { title: _("Unlock at boot"), tag: "auto" },
+                         { title: _("Unlock read only"), tag: "ro" },
+                         { title: _("Custom encryption options"), tag: "extra", type: "checkboxWithInput" },
+                     ]
+                   },
+        ),
     ];
 }
 
 export function crypto_options_dialog_options(vals) {
     var opts = [ ];
-    if (!vals.crypto_options_auto)
+    if (!vals.crypto_options || !vals.crypto_options.auto)
         opts.push("noauto");
-    if (vals.crypto_options_ro)
+    if (vals.crypto_options && vals.crypto_options.ro)
         opts.push("readonly");
-    if (vals.crypto_extra_options !== false)
-        opts = opts.concat(parse_options(vals.crypto_extra_options));
+    if (vals.crypto_options && vals.crypto_options.extra !== false)
+        opts = opts.concat(parse_options(vals.crypto_options.extra));
     return unparse_options(opts);
 }
 
@@ -313,19 +309,24 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                 },
                                   visible: is_encrypted
                                 }),
-                      CheckBox("store_passphrase", _("Store passphrase"),
-                               { visible: is_encrypted_and_not_old_udisks2 })
+                      CheckBoxes("store_passphrase", "",
+                                 {
+                                     fields: [
+                                         { tag: "val", title: _("Store passphrase") }
+                                     ],
+                                     visible: is_encrypted_and_not_old_udisks2
+                                 })
                   ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2))
                           .concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
                   update: function (dlg, vals, trigger) {
-                      if (trigger == "crypto_options_auto" && vals.crypto_options_auto == false)
-                          dlg.set_values({ "mount_auto": false });
-                      if (trigger == "crypto_options_ro" && vals.crypto_options_ro == true)
-                          dlg.set_values({ "mount_ro": true });
-                      if (trigger == "mount_auto" && vals.mount_auto == true)
-                          dlg.set_values({ "crypto_options_auto": true });
-                      if (trigger == "mount_ro" && vals.mount_ro == false)
-                          dlg.set_values({ "crypto_options_ro": false });
+                      if (trigger == "crypto_options" && vals.crypto_options.auto == false)
+                          dlg.set_nested_values("mount_options", { auto: false });
+                      if (trigger == "crypto_options" && vals.crypto_options.ro == true)
+                          dlg.set_nested_values("mount_options", { ro: true });
+                      if (trigger == "mount_options" && vals.mount_options.auto == true)
+                          dlg.set_nested_values("crypto_options", { auto: true });
+                      if (trigger == "mount_options" && vals.mount_options.ro == false)
+                          dlg.set_nested_values("crypto_options", { ro: false });
                   },
                   Action: {
                       Title: create_partition ? _("Create partition") : _("Format"),
@@ -371,7 +372,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                   options: { t: 'ay', v: utils.encode_filename(crypto_options) },
                                   "track-parents": { t: 'b', v: true }
                               };
-                              if (vals.store_passphrase) {
+                              if (vals.store_passphrase && vals.store_passphrase.val) {
                                   item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename(vals.passphrase) };
                               } else {

@@ -31,18 +31,13 @@ export class UnrecognizedTab extends React.Component {
                 <div className="tab-actions">
                     <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Usage")}</td>
-                            <td>{this.props.block.IdUsage || "-"}</td>
-                        </tr>
-                        <tr>
-                            <td>{_("Type")}</td>
-                            <td>{this.props.block.IdType || "-"}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("Usage")}</label>
+                    <div>{this.props.block.IdUsage || "-"}</div>
+
+                    <label className="control-label">{_("Type")}</label>
+                    <div>{this.props.block.IdType || "-"}</div>
+                </div>
             </div>
         );
     }

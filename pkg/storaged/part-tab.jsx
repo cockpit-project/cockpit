@@ -29,27 +29,18 @@ export class PartitionTab extends React.Component {
         var block_part = this.props.client.blocks_part[this.props.block.path];
 
         return (
-            <div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Name")}</td>
-                            <td>{block_part.Name || "-"}</td>
-                        </tr>
-                        <tr>
-                            <td>{_("Size")}</td>
-                            <td>{utils.fmt_size(block_part.Size)}</td>
-                        </tr>
-                        <tr>
-                            <td>{_("UUID")}</td>
-                            <td>{block_part.UUID}</td>
-                        </tr>
-                        <tr>
-                            <td>{_("Type")}</td>
-                            <td>{block_part.Type}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className="ct-form-layout">
+                <label className="control-label">{_("Name")}</label>
+                <div>{block_part.Name || "-"}</div>
+
+                <label className="control-label">{_("Size")}</label>
+                <div>{utils.fmt_size(block_part.Size)}</div>
+
+                <label className="control-label">{_("UUID")}</label>
+                <div>{block_part.UUID}</div>
+
+                <label className="control-label">{_("Type")}</label>
+                <div>{block_part.Type}</div>
             </div>
         );
     }

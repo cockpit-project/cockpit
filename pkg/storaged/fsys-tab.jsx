@@ -149,71 +149,53 @@ export class FilesystemTab extends React.Component {
                 <div className="tab-actions">
                     <FormatDialog.FormatButton client={this.props.client} block={this.props.block} />
                 </div>
-                <table className="info-table-ct">
-                    <tbody>
-                        <tr>
-                            <td>{_("Name")}</td>
-                            <td>
-                                <StorageLink onClick={rename_dialog}>
-                                    {this.props.block.IdLabel || "-"}
+                <div className="ct-form-layout">
+                    <label className="control-label">{_("Name")}</label>
+                    <StorageLink onClick={rename_dialog}>
+                        {this.props.block.IdLabel || "-"}
+                    </StorageLink>
+
+                    { !self.props.client.is_old_udisks2 && (
+                        <React.Fragment>
+                            <label className="control-label">{_("Mount Point")}</label>
+                            <div>
+                                <StorageLink onClick={mounting_dialog}>
+                                    {old_dir || _("(default)")}
                                 </StorageLink>
-                            </td>
-                        </tr>
-                        { (!self.props.client.is_old_udisks2)
-                            ? (
-                                <tr>
-                                    <td>{_("Mount Point")}</td>
-                                    <td>
-                                        <StorageLink onClick={mounting_dialog}>
-                                            {old_dir || _("(default)")}
-                                        </StorageLink>
-                                        <div className="tab-row-actions">
-                                            { (!is_filesystem_mounted)
-                                                ? <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                                : null
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            )
-                            : null
-                        }
-                        { (old_opts)
-                            ? (
-                                <tr>
-                                    <td>{_("Mount Options")}</td>
-                                    <td>
-                                        <StorageLink onClick={mounting_dialog}>
-                                            {old_opts}
-                                        </StorageLink>
-                                    </td>
-                                </tr>
-                            )
-                            : null
-                        }
-                        { (mounted_at.length > 0 || self.props.client.is_old_udisks2)
-                            ? (
-                                <tr>
-                                    <td>{_("Mounted At")}</td>
-                                    <td>
-                                        {mounted_at.join(", ")}
-                                        <div className="tab-row-actions">
-                                            { (mounted_at.length > 0)
-                                                ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
-                                                : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            )
-                            : null
-                        }
-                        <tr>
-                            <td>{_("Used")}</td>
-                            <td>{used}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <div className="tab-row-actions">
+                                    { !is_filesystem_mounted && <StorageButton onClick={mount}>{_("Mount")}</StorageButton> }
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    )}
+
+                    { old_opts && (
+                        <React.Fragment>
+                            <label className="control-label">{_("Mount Options")}</label>
+                            <StorageLink onClick={mounting_dialog}>
+                                {old_opts}
+                            </StorageLink>
+                        </React.Fragment>
+                    )}
+
+                    { (mounted_at.length > 0 || self.props.client.is_old_udisks2) && (
+                        <React.Fragment>
+                            <label className="control-label">{_("Mounted At")}</label>
+                            <div>
+                                {mounted_at.join(", ")}
+                                <div className="tab-row-actions">
+                                    { (mounted_at.length > 0)
+                                        ? <StorageButton onClick={unmount}>{_("Unmount")}</StorageButton>
+                                        : <StorageButton onClick={mount}>{_("Mount")}</StorageButton>
+                                    }
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    )}
+
+                    <label className="control-label">{_("Used")}</label>
+                    <div>{used}</div>
+                </div>
             </div>
         );
     }

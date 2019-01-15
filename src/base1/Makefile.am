@@ -115,6 +115,7 @@ base_QUNIT_TESTS = \
 	dist/base1/test-websocket.html \
 	dist/base1/test-stub.html \
 	dist/base1/test-browser-storage.html \
+	dist/base1/test-promise.html \
 	$(NULL)
 
 base_QUNIT_DEPS = \

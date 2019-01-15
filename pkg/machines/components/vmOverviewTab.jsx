@@ -71,8 +71,8 @@ VmOverviewTab.propTypes = {
  * Unique wording for the same props across various use cases.
  */
 export const commonTitles = {
-    MEMORY: _("Memory:"),
-    CPUS: _("vCPUs:"),
+    MEMORY: _("Memory"),
+    CPUS: _("vCPUs"),
 };
 
 export default VmOverviewTab;

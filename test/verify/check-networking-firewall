@@ -82,8 +82,8 @@ class TestFirewall(MachineCase):
         m.execute("systemctl stop firewalld")
         self.login_and_go("/network/firewall")
 
-        # "Add Services…" button should be disabled
-        b.wait_present("caption button.btn-primary:disabled")
+        # "Add Services…" button should not be present
+        b.wait_not_present("caption button.btn-primary")
 
         # to toggle the switch, click on the non-active label, where the slider is
         b.wait_present(".btn-onoff-ct label.active")
@@ -120,8 +120,8 @@ class TestFirewall(MachineCase):
         b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
         b.wait_in_text(".btn-onoff-ct label.active", "Off")
         wait_unit_state(m, "firewalld", "inactive")
-        # "Add Services…" button should be disabled again
-        b.wait_present("caption button.btn-primary:disabled")
+        # "Add Services…" button should be hidden again
+        b.wait_not_present("caption button.btn-primary")
 
     @skipImage("Filtering got fixed, and IDs changed to data-id in 184", "rhel-7-6-distropkg")
     def testAddServices(self):

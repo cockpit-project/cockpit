@@ -1,5 +1,111 @@
 # Tests using Avocado
 
+There are two types of tests:
+ - **pure avocado** tests which are using [testlib](https://github.com/cockpit-project/cockpit/blob/master/test/common/testlib.py) and [testvm](https://github.com/cockpit-project/cockpit/blob/master/bots/machine/testvm.py) with [sizzle.js](https://www.npmjs.com/package/sizzle) CSS selector engine
+ - **selenium** based tests which are using [seleniumlib.py](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py) wrappers around [selenium](https://www.seleniumhq.org/)
+
+Libraries are accessible in [testlib_avocado module](./testlib_avocado).
+
+## How to run tests
+
+The default way to run avocado tests is to use the [testing images](https://github.com/cockpit-project/cockpit/blob/master/bots/images/) that CI uses and test cockpit installation inside a test VM.
+
+Currently, these tests run on Fedora 29. Other images don't have selenium and
+avocado installed.
+
+``` bash
+$ bots/image-download fedora-29 # Download a distribution image where cockpit is going to run
+$ bots/image-prepare fedora-29 # Install code to test
+```
+
+Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) changing the parameters accordingly for selenium vs pure avocado tests.
+
+- For **pure avocado** tests: ``TEST_OS=fedora-29 test/avocado/run-tests``
+- For **selenium** tests:
+  - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
+  - ``TEST_OS=fedora-29 test/avocado/run-tests --selenium-tests --browser firefox -v``
+ 
+Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be usefull for developing or debugging tests. Check bellow the HACKING section for more details.
+
+## Hacking
+
+### Selenium tests
+[run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) can change it's behavior by the environment variables specified bellow.
+
+#### Where cockpit is running
+Defines where is the cockpit instance that you want to test. This cannot be used together with ``TEST_OS`` variable.
+
+ - ``GUEST`` (default: ``localhost``) - defines hostname or IP of the machine where cockpit-ws is running
+   - This machine has to have enabled ssh for execution remote commands for purpose of ``self.machine.execute``
+ - ``PORT`` (default: ``9090``) - defines the port where cockpit-ws component accepts connections in GUEST machine
+ - ``URL_BASE`` (default: ``http``) - defines what protocol to use, http or https.
+
+Leads to address ``URL_BASE//GUEST:PORT``
+
+#### Where is selenium running
+There are two ways to use selenium:
+- Usage with remote drivers [grid](https://github.com/SeleniumHQ/selenium/wiki/Grid2)
+- Direct usage of [local browsers](https://selenium-python.readthedocs.io/getting-started.html#using-selenium-to-write-tests)
+
+The following environment variables can be used to configure selenium options in``run-tests`` script:
+- ``HUB`` (default: ``localhost``) - location of selenium grid (on port ``4444``)
+- ``LOCAL`` (default: ``no``) - if you set to ``yes``, it will use installed browsers directly
+   - **WARN** - if ``LOCAL`` option set to ``yes`` ``HUB`` option is ignored
+
+#### Which browser to use
+It is possible to test 3 browsers - **Firefox, Google Chrome or Microsoft Edge**.
+It is highly connected with previous section, depends what your `selenium grid` or your `local machine` supports and have installed or registered.
+Browser selection can be done by ``BROWSER`` environment variable (default is ``firefox``).
+
+``BROWSER`` variable can take one of the following values:
+ - ``firefox`` - it will use Firefox as an browser
+   - **WARN** please ensure that you have installed [gecko driver](https://github.com/mozilla/geckodriver) in your ``PATH``.
+  New Firefox browsers are not working without this driver
+ - ``chrome`` - Will use Google Chrome browser
+ - ``edge`` - Will use Microsoft Edge browser
+
+There are several possibilities how to do it:
+ - Directly - Use **local browser** when used ``LOCAL=yes`` you have to have your browser browser installed
+ - Via selenium **grid directly** (will register you local browser to hub on port ``4444``
+```
+$ java -jar selenium-server-standalone-2.44.0.jar -role hub
+$ java -jar selenium-server-standalone-2.44.0.jar -role node  -hub
+```
+ - via **docker selenium grid** - it will redirect HUB port ``4444`` to your machine
+```
+$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub
+$ docker run -d --link selenium-hub:hub selenium/node-chrome
+$ docker run -d --link selenium-hub:hub selenium/node-firefox
+```
+
+#### Other options
+ - ``IDENTITY`` (default: ``testlib_avocado/identity`` symlink) - private key to run commands on ``GUEST`` machine to execute commands there via ``self.machine.execute``. Please do not use ``subprocess`` modules or similar way, because then commands will everytime runs locally not on defined machine.
+
+### How run tests against local cockpit installation with local browser
+
+#### Generic dependencies
+When not using the selenium image the following dependencies need to be installed on the system.
+```
+sudo pip3 install selenium
+sudo pip3 install avocado-framework
+```
+
+#### Firefox with gecko driver
+```
+sudo dnf install firefox
+curl -L -f https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz > geckodriver.tar.gz
+tar xzvf geckodriver.tar.gz
+cp geckodriver /usr/local/bin
+```
+
+#### Other requirements
+When not using selenium image you need to have the created an ``test`` user with credentials defined in [seleniumlib](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/testlib_avocado/seleniumlib.py#L40)
+
+
+**And finally run selected test(s)** ``LOCAL=yes BROWSER=firefox avocado-3 run test/avocado/selenium-base.py``
+
+
+# How to write tests
 The rules for tests are a bit different:
 
  * One or more machines are dedicated to running all our tests: The

@@ -178,15 +178,12 @@ you run `test/containers/run-tests` you need to use the `-i` option to
 build/install cockpit into the test VM. This needs to be done with a compatible
 `TEST_OS` (usually a recent `fedora-*`).
 
+### Avocado and Selenium tests
 The third class of integration tests use avocado and selenium to cover
-different browsers:
+different browsers.
 
-    $ bots/image-download selenium
-    $ bots/image-prepare fedora-29
-    $ TEST_OS=fedora-29 test/avocado/run-tests --selenium-tests --browser=firefox -v
+For more details on how to run and debug these tests see [selenium hacking guide](./avocado/README.md)
 
-Currently, these tests run on Fedora 29. Other images don't have selenium and
-avocado installed.
 
 ## Debugging tests
 

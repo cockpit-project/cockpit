@@ -13,8 +13,8 @@
 
 set -ex
 
-# Process exactly one item from the queue
-echo bots/run-queue --amqp amqp.cockpit.svc.cluster.local --queue tasks
+# Scan for all tests
+bots/tests-scan
 
 # When run automated, randomize to minimize stampeding herd
 if [ -t 0 ]; then

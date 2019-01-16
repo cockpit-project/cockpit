@@ -327,7 +327,7 @@ export class Firewall extends React.Component {
             );
         } else {
             addServiceAction = (
-                <Button bsStyle="primary" onClick={this.open} className="pull-right" disabled={!this.state.firewall.enabled}>
+                <Button bsStyle="primary" onClick={this.open} className="pull-right">
                     {_("Add Services…")}
                 </Button>
             );
@@ -350,7 +350,7 @@ export class Firewall extends React.Component {
                                  enabled={this.state.pendingTarget === null}
                                  onChange={this.onSwitchChanged} />
                 </h1>
-                <Listing title={_("Allowed Services")}
+                { enabled && <Listing title={_("Allowed Services")}
                          columnTitles={[ _("Service"), _("TCP"), _("UDP"), "" ]}
                          emptyCaption={_("No open ports")}
                          actions={addServiceAction}>
@@ -360,7 +360,7 @@ export class Firewall extends React.Component {
                                                       readonly={this.state.firewall.readonly}
                                                       onRemoveService={this.onRemoveService} />)
                     }
-                </Listing>
+                </Listing> }
                 { this.state.showModal && <AddServicesBody close={this.close} /> }
             </div>
         );

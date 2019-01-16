@@ -38,6 +38,7 @@
 
 #include <string.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -163,6 +164,27 @@ teardown_resource (TestResourceCase *tc,
   g_object_unref (tc->pipe);
 }
 
+static gboolean
+str_contains_strv (const gchar *haystack, const gchar *sewing_kit, const gchar *delim)
+{
+  gchar **needles;
+  gboolean result = TRUE;
+  if (strlen (haystack) != strlen (sewing_kit))
+    {
+      fprintf(stderr, "Length of '%s' doesn't match '%s'\n", haystack, sewing_kit);
+      return FALSE;
+    }
+
+  needles = g_strsplit (sewing_kit, delim, 0);
+  for (guint i = 0; i < g_strv_length (needles) && result; ++i)
+    result &= strstr (haystack, needles[i]) != NULL;
+  g_strfreev (needles);
+  if (!result)
+    fprintf(stderr, "String '%s' doesn't contain each element in '%s'\n",
+            haystack, sewing_kit);
+  return result;
+}
+
 static void
 test_resource_simple (TestResourceCase *tc,
                       gconstpointer data)
@@ -170,7 +192,29 @@ test_resource_simple (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
+  const gchar *expected =
+    "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\n"
+    "Referrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "52\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>In home dir</title>\n"
+    "</head>\n"
+    "<body>In home dir</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
+
 
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
@@ -183,16 +227,10 @@ test_resource_simple (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "52\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -201,7 +239,8 @@ test_resource_simple (TestResourceCase *tc,
                            "<body>In home dir</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -213,7 +252,27 @@ test_resource_simple_host (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
+  const gchar *expected =
+    "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://my.host\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "52\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>In home dir</title>\n"
+    "</head>\n"
+    "<body>In home dir</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   g_hash_table_insert (tc->headers, g_strdup ("Host"), g_strdup ("my.host"));
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
@@ -227,16 +286,10 @@ test_resource_simple_host (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://my.host\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "52\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -245,7 +298,8 @@ test_resource_simple_host (TestResourceCase *tc,
                            "<body>In home dir</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -257,7 +311,26 @@ test_resource_language (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   gchar *url = "/@localhost/another/test.html";
+  const gchar *expected =  "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "60\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>Inlay omehay irday</title>\n"
+    "</head>\n"
+    "<body>Inlay omehay irday</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
@@ -271,16 +344,10 @@ test_resource_language (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "60\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -289,7 +356,7 @@ test_resource_language (TestResourceCase *tc,
                            "<body>Inlay omehay irday</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -301,7 +368,26 @@ test_resource_cookie (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "60\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>Inlay omehay irday</title>\n"
+    "</head>\n"
+    "<body>Inlay omehay irday</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
@@ -315,16 +401,9 @@ test_resource_cookie (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str, "*\r\n"
                            "60\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -333,7 +412,8 @@ test_resource_cookie (TestResourceCase *tc,
                            "<body>Inlay omehay irday</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -345,7 +425,18 @@ test_resource_not_found (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/cockpit/another@localhost/not-exist";
+  const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
+    "Content-Type: text/html; charset=utf8\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "\r\n13\r\n"
+    "<html><head><title>\r\n9\r\n"
+    "Not Found\r\n15\r\n"
+    "</title></head><body>\r\n9\r\n"
+    "Not Found\r\nf\r\n"
+    "</body></html>\n\r\n0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
@@ -358,17 +449,15 @@ test_resource_not_found (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Type: text/html; charset=utf8\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n13\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str, "*\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
                            "</title></head><body>\r\n9\r\n"
                            "Not Found\r\nf\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n", -1);
+                           "</body></html>\n\r\n0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -380,7 +469,18 @@ test_resource_no_path (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/cockpit/another@localhost";
+  const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
+    "Content-Type: text/html; charset=utf8\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "\r\n13\r\n"
+    "<html><head><title>\r\n9\r\n"
+    "Not Found\r\n15\r\n"
+    "</title></head><body>\r\n9\r\n"
+    "Not Found\r\nf\r\n"
+    "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing path after package */
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
@@ -394,17 +494,15 @@ test_resource_no_path (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Type: text/html; charset=utf8\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n13\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str, "*\r\n13\r\n"
                            "<html><head><title>\r\n9\r\n"
                            "Not Found\r\n15\r\n"
                            "</title></head><body>\r\n9\r\n"
                            "Not Found\r\nf\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n", -1);
+                           "</body></html>\n\r\n0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -417,7 +515,10 @@ test_resource_failure (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   GPid pid;
+  const gchar *expected = "HTTP/1.1 500 terminated\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n13\r\n<html><head><title>\r\na\r\nterminated\r\n15\r\n</title></head><body>\r\na\r\nterminated\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
+  const gchar *expected_alt = "HTTP/1.1 500 internal-error\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n13\r\n<html><head><title>\r\ne\r\ninternal-error\r\n15\r\n</title></head><body>\r\ne\r\ninternal-error\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
 
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*: bridge program failed:*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*: external channel failed: *");
@@ -444,17 +545,10 @@ test_resource_failure (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_strmatch (g_bytes_get_data (bytes, NULL),
-                           "HTTP/1.1 500 *\r\n"
-                           "Content-Type: text/html; charset=utf8\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n13\r\n"
-                           "<html><head><title>\r\n*\r\n"
-                           "*\r\n"
-                           "</title></head><body>\r\n*\r\n"
-                           "*\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n");
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n") || str_contains_strv (str, expected_alt, "\n"));
+  cockpit_assert_strmatch (str, "*\r\n\r\n13\r\n<html><head><title>\r\n*\r\n*\r\n15\r\n</title></head><body>\r\n*\r\n*\r\nf\r\n</body></html>\n\r\n0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -504,6 +598,18 @@ test_resource_checksum (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "ETag: \"" CHECKSUM "-c\"\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Cache-Control: max-age=31556926, public\r\n"
+    "\r\n"
+    "32\r\n"
+    "These are the contents of file.ext\nOh marmalaaade\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   /* We require that no user packages are loaded, so we have a checksum */
   g_assert (data == &checksum_fixture);
@@ -522,18 +628,15 @@ test_resource_checksum (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"" CHECKSUM "-c\"\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "32\r\n"
                            "These are the contents of file.ext\nOh marmalaaade\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -545,6 +648,10 @@ test_resource_not_modified (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  const gchar *expected = "HTTP/1.1 304 Not Modified\r\n"
+    "ETag: \"" CHECKSUM "-c\"\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "\r\n";
 
   request_checksum (tc);
 
@@ -563,11 +670,8 @@ test_resource_not_modified (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 304 Not Modified\r\n"
-                           "ETag: \"" CHECKSUM "-c\"\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n", -1);
+  g_assert (str_contains_strv (g_bytes_get_data (bytes, NULL), expected, "\n"));
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -579,6 +683,18 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "ETag: \"" CHECKSUM "-de\"\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Cache-Control: max-age=31556926, public\r\n"
+    "\r\n"
+    "32\r\n"
+    "These are the contents of file.ext\nOh marmalaaade\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   request_checksum (tc);
 
@@ -598,18 +714,15 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"" CHECKSUM "-de\"\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "32\r\n"
                            "These are the contents of file.ext\nOh marmalaaade\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -621,7 +734,19 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   gchar *cookie;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "ETag: \"" CHECKSUM "-fr\"\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Cache-Control: max-age=31556926, public\r\n"
+    "\r\n"
+    "32\r\n"
+    "These are the contents of file.ext\nOh marmalaaade\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   request_checksum (tc);
 
@@ -643,18 +768,15 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "ETag: \"" CHECKSUM "-fr\"\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Cache-Control: max-age=31556926, public\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "32\r\n"
                            "These are the contents of file.ext\nOh marmalaaade\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -666,6 +788,17 @@ test_resource_no_checksum (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
+    "Content-Type: text/html; charset=utf8\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "\r\n13\r\n"
+    "<html><head><title>\r\n9\r\n"
+    "Not Found\r\n15\r\n"
+    "</title></head><body>\r\n9\r\n"
+    "Not Found\r\nf\r\n"
+    "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing checksum */
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
@@ -679,28 +812,38 @@ test_resource_no_checksum (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Type: text/html; charset=utf8\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n13\r\n"
-                           "<html><head><title>\r\n9\r\n"
-                           "Not Found\r\n15\r\n"
-                           "</title></head><body>\r\n9\r\n"
-                           "Not Found\r\nf\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n", -1);
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n13\r\n*"
+                           "*<html><head><title>\r\n9\r\n*"
+                           "*Not Found\r\n15\r\n*"
+                           "*</title></head><body>\r\n9\r\n*"
+                           "*Not Found\r\nf\r\n*"
+                           "*</body></html>\n\r\n0\r\n\r\n*");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
 
 static void
 test_resource_bad_checksum (TestResourceCase *tc,
-                           gconstpointer data)
+                            gconstpointer data)
 {
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
+    "Content-Type: text/html; charset=utf8\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "\r\n13\r\n"
+    "<html><head><title>\r\n9\r\n"
+    "Not Found\r\n15\r\n"
+    "</title></head><body>\r\n9\r\n"
+    "Not Found\r\nf\r\n"
+    "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing checksum */
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
@@ -714,17 +857,16 @@ test_resource_bad_checksum (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 404 Not Found\r\n"
-                           "Content-Type: text/html; charset=utf8\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "\r\n13\r\n"
-                           "<html><head><title>\r\n9\r\n"
-                           "Not Found\r\n15\r\n"
-                           "</title></head><body>\r\n9\r\n"
-                           "Not Found\r\nf\r\n"
-                           "</body></html>\n\r\n0\r\n\r\n", -1);
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n13\r\n*"
+                           "*<html><head><title>\r\n9\r\n*"
+                           "*Not Found\r\n15\r\n*"
+                           "*</title></head><body>\r\n9\r\n*"
+                           "*Not Found\r\nf\r\n*"
+                           "*</body></html>\n\r\n0\r\n\r\n*");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -736,6 +878,25 @@ test_resource_language_suffix (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "62\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>Im Home-Verzeichnis</title>\n"
+    "</head>\n"
+    "<body>Im Home-Verzeichnis</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
@@ -748,16 +909,10 @@ test_resource_language_suffix (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "62\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -766,7 +921,8 @@ test_resource_language_suffix (TestResourceCase *tc,
                            "<body>Im Home-Verzeichnis</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -778,6 +934,25 @@ test_resource_language_fallback (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "52\r\n"
+    "<html>\n"
+    "<head>\n"
+    "<title>In home dir</title>\n"
+    "</head>\n"
+    "<body>In home dir</body>\n"
+    "</html>\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
@@ -791,16 +966,10 @@ test_resource_language_fallback (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "52\r\n"
                            "<html>\n"
                            "<head>\n"
@@ -809,7 +978,8 @@ test_resource_language_fallback (TestResourceCase *tc,
                            "<body>In home dir</body>\n"
                            "</html>\n"
                            "\r\n"
-                           "0\r\n\r\n", -1);
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -821,6 +991,20 @@ test_resource_gzip_encoding (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Encoding: gzip\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Content-Type: text/plain\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "34\r\n"
+    "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00sT(\xCEM\xCC\xC9Q(I-"
+    ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A"
+    "0\x0D\x0A\x0D\x0A";
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
@@ -833,21 +1017,15 @@ test_resource_gzip_encoding (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Encoding: gzip\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Content-Type: text/plain\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
                            "34\r\n"
                            "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00sT(\xCEM\xCC\xC9Q(I-"
                            ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A"
-                           "0\x0D\x0A\x0D\x0A",
-                           315);
+                           "0\x0D\x0A\x0D\x0A");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }
@@ -859,7 +1037,18 @@ test_resource_head (TestResourceCase *tc,
   CockpitWebResponse *response;
   GError *error = NULL;
   GBytes *bytes;
+  gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
+  const gchar *expected = "HTTP/1.1 200 OK\r\n"
+    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Type: text/html\r\n"
+    "Cache-Control: no-cache, no-store\r\n"
+    "Access-Control-Allow-Origin: http://localhost\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "Vary: Cookie\r\n"
+    "\r\n"
+    "0\r\n\r\n";
 
   response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
   cockpit_web_response_set_method (response, "HEAD");
@@ -873,17 +1062,12 @@ test_resource_head (TestResourceCase *tc,
   g_assert_no_error (error);
 
   bytes = g_memory_output_stream_steal_as_bytes (tc->output);
-  cockpit_assert_bytes_eq (bytes,
-                           "HTTP/1.1 200 OK\r\n"
-                           "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-                           "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Cache-Control: no-cache, no-store\r\n"
-                           "Access-Control-Allow-Origin: http://localhost\r\n"
-                           "Transfer-Encoding: chunked\r\n"
-                           "Vary: Cookie\r\n"
-                           "\r\n"
-                           "0\r\n\r\n", -1);
+  str = g_bytes_get_data (bytes, NULL);
+  g_assert (str_contains_strv (str, expected, "\n"));
+  cockpit_assert_strmatch (str,
+                           "*\r\n"
+                           "0\r\n\r\n");
+
   g_bytes_unref (bytes);
   g_object_unref (response);
 }

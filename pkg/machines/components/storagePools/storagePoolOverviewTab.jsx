@@ -18,48 +18,30 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row } from 'patternfly-react';
 
 import { storagePoolId } from '../../helpers.js';
+
+import 'form-layout.less';
 
 export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
 
     return (
-        <Col lg={12} md={12} sm={12}>
-            { storagePool.path && <Row>
-                <Col lg={6} md={6} sm={6} id={`${idPrefix}-path`}>
-                    <dl>
-                        <dt> Path: </dt>
-                        <dd> { storagePool.path } </dd>
-                    </dl>
-                </Col>
-            </Row> }
-            <Row>
-                <Col lg={6} md={6} sm={6} id={`${idPrefix}-persistent`}>
-                    <dl>
-                        <dt> Persistent: </dt>
-                        <dd> { storagePool.persistent ? 'yes' : 'no' } </dd>
-                    </dl>
-                </Col>
-            </Row>
-            <Row>
-                <Col lg={6} md={6} sm={6} id={`${idPrefix}-autostart`}>
-                    <dl>
-                        <dt> Autostart: </dt>
-                        <dd> { storagePool.autostart ? 'yes' : 'no' } </dd>
-                    </dl>
-                </Col>
-            </Row>
-            <Row>
-                <Col lg={6} md={6} sm={6} id={`${idPrefix}-type`}>
-                    <dl>
-                        <dt> Type: </dt>
-                        <dd> { storagePool.type } </dd>
-                    </dl>
-                </Col>
-            </Row>
-        </Col>
+        <div className='ct-form-layout'>
+            { storagePool.path && <React.Fragment>
+                <label className='control-label' htmlFor={`${idPrefix}-path`}> Path: </label>
+                <div id={`${idPrefix}-path`}> {storagePool.path} </div>
+            </React.Fragment> }
+
+            <label className='control-label' htmlFor={`${idPrefix}-persistent`}> Persistent: </label>
+            <div id={`${idPrefix}-persistent`}> {storagePool.persistent ? 'yes' : 'no'} </div>
+
+            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> Autostart: </label>
+            <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? 'yes' : 'no'} </div>
+
+            <label className='control-label' htmlFor={`${idPrefix}-type`}> Type: </label>
+            <div id={`${idPrefix}-type`}> {storagePool.type} </div>
+        </div>
     );
 };
 StoragePoolOverviewTab.propTypes = {

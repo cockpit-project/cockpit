@@ -1,3 +1,5 @@
+PWNED HRDR
+
 [![semaphore ci build status](https://semaphoreci.com/api/v1/cockpit/cockpit/branches/master/badge.svg)](https://semaphoreci.com/cockpit/cockpit) <br />
 
 # Cockpit

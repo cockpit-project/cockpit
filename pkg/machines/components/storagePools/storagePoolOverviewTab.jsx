@@ -20,8 +20,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storagePoolId } from '../../helpers.js';
+import cockpit from 'cockpit';
 
 import 'form-layout.less';
+
+const _ = cockpit.gettext;
 
 export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
@@ -29,17 +32,17 @@ export const StoragePoolOverviewTab = ({ storagePool }) => {
     return (
         <div className='ct-form-layout'>
             { storagePool.path && <React.Fragment>
-                <label className='control-label' htmlFor={`${idPrefix}-path`}> Path: </label>
+                <label className='control-label' htmlFor={`${idPrefix}-path`}> {_("Path")} </label>
                 <div id={`${idPrefix}-path`}> {storagePool.path} </div>
             </React.Fragment> }
 
-            <label className='control-label' htmlFor={`${idPrefix}-persistent`}> Persistent: </label>
-            <div id={`${idPrefix}-persistent`}> {storagePool.persistent ? 'yes' : 'no'} </div>
+            <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
+            <div id={`${idPrefix}-persistent`}> {storagePool.persistent ? _("yes") : _("no")} </div>
 
-            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> Autostart: </label>
-            <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? 'yes' : 'no'} </div>
+            <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
+            <div id={`${idPrefix}-autostart`}> {storagePool.autostart ? _("yes") : _("no")} </div>
 
-            <label className='control-label' htmlFor={`${idPrefix}-type`}> Type: </label>
+            <label className='control-label' htmlFor={`${idPrefix}-type`}> {_("Type")} </label>
             <div id={`${idPrefix}-type`}> {storagePool.type} </div>
         </div>
     );

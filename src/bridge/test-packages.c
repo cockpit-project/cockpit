@@ -185,6 +185,8 @@ test_simple (TestCase *tc,
              gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_simple);
@@ -193,10 +195,15 @@ test_simple (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}"
-                           "These are the contents of file.ext\nOh marmalaaade\n", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "These are the contents of file.ext\nOh marmalaaade\n", -1);
   g_bytes_unref (data);
 }
 
@@ -210,6 +217,8 @@ test_forwarded (TestCase *tc,
              gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_forwarded);
@@ -218,9 +227,15 @@ test_forwarded (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}<html>\x0A<head>\x0A<title>In home dir</title>\x0A</head>\x0A<body>In home dir</body>\x0A</html>\x0A", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>In home dir</title>\n</head>\n<body>In home dir</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -235,6 +250,8 @@ test_localized_translated (TestCase *tc,
                            gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_pig);
@@ -243,9 +260,15 @@ test_localized_translated (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -260,6 +283,8 @@ test_localized_unknown (TestCase *tc,
                         gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_unknown);
@@ -268,9 +293,15 @@ test_localized_unknown (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>In home dir</title>\n</head>\n<body>In home dir</body>\n</html>\n", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>In home dir</title>\n</head>\n<body>In home dir</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -285,6 +316,8 @@ test_localized_prefer_region (TestCase *tc,
                               gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_prefer_region);
@@ -293,9 +326,16 @@ test_localized_prefer_region (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inway omeha irda</title>\n</head>\n<body>Inway omeha irda</body>\n</html>\n", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>Inway omeha irda</title>\n</head>\n<body>Inway omeha irda</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -310,6 +350,8 @@ test_localized_fallback (TestCase *tc,
                          gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_fallback);
@@ -318,9 +360,16 @@ test_localized_fallback (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>Inlay omehay irday</title>\n</head>\n<body>Inlay omehay irday</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -333,6 +382,8 @@ test_incompatible_version (TestCase *tc,
                            gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_version);
@@ -341,8 +392,14 @@ test_incompatible_version (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package requires Cockpit version 999.5 or later\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\", \"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":503,\"reason\":\"This package requires Cockpit version 999.5 or later\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}<html><head><title>This package requires Cockpit version 999.5 or later</title></head><body>This package requires Cockpit version 999.5 or later</body></html>\n", -1);
+  cockpit_assert_bytes_eq (data, "<html><head><title>This package requires Cockpit version 999.5 or later</title></head><body>This package requires Cockpit version 999.5 or later</body></html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -355,6 +412,8 @@ test_incompatible_requires (TestCase *tc,
                             gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_requires);
@@ -363,8 +422,14 @@ test_incompatible_requires (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package is not compatible with this version of Cockpit\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\", \"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":503,\"reason\":\"This package is not compatible with this version of Cockpit\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}<html><head><title>This package is not compatible with this version of Cockpit</title></head><body>This package is not compatible with this version of Cockpit</body></html>\n", -1);
+  cockpit_assert_bytes_eq (data, "<html><head><title>This package is not compatible with this version of Cockpit</title></head><body>This package is not compatible with this version of Cockpit</body></html>\n", -1);
   g_bytes_unref (data);
 }
 
@@ -377,12 +442,13 @@ test_large (TestCase *tc,
             gconstpointer fixture)
 {
   GError *error = NULL;
-  const gchar *prefix;
   gchar *contents;
   gsize length;
+  gsize prefixlength;
   GBytes *data;
   GBytes *sub;
   guint count;
+  JsonObject *object;
 
   g_assert (fixture == &fixture_large);
 
@@ -398,11 +464,14 @@ test_large (TestCase *tc,
 
   /* Should not have been sent as one block */
   g_assert_cmpuint (count, ==, 8);
-  prefix = "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}";
-  g_assert_cmpuint (g_bytes_get_size (data), >, strlen (prefix));
-  g_assert (strncmp (g_bytes_get_data (data, NULL), prefix, strlen (prefix)) == 0);
-  sub = g_bytes_new_from_bytes (data, strlen (prefix), g_bytes_get_size (data) - strlen (prefix));
+  prefixlength = strcspn (g_bytes_get_data (data, NULL), "}}") + 2;
+  g_assert_cmpuint (g_bytes_get_size (data), >, prefixlength);
+  object = cockpit_json_parse_object (g_bytes_get_data (data, NULL), prefixlength, &error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  sub = g_bytes_new_from_bytes (data, prefixlength, g_bytes_get_size (data) - prefixlength);
   cockpit_assert_bytes_eq (sub, contents, length);
+
+  json_object_unref (object);
   g_bytes_unref (sub);
   g_bytes_unref (data);
   g_free (contents);
@@ -420,6 +489,7 @@ test_listing (TestCase *tc,
   GError *error = NULL;
   GBytes *message;
   JsonNode *node;
+  guint count;
 
   g_assert (fixture == &fixture_listing);
 
@@ -430,11 +500,11 @@ test_listing (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object,
-                          "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\",\"Content-Type\":\"application/json\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\",\"Content-Type\":\"application/json\"}}");
   json_object_unref (object);
 
-  message = mock_transport_pop_channel (tc->transport, "444");
+  message = mock_transport_combine_output (tc->transport, "444", &count);
+  g_assert_cmpint (count, ==, 1);
   node = cockpit_json_parse (g_bytes_get_data (message, NULL), g_bytes_get_size (message), &error);
   g_assert_no_error (error);
   cockpit_assert_json_eq (json_node_get_object (node),
@@ -470,6 +540,7 @@ test_listing (TestCase *tc,
                           " }"
                           "}");
   json_node_free (node);
+  g_bytes_unref (message);
 }
 
 static const Fixture fixture_not_found = {
@@ -481,6 +552,9 @@ test_not_found (TestCase *tc,
                 gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
+
 
   g_assert (fixture == &fixture_not_found);
 
@@ -488,7 +562,10 @@ test_not_found (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static const Fixture fixture_unknown_package = {
@@ -500,6 +577,8 @@ test_unknown_package (TestCase *tc,
                       gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
 
   g_assert (fixture == &fixture_unknown_package);
 
@@ -507,7 +586,10 @@ test_unknown_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static const Fixture fixture_no_path = {
@@ -519,6 +601,8 @@ test_no_path (TestCase *tc,
               gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
 
   g_assert (fixture == &fixture_no_path);
 
@@ -526,7 +610,10 @@ test_no_path (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static const Fixture fixture_bad_path = {
@@ -538,6 +625,8 @@ test_bad_path (TestCase *tc,
                gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
 
   g_assert (fixture == &fixture_bad_path);
 
@@ -545,7 +634,10 @@ test_bad_path (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static const Fixture fixture_no_package = {
@@ -557,6 +649,8 @@ test_no_package (TestCase *tc,
                  gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
 
   g_assert (fixture == &fixture_no_package);
 
@@ -564,7 +658,10 @@ test_no_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static const Fixture fixture_bad_package = {
@@ -576,6 +673,8 @@ test_bad_package (TestCase *tc,
                   gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
 
   g_assert (fixture == &fixture_bad_package);
 
@@ -585,7 +684,10 @@ test_bad_package (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
 
   data = mock_transport_pop_channel (tc->transport, "444");
-  cockpit_assert_bytes_eq (data, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}", -1);
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  json_object_unref (object);
 }
 
 static void
@@ -618,18 +720,23 @@ test_list_bad_name (TestCase *tc,
                     gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   while (tc->closed == FALSE)
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Type\":\"application/json\",\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ETag\":\"\\\"$" CHECKSUM_BADPACKAGE "\\\"\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":"
-                                     "{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\","
-                                     "\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_BADPACKAGE "\",\"Content-Type\":\"application/json\",\"ETag\":\"\\\"$" CHECKSUM_BADPACKAGE "\\\"\"}}"
-                                 "{\".checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ok\":{\".checksum\":\"" CHECKSUM_BADPACKAGE "\"}}", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "{\".checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ok\":{\".checksum\":\"" CHECKSUM_BADPACKAGE "\"}}", -1);
   g_bytes_unref (data);
 }
 
@@ -995,6 +1102,8 @@ test_csp_strip (TestCase *tc,
                 gconstpointer fixture)
 {
   GBytes *data;
+  JsonObject *object;
+  GError *error = NULL;
   guint count;
 
   g_assert (fixture == &fixture_csp_strip);
@@ -1003,9 +1112,15 @@ test_csp_strip (TestCase *tc,
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpstr (tc->problem, ==, NULL);
 
+  data = mock_transport_pop_channel (tc->transport, "444");
+  object = cockpit_json_parse_bytes (data, &error);
+  g_assert_no_error (error);
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content; img-src: 'self' http://blah:9090 data:; default-src 'self' http://blah:9090\",\"Content-Type\":\"text/html\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\"}}");
+  json_object_unref (object);
+
   data = mock_transport_combine_output (tc->transport, "444", &count);
-  cockpit_assert_bytes_eq (data, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\",\"Content-Type\":\"text/html\",\"Referrer-Policy\":\"no-referrer\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content; img-src: 'self' http://blah:9090 data:; default-src 'self' http://blah:9090\"}}<html>\x0A<head>\x0A<title>Test</title>\x0A</head>\x0A<body>Test</body>\x0A</html>\x0A", -1);
-  g_assert_cmpuint (count, ==, 2);
+  g_assert_cmpint (count, ==, 1);
+  cockpit_assert_bytes_eq (data, "<html>\n<head>\n<title>Test</title>\n</head>\n<body>Test</body>\n</html>\n", -1);
   g_bytes_unref (data);
 }
 

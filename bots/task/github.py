@@ -42,17 +42,8 @@ __all__ = (
 )
 
 TESTING = "Testing in progress"
-NO_TESTING = "Manual testing required"
-
-# if the webhook receives a pull request event, it will create a status for each
-# context with NOT_TESTED as description
-# the subsequent status events caused by the webhook creating the statuses, will
-# be ignored by the webhook as it only handles NOT_TESTED_DIRECT as described
-# below
 NOT_TESTED = "Not yet tested"
-# if the webhook receives a status event with NOT_TESTED_DIRECT as description,
-# it will publish a test task to the queue (used to trigger specific contexts)
-NOT_TESTED_DIRECT = "Not yet tested (direct trigger)"
+NO_TESTING = "Manual testing required"
 
 OUR_CONTEXTS = [
     "verify/",

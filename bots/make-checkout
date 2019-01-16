@@ -67,20 +67,7 @@ def main():
             execute("git", "remote", "remove", "test")
         execute("git", "remote", "add", "test", "https://github.com/" + opts.repo)
 
-    # if the pr was updated while the command was in the queue, the revision
-    # won't be tied to the ref anymore, and it won't exist locally, so exit
-    # silently
-    output = None
-    try:
-        args = ["git", "fetch", "test" if opts.repo else "origin", opts.ref]
-        if opts.verbose:
-            sys.stderr.write("+ {0}\n".format(" ".join(args)))
-        output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
-    except subprocess.CalledProcessError:
-        return 0
-    finally:
-        if opts.verbose and output:
-            sys.stderr.write("> " + output + "\n")
+    execute("git", "fetch", "test" if opts.repo else "origin", opts.ref)
     execute("git", "checkout", "--detach", opts.revision)
 
     # If the bots directory doesn't exist in this branch or repo, check it out from master

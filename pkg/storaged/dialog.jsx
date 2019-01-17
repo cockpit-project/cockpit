@@ -684,6 +684,25 @@ export const SelectSpace = (tag, title, options) => {
     };
 };
 
+const CheckBoxComponent = ({ tag, val, title, options, update_function }) => {
+    return (
+        <div key={tag} className="checkbox">
+            <label key={tag}>
+                <input type="checkbox" data-field={tag} data-field-type="checkbox"
+                       checked={val}
+                       onChange={event => update_function(event.target.checked)} />
+                {title}
+            </label>
+            { options.tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{options.tooltip}</Tooltip> } placement="right" >
+                <a className="dialog-item-tooltip">
+                    <span className="fa fa-lg fa-info-circle" />
+                </a>
+            </OverlayTrigger>
+            }
+        </div>
+    );
+};
+
 export const CheckBox = (tag, title, options) => {
     return {
         tag: tag,
@@ -692,22 +711,7 @@ export const CheckBox = (tag, title, options) => {
         initial_value: options.value || false,
 
         render: (val, change) => {
-            return (
-                <div className="checkbox">
-                    <label>
-                        <input type="checkbox" data-field={tag} data-field-type="checkbox"
-                               checked={val}
-                               onChange={event => change(event.target.checked)} />
-                        {title}
-                    </label>
-                    { options.tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{options.tooltip}</Tooltip> } placement="right" >
-                        <a className="dialog-item-tooltip">
-                            <span className="fa fa-lg fa-info-circle" />
-                        </a>
-                    </OverlayTrigger>
-                    }
-                </div>
-            );
+            return <CheckBoxComponent tag={tag} val={val} title={title} options={options} update_function={change} />;
         }
     };
 };

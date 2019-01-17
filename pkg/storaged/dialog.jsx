@@ -716,6 +716,22 @@ export const CheckBox = (tag, title, options) => {
     };
 };
 
+const TextInputCheckedComponent = ({ tag, val, title, update_function }) => {
+    return (
+        <React.Fragment key={tag}>
+            <div className="checkbox ct-form-layout-split dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
+                <label>
+                    <input type="checkbox" checked={val !== false}
+                        onChange={event => update_function(event.target.checked ? "" : false)} />
+                    {title}
+                </label>
+            </div>
+            <input className="form-control ct-form-layout-split" type="text" hidden={val === false}
+                   value={val} onChange={event => update_function(event.target.value)} />
+        </React.Fragment>
+    );
+};
+
 /* A text input that is guarded by a check box.
  *
  * The value is either "false" when the checkbox
@@ -730,18 +746,7 @@ export const TextInputChecked = (tag, title, options) => {
         initial_value: (options.value === undefined) ? false : options.value,
 
         render: (val, change) => {
-            return (
-                <div className="dialog-checkbox-text" data-field={tag} data-field-type="text-input-checked">
-                    <div className="checkbox">
-                        <label>
-                            <input type="checkbox" checked={val !== false}
-                                   onChange={event => change(event.target.checked ? "" : false)} />{title}
-                        </label>
-                    </div>
-                    <input className="form-control" type="text" hidden={val === false}
-                           value={val} onChange={event => change(event.target.value)} />
-                </div>
-            );
+            return <TextInputCheckedComponent tag={tag} val={val} title={title} change={change} />;
         }
     };
 };

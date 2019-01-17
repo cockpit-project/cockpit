@@ -39,8 +39,8 @@ Note that `tools/cockpit.spec` is a template filled in by
 `tools/gen-spec-dependencies`, and cannot be directly parsed by yum/dnf.
 The following should work in a fresh Git clone:
 
-    $ sudo yum install yum-utils
-    $ sed 's/%{npm-version:.*}/0/' tools/cockpit.spec | sudo yum-builddep --spec /dev/stdin
+    $ sudo yum install dnf-utils
+    $ sed 's/%{npm-version:.*}/0/' tools/cockpit.spec | sudo dnf builddep --spec /dev/stdin
 
 In addition, for testing, the following dependencies are required:
 

@@ -100,7 +100,8 @@
   }
 
   // Auto-relax inputs with size
-  > input[size] {
+  > input[size],
+  > .ct-validation-wrapper > input[size] {
     justify-self: start;
   }
 
@@ -110,28 +111,37 @@
   }
 
   // Special considerations for widgets (and widget-like elements)
-  > input,
-  > textarea,
-  > select,
-  > .bootstrap-select,
-  > .dropdown,
-  > .combobox-container,
-  > fieldset,
-  > [role=group],
-  > .form-group,
-  > .btn-group,
-  > .checkbox-inline,
-  > .radio-inline {
-    // Vertically align elements with text
-    margin-top: -(@padding-small-vertical - @padding-base-vertical);
-    // Ensure widgets are a at least a minimum widget size
-    min-height: @widget-height;
-
-    // Some elements need special width considerations
-    // as PatternFly normally fixes the width
-    &:not(.ct-form-layout-relax) {
-      width: auto !important;
+  // This is a LESS mixin that will not be in the compiled CSS.
+  .widget-rules() {
+    > input,
+    > textarea,
+    > select,
+    > .bootstrap-select,
+    > .dropdown,
+    > .combobox-container,
+    > fieldset,
+    > [role=group],
+    > [data-field],
+    > .form-group,
+    > .btn-group,
+    > .checkbox-inline,
+    > .radio-inline {
+      // Vertically align elements with text
+      margin-top: -(@padding-small-vertical - @padding-base-vertical);
+      margin-bottom: @padding-small-vertical - @padding-base-vertical;
+      // Ensure widgets are a at least a minimum widget size
+      min-height: @widget-height;
     }
+  }
+
+  &, > .ct-validation-wrapper {
+    .widget-rules();
+  }
+
+  // Some elements need special width considerations
+  // as PatternFly normally fixes the width
+  > :not(.ct-form-layout-relax) {
+    width: auto !important;
   }
 
   // Elements with role="group" are used to group elements —
@@ -145,18 +155,22 @@
   // <div role="group">
   //
   // And non-div elements are also supported.
-  fieldset,
-  > [role=group] {
-    // appearance: none is needed for WebKit
-    -webkit-appearance: none;
-    appearance: none;
+  > [role=group],
+  > .ct-validation-wrapper > [role=group] {
     align-content: center;
     align-self: start;
     display: grid;
-    grid-auto-flow: column;
     grid-gap: @padding-small-vertical;
-    grid-template-columns: max-content;
     justify-content: start;
+    // Only support 2 splits for now (can change to 3 later, if needed)
+    grid-template-columns: repeat(2, auto);
+
+    &.ct-form-layout-vertical {
+      > :not(.ct-form-layout-split) {
+        // Stretch across the grid (unless it's a split)
+        grid-column: ~"1 / -1";
+      }
+    }
 
     // Allow dropdowns to be less wide
     &:not(.ct-form-layout-relax) > .dropdown {
@@ -165,6 +179,12 @@
 
     > .form-control {
       width: auto;
+    }
+
+    > .checkbox,
+    > .radio {
+        // Spacing is handled by grid, not margin
+        margin: 0;
     }
   }
 

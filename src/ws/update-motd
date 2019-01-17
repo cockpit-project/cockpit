@@ -10,7 +10,7 @@ port=${1:-$(systemctl show --property Listen cockpit.socket |
 port=${port:-9090}
 
 # hostname from cmdline, then `hostname -f`
-hostname=${2:-$(hostname -f)}
+hostname=${2:-$(hostname -f || hostname)}
 
 # ip addr from cmdline, then default route source addr
 ip=${3:-$(ip -o route get 255.0 2>/dev/null | sed -e 's/.*src \([^ ]*\) .*/\1/')}

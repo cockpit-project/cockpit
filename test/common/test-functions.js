@@ -95,41 +95,46 @@ function ph_has_attr (sel, attr, val)
     return ph_attr(sel, attr) == val;
 }
 
-function ph_mouse_event(element, type) {
-    var ev = document.createEvent("MouseEvent");
-    ev.initMouseEvent(
-        type,
-        true /* bubble */, true /* cancelable */,
-        window, null,
-        0, 0, 0, 0, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        0 /*left*/, null);
-
-    element.dispatchEvent(ev);
-}
-
-function ph_click(sel, force) {
-    var el = ph_find(sel);
+function ph_mouse(sel, type, x, y, btn, force) {
+    let el = ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
     if (!force && (el.offsetWidth <= 0 || el.offsetHeight <= 0))
         throw sel + " is not visible";
 
-    /* The click has to actually work */
-    var clicked = false;
-    function click() {
-        clicked = true;
+    /* The event has to actually work */
+    var processed = false;
+    function handler() {
+        processed = true;
     }
 
-    el.addEventListener("click", click, true);
+    el.addEventListener(type, handler, true);
 
-    ph_mouse_event(el, "click");
+    let elp = el;
+    let left = elp.offsetLeft;
+    let top = elp.offsetTop;
+    while (elp.offsetParent) {
+        elp = elp.offsetParent;
+        left += elp.offsetLeft;
+        top += elp.offsetTop;
+    }
 
-    el.removeEventListener("click", click, true);
+    var ev = document.createEvent("MouseEvent");
+    ev.initMouseEvent(
+        type,
+        true /* bubble */, true /* cancelable */,
+        window, null,
+        left + x, top + y, left + x, top + y, /* coordinates */
+        false, false, false, false, /* modifier keys */
+        btn, null);
+
+    el.dispatchEvent(ev);
+
+    el.removeEventListener(type, handler, true);
 
     /* It really had to work */
-    if (!clicked)
-        throw sel + " is disabled or somehow not clickable";
+    if (!processed)
+        throw sel + " is disabled or somehow doesn't process events";
 }
 
 function ph_set_checked (sel, val)
@@ -139,7 +144,7 @@ function ph_set_checked (sel, val)
         throw sel + " is not checkable";
 
     if (el.checked != val)
-        ph_click(sel, true);
+        ph_mouse(sel, "click", 0, 0, 0, true);
 }
 
 function ph_is_visible (sel)

@@ -20,7 +20,7 @@ On Debian or Ubuntu:
 
 On Fedora:
 
-    $ sudo yum install nodejs npm
+    $ sudo dnf install nodejs npm
 
 And lastly get Webpack and the development dependencies:
 
@@ -36,15 +36,15 @@ additional header files and other components. Check
 `tools/cockpit.spec` for the concrete Fedora build dependencies.
 
 Note that `tools/cockpit.spec` is a template filled in by
-`tools/gen-spec-dependencies`, and cannot be directly parsed by yum/dnf.
+`tools/gen-spec-dependencies`, and cannot be directly parsed by dnf.
 The following should work in a fresh Git clone:
 
-    $ sudo yum install dnf-utils
+    $ sudo dnf install dnf-utils
     $ sed 's/%{npm-version:.*}/0/' tools/cockpit.spec | sudo dnf builddep --spec /dev/stdin
 
 In addition, for testing, the following dependencies are required:
 
-    $ sudo yum install curl expect \
+    $ sudo dnf install curl expect \
         libvirt libvirt-client libvirt-daemon libvirt-python \
         python python-libguestfs python-lxml libguestfs-xfs \
         python3 libvirt-python3 \

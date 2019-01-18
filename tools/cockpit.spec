@@ -118,6 +118,8 @@ BuildRequires: systemd-devel
 BuildRequires: pcp-libs-devel
 BuildRequires: krb5-server
 BuildRequires: gdb
+BuildRequires: dbus-daemon
+BuildRequires: glibc-all-langpacks
 
 # For documentation
 BuildRequires: xmlto

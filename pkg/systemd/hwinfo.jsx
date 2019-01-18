@@ -31,37 +31,45 @@ const _ = cockpit.gettext;
 
 const SystemInfo = ({ info }) => (
     <table className="info-table-ct wide-split-table-ct">
+        { info.type &&
+            <tbody>
+                <tr>
+                    <th>{ _("Type") }</th>
+                    <td>{ info.type }</td>
+                </tr>
+                <tr>
+                    <th>{ _("Name") }</th>
+                    <td>{ info.name }</td>
+                </tr>
+                <tr>
+                    <th>{ _("Version") }</th>
+                    <td>{ info.version }</td>
+                </tr>
+            </tbody>
+        }
         <tbody>
-            <tr>
-                <th>{ _("Type") }</th>
-                <td>{ info.type }</td>
-            </tr>
-            <tr>
-                <th>{ _("Name") }</th>
-                <td>{ info.name }</td>
-            </tr>
-            <tr>
-                <th>{ _("Version") }</th>
-                <td>{ info.version }</td>
-            </tr>
-        </tbody>
-        <tbody>
-            <tr>
-                <th>{ _("BIOS") }</th>
-                <td>{ info.bios_vendor }</td>
-            </tr>
-            <tr>
-                <th>{ _("BIOS version") }</th>
-                <td>{ info.bios_version }</td>
-            </tr>
-            <tr>
-                <th>{ _("BIOS date") }</th>
-                <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
-            </tr>
-            <tr>
-                <th>{ _("CPU") }</th>
-                <td>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</td>
-            </tr>
+            { info.bios_vendor &&
+                <React.Fragment>
+                    <tr>
+                        <th>{ _("BIOS") }</th>
+                        <td>{ info.bios_vendor }</td>
+                    </tr>
+                    <tr>
+                        <th>{ _("BIOS version") }</th>
+                        <td>{ info.bios_version }</td>
+                    </tr>
+                    <tr>
+                        <th>{ _("BIOS date") }</th>
+                        <td>{ moment(info.bios_date).isValid() ? moment(info.bios_date).format('L') : info.bios_date }</td>
+                    </tr>
+                </React.Fragment>
+            }
+            { info.nproc !== undefined &&
+                <tr>
+                    <th>{ _("CPU") }</th>
+                    <td>{ (info.nproc > 1) ? `${info.nproc}x ${info.cpu_model}` : info.cpu_model }</td>
+                </tr>
+            }
         </tbody>
     </table>
 );

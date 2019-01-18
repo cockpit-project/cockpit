@@ -75,7 +75,14 @@ user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
 
     <para>Domain admins (usually the <code>admins@example.com</code> group) should normally
       also be able to administer any joined machine. Enable sudo access for that group
-      with the following commands, as a domain admin on any joined machine:</para>
+      with the following command on the IPA server, for version 4.7.1 and later:</para>
+
+<programlisting>
+ipa-advise enable-admins-sudo | sh -ex
+</programlisting>
+
+    <para>On earlier FreeIPA versions, run these commands instead, as a domain admin on
+      any joined machine:</para>
 
 <programlisting>
 ipa sudorule-add --hostcat=all --cmdcat=all All

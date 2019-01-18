@@ -214,6 +214,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
+import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { StatelessSelect, SelectEntry } from "cockpit-components-select.jsx";
@@ -699,6 +700,12 @@ export const CheckBox = (tag, title, options) => {
                                onChange={event => change(event.target.checked)} />
                         {title}
                     </label>
+                    { options.tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{options.tooltip}</Tooltip> } placement="right" >
+                        <a className="dialog-item-tooltip">
+                            <span className="fa fa-lg fa-info-circle" />
+                        </a>
+                    </OverlayTrigger>
+                    }
                 </div>
             );
         }

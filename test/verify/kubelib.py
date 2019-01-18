@@ -1283,8 +1283,8 @@ class RegistryTests(object):
 
             testlib.wait(lambda: username in o.execute("oc get rolebinding -n testprojectuserproj"), delay=5)
             output = o.execute("oc get rolebinding -n testprojectuserproj")
-            self.assertRegexpMatches(output, "registry-%s\s+/registry-%s\s.*\\b%s\\b" % (perm, perm, username))
-            self.assertNotRegexpMatches(output, "registry-admin.*%s" % username)
+            self.assertRegex(output, "registry-%s\s+/registry-%s\s.*\\b%s\\b" % (perm, perm, username))
+            self.assertNotRegex(output, "registry-admin.*%s" % username)
 
             b.wait_present("tbody[data-id='%s']" % username)
             b.click("tbody[data-id='%s'] a i.pficon-close" % username)

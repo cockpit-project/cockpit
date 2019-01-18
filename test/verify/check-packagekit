@@ -565,8 +565,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#state", "Applying updates failed")
 
         b.wait_present("#app .container-fluid pre")
-        self.assertRegexpMatches(b.text("#app .container-fluid pre:first-of-type"),
-                                 "missing|downloading|not.*available|No such file or directory")
+        self.assertRegex(b.text("#app .container-fluid pre:first-of-type"),
+                         "missing|downloading|not.*available|No such file or directory")
 
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
@@ -865,11 +865,11 @@ class TestAutoUpdates(PackageCase):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
             if hour:
                 # allow some wiggle room in the minutes, due to RandomizedDelaySec=
-                self.assertRegexpMatches(out, " %s:0[0-9]:" % hour)
+                self.assertRegex(out, " %s:0[0-9]:" % hour)
             else:
                 self.assertEqual(out, "")
             if dow:
-                self.assertRegexpMatches(out, "^%s\s" % dow)
+                self.assertRegex(out, "^%s\s" % dow)
             else:
                 # "every day" should not have a "LEFT" time > 1 day
                 self.assertNotIn(" day", out)
@@ -880,7 +880,7 @@ class TestAutoUpdates(PackageCase):
             # automatic reboots should be enabled whenever timer is enabled
             out = m.execute("systemctl cat dnf-automatic-install.service")
             if hour:
-                self.assertRegexpMatches(out, "ExecStartPost=/.*shutdown")
+                self.assertRegex(out, "ExecStartPost=/.*shutdown")
             else:
                 self.assertNotIn("ExecStartPost", out)
 

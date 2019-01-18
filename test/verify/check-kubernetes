@@ -84,7 +84,7 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Check that this failed as a double check
         output = m.execute("curl -k -sS https://10.111.113.1:6443/api 2>&1 || true")
-        self.assertRegexpMatches(output, "Unauthorized|No policy matched")
+        self.assertRegex(output, "Unauthorized|No policy matched")
 
         m.execute("rm -r /home/admin/.kube")
         self.login_and_go("/kubernetes")

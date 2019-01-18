@@ -692,11 +692,11 @@ PageServer.prototype = {
         });
 
         let asset_tag_text = $("#system_information_asset_tag_text");
+        let hardware_text = $("#system_information_hardware_text");
+        hardware_text.tooltip({ title: _("Click to see system hardware information"), placement: "bottom" });
         machine_info.dmi_info()
                 .done(function(fields) {
-                    $("#system_information_hardware_text")
-                            .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
-                            .text(fields.sys_vendor + " " + fields.product_name);
+                    hardware_text.text(fields.sys_vendor + " " + fields.product_name);
                     var present = !!(fields.product_serial || fields.chassis_serial);
                     asset_tag_text.text(fields.product_serial || fields.chassis_serial);
                     asset_tag_text.toggle(present);
@@ -704,6 +704,7 @@ PageServer.prototype = {
                 })
                 .fail(function(ex) {
                     debug("couldn't read dmi info: " + ex);
+                    hardware_text.text(_("Details"));
                     asset_tag_text.toggle(false);
                     asset_tag_text.prev().toggle(false);
                 });

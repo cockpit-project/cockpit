@@ -400,8 +400,12 @@ class TestSystemInfo(MachineCase):
         b.logout()
         self.machine.execute("mount -t tmpfs none /sys/class/dmi")
         self.login_and_go("/system/hwinfo")
+
+        # CPU should still be shown, but not the DMI fields
         b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
+        self.assertNotIn('Type', b.text('#hwinfo .info-table-ct'))
+        self.assertNotIn('BIOS', b.text('#hwinfo .info-table-ct'))
 
         # PCI should be shown
         b.wait_present('#hwinfo .listing-ct caption')

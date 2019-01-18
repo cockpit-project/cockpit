@@ -403,10 +403,13 @@ class TestSystemInfo(MachineCase):
         b.wait_present('#system_information_hardware_text')
         # asset tag should be hidden
         b.wait_not_visible('#system_information_asset_tag_text')
+        # Hardware can just be a generic link
+        b.wait_visible('#system_information_hardware_text')
+        b.wait_text('#system_information_hardware_text', "Details")
+        b.click("#system_information_hardware_text")
+        b.enter_page("/system/hwinfo")
 
         # CPU should still be shown, but not the DMI fields
-        b.go("/system/hwinfo")
-        b.enter_page("/system/hwinfo")
         b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
         self.assertNotIn('Type', b.text('#hwinfo .info-table-ct'))

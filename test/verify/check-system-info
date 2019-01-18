@@ -393,6 +393,23 @@ class TestSystemInfo(MachineCase):
         b.click('.breadcrumb a')
         b.enter_page("/system")
 
+        # now pretend this is a system without DMI; fixed in PR #11005
+        if self.machine.image == 'rhel-7-6-distropkg':
+            return
+
+        b.logout()
+        self.machine.execute("mount -t tmpfs none /sys/class/dmi")
+        self.login_and_go("/system/hwinfo")
+        b.wait_present('#hwinfo .info-table-ct')
+        b.wait_in_text('#hwinfo .info-table-ct', "CPU")
+
+        # PCI should be shown
+        b.wait_present('#hwinfo .listing-ct caption')
+        b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
+        b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
+
+        self.machine.execute("umount /sys/class/dmi")
+
 
 class TestPcp(packagelib.PackageCase):
 

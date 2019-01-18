@@ -105,7 +105,7 @@ function parseDMIFields(text) {
         let sep = line.indexOf(':');
         if (sep <= 0)
             return;
-        let key = line.slice(0, sep);
+        let key = line.slice(0, sep).slice(line.lastIndexOf('/') + 1);
         let value = line.slice(sep + 1);
         info[key] = value;
 
@@ -124,11 +124,10 @@ export function dmi_info(address) {
         dfd = cockpit.defer();
         dmi_info_promises[address] = pr = dfd.promise();
 
-        cockpit.spawn(["grep", "-r", "."],
-                      { directory: "/sys/class/dmi/id", err: "ignore", superuser: "try" })
+        cockpit.spawn(["grep", "-r", ".", "/sys/class/dmi/id"], { err: "message", superuser: "try" })
                 .done(output => dfd.resolve(parseDMIFields(output)))
                 .fail((exception, output) => {
-                // the grep often/usually exits with 2, that's okay as long as we find *some* information
+                    // the grep often/usually exits with 2, that's okay as long as we find *some* information
                     if (!exception.problem && output)
                         dfd.resolve(parseDMIFields(output));
                     else

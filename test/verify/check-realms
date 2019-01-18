@@ -64,30 +64,9 @@ class TestRealms(MachineCase):
         "ipa": {"image": "ipa", "memory_mb": 2048}
     }
 
-    def addSudoRule(self):
-        '''Allow "admins" IPA group members to run sudo'''
-
-        # HACK: https://pagure.io/freeipa/issue/7538
-        # This is an "unbreak my setup" step and ought to happen by default.
-        # Do that on the IPA server instead of the client:
-        #  - This avoids interfering too much with the client and test
-        #  - It is a more realistic scenario anyway (admins configuring everything
-        #    before clients join)
-        #  - It avoids long propagation delays
-        #  - It also works for Ubuntu clients that don't have the `ipa` CLI tool
-
-        ipa_machine = self.machines['ipa']
-        # need to wait for IPA to start up
-        ipa_machine.execute("while ! echo foobarfoo | kinit -f admin; do sleep 5; done", timeout=300)
-        ipa_machine.execute('export LC_ALL=C.UTF-8 && while ! ipa user-find >/dev/null; do sleep 5; done', timeout=300)
-        ipa_machine.execute(
-            'export LC_ALL=C.UTF-8 && ipa sudorule-add --hostcat=all --cmdcat=all All && ipa sudorule-add-user --groups=admins All')
-
     def testIpa(self):
         m = self.machine
         b = self.browser
-
-        self.addSudoRule()
 
         # Tell realmd to enable domain-qualified logins; unqualified ones are covered in testIpaUnqualifiedUsers
         m.execute("printf '[cockpit.lan]\\nfully-qualified-names = yes\\n'  >> /etc/realmd.conf")
@@ -279,8 +258,6 @@ class TestRealms(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.addSudoRule()
-
         m.execute("hostnamectl set-hostname x0.cockpit.lan")
 
         # Wait for DNS to work as expected.
@@ -410,6 +387,9 @@ else
     curl --insecure -s --negotiate -u : https://f0.cockpit.lan/ipa/json --header 'Referer: https://f0.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
 fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
+
+# HACK: due to sudo's "last rule wins", our /etc/sudoers rule becomes trumped by sssd's, so swap the order
+sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 """
 
 # This is here because our test framework can't run ipa VM's twice
@@ -446,7 +426,8 @@ class TestKerberos(MachineCase):
         # delete the local admin user, going to use the IPA one instead
         m.execute("userdel admin")
 
-        # HACK: There is no operating system where the domain admins are admins by default
+        # HACK: There is no operating system where the domain admins can do passwordless sudo
+        # while having a kerberos ticket, so we can't start a root bridge.
         # This is something that needs to be worked on at an OS level. We use admin level
         # features below, such as adding a machine to the dashboard
         m.execute("echo 'admin        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers")

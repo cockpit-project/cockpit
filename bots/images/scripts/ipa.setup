@@ -34,6 +34,11 @@ ipa pwpolicy-mod --minlife=0 --maxlife=1000
 printf 'foobarfoo\nfoobarfoo\n' | ipa user-mod --password admin
 ipa user-show --all admin
 
+# Allow "admins" IPA group members to run sudo
+# This is an "unbreak my setup" step and ought to happen by default.
+# See https://pagure.io/freeipa/issue/7538
+ipa-advise enable-admins-sudo | sh -ex
+
 ipa dnsconfig-mod --forwarder=8.8.8.8
 
 ln -sf ../selinux/config /etc/sysconfig/selinux

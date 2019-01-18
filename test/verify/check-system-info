@@ -399,9 +399,14 @@ class TestSystemInfo(MachineCase):
 
         b.logout()
         self.machine.execute("mount -t tmpfs none /sys/class/dmi")
-        self.login_and_go("/system/hwinfo")
+        self.login_and_go("/system")
+        b.wait_present('#system_information_hardware_text')
+        # asset tag should be hidden
+        b.wait_not_visible('#system_information_asset_tag_text')
 
         # CPU should still be shown, but not the DMI fields
+        b.go("/system/hwinfo")
+        b.enter_page("/system/hwinfo")
         b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
         self.assertNotIn('Type', b.text('#hwinfo .info-table-ct'))

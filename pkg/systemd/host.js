@@ -691,19 +691,21 @@ PageServer.prototype = {
             self.disk_plot.resize();
         });
 
+        let asset_tag_text = $("#system_information_asset_tag_text");
         machine_info.dmi_info()
                 .done(function(fields) {
                     $("#system_information_hardware_text")
                             .tooltip({ title: _("Click to see system hardware information"), placement: "bottom" })
                             .text(fields.sys_vendor + " " + fields.product_name);
                     var present = !!(fields.product_serial || fields.chassis_serial);
-                    let text = $("#system_information_asset_tag_text");
-                    text.text(fields.product_serial || fields.chassis_serial);
-                    text.toggle(present);
-                    text.prev().toggle(present);
+                    asset_tag_text.text(fields.product_serial || fields.chassis_serial);
+                    asset_tag_text.toggle(present);
+                    asset_tag_text.prev().toggle(present);
                 })
                 .fail(function(ex) {
                     debug("couldn't read dmi info: " + ex);
+                    asset_tag_text.toggle(false);
+                    asset_tag_text.prev().toggle(false);
                 });
 
         function hostname_text() {

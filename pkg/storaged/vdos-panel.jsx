@@ -77,11 +77,15 @@ export class VDOsPanel extends React.Component {
                                          }),
                               CheckBox("compression", _("Compression"),
                                        { value: true,
-                                         row_title: _("Options") }),
+                                         row_title: _("Options"),
+                                         tooltip: _("Save space by compressing individual blocks with LZ4") }),
                               CheckBox("deduplication", _("Deduplication"),
-                                       { value: true }),
+                                       { value: true,
+                                         tooltip: _("Save space by storing identical data blocks just once") }),
                               CheckBox("emulate_512", _("Use 512 Byte emulation"),
-                                       { value: false })
+                                       { value: false,
+                                         tooltip: _("For legacy applications only. Reduces performance.")
+                                       })
                           ],
                           update: (dlg, vals, trigger) => {
                               if (trigger == "space") {

@@ -58,7 +58,7 @@ div.spinner {
  * HACK: Because CSS has no parant selector.
  */
 .cell-buttons,
-.table > tbody > tr > .cell-buttons {
+table > tbody > tr > .cell-buttons {
     padding-top: 4px;
     padding-bottom: 4px;
     width: 30px;
@@ -110,9 +110,9 @@ div.spinner {
 }
 
 #image-details-containers .cell-buttons button,
-#image-details-containers .table > tbody > tr > .cell-buttons button,
+#image-details-containers table > tbody > tr > .cell-buttons button,
 #containers .cell-buttons button,
-#containers .table > tbody > tr > .cell-buttons button {
+#containers table > tbody > tr > .cell-buttons button {
     position: absolute;
     right: 36px;
     width: 28px;
@@ -174,18 +174,18 @@ div.spinner {
     float: left;
 }
 
-#containers #containers-containers .table,
-#containers #containers-images .table,
-#image-details-containers .table {
+#containers #containers-containers table,
+#containers #containers-images table,
+#image-details-containers table {
     table-layout: fixed;
 }
 
-#containers #containers-containers .table th,
-#containers #containers-containers .table td,
-#containers #containers-images .table th,
-#containers #containers-images .table td,
-#image-details #image-details-containers .table th,
-#image-details #image-details-containers .table td {
+#containers #containers-containers table th,
+#containers #containers-containers table td,
+#containers #containers-images table th,
+#containers #containers-images table td,
+#image-details #image-details-containers table th,
+#image-details #image-details-containers table td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -633,6 +633,6 @@ table.drive-list td:nth-child(2) img {
     border: none;
 }
 
-#delete-image-confirmation-dialog-containers .table {
+#delete-image-confirmation-dialog-containers table {
     margin-bottom: 0px;
 }

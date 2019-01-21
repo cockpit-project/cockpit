@@ -413,3 +413,7 @@ include src/ws/Makefile-ws.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
 include containers/Makefile.am
+
+# Because Brno
+czech: check
+distczech: distcheck

@@ -98,7 +98,7 @@ function instance(realmd, mode, realm, button) {
     if (mode == 'join') {
         title = _("page-title", _("Join a Domain"));
         label = _("Join");
-        $(".realms-op-join-only-row").show();
+        $(".realms-op-join-only").show();
         $(".realms-op-leave-only-row").hide();
         check("");
     } else {
@@ -112,7 +112,7 @@ function instance(realmd, mode, realm, button) {
         text = cockpit.format(_("$0 Only users with local credentials will be able to log into this machine. This may also effect other services as DNS resolution settings and the list of trusted CAs may change."), text);
 
         $(".realms-op-leave-only-row").text(text);
-        $(".realms-op-join-only-row").hide();
+        $(".realms-op-join-only").hide();
         $(".realms-op-leave-only-row").show();
     }
 

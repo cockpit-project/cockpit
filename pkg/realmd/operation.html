@@ -7,8 +7,9 @@
       <div class="modal-body">
         <div class="realms-op-fields">
           <p class="realms-op-leave-only-row"></p>
-          <table class="form-table-ct realms-op-form">
-            <tr class="realms-op-join-only-row">
+
+          <table class="form-table-ct realms-op-form realms-op-join-only">
+            <tr>
               <td><label class="control-label" translatable="yes">Domain Address</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-address" type="text" value=""/>
@@ -22,16 +23,16 @@
                 </div>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row">
+            <tr>
               <td class="header"></td>
             </tr>
-            <tr class="realms-op-join-only-row realm-active-directory-only">
+            <tr class="realm-active-directory-only">
               <td><label class="control-label" translatable="yes">Computer OU</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-computer-ou" type="text" value=""/>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-authentification-row">
+            <tr class="realms-authentification-row">
               <td><label class="control-label" translatable="yes">Authentication</label></td>
               <td>
                   <div class="btn-group bootstrap-select dropdown form-control realms-op-auth">
@@ -44,42 +45,38 @@
                   </div>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-op-user-row">
+            <tr class="realms-op-user-row">
               <td><label class="control-label" translatable="yes">User Name</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-user" type="text" value=""/>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-op-user-password-row">
+            <tr class="realms-op-user-password-row">
               <td><label class="control-label" translatable="yes">User Password</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-user-password" type="password" value=""/>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-op-admin-row">
+            <tr class="realms-op-admin-row">
               <td><label class="control-label" translatable="yes">Domain Administrator Name</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-admin" type="text" value=""/>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-op-admin-password-row">
+            <tr class="realms-op-admin-password-row">
               <td><label class="control-label" translatable="yes">Domain Administrator Password</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-admin-password" type="password" value=""/>
               </td>
             </tr>
-            <tr class="realms-op-join-only-row realms-op-otp-row">
+            <tr class="realms-op-otp-row">
               <td><label class="control-label" translatable="yes">One Time Password</label></td>
               <td>
                 <input class="realms-op-field form-control realms-op-ot-password" type="password" value=""/>
               </td>
             </tr>
-            <tr>
-              <td colspan="3">
-                <pre class="realms-op-diagnostics" hidden></pre>
-              </td>
-            </tr>
           </table>
+          <pre class="realms-op-diagnostics" hidden></pre>
         </div>
       </div>
       <div class="modal-footer">

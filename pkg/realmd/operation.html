@@ -8,74 +8,46 @@
         <div class="realms-op-fields">
           <p class="realms-op-leave-only-row"></p>
 
-          <table class="form-table-ct realms-op-form realms-op-join-only">
-            <tr>
-              <td><label class="control-label" translatable="yes">Domain Address</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-address" type="text" value=""/>
-              </td>
-              <td class="realms-op-zero-width">
-                <div class="realms-op-address-spinner" hidden>
-                  <span class="spinner spinner-xs spinner-inline"></span>
-                </div>
-                <div class="realms-op-address-error" hidden>
-                  <span class="fa fa-lg fa-exclamation"></span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="header"></td>
-            </tr>
-            <tr class="realm-active-directory-only">
-              <td><label class="control-label" translatable="yes">Computer OU</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-computer-ou" type="text" value=""/>
-              </td>
-            </tr>
-            <tr class="realms-authentification-row">
-              <td><label class="control-label" translatable="yes">Authentication</label></td>
-              <td>
-                  <div class="btn-group bootstrap-select dropdown form-control realms-op-auth">
-                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
-                          <span class="pull-left"></span>
-                          <div class="caret"></div>
-                      </button>
-                      <ul class="dropdown-menu">
-                      </ul>
-                  </div>
-              </td>
-            </tr>
-            <tr class="realms-op-user-row">
-              <td><label class="control-label" translatable="yes">User Name</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-user" type="text" value=""/>
-              </td>
-            </tr>
-            <tr class="realms-op-user-password-row">
-              <td><label class="control-label" translatable="yes">User Password</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-user-password" type="password" value=""/>
-              </td>
-            </tr>
-            <tr class="realms-op-admin-row">
-              <td><label class="control-label" translatable="yes">Domain Administrator Name</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-admin" type="text" value=""/>
-              </td>
-            </tr>
-            <tr class="realms-op-admin-password-row">
-              <td><label class="control-label" translatable="yes">Domain Administrator Password</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-admin-password" type="password" value=""/>
-              </td>
-            </tr>
-            <tr class="realms-op-otp-row">
-              <td><label class="control-label" translatable="yes">One Time Password</label></td>
-              <td>
-                <input class="realms-op-field form-control realms-op-ot-password" type="password" value=""/>
-              </td>
-            </tr>
-          </table>
+          <form class="ct-form-layout realms-op-join-only">
+            <label class="control-label" translatable="yes">Domain Address</label>
+
+            <div role="group">
+              <input id="realms-op-address" class="realms-op-field form-control" type="text" value="" />
+              <div class="realms-op-address-spinner" hidden>
+                <span class="spinner spinner-xs spinner-inline"></span>
+              </div>
+              <div class="realms-op-address-error" hidden>
+                <span class="fa fa-lg fa-exclamation"></span>
+              </div>
+            </div>
+
+            <label class="control-label realm-active-directory-only" for="realms-op-computer-ou" translatable="yes">Computer OU</label>
+            <input id="realms-op-computer-ou" class="realms-op-field form-control realm-active-directory-only" type="text" value=""/>
+
+            <label class="control-label" for="realms-op-auth" translatable="yes">Authentication</label>
+            <div id="realms-op-auth" class="btn-group bootstrap-select dropdown form-control">
+              <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                  <span class="pull-left"></span>
+                  <div class="caret"></div>
+              </button>
+              <ul class="dropdown-menu" />
+            </div>
+
+            <label class="control-label" for="realms-op-user" translatable="yes">User Name</label>
+            <input id="realms-op-user" class="realms-op-field form-control" type="text" value=""/>
+
+            <label class="control-label" for="realms-op-user-password" translatable="yes">User Password</label>
+            <input id="realms-op-user-password" class="realms-op-field form-control" type="password" value=""/>
+
+            <label class="control-label" for="realms-op-admin" translatable="yes">Domain Administrator Name</label>
+            <input id="realms-op-admin" class="realms-op-field form-control" type="text" value=""/>
+
+            <label class="control-label" for="realms-op-admin-password" translatable="yes">Domain Administrator Password</label>
+            <input id="realms-op-admin-password" class="realms-op-field form-control" type="password" value=""/>
+
+            <label class="control-label" for="realms-op-ot-password" translatable="yes">One Time Password</label>
+            <input id="realms-op-ot-password" class="realms-op-field form-control" type="password" value=""/>
+          </form>
           <pre class="realms-op-diagnostics" hidden></pre>
         </div>
       </div>

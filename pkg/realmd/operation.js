@@ -57,40 +57,52 @@ function instance(realmd, mode, realm, button) {
     });
 
     var timeout = null;
-    $(".realms-op-address").on("keyup change", function() {
-        if ($(".realms-op-address").val() != checked) {
+    $("#realms-op-address").on("keyup change", function() {
+        if ($("#realms-op-address").val() != checked) {
             $(".realms-op-address-error").hide();
             window.clearTimeout(timeout);
             timeout = window.setTimeout(check, 1000);
         }
     });
 
+    function hide_control(path) {
+        var e = $(path);
+        e.hide();
+        e.prev().hide(); // hide the associated label
+    }
+
+    function show_control(path) {
+        var e = $(path);
+        e.show();
+        e.prev().show(); // hide the associated label
+    }
+
     var auth = null;
     function auth_changed(item) {
         auth = item.attr('data-value');
-        $(".realms-op-auth span").text(item.text());
+        $("#realms-op-auth span").text(item.text());
         var parts = (auth || "").split("/");
         var type = parts[0];
         var owner = parts[1];
 
-        $(".realms-op-admin-row").hide();
-        $(".realms-op-admin-password-row").hide();
-        $(".realms-op-user-row").hide();
-        $(".realms-op-user-password-row").hide();
-        $(".realms-op-otp-row").hide();
+        hide_control("#realms-op-admin");
+        hide_control("#realms-op-admin-password");
+        hide_control("#realms-op-user");
+        hide_control("#realms-op-user-password");
+        hide_control("#realms-op-ot-password");
 
         if (type == "password" && owner == "administrator") {
-            $(".realms-op-admin-row").show();
-            $(".realms-op-admin-password-row").show();
+            show_control("#realms-op-admin");
+            show_control("#realms-op-admin-password");
         } else if (type == "password" && owner == "user") {
-            $(".realms-op-user-row").show();
-            $(".realms-op-user-password-row").show();
+            show_control("#realms-op-user");
+            show_control("#realms-op-user-password");
         } else if (type == "secret") {
-            $(".realms-op-otp-row").show();
+            show_control("#realms-op-ot-password");
         }
     }
 
-    $(".realms-op-auth").on('click', 'li', function() {
+    $("#realms-op-auth").on('click', 'li', function() {
         auth_changed($(this));
     });
 
@@ -124,7 +136,7 @@ function instance(realmd, mode, realm, button) {
         var dfd = $.Deferred();
 
         if (name === undefined)
-            name = $(".realms-op-address").val();
+            name = $("#realms-op-address").val();
 
         if (name)
             $(".realms-op-address-spinner").show();
@@ -136,7 +148,7 @@ function instance(realmd, mode, realm, button) {
 
         realmd.call(MANAGER, PROVIDER, "Discover", [ name, { } ])
                 .always(function() {
-                    if ($(".realms-op-address").val() != name) {
+                    if ($("#realms-op-address").val() != name) {
                         dfd.reject();
                         check();
                         return;
@@ -197,7 +209,7 @@ function instance(realmd, mode, realm, button) {
             return dfd.promise();
         }
 
-        if ($(".realms-op-address").val() === checked) {
+        if ($("#realms-op-address").val() === checked) {
             if (checking)
                 return checking;
         }
@@ -252,8 +264,8 @@ function instance(realmd, mode, realm, button) {
 
         $(".realm-active-directory-only").toggle(!server || server == "active-directory");
 
-        if (realm && realm.Name && !$(".realms-op-address")[0].placeholder) {
-            $(".realms-op-address")[0].placeholder = cockpit.format(_("e.g. \"$0\""), realm.Name);
+        if (realm && realm.Name && !$("#realms-op-address")[0].placeholder) {
+            $("#realms-op-address")[0].placeholder = cockpit.format(_("e.g. \"$0\""), realm.Name);
         }
 
         var placeholder = "";
@@ -261,9 +273,9 @@ function instance(realmd, mode, realm, button) {
             if (kerberos_membership.SuggestedAdministrator)
                 placeholder = cockpit.format(_("e.g. \"$0\""), kerberos_membership.SuggestedAdministrator);
         }
-        $(".realms-op-admin")[0].placeholder = placeholder;
+        $("#realms-op-admin")[0].placeholder = placeholder;
 
-        var list = $(".realms-op-auth .dropdown-menu");
+        var list = $("#realms-op-auth .dropdown-menu");
         var supported = (kerberos_membership && kerberos_membership.SupportedJoinCredentials) || [ ];
         supported.push(["password", "administrator"]);
 
@@ -294,7 +306,9 @@ function instance(realmd, mode, realm, button) {
         add_choice('user', "password", _("User Password"));
         add_choice(null, "secret", _("One Time Password"));
         add_choice(null, "automatic", _("Automatic"));
-        $(".realms-authentification-row").toggle(count > 1);
+        $("#realms-op-auth").toggle(count > 1);
+        $("#realms-op-auth").prev()
+                .toggle(count > 1);
         list.prop('disabled', !!operation).val(!first);
     }
 
@@ -308,15 +322,15 @@ function instance(realmd, mode, realm, button) {
         if (owner == "user" && type == "password") {
             creds = [
                 type, owner,
-                cockpit.variant('(ss)', [ $(".realms-op-user").val(), $(".realms-op-user-password").val() ])
+                cockpit.variant('(ss)', [ $("#realms-op-user").val(), $("#realms-op-user-password").val() ])
             ];
         } else if (owner == "administrator" && type == "password") {
             creds = [
                 type, owner,
-                cockpit.variant('(ss)', [ $(".realms-op-admin").val(), $(".realms-op-admin-password").val() ])
+                cockpit.variant('(ss)', [ $("#realms-op-admin").val(), $("#realms-op-admin-password").val() ])
             ];
         } else if (type == "secret") {
-            secret = $(".realms-op-ot-password").val();
+            secret = $("#realms-op-ot-password").val();
             creds = [
                 type, owner,
                 cockpit.variant('ay', cockpit.utf8_encoder().encode(secret))
@@ -343,8 +357,8 @@ function instance(realmd, mode, realm, button) {
             return cockpit.resolve();
         }
 
-        var user = $(".realms-op-admin").val();
-        var password = $(".realms-op-admin-password").val();
+        var user = $("#realms-op-admin").val();
+        var password = $("#realms-op-admin-password").val();
 
         // ipa-getkeytab needs root to create the file, same for cert installation
         var script = 'set -eu; [ $(id -u) = 0 ] || exit 0; ';

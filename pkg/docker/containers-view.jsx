@@ -404,7 +404,7 @@ class ImageDetails extends React.Component {
 
         return (
             <React.Fragment>
-                <dl>
+                <dl className='listing-ct-body'>
                     <dt>{_("Id")}</dt>         <dd title={image.Id}>{ docker.truncate_id(image.Id) }</dd>
                     <dt>{_("Tags")}</dt>       <dd>{ repotags.join(" ") }</dd>
                     <dt>{_("Entrypoint")}</dt> <dd>{ util.quote_cmdline(entrypoint) }</dd>

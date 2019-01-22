@@ -129,7 +129,9 @@
     </div>
     <div class="panel-default panel">
       <div class="panel-heading">
-        <div class="pull-right">
+        <span class="container-details-text" translate>Container:</span>
+        <span id="container-details-names" class="container-details-text container-details-name"></span>
+        <div class="container-details-actions">
           <button class="btn btn-default" id="container-details-start" translate>Start</button>
           <button class="btn btn-default" id="container-details-stop" translate>Stop</button>
           <button class="btn btn-default" id="container-details-restart" translate>Restart</button>
@@ -138,8 +140,6 @@
                   data-toggle="modal" data-target="#container-commit-dialog" translate>Commit</button>
           <div class="spinner" hidden></div>
         </div>
-        <span class="container-details-text" translate>Container:</span>
-        <span id="container-details-names" class="container-details-text container-details-name"></span>
       </div>
       <div class="panel-body">
         <table class="info-table-ct">
@@ -240,6 +240,11 @@
 
   <div id="image-details" hidden>
     <div class="content-filter">
+      <h3>
+        <i class="pficon pficon-image"></i>
+        <span></span>
+      </h3>
+      <a translatable="yes">Show all images</a>
       <div class="listing-ct-actions" id="image-details-buttons">
         <button class="btn btn-default" id="image-details-run"
             data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
@@ -247,11 +252,6 @@
             class="btn btn-danger btn-delete pficon pficon-delete"></button>
         <div class="spinner" hidden></div>
       </div>
-      <h3>
-        <i class="pficon pficon-image"></i>
-        <span></span>
-      </h3>
-      <a translatable="yes">Show all images</a>
     </div>
 
     <div class="content">

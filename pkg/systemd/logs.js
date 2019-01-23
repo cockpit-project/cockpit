@@ -293,11 +293,6 @@ $(function() {
                 match.push('PRIORITY=' + i.toString());
         }
 
-        // If item 'Only Problems' was selected, match only ABRT's problems
-        if (prio_level === 2) {
-            match.push('SYSLOG_IDENTIFIER=abrt-notification');
-        }
-
         var options = cockpit.location.options;
         if (options['service'])
             match.push('_SYSTEMD_UNIT=' + options['service']);

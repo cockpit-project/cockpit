@@ -510,6 +510,10 @@ PageServer.prototype = {
             self.unregistered = !subscribed;
             refresh_os_updates_state();
         });
+
+        // Only link from graphs to available pages
+        set_page_link("#link-disk", "storage", _("Disk I/O"));
+        set_page_link("#link-network", "network", _("Network Traffic"));
     },
 
     enter: function() {
@@ -1686,16 +1690,6 @@ $("#link-cpu").on("click", function() {
 
 $("#link-memory, #link-memory-and-swap").on("click", function() {
     cockpit.location.go([ "memory" ]);
-    return false;
-});
-
-$("#link-network").on("click", function() {
-    cockpit.jump("/network", cockpit.transport.host);
-    return false;
-});
-
-$("#link-disk").on("click", function() {
-    cockpit.jump("/storage", cockpit.transport.host);
     return false;
 });
 

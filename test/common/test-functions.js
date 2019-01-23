@@ -252,3 +252,16 @@ function ph_wait_cond(cond, timeout) {
         step();
     });
 }
+
+function ph_coverage() {
+    var covs = [ ];
+    covs.push(JSON.stringify(window.__coverage__));
+
+    var frames = ph_select('iframe');
+    for (var i = 0; i < frames.length; i++) {
+        if (frames[i].contentWindow.__coverage__)
+            console.log(frames[i].getAttribute("name"));
+        covs.push(JSON.stringify(frames[i].contentWindow.__coverage__));
+    }
+    return covs;
+}

@@ -506,6 +506,7 @@ class Browser:
             self.enter_page(path.split("#")[0], host=host)
 
     def logout(self):
+        self.copy_js_coverage()
         self.switch_to_top()
         self.wait_present("#navbar-dropdown")
         self.wait_visible("#navbar-dropdown")
@@ -595,6 +596,24 @@ class Browser:
                 f.write('\n'.join(logs).encode('UTF-8'))
             attach(filename)
             print("Wrote JS log to " + filename)
+
+    def copy_js_coverage(self, label=None):
+        """ Copy the coverage data if there is any """
+
+        self.switch_to_top()
+        coverage = self.call_js_func("ph_coverage")
+        for idx, cov in enumerate(coverage):
+            if cov:
+                gen = 0
+                while True:
+                    filename = "{0}-{1}-{2}.js.cov".format(label or self.label, idx, gen)
+                    if not os.path.exists(filename):
+                        break
+                    gen = gen + 1
+                with open(filename, 'wb') as f:
+                    f.write(cov.encode("utf-8"))
+                attach(filename)
+                print("Wrote JS coverage data to " + filename)
 
     def kill(self):
         self.cdp.kill()
@@ -770,6 +789,7 @@ class MachineCase(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
 
         def intercept():
+            self.copy_js_coverage()
             if not self.checkSuccess():
                 self.snapshot("FAIL")
                 self.copy_js_log("FAIL")
@@ -1038,6 +1058,10 @@ class MachineCase(unittest.TestCase):
     def copy_js_log(self, title, label=None):
         if self.browser is not None:
             self.browser.copy_js_log(title, label)
+
+    def copy_js_coverage(self, label=None):
+        if self.browser is not None:
+            self.browser.copy_js_coverage(label)
 
     def copy_journal(self, title, label=None):
         for name, m in self.machines.items():

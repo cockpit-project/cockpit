@@ -1294,7 +1294,7 @@ web_response_file (CockpitWebResponse *response,
                    CockpitTemplateFunc template_func,
                    gpointer user_data)
 {
-  const gchar *default_policy = "default-src 'self' 'unsafe-inline';";
+  const gchar *default_policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval';";
 
   const gchar *headers[5] = { NULL };
   GError *error = NULL;
@@ -1865,6 +1865,8 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
   gchar **parts = NULL;
   GString *result;
   gint i;
+
+  return g_strdup("");
 
   result = g_string_sized_new (128);
 

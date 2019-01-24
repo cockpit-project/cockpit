@@ -85,11 +85,9 @@ class TestDocker(MachineCase):
 
         # show all containers to interact with stopped ones
         b.wait_visible("#containers-containers")
-        b.click("#containers-containers-filter button")
-        b.wait_visible("#containers-containers-filter .dropdown-menu")
-        b.wait_in_text("#containers-containers-filter span:first-child()", "Images and running containers")
-        b.click("#containers-containers-filter li[data-data='all'] a")
-        b.wait_in_text("#containers-containers-filter span:first-child()", "Everything")
+        b.wait_in_text("#containers-containers-filter", "Images and running containers")
+        b.set_val("#containers-containers-filter", "all")
+        b.wait_in_text("#containers-containers-filter", "Everything")
 
         # Run it
         b.click('#containers-images tr:contains("busybox:latest") button.fa-play')
@@ -363,9 +361,8 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Select to view all running containers
-        b.wait_visible("#containers-containers-filter button")
-        b.click("#containers-containers-filter button")
-        b.click("#containers-containers-filter li[data-data='all'] a")
+        b.wait_visible("#containers-containers-filter")
+        b.set_val("#containers-containers-filter", "all")
 
         # Create an updated image, add environment variable
         m.execute("mkdir /var/tmp/container-probe")
@@ -526,9 +523,7 @@ CMD ["/bin/sh"]
         # show all containers to interact with stopped ones
         with b.wait_timeout(120):
             b.wait_visible("#containers-containers")
-        b.click("#containers-containers-filter button")
-        b.wait_visible("#containers-containers-filter .dropdown-menu")
-        b.click("#containers-containers-filter li[data-data='all'] a")
+        b.set_val("#containers-containers-filter", "all")
 
         # Now check that one restarts
         b.wait_in_text("#containers-images", "busybox:latest")

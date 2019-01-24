@@ -230,3 +230,53 @@ input[type=number] {
 .dialog-ct-visible {
     display: block;
 }
+
+.ct-select {
+    --dropdown-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2237%22 height=%2224%22 viewBox=%220 0 9.487 6%22%3E%3Cpath fill=%22%234d5258%22 d=%22M5.623 2.831l-.09-.09c-.02-.02-.063-.02-.083 0l-.706.707-.707-.708c-.02-.02-.063-.018-.082.001l-.091.09c-.02.02-.02.063 0 .082l.838.838c.02.02.063.02.082 0l.84-.837c.02-.02.019-.063-.001-.083z%22/%3E%3C/svg%3E%0A");
+    --dropdown-background: linear-gradient(#fafafa, #ededed);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    max-width: 100%;
+    padding: 1px 28px 1px 5px;
+    border: 1px solid #bbb;
+    background: var(--dropdown-image) no-repeat 100% 50%, var(--dropdown-background);
+    box-shadow: 0 2px 3px rgba(3, 3, 3, 0.1);
+    border-radius: 1px;
+    color: #4d5258;
+    cursor: pointer;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    font-weight: 600;
+    min-height: 26px;
+}
+
+@-moz-document url-prefix() {
+    /* Accomodate Firefox styling selects with slightly different padding. */
+    .ct-select {
+        padding-left: 1px;
+    }
+}
+
+.ct-select:hover,
+.ct-select:active {
+    --dropdown-background: #f1f1f1;
+}
+
+.ct-select:hover {
+    border-color: #7dc3e8;
+}
+
+.ct-select:focus {
+    border-color: #0088ce; /* pf-blue-400 */
+    /* Outer blue glow */
+    box-shadow: inset 0 1px 1px rgba(3, 3, 3, 0.075), 0 0 8px rgba(0, 136, 206, 0.6);
+    color: #4d5258;
+}
+
+.ct-select:active {
+    box-shadow: inset 0 2px 8px rgba(3, 3, 3, 0.2);
+}
+
+.ct-select > option {
+    background-color: #fff;
+}

@@ -337,13 +337,22 @@ table.header-buttons {
     .dropdown-toggle {
         width: auto;
     }
+    .ct-select,
     .dropdown {
         width: auto !important;
+    }
+    .ct-select {
+        margin: 0.5ch;
+    }
+    .dropdown {
         padding: 0.5ch;
     }
 }
 .auto-conf-text {
     padding: 0 1ch;
+}
+.auto-conf-group:first-child > .ct-select {
+    margin-left: 0;
 }
 .auto-conf-group:first-child > .dropdown {
     padding-left: 0;

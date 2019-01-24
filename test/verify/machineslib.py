@@ -591,7 +591,8 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         # since both disks are already attached
-        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume button.disabled span i:contains(The pool is empty)")
+        b.wait_attr("#vm-subVmTest1-disks-adddisk-existing-select-volume", "disabled", "")
+        b.wait_in_text("#vm-subVmTest1-disks-adddisk-existing-select-volume", "The pool is empty")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
 
@@ -724,12 +725,10 @@ class TestMachines(MachineCase):
         b.set_input_text("#machines-vcpu-count-field", "3")
 
         # Set new socket value
-        b.wait_present("#socketsSelect li[data-value=2] a")
-        b.click("#socketsSelect button")
-        b.click("#socketsSelect li[data-value=2] a")
-        b.wait_in_text("#socketsSelect button", "2")
-        b.wait_in_text("#coresSelect button", "1")
-        b.wait_in_text("#threadsSelect button", "2")
+        b.wait_val("#socketsSelect", "4")
+        b.set_val("#socketsSelect", "2")
+        b.wait_val("#coresSelect", "1")
+        b.wait_val("#threadsSelect", "2")
 
         # Save
         b.click("#machines-vcpu-modal-dialog-apply")
@@ -763,9 +762,9 @@ class TestMachines(MachineCase):
         b.wait_val("#machines-vcpu-max-field", "4")
 
         # Check sockets, cores and threads
-        b.wait_in_text("#socketsSelect button", "2")
-        b.wait_in_text("#coresSelect button", "1")
-        b.wait_in_text("#threadsSelect button", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#coresSelect", "1")
+        b.wait_val("#threadsSelect", "2")
 
         b.click("#machines-vcpu-modal-dialog-cancel")
         b.wait_not_present("#machines-vcpu-modal-dialog")
@@ -786,12 +785,9 @@ class TestMachines(MachineCase):
         b.set_input_text("#machines-vcpu-count-field", "2")
 
         # Set new socket value
-        b.wait_present("#coresSelect li[data-value=2] a")
-        b.click("#coresSelect button")
-        b.click("#coresSelect li[data-value=2] a")
-        b.wait_in_text("#coresSelect button", "2")
-        b.wait_in_text("#socketsSelect button", "2")
-        b.wait_in_text("#threadsSelect button", "1")
+        b.set_val("#coresSelect", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#threadsSelect", "1")
 
         # Save
         b.click("#machines-vcpu-modal-dialog-apply")
@@ -812,9 +808,9 @@ class TestMachines(MachineCase):
         b.wait_present(".vcpu-detail-modal-table")
 
         # Set new socket value
-        b.wait_in_text("#coresSelect button", "2")
-        b.wait_in_text("#socketsSelect button", "2")
-        b.wait_in_text("#threadsSelect button", "1")
+        b.wait_val("#coresSelect", "2")
+        b.wait_val("#socketsSelect", "2")
+        b.wait_val("#threadsSelect", "1")
 
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
 
@@ -922,11 +918,8 @@ class TestMachines(MachineCase):
         b.wait_present("#vm-{0}-consoles".format(name)) # wait for the tab
         b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
 
-        b.wait_present("#console-type-select > button > span.caret") # switch from noVnc to Serial Console
-        b.click("#console-type-select > button > span.caret")
-        b.wait_present("#console-type-select li > a:contains(Serial Console)")
-        b.click("#console-type-select li > a:contains(Serial Console)")
-
+        b.wait_present("#console-type-select")
+        b.set_val("#console-type-select", "serial-browser")
         b.wait_present("div.terminal canvas.xterm-text-layer") # if connected the xterm canvas is rendered
 
         b.wait_present("#{0}-serialconsole-reconnect".format(name))
@@ -959,9 +952,9 @@ class TestMachines(MachineCase):
 
         def checkVendorsLoadedInUi(dialog):
             dialog.open()
-            has_vendor = dialog.hasVendor()
+            self.browser.wait_present("#vendor-select")
+            self.browser.wait_present("#vendor-select option[value='%s']" % dialog.os_vendor)
             dialog.cancel()
-            return has_vendor
 
         def cancelDialogTest(dialog):
             dialog.open() \
@@ -1013,8 +1006,7 @@ class TestMachines(MachineCase):
         # wait for os and vendors to load.
         runner.assertOsInfoQueryFinished()
         rhDialog = TestMachines.VmDialog(self, "loadVendors", os_vendor=config.REDHAT_VENDOR)
-        with self.browser.wait_timeout(10):
-            self.browser.wait(functools.partial(checkVendorsLoadedInUi, rhDialog))
+        checkVendorsLoadedInUi(rhDialog)
 
         runner.checkEnvIsEmpty()
 
@@ -1252,51 +1244,28 @@ class TestMachines(MachineCase):
 
             return self
 
-        def hasVendor(self):
-            b = self.browser
-
-            vendor_selector = "#vendor-select button span:nth-of-type(1)"
-            vendor_item_selector = "#vendor-select ul li[data-value*='{0}'] a".format(self.os_vendor)
-
-            b.wait_visible(vendor_selector)
-            b.click(vendor_selector)
-
-            has_vendor = True
-            try:
-                with b.wait_timeout(1):
-                    b.wait_present(vendor_item_selector)
-            except Error:
-                has_vendor = False
-
-            b.click(vendor_selector)  # close
-            return has_vendor
-
         def checkOsOrVendorFiltered(self):
             b = self.browser
 
-            vendor_selector = "#vendor-select button span:nth-of-type(1)"
-            vendor_item_selector = "#vendor-select ul li[data-value*='{0}'] a".format(self.os_vendor)
+            vendor_selector = "#vendor-select"
+            vendor_item_selector = "#vendor-select option[data-value*='{0}']".format(self.os_vendor)
 
             b.wait_visible(vendor_selector)
-            if not b.text(vendor_selector) == self.os_vendor:
-                b.click(vendor_selector)
+            if b.val(vendor_selector) != self.os_vendor:
                 try:
                     with b.wait_timeout(1):
                         b.wait_present(vendor_item_selector)
-                        b.wait_visible(vendor_item_selector)
-                        b.click(vendor_item_selector)
                 except Error:
                     # vendor not found which is ok
-                    b.click(vendor_selector)  # close
                     return self
+                b.set_val(vendor_selector, self.os_vendor)
             b.wait_in_text(vendor_selector, self.os_vendor)
             # vendor successfully found
 
-            system_selector = "#system-select button span:nth-of-type(1)"
-            system_item_selector = "#system-select ul li[data-value*='{0}'] a".format(self.os_name)
+            system_selector = "#system-select"
+            system_item_selector = "#system-select option[data-value*='{0}']".format(self.os_name)
 
             b.wait_visible(system_selector)
-            b.click(system_selector)
             try:
                 with b.wait_timeout(1):
                     b.wait_present(system_item_selector)
@@ -1307,7 +1276,6 @@ class TestMachines(MachineCase):
                 raise
             except Error:
                 # os not found which is ok
-                b.click(system_selector)  # close
                 return self
 
         def fill(self):
@@ -1328,8 +1296,8 @@ class TestMachines(MachineCase):
             else:
                 b.set_input_text("#source-url", self.location)
 
-            b.select_from_dropdown("#vendor-select", self.os_vendor)
-            b.select_from_dropdown("#system-select", self.os_name)
+            b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
+            b.select_from_dropdown("#system-select", self.os_name, substring=True)
 
             b.set_input_text("#memory-size", str(self.memory_size))
             b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
@@ -1594,18 +1562,6 @@ class TestMachines(MachineCase):
             b.wait_not_present("#notification-area")
 
             return self
-
-
-def selectFromDropdown(b, selector, value):
-    button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
-
-    b.wait_visible(selector)
-    if not b.text(button_text_selector) == value:
-        item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
-        b.click(selector)
-        b.wait_visible(item_selector)
-        b.click(item_selector)
-        b.wait_in_text(button_text_selector, value)
 
 
 if __name__ == '__main__':

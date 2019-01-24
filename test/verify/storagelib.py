@@ -217,12 +217,10 @@ class StorageCase(MachineCase):
             for label in val:
                 self.browser.set_checked('%s :contains("%s") input' % (sel, label), val)
         elif ftype == "size-slider":
-            self.browser.click(sel + " .size-unit button.dropdown-toggle")
-            self.browser.click(sel + " .size-unit li[data-data='1048576'] a")
+            self.browser.set_val(sel + " .size-unit", "1048576")
             self.browser.set_input_text(sel + " .size-text", str(val))
         elif ftype == "select":
-            self.browser.click(sel + " button.dropdown-toggle")
-            self.browser.click(sel + " li[data-data='%s'] a" % val)
+            self.browser.set_val(sel + " select", val)
         elif ftype == "select-radio":
             self.browser.click(sel + " input[data-data='%s']" % val)
         elif ftype == "text-input":
@@ -254,7 +252,7 @@ class StorageCase(MachineCase):
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "size-slider":
-            self.browser.wait_text(sel + " .size-unit button", "MiB")
+            self.browser.wait_val(sel + " .size-unit", "1048576")
             self.browser.wait_val(sel + " .size-text", str(val))
         elif ftype == "select":
             self.browser.wait_attr(sel, "data-value", val)

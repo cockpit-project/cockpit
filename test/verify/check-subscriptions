@@ -134,13 +134,16 @@ class TestSubscriptions(MachineCase):
         b.wait_visible("#subscription-register-url")
 
         # optionally: check custom url
-        b.click("#subscription-register-url button")
-        b.wait_visible("#subscription-register-url .dropdown-menu")
-        custom_url_selector = "#subscription-register-url a:contains('Custom')"
-        b.wait_present(custom_url_selector)
-        b.wait_visible(custom_url_selector)
-        b.click(custom_url_selector)
-        b.wait_not_present("#subscription-register-url.open")
+        if self.machine.image == 'rhel-7-6-distropkg':
+            b.click("#subscription-register-url button")
+            b.wait_visible("#subscription-register-url .dropdown-menu")
+            custom_url_selector = "#subscription-register-url a:contains('Custom')"
+            b.wait_present(custom_url_selector)
+            b.wait_visible(custom_url_selector)
+            b.click(custom_url_selector)
+            b.wait_not_present("#subscription-register-url.open")
+        else:
+            b.set_val("#subscription-register-url", "custom")
 
         # enter server and incorrect login data
         b.wait_present("#subscription-register-url-custom")
@@ -226,13 +229,16 @@ class TestSubscriptions(MachineCase):
         b.wait_visible("#subscription-register-url")
 
         # check custom url
-        b.click("#subscription-register-url button")
-        b.wait_visible("#subscription-register-url .dropdown-menu")
-        custom_url_selector = "#subscription-register-url a:contains('Custom')"
-        b.wait_present(custom_url_selector)
-        b.wait_visible(custom_url_selector)
-        b.click(custom_url_selector)
-        b.wait_not_present("#subscription-register-url.open")
+        if self.machine.image == 'rhel-7-6-distropkg':
+            b.click("#subscription-register-url button")
+            b.wait_visible("#subscription-register-url .dropdown-menu")
+            custom_url_selector = "#subscription-register-url a:contains('Custom')"
+            b.wait_present(custom_url_selector)
+            b.wait_visible(custom_url_selector)
+            b.click(custom_url_selector)
+            b.wait_not_present("#subscription-register-url.open")
+        else:
+            b.set_val("#subscription-register-url", "custom")
 
         # enter server data
         b.wait_present("#subscription-register-url-custom")

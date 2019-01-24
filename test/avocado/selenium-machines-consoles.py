@@ -1,5 +1,6 @@
 import os
 from avocado import skipIf
+from selenium.webdriver.support.select import Select
 from testlib_avocado.timeoutlib import wait
 from testlib_avocado.seleniumlib import clickable, present, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
@@ -16,7 +17,9 @@ class MachinesConsolesTestSuite(MachinesLib):
         args = self.create_vm(name, graphics='vnc')
 
         self.click(self.wait_css('#vm-{}-consoles'.format(name), cond=clickable))
-        self.wait_css('#console-type-select button', cond=text_in, text_='Graphics Console (VNC)')
+        # HACK: cond=text_in does not work with <select> in Edge
+        s = Select(self.wait_id('console-type-select'))
+        wait(lambda: s.first_selected_option.text == 'Graphics Console (VNC)')
         self.wait_css('.toolbar-pf-results canvas')
 
         # Test ctrl+alt+del
@@ -33,7 +36,7 @@ class MachinesConsolesTestSuite(MachinesLib):
         self.create_vm(name)
 
         self.click(self.wait_css('#vm-{}-consoles'.format(name), cond=clickable))
-        self.wait_css('#console-type-select button', cond=text_in, text_='Graphics Console in Desktop Viewer')
+        self.wait_id('console-type-select', cond=text_in, text_='Graphics Console in Desktop Viewer')
         # Launch remote viewer
         self.click(self.wait_css('#vm-{}-consoles-launch'.format(name), cond=clickable))
         vv_file_attr = ("data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice"
@@ -53,8 +56,7 @@ class MachinesConsolesTestSuite(MachinesLib):
 
         # Open serial console
         self.click(self.wait_css('#vm-{}-consoles'.format(name), cond=clickable))
-        self.click(self.wait_css('#console-type-select > button > span.caret', cond=clickable))
-        self.click(self.wait_css('#console-type-select ul li[data-value="Serial Console"] a', cond=clickable))
+        Select(self.wait_id('console-type-select')).select_by_visible_text('Serial Console')
         self.wait_css('div.terminal canvas.xterm-text-layer')
         # Disconnect
         self.click(self.wait_css("#{}-serialconsole-disconnect".format(name), cond=clickable))

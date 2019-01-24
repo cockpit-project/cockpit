@@ -540,7 +540,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d / -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
+getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws" cockpit-ws
 
 %post ws
 %systemd_post cockpit.socket

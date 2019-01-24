@@ -391,7 +391,7 @@ class AddDiskModalBody extends React.Component {
         const vmStoragePools = storagePools;
 
         const defaultBody = (
-            <form className='ct-form-layout'>
+            <form onSubmit={event => event.preventDefault()} className='ct-form-layout'>
                 <label className='control-label' htmlFor={`${idPrefix}-source`}>
                     {_("Source")}
                 </label>

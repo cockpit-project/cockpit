@@ -111,9 +111,7 @@ class TestKdump(MachineCase):
             b.wait_present(settingsLink)
             b.click(settingsLink, True)
             b.wait_present("#kdump-settings-location")
-            b.click("#kdump-settings-location")
-            b.wait_present("a:contains('Remote over NFS')")
-            b.click("a:contains('Remote over NFS')")
+            b.set_val("#kdump-settings-location", "nfs")
             mountInput = "#kdump-settings-nfs-mount"
             b.wait_present(mountInput)
             b.set_input_text(mountInput, ":/var/crash")
@@ -137,9 +135,7 @@ class TestKdump(MachineCase):
             b.wait_present(settingsLink)
             b.click(settingsLink, True)
             b.wait_present("#kdump-settings-location")
-            b.click("#kdump-settings-location")
-            b.wait_present("a:contains('Remote over SSH')")
-            b.click("a:contains('Remote over SSH')")
+            b.set_val("#kdump-settings-location", "ssh")
             sshInput = "#kdump-settings-ssh-server"
             b.wait_present(sshInput)
             b.set_input_text(sshInput, "root@localhost")
@@ -168,9 +164,7 @@ class TestKdump(MachineCase):
         b.wait_present(settingsLink)
         b.click(settingsLink, True)
         b.wait_present("#kdump-settings-location")
-        b.click("#kdump-settings-location")
-        b.wait_present("a:contains('Local Filesystem')")
-        b.click("a:contains('Local Filesystem')")
+        b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
         b.wait_present(pathInput)
         b.set_input_text(pathInput, customPath)

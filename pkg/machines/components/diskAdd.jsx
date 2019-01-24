@@ -76,7 +76,7 @@ const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStorag
     } else {
         content = (
             <Select.SelectEntry data="empty" key="empty-list">
-                <i>{_("The pool is empty")}</i>
+                {_("The pool is empty")}
             </Select.SelectEntry>
         );
         initiallySelected = "empty";

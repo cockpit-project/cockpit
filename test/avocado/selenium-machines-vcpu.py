@@ -1,5 +1,7 @@
+from selenium.webdriver.support.select import Select
 from testlib_avocado.seleniumlib import clickable, invisible, visible, text_in
 from testlib_avocado.machineslib import MachinesLib
+from testlib_avocado.timeoutlib import wait
 
 
 class MachinesOverviewTestSuite(MachinesLib):
@@ -21,15 +23,9 @@ class MachinesOverviewTestSuite(MachinesLib):
         # set vcpu params
         self.send_keys(self.wait_css('#machines-vcpu-max-field'), maxnum, ctrla=True)
         self.send_keys(self.wait_css('#machines-vcpu-count-field'), count, ctrla=True)
-        self.click(self.wait_css("#socketsSelect button", cond=clickable))
-        self.click(self.wait_css("#socketsSelect li[data-value='{}'] a".format(sockets), cond=clickable))
-        self.click(self.wait_css("#coresSelect button", cond=clickable))
-        self.click(self.wait_css("#coresSelect li[data-value='{}'] a".format(cores), cond=clickable))
-        self.click(self.wait_css("#threadsSelect button", cond=clickable))
-        self.click(self.wait_css("#threadsSelect li[data-value='{}'] a".format(threads), cond=clickable))
-        self.wait_css('#socketsSelect button span', cond=text_in, text_=sockets)
-        self.wait_css('#coresSelect button span', cond=text_in, text_=cores)
-        self.wait_css('#threadsSelect button span', cond=text_in, text_=threads)
+        Select(self.wait_id('socketsSelect')).select_by_visible_text(sockets)
+        Select(self.wait_id('coresSelect')).select_by_visible_text(cores)
+        Select(self.wait_id('threadsSelect')).select_by_visible_text(threads)
         if vmstate == 'running':
             cond = visible
         else:
@@ -60,9 +56,13 @@ class MachinesOverviewTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-vcpus-count'.format(name), cond=clickable))
         self.wait_xpath("//input[@id='machines-vcpu-count-field' and @value={}]".format(count))
         self.wait_xpath("//input[@id='machines-vcpu-max-field' and @value={}]".format(maxnum))
-        self.wait_css('#socketsSelect button span', cond=text_in, text_=sockets)
-        self.wait_css('#coresSelect button span', cond=text_in, text_=cores)
-        self.wait_css('#threadsSelect button span', cond=text_in, text_=threads)
+        # HACK: cond=text_in does not work with <select> in Edge
+        socketsSelect = Select(self.wait_id('socketsSelect'))
+        coresSelect = Select(self.wait_id('coresSelect'))
+        threadsSelect = Select(self.wait_id('threadsSelect'))
+        wait(lambda: socketsSelect.first_selected_option.text == sockets)
+        wait(lambda: coresSelect.first_selected_option.text == cores)
+        wait(lambda: threadsSelect.first_selected_option.text == threads)
 
         # check cpu topology in dumpxml
         cmd = "sudo virsh dumpxml {} | tee /tmp/staticvm.xml | " \

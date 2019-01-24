@@ -118,6 +118,7 @@
     > textarea,
     > select,
     > .bootstrap-select,
+    > .ct-select,
     > .dropdown,
     > .combobox-container,
     > fieldset,
@@ -174,6 +175,7 @@
     }
 
     // Allow dropdowns to be less wide
+    &:not(.ct-form-layout-relax) > .ct-select,
     &:not(.ct-form-layout-relax) > .dropdown {
       width: auto !important;
     }

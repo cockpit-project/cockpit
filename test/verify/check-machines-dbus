@@ -219,12 +219,12 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # Change network model type of a running domain
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-model", "e1000e")
+        b.set_val("#vm-subVmTest1-network-1-select-model", "e1000e")
         # Wait for the footer warning to appear
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
-        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
+        b.set_val("#vm-subVmTest1-network-1-select-type", "network")
+        b.set_val("#vm-subVmTest1-network-1-select-source", "test_network")
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
         b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
@@ -515,11 +515,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.set_input_text("#storage-pool-dialog-name", self.name)
 
                 if self.pool_type:
-                    pool_type_mapping = {
-                        "dir": "Filesystem Directory",
-                        "netfs": "Network File System",
-                    }
-                    b.select_from_dropdown("#storage-pool-dialog-type", pool_type_mapping[self.pool_type])
+                    b.set_val("#storage-pool-dialog-type", self.pool_type)
 
                 if self.target:
                     b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
@@ -545,10 +541,10 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     # Check incomplete dialog
                     if (not self.name):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form div:nth-of-type(2).has-error")
+                        b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-name")
 
                     if (not self.target):
-                        b.wait_present("#create-storage-pool-dialog .modal-body form div:nth-of-type(4).has-error")
+                        b.wait_present("#create-storage-pool-dialog .modal-body form div.has-error #storage-pool-dialog-target")
                     # Check errors from backend
                     if self.xfail_error:
                         error_location = "#create-storage-pool-dialog .modal-footer .alert-danger"

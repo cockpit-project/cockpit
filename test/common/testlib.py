@@ -247,17 +247,17 @@ class Browser:
 
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
-    def select_from_dropdown(self, selector, value):
-        button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
+    def select_from_dropdown(self, selector, value, substring=False):
+        # This is a backwards compat helper method; new code should use .set_val()
 
+        self.wait_present(selector)
         self.wait_visible(selector)
-        if not self.text(button_text_selector) == value:
-            item_selector = "{0} ul li[data-value*='{1}'] a".format(selector, value)
-            self.click(selector)
-            self.wait_present(item_selector)
-            self.wait_visible(item_selector)
-            self.click(item_selector)
-            self.wait_in_text(button_text_selector, value)
+
+        # translate text value into <option value=".."> ID
+        text_selector = "{0} option[data-value{1}='{2}']".format(selector, substring and "*" or "", value)
+        self.wait_present(text_selector)
+        value_id = self.attr(text_selector, "value")
+        self.set_val(selector, value_id)
 
     def set_input_text(self, selector, val, append=False):
         self.focus(selector)

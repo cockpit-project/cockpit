@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-adduser --system --group --home / --no-create-home cockpit-ws
+adduser --system --group --home /nonexisting --no-create-home cockpit-ws
 
 if ! dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
     dpkg-statoverride --update --add root cockpit-ws 4750 /usr/lib/cockpit/cockpit-session

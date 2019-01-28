@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2019 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -21,39 +21,20 @@ import React from "react";
 import PropTypes from "prop-types";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
-import cockpit from "cockpit";
-
-const _ = cockpit.gettext;
-
 const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
-    let labelClass = cockpit.format(_("control-label $0"), descrClass || 'top');
-    let infoContent;
-
-    if (tooltip) {
-        infoContent = (
-            <div role="group">
-                <div id={id} className={valueClass}>
-                    {value}
-                </div>
-                {tooltip && (<OverlayTrigger overlay={ <Tooltip id="tip-inforec">{tooltip}</Tooltip> } placement="top">
-                    <span className="fa fa-lg fa-info-circle" />
-                </OverlayTrigger>)}
-            </div>
-        );
-    } else {
-        infoContent = (
-            <div id={id} className={valueClass}>
-                {value}
-            </div>
-        );
-    }
-
-    return (<React.Fragment>
-        <label htmlFor={id} className={labelClass}>
-            {descr}
-        </label>
-        {infoContent}
-    </React.Fragment>);
+    return (<tr>
+        <td className={descrClass || 'top'}>
+            <label className='control-label'>
+                {descr}
+            </label>
+        </td>
+        <td id={id} className={valueClass}>
+            {value}
+        </td>
+        {tooltip && (<td><OverlayTrigger overlay={ <Tooltip id="tip-inforec">{tooltip}</Tooltip> } placement="top">
+            <span className="fa fa-lg fa-info-circle" />
+        </OverlayTrigger></td>)}
+    </tr>);
 };
 
 InfoRecord.propTypes = {

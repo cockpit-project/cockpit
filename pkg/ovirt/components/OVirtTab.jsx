@@ -24,7 +24,7 @@ import { vmId } from '../../machines/helpers.js';
 import { migrateVm } from '../actions.js';
 
 import ConfirmButtons from './ConfirmButtons.jsx';
-import VmProperty from '../../machines/components/infoRecord.jsx';
+import VmProperty from './infoRecord.jsx';
 import rephraseUI from '../rephraseUI.js';
 
 import './OVirtTab.css';

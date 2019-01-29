@@ -22,6 +22,7 @@ import os
 import subprocess
 import time
 import unittest
+import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
@@ -134,6 +135,31 @@ VOLUME_XML = """
   </target>
 </volume>
 """
+
+NETWORK_XML_PXE = """<network>
+  <name>pxe-nat</name>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:53:7d:8e'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <tftp root='/var/lib/libvirt/pxe-config'/>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+      <bootp file='pxe.cfg'/>
+    </dhcp>
+  </ip>
+</network>"""
+
+PXE_SERVER_CFG = """#!ipxe
+
+echo Rebooting in 60 seconds
+sleep 60
+reboot"""
+
 
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
@@ -989,13 +1015,15 @@ class TestMachines(MachineCase):
         def createTest(dialog):
             runner.tryCreate(dialog) \
 
-            # When creating VMs we should always wait for the virt-install script
-            # to finish the and VM to get defined
-            # Then we are ready to delete it.
+            # We call virt-install always with --wait 0 which means we should
+            # check for virt-install script to always finish and the domain to get
+            # defined when creating new VMs.
             runner.assertScriptFinished() \
-                .assertDomainDefined(dialog.name, dialog.connection) \
-                .deleteVm(dialog) \
-                .checkEnvIsEmpty()
+                  .assertDomainDefined(dialog.name, dialog.connection)
+
+            if dialog.delete:
+                runner.deleteVm(dialog) \
+                      .checkEnvIsEmpty()
 
         def installWithErrorTest(dialog):
             runner.tryInstallWithError(dialog) \
@@ -1123,7 +1151,7 @@ class TestMachines(MachineCase):
 
         # Unload KVM module, otherwise we get errors getting the nested VMs
         # to start properly.
-        # This is applicable only for the following test so let's keep it last,
+        # This is applicable for all tests that we want to really successfully run a nested VM.
         # in order to allow the rest of the tests to run faster with QEMU KVM
         # Stop pmcd service if available which is invoking pmdakvm and is keeping KVM module used
         self.machine.execute("(systemctl stop pmcd || true) && modprobe -r kvm_intel && modprobe -r kvm_amd && modprobe -r kvm")
@@ -1135,6 +1163,91 @@ class TestMachines(MachineCase):
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=True))
         # End of tests for import existing disk as installation option
+
+        # test PXE Source
+        if self.provider == "libvirt-dbus":
+            self.machine.execute("virsh net-destroy default && virsh net-undefine default")
+
+            # Disable selinux because it makes TFTP directory inaccesible and we don't want sophisticated configuration for tests
+            self.machine.execute("if type selinuxenabled >/dev/null 2>&1 && selinuxenabled; then setenforce 0; fi")
+
+            # Set up the PXE server configuration files
+            cmds = [
+                "mkdir -p /var/lib/libvirt/pxe-config",
+                "echo \"{0}\" > /var/lib/libvirt/pxe-config/pxe.cfg".format(PXE_SERVER_CFG),
+                "chmod 666 /var/lib/libvirt/pxe-config/pxe.cfg"
+            ]
+            self.machine.execute(" && ".join(cmds))
+
+            # Define and start a NAT network with tftp server configuration
+            cmds = [
+                "echo \"{0}\" > /tmp/pxe-nat.xml".format(NETWORK_XML_PXE),
+                "virsh net-define /tmp/pxe-nat.xml",
+                "virsh net-start pxe-nat"
+            ]
+            self.machine.execute(" && ".join(cmds))
+
+            # We don't handle events for networks yet, so reload the page to refresh the state
+            self.browser.reload()
+            self.browser.enter_page('/machines')
+            self.browser.wait_in_text("body", "Virtual Machines")
+
+            # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
+            # to have serial console at bios and also redirect serial console to a file
+            createTest(TestMachines.VmDialog(self, "subVmTestCreate18", sourceType='pxe',
+                                             location="Virtual Network pxe-nat: NAT",
+                                             memory_size=50, memory_size_unit='MiB',
+                                             storage_size=0, storage_size_unit='MiB',
+                                             os_vendor=config.NOVELL_VENDOR,
+                                             os_name=config.NOVELL_NETWARE_6,
+                                             start_vm=True, delete=False))
+
+            # We don't want to use start_vm == False because if we get a seperate install phase
+            # virt-install will overwrite our changes.
+            self.machine.execute("virsh destroy subVmTestCreate18")
+
+            # Remove all serial ports and consoles first and tehn add a console of type file
+            # virt-xml tool does not allow to remove both serial and console devices at once
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1685541
+            # So use python xml parsing to change the domain XML.
+            domainXML = self.machine.execute("virsh dumpxml subVmTestCreate18")
+            root = ET.fromstring(domainXML)
+
+            # Find the parent element of each "console" element, using XPATH
+            for p in root.findall('.//console/..'):
+                # Find each console element
+                for element in p.findall('console'):
+                    # Remove the console element from its parent element
+                    p.remove(element)
+
+            # Find the parent element of each "serial" element, using XPATH
+            for p in root.findall('.//serial/..'):
+                # Find each serial element
+                for element in p.findall('serial'):
+                    # Remove the serial element from its parent element
+                    p.remove(element)
+
+            # Set useserial attribute for bios os element
+            os = root.find('os')
+            bios = ET.SubElement(os, 'bios')
+            bios.set('useserial', 'yes')
+
+            # Add a serial console of type file
+            console = ET.fromstring(self.machine.execute("virt-xml --build --console file,path=/tmp/serial.txt,target_type=serial"))
+            devices = root.find('devices')
+            devices.append(console)
+
+            # Redefine the domain with the new XML
+            xmlstr = ET.tostring(root, encoding='unicode', method='xml')
+
+            self.machine.execute("echo \'{0}\' > /tmp/domain.xml && virsh define --file /tmp/domain.xml".format(xmlstr))
+
+            self.machine.execute("virsh start subVmTestCreate18")
+
+            # The file is full of ANSI control characters in between every letter, filter them out
+            wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
+
+            self.machine.execute("virsh destroy subVmTestCreate18 && virsh undefine subVmTestCreate18")
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
@@ -1200,6 +1313,7 @@ class TestMachines(MachineCase):
                      os_vendor=None,
                      os_name=None,
                      start_vm=False,
+                     delete=True,
                      connection=None):
 
             if sourceType == 'url' and start_vm:
@@ -1219,6 +1333,7 @@ class TestMachines(MachineCase):
             self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
             self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
             self.start_vm = start_vm
+            self.delete = delete
             self.connection = connection
             if self.connection:
                 self.connectionText = TestMachines.TestCreateConfig.LIBVIRT_CONNECTION[connection]
@@ -1286,13 +1401,18 @@ class TestMachines(MachineCase):
                 expected_source_type = 'Local Install Media'
             elif self.sourceType == 'disk_image':
                 expected_source_type = 'Existing Disk Image'
+            elif self.sourceType == 'pxe':
+                expected_source_type = 'Network Boot (PXE)'
             else:
                 expected_source_type = 'URL'
+
             b.select_from_dropdown("#source-type", expected_source_type)
             if self.sourceType == 'file':
                 b.set_file_autocomplete_val("#source-file", self.location)
             elif self.sourceType == 'disk_image':
                 b.set_file_autocomplete_val("#source-disk", self.location)
+            elif self.sourceType == 'pxe':
+                b.select_from_dropdown("#network-select", self.location)
             else:
                 b.set_input_text("#source-url", self.location)
 

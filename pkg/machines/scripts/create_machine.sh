@@ -48,7 +48,9 @@ if [ "$OS" = "other-os" -o  -z "$OS" ]; then
     OS="auto"
 fi
 
-if [ "$START_VM" = "true" ]; then
+if [ "$SOURCE_TYPE" = "pxe" ]; then
+    INSTALL_METHOD="--pxe --network $SOURCE"
+elif [ "$START_VM" = "true" ]; then
     if [ "$SOURCE_TYPE" = "disk_image" ]; then
         INSTALL_METHOD="--import"
     elif [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
@@ -118,6 +120,7 @@ echo "$DOMAIN_MATCHES"  |  sed 's/[^0-9]//g' | while read -r FINISH_LINE ; do
 
             METADATA='    <cockpit_machines:data xmlns:cockpit_machines="https://github.com/cockpit-project/cockpit/tree/master/pkg/machines"> \
       <cockpit_machines:has_install_phase>'"$HAS_INSTALL_PHASE"'</cockpit_machines:has_install_phase> \
+      <cockpit_machines:install_source_type>'"$SOURCE_TYPE"'</cockpit_machines:install_source_type> \
       <cockpit_machines:install_source>'"$SOURCE"'</cockpit_machines:install_source> \
       <cockpit_machines:os_variant>'"$OS"'</cockpit_machines:os_variant> \
     </cockpit_machines:data>'

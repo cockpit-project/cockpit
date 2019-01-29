@@ -170,6 +170,18 @@ function getNetworkElem(netXml) {
     return xmlDoc.getElementsByTagName("network")[0];
 }
 
+function getNodeDeviceElem(deviceXml) {
+    let parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(deviceXml, "application/xml");
+
+    if (!xmlDoc) {
+        console.warn(`Can't parse dumpxml, input: "${deviceXml}"`);
+        return;
+    }
+
+    return xmlDoc.getElementsByTagName("device")[0];
+}
+
 function getStoragePoolElem(poolXml) {
     let parser = new DOMParser();
     const xmlDoc = parser.parseFromString(poolXml, "application/xml");
@@ -230,11 +242,13 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const interfaces = parseDumpxmlForInterfaces(devicesElem);
 
     const hasInstallPhase = parseDumpxmlMachinesMetadataElement(metadataElem, 'has_install_phase') === 'true';
+    const installSourceType = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source_type');
     const installSource = parseDumpxmlMachinesMetadataElement(metadataElem, 'install_source');
     const osVariant = parseDumpxmlMachinesMetadataElement(metadataElem, 'os_variant');
 
     const metadata = {
         hasInstallPhase,
+        installSourceType,
         installSource,
         osVariant,
     };
@@ -506,6 +520,7 @@ export function parseDumpxmlMachinesMetadataElement(metadataElem, name) {
 }
 
 export function parseNetDumpxml(netXml) {
+    let retObj = {};
     const netElem = getNetworkElem(netXml);
     if (!netElem) {
         return;
@@ -513,17 +528,26 @@ export function parseNetDumpxml(netXml) {
 
     const forwardElem = netElem.getElementsByTagName("forward")[0];
     const bridgeElem = netElem.getElementsByTagName("bridge")[0];
+
+    if (bridgeElem)
+        retObj.bridge = { "name": bridgeElem.getAttribute("name") };
+
     const ipElems = netElem.getElementsByTagName("ip");
+    retObj.ip = parseNetDumpxmlForIp(ipElems);
+
     const mtuElem = netElem.getElementsByTagName("mtu")[0];
+    retObj.mtu = mtuElem ? mtuElem.getAttribute("size") : undefined;
 
-    const ip = parseNetDumpxmlForIp(ipElems);
-    const device = bridgeElem ? bridgeElem.getAttribute("name") : undefined;
-    const mtu = mtuElem ? mtuElem.getAttribute("size") : undefined;
-    let mode = forwardElem ? forwardElem.getAttribute("mode") : "none";
-    if (!mode)
-        mode = "nat"; // if mode is not specified, "nat" is assumed, see https://libvirt.org/formatnetwork.html#elementsConnect
+    // if mode is not specified, "nat" is assumed, see https://libvirt.org/formatnetwork.html#elementsConnect
+    if (forwardElem) {
+        let ifaceElem = forwardElem.getElementsByTagName("interface")[0];
+        if (ifaceElem)
+            retObj.interface = { "interface": { "dev": ifaceElem.getAttribute("dev") } };
 
-    return { device, ip, mode, mtu };
+        retObj.forward = { "mode": (forwardElem.getAttribute("mode") || "nat") };
+    }
+
+    return retObj;
 }
 
 function parseNetDumpxmlForIp(ipElems) {
@@ -541,6 +565,7 @@ function parseNetDumpxmlForIp(ipElems) {
         const dhcpElem = ipElem.getElementsByTagName("dhcp")[0];
 
         let rangeElem;
+        let bootp;
         let dhcpHosts = [];
         if (dhcpElem) {
             rangeElem = dhcpElem.getElementsByTagName("range")[0];
@@ -555,6 +580,10 @@ function parseNetDumpxmlForIp(ipElems) {
                 };
                 dhcpHosts.push(host);
             }
+
+            const bootpElem = dhcpElem.getElementsByTagName("bootp")[0];
+            if (bootpElem)
+                bootp = { 'file': bootpElem.getAttribute("file") };
         }
 
         const tmp = {
@@ -568,6 +597,7 @@ function parseNetDumpxmlForIp(ipElems) {
                     end : rangeElem ? rangeElem.getAttribute("end") : undefined,
                 },
                 hosts: dhcpHosts,
+                bootp,
             },
         };
 
@@ -575,6 +605,24 @@ function parseNetDumpxmlForIp(ipElems) {
     }
 
     return ip;
+}
+
+export function parseNodeDeviceDumpxml(nodeDevice) {
+    const deviceElem = getNodeDeviceElem(nodeDevice);
+    if (!deviceElem) {
+        return;
+    }
+
+    const name = deviceElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+    const capabilityElem = deviceElem.getElementsByTagName("capability")[0];
+
+    let capability = {};
+
+    capability.type = capabilityElem.getAttribute("type");
+    if (capability.type == 'net')
+        capability.interface = capabilityElem.getElementsByTagName("interface")[0].childNodes[0].nodeValue;
+
+    return { name, capability };
 }
 
 export function parseOsInfoList(dispatch, osList) {
@@ -884,6 +932,7 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
         return cockpit.script(installVmScript, [
             connectionName,
             name,
+            metadata.installSourceType,
             metadata.installSource,
             metadata.osVariant,
             convertToUnit(currentMemory, units.KiB, units.MiB),

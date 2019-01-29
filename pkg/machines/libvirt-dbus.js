@@ -28,10 +28,12 @@ import {
     checkLibvirtStatus,
     delayPolling,
     getAllNetworks,
+    getAllNodeDevices,
     getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
     getNetwork,
+    getNodeDevice,
     getStoragePool,
     getStorageVolumes,
     getVm,
@@ -43,6 +45,7 @@ import {
     undefineStoragePool,
     undefineVm,
     updateOrAddNetwork,
+    updateOrAddNodeDevice,
     updateOrAddVm,
     updateOrAddStoragePool,
     updateStorageVolumes,
@@ -78,6 +81,7 @@ import {
     isRunning,
     parseDumpxml,
     parseNetDumpxml,
+    parseNodeDeviceDumpxml,
     parseStoragePoolDumpxml,
     parseStorageVolumeDumpxml,
     resolveUiState,
@@ -470,6 +474,16 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    GET_ALL_NODE_DEVICES({
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNodeDevices', [0], TIMEOUT)
+                    .then(objPaths => Promise.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
+                    .fail(ex => console.warn('GET_ALL_NODE_DEVICES action failed:', JSON.stringify(ex)));
+        };
+    },
+
     GET_ALL_STORAGE_POOLS({
         connectionName,
     }) {
@@ -501,6 +515,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 dispatch(getAllStoragePools(connectionName));
                 dispatch(getAllNetworks(connectionName));
+                dispatch(getAllNodeDevices(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 doGetAllVms(dispatch, connectionName);
             };
@@ -549,18 +564,30 @@ LIBVIRT_DBUS_PROVIDER = {
                     })
                     .then(xml => {
                         const network = parseNetDumpxml(xml);
-
-                        if (network) {
-                            props.mode = network.mode;
-                            props.device = network.device;
-                            props.ip = network.ip;
-                            props.bandwidth = network.bandwidth;
-                            props.mtu = network.mtu;
-                        }
-
-                        dispatch(updateOrAddNetwork(Object.assign({}, props)));
+                        dispatch(updateOrAddNetwork(Object.assign({}, props, network)));
                     })
                     .catch(ex => console.warn('GET_NETWORK action failed failed for path', objPath, ex));
+        };
+    },
+
+    /*
+     * Read properties of a single NodeDevice
+     *
+     * @param NodeDevice object path
+     */
+    GET_NODE_DEVICE({
+        id: objPath,
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.NodeDevice', 'GetXMLDesc', [0], TIMEOUT)
+                    .then(deviceXml => {
+                        let deviceXmlObject = parseNodeDeviceDumpxml(deviceXml);
+                        deviceXmlObject.connectionName = connectionName;
+
+                        dispatch(updateOrAddNodeDevice(deviceXmlObject));
+                    })
+                    .catch(ex => console.warn('GET_NODE_DEVICE action failed failed for path', objPath, ex));
         };
     },
 

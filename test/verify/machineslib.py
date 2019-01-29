@@ -1225,7 +1225,7 @@ class TestMachines(MachineCase):
             try:
                 with b.wait_timeout(1):
                     b.wait_present(vendor_item_selector)
-            except Exception:
+            except Error:
                 has_vendor = False
 
             b.click(vendor_selector)  # close
@@ -1245,7 +1245,7 @@ class TestMachines(MachineCase):
                         b.wait_present(vendor_item_selector)
                         b.wait_visible(vendor_item_selector)
                         b.click(vendor_item_selector)
-                except Exception:
+                except Error:
                     # vendor not found which is ok
                     b.click(vendor_selector)  # close
                     return self
@@ -1265,7 +1265,7 @@ class TestMachines(MachineCase):
                 raise AssertionError("{0} was not filtered".format(self.os_name))
             except AssertionError:
                 raise
-            except Exception:
+            except Error:
                 # os not found which is ok
                 b.click(system_selector)  # close
                 return self
@@ -1372,7 +1372,7 @@ class TestMachines(MachineCase):
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
-            except Exception as x1:
+            except Error as x1:
                 if b.is_present("#create-vm-dialog"):
                     # allow CPU errors in the dialog
                     allowBugErrors(error_location, x1)
@@ -1383,7 +1383,7 @@ class TestMachines(MachineCase):
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
                             waitForError(errors, error_location)
-                    except Exception as x2:
+                    except Error as x2:
                         # allow CPU errors in the notification area
                         allowBugErrors(error_location, x2)
 
@@ -1512,7 +1512,7 @@ class TestMachines(MachineCase):
             try:
                 self.machine.execute("pgrep -fc {0}".format(command))
                 return False
-            except Exception as e:
+            except subprocess.CalledProcessError as e:
                 return hasattr(e, 'returncode') and e.returncode == 1
 
         def assertScriptFinished(self):

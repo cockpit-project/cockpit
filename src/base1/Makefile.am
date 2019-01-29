@@ -116,6 +116,7 @@ base_QUNIT_TESTS = \
 	dist/base1/test-stub.html \
 	dist/base1/test-browser-storage.html \
 	dist/base1/test-promise.html \
+	dist/base1/test-protocol.html \
 	$(NULL)
 
 base_QUNIT_DEPS = \

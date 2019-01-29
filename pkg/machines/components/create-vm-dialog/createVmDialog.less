@@ -15,3 +15,10 @@
 #system-select .dropdown-menu {
     max-height: ~"calc(90vh - 50px - 10em)";
 }
+
+/* We use form-group in divs for inline validaton of dialog values
+ * and we don't need extra margins there.
+ */
+#create-vm-dialog form.ct-form-layout div.form-group {
+    margin-bottom: 0;
+}

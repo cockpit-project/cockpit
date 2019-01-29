@@ -973,11 +973,19 @@ class TestMachines(MachineCase):
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
-        def checkDialogErrorTest(dialog, errors, ui_validation=True):
+        def checkDialogFormValidationTest(dialog, errors):
             dialog.open() \
                 .fill() \
-                .createAndExpectError(errors, ui_validation) \
-                .cancel(ui_validation)
+                .createAndExpectInlineValidationErrors(errors) \
+                .cancel(True)
+            runner.assertScriptFinished() \
+                .checkEnvIsEmpty()
+
+        def checkDialogErrorTest(dialog, errors):
+            dialog.open() \
+                .fill() \
+                .createAndExpectError(errors) \
+                .cancel(False)
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
@@ -1031,13 +1039,13 @@ class TestMachines(MachineCase):
         # try to CREATE WITH DIALOG ERROR
 
         # name
-        checkDialogErrorTest(TestMachines.VmDialog(self, ""), ["Name"])
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, ""), {"Name": "Name should not be empty"})
 
         # location
-        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate7", is_filesystem_location=False,
-                                                   location="invalid/url",
-                                                   os_vendor=config.NOVELL_VENDOR,
-                                                   os_name=config.NOVELL_NETWARE_4), ["Source"])
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", is_filesystem_location=False,
+                                                            location="invalid/url",
+                                                            os_vendor=config.NOVELL_VENDOR,
+                                                            os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
         # memory
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate8", location=config.NOVELL_MOCKUP_ISO_PATH,
@@ -1045,20 +1053,20 @@ class TestMachines(MachineCase):
                                                    storage_size=100, storage_size_unit='MiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), ["memory", "RAM", "buffer"], ui_validation=False)
+                                                   start_vm=True), ["memory", "RAM", "buffer"])
 
         # disk
         checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate9", location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    storage_size=10000, storage_size_unit='GiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), ["space"], ui_validation=False)
+                                                   start_vm=True), ["space"])
 
         # start vm
-        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate10",
-                                                   os_vendor=config.NOVELL_VENDOR,
-                                                   os_name=config.NOVELL_NETWARE_6, start_vm=True),
-                             ["Installation Source should not be empty"], ui_validation=True)
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate10",
+                                                            os_vendor=config.NOVELL_VENDOR,
+                                                            os_name=config.NOVELL_NETWARE_6, start_vm=True),
+                                      {"Source": "Installation Source should not be empty"})
 
         # try to CREATE few machines
         createTest(TestMachines.VmDialog(self, "subVmTestCreate11", is_filesystem_location=False,
@@ -1311,7 +1319,20 @@ class TestMachines(MachineCase):
             b.wait_not_present("#create-vm-dialog")
             return self
 
-        def createAndExpectError(self, errors, ui_validation):
+        def createAndExpectInlineValidationErrors(self, errors):
+            b = self.browser
+
+            b.click(".modal-footer button:contains(Create)")
+
+            for error, error_msg in errors.items():
+                error_location = ".modal-body label:contains('{0}') + div.form-group.has-error span p".format(error)
+                b.wait_visible(error_location)
+                if (error_msg):
+                    b.wait_in_text(error_location, error_msg)
+
+            return self
+
+        def createAndExpectError(self, errors):
             b = self.browser
             m = self.machine
 
@@ -1343,32 +1364,28 @@ class TestMachines(MachineCase):
 
             error_location = ".modal-footer div.alert"
 
-            if ui_validation:
-                b.wait_present(error_location)
-                waitForError(errors, error_location)
-            else:
-                b.wait_present(".modal-footer .spinner")
-                b.wait_not_present(".modal-footer .spinner")
-                try:
-                    with b.wait_timeout(10):
-                        b.wait_present(error_location)
-                        waitForError(errors, error_location)
+            b.wait_present(".modal-footer .spinner")
+            b.wait_not_present(".modal-footer .spinner")
+            try:
+                with b.wait_timeout(10):
+                    b.wait_present(error_location)
+                    waitForError(errors, error_location)
 
-                    # dialog can complete if the error was not returned immediately
-                except Exception as x1:
-                    if b.is_present("#create-vm-dialog"):
-                        # allow CPU errors in the dialog
-                        allowBugErrors(error_location, x1)
-                    else:
-                        # then error should be shown in the notification area
-                        error_location = "#notification-area-notification-1 div.notification-message"
-                        try:
-                            with b.wait_timeout(20):
-                                b.wait_present(error_location)
-                                waitForError(errors, error_location)
-                        except Exception as x2:
-                            # allow CPU errors in the notification area
-                            allowBugErrors(error_location, x2)
+                # dialog can complete if the error was not returned immediately
+            except Exception as x1:
+                if b.is_present("#create-vm-dialog"):
+                    # allow CPU errors in the dialog
+                    allowBugErrors(error_location, x1)
+                else:
+                    # then error should be shown in the notification area
+                    error_location = "#notification-area-notification-1 div.notification-message"
+                    try:
+                        with b.wait_timeout(20):
+                            b.wait_present(error_location)
+                            waitForError(errors, error_location)
+                    except Exception as x2:
+                        # allow CPU errors in the notification area
+                        allowBugErrors(error_location, x2)
 
             return self
 

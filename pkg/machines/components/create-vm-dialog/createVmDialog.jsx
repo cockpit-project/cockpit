@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button, Modal } from 'patternfly-react';
+import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -114,16 +114,11 @@ class CreateVM extends React.Component {
             this.setState({ [key]: value });
             break;
         case 'source':
-            if (valueParams) {
-                notifyValuesChanged('error', valueParams.error);
-            } else {
-                this.setState({ [key]: value });
-            }
+            this.setState({ [key]: value });
             break;
         case 'sourceType':
             this.setState({ [key]: value });
             notifyValuesChanged('source', null);
-            notifyValuesChanged('error', null);
             break;
         case 'memorySize':
             this.setState({ [key]: value });
@@ -211,6 +206,20 @@ class CreateVM extends React.Component {
             break;
         }
 
+        const validationFailed = this.props.vmParams.validate && validateParams(this.props.vmParams);
+        const validationStateName = validationFailed.vmName ? 'error' : undefined;
+        const validationStateSource = validationFailed.source ? 'error' : undefined;
+
+        const installationSourceVal = (
+            <FormGroup validationState={validationStateSource} controlId='source'>
+                {installationSource}
+                { validationStateSource == 'error' &&
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.source}</p>
+                </HelpBlock> }
+            </FormGroup>
+        );
+
         return (
             <form className="ct-form-layout">
                 <label className="control-label" htmlFor="connection">
@@ -226,10 +235,18 @@ class CreateVM extends React.Component {
                 <label className="control-label" htmlFor="vm-name">
                     {_("Name")}
                 </label>
-                <input id="vm-name" className="form-control" type="text" minLength={1}
-                       value={this.state.vmName}
-                       placeholder={_("Unique name")}
-                       onChange={this.onChangedEventValue.bind(this, 'vmName')} />
+                <FormGroup validationState={validationStateName} controlId='name'>
+                    <input id='vm-name' className='form-control'
+                           type='text'
+                           minLength={1}
+                           value={this.state.vmName || ''}
+                           placeholder={_("Unique name")}
+                           onChange={this.onChangedEventValue.bind(this, 'vmName')} />
+                    { validationStateName == 'error' &&
+                    <HelpBlock>
+                        <p className="text-danger">{validationFailed.vmName}</p>
+                    </HelpBlock> }
+                </FormGroup>
 
                 <hr />
 
@@ -247,7 +264,7 @@ class CreateVM extends React.Component {
                 <label className="control-label" htmlFor={installationSourceId}>
                     {_("Installation Source")}
                 </label>
-                {installationSource}
+                {installationSourceVal}
 
                 <hr />
                 <label className="control-label" htmlFor="vendor-select">
@@ -307,52 +324,35 @@ CreateVM.propTypes = {
 };
 
 function validateParams(vmParams) {
-    if (isEmpty(vmParams.vmName)) {
-        return _("Name should not be empty");
+    let validationFailed = {};
+
+    if (isEmpty(vmParams.vmName.trim())) {
+        validationFailed['vmName'] = _("Name should not be empty");
     }
 
-    vmParams.vmName = vmParams.vmName.trim();
-    if (isEmpty(vmParams.vmName)) {
-        return _("Name should not consist of empty characters only");
-    }
+    let source = vmParams.source ? vmParams.source.trim() : null;
 
-    if (vmParams.error) {
-        return vmParams.error;
-    }
-
-    vmParams.source = vmParams.source ? vmParams.source.trim() : null;
-    if (!isEmpty(vmParams.source)) {
+    if (!isEmpty(source)) {
         switch (vmParams.sourceType) {
         case COCKPIT_FILESYSTEM_SOURCE:
             if (!vmParams.source.startsWith("/")) {
-                return _("Invalid filename");
+                validationFailed['source'] = _("Invalid filename");
             }
             break;
         case URL_SOURCE:
         default:
             if (!vmParams.source.startsWith("http") &&
-                    !vmParams.source.startsWith("ftp") &&
-                    !vmParams.source.startsWith("nfs")) {
-                return _("Source should start with http, ftp or nfs protocol");
+                !vmParams.source.startsWith("ftp") &&
+                !vmParams.source.startsWith("nfs")) {
+                validationFailed['source'] = _("Source should start with http, ftp or nfs protocol");
             }
             break;
         }
-        if (vmParams.source === "/") {
-            vmParams.source = null;
-        }
+    } else {
+        validationFailed['source'] = _("Installation Source should not be empty");
     }
 
-    if (isEmpty(vmParams.source)) {
-        return _("Installation Source should not be empty");
-    }
-
-    if (vmParams.memorySize <= 0) {
-        return _("Memory should be positive number");
-    }
-
-    if (vmParams.storageSize < 0) {
-        return _("Storage Size should not be negative number");
-    }
+    return validationFailed;
 }
 
 class CreateVmModal extends React.Component {
@@ -360,6 +360,7 @@ class CreateVmModal extends React.Component {
         super(props);
         this.state = {
             'inProgress': false,
+            'validate': false,
             'vmName': '',
             'connectionName': LIBVIRT_SYSTEM_CONNECTION,
             "sourceType": COCKPIT_FILESYSTEM_SOURCE,
@@ -369,11 +370,9 @@ class CreateVmModal extends React.Component {
             'memorySize': 1024, // MiB
             'storageSize': 10, // GiB
             'startVm': false,
-            'error': null,
         };
         this.onValueChanged = this.onValueChanged.bind(this);
         this.onCreateClicked = this.onCreateClicked.bind(this);
-        this.dialogErrorDismiss = this.dialogErrorDismiss.bind(this);
     }
 
     onValueChanged(key, value) {
@@ -381,17 +380,12 @@ class CreateVmModal extends React.Component {
         this.setState(stateDelta);
     }
 
-    dialogErrorDismiss() {
-        this.setState({ dialogError: undefined });
-    }
-
     onCreateClicked() {
         const { dispatch } = this.props;
         const vmParams = this.state;
-        const error = validateParams(vmParams);
 
-        if (error) {
-            this.setState({ inProgress: false, dialogError: error });
+        if (Object.getOwnPropertyNames(validateParams(vmParams)).length > 0) {
+            this.setState({ inProgress: false, validate: true });
         } else {
             // leave dialog open to show immediate errors from the backend
             // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
@@ -434,7 +428,6 @@ class CreateVmModal extends React.Component {
                     {dialogBody}
                 </Modal.Body>
                 <Modal.Footer>
-                    {this.state.dialogError && (<Alert onDismiss={this.dialogErrorDismiss}> {this.state.dialogError} </Alert>)}
                     {this.state.inProgress && <div className="spinner spinner-sm pull-left" />}
                     <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}

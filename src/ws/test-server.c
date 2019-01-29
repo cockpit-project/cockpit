@@ -231,6 +231,18 @@ mock_http_connection (CockpitWebResponse *response)
 }
 
 static gboolean
+mock_http_expect_warnings (CockpitWebResponse *response,
+                           GLogLevelFlags warnings)
+{
+  g_log_set_always_fatal (warnings | G_LOG_LEVEL_ERROR);
+
+  cockpit_web_response_headers_full (response, 200, "OK", 0, NULL);
+  cockpit_web_response_complete (response);
+
+  return TRUE;
+}
+
+static gboolean
 on_handle_mock (CockpitWebServer *server,
                 const gchar *path,
                 GHashTable *headers,
@@ -250,6 +262,10 @@ on_handle_mock (CockpitWebServer *server,
     return mock_http_host (response, headers);
   if (g_str_equal (path, "/connection"))
     return mock_http_connection (response);
+  if (g_str_equal (path, "/expect-warnings"))
+    return mock_http_expect_warnings (response, 0);
+  if (g_str_equal (path, "/dont-expect-warnings"))
+    return mock_http_expect_warnings (response, G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL);
   else
     return FALSE;
 }

@@ -883,6 +883,12 @@ process_and_relay_open (CockpitWebService *self,
       return TRUE;
     }
 
+  if (channel == NULL)
+    {
+      g_warning ("open command is missing the 'channel' field");
+      return FALSE;
+    }
+
   if (cockpit_socket_lookup_by_channel (&self->sockets, channel))
     {
       g_warning ("cannot open a channel %s with the same id as another channel", channel);

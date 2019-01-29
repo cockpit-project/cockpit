@@ -79,4 +79,39 @@ QUnit.test("host must ensure that init is the first message", async function (as
     };
 });
 
+QUnit.module("tests that need test-server warnings disabled", function (hooks) {
+    /*
+     * Some of these tests will trigger cockpit-ws or cockpit-bridge to print out
+     * warnings (on protocol errors, for example). Let the test server know that
+     * before starting the tests, so it doesn't treat those messages as fatal.
+     */
+
+    // hooks wait for the promise to be resolved before continuing
+    hooks.before(() => fetch("/mock/expect-warnings"));
+    hooks.after(() => fetch("/mock/dont-expect-warnings"));
+
+    QUnit.test("host must return an error when 'channel' is not given in 'open'", async function (assert) {
+        assert.expect(2);
+        let done = assert.async(2);
+
+        let connection = await connect();
+
+        // ensure that the server closes the connection on protocol error
+        connection.onclose = () => done();
+
+        connection.oncontrol = message => {
+            if (message.command === "init")
+                return;
+
+            assert.equal(message.command, "close");
+            assert.equal(message.problem, "protocol-error");
+
+            done();
+        };
+
+        connection.control({ command: "init", version: 1 });
+        connection.control({ command: "open", payload: "fsread", path: "/etc/passwd" });
+    });
+});
+
 QUnit.start();

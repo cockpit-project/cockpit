@@ -37,12 +37,14 @@ import {
     FORCEOFF_VM,
     FORCEREBOOT_VM,
     GET_ALL_NETWORKS,
+    GET_ALL_NODE_DEVICES,
     GET_ALL_STORAGE_POOLS,
     GET_ALL_VMS,
     GET_HYPERVISOR_MAX_VCPU,
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
     GET_NETWORK,
+    GET_NODE_DEVICE,
     GET_STORAGE_POOL,
     GET_STORAGE_VOLUMES,
     GET_VM,
@@ -128,6 +130,10 @@ export function getAllNetworks(connectionName) {
     return virt(GET_ALL_NETWORKS, { connectionName });
 }
 
+export function getAllNodeDevices(connectionName) {
+    return virt(GET_ALL_NODE_DEVICES, { connectionName });
+}
+
 export function getAllStoragePools(connectionName) {
     return virt(GET_ALL_STORAGE_POOLS, { connectionName });
 }
@@ -155,6 +161,10 @@ export function getOsInfoList() {
 
 export function getNetwork({ connectionName, id, name }) {
     return virt(GET_NETWORK, { connectionName, id, name });
+}
+
+export function getNodeDevice({ connectionName, id }) {
+    return virt(GET_NODE_DEVICE, { connectionName, id });
 }
 
 export function getStoragePool({ connectionName, id, name }) {

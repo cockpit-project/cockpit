@@ -40,9 +40,15 @@ class App extends React.Component {
     }
 
     render() {
-        const { vms, config, storagePools, systemInfo, ui, networks } = this.props.store.getState();
+        const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices } = this.props.store.getState();
         const dispatch = this.props.store.dispatch;
-        const createVmAction = (<CreateVmAction dispatch={dispatch} systemInfo={systemInfo} />);
+        const createVmAction = (
+            <CreateVmAction dispatch={dispatch}
+                providerName={config.provider ? config.provider.name : 'Libvirt'}
+                networks={networks}
+                nodeDevices={nodeDevices}
+                systemInfo={systemInfo} />
+        );
 
         if (systemInfo.libvirtService.activeState !== 'running') {
             return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);

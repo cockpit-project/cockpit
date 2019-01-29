@@ -52,7 +52,7 @@ class BasicTestSuite(SeleniumTest):
         self.wait_text("reboot.target")
         self.click(self.wait_text("System Services", cond=clickable))
         self.wait_id("services-list-enabled")
-        self.wait_text("dbus.service")
+        self.wait_text("sshd.service")
         self.mainframe()
 
     def test50ChangeTabLogs(self):

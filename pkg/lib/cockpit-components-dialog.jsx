@@ -334,7 +334,12 @@ export function show_modal_dialog(props, footerProps) {
     dialogObj.footerProps = null;
     dialogObj.render = function() {
         dialogObj.props.footer = <DialogFooter {...dialogObj.footerProps} />;
-        ReactDOM.render(<Dialog {...dialogObj.props} />, rootElement);
+        // Don't render if we are no longer part of the document.
+        // This would be mostly harmless except that it will remove
+        // the input focus from whatever element has it, which is
+        // unpleasant and also disrupts the tests.
+        if (rootElement.offsetParent)
+            ReactDOM.render(<Dialog {...dialogObj.props} />, rootElement);
     };
     function updateFooterAndRender() {
         if (dialogObj.props === null || dialogObj.props === undefined)

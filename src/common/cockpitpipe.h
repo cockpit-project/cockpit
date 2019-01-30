@@ -104,6 +104,8 @@ GByteArray *       cockpit_pipe_get_stderr   (CockpitPipe *self);
 gboolean           cockpit_pipe_get_pid      (CockpitPipe *self,
                                               GPid *pid);
 
+gboolean           cockpit_pipe_is_closed    (CockpitPipe *self);
+
 void               cockpit_pipe_skip         (GByteArray *buffer,
                                               gsize skip);
 

@@ -1392,6 +1392,20 @@ cockpit_pipe_get_pid (CockpitPipe *self,
 }
 
 /**
+ * cockpit_pipe_is_closed:
+ * @self: a pipe
+ *
+ * Returns: TRUE if the pipe is closed
+ */
+gboolean
+cockpit_pipe_is_closed (CockpitPipe *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_PIPE (self), FALSE);
+
+  return self->priv->closed;
+}
+
+/**
  * cockpit_pipe_get_name:
  * @self: a pipe
  *

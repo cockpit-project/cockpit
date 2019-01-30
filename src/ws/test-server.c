@@ -751,17 +751,26 @@ setup_path (const char *argv0)
   g_free (dir);
 }
 
+static gint
+exit_code_from_pipe_status (CockpitPipe *pipe)
+{
+  gint status;
+
+  status = cockpit_pipe_exit_status (pipe);
+  if (WIFEXITED (status))
+    return WEXITSTATUS (status);
+  else if (status != 0)
+    return 1;
+  else
+    return 0;
+}
+
 static void
 on_bridge_done (CockpitPipe *pipe,
                 const gchar *problem,
                 gpointer user_data)
 {
-  gint status;
-  status = cockpit_pipe_exit_status (pipe);
-  if (WIFEXITED (status))
-    exit_code = WEXITSTATUS (status);
-  else if (status != 0)
-    exit_code = 1;
+  exit_code = exit_code_from_pipe_status (pipe);
   g_main_loop_quit (loop);
 }
 
@@ -777,8 +786,13 @@ on_signal_done (gpointer data)
         cockpit_web_service_disconnect (service);
       if (bridge)
         {
-          g_signal_connect (bridge, "close", G_CALLBACK (on_bridge_done), NULL);
-          return TRUE;
+          if (!cockpit_pipe_is_closed (bridge))
+            {
+              g_signal_connect (bridge, "close", G_CALLBACK (on_bridge_done), NULL);
+              return TRUE;
+            }
+
+          exit_code = exit_code_from_pipe_status (bridge);
         }
     }
 

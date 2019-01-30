@@ -256,6 +256,19 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    CHANGE_VM_AUTOSTART ({
+        connectionName,
+        vmName,
+        autostart,
+    }) {
+        return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainLookupByName', [vmName], TIMEOUT)
+                .then(domainPath => {
+                    const args = ['org.libvirt.Domain', 'Autostart', cockpit.variant('b', autostart)];
+
+                    return call(connectionName, domainPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
+                });
+    },
+
     CREATE_AND_ATTACH_VOLUME({
         connectionName,
         poolName,

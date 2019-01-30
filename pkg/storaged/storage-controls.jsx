@@ -117,7 +117,8 @@ export class StorageButton extends React.Component {
                             content={(excuse) => (
                                 <button id={this.props.id}
                                             onClick={checked(this.props.onClick)}
-                                            className={classes + (excuse ? " disabled" : "")}>
+                                            className={classes + (excuse ? " disabled" : "")}
+                                            disabled={excuse}>
                                     {this.props.children}
                                 </button>
                             )} />

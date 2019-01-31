@@ -51,8 +51,8 @@ def main():
         body = json.loads(msg.body)
         sys.stderr.write("Consuming {0} task:\n{1}\n".format(body['type'],json.dumps(body, indent=2, sort_keys=True)))
         sys.stderr.flush()
-        subprocess.check_call(body['command'], shell=True)
-        channel.basic_ack(msg.delivery_tag)
+        if subprocess.call(body['command'], shell=True) in [0, 2]:
+            channel.basic_ack(msg.delivery_tag)
 
     channel.close()
     connection.close()

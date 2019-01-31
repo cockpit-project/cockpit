@@ -59,7 +59,11 @@ function instance(realmd, mode, realm, button) {
     var timeout = null;
     $("#realms-op-address").on("keyup change", function() {
         if ($("#realms-op-address").val() != checked) {
-            $(".realms-op-address-error").hide();
+            // keep something in the line to avoid subsequent lines jumping around
+            $(".realms-op-address-error").html("&nbsp;");
+            $(".realms-op-address-spinner").hide();
+            $("#realms-op-address").parent()
+                    .removeClass("has-success has-error");
             window.clearTimeout(timeout);
             timeout = window.setTimeout(check, 1000);
         }
@@ -138,13 +142,13 @@ function instance(realmd, mode, realm, button) {
         if (name === undefined)
             name = $("#realms-op-address").val();
 
-        if (name)
-            $(".realms-op-address-spinner").show();
-
-        dfd.always(function() {
-            if (name)
-                $(".realms-op-address-spinner").hide();
-        });
+        if (name) {
+            $(".realms-op-address-spinner")
+                    .removeClass("fa fa-check")
+                    .addClass("spinner spinner-xs spinner-inline")
+                    .show();
+            $(".realms-op-address-error").text(_("Validating address"));
+        }
 
         realmd.call(MANAGER, PROVIDER, "Discover", [ name, { } ])
                 .always(function() {
@@ -171,9 +175,11 @@ function instance(realmd, mode, realm, button) {
                     if (!path) {
                         if (name) {
                             error_message = cockpit.format(_("Domain $0 could not be contacted"), name);
-                            $(".realms-op-address-error").show()
-                                    .attr('title', error_message)
-                                    .tooltip();
+                            $(".realms-op-address-spinner").hide();
+                            $(".realms-op-address-error").text(error_message);
+                            $("#realms-op-address").parent()
+                                    .removeClass("has-success")
+                                    .addClass("has-error");
                         }
 
                         realm = null;
@@ -244,14 +250,24 @@ function instance(realmd, mode, realm, button) {
 
         var server = find_detail(realm, "server-software");
 
-        if (realm && kerberos_membership && !kerberos_membership.valid) {
-            message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
-            $(".realms-op-address-spinner").hide();
-            $(".realms-op-address-error").show()
-                    .attr('title', message)
-                    .tooltip();
-        } else if (!error_message) {
-            $(".realms-op-address-error").hide();
+        if (realm && kerberos_membership) {
+            if (kerberos_membership.valid) {
+                $(".realms-op-address-spinner")
+                        .removeClass("spinner spinner-xs spinner-inline")
+                        .addClass("fa fa-check")
+                        .show();
+                $(".realms-op-address-error").text(_("Contacted domain"));
+                $("#realms-op-address").parent()
+                        .removeClass("has-error")
+                        .addClass("has-success");
+            } else {
+                message = cockpit.format(_("Domain $0 is not supported"), realm.Name);
+                $(".realms-op-address-spinner").hide();
+                $(".realms-op-address-error").text(message);
+                $("#realms-op-address").parent()
+                        .removeClass("has-success")
+                        .addClass("has-error");
+            }
         }
 
         if (operation)

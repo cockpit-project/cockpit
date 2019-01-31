@@ -105,6 +105,9 @@ class TestRealms(MachineCase):
         b.wait_popup("realms-op")
         with b.wait_timeout(180):
             b.set_val(self.op_address, "cockpit.lan")
+            if m.image != "rhel-7-6-distropkg":
+                # changed in PR #11022
+                b.wait_text(".realms-op-address-error", "Contacted domain")
             b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
             b.set_val(self.op_admin, "admin")
             b.set_val(self.op_admin_password, "foobarfoo")
@@ -240,11 +243,9 @@ class TestRealms(MachineCase):
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "NOPE")
         if m.image != "rhel-7-6-distropkg":
-            # fixed in PR #10903
-            b.wait_visible(".realms-op-address-error")
-            b.mouse(".realms-op-address-error span", "mouseover")
-            b.wait_present(".tooltip-inner")
-            b.wait_in_text(".tooltip-inner", "Domain NOPE could not be contacted")
+            # changed in PR #11022
+            b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
+            b.wait_not_visible(".realms-op-address-spinner")
         else:
             b.wait_attr(".realms-op-address-error", "title", "Domain NOPE could not be contacted")
         b.click(".realms-op-cancel")
@@ -348,7 +349,11 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
-        b.wait_js_cond("ph_find('.realms-op-address-error').title != ''")
+        if m.image != "rhel-7-6-distropkg":
+            # changed in PR #11022
+            b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
+        else:
+            b.wait_js_cond("ph_find('.realms-op-address-error').title != ''")
         b.set_val(self.op_admin, "admin")
         b.set_val(self.op_admin_password, "foobarfoo")
         b.click(".realms-op-apply")

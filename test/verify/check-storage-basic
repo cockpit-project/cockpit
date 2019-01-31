@@ -29,7 +29,17 @@ class TestStorage(StorageCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/storage")
+        self.allow_authorize_journal_messages()
+        self.login_and_go("/storage", authorized=False)
+
+        btn = "#create-mdraid"
+        self.browser.wait_present(btn)
+        self.browser.wait_attr(btn, "disabled", "")
+
+        b.relogin('/storage', authorized=True)
+        self.browser.wait_present(btn)
+        self.browser.wait_attr(btn, "disabled", None)
+
         b.wait_in_text("#drives", "VirtIO")
 
         # Add a disk, partition it, format it, and finally remove it.

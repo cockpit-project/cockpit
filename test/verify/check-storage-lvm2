@@ -281,7 +281,8 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(2, 2, "/dev/TEST/thin")
 
         self.content_tab_action(2, 1, "Create Snapshot")
-        self.dialog({ "name": "mysnapshot" })
+        self.dialog({"name": "mysnapshot"})
+
 
 if __name__ == '__main__':
     test_main()

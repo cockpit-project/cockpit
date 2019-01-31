@@ -1071,7 +1071,7 @@ PageSystemInformationChangeSystime.prototype = {
         $("#systime-apply-button").on("click", $.proxy(this._on_apply_button, this));
 
         self.ntp_type = "manual_time";
-        $('#change_systime li').on('click', function() {
+        $('#change_systime ul').on('click', "li:not('.disabled')", function() {
             self.ntp_type = $(this).attr("value");
             self.update();
         });

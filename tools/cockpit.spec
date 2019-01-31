@@ -63,6 +63,11 @@
 %endif
 %endif
 
+# cockpit-machines-ovirt is RHEL 7 and Fedora < 30 only
+%if (0%{?fedora} && 0%{?fedora} < 30) || (0%{?rhel} >= 7 && 0%{?rhel} < 8)
+%define build_ovirt 1
+%endif
+
 %if 0%{?rhel} >= 8
 %global go_scl_prefix go-toolset-7-
 %else
@@ -269,8 +274,13 @@ find %{buildroot}%{_datadir}/cockpit/apps -type f >> packagekit.list
 echo '%dir %{_datadir}/cockpit/machines' > machines.list
 find %{buildroot}%{_datadir}/cockpit/machines -type f >> machines.list
 
+%if 0%{?build_ovirt}
 echo '%dir %{_datadir}/cockpit/ovirt' > ovirt.list
 find %{buildroot}%{_datadir}/cockpit/ovirt -type f >> ovirt.list
+%else
+rm -rf %{buildroot}/%{_datadir}/cockpit/ovirt
+touch ovirt.list
+%endif
 
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
@@ -706,6 +716,8 @@ If "virt-install" is installed, you can also create new virtual machines.
 %files -n cockpit-machines -f machines.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 
+%if 0%{?build_ovirt}
+
 %package -n cockpit-machines-ovirt
 BuildArch: noarch
 Summary: Cockpit user interface for oVirt virtual machines
@@ -722,6 +734,8 @@ Requires: libvirt-client
 The Cockpit components for managing oVirt virtual machines.
 
 %files -n cockpit-machines-ovirt -f ovirt.list
+
+%endif
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

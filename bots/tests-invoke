@@ -91,8 +91,11 @@ class PullTask(object):
 
         if opts.pull_number:
             pull = api.get("pulls/{0}".format(opts.pull_number))
-            if pull and pull["head"]["sha"] != self.revision:
-                return "Newer revision available on GitHub for this pull request"
+            if pull:
+                if pull["head"]["sha"] != self.revision:
+                    return "Newer revision available on GitHub for this pull request"
+                if pull["state"] != "open":
+                    return "Pull request isn't open"
 
         if not self.github_revision:
             return None

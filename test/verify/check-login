@@ -143,6 +143,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "pam_unix\(cockpit:auth\): check pass; user unknown",
                                     "pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
+        # Check that after logout we get back to /system
+        self.login_and_go("/users")
+        b.wait_in_text('#accounts-list', "user")
+        b.logout()
+        login("admin", "foobar")
+        with b.wait_timeout(10):
+            b.expect_load()
+        b.wait_js_cond('window.location.pathname == "/system"')
+
         self.allow_restart_journal_messages()
 
     def testExpired(self):

@@ -303,7 +303,7 @@
                 oauth_auto_login();
             }
         } else if (logout_intent) {
-            show_login();
+            show_login(true);
         } else {
             standard_auto_login();
         }
@@ -506,7 +506,10 @@
             id("login-button").addEventListener("click", call_login);
     }
 
-    function show_login() {
+    function show_login(go_home) {
+        if (go_home)
+            window.location = '/';
+
         /* Show the login screen */
         id("server-name").textContent = document.title;
         login_note(_("Log in with your server user account."));

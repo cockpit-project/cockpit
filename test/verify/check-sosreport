@@ -27,7 +27,7 @@ import parent
 from testlib import *
 
 
-@skipImage("No sosreport", "continuous-atomic", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
+@skipImage("No sosreport", "continuous-atomic")
 class TestSOS(MachineCase):
 
     def testBasic(self):
@@ -60,7 +60,8 @@ class TestSOS(MachineCase):
 
         self.login_and_go("/apps")
         b.wait_not_present(".app-list-empty .spinner")
-        if m.image.startswith("fedora-"):
+        image_os = m.image.split('-')[0]
+        if image_os in ['fedora', 'debian', 'ubuntu']:
             b.wait_present(".app-list tr:contains('Diagnostic Reports')")
             b.wait_present(".app-list tr:contains('Diagnostic Reports') button:contains('Remove')")
         else:

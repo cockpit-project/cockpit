@@ -40,6 +40,7 @@ Depends: ${misc:Depends},
 Recommends: cockpit-storaged,
             cockpit-networkmanager,
             cockpit-dashboard,
+            cockpit-sosreport,
             cockpit-packagekit,
 Suggests: cockpit-doc,
           cockpit-pcp,
@@ -194,3 +195,13 @@ Conflicts: ${ws:Conflicts}
 Description: Cockpit Web Service
  The Cockpit Web Service listens on the network, and authenticates
  users.
+
+Package: cockpit-sosreport
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${bridge:minversion}),
+         sosreport
+Description: Cockpit user interface for diagnostic reports
+ The Cockpit component for creating diagnostic reports with the
+ sosreport tool.

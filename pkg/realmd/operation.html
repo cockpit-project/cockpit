@@ -6,7 +6,30 @@
       </div>
       <div class="modal-body">
         <div class="realms-op-fields">
-          <p class="realms-op-leave-only-row"></p>
+          <div class="realms-op-leave-only-row">
+            <form class="ct-form-layout">
+              <label class="control-label" for="realms-op-info-domain" translatable="yes">Domain</label>
+              <span id="realms-op-info-domain"></span>
+
+              <label class="control-label" for="realms-op-info-login-format" translatable="yes">Login Format</label>
+              <span id="realms-op-info-login-format"></span>
+
+              <label class="control-label" for="realms-op-info-server-sw" translatable="yes">Server Software</label>
+              <span id="realms-op-info-server-sw"></span>
+
+              <label class="control-label" for="realms-op-info-client-sw" translatable="yes">Client Software</label>
+              <span id="realms-op-info-client-sw"></span>
+            </form>
+
+            <a href="#" id="realms-op-leave-toggle" translatable="yes">Leave Domain</a>
+            <span id="realms-op-leave-caret" class="fa fa-caret-right"></span>
+            <div id="realms-op-alert" class="alert alert-warning" hidden>
+              <div translatable="yes">Only users with local credentials will be able to log into this machine. This may
+                also effect other services as DNS resolution settings and the list of trusted CAs may change.</div>
+
+              <button class="btn btn-danger realms-op-leave" type="submit" translatable="yes">Leave Domain</button>
+            </div>
+          </div>
 
           <form class="ct-form-layout realms-op-join-only">
             <label class="control-label" translatable="yes">Domain Address</label>

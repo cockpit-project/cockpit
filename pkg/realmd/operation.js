@@ -45,6 +45,7 @@ function instance(realmd, mode, realm, button) {
     });
 
     $(".realms-op-apply").on("click", perform);
+    $(".realms-op-leave").on("click", perform);
     $(".realms-op-field")
             .on("keydown", function(ev) {
                 if (ev.which == 13)
@@ -110,30 +111,44 @@ function instance(realmd, mode, realm, button) {
         auth_changed($(this));
     });
 
-    var title, label, text;
+    var title, label;
     if (mode == 'join') {
         title = _("page-title", _("Join a Domain"));
         label = _("Join");
         $(".realms-op-join-only").show();
         $(".realms-op-leave-only-row").hide();
+        $(".realms-op-apply").text(label);
         check("");
     } else {
-        title = _("page-title", _("Leave Domain"));
-        label = _("Leave");
-        text = _("Are you sure you want to leave this domain?");
-        if (realm && realm.Name) {
-            text = cockpit.format(_("Are you sure you want to leave the '$0' domain?"), realm.Name);
-        }
+        title = _("page-title", _("Domain"));
+        $("#realms-op-info-domain").text(realm && realm.Name);
+        if (realm && realm.LoginFormats && realm && realm.LoginFormats.length > 0)
+            $("#realms-op-info-login-format").text(realm.LoginFormats[0].replace("%U", "username"));
+        $("#realms-op-info-server-sw").text(find_detail(realm, "server-software"));
+        $("#realms-op-info-client-sw").text(find_detail(realm, "client-software"));
 
-        text = cockpit.format(_("$0 Only users with local credentials will be able to log into this machine. This may also effect other services as DNS resolution settings and the list of trusted CAs may change."), text);
+        $("#realms-op-leave-toggle").on("click", ev => {
+            if ($("#realms-op-alert").is(":visible")) {
+                $("#realms-op-alert").hide();
+                $("#realms-op-leave-caret")
+                        .removeClass("fa-caret-down")
+                        .addClass("fa-caret-right");
+            } else {
+                $("#realms-op-alert").show();
+                $("#realms-op-leave-caret")
+                        .removeClass("fa-caret-right")
+                        .addClass("fa-caret-down");
+            }
 
-        $(".realms-op-leave-only-row").text(text);
-        $(".realms-op-join-only").hide();
+            ev.preventDefault();
+        });
+
         $(".realms-op-leave-only-row").show();
+        $(".realms-op-join-only").hide();
+        $(".realms-op-apply").hide();
     }
 
     $(".realms-op-title").text(title);
-    $(".realms-op-apply").text(label);
     $(".realms-op-field").val("");
 
     function check(name) {

@@ -271,6 +271,19 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
 
+        # Check embedded log panel
+        b.logout()
+        self.login_and_go("/playground/test")
+
+        def wait_logline(msg):
+            sel = "#demo-logs .cockpit-logline .cockpit-log-message:contains('{0}')".format(msg)
+            b.wait_present(sel)
+            b.wait_visible(sel)
+
+        wait_logline("SLOW")
+        for i in range(116, 124):
+            wait_logline(str(i))
+
     def testBinary(self):
         b = self.browser
         m = self.machine

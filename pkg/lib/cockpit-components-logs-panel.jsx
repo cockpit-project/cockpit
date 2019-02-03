@@ -88,8 +88,16 @@ class JournalOutput {
         this.logs.unshift(item);
     }
 
+    append(item) {
+        this.logs.push(item);
+    }
+
     remove_first() {
         this.logs.shift();
+    }
+
+    remove_last() {
+        this.logs.pop();
     }
 
     limit(max) {
@@ -102,20 +110,37 @@ export class LogsPanel extends React.Component {
     constructor() {
         super();
         this.state = { logs: [ ] };
+        this.out = new JournalOutput();
+        this.renderer = journal.renderer(this.out);
+    }
+
+    append_older(last_cursor) {
+        var n = this.props.max - this.state.logs.length;
+        this.tmp_journalctl = journal.journalctl(this.props.match, { count: n, after: last_cursor, reverse:true });
+
+        this.tmp_journalctl.stream((entries) => {
+            for (var i = 0; i < entries.length; i++)
+                this.renderer.append(entries[i]);
+            this.renderer.append_flush();
+            this.out.limit(this.props.max);
+            this.setState({ logs: this.out.logs });
+            this.tmp_journalctl.stop();
+            if (this.out.logs.length < this.props.max && entries.length > 0)
+                this.append_older(entries[entries.length - 1]["__CURSOR"]);
+        });
     }
 
     componentDidMount() {
         this.journalctl = journal.journalctl(this.props.match, { count: this.props.max });
 
-        var out = new JournalOutput();
-        var render = journal.renderer(out);
-
         this.journalctl.stream((entries) => {
             for (var i = 0; i < entries.length; i++)
-                render.prepend(entries[i]);
-            render.prepend_flush();
-            out.limit(this.props.max);
-            this.setState({ logs: out.logs });
+                this.renderer.prepend(entries[i]);
+            this.renderer.prepend_flush();
+            this.out.limit(this.props.max);
+            this.setState({ logs: this.out.logs });
+            if (this.out.logs.length < this.props.max)
+                this.append_older(entries[0]["__CURSOR"]);
         });
     }
 

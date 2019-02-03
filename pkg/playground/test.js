@@ -1,5 +1,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
+import "journal.css";
+import { showLogsDemo } from "./react-demo-logs.jsx";
 
 $(function() {
     $("#hammer").on("click", function () { $(this).hide() });
@@ -117,4 +119,7 @@ $(function() {
 
     $(cockpit).on("visibilitychange", show_hidden);
     show_hidden();
+
+    // Logs
+    showLogsDemo(document.getElementById('demo-logs'));
 });

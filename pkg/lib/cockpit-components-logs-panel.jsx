@@ -102,7 +102,7 @@ class JournalOutput {
 
     limit(max) {
         if (this.logs.length > max)
-            this.logs = this.logs.slice(-max);
+            this.logs = this.logs.slice(0, max);
     }
 }
 

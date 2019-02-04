@@ -200,8 +200,7 @@ expected_message_handler (const gchar *log_domain,
  * Call this instead of g_test_init() to setup a cocpit test.
  * Enables use of cockpit_expect_xxx() functions.
  *
- * Calls g_type_init() if necessary. Sets up cleaner logging
- * during testing.
+ * Sets up cleaner logging during testing.
  *
  * Also calls g_test_init() for you.
  */
@@ -223,8 +222,6 @@ cockpit_test_init (int *argc,
 
   /* For our process (children are handled through $G_DEBUG) */
   g_log_set_always_fatal (G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
-
-  g_type_init ();
 
   // System cockpit configuration file should not be loaded
   cockpit_config_file = NULL;

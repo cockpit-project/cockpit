@@ -58,6 +58,8 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
+        self.allow_journal_messages("invalid or unusable locale.*")
+
         self.login_and_go("/apps")
         b.wait_not_present(".app-list-empty .spinner")
         image_os = m.image.split('-')[0]

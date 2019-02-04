@@ -90,6 +90,7 @@ import contextlib
 import os
 import json
 import pipes
+import ssl
 import sys
 import time
 import itertools
@@ -101,7 +102,7 @@ from task import github, label, REDHAT_PING
 
 no_amqp = False
 try:
-    import amqp
+    import pika
 except ImportError:
     no_amqp = True
 
@@ -128,13 +129,11 @@ def main():
     parser.add_argument('-s', '--sha', default=None,
                         help='SHA beloging to pull request to scan for tasks')
     parser.add_argument('--amqp', default=None,
-                        help='The URL of the AMQP server to publish to')
-    parser.add_argument('--queue', default='tasks',
-                        help='The name of the queue to publish to')
+                        help='The host:port of the AMQP server to publish to (format host:port)')
 
     opts = parser.parse_args()
     if opts.amqp and no_amqp:
-        sys.stderr.write("AMQP URL specified but python-amqp not available\n")
+        sys.stderr.write("AMQP host:port specified but python-amqp not available\n")
         return 1
     api = github.GitHub(repo=opts.repo)
 
@@ -172,14 +171,29 @@ def default_policy():
     return policy
 
 @contextlib.contextmanager
-def distributed_queue(host, queue):
-    connection = amqp.Connection(host=host)
-    connection.connect()
+def distributed_queue(amqp_server):
+    try:
+        host, port = amqp_server.split(':')
+    except ValueError:
+        sys.stderr.write('Please format --amqp as host:port\n')
+        sys.exit(1)
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=host,
+        port=int(port),
+        ssl=True,
+        ssl_options=pika.SSLOptions(
+            ssl_version=ssl.PROTOCOL_TLSv1_2,
+            cafile='/run/secrets/webhook/ca.pem',
+            keyfile='/run/secrets/webhook/amqp-client.key',
+            certfile='/run/secrets/webhook/amqp-client.pem',
+            server_hostname=host),
+        credentials=pika.credentials.ExternalCredentials()))
     channel = connection.channel()
     arguments = {
         "x-max-priority": MAX_PRIORITY
     }
-    channel.queue_declare(queue=queue, arguments=arguments, auto_delete=False)
+    channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
+    channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
     yield channel
     connection.close()
 
@@ -202,8 +216,8 @@ def tests_human(priority, name, number, revision, ref, context, base, repo, bots
 
 # Prepare a test invocation command
 def tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options):
-    if not run_redhat_tasks and (context in REDHAT_VERIFY or
-                                 context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
+    if not options.amqp and not run_redhat_tasks and (context in REDHAT_VERIFY or
+                                                      context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
         return ''
 
     try:
@@ -270,8 +284,10 @@ def queue_test(priority, name, number, revision, ref, context, base, repo, bots_
             "ref": ref,
             "name": name,
         }
-        msg = amqp.Message(body=json.dumps(body), priority=priority)
-        queue.basic_publish(msg, routing_key=options.queue)
+        if (context in REDHAT_VERIFY or context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
+            queue.basic_publish('', 'rhel', json.dumps(body), properties=pika.BasicProperties(priority=priority))
+        else:
+            queue.basic_publish('', 'public', json.dumps(body), properties=pika.BasicProperties(priority=priority))
 
 def prioritize(status, title, labels, priority, context):
     state = status.get("state", None)
@@ -461,7 +477,7 @@ def scan_for_pull_tasks(api, policy, opts, repo):
     if not opts.amqp:
         func = lambda x: tests_invoke(*x, options=opts)
         return list(map(func, results))
-    with distributed_queue(opts.amqp, opts.queue) as queue:
+    with distributed_queue(opts.amqp) as queue:
         func = lambda x: queue_test(*x, queue=queue, options=opts)
         return list(map(func, results))
 

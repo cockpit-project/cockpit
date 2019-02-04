@@ -21,39 +21,49 @@ MAX_PRIORITY = 9
 
 import argparse
 import sys
-import time
+import ssl
 
-import amqp
+import pika
 
 def main():
     parser = argparse.ArgumentParser(description='Read and print messages from the queue without acknowleding them')
-    parser.add_argument('--amqp', default='localhost',
-                        help='The URL of the AMQP server to consume from')
-    parser.add_argument('--queue', default='tasks',
-                        help='The name of the queue to consume from')
-    parser.add_argument('-n', '--number', default=0,
-                        help='Number of queue items to show, starting from the front (0=all)')
-    parser.add_argument('-t', '--timeout', default=0.5,
-                        help='Time to wait for messages')
+    parser.add_argument('--amqp', default='localhost:5671',
+                        help='The host:port of the AMQP server to consume from (default: %(default)s)')
     opts = parser.parse_args()
 
-    connection = amqp.Connection(host=opts.amqp)
-    connection.connect()
-    channel = connection.channel()
     try:
-        channel.queue_declare(queue=opts.queue, passive=True, auto_delete=False)
-    except amqp.exceptions.NotFound:
-        sys.stdout.write('queue is empty\n')
-        return 0
-    channel.basic_qos(0, opts.number, True)
+        host, port = opts.amqp.split(':')
+    except ValueError:
+        parser.error('Please format --amqp as host:port')
 
-    def callback(msg):
-        sys.stdout.write("{0}\n".format(msg.body))
-        msg.channel.basic_reject(msg.delivery_tag, requeue=True)
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=host,
+        port=int(port),
+        ssl=True,
+        ssl_options=pika.SSLOptions(
+            ssl_version=ssl.PROTOCOL_TLSv1_2,
+            cafile='/run/secrets/webhook/ca.pem',
+            keyfile='/run/secrets/webhook/amqp-client.key',
+            certfile='/run/secrets/webhook/amqp-client.pem',
+            server_hostname=host),
+        credentials=pika.credentials.ExternalCredentials()))
+    channel = connection.channel()
 
-    channel.basic_consume(callback=callback, queue=opts.queue)
-    time.sleep(opts.timeout)
-    sys.stdout.flush()
+    def print_queue(queue):
+        try:
+            declare_result = channel.queue_declare(queue=queue, passive=True, auto_delete=False)
+        except pika.exceptions.ChannelClosed:
+            print("queue {0} doesn't exist".format(queue))
+            return
+        for i in range(declare_result.method.message_count):
+            method_frame, header_frame, body = channel.basic_get(queue=queue)
+            if method_frame:
+                print(body)
+
+    print('public queue:')
+    print_queue('public')
+    print('rhel queue:')
+    print_queue('rhel')
     connection.close()
 
 if __name__ == '__main__':

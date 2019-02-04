@@ -138,8 +138,6 @@ main (int argc,
 
   g_setenv ("G_TLS_GNUTLS_PRIORITY", "SECURE128:%LATEST_RECORD_VERSION:-VERS-SSL3.0:-VERS-TLS1.0", FALSE);
 
-  g_type_init ();
-
   memset (&data, 0, sizeof (data));
 
   context = g_option_context_new (NULL);

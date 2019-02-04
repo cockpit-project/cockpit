@@ -852,8 +852,6 @@ main (int argc,
 
   setup_path (argv[0]);
 
-  g_type_init ();
-
   g_log_set_always_fatal (G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR);
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, NULL);

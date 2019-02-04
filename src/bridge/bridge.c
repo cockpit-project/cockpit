@@ -529,8 +529,6 @@ run_bridge (const gchar *interactive,
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
-  g_type_init ();
-
   /* Start daemons if necessary */
   if (!interactive && !privileged_slave)
     {

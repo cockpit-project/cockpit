@@ -780,7 +780,9 @@ test_tls_authority_good (TestTls *test,
 }
 
 static const gchar fixture_tls_authority_bad[] =
-  "{ \"authority\": { \"file\": \"" SRCDIR "/src/bridge/mock-client.crt\" } }";
+  "{ \"certificate\": { \"file\": \"" SRCDIR "/src/bridge/mock-client.crt\" },"
+  "  \"key\": { \"file\": \"" SRCDIR "/src/bridge/mock-client.key\" }, "
+  "  \"authority\": { \"file\": \"" SRCDIR "/src/bridge/mock-client.crt\" } }";
 
 static void
 test_tls_authority_bad (TestTls *test,

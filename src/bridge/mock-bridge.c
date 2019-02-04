@@ -330,8 +330,6 @@ main (int argc,
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
-  g_type_init ();
-
   transport = cockpit_pipe_transport_new_fds ("stdio", 0, outfd);
 
   g_signal_connect (transport, "control", G_CALLBACK (on_transport_control), NULL);

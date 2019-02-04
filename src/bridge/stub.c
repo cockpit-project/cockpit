@@ -165,8 +165,6 @@ run_bridge (const gchar *interactive)
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
   sig_int = g_unix_signal_add (SIGINT, on_signal_done, &interupted);
 
-  g_type_init ();
-
   cockpit_dbus_json_allow_external = FALSE;
 
   cockpit_dbus_internal_startup (interactive != NULL);

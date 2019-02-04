@@ -91,7 +91,6 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
-  g_type_init ();
   g_set_prgname ("remotectl");
 
   context = g_option_context_new (NULL);

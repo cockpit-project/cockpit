@@ -179,8 +179,13 @@ test_transfer_passwd1 (TestCase *tc,
 {
   GVariant *retval;
   GVariant *prepared;
+  GVariant *passwd_and_group;
+  GVariant *child;
   GError *error = NULL;
-  gchar *string;
+  const gchar **passwds;
+  gsize passwd_len;
+  const gchar **groups;
+  gsize group_len;
 
   const gchar *empty[] = { NULL };
 
@@ -192,11 +197,33 @@ test_transfer_passwd1 (TestCase *tc,
   retval = dbus_call_with_main_loop (tc, "/setup", "cockpit.Setup", "Transfer",
                                      g_variant_new ("(sv)", "passwd1", prepared),
                                      G_VARIANT_TYPE ("(v)"), &error);
-
   g_assert_no_error (error);
-  string = g_variant_print (retval, FALSE);
-  g_assert_cmpstr (string, ==, "(<(['root:$6$RBjDivsC$mlwBspq8QVmDe92lS/uVFiCHnw69KO.v7BQ69TE50CUMx6AKwfOZJ9gjU0y846UkQt9NrLlChu6j0z9V2//0b/:::Root:/root:/bin/bash', 'scruffy:$6$kiB.xr6x$xDzRjU5dHnwqds7Vs1iRe7NWKRI2AvK38DbGF2DIOfI9MtqHL.hDwL6GhBxEyliTGQi3FyEVR0y2pG6xuEGJ81:::Scruffy the Janitor:/home/scruffy:/bin/bash', 'hermes:$6$vK.Xvf4y$8PI2sHG7VVexATp2uyqHyhqRMeCisGL0Zer2fs.Suy4Q.eg9OWCoPGIeSDbxhOLvpfQKGorAaQIRLuVJH5uUO.:::Hermes Conrad:/home/hermes:/bin/sh'], ['docker:::hermes', 'wheel:::scruffy,hermes', 'root:::root'])>,)");
-  g_free (string);
+
+  /* retval is a boxed (v) consisting of (asas): passwd strv, and group strv */
+  child = g_variant_get_child_value(retval, 0);
+  passwd_and_group = g_variant_get_variant (child);
+  g_variant_unref (child);
+
+  child = g_variant_get_child_value (passwd_and_group, 0);;
+  passwds = g_variant_get_strv (child, &passwd_len);
+  g_variant_unref (child);
+  g_assert_cmpint (passwd_len, ==, 3);
+
+  g_assert (g_strv_contains (passwds, "root:$6$RBjDivsC$mlwBspq8QVmDe92lS/uVFiCHnw69KO.v7BQ69TE50CUMx6AKwfOZJ9gjU0y846UkQt9NrLlChu6j0z9V2//0b/:::Root:/root:/bin/bash"));
+  g_assert (g_strv_contains (passwds, "scruffy:$6$kiB.xr6x$xDzRjU5dHnwqds7Vs1iRe7NWKRI2AvK38DbGF2DIOfI9MtqHL.hDwL6GhBxEyliTGQi3FyEVR0y2pG6xuEGJ81:::Scruffy the Janitor:/home/scruffy:/bin/bash"));
+  g_assert (g_strv_contains (passwds, "hermes:$6$vK.Xvf4y$8PI2sHG7VVexATp2uyqHyhqRMeCisGL0Zer2fs.Suy4Q.eg9OWCoPGIeSDbxhOLvpfQKGorAaQIRLuVJH5uUO.:::Hermes Conrad:/home/hermes:/bin/sh"));
+  g_free (passwds);
+
+  child = g_variant_get_child_value (passwd_and_group, 1);
+  groups = g_variant_get_strv (child, &group_len);
+  g_variant_unref (child);
+  g_assert_cmpint (group_len, ==, 3);
+  g_assert (g_strv_contains (groups, "docker:::hermes"));
+  g_assert (g_strv_contains (groups, "wheel:::scruffy,hermes"));
+  g_assert (g_strv_contains (groups, "root:::root"));
+  g_free (groups);
+
+  g_variant_unref (passwd_and_group);
   g_variant_unref (retval);
 }
 

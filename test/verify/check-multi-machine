@@ -890,7 +890,7 @@ class TestMultiMachine(MachineCase):
         b.logout()
 
         # Login with no saved password
-        b.go(machine_path)
+        b.open(machine_path)
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")

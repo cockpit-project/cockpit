@@ -476,16 +476,25 @@ class Browser:
         if self.is_visible("button#machine-reconnect"):
             # happens when shutting down cockpit or rebooting machine
             self.click("button#machine-reconnect")
+            self.expect_load()
+            return False
         else:
             # happens when cockpit is still running
             self.click("#navbar-dropdown")
             self.click('#go-logout')
-        self.expect_load()
+            self.expect_load()
+            self.expect_load()
+        return True
 
     def relogin(self, path=None, user=None, authorized=None):
         if user is None:
             user = self.default_user
-        self.logout()
+        if self.logout():
+            href = path
+            if not href:
+                href = "/"
+            self.open(href)
+
         self.wait_visible("#login")
         self.set_val("#login-user-input", user)
         self.set_val("#login-password-input", self.password)

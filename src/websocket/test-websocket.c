@@ -1294,10 +1294,6 @@ main (int argc,
   g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 
-#if !GLIB_CHECK_VERSION(2,36,0)
-  g_type_init ();
-#endif
-
   g_set_prgname ("test-websocket");
   g_test_init (&argc, &argv, NULL);
 

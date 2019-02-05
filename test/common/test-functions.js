@@ -97,7 +97,7 @@ function ph_mouse(sel, type, x, y, btn, force) {
     let el = ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
-    if (!force && (el.offsetWidth <= 0 || el.offsetHeight <= 0))
+    if (!force && el.offsetWidth <= 0 && el.offsetHeight <= 0)
         throw sel + " is not visible";
 
     /* The event has to actually work */

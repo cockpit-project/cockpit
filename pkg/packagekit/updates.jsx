@@ -26,6 +26,7 @@ import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
+import { snapshots, SnapshotCreateButton } from "./snapshots.jsx";
 import { History, PackageList } from "./history.jsx";
 
 import * as PK from "packagekit.js";
@@ -718,6 +719,9 @@ class OsUpdates extends React.Component {
                                                    this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
                                                this.setState({ state: "updateError" });
                                            }
+
+                                           // refresh available/used space and snapshot history
+                                           snapshots.init();
                                        },
 
                                        // not working/being used in at least Fedora
@@ -821,6 +825,7 @@ class OsUpdates extends React.Component {
                     <div id="available" className="pk-updates--header">
                         <h2 className="pk-updates--header--heading">{_("Available Updates")}</h2>
                         <div className="pk-updates--header--actions">
+                            <SnapshotCreateButton />
                             {applySecurity}
                             {applyAll}
                         </div>

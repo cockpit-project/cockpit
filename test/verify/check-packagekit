@@ -178,6 +178,12 @@ class TestUpdates(PackageCase):
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 
+        # all our test images either have a full VG or don't use LVM at all
+        if "/dev/mapper" in m.execute("findmnt --noheadings --output SOURCE /"):
+            b.wait_present("button.pk-update--snapshot:disabled")
+        else:
+            b.wait_not_present("button.pk-update--snapshot")
+
         # should only have one button (no security updates)
         b.wait_not_present("button.pk-update--security")
         self.assertEqual(b.text("button.pk-update--all"), "Install All Updates")
@@ -228,8 +234,8 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
         # history shows the two packages, expanded by default
-        b.wait_present("table.updates-history tbody.open td.history-pkgcount")
-        b.wait_text("table.updates-history tbody.open td.history-pkgcount", "2 Packages")
+        b.wait_present("table.updates-history tbody.open .history-pkgcount")
+        b.wait_text("table.updates-history tbody.open .history-pkgcount", "2 Packages")
         b.wait_present("table.updates-history tbody.open .listing-ct-panel")
         b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "chocolate")
         b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "vanilla")
@@ -696,6 +702,192 @@ class TestUpdates(PackageCase):
         b.wait_present("#system_information_updates_text")
         b.wait_not_visible("#system_information_updates_text")
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
+
+    @skipImage("Image does not have root on LVM", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable",
+               "centos-7", "fedora-i386")
+    def testSnapshot(self):
+        b = self.browser
+        m = self.machine
+
+        def create_updates(*packages):
+            for p in packages:
+                self.createPackage(p, "1.0", "1", install=True)
+                self.createPackage(p, "1.0", "2")
+            self.enableRepo()
+            m.execute("pkcon refresh force")
+
+        def apply_updates():
+            b.click("button.pk-update--all")
+            b.wait_present("#app .container-fluid h1")
+            b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
+            b.wait_present("#app .container-fluid button.btn-default")
+            b.click("#app .container-fluid button.btn-default")
+
+        def create_snapshot(size_gb, expect_error=None):
+            b.wait_present("button.pk-update--snapshot")
+            b.click("button.pk-update--snapshot")
+            b.wait_present("#create-snapshot-size")
+            b.set_input_text("#create-snapshot-size", str(size_gb))
+            b.click("#create-snapshot-dialog .btn-primary")
+            if expect_error:
+                b.wait_present("#create-snapshot-dialog .alert")
+                b.wait_in_text("#create-snapshot-dialog .alert", expect_error)
+                b.click("#create-snapshot-dialog .btn-default")  # cancel
+            else:
+                self.assertFalse(b.is_present("#create-snapshot-dialog .alert"))
+
+            b.wait_not_present("#create-snapshot-dialog")
+
+        def assert_history(updates):
+            # updates is a list of (pkgcount, snapsize) expected values
+            for i, (pkgcount, snapsize) in enumerate(updates):
+                tbody = "table.updates-history tbody:nth-child(%i) " % (i + 1)
+                b.wait_present(tbody + ".history-snapsize")
+                b.wait_text(tbody + ".history-pkgcount", pkgcount)
+                b.wait_text(tbody + ".history-snapsize", snapsize)
+            b.wait_not_present("table.updates-history tbody:nth-child(%i)" % (len(updates) + 1))
+
+        def assert_details(tbody_sel, package_list):
+            sel = "table.updates-history %s .listing-ct-panel" % tbody_sel
+            b.wait_present(sel)
+            for p in package_list:
+                b.wait_in_text(sel, p)
+
+        def wait_next_minute():
+            '''wait until the next minute, to have different times in table headers'''
+            m.execute("M=$(date +%M); while [ $(date +%M) = $M ]; do sleep 5; done")
+
+        # make some room on our root VG
+        m.add_disk("10G", serial="DISK1")
+        m.execute("while [ ! -e /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 ]; do sleep 1; done")
+        m.execute("pvcreate /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+        m.execute("vgextend $(vgs | tail -n1 | awk '{print $1}') /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
+
+        #
+        # 1. update without snapshot (CLI for simplicity)
+        #
+        create_updates("vanilla")
+        m.execute("pkcon update -y")
+        if m.image == "rhel-8-0":
+            # HACK: avoid PackageKit crash: https://bugzilla.redhat.com/show_bug.cgi?id=1679916
+            m.execute("pkcon quit")
+        wait_next_minute()
+
+        #
+        # 2. update with snapshot
+        #
+        create_updates("chocolate", "lemon")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+        # shows update from 1., open by default
+        assert_history([("1 Package", "")])
+        assert_details("tbody.open", ["vanilla"])
+        b.wait_not_present("table.updates-history tbody:not(.open)")
+
+        b.wait_present("button.pk-update--snapshot")
+        b.click("button.pk-update--snapshot")
+        # default size should be something reasonable; it defaults to the rounded up used space
+        b.wait_present("#create-snapshot-dialog")
+        b.wait_visible("#create-snapshot-dialog")
+        size = int(b.attr("#create-snapshot-size", "value"))
+        self.assertGreaterEqual(size, 3)
+        self.assertLessEqual(size, 8)
+        # cancel: no snapshot gets created
+        b.wait_visible("#create-snapshot-dialog .btn-cancel")
+        b.click("#create-snapshot-dialog .btn-cancel")
+        b.wait_not_present("#create-snapshot-dialog")
+        self.assertNotIn("update", m.execute("lvs --no-heading"))
+        # invalid size (this needs some creativity by human users, but set_input_text() can do it)
+        create_snapshot(0, "size may not be zero")
+        # create 5 GB snapshot
+        create_snapshot(5)
+        # topmost history is now an empty snapshot, second entry is the update from 1.
+        assert_history([("", "5 GiB Snapshot"), ("1 Package", "")])
+        # .. so nothing is expanded
+        b.wait_not_present("table.updates-history tbody.open")
+        apply_updates()
+        # shows a merged open update+snapshot
+        assert_history([("2 Packages", "5 GiB Snapshot"), ("1 Package", "")])
+        assert_details("tbody.open", ["chocolate", "lemon"])
+        if m.image == "rhel-8-0":
+            # HACK: avoid PackageKit crash: https://bugzilla.redhat.com/show_bug.cgi?id=1679916
+            m.execute("pkcon quit")
+
+        #
+        # 3. another update with snapshot
+        #
+        create_updates("strawberry", "kiwi", "nougat")
+        # wait until the next minute, to have different times in table headers
+        wait_next_minute()
+        # click "Check for Updates"
+        b.click(".content-header-extra button")
+        create_snapshot(3)
+        apply_updates()
+        assert_history([("3 Packages", "3 GiB Snapshot"), ("2 Packages", "5 GiB Snapshot"), ("1 Package", "")])
+        assert_details("tbody.open", ["strawberry", "kiwi", "nougat"])
+        self.assertEqual(m.execute("lvs | grep --count update-").strip(), "2")
+
+        # system is now up to date, no snapshot button
+        b.wait_not_present("button.pk-update--snapshot")
+        # so let's add another available update
+        create_updates("stracciatella")
+        b.click(".content-header-extra button")
+        b.wait_in_text("#state", "1 update")
+        # Snapshot button should now be disabled, as there's not enough space left
+        b.wait_present("button.pk-update--snapshot:disabled")
+
+        #
+        # 4. delete the old snapshot from 2.
+        #
+        kebab = "table.updates-history tbody:nth-child(2) .history-kebab button"
+        b.wait_present(kebab)
+        b.click(kebab)
+        delete = "table.updates-history tbody:nth-child(2) .history-kebab a[role='menuitem']"
+        b.wait_present(delete)
+        # this should not expand the table (we have a workaround for a react-bootstrap bug)
+        b.wait_not_present("table.updates-history tbody.open:nth-of-type(2)")
+        b.click(delete)
+        # PK history is still shown, snapshot is gone
+        assert_history([("3 Packages", "3 GiB Snapshot"), ("2 Packages", ""), ("1 Package", "")])
+        # now we should have enough space again
+        b.wait_present("button.pk-update--snapshot:not([disabled])")
+        self.assertEqual(m.execute("lvs | grep --count update-").strip(), "1")
+
+        #
+        # 5. roll back the recent snapshot
+        #
+        b.click("table.updates-history tbody:first-child .history-rollback button.btn-default")
+        b.wait_present(".modal-dialog button.btn-danger")
+        b.click(".modal-dialog button.btn-danger")
+        b.switch_to_top()
+        b.wait_visible(".curtains-ct")
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+        m.wait_reboot()
+        m.start_cockpit()
+        b.login_and_go("/updates")
+
+        # should show snapshot that is being restored; this is a race, we can't always catch it
+        if 'update-' in m.execute("lvs --all"):
+            assert_history([("", "3 GiB Snapshot"), ("2 Packages", ""), ("1 Package", "")])
+            b.wait_present("table.updates-history tbody:first-child .history-rollback span.label")
+            b.wait_in_text("table.updates-history tbody:first-child .history-rollback span.label", "Restoring")
+            # should not have any actions
+            self.assertFalse(b.is_present("table.updates-history button"))
+            # wait until internal snapshot rollback is done; this can take a while
+            wait(lambda: "update-" not in m.execute("lvs --all"), delay=10)
+            # this does not send any event, so reload
+            b.reload()
+            b.enter_page("/updates")
+
+        # all snapshots are gone now
+        assert_history([("2 Packages", ""), ("1 Package", "")])
+        assert_details("tbody.open", ["chocolate", "lemon"])
+        # and updates from 3. are available again
+        b.wait_in_text("#state", "3 updates")
+        b.wait_in_text("table.available", "kiwi")
+        b.wait_in_text("table.available", "nougat")
+        b.wait_in_text("table.available", "strawberry")
 
 
 @skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")

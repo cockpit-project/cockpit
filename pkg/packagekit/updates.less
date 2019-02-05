@@ -127,6 +127,101 @@ tr.listing-ct-item {
     color: #72767b;
 }
 
+.listing-ct.updates-history {
+    .listing-ct-item > th,
+    .listing-ct-item > td, {
+        vertical-align: baseline;
+    }
+
+    .listing-ct-item > th {
+        // Table cell widths are a "best effort". Setting it to 0 for a table cell
+        // means "make this as small as possible".
+        white-space: nowrap;
+        width: 0;
+
+        // Alignment of the items has changed; so must the separator
+        &:before {
+            top: auto !important;
+        }
+    }
+
+    .listing-ct-meta {
+        display: flex;
+        grid-gap: 1rem; // WebKit doesn't support generic "gap" yet
+        gap: 1rem;
+        align-items: first baseline;
+        flex-wrap: wrap;
+    }
+
+    .listing-ct-info {
+        flex-basis: content;
+    }
+
+    .history-pkgcount {
+        flex: auto;
+    }
+
+    .listing-ct-action {
+        justify-items: baseline;
+    }
+
+    // Make the extended menu icon more clickable
+    .history-kebab {
+        button {
+            padding: 0;
+        }
+        .fa {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            // Compensate for padding
+            margin-right: -0.5rem;
+        }
+    }
+
+    .list-view-pf-additional-info-item {
+        // Align this widget to the first baseline by default (for the text)
+        align-items: first baseline;
+
+        > .pficon {
+            // ...and align the icon to the center of the widget,
+            // assuming there's only 1 line (as the text shouldn't wrap here)
+            align-self: center;
+        }
+    }
+
+    @media (max-width: 540px) {
+        // Put rollback on its own line
+        .history-rollback {
+            flex-basis: 100%;
+        }
+    }
+
+    @media (max-width: 420px) {
+        // Constrain meta by making title take up maximum space
+        .listing-ct-item > th {
+            white-space: normal;
+            width: 100%;
+        }
+
+        // Info should take up maximum space within their containing cell
+        .listing-ct-info {
+            flex: auto;
+
+        }
+
+        // Don't wrap information or buttons
+        .listing-ct-info,
+        .listing-ct-action {
+            white-space: nowrap;
+
+            // Don't display empty elements
+            &:empty {
+                display: none;
+            }
+        }
+    }
+}
+
 // backport "pficon-*" for usage on RHEL/CentOS 7
 @font-face {
     font-family: "pf-symbols";

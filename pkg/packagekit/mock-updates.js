@@ -11,6 +11,8 @@
  *          let pkg_ids = Object.keys(updates);
  */
 
+import moment from "moment";
+
 export function injectMockUpdates(updates) {
     // some security updates
     updates["security-crit;2.3-4"] = {
@@ -109,3 +111,20 @@ export function injectMockUpdates(updates) {
         description: "This is FUBAR",
     };
 }
+
+/*
+ * Mock history.jsx History.mergeHistory() results. To use it,
+ * assign it to "history" right before returning:
+ *
+ * -        return history;
+ * +        return require("./mock-updates.js").fakeHistory;
+ */
+export const fakeHistory = [
+    // empty snapshot
+    { time: moment("2019-02-22T10:30:38.000Z"), lv_name: "update-20190222-1130", lv_size: "2147483648", lv_merging: "" },
+    // snapshot with packages
+    { time: moment("2019-02-22T10:21:26.000Z"), lv_name: "update-20190222-1121", lv_size: "5368709120", lv_merging: "",
+      packages: { "_time":1550831315335, lemon: "1.0-1", chocolate: "1.0-1" }, num_packages: 2 },
+    // plain update without snapshot
+    { time: moment("2019-02-22T10:20:35.485Z"), packages: { "_time": 1550830835485, vanilla: "1.0-1" }, num_packages: 1 }
+];

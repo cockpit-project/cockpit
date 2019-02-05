@@ -41,4 +41,24 @@ Proceed with changes? [N/y] y
   <command>dnf updateinfo info</command> on Fedora or
   <command>sudo apt upgrade</command> on Debian.</para>
 
+<para>If the root partition is on LVM, this page also allows you to
+  <ulink url="https://linux.die.net/man/8/lvcreate">create</ulink>,
+  <ulink url="https://linux.die.net/man/8/lvconvert">restore</ulink>,
+  <ulink url="https://linux.die.net/man/8/lvremove">delete</ulink>, and
+  <ulink url="https://linux.die.net/man/8/lvdisplay">list</ulink>
+  snapshots. These operations can be performed on the command
+  line with the standard LVM tools:</para>
+
+<programlisting>
+$ <command>lvdisplay --all</command>
+
+$ <command>lvcreate --snapshot -n update-package-foo --size 5G fedora/root</command>
+
+# update was successful, delete the snapshot
+$ <command>lvremove fedora/update-package-foo</command>
+
+# update failed, roll back to the snapshot
+$ <command>lvconvert --merge fedora/update-package-foo</command>
+$ <command>reboot</command>
+</programlisting>
 </chapter>

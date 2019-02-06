@@ -119,7 +119,7 @@ export class FilesystemTab extends React.Component {
         }
 
         function mounting_dialog() {
-            var options = old_config ? old_opts : FormatDialog.initial_tab_options(self.props.client, block);
+            var options = old_config ? old_opts : FormatDialog.initial_tab_options(self.props.client, block, true);
             dialog_open({ Title: _("Filesystem Mounting"),
                           Fields: FormatDialog.mounting_dialog_fields(!!old_config, old_dir, options),
                           Action: {

@@ -154,7 +154,7 @@ class BasicTestSuite(SeleniumTest):
 
         self.click(self.wait_link('Terminal', cond=clickable))
         self.wait_frame("terminal")
-        terminal = self.wait_xpath("//*[@class='terminal']")
+        terminal = self.wait_xpath("//*[contains(@class, 'terminal xterm')]")
         prefix = "/tmp/cockpitrndadr/"
         self.send_keys(terminal, "mkdir {0}\n".format(prefix), clear=False)
         self.wait_text("mkdir {0}".format(prefix), user, element="div")

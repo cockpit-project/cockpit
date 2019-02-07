@@ -39,8 +39,15 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         self.login_and_go("/system/terminal")
 
+        blank_state = ''
+        if m.image != "rhel-7-6-distropkg":
+            blank_state = 'Blank line'
+
         def line_sel(i):
-            return '.terminal div:nth-child(%d)' % i
+            if m.image == "rhel-7-6-distropkg":
+                return '.terminal div:nth-child(%d)' % i
+            else:
+                return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_line(i, t):
             b.wait_in_text(line_sel(i), t)
@@ -50,7 +57,9 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # wait until first line is not empty
         n = 1
-        b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(n))
+        sit()
+        function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
+        b.wait_js_func(function_str, line_sel(n))
 
         # clear any messages (for example, instructions about sudo) and wait for prompt
         b.key_press("clear")
@@ -87,6 +96,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         b.click('.btn:contains("Reset")')
 
         # assert that the output from earlier is gone
+        wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
 

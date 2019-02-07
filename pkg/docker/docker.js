@@ -20,7 +20,7 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 
-import Terminal from "term";
+import { Terminal } from "xterm";
 
 export var docker = { };
 
@@ -130,8 +130,10 @@ function DockerTerminal(parent, channel) {
         cols: 80,
         rows: 24,
         screenKeys: true,
-        inlineStyle: false,
-        useFocus: false,
+        cursorBlink: true,
+        fontSize: 12,
+        fontFamily: 'Menlo, Monaco, Consolas, monospace',
+        screenReaderMode: true
     });
 
     var enable_input = true;

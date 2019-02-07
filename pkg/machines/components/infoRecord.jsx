@@ -21,7 +21,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
-const InfoRecord = ({id, descr, value, descrClass, valueClass, tooltip}) => {
+const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
     return (<tr>
         <td className={descrClass || 'top'}>
             <label className='control-label'>

@@ -8,7 +8,7 @@ test.assert(cockpit.spawn !== undefined, "cockpit.spawn is defined");
 
 /* Actually try to do something useful */
 var got_message = false;
-var channel = cockpit.channel({"payload": "stream", "spawn": ["sh", "-c", "echo hello"]});
+var channel = cockpit.channel({ "payload": "stream", "spawn": ["sh", "-c", "echo hello"] });
 channel.onmessage = function(ev) {
     got_message = true;
     test.assert(ev.detail === "hello\n", "channel message correct");

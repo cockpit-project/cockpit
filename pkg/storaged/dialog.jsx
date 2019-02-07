@@ -275,7 +275,7 @@ function is_visible(field, values) {
     return !field.options || field.options.visible == undefined || field.options.visible(values);
 }
 
-const Body = ({body, fields, values, errors, onChange}) => {
+const Body = ({ body, fields, values, errors, onChange }) => {
     function make_row(field, index) {
         function change(val) {
             values[field.tag] = val;

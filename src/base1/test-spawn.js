@@ -227,7 +227,7 @@ QUnit.test("with problem", function (assert) {
 
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
-        peer.close(channel, {"problem": "not-found"});
+        peer.close(channel, { "problem": "not-found" });
     });
 
     cockpit.spawn("/unused")
@@ -249,7 +249,7 @@ QUnit.test("with status", function (assert) {
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
         peer.send(channel, "the data");
-        peer.close(channel, {"exit-status": 5});
+        peer.close(channel, { "exit-status": 5 });
     });
 
     cockpit.spawn("/unused")
@@ -272,7 +272,7 @@ QUnit.test("with signal", function (assert) {
     var peer = new MockPeer();
     $(peer).on("opened", function(event, channel) {
         peer.send(channel, "signal data here");
-        peer.close(channel, {"exit-signal": "TERM"});
+        peer.close(channel, { "exit-signal": "TERM" });
     });
 
     cockpit.spawn("/unused")

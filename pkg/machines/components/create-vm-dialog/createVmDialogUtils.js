@@ -118,10 +118,10 @@ export function prepareVendors(osInfoList) {
             // vendor sort
                 const vendorMap = familyMap[family];
                 const vendors = Object.keys(vendorMap).sort(window.localeCompare);
-                return {family, vendors};
+                return { family, vendors };
             });
 
-    return {familyList, familyMap, vendorMap};
+    return { familyList, familyMap, vendorMap };
 }
 
 function filterReleaseEolDates(os) {

@@ -46,7 +46,7 @@ function setDefaultLibvirtConnection () {
     // qemu+tls://${hostName}/system
     if (CONFIG.hostName && MACHINES_CONFIG.Virsh && MACHINES_CONFIG.Virsh.connections &&
         Object.getOwnPropertyNames(MACHINES_CONFIG.Virsh.connections).indexOf('remote') === -1) {
-        MACHINES_CONFIG.Virsh.connections = {'remote': { params: ['-c', `qemu+tls://${CONFIG.hostName}/system`] }};
+        MACHINES_CONFIG.Virsh.connections = { 'remote': { params: ['-c', `qemu+tls://${CONFIG.hostName}/system`] } };
     }
     console.info('Libvirt connections to be used: ', JSON.stringify(MACHINES_CONFIG.Virsh));
 }
@@ -104,7 +104,7 @@ function storeSsoUri (location) {
 
 function doReadHostname ({ dispatch }) {
     let hostname = '';
-    return cockpit.spawn(['hostname', '-f'], {'err': 'message'})
+    return cockpit.spawn(['hostname', '-f'], { 'err': 'message' })
             .stream(data => {
                 hostname += data;
             })
@@ -122,7 +122,7 @@ function doReadHostname ({ dispatch }) {
 
 function doReadIpAddresses ({ dispatch }) {
     let output = '';
-    return cockpit.spawn(['hostname', '--all-ip-addresses'], {'err': 'message'})
+    return cockpit.spawn(['hostname', '--all-ip-addresses'], { 'err': 'message' })
             .stream(data => {
                 output += data;
             })

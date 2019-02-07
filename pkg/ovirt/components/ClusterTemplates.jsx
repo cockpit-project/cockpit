@@ -99,7 +99,7 @@ const TemplateActions = ({ template, cluster, dispatch }) => {
 const Template = ({ template, templates, cluster, dispatch }) => {
     return (<ListingRow
         columns={[
-            {name: template.name, 'header': true},
+            { name: template.name, 'header': true },
             template.version.name,
             template.version.baseTemplateId ? (templates[template.version.baseTemplateId].name) : null,
             <VmDescription descr={template.description} />,

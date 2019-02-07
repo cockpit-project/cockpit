@@ -205,7 +205,7 @@ function add_dialog(client, block) {
                                                  choices: [
                                                      { value: "luks-passphrase", title: _("Passphrase") },
                                                      { value: "tang", title: _("Tang keyserver") }
-                                                 ]}),
+                                                 ] }),
                                 Skip("medskip"),
                                 PassInput("new_passphrase", _("New passphrase"),
                                           { visible: vals => vals.type == "luks-passphrase",

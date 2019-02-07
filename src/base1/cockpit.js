@@ -482,7 +482,7 @@ function Transport() {
     if (!ws) {
         ws = { close: function() { } };
         window.setTimeout(function() {
-            self.close({"problem": "no-cockpit"});
+            self.close({ "problem": "no-cockpit" });
         }, 50);
     }
 
@@ -587,7 +587,7 @@ function Transport() {
 
         if (options.version !== 1) {
             console.error("received unsupported version in init message: " + options.version);
-            self.close({"problem": "not-supported"});
+            self.close({ "problem": "not-supported" });
             return;
         }
 
@@ -3206,7 +3206,7 @@ function factory() {
                 console.warn("received invalid dbus json message:", ex);
             }
             if (msg === undefined) {
-                channel.close({"problem": "protocol-error"});
+                channel.close({ "problem": "protocol-error" });
                 return;
             }
             var dfd, options;

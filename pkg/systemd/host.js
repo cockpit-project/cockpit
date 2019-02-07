@@ -532,7 +532,7 @@ PageServer.prototype = {
                 });
 
         self.ostree_client = cockpit.dbus('org.projectatomic.rpmostree1',
-                                          {"superuser" : true});
+                                          { "superuser" : true });
         $(self.ostree_client).on("close", function() {
             self.ostree_client = null;
         });
@@ -542,7 +542,7 @@ PageServer.prototype = {
         $(self.sysroot).on("changed", $.proxy(this, "sysroot_changed"));
 
         self.client = cockpit.dbus('org.freedesktop.hostname1',
-                                   {"superuser" : "try"});
+                                   { "superuser" : "try" });
         self.hostname_proxy = self.client.proxy('org.freedesktop.hostname1',
                                                 '/org/freedesktop/hostname1');
         self.kernel_hostname = null;
@@ -1500,20 +1500,20 @@ PageCpuStatus.prototype = {
         var n_cpus = 1;
 
         var options = {
-            series: {shadowSize: 0,
-                     lines: {lineWidth: 0, fill: 1}
+            series: { shadowSize: 0,
+                      lines: { lineWidth: 0, fill: 1 }
             },
-            yaxis: {min: 0,
-                    max: n_cpus * 1000,
-                    show: true,
-                    ticks: 5,
-                    tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" }},
-            xaxis: {show: true,
-                    ticks: [[0.0 * 60, "5 min"],
-                        [1.0 * 60, "4 min"],
-                        [2.0 * 60, "3 min"],
-                        [3.0 * 60, "2 min"],
-                        [4.0 * 60, "1 min"]]},
+            yaxis: { min: 0,
+                     max: n_cpus * 1000,
+                     show: true,
+                     ticks: 5,
+                     tickFormatter: function(v) { return (v / 10 / n_cpus) + "%" } },
+            xaxis: { show: true,
+                     ticks: [[0.0 * 60, "5 min"],
+                         [1.0 * 60, "4 min"],
+                         [2.0 * 60, "3 min"],
+                         [3.0 * 60, "2 min"],
+                         [4.0 * 60, "1 min"]] },
             x_rh_stack_graphs: true
         };
 
@@ -1596,7 +1596,7 @@ PageMemoryStatus.prototype = {
             var options = {
                 series: {
                     shadowSize: 0, // drawing is faster without shadows
-                    lines: {lineWidth: 0.0, fill: 1}
+                    lines: { lineWidth: 0.0, fill: 1 }
                 },
                 yaxis: {
                     min: 0,
@@ -1633,7 +1633,7 @@ PageMemoryStatus.prototype = {
                 };
                 $.extend(options, { grid: { aboveData: false, markings: [
                     { yaxis: { from: info.memory, to: info.memory + info.swap * 0.25 }, color: "#ededed" }
-                ]}});
+                ] } });
                 metrics.push({ name: "memory.swap-used" });
                 series.push({ color: "#e41a1c", label: _("Swap Used"), offset: info.memory, factor: 0.25 });
             } else {

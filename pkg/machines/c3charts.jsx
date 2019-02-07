@@ -20,7 +20,7 @@ import $ from 'jquery';
 import React from "react";
 
 import c3 from "c3/c3";
-import {logDebug} from "./helpers.js";
+import { logDebug } from "./helpers.js";
 
 var idCounter = 0; // To keep <div id=""> unique
 
@@ -33,7 +33,7 @@ class DonutChart extends React.Component {
     prepareProps(props) {
         const state = {
             data: props['data'] ? props['data'] : {},
-            size: props['size'] ? props['size'] : {width: 150, height: 100},
+            size: props['size'] ? props['size'] : { width: 150, height: 100 },
             width: props['width'] ? props['width'] : 10,
 
             tooltipText: props['tooltipText'],
@@ -76,7 +76,7 @@ class DonutChart extends React.Component {
         options.data = props.data;
         options.size = props.size;
         options.donut.width = props.width;
-        options.tooltip = props.tooltipText ? {contents: $().pfGetUtilizationDonutTooltipContentsFn(props.tooltipText)} : options.tooltip;
+        options.tooltip = props.tooltipText ? { contents: $().pfGetUtilizationDonutTooltipContentsFn(props.tooltipText) } : options.tooltip;
 
         try {
             this.donutChart = c3.generate(options);

@@ -316,7 +316,7 @@ util.render_container = function render_container(client, $panel,
     $(row[6]).children("button.btn-delete")
             .tooltip('destroy')
             .attr("title", title)
-            .tooltip({html: true});
+            .tooltip({ html: true });
 
     $(row[7]).children("div.spinner")
             .toggle(waiting);

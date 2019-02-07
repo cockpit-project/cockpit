@@ -359,7 +359,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     if (job_object)
         last_column = (
             <span className="spinner spinner-sm spinner-inline"
-                  style={{visibility: client.path_jobs[job_object] ? "visible" : "hidden"}} />);
+                  style={{ visibility: client.path_jobs[job_object] ? "visible" : "hidden" }} />);
     if (tabs.row_action) {
         if (last_column) {
             last_column = <span>{last_column}{tabs.row_action}</span>;
@@ -497,7 +497,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                     { choices: [
                                         { value: "no", title: _("Don't overwrite existing data") },
                                         { value: "zero", title: _("Overwrite existing data with zeros") }
-                                    ]}),
+                                    ] }),
                           SelectOne("type", _("Partitioning"),
                                     { value: "gpt",
                                       choices: [
@@ -506,7 +506,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                             title: _("Compatible with modern system and hard disks > 2TB (GPT)")
                                           },
                                           { value: "empty", title: _("No partitioning") }
-                                      ]})
+                                      ] })
                       ],
                       Action: {
                           Title: _("Format"),
@@ -544,7 +544,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
     );
 };
 
-export const Block = ({client, block, allow_partitions}) => {
+export const Block = ({ client, block, allow_partitions }) => {
     return (
         <BlockContent client={client}
                       block={block}
@@ -634,7 +634,7 @@ export class VGroup extends React.Component {
                                               /* Not implemented
                                                  { value: "cache", Title: _("Cache") }
                                                */
-                                          ]}),
+                                          ] }),
                               /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),

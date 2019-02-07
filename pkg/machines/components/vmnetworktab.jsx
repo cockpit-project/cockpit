@@ -91,7 +91,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
                     {inactiveNIC && inactiveNIC.type !== network.type && warningInactive(`${id}-network-${networkId}-type-tooltip`)}
                 </div>
             );
-        }},
+        } },
         { name: _("Model type"), value: (network, networkId) => {
             let inactiveNIC = nicLookupByMAC(vm.inactiveXML.interfaces, network.mac);
             return (
@@ -100,7 +100,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
                     {inactiveNIC && inactiveNIC.model !== network.model && warningInactive(`${id}-network-${networkId}-model-tooltip`)}
                 </div>
             );
-        }},
+        } },
         { name: _("MAC Address"), value: 'mac' },
         { name: _("Source"), value: (network, networkId) => {
             const setSourceClass = (source) => checkDeviceAviability(source) ? "machines-network-source-link" : undefined;
@@ -125,10 +125,10 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
             } else {
                 return null;
             }
-        }},
+        } },
         { name: _("State"), value: (network, networkId) => {
             return <span className='machines-network-state' id={`${id}-network-${networkId}-state`}>{rephraseUI('networkState', network.state)}</span>;
-        }},
+        } },
         { name: "", value: (network, networkId) => {
             const isUp = network.state === 'up';
             const editNICAction = (providerName) => {
@@ -144,7 +144,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
                     {editNICAction(config.provider.name)}
                 </div>
             );
-        }},
+        } },
     ];
 
     let networkId = 1;

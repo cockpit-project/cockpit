@@ -54,11 +54,11 @@ function suite() {
                 "dockerImageRepository": "busybox",
                 "tags": [
                     { "name": "2.5", "importPolicy": { "insecure": true },
-                      "from": { "kind": "DockerImage", "name": "docker.io/busybox:2.5" }},
+                      "from": { "kind": "DockerImage", "name": "docker.io/busybox:2.5" } },
                     { "annotations": null, "from": { "kind": "DockerImage", "name": "docker.io/busybox:latest" },
                       "generation": 2, "importPolicy": { "insecure": true }, "name": "latest" },
                     { "name": "second", "importPolicy": { "insecure": true },
-                      "from": { "kind": "DockerImage", "name": "docker.io/busybox:second" }}
+                      "from": { "kind": "DockerImage", "name": "docker.io/busybox:second" } }
                 ]
             }, "build spec correctly");
             done();

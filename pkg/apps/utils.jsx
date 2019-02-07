@@ -46,7 +46,7 @@ export function icon_url(path_or_url) {
     };
 
     if (path_or_url.endsWith(".svg")) {
-        queryobj.external = {"content-type": "image/svg+xml"};
+        queryobj.external = { "content-type": "image/svg+xml" };
     }
 
     var query = window.btoa(JSON.stringify(queryobj));

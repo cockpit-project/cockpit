@@ -57,11 +57,11 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [
-        {name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch }},
-        {name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive'},
-        {name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch }, presence: 'onlyActive'},
-        {name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, config, hostDevices, networks }},
-        {name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch }},
+        { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch } },
+        { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
+        { name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch }, presence: 'onlyActive' },
+        { name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, config, hostDevices, networks } },
+        { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch } },
     ];
 
     if (config.provider.vmTabRenderers) { // External Provider might extend the subtab list
@@ -90,7 +90,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     return (<ListingRow
         rowId={`${vmId(vm.name)}`}
         columns={[
-            {name, 'header': true},
+            { name, 'header': true },
             rephraseUI('connections', vm.connectionName),
             stateIcon,
         ]}

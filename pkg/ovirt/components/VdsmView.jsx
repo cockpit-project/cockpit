@@ -77,15 +77,15 @@ class VdsmConf extends React.Component { // TODO: needs design
                 });
     }
 
-    onSave () { this.setState({saveConfirmation: true}) } // render confirmation buttons
-    onSaveConfirmed () { this.doSave(); this.setState({saveConfirmation: false}) }
-    onSaveCanceled () { this.setState({saveConfirmation: false}) }
+    onSave () { this.setState({ saveConfirmation: true }) } // render confirmation buttons
+    onSaveConfirmed () { this.doSave(); this.setState({ saveConfirmation: false }) }
+    onSaveCanceled () { this.setState({ saveConfirmation: false }) }
 
-    onReload () { this.setState({reloadConfirmation: true}) } // render confirmation buttons
-    onReloadConfirmed () { this.doReload(); this.setState({reloadConfirmation: false}) }
-    onReloadCanceled () { this.setState({reloadConfirmation: false}) }
+    onReload () { this.setState({ reloadConfirmation: true }) } // render confirmation buttons
+    onReloadConfirmed () { this.doReload(); this.setState({ reloadConfirmation: false }) }
+    onReloadCanceled () { this.setState({ reloadConfirmation: false }) }
 
-    onEditorChange (event) { this.setState({fileContent: event.target.value, changed: true}) }
+    onEditorChange (event) { this.setState({ fileContent: event.target.value, changed: true }) }
 
     render () {
         let reloadButton = null;

@@ -73,7 +73,7 @@ var resource_monitors = [
           };
       },
       options: { yaxis: { tickColor: "#e1e6ed",
-                          tickFormatter: function(v) { return v + "%" }} },
+                          tickFormatter: function(v) { return v + "%" } } },
       ymax_min: 100
     },
     { selector: "#dashboard-plot-1",

@@ -33,7 +33,7 @@ const ConsoleClientResources = ({ vm, providerState }) => {
                                `<a href="${CONFIG.CONSOLE_CLIENT_RESOURCES_URL}" target="_blank">Console Client Resources</a>`);
 
     return (
-        <div dangerouslySetInnerHTML={{__html: msg}} />
+        <div dangerouslySetInnerHTML={{ __html: msg }} />
     );
 };
 

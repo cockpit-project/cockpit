@@ -19,15 +19,15 @@ function internal_test(assert, options) {
 }
 
 QUnit.test("internal dbus", function (assert) {
-    internal_test(assert, {"bus": "internal"});
+    internal_test(assert, { "bus": "internal" });
 });
 
 QUnit.test("internal dbus bus none", function (assert) {
-    internal_test(assert, {"bus": "none"});
+    internal_test(assert, { "bus": "none" });
 });
 
 QUnit.test("internal dbus bus none with address", function (assert) {
-    internal_test(assert, {"bus": "none", "address": "internal"});
+    internal_test(assert, { "bus": "none", "address": "internal" });
 });
 
 QUnit.test("echo", function (assert) {
@@ -139,27 +139,27 @@ QUnit.test("not supported types", function (assert) {
             done();
     }
 
-    var flist = cockpit.channel({"payload":"fslist1", "path":"/foo"});
+    var flist = cockpit.channel({ "payload":"fslist1", "path":"/foo" });
     $(flist).on("close", failed);
 
-    var fwatch = cockpit.channel({"payload":"fswatch1", "path":"/foo"});
+    var fwatch = cockpit.channel({ "payload":"fswatch1", "path":"/foo" });
     $(fwatch).on("close", failed);
 
-    var file = cockpit.channel({"payload":"fsread1", "path":"/foo"});
+    var file = cockpit.channel({ "payload":"fsread1", "path":"/foo" });
     $(file).on("close", failed);
 
-    var freplace = cockpit.channel({"payload":"fsreplace1", "path":"/foo"});
+    var freplace = cockpit.channel({ "payload":"fsreplace1", "path":"/foo" });
     $(freplace).on("close", failed);
 
-    var spawn = cockpit.channel({"payload":"stream", "spawn":["sh", "-c", "echo"]});
+    var spawn = cockpit.channel({ "payload":"stream", "spawn":["sh", "-c", "echo"] });
     $(spawn).on("close", failed);
 
     var dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.Test", { "bus": "session" });
     $(dbus).on("close", failed);
 
-    var metrics = cockpit.channel({payload: "metrics1",
-                                   interval: 1000,
-                                   source: "internal"});
+    var metrics = cockpit.channel({ payload: "metrics1",
+                                    interval: 1000,
+                                    source: "internal" });
     $(metrics).on("close", failed);
 
     window.setTimeout(function () {

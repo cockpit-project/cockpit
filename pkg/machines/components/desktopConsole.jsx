@@ -29,7 +29,7 @@ const MoreInformationInstallVariant = ({ os, command, innerHtml }) => {
         <li className='machines-desktop-install-instructs-item'>
             <div className='machines-desktop-install-instructs-row'>
                 <b>{os}:</b>&nbsp;
-                {innerHtml && <div dangerouslySetInnerHTML={{__html: innerHtml}} />}
+                {innerHtml && <div dangerouslySetInnerHTML={{ __html: innerHtml }} />}
                 {!innerHtml && <div className='machines-desktop-shell-command'>{command}</div>}
             </div>
         </li>
@@ -49,8 +49,8 @@ const MoreInformationContent = () => {
 
     return (
         <div>
-            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{__html: msg1}} />
-            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{__html: msg2}} />
+            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{ __html: msg1 }} />
+            <p className='machines-desktop-more-info-text' dangerouslySetInnerHTML={{ __html: msg2 }} />
 
             <ul className='machines-desktop-install-instructs'>
                 <MoreInformationInstallVariant os='RHEL, CentOS' command='sudo yum install virt-viewer' />

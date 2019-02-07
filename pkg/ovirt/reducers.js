@@ -135,7 +135,7 @@ function vmsReducer (state, action) {
         }
 
         const updatedVm = Object.assign({}, state[vmId],
-                                        {lastMessage: action.payload.message, lastMessageDetail: action.payload.detail});
+                                        { lastMessage: action.payload.message, lastMessageDetail: action.payload.detail });
         const updatedPartOfState = {};
         updatedPartOfState[vmId] = updatedVm;
         const newState = Object.assign({}, state, updatedPartOfState);
@@ -190,7 +190,7 @@ function routerReducer (state, action) {
 
     switch (action.type) {
     case 'OVIRT_GOTO_SUBPAGE': {
-        return Object.assign({}, state, {route: action.payload.target});
+        return Object.assign({}, state, { route: action.payload.target });
     }
     default:
         return state;

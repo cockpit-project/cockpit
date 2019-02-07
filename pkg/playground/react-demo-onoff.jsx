@@ -34,11 +34,11 @@ class OnOffDemo extends React.Component {
     }
 
     onChangeA(val) {
-        this.setState({onOffA: val});
+        this.setState({ onOffA: val });
     }
 
     onChangeB(val) {
-        this.setState({onOffB: val});
+        this.setState({ onOffB: val });
     }
 
     render() {

@@ -84,7 +84,7 @@ export class StoragePool extends React.Component {
                 </span>
             </React.Fragment>);
         const cols = [
-            {name, 'header': true},
+            { name, 'header': true },
             size,
             sizeLabel,
             rephraseUI('connections', storagePool.connectionName),

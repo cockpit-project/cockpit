@@ -71,7 +71,7 @@ export function mounting_dialog_fields(is_custom, mount_dir, mount_options, visi
                     choices: [
                         { value: "default", title: _("Default"), selected: !is_custom },
                         { value: "custom", title: _("Custom"), selected: is_custom }
-                    ]}),
+                    ] }),
         TextInput("mount_point", _("Mount Point"),
                   { value: mount_dir,
                     visible: function (vals) {
@@ -286,7 +286,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                 { choices: [
                                     { value: "no", title: _("Don't overwrite existing data") },
                                     { value: "zero", title: _("Overwrite existing data with zeros") }
-                                ]}),
+                                ] }),
                       SelectOne("type", _("Type"),
                                 { choices: filesystem_options
                                 }),

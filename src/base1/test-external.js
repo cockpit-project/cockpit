@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape, WebSocket:true, XMLHttpRequest */
+/* global cockpit, QUnit, WebSocket:true, XMLHttpRequest */
 
 QUnit.test("external get", function (assert) {
     let done = assert.async();

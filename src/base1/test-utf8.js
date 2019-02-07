@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit */
 
 QUnit.test("utf8 basic", function (assert) {
     var str = "Base 64 \u2014 Mozilla Developer Network";

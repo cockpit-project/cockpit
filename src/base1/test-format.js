@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit */
 
 QUnit.test("format", function (assert) {
     assert.equal(cockpit.format("My $adj message with ${amount} of things", { adj: "special", amount: "lots" }),

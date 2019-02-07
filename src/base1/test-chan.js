@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, WebSocket:true */
+/* global $, cockpit, QUnit */
 
 /* Set this to a regexp to ignore that warning once */
 function console_ignore_log(exp) {
@@ -163,7 +163,7 @@ function MockWebSocket(url, protocol) {
     }, 5);
 }
 
-WebSocket = MockWebSocket;
+WebSocket = MockWebSocket; // eslint-disable-line no-global-assign
 
 function check_transport (assert, base_url, application, socket, url_root) {
     var old_url = window.mock.url;

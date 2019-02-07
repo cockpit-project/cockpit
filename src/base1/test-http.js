@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, ArrayBuffer, Uint8Array */
+/* global cockpit, QUnit */
 
 /* Set this to a regexp to ignore that warning once */
 /*

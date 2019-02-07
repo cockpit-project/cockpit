@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape, Uint8Array */
+/* global cockpit, QUnit, Uint8Array */
 
 var dir;
 

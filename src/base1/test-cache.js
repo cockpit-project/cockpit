@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit */
 
 QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.cache, "function", "cockpit.cache is a function");

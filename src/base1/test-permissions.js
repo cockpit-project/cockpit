@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit */
 
 var root_user = {
     name: "weird-root",

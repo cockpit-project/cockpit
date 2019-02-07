@@ -1,4 +1,4 @@
-/* global cockpit, QUnit, unescape, escape */
+/* global cockpit, QUnit */
 
 function test_storage (assert, storage, cockpitStorage) {
     assert.expect(29);

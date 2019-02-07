@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape, WebSocket */
+/* global $, cockpit, QUnit, WebSocket */
 
 /* Tell cockpit to use an alternate url to connect to test-server */
 window.mock.url = cockpit.transport.uri();

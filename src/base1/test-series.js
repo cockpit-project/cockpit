@@ -1,4 +1,4 @@
-/* global $, cockpit, QUnit, unescape, escape */
+/* global $, cockpit, QUnit */
 
 QUnit.test("public api", function (assert) {
     assert.equal(typeof cockpit.grid, "function", "cockpit.grid is a function");

@@ -152,7 +152,7 @@ function configureOvirtUrl(oVirtFqdn, oVirtPort) {
 function doRegisterOvirt(oVirtFqdn, oVirtPort, dfd) {
     console.info('configureOvirtUrl() - oVirt engine connection can be established', oVirtFqdn, oVirtPort);
     // CONNECTION URI is not passed as an argument here, so oVirt default will be farther used - see configFuncs.js:readConfiguration()
-    cockpit.spawn(['bash', INSTALL_SH, oVirtFqdn, oVirtPort], {"superuser": "try"})
+    cockpit.spawn(['bash', INSTALL_SH, oVirtFqdn, oVirtPort], { "superuser": "try" })
             .done(function () {
                 console.info('oVirt installation script was successful');
                 window.location.reload(); // to force configuration reload

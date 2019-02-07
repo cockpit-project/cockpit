@@ -157,7 +157,7 @@ function AuthorizedKeys (user_name, home_dir) {
             file.close();
     };
 
-    file = cockpit.file(filename, {'superuser': 'try'});
+    file = cockpit.file(filename, { 'superuser': 'try' });
     watch = file.watch(parse_keys);
 }
 

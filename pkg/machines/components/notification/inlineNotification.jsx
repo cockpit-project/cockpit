@@ -43,7 +43,7 @@ class InlineNotification extends React.Component {
     }
 
     render () {
-        const {text, detail, textId} = this.props;
+        const { text, detail, textId } = this.props;
 
         let detailButton = null;
         if (detail) {

@@ -184,8 +184,8 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                   "TestNonPrimitiveTypes", [
-                      {one: "red", two: "blue"},
-                      {first: [42, 42], second: [43, 43]},
+                      { one: "red", two: "blue" },
+                      { first: [42, 42], second: [43, 43] },
                       [42, 'foo', 'bar'],
                       ["one", "two"],
                       ["/one", "/one/two"],
@@ -429,10 +429,10 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         var dbus = cockpit.dbus(bus_name, channel_options);
         dbus.call("/bork", "borkety.Bork", "Echo",
-                  [ {one: "red", two: "blue"}, 55, 66, 32 ],
+                  [ { one: "red", two: "blue" }, 55, 66, 32 ],
                   { type: "a{ss}uit" })
                 .done(function(reply, options) {
-                    assert.deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "round trip");
+                    assert.deepEqual(reply, [ { one: "red", two: "blue" }, 55, 66, 32 ], "round trip");
                     assert.equal(options.type, "a{ss}uit", "got back type");
                 })
                 .always(function() {
@@ -463,9 +463,9 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.meta(meta);
         dbus.call("/bork", "borkety.Bork", "Echo",
-                  [ {one: "red", two: "blue"}, 55, 66, 32 ])
+                  [ { one: "red", two: "blue" }, 55, 66, 32 ])
                 .then(function(reply) {
-                    assert.deepEqual(reply, [ {one: "red", two: "blue"}, 55, 66, 32 ], "returned round trip");
+                    assert.deepEqual(reply, [ { one: "red", two: "blue" }, 55, 66, 32 ], "returned round trip");
                 }, function(ex) {
                     console.log(ex);
                     assert.ok(false, "shouldn't fail");
@@ -737,7 +737,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
         dbus.watch("/otree/frobber");
         $(dbus).on("notify", function(event, data) {
             assert.equal(typeof cache["/otree/frobber"], "object", "has path");
-            assert.deepEqual(cache, {"/otree/frobber": {
+            assert.deepEqual(cache, { "/otree/frobber": {
                 "com.redhat.Cockpit.DBusTests.Frobber": {
                     "FinallyNormalName": "There aint no place like home",
                     "ReadonlyProperty": "blah",
@@ -797,7 +797,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
 
         dbus.watch({ "path_namespace": "/otree" })
                 .done(function() {
-                    assert.deepEqual(cache, {"/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
+                    assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
                           { "FinallyNormalName": "There aint no place like home",
                             "ReadonlyProperty": "blah",
                             "aay": [], "ag": [], "ao": [], "as": [],
@@ -807,7 +807,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                             "y": 42 } } }, "correct data");
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "AddAlpha", [])
                             .done(function () {
-                                assert.deepEqual(cache, {"/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
+                                assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
                                   { "FinallyNormalName": "There aint no place like home",
                                     "ReadonlyProperty": "blah",
                                     "aay": [], "ag": [], "ao": [], "as": [],
@@ -815,11 +815,11 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                     "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                                     "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                                     "y": 42 },
-                                                                             "com.redhat.Cockpit.DBusTests.Alpha": {}
+                                                                              "com.redhat.Cockpit.DBusTests.Alpha": {}
                                 } }, "correct data");
                                 dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RemoveAlpha", [])
                                         .done(function () {
-                                            assert.deepEqual(cache, {"/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
+                                            assert.deepEqual(cache, { "/otree/frobber": { "com.redhat.Cockpit.DBusTests.Frobber":
                                       { "FinallyNormalName": "There aint no place like home",
                                         "ReadonlyProperty": "blah",
                                         "aay": [], "ag": [], "ao": [], "as": [],
@@ -827,7 +827,7 @@ function common_dbus_tests(channel_options, bus_name) { // eslint-disable-line n
                                         "b": false, "d": 43, "g": "", "i": 0, "n": 0,
                                         "o": "/", "q": 0, "s": "", "t": 0, "u": 0, "x": 0,
                                         "y": 42 },
-                                                                                         "com.redhat.Cockpit.DBusTests.Alpha": null
+                                                                                          "com.redhat.Cockpit.DBusTests.Alpha": null
                                             } }, "correct data");
                                             $(dbus).off();
                                             done();

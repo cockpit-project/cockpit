@@ -112,7 +112,7 @@
                         } else if (item.kind === "DeploymentConfig") {
                             rels = select().kind("ReplicationController")
                                     .namespace(item.metadata.namespace)
-                                    .label({"openshift.io/deployment-config.name" : item.metadata.name});
+                                    .label({ "openshift.io/deployment-config.name" : item.metadata.name });
                             /* For Routes just build it out */
                         } else if (item.kind === "Route" && item.spec.to) {
                             link = link_for_item(item.spec.to.kind, item.metadata.namespace,

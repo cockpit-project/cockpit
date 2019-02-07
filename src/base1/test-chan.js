@@ -141,7 +141,7 @@ function MockWebSocket(url, protocol) {
     window.setTimeout(function() {
         ws.readyState = 1;
         $(mock).triggerHandler("open");
-        ws.onopen({"name": "open"});
+        ws.onopen({ "name": "open" });
         var init = {
             "command": "init",
             "version": 1,
@@ -159,7 +159,7 @@ function MockWebSocket(url, protocol) {
         if (force_default_host)
             init["host"] = force_default_host;
         force_default_host = null;
-        ws.onmessage({"data": "\n" + JSON.stringify(init)});
+        ws.onmessage({ "data": "\n" + JSON.stringify(init) });
     }, 5);
 }
 
@@ -404,7 +404,7 @@ QUnit.test("close problem", function (assert) {
         if (cmd.command == "init") {
             return;
         } else if (cmd.command == "open") {
-            channel.close({"problem": "problem"});
+            channel.close({ "problem": "problem" });
             assert.strictEqual(channel.valid, false, "no longer valid");
             return;
         }

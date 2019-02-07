@@ -364,7 +364,7 @@ class AddDiskModalBody extends React.Component {
                     .fail(exc => this.dialogErrorSet(_("Disk failed to be created"), exc.message))
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                         this.props.close();
-                        return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
+                        return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
                     });
         }
 
@@ -381,7 +381,7 @@ class AddDiskModalBody extends React.Component {
                 .fail(exc => this.dialogErrorSet(_("Disk failed to be attached"), exc.message))
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     this.props.close();
-                    return dispatch(getVm({connectionName: vm.connectionName, name: vm.name, id: vm.id}));
+                    return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
                 });
     }
 

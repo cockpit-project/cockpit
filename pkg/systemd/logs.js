@@ -30,24 +30,24 @@ $(function() {
     var problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
 
     // A map of ABRT's problems items and it's callback for rendering
-    var problem_render_callbacks = {'core_backtrace': render_backtrace,
-                                    'os_info': render_table_eq,
-                                    'environ': render_table_eq,
-                                    'limits': render_limits,
-                                    'cgroup': render_cgroup,
-                                    'namespaces': render_table_co,
-                                    'maps': render_maps,
-                                    'dso_list': render_dso_list,
-                                    'mountinfo': render_mountinfo,
-                                    'proc_pid_status': render_table_co,
-                                    'open_fds': render_open_fds,
-                                    'var_log_messages': render_multiline,
-                                    'not-reportable': render_multiline,
-                                    'exploitable': render_multiline,
-                                    'suspend_stats': render_table_co,
-                                    'dmesg': render_multiline,
-                                    'container_rootfs': render_multiline,
-                                    'docker_inspect': render_multiline
+    var problem_render_callbacks = { 'core_backtrace': render_backtrace,
+                                     'os_info': render_table_eq,
+                                     'environ': render_table_eq,
+                                     'limits': render_limits,
+                                     'cgroup': render_cgroup,
+                                     'namespaces': render_table_co,
+                                     'maps': render_maps,
+                                     'dso_list': render_dso_list,
+                                     'mountinfo': render_mountinfo,
+                                     'proc_pid_status': render_table_co,
+                                     'open_fds': render_open_fds,
+                                     'var_log_messages': render_multiline,
+                                     'not-reportable': render_multiline,
+                                     'exploitable': render_multiline,
+                                     'suspend_stats': render_table_co,
+                                     'dmesg': render_multiline,
+                                     'container_rootfs': render_multiline,
+                                     'docker_inspect': render_multiline
     };
 
     var problem_info_1 = ['reason', 'cmdline', 'executable', 'package', 'component',
@@ -83,9 +83,9 @@ $(function() {
     function update_problems(problem_paths) {
         for (var i in problem_paths) {
             var p = problems[problem_paths[i]];
-            displayable_problems[p.ID] = {'count': p.Count, 'problem_path': p.path};
-            displayable_problems[p.UUID] = {'count': p.Count, 'problem_path': p.path};
-            displayable_problems[p.Duphash] = {'count': p.Count, 'problem_path': p.path};
+            displayable_problems[p.ID] = { 'count': p.Count, 'problem_path': p.path };
+            displayable_problems[p.UUID] = { 'count': p.Count, 'problem_path': p.path };
+            displayable_problems[p.Duphash] = { 'count': p.Count, 'problem_path': p.path };
         }
     }
 
@@ -806,7 +806,7 @@ $(function() {
     $('#journal-box').on('click', '.cockpit-logline', function() {
         var cursor = $(this).attr('data-cursor');
         if (cursor)
-            cockpit.location.go([ cursor ], {'parent_options': JSON.stringify(cockpit.location.options)});
+            cockpit.location.go([ cursor ], { 'parent_options': JSON.stringify(cockpit.location.options) });
     });
 
     $('#journal-prio-menu a').on('click', function() {

@@ -107,6 +107,6 @@ export default function ({ vm, dispatch }) {
                     return dispatch(setVCPUSettings(vm, null, null, state.sockets, state.threads, state.cores));
                 }
             }
-        ]}
+        ] }
     );
 }

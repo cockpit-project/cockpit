@@ -721,15 +721,15 @@ function internal_test(assert, options) {
 }
 
 QUnit.test("internal dbus", function (assert) {
-    internal_test(assert, {"bus": "internal"});
+    internal_test(assert, { "bus": "internal" });
 });
 
 QUnit.test("internal dbus bus none", function (assert) {
-    internal_test(assert, {"bus": "none"});
+    internal_test(assert, { "bus": "none" });
 });
 
 QUnit.test("internal dbus bus none with address", function (assert) {
-    internal_test(assert, {"bus": "none", "address": "internal"});
+    internal_test(assert, { "bus": "none", "address": "internal" });
 });
 
 QUnit.test("separate dbus connections for channel groups", function (assert) {

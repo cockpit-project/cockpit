@@ -48,7 +48,7 @@ class MigrateTo extends React.Component {
     render () {
         const { vm, hosts, dispatch } = this.props;
 
-        const onHostChange = e => { this.setState({selectedHostId: e.target.value}) };
+        const onHostChange = e => { this.setState({ selectedHostId: e.target.value }) };
         const onAction = () => { this.setState({ confirmAction: true }) };
         const onActionCanceled = () => { this.setState({ confirmAction: false }) };
         const onActionConfirmed = () => {
@@ -81,7 +81,7 @@ class MigrateTo extends React.Component {
                             {_("Automatically selected host")}
                         </option>
                         {Object.getOwnPropertyNames(hosts)
-                                .filter(hostId => canVmMigrateToHost({host: hosts[hostId]}))
+                                .filter(hostId => canVmMigrateToHost({ host: hosts[hostId] }))
                                 .map(hostId => (
                                     <option value={hostId} key={hostId}
                                         disabled={isSameHostAddress(hosts[hostId].address)}>

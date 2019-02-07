@@ -53,7 +53,7 @@ export class MDRaidsPanel extends React.Component {
                                                 title: _("RAID 6 (Double Distributed Parity)") },
                                               { value: "raid10",
                                                 title: _("RAID 10 (Stripe of Mirrors)") }
-                                          ]}),
+                                          ] }),
                               SelectOne("chunk", _("Chunk Size"),
                                         { value: "512",
                                           visible: function (vals) {
@@ -69,7 +69,7 @@ export class MDRaidsPanel extends React.Component {
                                               { value: "512", title: _("512 KiB") },
                                               { value: "1024", title: _("1 MiB") },
                                               { value: "2048", title: _("2 MiB") }
-                                          ]}),
+                                          ] }),
                               SelectSpaces("disks", _("Disks"),
                                            {
                                                empty_warning: _("No disks are available."),

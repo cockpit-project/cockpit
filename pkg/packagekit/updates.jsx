@@ -108,7 +108,7 @@ function cleanupChangelogLine(text) {
 class Expander extends React.Component {
     constructor() {
         super();
-        this.state = {expanded: false};
+        this.state = { expanded: false };
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -123,7 +123,7 @@ class Expander extends React.Component {
             <React.Fragment>
                 <div className="expander-title">
                     <hr />
-                    <span onClick={() => this.setState({expanded: !this.state.expanded})} >
+                    <span onClick={() => this.setState({ expanded: !this.state.expanded })} >
                         <i className={cls} />{title}
                     </span>
                     <hr />
@@ -212,7 +212,7 @@ function getSeverityURL(urls) {
 class UpdateItem extends React.Component {
     constructor() {
         super();
-        this.state = {expanded: false};
+        this.state = { expanded: false };
     }
 
     render() {
@@ -325,7 +325,7 @@ class UpdateItem extends React.Component {
         return (
             <tbody className={ this.state.expanded ? "open" : null } >
                 <tr className={ "listing-ct-item" + (info.severity === PK.Enum.INFO_SECURITY ? " security" : "") }
-                    onClick={ () => this.setState({expanded: !this.state.expanded}) }>
+                    onClick={ () => this.setState({ expanded: !this.state.expanded }) }>
                     <td className="listing-ct-toggle">
                         <i className="fa fa-fw" />
                     </td>
@@ -437,7 +437,7 @@ class ApplyUpdates extends React.Component {
                 let pfields = packageId.split(";");
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
-                PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], {timeout: 500})
+                PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
                         .done(reply => {
                             let percent = reply[0].Percentage.v;
                             let remain = -1;
@@ -494,7 +494,7 @@ class ApplyUpdates extends React.Component {
                         {actionHTML}
                     </div>
                     <div className="progress progress-label-top-right">
-                        <div className="progress-bar" role="progressbar" style={ {width: this.state.percentage + "%"} }>
+                        <div className="progress-bar" role="progressbar" style={ { width: this.state.percentage + "%" } }>
                             { this.state.timeRemaining !== null ? <span>{moment.duration(this.state.timeRemaining * 1000).humanize()}</span> : null }
                         </div>
                     </div>
@@ -596,7 +596,7 @@ class OsUpdates extends React.Component {
         if (ex.problem === "not-found")
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
-        this.setState({state: "loadError"});
+        this.setState({ state: "loadError" });
     }
 
     removeHeading(text) {
@@ -635,11 +635,11 @@ class OsUpdates extends React.Component {
                 this.setState({ updates: this.state.updates });
             },
         })
-                .then(() => this.setState({state: "available"}))
+                .then(() => this.setState({ state: "available" }))
                 .catch(ex => {
                     console.warn("GetUpdateDetail failed:", JSON.stringify(ex));
                     // still show available updates, with reduced detail
-                    this.setState({state: "available"});
+                    this.setState({ state: "available" });
                 });
     }
 
@@ -668,7 +668,7 @@ class OsUpdates extends React.Component {
                         this.setState({ updates: updates, cockpitUpdate: cockpitUpdate });
                         this.loadUpdateDetails(pkg_ids);
                     } else {
-                        this.setState({state: "uptodate"});
+                        this.setState({ state: "uptodate" });
                     }
                     this.loadHistory();
                 })
@@ -686,7 +686,7 @@ class OsUpdates extends React.Component {
                     // data looks like:
                     // downloading\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
                     // updating\tbash-completion;1:2.6-1.fc26;noarch;updates-testing
-                let pkgs = {"_time": Date.parse(timeSpec)};
+                let pkgs = { "_time": Date.parse(timeSpec) };
                 let empty = true;
                 data.split("\n").forEach(line => {
                     let fields = line.trim().split("\t");
@@ -703,7 +703,7 @@ class OsUpdates extends React.Component {
             // only update the state once to avoid flicker
             Finished: () => {
                 if (history.length > 0)
-                    this.setState({history: history});
+                    this.setState({ history: history });
             }
         })
                 .catch(ex => console.warn("Failed to load old transactions:", ex));
@@ -715,7 +715,7 @@ class OsUpdates extends React.Component {
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                 [PK.Enum.ROLE_REFRESH_CACHE])
                 .done(seconds => {
-                    this.setState({timeSinceRefresh: seconds});
+                    this.setState({ timeSinceRefresh: seconds });
 
                     // automatically trigger refresh for ≥ 1 day or if never refreshed
                     if (seconds >= 24 * 3600 || seconds < 0)
@@ -749,7 +749,7 @@ class OsUpdates extends React.Component {
                                                // normally we get FAILED here with ErrorCodes; handle unexpected errors to allow for some debugging
                                                if (exit !== PK.Enum.EXIT_FAILED)
                                                    this.state.errorMessages.push(cockpit.format(_("PackageKit reported error code $0"), exit));
-                                               this.setState({state: "updateError"});
+                                               this.setState({ state: "updateError" });
                                            }
                                        },
 
@@ -759,11 +759,11 @@ class OsUpdates extends React.Component {
 
                                    notify => {
                                        if ("AllowCancel" in notify)
-                                           this.setState({allowCancel: notify.AllowCancel});
+                                           this.setState({ allowCancel: notify.AllowCancel });
                                    })
                 .fail(ex => {
                     this.state.errorMessages.push(ex);
-                    this.setState({state: "updateError"});
+                    this.setState({ state: "updateError" });
                 });
     }
 
@@ -782,13 +782,13 @@ class OsUpdates extends React.Component {
                                             // show this if we don't have anything else
                                             if (this.state.errorMessages.length === 0)
                                                 this.state.errorMessages.push(ex.message);
-                                            this.setState({state: "updateError"});
+                                            this.setState({ state: "updateError" });
                                         });
                             });
                 })
                 .catch(ex => {
                     this.state.errorMessages.push(ex.message);
-                    this.setState({state: "updateError"});
+                    this.setState({ state: "updateError" });
                 });
     }
 
@@ -821,7 +821,7 @@ class OsUpdates extends React.Component {
                 return (
                     <div className="progress-main-view">
                         <div className="progress">
-                            <div className="progress-bar" role="progressbar" style={ {width: this.state.loadPercent + "%"} } />
+                            <div className="progress-bar" role="progressbar" style={ { width: this.state.loadPercent + "%" } } />
                         </div>
                     </div>
                 );
@@ -925,22 +925,22 @@ class OsUpdates extends React.Component {
 
     handleRefresh() {
         this.setState({ state: "refreshing", loadPercent: null });
-        PK.cancellableTransaction("RefreshCache", [true], data => this.setState({loadPercent: data.percentage}))
+        PK.cancellableTransaction("RefreshCache", [true], data => this.setState({ loadPercent: data.percentage }))
                 .then(() => {
-                    this.setState({timeSinceRefresh: 0});
+                    this.setState({ timeSinceRefresh: 0 });
                     this.loadUpdates();
                 })
                 .catch(this.handleLoadError);
     }
 
     handleRestart() {
-        this.setState({state: "restart"});
+        this.setState({ state: "restart" });
         // give the user a chance to actually read the message
         window.setTimeout(() => {
             cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: true, err: "message" })
                     .fail(ex => {
                         this.state.errorMessages.push(ex);
-                        this.setState({state: "updateError"});
+                        this.setState({ state: "updateError" });
                     });
         }, 5000);
     }

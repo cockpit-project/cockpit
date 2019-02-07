@@ -149,7 +149,7 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
                            type='text'
                            placeholder={_("Host Name")}
                            value={dialogValues.source.host || ''}
-                           onChange={e => onValueChanged('source', {'host': e.target.value})}
+                           onChange={e => onValueChanged('source', { 'host': e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -177,7 +177,7 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                            minLength={1}
                            placeholder={_("The directory on the server being exported")}
                            value={dialogValues.source.dir || ''}
-                           onChange={e => onValueChanged('source', {'dir': e.target.value})}
+                           onChange={e => onValueChanged('source', { 'dir': e.target.value })}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -270,7 +270,7 @@ class CreateStoragePoolModal extends React.Component {
             }
         }
 
-        this.setState({validationFailed});
+        this.setState({ validationFailed });
 
         if (!modalIsIncomplete)
             dispatch(createStoragePool(this.state))

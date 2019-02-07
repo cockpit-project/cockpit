@@ -32,7 +32,7 @@ import { setVirtProvider } from '../machines/provider.js';
 (function() {
     function render() {
         ReactDOM.render(
-            React.createElement(App, {store: store}),
+            React.createElement(App, { store: store }),
             document.getElementById('app')
         );
     }

@@ -68,7 +68,7 @@ function child_frame() {
             });
 
     var channel = cockpit.channel({ "payload": "echo", "binary": true,
-                                    "host" : "localhost"});
+                                    "host" : "localhost" });
     channel.addEventListener("message", function(ev, payload) {
         test.assert(typeof payload[0] == "number", "binary channel got a byte array");
 

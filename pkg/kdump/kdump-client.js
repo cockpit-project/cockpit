@@ -18,8 +18,8 @@
  */
 
 import cockpit from 'cockpit';
-import {proxy as serviceProxy} from 'service';
-import {ConfigFile} from './config-client.js';
+import { proxy as serviceProxy } from 'service';
+import { ConfigFile } from './config-client.js';
 
 import crashKernelScript from 'raw-loader!./crashkernel.sh';
 import testWritableScript from 'raw-loader!./testwritable.sh';

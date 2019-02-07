@@ -136,7 +136,7 @@ export function setProvider(provider) {
     };
 }
 
-export function undefineStoragePool({connectionName, id}) {
+export function undefineStoragePool({ connectionName, id }) {
     return {
         type: UNDEFINE_STORAGE_POOL,
         payload: {
@@ -146,7 +146,7 @@ export function undefineStoragePool({connectionName, id}) {
     };
 }
 
-export function undefineVm({connectionName, name, id, transientOnly}) {
+export function undefineVm({ connectionName, name, id, transientOnly }) {
     return {
         type: UNDEFINE_VM,
         name,

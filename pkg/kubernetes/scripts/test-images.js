@@ -79,7 +79,7 @@ function suite(fixtures) {
             var tag = { "tag": "2.5", "items": [
                 { "image": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb" },
                 { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
-            ]};
+            ] };
 
             var images = select().kind("Image")
                     .taggedBy(tag);
@@ -90,7 +90,7 @@ function suite(fixtures) {
             tag = { "tag": "2.5", "items": [
                 { "image": "sha256:00329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" },
                 { "image": "sha256:0085eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
-            ]};
+            ] };
 
             images = select().kind("Image")
                     .taggedBy(tag);
@@ -110,7 +110,7 @@ function suite(fixtures) {
             var tag = { "tag": "2.5", "items": [
                 { "image": "sha256:beadfbc3da8d183c245ab5bad4dd185dacde72dbe81b270926e60e705e534afb" },
                 { "image": "sha256:0885eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
-            ]};
+            ] };
 
             var images = select().kind("Image")
                     .taggedFirst(tag);
@@ -121,7 +121,7 @@ function suite(fixtures) {
             tag = { "tag": "2.5", "items": [
                 { "image": "sha256:00329beccad118aa937e839d536d753ee612b67f8feb6adb519e7f5aa6e75fbe" },
                 { "image": "sha256:0085eeaec4514820b2c879100425e9ea10beaf4412db7f67acfe53b4df2b9450" }
-            ]};
+            ] };
 
             images = select().kind("Image")
                     .taggedFirst(tag);

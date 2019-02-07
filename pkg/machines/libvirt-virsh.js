@@ -159,14 +159,14 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => {
             if (!isEmpty(name)) {
-                return spawnVirshReadOnly({connectionName, method: 'dumpxml', name})
+                return spawnVirshReadOnly({ connectionName, method: 'dumpxml', name })
                         .then(domXml => {
                             xmlDesc = domXml;
-                            return spawnVirshReadOnly({connectionName, method: 'dumpxml', params: '--inactive', name});
+                            return spawnVirshReadOnly({ connectionName, method: 'dumpxml', params: '--inactive', name });
                         })
                         .then(domInactiveXml => {
                             xmlInactiveDesc = domInactiveXml;
-                            return spawnVirshReadOnly({connectionName, method: 'dominfo', name});
+                            return spawnVirshReadOnly({ connectionName, method: 'dominfo', name });
                         })
                         .then(domInfo => {
                             let dumpxmlParams = parseDumpxml(dispatch, connectionName, xmlDesc);
@@ -203,7 +203,7 @@ LIBVIRT_PROVIDER = {
             // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
             // https://github.com/cockpit-project/cockpit/issues/10956
             // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(storagePoolNames.map((name) => dispatch(getStoragePool({connectionName, name}))));
+            return cockpit.all(storagePoolNames.map((name) => dispatch(getStoragePool({ connectionName, name }))));
         });
     },
 
@@ -237,10 +237,10 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => {
             if (!isEmpty(name)) {
-                return spawnVirshReadOnly({connectionName, method: 'pool-dumpxml', name})
+                return spawnVirshReadOnly({ connectionName, method: 'pool-dumpxml', name })
                         .then(storagePoolXml => {
                             dumpxmlParams = parseStoragePoolDumpxml(connectionName, storagePoolXml);
-                            return spawnVirshReadOnly({connectionName, method: 'pool-info', name});
+                            return spawnVirshReadOnly({ connectionName, method: 'pool-info', name });
                         })
                         .then(poolInfo => {
                             const poolInfoParams = parseStoragePoolInfo(poolInfo);
@@ -259,7 +259,7 @@ LIBVIRT_PROVIDER = {
         const command = `virsh ${connection} -q pool-refresh ${poolName} && virsh ${connection} -q -r vol-list ${poolName} --details | (grep file || true)`;
         let data = '';
         return dispatch => cockpit
-                .script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+                .script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
                 .stream(output => { data += output })
                 .then(() => parseStorageVolumes(dispatch, connectionName, poolName, data))
                 .fail((exception, data) => {
@@ -276,7 +276,7 @@ LIBVIRT_PROVIDER = {
         // Workaround: The "grep" part of the command bellow is a workaround for old version of virsh (1.3.1 , ubuntu-1604), since the "virsh -q vol-create-as" produces extra line there
         const command = `(virsh ${connection} -q vol-create-as ${poolName} ${volumeName} --capacity ${size}M --format ${format} && virsh ${connection} -q vol-path ${volumeName} --pool ${poolName}) | grep -v 'Vol ${volumeName} created'`;
         logDebug('CREATE_AND_ATTACH_VOLUME command: ', command);
-        return dispatch => cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+        return dispatch => cockpit.script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
                 .then(() => {
                     logDebug('Storage volume created, poolName: ', poolName, ', volumeName: ', volumeName);
                     return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmName, permanent, hotplug }));
@@ -288,32 +288,32 @@ LIBVIRT_PROVIDER = {
         const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
         const volpathCommand = `virsh ${connection} vol-path --pool ${poolName} ${volumeName}`;
 
-        return () => cockpit.script(volpathCommand, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']})
+        return () => cockpit.script(volpathCommand, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
                 .then((volPath) => {
                     let scope = permanent ? '--config' : '';
                     scope = scope + (hotplug ? ' --live' : '');
                     const command = `virsh ${connection} attach-disk ${vmName} --driver qemu --subdriver ${format} ${volPath.trim()} ${target} ${scope}`;
 
                     logDebug('ATTACH_DISK command: ', command);
-                    return cockpit.script(command, null, {err: "message", environ: ['LC_ALL=en_US.UTF-8']});
+                    return cockpit.script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] });
                 });
     },
 
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'SHUTDOWN_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed") }),
-                                       args: ['shutdown', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'SHUTDOWN_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed") }),
+                                        args: ['shutdown', name]
         });
     },
 
     FORCEOFF_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'FORCEOFF_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed") }),
-                                       args: ['destroy', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'FORCEOFF_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed") }),
+                                        args: ['destroy', name]
         }).then(() => {
             dispatch(getVm(connectionName, name));
         });
@@ -321,28 +321,28 @@ LIBVIRT_PROVIDER = {
 
     REBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'REBOOT_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed") }),
-                                       args: ['reboot', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'REBOOT_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed") }),
+                                        args: ['reboot', name]
         });
     },
 
     FORCEREBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'FORCEREBOOT_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed") }),
-                                       args: ['reset', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'FORCEREBOOT_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed") }),
+                                        args: ['reset', name]
         });
     },
 
     START_VM ({ name, connectionName }) {
         logDebug(`${this.name}.START_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'START_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed") }),
-                                       args: ['start', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'START_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed") }),
+                                        args: ['start', name]
         });
     },
 
@@ -359,9 +359,9 @@ LIBVIRT_PROVIDER = {
                     return createTempFile(domXML);
                 })
                 .then((tempFilename) => {
-                    return spawnVirsh({connectionName,
-                                       method: 'SET_VCPU_SETTINGS',
-                                       args: ['define', tempFilename.trim()]
+                    return spawnVirsh({ connectionName,
+                                        method: 'SET_VCPU_SETTINGS',
+                                        args: ['define', tempFilename.trim()]
                     });
                 });
     },
@@ -402,12 +402,12 @@ LIBVIRT_PROVIDER = {
     CHANGE_NETWORK_STATE ({ name, networkMac, state, connectionName }) {
         logDebug(`${this.name}.CHANGE_NETWORK_STATE(${name}.${networkMac} ${state}):`);
         return dispatch => {
-            spawnVirsh({connectionName,
-                        method: 'CHANGE_NETWORK_STATE',
-                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed") }),
-                        args: ['domif-setlink', name, networkMac, state]
+            spawnVirsh({ connectionName,
+                         method: 'CHANGE_NETWORK_STATE',
+                         failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed") }),
+                         args: ['domif-setlink', name, networkMac, state]
             }).then(() => {
-                dispatch(getVm({connectionName, name}));
+                dispatch(getVm({ connectionName, name }));
             });
         };
     },
@@ -427,20 +427,20 @@ LIBVIRT_PROVIDER = {
 
     SENDNMI_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SENDNMI_VM(${name}):`);
-        return dispatch => spawnVirsh({connectionName,
-                                       method: 'SENDNMI_VM',
-                                       failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed") }),
-                                       args: ['inject-nmi', name]
+        return dispatch => spawnVirsh({ connectionName,
+                                        method: 'SENDNMI_VM',
+                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed") }),
+                                        args: ['inject-nmi', name]
         });
     },
 
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
         logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
         if (connectionName) {
-            return dispatch => spawnVirsh({connectionName,
-                                           method: 'GET_HYPERVISOR_MAX_VCPU',
-                                           failHandler: buildFailHandler({ dispatch, connectionName, message: _("GET HYPERVISOR MAX VCPU action failed") }),
-                                           args: ['-r', 'maxvcpus']
+            return dispatch => spawnVirsh({ connectionName,
+                                            method: 'GET_HYPERVISOR_MAX_VCPU',
+                                            failHandler: buildFailHandler({ dispatch, connectionName, message: _("GET HYPERVISOR MAX VCPU action failed") }),
+                                            args: ['-r', 'maxvcpus']
             }).then((count) => dispatch(setHypervisorMaxVCPU({ count, connectionName })));
         }
 
@@ -466,12 +466,12 @@ function doGetAllVms (dispatch, connectionName) {
         // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
         // https://github.com/cockpit-project/cockpit/issues/10956
         // eslint-disable-next-line cockpit/no-cockpit-all
-        return cockpit.all(vmNames.map((name) => dispatch(getVm({connectionName, name}))));
+        return cockpit.all(vmNames.map((name) => dispatch(getVm({ connectionName, name }))));
     });
 }
 
 // TODO: add configurable custom virsh attribs - i.e. libvirt user/pwd
-function spawnVirsh({connectionName, method, failHandler, args}) {
+function spawnVirsh({ connectionName, method, failHandler, args }) {
     return spawnProcess({
         cmd: 'virsh',
         args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
@@ -486,10 +486,10 @@ function spawnVirsh({connectionName, method, failHandler, args}) {
     });
 }
 
-function spawnVirshReadOnly({connectionName, method, name, params, failHandler}) {
+function spawnVirshReadOnly({ connectionName, method, name, params, failHandler }) {
     let args = params ? ['-r', method, params, name] : ['-r', method, name];
 
-    return spawnVirsh({connectionName, method, args, failHandler});
+    return spawnVirsh({ connectionName, method, args, failHandler });
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {
@@ -499,9 +499,9 @@ function parseDominfo(dispatch, connectionName, name, domInfo) {
     const persistent = getValueFromLine(lines, 'Persistent:') == 'yes';
 
     if (!LIBVIRT_PROVIDER.isRunning(state)) { // clean usage data
-        return {connectionName, name, state, autostart, persistent, actualTimeInMs: -1};
+        return { connectionName, name, state, autostart, persistent, actualTimeInMs: -1 };
     } else {
-        return {connectionName, name, state, persistent, autostart};
+        return { connectionName, name, state, persistent, autostart };
     }
 }
 
@@ -511,7 +511,7 @@ function parseDommemstat(dispatch, connectionName, name, dommemstat) {
     let rssMemory = getValueFromLine(lines, 'rss'); // in KiB
 
     if (rssMemory) {
-        return {connectionName, name, rssMemory};
+        return { connectionName, name, rssMemory };
     }
 }
 
@@ -522,7 +522,7 @@ function parseDomstats(dispatch, connectionName, name, domstats) {
 
     const cpuTime = getValueFromLine(lines, 'cpu.time=');
     // TODO: Add network usage statistics
-    let retParams = {connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines)};
+    let retParams = { connectionName, name, actualTimeInMs, disksStats: parseDomstatsForDisks(lines) };
 
     if (cpuTime) {
         retParams['cpuTime'] = cpuTime;
@@ -562,7 +562,7 @@ function parseStoragePoolInfo(poolInfo) {
     const autostart = getValueFromLine(lines, 'Autostart:') == 'yes';
     const persistent = getValueFromLine(lines, 'Persistent:') == 'yes';
 
-    return {active, persistent, autostart};
+    return { active, persistent, autostart };
 }
 
 function parseStorageVolumes(dispatch, connectionName, poolName, volumes) {
@@ -620,7 +620,7 @@ function doUsagePolling (name, connectionName) {
                         if (dommemstatsParams)
                             dispatch(updateVm(dommemstatsParams));
                     }
-                }, dispatch(updateVm({connectionName, name, rssMemory: 0.0}))
+                }, dispatch(updateVm({ connectionName, name, rssMemory: 0.0 }))
                 );
     };
 }
@@ -653,28 +653,28 @@ function handleEvent(dispatch, connectionName, line) {
         let type = info.split(' ')[0];
         switch (type) {
         case 'Undefined':
-            dispatch(undefineVm({connectionName, name}));
+            dispatch(undefineVm({ connectionName, name }));
             break;
 
         case 'Defined':
         case 'Started':
-            dispatch(getVm({connectionName, name}));
+            dispatch(getVm({ connectionName, name }));
             break;
 
         case 'Stopped':
             // there might be changes between live and permanent domain definition, so full reload
-            dispatch(getVm({connectionName, name, updateOnly: true}));
+            dispatch(getVm({ connectionName, name, updateOnly: true }));
 
             // transient VMs don't have a separate Undefined event, so remove them on stop
-            dispatch(undefineVm({connectionName, name, transientOnly: true}));
+            dispatch(undefineVm({ connectionName, name, transientOnly: true }));
             break;
 
         case 'Suspended':
-            dispatch(updateVm({connectionName, name, state: 'paused'}));
+            dispatch(updateVm({ connectionName, name, state: 'paused' }));
             break;
 
         case 'Resumed':
-            dispatch(updateVm({connectionName, name, state: 'running'}));
+            dispatch(updateVm({ connectionName, name, state: 'running' }));
             break;
 
         default:
@@ -689,7 +689,7 @@ function handleEvent(dispatch, connectionName, line) {
     case 'tray-change':
     case 'control-error':
         // these (can) change what we display, so re-read the state
-        dispatch(getVm({connectionName, name}));
+        dispatch(getVm({ connectionName, name }));
         break;
 
     default:
@@ -702,7 +702,7 @@ function startEventMonitor(dispatch, connectionName, libvirtServiceName) {
 
     // set up event monitor for that connection; force PTY as otherwise the buffering
     // will not show every line immediately
-    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), {'err': 'message', 'pty': true})
+    cockpit.spawn(['virsh'].concat(VMS_CONFIG.Virsh.connections[connectionName].params).concat(['-r', 'event', '--all', '--loop']), { 'err': 'message', 'pty': true })
             .stream(data => {
                 if (data.startsWith("error: Disconnected from") || data.startsWith("error: internal error: client socket is closed")) {
                 // libvirt failed

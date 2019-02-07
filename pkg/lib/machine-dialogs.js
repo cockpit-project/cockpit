@@ -290,7 +290,7 @@ function MachineColorPicker(machines_ins) {
         var colors = [];
         for (var i = 0; i < machines.colors.length; i += 6) {
             part = machines.colors.slice(i, i + 6);
-            colors.push({"list" : part});
+            colors.push({ "list" : part });
         }
 
         var text = mustache.render(templates["color-picker"], { 'colors' : colors, });

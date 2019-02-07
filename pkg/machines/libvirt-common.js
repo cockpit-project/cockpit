@@ -749,7 +749,7 @@ export function GET_LOGGED_IN_USER() {
     logDebug(`${this.name}.GET_LOGGED_IN_USER:`);
     return dispatch => {
         return cockpit.user().then(loggedUser => {
-            dispatch(setLoggedInUser({loggedUser}));
+            dispatch(setLoggedInUser({ loggedUser }));
         });
     };
 }

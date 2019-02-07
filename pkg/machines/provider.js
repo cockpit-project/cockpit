@@ -81,7 +81,7 @@ function getVirtProvider (store) {
  * Lazily initializes the virt provider and dispatches given method on it.
  */
 export function virt(method, action) {
-    return (dispatch, getState) => getVirtProvider({dispatch, getState})
+    return (dispatch, getState) => getVirtProvider({ dispatch, getState })
             .fail(() => console.error('could not detect any virt provider'))
             .then(provider => {
                 if (method in provider) {

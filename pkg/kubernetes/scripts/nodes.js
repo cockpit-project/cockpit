@@ -175,9 +175,9 @@
                         } else {
                             browser.sessionStorage.setItem(
                                 "v1-session-machine/" + ip,
-                                JSON.stringify({"address": ip,
-                                                "label": host,
-                                                visible: true })
+                                JSON.stringify({ "address": ip,
+                                                 "label": host,
+                                                 visible: true })
                             );
                         }
 
@@ -878,7 +878,7 @@
                                         $scope.data = [
                                             { value: result.total - result.used,
                                               tooltip : format.format(freeText, l),
-                                              color: "#bbbbbb"},
+                                              color: "#bbbbbb" },
                                             { value: result.used,
                                               tooltip : format.format(usedText, u),
                                               color: colorFunc(result.used / result.total) }

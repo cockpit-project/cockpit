@@ -48,15 +48,15 @@ function update_accounts_privileged() {
 
     // enable fields for current account.
     $(".accounts-current-account").update_privileged(
-        {allowed: true}, ""
+        { allowed: true }, ""
     );
     $(".accounts-current-account").find("input")
             .attr('disabled', false);
 
     if ($('#account-user-name').text() === 'root' && permission.allowed) {
-        $("#account-delete").update_privileged({allowed: false},
+        $("#account-delete").update_privileged({ allowed: false },
                                                _("Unable to delete root account"));
-        $("#account-real-name-wrapper").update_privileged({allowed: false},
+        $("#account-real-name-wrapper").update_privileged({ allowed: false },
                                                           _("Unable to rename root account"));
         $("#account-real-name").prop('disabled', true);
     }
@@ -302,9 +302,9 @@ class AccountItem extends React.Component {
 
     render() {
         return React.createElement('div', { className: "cockpit-account", onClick: this.click },
-                                   React.createElement('div', {className: "cockpit-account-pic pficon pficon-user"}),
-                                   React.createElement('div', {className: "cockpit-account-real-name"}, this.props.gecos),
-                                   React.createElement('div', {className: "cockpit-account-user-name"}, this.props.name)
+                                   React.createElement('div', { className: "cockpit-account-pic pficon pficon-user" }),
+                                   React.createElement('div', { className: "cockpit-account-real-name" }, this.props.gecos),
+                                   React.createElement('div', { className: "cockpit-account-user-name" }, this.props.name)
         );
     }
 }

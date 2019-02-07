@@ -144,7 +144,7 @@ const Vm = ({ vm, hosts, templates, config, dispatch }) => {
 
     return (<ListingRow // TODO: icons?
         columns={[
-            {name: vm.name, 'header': true},
+            { name: vm.name, 'header': true },
             <VmDescription descr={vm.description} />,
             <VmTemplate id={vm.templateId} templates={templates} />,
             <VmMemory mem={vm.memory} />,

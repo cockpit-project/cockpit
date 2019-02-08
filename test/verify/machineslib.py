@@ -942,6 +942,9 @@ class TestMachines(MachineCase):
         b.click("#{0}-serialconsole-reconnect".format(name))
         b.wait_present("div.terminal canvas.xterm-text-layer")
 
+        # disconnecting the serial console closes the pty channel
+        self.allow_journal_messages("connection unexpectedly closed by peer")
+
     def testCreate(self):
         """
         this test will print many expected error messages

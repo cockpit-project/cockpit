@@ -23,8 +23,14 @@ import cockpit from 'cockpit';
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import VmLastMessage from './vmLastMessage.jsx';
 import { VCPUModal } from './vcpuModal.jsx';
-
-import { rephraseUI, vmId } from "../helpers.js";
+import {
+    rephraseUI,
+    vmId
+} from '../helpers.js';
+import {
+    changeVmAutostart,
+    getVm
+} from '../actions/provider-actions.js';
 
 const _ = cockpit.gettext;
 
@@ -44,6 +50,17 @@ class VmOverviewTabLibvirt extends React.Component {
         this.state = { showModal: false };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
+        this.onAutostartChanged = this.onAutostartChanged.bind(this);
+    }
+
+    onAutostartChanged() {
+        const { dispatch, vm } = this.props;
+        const autostart = !vm.autostart;
+
+        dispatch(changeVmAutostart({ vm, autostart }))
+                .then(() => {
+                    dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));
+                });
     }
 
     close() {
@@ -58,6 +75,19 @@ class VmOverviewTabLibvirt extends React.Component {
         const { vm, dispatch, config } = this.props;
         const idPrefix = vmId(vm.name);
         const currentTab = 'overview';
+
+        let autostart = rephraseUI('autostart', vm.autostart);
+        if (config.provider.name === "LibvirtDBus") {
+            autostart = (
+                <label className='checkbox-inline'>
+                    <input id={`${idPrefix}-autostart-checkbox`}
+                           type="checkbox"
+                           checked={vm.autostart}
+                           onChange={this.onAutostartChanged} />
+                    {_("Run when host boots")}
+                </label>
+            );
+        }
         const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
         const memoryLink = (<a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.open}>{vm.vcpus.count}</a>);
 
@@ -67,7 +97,7 @@ class VmOverviewTabLibvirt extends React.Component {
             { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
             { title: _("Boot Order"), value: getBootOrder(vm), idPostfix: 'bootorder' },
             { title: _("CPU Type"), value: vm.cpu.model, idPostfix: 'cputype' },
-            { title: _("Autostart"), value: rephraseUI('autostart', vm.autostart), idPostfix: 'autostart' },
+            { title: _("Autostart"), value: autostart, idPostfix: 'autostart' },
         ];
 
         return (

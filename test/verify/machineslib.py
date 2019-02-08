@@ -944,6 +944,7 @@ class TestMachines(MachineCase):
 
         # disconnecting the serial console closes the pty channel
         self.allow_journal_messages("connection unexpectedly closed by peer")
+        self.allow_browser_errors("Disconnection timed out.")
 
     def testCreate(self):
         """

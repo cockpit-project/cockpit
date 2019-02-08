@@ -146,6 +146,11 @@ class Machine(ssh_connection.SSHConnection):
     def journal_messages(self, syslog_ids, log_level, cursor=None):
         """Return interesting journal messages"""
 
+        # give the OS some time to write pending log messages, to make
+        # unexpected message detection more reliable; RHEL/CentOS 7 does not
+        # yet know about --sync, so ignore failures
+        self.execute("journalctl --sync 2>/dev/null || true; sleep 3; journalctl --sync 2>/dev/null || true")
+
         # Journald does not always set trusted fields like
         # _SYSTEMD_UNIT or _EXE correctly for the last few messages of
         # a dying process, so we filter by the untrusted but reliable

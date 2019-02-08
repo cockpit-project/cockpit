@@ -919,6 +919,7 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#login-available .empty")
 
         self.allow_hostkey_messages()
+        self.allow_authorize_journal_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',
                                     '.*: Connection reset by peer',
                                     '.* failed to retrieve resource: invalid-hostkey',

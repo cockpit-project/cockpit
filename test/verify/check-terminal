@@ -98,6 +98,69 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         wait_line(n + 1, blank_state)
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
+        # Fixed in PR #11148
+        if m.image == "rhel-7-6-distropkg":
+            return
+
+        def select_line(sel, width):
+            # Select line by dragging mouse
+            # 10px padding on all sides
+            # Height on a line is around 14px, so start approx. in the middle of line
+            b.mouse(sel, "mousedown", 10, 17)
+            b.mouse(sel, "mousemove", 10 + width, 17)
+            b.mouse(sel, "mouseup", 10 + width, 17)
+
+        b.grant_permissions("clipboardRead", "clipboardWrite")
+
+        # Execute command
+        wait_line(n, prompt)
+        b.key_press('echo "XYZ"\r')
+        wait_line(n + 1, "XYZ")
+
+        sel = line_sel(n + 1)
+
+        # Highlight 40px (3 letters, never wider that ~14px)
+        select_line(sel, 40)
+
+        # Right click and pick copy
+        b.mouse(sel, "contextmenu", btn=2)
+        b.wait_present('.contextMenu')
+        b.wait_visible('.contextMenu')
+        b.click('.contextMenu .contextMenuOption:first-child')
+
+        # Right click and pick paste
+        b.mouse(sel, "contextmenu", btn=2)
+        b.wait_present('.contextMenu')
+        b.wait_visible('.contextMenu')
+        b.click('.contextMenu .contextMenuOption:nth-child(2)')
+
+        # Wait for text to show up
+        wait_line(n + 2, "XYZ")
+
+        # now reset terminal
+        b.click('.btn:contains("Reset")')
+
+        # assert that the output from earlier is gone
+        wait_line(n + 1, blank_state)
+
+        # Execute another command
+        wait_line(n, prompt)
+        b.key_press('echo "foo"\r')
+        wait_line(n + 1, "foo")
+
+        # Highlight 40px (3 letters, never wider that ~14px)
+        select_line(sel, 40)
+
+        # Use keyboard shortcuts to copy text
+        # HACK - '-' is interpreted as insert key because when modifiers are
+        #   used, windowsVirtualKeyCode is used and insert key has code 45.
+        #   At the same time '-' has ascii code 45.
+        b.key_press("-", 2) # Ctrl + Insert
+        b.key_press("-", 8) # Shift + Insert
+
+        # Wait for text to show up
+        wait_line(n + 2, "foo")
+
 
 if __name__ == '__main__':
     test_main()

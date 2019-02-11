@@ -434,3 +434,40 @@ body {
 .fa-exclamation-circle {
     color: var(--pf-global--danger-color--100);
 }
+
+.full-width {
+    width: 100%;
+}
+
+table.reporting-table tr:first-child td {
+    border-top: none;
+}
+
+table.reporting-table td:first-child {
+    white-space: nowrap;
+    width: 40%;
+}
+
+table.reporting-table td:nth-child(2) {
+    text-align: start;
+    width: 60%;
+}
+
+table.reporting-table td:nth-child(2) > .spinner {
+    display: inline-block;
+    margin-right: 0.5em;
+    vertical-align: middle;
+}
+
+td.report-column {
+    flex-direction: row-reverse;
+}
+
+#journal-entry-heading {
+    padding-bottom: 0.5rem;
+}
+
+#journal-entry-message {
+    padding-left: 1.5rem;
+
+}

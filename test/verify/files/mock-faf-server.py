@@ -9,6 +9,29 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
 class Handler(BaseHTTPRequestHandler):
+    def do_POST_attach(self):
+        self.wfile.write(json.dumps({'result': True}).encode("UTF-8"))
+
+    def do_POST_new(self):
+        response = {
+            'bthash': '123deadbeef',
+            'message': 'http://localhost:12345/reports/42/\nhttps://bugzilla.example.com/show_bug.cgi?id=123456',
+            'reported_to': [
+                {
+                    'type': 'url',
+                    'value': 'http://localhost:12345/reports/42/',
+                    'reporter': 'ABRT Server'
+                },
+                {
+                    'type': 'url',
+                    'value': 'https://bugzilla.example.com/show_bug.cgi?id=123456',
+                    'reporter': 'Bugzilla'
+                }
+            ],
+            'result': False
+        }
+        self.wfile.write(json.dumps(response, indent=2).encode('UTF-8'))
+
     def do_POST(self):
         form = cgi.FieldStorage(
             fp=self.rfile,
@@ -32,27 +55,12 @@ class Handler(BaseHTTPRequestHandler):
             sys.stderr.write('Received invalid JSON data:\n{0}\n'.format(json_str))
             return
 
-        response = {
-            'bthash': '123deadbeef',
-            'message': 'http://localhost:12345/reports/42/\nhttps://bugzilla.example.com/show_bug.cgi?id=123456',
-            'reported_to': [
-                {
-                    'type': 'url',
-                    'value': 'http://localhost:12345/reports/42/',
-                    'reporter': 'ABRT Server'
-                },
-                {
-                    'type': 'url',
-                    'value': 'https://bugzilla.example.com/show_bug.cgi?id=123456',
-                    'reporter': 'Bugzilla'
-                }
-            ],
-            'result': next(Handler.known)
-        }
-        self.wfile.write(json.dumps(response, indent=2).encode('UTF-8'))
+        if self.path == '/reports/attach/':
+            self.do_POST_attach()
+        elif self.path == '/reports/new/':
+            self.do_POST_new()
 
 
 PORT = 12345
-Handler.known = [True, False].__iter__()
 httpd = HTTPServer(("", PORT), Handler)
 httpd.serve_forever()

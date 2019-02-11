@@ -41,6 +41,13 @@ class TestJournal(MachineCase):
             else:
                 browser.click(button_text_selector)
 
+    def crash(self):
+        m = self.machine
+
+        m.execute("ulimit -c unlimited")
+        sleep = m.spawn("sleep 1m", "sleep.log")
+        m.execute("kill -SEGV %d" % (sleep))
+
     def testBasic(self):
         b = self.browser
         b.wait_timeout(120)
@@ -380,11 +387,10 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
-        m = self.machine
+
+        self.crash()
 
         self.login_and_go("/system/logs")
-
-        m.execute("ulimit -c unlimited; timeout --signal=SEGV 0.1s sleep 5s || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
 
@@ -420,30 +426,33 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
-        m = self.machine
+
+        # A bit of a race might happen if you delete the journal entry whilst
+        # the reporting code is doing its thing.
+        self.allow_browser_errors("Failed to get workflows for problem /org/freedesktop/Problems2/Entry/.*:.*")
+        self.allow_browser_errors("Getting properties for problem /org/freedesktop/Problems2/Entry/.* failed:.*")
+
+        self.crash()
 
         self.login_and_go("/system/logs")
-
-        m.execute("ulimit -c unlimited; timeout --signal=SEGV 0.1s sleep 5s || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "sleep")
+        b.wait_in_text("#journal-entry-heading", "sleep")
         sel = "#journal-entry-fields .nav .btn-danger"
         b.click(sel)
 
-        b.wait_visible("#journal-box")
         b.wait_in_text('#journal-box', "crashed in " + self.crash_fn)
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_in_text("#journal-entry-id", "sleep")
+        b.wait_in_text("#journal-entry-heading", "sleep")
         # details view should hide log view
         b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
-        b.wait_not_present("#journal-entry-fields .nav")
+        b.wait_not_present("#journal-entry-fields .nav .btn-danger")
 
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
@@ -455,54 +464,139 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
+        # We restart the reportd service,
+        # which causes the D-Bus proxy to spit out an error when it tries to
+        # query its managed objects.
+        self.allow_journal_messages('.*Remote peer disconnected')
+
+        m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+
+        # start mock FAF server
+        m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
+        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+
+        self.crash()
+
+        self.login_and_go("/system/logs")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"
+        b.wait_present(sel)
+
+        # "Unreport" the problem to test reporting unknown problem
+        m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
+        # The service also needs to be restarted, because the daemon maintains
+        # its own cache that interferes with resetting the state.
+        m.execute('systemctl restart reportd')
+        # We have no network access.
+        m.execute("sed -i 's|abrt-action-perform-ccpp-analysis|true|' /etc/libreport/events.d/ccpp_event.conf")
+        # reporter-bugzilla will not be run without a duphash file present.
+        m.execute("find /var/spool/abrt -depth -maxdepth 1 | head -1 | xargs -I {} cp '{}/uuid' '{}/duphash'")
+
+        b.reload()
+        b.enter_page("/system/logs")
+
+        sel = "table.reporting-table tr:nth-child(2) button:contains('Report')"
+        b.click(sel)
+
+        test_user = 'correcthorsebatterystaple'
+
+        for purpose in ['text', 'password']:
+            b.wait_visible("#cockpit_modal_dialog .modal-content input[type='%s']" % (purpose))
+
+            sel = "#cockpit_modal_dialog .modal-content input"
+            b.set_val(sel, test_user)
+
+            sel = "#cockpit_modal_dialog .modal-footer button:contains('Send')"
+            b.click(sel)
+
+        sel = "#cockpit_modal_dialog .modal-content p:contains('Password')"
+        b.wait_not_present(sel)
+
+        sel = "#cockpit_modal_dialog .modal-footer button:contains('No')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:nth-child(2) a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']"
+        b.wait_present(sel)
+
+    @skipImage("ABRT does not work on i386", "fedora-i386")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
+    def testAbrtReportCancel(self):
+        self.allow_core_dumps = True
+
+        b = self.browser
+        m = self.machine
+
+        m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
+        m.execute("echo 'BugzillaURL=http://localhost:8080' >> /etc/libreport/plugins/bugzilla.conf")
+
+        # start mock FAF server
+        m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
+        m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
+        m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
+
+        self.crash()
+
+        self.login_and_go("/system/logs")
+
+        sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
+        b.click(sel)
+
+        # Something long-running to not pop up an unexpected dialog.
+        m.execute("sed -i 's|abrt-action-perform-ccpp-analysis|echo Cancel me; sleep 5m|' /etc/libreport/events.d/ccpp_event.conf")
+
+        sel = "table.reporting-table tr:nth-child(2) button:contains('Report')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:nth-child(2) td:contains('Cancel me')"
+        b.wait_visible(sel)
+
+        sel = "table.reporting-table tr:nth-child(2) button:contains('Cancel')"
+        b.click(sel)
+
+        sel = "table.reporting-table tr:nth-child(2) td:contains('Reporting was canceled')"
+        b.wait_present(sel)
+
+    @skipImage("ABRT does not work on i386", "fedora-i386")
+    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
+               "ubuntu-1804", "fedora-coreos", "rhel-8-1", "rhel-8-1-distropkg", "rhel-8-2")
+    def testAbrtReportNoReportd(self):
+        self.allow_core_dumps = True
+
+        b = self.browser
+        m = self.machine
+
+        self.allow_browser_errors("Channel for reportd D-Bus client closed: .*")
+
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
         m.execute("echo 'URL=http://localhost:12345' >> /etc/libreport/plugins/ureport.conf")
 
-        self.login_and_go("/system/logs")
+        m.execute("systemctl mask --now reportd")
 
-        m.execute("ulimit -c unlimited; echo 'sleep 42m &' > slp; chmod u+x slp")
-        m.execute("./slp; pkill -x -SEGV sleep")
+        self.crash()
+
+        self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
         b.click(sel)
 
-        # Wait until loaded (when delete button is loaded, all is loaded)
-        sel = "#journal-entry-fields .nav .btn-danger"
-        b.wait_visible(sel)
-
-        sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
+        sel = "table.reporting-table tr:first-child .btn:contains('Report')"
         b.click(sel)
 
-        # jQuery magic on this page updates the whole frame for changing to "Reported" state
-        b.expect_load_frame("cockpit1:localhost/system/logs")
-        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_visible(sel)
-        self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
-
-        # "Unreport" the problem to test reporting unknown problem
-        m.execute('find /var/spool/abrt -name "reported_to" | xargs rm')
-
-        b.reload()
-        b.enter_page("/system/logs")
-
-        sel = "#journal-entry-fields"
+        sel = "table.reporting-table tr:first-child a[href$='/reports/bthash/123deadbeef'"
         b.wait_present(sel)
-
-        self.allow_journal_messages('.*This problem has already been reported.')
-        self.allow_journal_messages('.*http://localhost:12345/reports/42/')
-        self.allow_journal_messages('.*https://bugzilla.example.com/show_bug.cgi\?id=123456')
-
-        sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
-        b.click(sel)
-
-        # jQuery magic on this page updates the whole frame for changing to "Reported" state
-        b.expect_load_frame("cockpit1:localhost/system/logs")
-        sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_visible(sel)
-        self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
-
 
 if __name__ == '__main__':
     test_main()

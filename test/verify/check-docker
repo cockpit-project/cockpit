@@ -583,7 +583,7 @@ CMD ["/bin/sh"]
         b.enter_page("/system/logs")
 
         # check for abrtd service in text
-        b.wait_in_text("#journal-entry-id", "sleep")
+        b.wait_in_text("#journal-entry-heading", "sleep")
         b.wait_in_text("#journal-entry-fields", "abrtd.service")
 
 

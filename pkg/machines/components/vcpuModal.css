@@ -4,18 +4,14 @@
   grid-row-gap: 1em;
 }
 
-input#machines-vcpu-count-field {
-    width: 70px;
+.vcpu-modal-grid input[type=number] {
+    max-width: 7rem;
 }
 
-input#machines-vcpu-max-field {
-    width: 70px;
+.vcpu-modal-grid .dropdown {
+    min-width: 11rem;
 }
 
-#machines-vcpu-modal-dialog div.ct-form-layout .btn-group.bootstrap-select.dropdown {
-    width: 110px;
-}
-
-#machines-vcpu-modal-dialog div.ct-form-layout .fa-info-circle {
+.vcpu-modal-grid .fa-info-circle {
     line-height: inherit;
 }

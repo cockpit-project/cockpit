@@ -57,7 +57,6 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # wait until first line is not empty
         n = 1
-        sit()
         function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
         b.wait_js_func(function_str, line_sel(n))
 

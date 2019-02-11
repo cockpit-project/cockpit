@@ -114,9 +114,10 @@
     -webkit-appearance: textarea;
   }
 
-  // Special considerations for widgets (and widget-like elements)
+  // Special considerations for widgets (and widget-like elements),
+  // supporting direct children and also validation wrapper & split nesting.
   // This is a LESS mixin that will not be in the compiled CSS.
-  .widget-rules() {
+  .ct-form-widget-rules() {
     > input,
     > textarea,
     > select,
@@ -141,8 +142,8 @@
     }
   }
 
-  &, > .ct-validation-wrapper {
-    .widget-rules();
+  &, > .ct-validation-wrapper, > .ct-form-layout-split {
+    .ct-form-widget-rules();
   }
 
   // Some elements need special width considerations
@@ -179,13 +180,6 @@
       }
     }
 
-    > .checkbox,
-    > .radio {
-        // Spacing is handled by grid, not margin
-        margin: 0;
-    }
-  }
-
   > [role=group],
   > .ct-validation-wrapper > [role=group],
   > .ct-validation-wrapper > [data-field] {
@@ -199,6 +193,12 @@
       > .ct-select {
         width: 100%;
       }
+    }
+
+    > .checkbox,
+    > .radio {
+        // Spacing is handled by grid, not margin
+        margin: 0;
     }
   }
 

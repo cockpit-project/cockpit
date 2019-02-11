@@ -31,10 +31,8 @@ const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
 
     if (tooltip) {
         infoContent = (
-            <div role="group">
-                <div id={id} className={valueClass}>
-                    {value}
-                </div>
+            <div id={id} className={valueClass} role="group">
+                {value}
                 {tooltip && (<OverlayTrigger overlay={ <Tooltip id="tip-inforec">{tooltip}</Tooltip> } placement="top">
                     <span className="fa fa-lg fa-info-circle" />
                 </OverlayTrigger>)}
@@ -42,7 +40,7 @@ const InfoRecord = ({ id, descr, value, descrClass, valueClass, tooltip }) => {
         );
     } else {
         infoContent = (
-            <div id={id} className={valueClass}>
+            <div id={id} className={valueClass} role="group">
                 {value}
             </div>
         );

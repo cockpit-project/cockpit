@@ -81,17 +81,11 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
   <div id="journal-entry" class="container-fluid" hidden>
     <ol class="breadcrumb">
       <li><a tabindex="0" id="journal-navigate-home" translate="yes">Logs</a></li>
-      <li class="active" translate="yes">Entry</li>
+      <li id="journal-entry-crumb" class="active" translate="yes">Entry</li>
     </ol>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <span id="journal-entry-id"></span>
-        <span id="journal-entry-date" class="pull-right"></span>
-      </div>
-      <div id="journal-entry-message"></div>
-      <table class="info-table-ct" id="journal-entry-fields">
-      </table>
-    </div>
+    <h2 id="journal-entry-heading"></h2>
+    <table class="info-table-ct panel panel-default" id="journal-entry-fields">
+    </table>
   </div>
 
   <script type="text/javascript" src="logs.js"></script>

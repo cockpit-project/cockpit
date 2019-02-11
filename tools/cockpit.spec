@@ -369,6 +369,11 @@ Recommends: setroubleshoot-server >= 3.3.3
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
 %endif
+%if 0%{?fedora} >= 29
+# 0.7.0 (actually) supports task cancellation.
+# 0.7.1 fixes tasks never announcing completion.
+Recommends: (reportd >= 0.7.1 if abrt)
+%endif
 # NPM modules which are also available as packages
 Provides: bundled(js-jquery) = %{npm-version:jquery}
 Provides: bundled(js-moment) = %{npm-version:moment}

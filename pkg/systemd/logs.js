@@ -20,6 +20,8 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 import { journal } from "journal";
+import moment from "moment";
+import { init_reporting } from "./reporting.jsx";
 
 import ReactDOM from 'react-dom';
 import React from 'react';
@@ -426,12 +428,14 @@ $(function() {
         var cursor = cockpit.location.path[0];
         var out = $('#journal-entry-fields');
 
+        const reportingTable = document.getElementById("journal-entry-reporting-table");
+        if (reportingTable != null) {
+            reportingTable.remove();
+        }
+
         out.empty();
 
         function show_entry(entry) {
-            var d = new Date(entry.__REALTIME_TIMESTAMP / 1000);
-            $('#journal-entry-date').text(d.toString());
-
             var id;
             if (entry.SYSLOG_IDENTIFIER)
                 id = entry.SYSLOG_IDENTIFIER;
@@ -446,13 +450,20 @@ $(function() {
                 id = entry.PROBLEM_BINARY;
             }
 
-            $('#journal-entry-id').text(id);
+            $('#journal-entry-heading').text(id);
+
+            const crumb = $("#journal-entry-crumb");
+            const date = moment(new Date(entry.__REALTIME_TIMESTAMP / 1000));
 
             if (is_problem) {
+                crumb.text(cockpit.format(_("$0: crash at $1"), id, date.format("YYYY-MM-DD HH:mm:ss")));
+
                 find_problems().done(function() {
                     create_problem(out, entry);
                 });
             } else {
+                crumb.text(cockpit.format(_("Entry at $0"), date.format("YYYY-MM-DD HH:mm:ss")));
+
                 create_entry(out, entry);
             }
         }
@@ -476,8 +487,21 @@ $(function() {
                 });
     }
 
+    function create_message_row(entry) {
+        const reasonColumn = document.createElement("th");
+        reasonColumn.setAttribute("colspan", 2);
+        reasonColumn.setAttribute("id", "journal-entry-message");
+        reasonColumn.appendChild(document.createTextNode(journal.printable(entry.MESSAGE)));
+
+        const reason = document.createElement("tr");
+        reason.appendChild(reasonColumn);
+
+        return reason;
+    }
+
     function create_entry(out, entry) {
-        $('#journal-entry-message').text(journal.printable(entry.MESSAGE));
+        out.append(create_message_row(entry));
+
         var keys = Object.keys(entry).sort();
         $.each(keys, function (i, key) {
             if (key !== 'MESSAGE') {
@@ -515,7 +539,11 @@ $(function() {
                     .replaceWith(new_content);
         }
 
-        $('#journal-entry-message').text('');
+        const heading = document.createElement("h3");
+        heading.appendChild(document.createTextNode(_("Extended Information")));
+
+        const caption = document.createElement("caption");
+        caption.appendChild(heading);
 
         var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("General"))));
         var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translate="yes">').text(_("Problem info"))));
@@ -527,56 +555,18 @@ $(function() {
                 .append(
                     $('<tr>').append($('<div class="panel-group" id="accordion-markup">')));
 
-        var tab = $('<ul class="nav nav-tabs nav-tabs-pf">');
+        var tab = $('<ul class="nav nav-tabs nav-tabs-pf">')
+                .attr("id", "problem-navigation");
 
         var d_btn = $('<button class="btn btn-danger problem-btn btn-delete pficon pficon-delete">');
-        var r_btn = $();
-        if (problem.IsReported) {
-            for (var pid = 0; pid < problem.Reports.length; pid++) {
-                if (problem.Reports[pid][0] === 'ABRT Server') {
-                    var url = problem.Reports[pid][1].URL.v.v;
-                    r_btn = $('<a class="problem-btn">')
-                            .attr('href', url)
-                            .attr("target", "_blank")
-                            .attr("rel", "noopener noreferrer")
-                            .text(_("Reported"));
-                    break;
-                }
-            }
-        } else if (problem.CanBeReported) {
-            r_btn = $('<button class="btn btn-primary problem-btn">').text(_("Report"));
 
-            r_btn.click(function() {
-                tab.children(':last-child').replaceWith($('<div class="spinner problem-btn">'));
-                var proc = cockpit.spawn(['reporter-ureport', '-d', problem.ID], { superuser: 'true' });
-                proc.done(function() {
-                    window.location.reload();
-                });
-                proc.fail(function(ex) {
-                    var message;
-                    // 70 is 'This problem has already been reported'
-                    if (ex.exit_status === 70) {
-                        window.location.reload();
-                        return;
-                    } else if (ex.problem === 'access-denied') {
-                        message = _("Not authorized to upload-report");
-                    } else if (ex.problem === "not-found") {
-                        message = _("Reporter 'reporter-ureport' not found.");
-                    } else {
-                        message = _("Reporting was unsucessful. Try running `reporter-ureport -d " + problem.ID + "`");
-                    }
+        const reportingTable = document.createElement("div");
+        reportingTable.setAttribute("id", "journal-entry-reporting-table");
 
-                    $('<div class="pf-c-alert pf-m-danger pf-m-inline" aria-label="inline danger alert">')
-                            .append($('<div class="pf-c-alert__icon">' +
-                                      '<span class="pficon pficon-error-circle-o">' +
-                                      '</div>'),
-                                    $('<h4 class="pf-c-alert__title">').text(message)
-                            )
-                            .insertAfter(".breadcrumb");
-                    tab.children(':last-child').replaceWith($('<span>'));
-                });
-            });
-        }
+        const journalTable = document.getElementById("journal-entry-fields");
+        journalTable.insertAdjacentElement("beforebegin", reportingTable);
+
+        init_reporting(problem, reportingTable);
 
         ge_t.click(function() {
             switch_tab(ge_t, ge);
@@ -615,13 +605,15 @@ $(function() {
         tab.append(pi_t);
         tab.append(pd_t);
         tab.append(d_btn);
-        tab.append(r_btn);
 
         var header = $('<tr>').append(
             $('<th colspan=2>').append(tab));
 
-        out.html(header).append(ge);
+        out.html(header).append(create_message_row(entry));
+        out.append(ge);
+        out.prepend(caption);
         out.css("margin-bottom", "0px");
+
         create_problem_details(problem, pi, pd);
     }
 

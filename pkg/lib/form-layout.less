@@ -220,10 +220,14 @@
     > input[type="checkbox"],
     > input[type="radio"] {
       // Typical browser widget height for radios & checks; standardized here
-      height: 16px;
-      margin: @padding-small-vertical 0;
-      margin-right: 0.5rem;
-      position: static;
+      @checkradio-height: 16px;
+      // Baseline alignment needs an offset to compensate for size difference
+      @baseline-offset: (@widget-height - @checkradio-height) / 2;
+      align-self: baseline;
+      height: @checkradio-height;
+      margin: 0 0.5rem 0 0;
+      position: relative;
+      top: @baseline-offset;
     }
   }
 

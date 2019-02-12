@@ -26,19 +26,52 @@ from testlib import *
 
 
 TEST_NETWORK_XML = """
-    <network>
-      <name>test_network</name>
-      <forward mode='nat'/>
-      <bridge name='virbr1' stp='on' delay='0'/>
-      <mac address='52:54:00:bc:93:8e'/>
-      <ip address='192.168.123.1' netmask='255.255.255.0'>
-        <dhcp>
-          <range start='192.168.123.2' end='192.168.123.254'/>
-        </dhcp>
-      </ip>
-    </network>
+<network>
+  <name>test_network</name>
+  <forward mode='nat'/>
+  <bridge name='virbr1' stp='on' delay='0'/>
+  <mac address='52:54:00:bc:93:8e'/>
+  <ip address='192.168.123.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.123.2' end='192.168.123.254'/>
+    </dhcp>
+  </ip>
+</network>
 """
 
+TEST_NETWORK2_XML = """
+<network>
+  <name>test_network2</name>
+  <bridge name='virbr1' stp='on' delay='0'/>
+  <mac address='52:54:00:79:86:29'/>
+  <domain name='test'/>
+  <bandwidth>
+    <inbound average='1000' peak='9000' burst='5000'/>
+    <outbound average='2000' peak='3000' burst='4000'/>
+  </bandwidth>
+  <ip family='ipv6' address='fd00:e81d:a6d7:55::1' prefix='64'>
+    <dhcp>
+      <range start='fd00:e81d:a6d7:55::100' end='fd00:e81d:a6d7:55::1ff'/>
+      <host name='simon' ip='2001:db8:ca2:2:3::1'/>
+      <host id='0:1:0:1:18:aa:62:fe:0:16:3e:44:55:66' ip='2001:db8:ca2:2:3::2'/>
+    </dhcp>
+  </ip>
+  <ip address='192.168.100.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.100.128' end='192.168.100.170'/>
+      <host mac='00:16:3E:5D:C7:9E' name='paul' ip='192.168.122.254'/>
+    </dhcp>
+  </ip>
+</network>
+"""
+
+TEST_NETWORK3_XML = """
+<network>
+  <name>test_network3</name>
+  <forward mode='bridge'/>
+  <bridge name='br0'/>
+</network>
+"""
 
 class TestMachinesDBus(machineslib.TestMachines):
 
@@ -214,6 +247,72 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
         b.wait_not_present("#vm-subVmTest1-network-1-source-tooltip")
 
+    def testNetworks(self):
+        b = self.browser
+        m = self.machine
+
+        # Create dummy network
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK2_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK3_XML))
+
+        connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+
+        # Click on Networks card
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
+        b.click(".cards-pf .card-pf-title span:contains(Networks)")
+
+        # Check that all networks are there
+        b.wait_in_text("body", "Networks")
+        b.wait_present("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName))
+        b.wait_present("tbody tr[data-row-id=network-test_network3-{0}] th".format(connectionName))
+
+        # Check headers of networks
+        b.wait_in_text("#network-test_network2-{0}-name".format(connectionName), "test_network2")
+        b.wait_in_text("#network-test_network2-{0}-device".format(connectionName), "virbr1")
+        b.wait_in_text("#network-test_network2-{0}-forwarding".format(connectionName), "None (Isolated Network)")
+        b.wait_in_text("#network-test_network3-{0}-name".format(connectionName), "test_network3")
+        b.wait_in_text("#network-test_network3-{0}-device".format(connectionName), "br0")
+        b.wait_in_text("#network-test_network3-{0}-forwarding".format(connectionName), "Bridge")
+
+        # Expand row for first network
+        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+
+        # Check overview network properties are present
+        b.wait_in_text("#network-test_network2-{0}-persistent".format(connectionName), "no")
+        b.wait_in_text("#network-test_network2-{0}-autostart".format(connectionName), "no")
+        b.wait_in_text("#network-test_network2-{0}-ipv4-address".format(connectionName), "192.168.100.1")
+        b.wait_in_text("#network-test_network2-{0}-ipv4-netmask".format(connectionName), "255.255.255.0")
+        b.wait_in_text("#network-test_network2-{0}-ipv4-dhcp-range".format(connectionName), "192.168.100.128 - 192.168.100.170")
+        b.wait_in_text("#network-test_network2-{0}-ipv4-dhcp-host-0".format(connectionName), "Name: paul, MAC: 00:16:3E:5D:C7:9E, IP: 192.168.122.254")
+        b.wait_in_text("#network-test_network2-{0}-ipv6-address".format(connectionName), "fd00:e81d:a6d7:55::1")
+        b.wait_in_text("#network-test_network2-{0}-ipv6-prefix".format(connectionName), "64")
+        b.wait_in_text("#network-test_network2-{0}-ipv6-dhcp-range".format(connectionName), "fd00:e81d:a6d7:55::100 - fd00:e81d:a6d7:55::1ff")
+        b.wait_in_text("#network-test_network2-{0}-ipv6-dhcp-host-0".format(connectionName), "Name: simon, IP: 2001:db8:ca2:2:3::1")
+        b.wait_in_text("#network-test_network2-{0}-ipv6-dhcp-host-1".format(connectionName), "ID: 0:1:0:1:18:aa:62:fe:0:16:3e:44:55:66, IP: 2001:db8:ca2:2:3::2")
+
+        # Close expanded row for this pool
+        b.click("tbody tr[data-row-id=network-test_network2-{0}] th".format(connectionName)) # click on the row header
+
+        # Expand row for second network
+        b.click("tbody tr[data-row-id=network-test_network3-{0}] th".format(connectionName)) # click on the row header
+
+        # Check overview network properties are present
+        b.wait_in_text("#network-test_network3-{0}-persistent".format(connectionName), "no")
+        b.wait_in_text("#network-test_network3-{0}-autostart".format(connectionName), "no")
+
+        # Check overview network properties are not present
+        b.wait_not_present("#network-test_network3-{0}-ipv4-address".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv4-netmask".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv4-dhcp-range".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv4-dhcp-host-0".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv6-address".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv6-prefix".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-range".format(connectionName))
+        b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-host-0".format(connectionName))
+
     def testStoragePools(self):
         b = self.browser
         m = self.machine
@@ -233,7 +332,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
 
         # Click on Storage Pools card
-        b.wait_in_text(".cards-pf .card-pf-title-link", "Storage Pools")
+        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
         b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
 
         # Check that all defined pools are there
@@ -348,7 +447,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("body", "Virtual Machines")
 
         # Click on Storage Pools card
-        b.wait_in_text(".cards-pf .card-pf-title-link", "Storage Pools")
+        b.wait_in_text(".cards-pf #card-pf-storage-pools .card-pf-title-link", "Storage Pools")
         b.click(".cards-pf .card-pf-title span:contains(Storage Pools)")
 
         class StoragePoolCreateDialog(object):

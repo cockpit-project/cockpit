@@ -76,6 +76,7 @@ import {
     getSingleOptionalElem,
     isRunning,
     parseDumpxml,
+    parseNetDumpxml,
     parseStoragePoolDumpxml,
     parseStorageVolumeDumpxml,
     resolveUiState,
@@ -527,13 +528,26 @@ LIBVIRT_DBUS_PROVIDER = {
 
         return dispatch => {
             call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.Network'], TIMEOUT)
-                    .then((resultProps) => {
+                    .then(resultProps => {
                         props.active = resultProps[0].Active.v.v;
                         props.persistent = resultProps[0].Persistent.v.v;
                         props.autostart = resultProps[0].Autostart.v.v;
                         props.name = resultProps[0].Name.v.v;
                         props.id = objPath;
                         props.connectionName = connectionName;
+
+                        return call(connectionName, objPath, 'org.libvirt.Network', 'GetXMLDesc', [0], TIMEOUT);
+                    })
+                    .then(xml => {
+                        const network = parseNetDumpxml(xml);
+
+                        if (network) {
+                            props.mode = network.mode;
+                            props.device = network.device;
+                            props.ip = network.ip;
+                            props.bandwidth = network.bandwidth;
+                            props.mtu = network.mtu;
+                        }
 
                         dispatch(updateOrAddNetwork(Object.assign({}, props)));
                     })

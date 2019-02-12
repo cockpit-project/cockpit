@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2018 Red Hat, Inc.
+ * Copyright (C) 2019 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -22,17 +22,15 @@ import { Breadcrumb } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { Listing } from 'cockpit-components-listing.jsx';
-import { StoragePool } from './storagePool.jsx';
-import { storagePoolId } from '../../helpers.js';
-import { CreateStoragePoolAction } from './createStoragePoolDialog.jsx';
+import { Network } from './network.jsx';
+import { networkId } from '../../helpers.js';
 
 const _ = cockpit.gettext;
 
-export class StoragePoolList extends React.Component {
+export class NetworkList extends React.Component {
     render() {
-        const { storagePools, dispatch, loggedUser, vms } = this.props;
-        const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
-        const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} />);
+        const { networks } = this.props;
+        const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
 
         return (
             <React.Fragment>
@@ -41,23 +39,18 @@ export class StoragePoolList extends React.Component {
                         {_("Virtual Machines")}
                     </Breadcrumb.Item>
                     <Breadcrumb.Item active>
-                        {_("Storage Pools")}
+                        {_("Networks")}
                     </Breadcrumb.Item>
                 </Breadcrumb>
-                <div id='storage-pools-listing' className='container-fluid'>
-                    <Listing title={_("Storage Pools")}
-                        columnTitles={[_("Name"), _("Size"), "", _("Connection"), _("State")]}
-                        emptyCaption={_("No storage pool is defined on this host")}
-                        actions={actions}>
-                        {storagePools
+                <div id='networks-listing' className='container-fluid'>
+                    <Listing title={_("Networks")}
+                        columnTitles={[_("Name"), _("Device"), _("Connection"), _("Forwarding mode"), _("State")]}
+                        emptyCaption={_("No network is defined on this host")}>
+                        {networks
                                 .sort(sortFunction)
-                                .map(storagePool => {
-                                    const filterVmsByConnection = vms.filter(vm => vm.connectionName == storagePool.connectionName);
-
+                                .map(network => {
                                     return (
-                                        <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
-                                            storagePool={storagePool}
-                                            vms={filterVmsByConnection} />
+                                        <Network key={`${networkId(network.name, network.connectionName)}`} network={network} />
                                     );
                                 })
                         }
@@ -67,8 +60,7 @@ export class StoragePoolList extends React.Component {
         );
     }
 }
-StoragePoolList.propTypes = {
-    storagePools: PropTypes.array.isRequired,
-    vms: PropTypes.array.isRequired,
+NetworkList.propTypes = {
+    networks: PropTypes.array.isRequired,
     changeActiveList: PropTypes.func.isRequired,
 };

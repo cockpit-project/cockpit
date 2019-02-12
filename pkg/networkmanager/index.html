@@ -166,11 +166,11 @@
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">VLAN Id</label>
+      <label class="control-label" for="network-vlan-settings-vlan-id-input" translatable="yes">VLAN Id</label>
       <input id="network-vlan-settings-vlan-id-input" class="form-control" type="text"
              value="{{vlan_id}}"/>
 
-      <label class="control-label" translatable="yes">Name</label>
+      <label class="control-label" for="network-vlan-settings-interface-name-input" translatable="yes">Name</label>
       <input id="network-vlan-settings-interface-name-input" class="form-control" type="text"
              value="{{interface_name}}"/>
     </form>
@@ -197,7 +197,7 @@
 
   <script id="network-mac-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">MAC</label>
+      <label class="control-label" for="network-mac-settings-input" translatable="yes">MAC</label>
       <div class="input-group">
         <input id="network-mac-settings-input" class="form-control" type="text"
                value="{{assigned_mac_address}}"/>
@@ -214,7 +214,7 @@
 
   <script id="network-bridge-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">Name</label>
+      <label class="control-label" for="network-bridge-settings-name-input" translatable="yes">Name</label>
       <input id="network-bridge-settings-name-input" class="form-control" type="text"
              value="{{bridge_name}}"/>
 
@@ -223,25 +223,25 @@
         {{! slave interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" translatable="yes">Spanning Tree Protocol (STP)</label>
+      <label class="control-label" for="network-bridge-settings-stp-enabled-input" translatable="yes">Spanning Tree Protocol (STP)</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-stp-enabled-input" type="checkbox"
           {{#stp_checked}}checked{{/stp_checked}}/>
       </label>
 
-      <label class="control-label" translatable="yes">STP Priority</label>
+      <label class="control-label" for="network-bridge-settings-stp-priority-input" translatable="yes">STP Priority</label>
       <input id="network-bridge-settings-stp-priority-input" class="form-control" type="text"
              value="{{stp_priority}}"/>
 
-      <label class="control-label" translatable="yes">STP Forward delay</label>
+      <label class="control-label" for="network-bridge-settings-stp-forward-delay-input" translatable="yes">STP Forward delay</label>
       <input id="network-bridge-settings-stp-forward-delay-input" class="form-control" type="text"
              value="{{stp_forward_delay}}"/>
 
-      <label class="control-label" translatable="yes">STP Hello time</label>
+      <label class="control-label" for="network-bridge-settings-stp-hello-time-input" translatable="yes">STP Hello time</label>
       <input id="network-bridge-settings-stp-hello-time-input" class="form-control" type="text"
              value="{{stp_hello_time}}"/>
 
-      <label class="control-label" translatable="yes">STP Maximum message age</label>
+      <label class="control-label" for="network-bridge-settings-stp-max-age-input" translatable="yes">STP Maximum message age</label>
       <input id="network-bridge-settings-stp-max-age-input" class="form-control" type="text"
              value="{{stp_max_age}}"/>
     </form>
@@ -249,15 +249,15 @@
 
   <script id="network-bridge-port-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">Priority</label>
+      <label class="control-label" for="network-bridge-port-settings-priority-input" translatable="yes">Priority</label>
       <input id="network-bridge-port-settings-priority-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" value="{{priority}}"/>
 
-      <label class="control-label" translatable="yes">Path cost</label>
+      <label class="control-label" for="network-bridge-port-settings-path-cost-input" translatable="yes">Path cost</label>
       <input id="network-bridge-port-settings-path-cost-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" value="{{path_cost}}"/>
 
-      <label class="control-label" translatable="yes">Hair Pin mode</label>
+      <label class="control-label" for="network-bridge-settings-hairpin-mode-input" translatable="yes">Hair Pin mode</label>
       <label class="checkbox-inline">
         <input id="network-bridge-settings-hairpin-mode-input" type="checkbox"
                {{#hairpin_mode_checked}}checked{{/hairpin_mode_checked}}/>
@@ -267,7 +267,7 @@
 
   <script id="network-bond-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">Name</label>
+      <label class="control-label" for="network-bond-settings-interface-name-input" translatable="yes">Name</label>
       <input id="network-bond-settings-interface-name-input" class="form-control"
              value="{{interface_name}}"/>
 
@@ -276,7 +276,7 @@
       {{! member interfaces will be rendered into here as a list of checkboxes }}
       </div>
 
-      <label class="control-label" translatable="yes">MAC</label>
+      <label class="control-label" for="network-bond-settings-mac-input" translatable="yes">MAC</label>
       <div class="input-group">
         <input id="network-bond-settings-mac-input" class="form-control" type="text"
                value="{{assigned_mac_address}}"/>
@@ -304,19 +304,19 @@
         {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Monitoring Interval</label>
+      <label class="control-label" for="network-bond-settings-monitoring-interval-input" translatable="yes">Monitoring Interval</label>
       <input id="network-bond-settings-monitoring-interval-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{monitoring_interval}}"/>
 
-      <label class="control-label" translatable="yes">Monitoring Targets</label>
+      <label class="control-label" for="network-bond-settings-monitoring-targets-input" translatable="yes">Monitoring Targets</label>
       <input id="network-bond-settings-monitoring-targets-input" class="form-control"
              type="text" value="{{monitoring_targets}}"/>
 
-      <label class="control-label" translatable="yes">Link up delay</label>
+      <label class="control-label" for="network-bond-settings-link-up-delay-input" translatable="yes">Link up delay</label>
       <input id="network-bond-settings-link-up-delay-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{link_up_delay}}"/>
 
-      <label class="control-label" translatable="yes">Link down delay</label>
+      <label class="control-label" for="network-bond-settings-link-down-delay-input" translatable="yes">Link down delay</label>
       <input id="network-bond-settings-link-down-delay-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{link_down_delay}}"/>
     </form>
@@ -324,7 +324,7 @@
 
   <script id="network-team-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">Name</label>
+      <label class="control-label" for="network-team-settings-interface-name-input" translatable="yes">Name</label>
       <input id="network-team-settings-interface-name-input" class="form-control"
              value="{{interface_name}}"/>
 
@@ -348,19 +348,19 @@
           {{! the rather complex dropdown-select will be created dynamically via jquery }}
       </div>
 
-      <label class="control-label" translatable="yes">Ping Interval</label>
+      <label class="control-label" for="network-team-settings-ping-interval-input" translatable="yes">Ping Interval</label>
       <input id="network-team-settings-ping-interval-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{config.link_watch.interval}}"/>
 
-      <label class="control-label" translatable="yes">Ping Target</label>
+      <label class="control-label" for="network-team-settings-ping-target-input" translatable="yes">Ping Target</label>
       <input id="network-team-settings-ping-target-input" class="form-control"
              type="text" value="{{config.link_watch.target_host}}"/>
 
-      <label class="control-label" translatable="yes">Link up delay</label>
+      <label class="control-label" for="network-team-settings-link-up-delay-input" translatable="yes">Link up delay</label>
       <input id="network-team-settings-link-up-delay-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{config.link_watch.delay_up}}"/>
 
-      <label class="control-label" translatable="yes">Link down delay</label>
+      <label class="control-label" for="network-team-settings-link-down-delay-input" translatable="yes">Link down delay</label>
       <input id="network-team-settings-link-down-delay-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" maxlength="4" value="{{config.link_watch.delay_down}}"/>
     </form>
@@ -368,21 +368,21 @@
 
   <script id="network-team-port-settings-template" type="x-template/mustache">
     <form class="ct-form-layout">
-      <label class="control-label" translatable="yes">Priority</label>
+      <label class="control-label" for="network-team-port-settings-ab-prio-input" translatable="yes">Priority</label>
       <input id="network-team-port-settings-ab-prio-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" value="{{prio}}"/>
 
-      <label class="control-label" translatable="yes">Sticky</label>
+      <label class="control-label" for="network-team-port-settings-ab-sticky-input" translatable="yes">Sticky</label>
       <label class="checkbox-inline">
         <input id="network-team-port-settings-ab-sticky-input" type="checkbox"
                {{#sticky}}checked{{/sticky}}/>
       </label>
 
-      <label class="control-label" translatable="yes">Priority</label>
+      <label class="control-label" for="network-team-port-settings-lacp-prio-input" translatable="yes">Priority</label>
       <input id="network-team-port-settings-lacp-prio-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" value="{{lacp_prio}}"/>
 
-      <label class="control-label" translatable="yes">LACP Key</label>
+      <label class="control-label" for="network-team-port-settings-lacp-key-input" translatable="yes">LACP Key</label>
       <input id="network-team-port-settings-lacp-key-input" class="form-control network-number-field ct-form-layout-relax"
              type="text" value="{{lacp_key}}"/>
     </form>

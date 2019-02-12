@@ -216,6 +216,17 @@ const transform = {
         'udp': _("udp"),
         'vhostuser': _("vhostuser"),
     },
+    'networkForward': {
+        'open': _("Open"),
+        'nat': "NAT",
+        'none': _("None (Isolated Network)"),
+        'route': "Routed",
+        'bridge': "Bridge",
+        'private': _("Private"),
+        'vepa': "VEPA",
+        'passthrough': "Passthrough",
+        'hostdev': "Hostdev",
+    },
     'networkManaged': {
         'yes': _("yes"),
         'no': _("no"),
@@ -299,6 +310,10 @@ export function fileDownload({ data, fileName = 'myFile.dat', mimeType = 'applic
 
 export function vmId(vmName) {
     return `vm-${vmName}`;
+}
+
+export function networkId(poolName, connectionName) {
+    return `network-${poolName}-${connectionName}`;
 }
 
 export function storagePoolId(poolName, connectionName) {

@@ -35,7 +35,7 @@ export class AggregateStatusCards extends React.Component {
     render() {
         return (
             <div className='cards-pf grid-cards-ct cards-ct-hybrid'>
-                <Card accented aggregated>
+                <Card accented aggregated id='card-pf-storage-pools'>
                     <CardTitle onClick={ () => this.props.changeActiveList(2) }>
                         <a href='#'>
                             <Icon type='pf' name='server' />
@@ -60,13 +60,17 @@ export class AggregateStatusCards extends React.Component {
                         </AggregateStatusNotifications>
                     </CardBody>
                 </Card>
-                <Card accented aggregated>
-                    <CardTitle>
-                        <Icon type='pf' name='network' />
-                        <AggregateStatusCount>
-                            { this.props.networks.length }
-                        </AggregateStatusCount>
-                        Networks
+                <Card accented aggregated id='card-pf-networks'>
+                    <CardTitle onClick={ () => this.props.changeActiveList(3) }>
+                        <a href='#'>
+                            <Icon type='pf' name='network' />
+                            <AggregateStatusCount>
+                                { this.props.networks.length }
+                            </AggregateStatusCount>
+                            <span className="card-pf-title-link">
+                                Networks
+                            </span>
+                        </a>
                     </CardTitle>
                     <CardBody>
                         <AggregateStatusNotifications>

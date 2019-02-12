@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 
 import HostVmsList from "./hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
+import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
@@ -65,6 +66,9 @@ class App extends React.Component {
                     vms={vms}
                     changeActiveList={this.changeActiveList}
                     loggedUser={systemInfo.loggedUser} />
+                }
+                { this.state.activeTab == 3 && <NetworkList networks={networks}
+                    changeActiveList={this.changeActiveList} />
                 }
             </div>
         );

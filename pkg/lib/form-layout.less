@@ -251,6 +251,23 @@
     margin-bottom: @padding-small-vertical;
   }
 
+  // Fix up list group items too (alignment and clickable areas)
+  .list-group-item {
+    // Move padding into the label
+    padding: 0;
+
+    label {
+      display: flex;
+      padding: 0.5rem 1rem;
+      align-items: first baseline;
+
+      > input[type=checkbox],
+      > input[type=radio] {
+        top: 3px;
+      }
+    }
+  }
+
   // Relax split elements to only take up one column
   > .ct-form-layout-split {
     grid-column: ~"auto / auto";

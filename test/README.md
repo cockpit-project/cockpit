@@ -141,22 +141,25 @@ working copy of Cockpit like this:
 This either needs a configured/built tree (build in mock or a development VM)
 or cockpit's build dependencies installed.
 
-image-prepare will prepare a test machine image used for the next test run,
-but will not modify the saved version in `$TEST_DATA/images`.  Use
-vm-reset to revert the test machine images for the next run to the
-versions in `$TEST_DATA/images`.
+image-prepare will prepare a test machine image used for the next test run.
+It will not modify the saved version in `$TEST_DATA/images`, but do all the
+preparation in an overlay in `test/images`.
 
 A typical sequence of steps would thus be the following:
 
-    $ bots/image-download
-    $ test/vm-reset            # Start over
-    $ tools/make-rpms          # Create rpms
+    $ make                     # Build the code
     $ bots/image-prepare ...   # Install code to test
     $ test/verify/check-...    # Run some tests
 
-    $ test/vm-reset            # Start over
-    $ bots/image-prepare ...   # Install code to test
-    $ test/verify/check-...    # Run some tests
+Each image-prepare invocation will always start from the pristine
+`$TEST_DATA/images` and ignore the current overlay in `test/images`. It is
+thorough, but also rather slow. If you want to iterate on changing
+only JavaScript/HTML code, you can use this shortcut to copy updated webpacks
+into a prepared VM overlay image:
+
+    $ make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
+
+Use `test/vm-reset` to clean up all prepared overlays in `test/images`.
 
 ## Running tests
 

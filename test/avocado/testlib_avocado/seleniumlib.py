@@ -225,8 +225,8 @@ This function is only for internal purposes:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to SEND_KEYS to element ({})'.format(e))
         if javascript_operations:
-            self._driver_excecute('var ev = document.createEvent("Event"); ev.initEvent("change", true, false); arguments[0].dispatchEvent(ev);', element)
-            self._driver_excecute('var ev = document.createEvent("Event"); ev.initEvent("keydown", true, false); arguments[0].dispatchEvent(ev);', element)
+            self._driver_excecute('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
+            self._driver_excecute('var ev = new Event("change", { bubbles: true, cancelable: false }); arguments[0].dispatchEvent(ev);', element)
 
     def check_box(self, element, checked=True):
         try:

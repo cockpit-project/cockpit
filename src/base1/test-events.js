@@ -14,8 +14,7 @@ QUnit.test("event dispatch", function (assert) {
         count += 1;
     }
 
-    var ev = document.createEvent("Event");
-    ev.initEvent("action", false, false);
+    var ev = new Event("action", { bubbles: false, cancelable: false });
     ev.data = "Data";
 
     obj.dispatchEvent(ev);

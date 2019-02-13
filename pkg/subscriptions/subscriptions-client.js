@@ -37,8 +37,7 @@ client.subscriptionStatus = {
 var service;
 
 function needRender() {
-    var ev = document.createEvent("Event");
-    ev.initEvent("dataChanged", false, false);
+    var ev = new Event("dataChanged", { bubbles: false, cancelable: false });
     client.dispatchEvent(ev);
 }
 

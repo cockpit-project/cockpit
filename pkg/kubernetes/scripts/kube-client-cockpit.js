@@ -475,12 +475,10 @@
                             });
 
                             channel.addEventListener("close", function(ev, options) {
-                                var problem = options.problem || "";
                                 channel = null;
 
                                 state = 3;
-                                var cev = document.createEvent('Event');
-                                cev.initEvent('close', false, false, !!problem, 1000, problem);
+                                var cev = new Event("close", { bubbles: false, cancelable: false });
                                 ws.dispatchEvent(cev);
                             });
 
@@ -498,14 +496,12 @@
                             });
 
                             state = 1;
-                            var oev = document.createEvent('Event');
-                            oev.initEvent('open', false, false);
+                            var oev = new Event("open", { bubbles: false, cancelable: false });
                             ws.dispatchEvent(oev);
                         }
 
                         function fail() {
-                            var ev = document.createEvent('Event');
-                            ev.initEvent('close', false, false, false, 1002, "protocol-error");
+                            var ev = new Event("close", { bubbles: false, cancelable: false });
                             ws.dispatchEvent(ev);
                         }
 
@@ -632,12 +628,10 @@
                             }));
 
                             channel.addEventListener("close", function(ev, options) {
-                                var problem = options.problem || "";
                                 channel = null;
 
                                 state = 3;
-                                var cev = document.createEvent('Event');
-                                cev.initEvent('close', false, false, !!problem, 1000, problem);
+                                var cev = new Event("close", { bubbles: false, cancelable: false });
                                 ws.dispatchEvent(cev);
                             });
 
@@ -653,8 +647,7 @@
                             });
 
                             state = 1;
-                            var oev = document.createEvent('Event');
-                            oev.initEvent('open', false, false);
+                            var oev = new Event("open", { bubbles: false, cancelable: false });
                             ws.dispatchEvent(oev);
                         });
 

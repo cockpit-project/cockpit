@@ -52,8 +52,7 @@ function ph_set_val (sel, val)
     if (el.value === undefined)
         throw sel + " does not have a value";
     el.value = val;
-    var ev = document.createEvent("Event");
-    ev.initEvent("change", true, false);
+    var ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
 }
 
@@ -85,8 +84,7 @@ function ph_set_attr (sel, attr, val)
     else
         el.setAttribute(attr, val);
 
-    var ev = document.createEvent("Event");
-    ev.initEvent("change", true, false);
+    var ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
 }
 

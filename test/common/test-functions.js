@@ -125,14 +125,17 @@ function ph_mouse(sel, type, x, y, btn, force) {
     else if (type === "dblclick")
         detail = 2;
 
-    var ev = document.createEvent("MouseEvent");
-    ev.initMouseEvent(
-        type,
-        true /* bubble */, true /* cancelable */,
-        window, detail,
-        left + x, top + y, left + x, top + y, /* coordinates */
-        false, false, false, false, /* modifier keys */
-        btn, null);
+    var ev = new MouseEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        detail: detail,
+        screenX: left + x,
+        screenY: top + y,
+        clientX: left + x,
+        clientY: top + y,
+        button: btn
+    });
 
     el.dispatchEvent(ev);
 

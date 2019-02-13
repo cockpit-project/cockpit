@@ -682,14 +682,12 @@ class KubernetesCommonTests(VolumeTests):
                     var x = el[i].getAttribute("cx");
                     var y = el[i].getAttribute("cy");
                     if (x && y) {
-                        var ev = document.createEvent("MouseEvent");
-                        ev.initMouseEvent(
-                            "mousedown",
-                            true /* bubble */, true /* cancelable */,
-                            window, null,
-                            0, 0, 0, 0, /* coordinates */
-                            false, false, false, false, /* modifier keys */
-                            0 /*left*/, null);
+                        var ev = new MouseEvent("mousedown", {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                            button: 0
+                        });
 
                         /* Now dispatch the event */
                         el[i].dispatchEvent(ev);

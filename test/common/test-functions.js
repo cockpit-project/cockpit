@@ -119,11 +119,17 @@ function ph_mouse(sel, type, x, y, btn, force) {
         top += elp.offsetTop;
     }
 
+    var detail = 0;
+    if (["click", "mousedown", "mouseup"].indexOf(type) > -1)
+        detail = 1;
+    else if (type === "dblclick")
+        detail = 2;
+
     var ev = document.createEvent("MouseEvent");
     ev.initMouseEvent(
         type,
         true /* bubble */, true /* cancelable */,
-        window, null,
+        window, detail,
         left + x, top + y, left + x, top + y, /* coordinates */
         false, false, false, false, /* modifier keys */
         btn, null);

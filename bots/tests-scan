@@ -284,7 +284,9 @@ def queue_test(priority, name, number, revision, ref, context, base, repo, bots_
             "ref": ref,
             "name": name,
         }
-        if (context in REDHAT_VERIFY or context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
+        # repo will be set if it's an external project on a cockpit PR
+        # options.repo will be set if it's an external project's PR
+        if (context in REDHAT_VERIFY or context in REDHAT_EXTERNAL_PROJECTS.get(repo or options.repo, [])):
             queue.basic_publish('', 'rhel', json.dumps(body), properties=pika.BasicProperties(priority=priority))
         else:
             queue.basic_publish('', 'public', json.dumps(body), properties=pika.BasicProperties(priority=priority))

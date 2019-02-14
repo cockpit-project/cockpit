@@ -161,6 +161,27 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # Wait for text to show up
         wait_line(n + 2, "foo")
 
+        def check_theme_select(name, style):
+            b.select_from_dropdown("#theme-select", name)
+            b.wait_attr(".xterm-viewport", "style", style)
+
+        # Check that color theme changes
+        white_style = "background-color: rgb(255, 255, 255);"
+
+        check_theme_select("Black", "background-color: rgb(0, 0, 0);")
+        check_theme_select("Dark", "background-color: rgb(0, 43, 54);")
+        check_theme_select("Light", "background-color: rgb(253, 246, 227);")
+        check_theme_select("White", white_style)
+
+        # Relogin and white-style should be remembered
+        # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
+        b.go("/system")
+        b.relogin("/system")
+        b.go("/system/terminal")
+        b.enter_page("/system/terminal")
+        b.wait_present('.terminal')
+        b.wait_attr(".xterm-viewport", "style", white_style)
+
 
 if __name__ == '__main__':
     test_main()

@@ -4,6 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { Terminal } from "cockpit-components-terminal.jsx";
+import { Select, SelectEntry } from "cockpit-components-select.jsx";
 
 const _ = cockpit.gettext;
 
@@ -34,11 +35,14 @@ const _ = cockpit.gettext;
 
         constructor(props) {
             super(props);
+            var theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
             this.state = {
-                title: 'Terminal'
+                title: 'Terminal',
+                theme: theme || "black-theme"
             };
             this.onTitleChanged = this.onTitleChanged.bind(this);
             this.onResetClick = this.onResetClick.bind(this);
+            this.onThemeChanged = this.onThemeChanged.bind(this);
         }
 
         componentWillMount() {
@@ -49,6 +53,13 @@ const _ = cockpit.gettext;
 
         onTitleChanged(title) {
             this.setState({ title: title });
+        }
+
+        onThemeChanged(value) {
+            this.setState({ theme: value });
+            var cookie = "theme_cookie=" + encodeURIComponent(value) +
+                         "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+            document.cookie = cookie;
         }
 
         onResetClick(event) {
@@ -71,19 +82,31 @@ const _ = cockpit.gettext;
             if (this.state.channel)
                 terminal = (<Terminal ref="terminal"
                      channel={this.state.channel}
+                     theme={this.state.theme}
                      onTitleChanged={this.onTitleChanged} />);
             else
                 terminal = <span>Loading...</span>;
 
             return (
                 <div className="console-ct-container">
-                    <div className="panel-heading">
+                    <div className="panel-heading terminal-group">
                         <tt className="terminal-title">{this.state.title}</tt>
-                        <button ref="resetButton"
-                             className="btn btn-default pull-right"
-                             onClick={this.onResetClick}>{_("Reset")}</button>
+                        <div>
+                            <label className="control-label" htmlFor="theme-select">{ _("Appearance:") }</label>
+                            <Select onChange={ this.onThemeChanged }
+                                    id="theme-select"
+                                    initial={ this.state.theme }>
+                                <SelectEntry data='black-theme'>{ _("Black") }</SelectEntry>
+                                <SelectEntry data='dark-theme'>{ _("Dark") }</SelectEntry>
+                                <SelectEntry data='light-theme'>{ _("Light") }</SelectEntry>
+                                <SelectEntry data='white-theme'>{ _("White") }</SelectEntry>
+                            </Select>
+                            <button ref="resetButton"
+                                 className="btn btn-default"
+                                 onClick={ this.onResetClick }>{ _("Reset") }</button>
+                        </div>
                     </div>
-                    <div className="panel-body">
+                    <div className={ "panel-body " + this.state.theme }>
                         {terminal}
                     </div>
                 </div>

@@ -142,6 +142,43 @@ class Retry(object):
         return __wrap
 
 
+def wait(func, msg=None, delay=1, tries=60):
+    """
+    Wait for FUNC to return something truthy, and return that.
+
+    FUNC is called repeatedly until it returns a true value or until a
+    timeout occurs.  In the latter case, a exception is raised that
+    describes the situation.  The exception is either the last one
+    thrown by FUNC, or includes MSG, or a default message.
+
+    Arguments:
+      func: The function to call.
+      msg: A error message to use when the timeout occurs.  Defaults
+        to a generic message.
+      delay: How long to wait between calls to FUNC, in seconds.
+        Defaults to 1.
+      tries: How often to call FUNC.  Defaults to 60.
+
+    Raises:
+      TimeoutError: When a timeout occurs.
+    """
+
+    t = 0
+    while t < tries:
+        try:
+            val = func()
+            if val:
+                return val
+        except Exception:
+            if t == tries - 1:
+                raise
+            else:
+                pass
+        t = t + 1
+        time.sleep(delay)
+    raise TimeoutError(msg or "Condition did not become true.")
+
+
 if __name__ == '__main__':
     class IFailedError(Exception):
         pass

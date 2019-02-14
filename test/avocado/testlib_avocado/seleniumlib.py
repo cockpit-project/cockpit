@@ -29,6 +29,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 import os
 import time
 from avocado import Test
@@ -52,6 +53,8 @@ visible = EC.visibility_of_element_located
 clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
+present = EC.presence_of_element_located
+text_in = EC.text_to_be_present_in_element
 
 
 class SeleniumTest(Test):
@@ -218,10 +221,12 @@ This function is only for internal purposes:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to CLICK on element {}'.format(failure))
 
-    def send_keys(self, element, text, clear=True):
+    def send_keys(self, element, text, clear=True, ctrla=False):
         try:
             if clear:
                 element.clear()
+            if ctrla:
+                element.send_keys(Keys.CONTROL + 'a')
             element.send_keys(text)
         except WebDriverException as e:
             self.take_screenshot(fatal=False)
@@ -238,7 +243,7 @@ This function is only for internal purposes:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to CHECKBOX element ({})'.format(e))
 
-    def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck):
+    def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck, text_):
         """
 This function is low level, tests should prefer to use the wait_* functions:
     This function stores caller function for this element to an internal dictionary, in case that
@@ -251,15 +256,20 @@ parameters:
     fatal - boolean if search is fatal or notice
     cond - use selenium conditions (aliases are defined above class)
     jscheck - use javascipt to wait for element has attribute-data loaded, it is safer, but slower
+    text_ - text to be present in element
         """
         if not baseelement:
             baseelement = self.driver
         returned = None
         cond = cond if cond else visible
+        if cond is text_in:
+            condition = cond((method, text), text_)
+        else:
+            condition = cond((method, text))
         internaltry = overridetry if overridetry else self.default_try
 
         def usedfunction():
-            return WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+            return WebDriverWait(baseelement, self.default_explicit_wait).until(condition)
 
         for foo in range(0, internaltry):
             try:
@@ -278,14 +288,17 @@ parameters:
         self.element_wait_functions[returned] = usedfunction
         return returned
 
-    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
-        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
+    def wait_id(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False, text_=None):
+        return self.wait(By.ID, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck, text_=text_)
 
-    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
-        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
+    def wait_link(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False, text_=None):
+        return self.wait(By.PARTIAL_LINK_TEXT, baseelement=baseelement, text=el, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck, text_=text_)
 
-    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
-        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck)
+    def wait_css(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False, text_=None):
+        return self.wait(By.CSS_SELECTOR, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck, text_=text_)
+
+    def wait_xpath(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False, text_=None):
+        return self.wait(By.XPATH, text=el, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=cond, jscheck=jscheck, text_=text_)
 
     def wait_text(self, el, nextel="", element="*", baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         search_string = ""
@@ -309,7 +322,7 @@ parameters:
 
     def wait_frame(self, el, baseelement=None, overridetry=None, fatal=True, cond=None, jscheck=False):
         text = "//iframe[contains(@name,'%s')]" % el
-        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck)
+        return self.wait(By.XPATH, text=text, baseelement=baseelement, overridetry=overridetry, fatal=fatal, cond=frame, jscheck=jscheck, text_=None)
 
     def mainframe(self):
         try:

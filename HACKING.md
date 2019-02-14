@@ -96,6 +96,15 @@ variable:
 
     $ make check TESTS=dist/base1/test-chan.html
 
+There are also static code and syntax checks which you should run often:
+
+    $ tools/test-static-code
+
+It is highly recommended to set this up as a git pre-push hook, to avoid
+pushing PRs that will fail on trivial errors:
+
+    $ ln -s ../../tools/test-static-code .git/hooks/pre-push
+
 ## Running the integration test suite
 
 Refer to the [testing README](test/README.md) for details on running

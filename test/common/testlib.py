@@ -508,6 +508,13 @@ class Browser:
             print("-> Setting SSL certificate error policy to %s" % action)
         self.cdp.command("new Promise((resolve, _) => { ssl_bad_certificate_action = '%s'; resolve() })" % action)
 
+    def grant_permissions(self, *args):
+        """Grant permissions to the browser"""
+        # https://chromedevtools.github.io/devtools-protocol/tot/Browser/#method-grantPermissions
+        self.cdp.invoke("Browser.grantPermissions",
+                        origin="http://%s:%s" % (self.address, self.port),
+                        permissions=args)
+
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG and HTML.
 

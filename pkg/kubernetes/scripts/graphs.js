@@ -541,8 +541,11 @@
                                 }
                             }
 
-                            var event = document.createEvent("CustomEvent");
-                            event.initCustomEvent("changed", false, false, null);
+                            var event = new CustomEvent("changed", {
+                                bubbles: false,
+                                cancelable: false,
+                                detail: null
+                            });
                             self.dispatchEvent(event, null);
                         };
 

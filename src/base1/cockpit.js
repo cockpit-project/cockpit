@@ -240,13 +240,19 @@ function event_mixin(obj, handlers) {
                 if (typeof event === "string") {
                     type = event;
                     args = Array.prototype.slice.call(arguments, 1);
-                    event = document.createEvent("CustomEvent");
+
+                    var detail = null;
                     if (arguments.length == 2)
-                        event.initCustomEvent(type, false, false, arguments[1]);
+                        detail = arguments[1];
                     else if (arguments.length > 2)
-                        event.initCustomEvent(type, false, false, args);
-                    else
-                        event.initCustomEvent(type, false, false, null);
+                        detail = args;
+
+                    event = new CustomEvent(type, {
+                        bubbles: false,
+                        cancelable: false,
+                        detail: detail
+                    });
+
                     args.unshift(event);
                 } else {
                     type = event.type;

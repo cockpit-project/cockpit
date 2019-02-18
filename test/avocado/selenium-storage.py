@@ -1,19 +1,20 @@
 #!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
+from testlib_avocado.seleniumlib import SeleniumTest, clickable
+from testlib_avocado import libdisc
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from testlib_avocado import libdisc
-from testlib_avocado.seleniumlib import SeleniumTest, clickable
 
 class StorageTestSuite(SeleniumTest):
     """
     :avocado: enable
     """
+
     def test10Storage(self):
         other_disc = libdisc.DiscSimple()
         other_discname = other_disc.adddisc("d1")

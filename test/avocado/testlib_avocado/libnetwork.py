@@ -26,10 +26,11 @@
 import re
 from avocado.utils import process
 
+
 class Network():
     def __init__(self, brname=None):
         self.brname = brname
-        self.interfaces=[]
+        self.interfaces = []
         process.run("modprobe veth", shell=True)
         if self.brname and self.checkifbridgeexist():
             print("adding bridge " + self.brname)
@@ -43,7 +44,7 @@ class Network():
 
     def checkifbridgeexist(self):
         out = process.run("brctl show", shell=True)
-        if re.search('%s\s+' % self.brname ,out.stdout.decode("utf-8")) is None:
+        if re.search('%s\s+' % self.brname, out.stdout.decode("utf-8")) is None:
             return True
         else:
             return False
@@ -64,20 +65,20 @@ class Network():
         process.run("ip link set dev %sbr up" % ifname, shell=True)
         process.run("ip link set dev %s up" % ifname, shell=True)
         if self.brname and bridge:
-            process.run("brctl addif %s %s" % (self.brname,ifname), shell=True)
+            process.run("brctl addif %s %s" % (self.brname, ifname), shell=True)
         self.interfaces.append(ifname)
 
-    def isifinbridge(self,ifname):
+    def isifinbridge(self, ifname):
         if self.brname:
             out = process.run("brctl show %s" % self.brname, shell=True)
-            if re.search('\s+%s$' % ifname ,out.stdout.decode("utf-8")):
+            if re.search('\s+%s$' % ifname, out.stdout.decode("utf-8")):
                 return True
         return False
 
     def deliface(self, ifname):
         if ifname in self.interfaces:
             if self.isifinbridge(ifname):
-                process.run("brctl delif %s %s" % (self.brname,ifname), shell=True)
+                process.run("brctl delif %s %s" % (self.brname, ifname), shell=True)
             process.run("ip link set dev %s down" % ifname, shell=True)
             process.run("ip link set dev %sbr down" % ifname, shell=True)
             process.run("ip link del dev %sbr type veth" % ifname, shell=True)

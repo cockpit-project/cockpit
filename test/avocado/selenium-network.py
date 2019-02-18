@@ -1,11 +1,10 @@
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 import os
 import sys
 
 machine_test_dir = os.path.dirname(os.path.realpath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
-
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 
 
 class NeworkTestSuite(SeleniumTest):

@@ -24,6 +24,7 @@ from avocado.utils import process
 from testlib import wait
 from testlib_avocado import cockpit
 
+
 class checkrealms_basic(cockpit.Test):
     def test(self):
         domain = self.environment.IPADOMAIN
@@ -104,6 +105,7 @@ class checkrealms_basic(cockpit.Test):
         b.wait_visible(".realms-op-spinner")
         b.click(".realms-op-cancel")
         b.wait_popdown("realms-op")
+
 
 if __name__ == "__main__":
     job.main()

@@ -37,5 +37,6 @@ class SeleniumScreenshotFailure(SeleniumFailure):
 class SeleniumElementFailure(SeleniumFailure):
     pass
 
+
 class SeleniumJSFailure(SeleniumFailure):
     pass

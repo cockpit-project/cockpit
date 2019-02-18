@@ -53,10 +53,12 @@ clickable = EC.element_to_be_clickable
 invisible = EC.invisibility_of_element_located
 frame = EC.frame_to_be_available_and_switch_to_it
 
+
 class SeleniumTest(Test):
     """
     :avocado: disable
     """
+
     def setUp(self):
         # ensure that setup phase passed, otherwise handle it in tearDown
         # tierDown is called also in case setUp fail
@@ -121,12 +123,12 @@ class SeleniumTest(Test):
         self.error_setup = False
 
     def _get_screenshot_name(self, *args):
-        sep="-"
+        sep = "-"
         if len(args) > 0:
             suffix = sep.join(args)
         else:
             datesuffix = str(time.clock())[2:]
-            if inspect and inspect.stack() and len(inspect.stack())>0:
+            if inspect and inspect.stack() and len(inspect.stack()) > 0:
                 stackinfo = [x[3] for x in inspect.stack() if x[3].startswith("test") or x[3] in ["tearDown", "setUp"]]
             else:
                 stackinfo = []
@@ -255,7 +257,8 @@ parameters:
         returned = None
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
-        usedfunction = lambda :WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+
+        def usedfunction(): return WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
         for foo in range(0, internaltry):
             try:
                 returned = usedfunction()

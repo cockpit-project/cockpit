@@ -18,12 +18,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from testlib_avocado import cockpit
 from avocado import main
 from avocado import Test
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from testlib_avocado import cockpit
 
 
 class checkexample_foo(Test):
@@ -37,6 +37,7 @@ class checkexample_foo(Test):
 
         b.open("/system")
         b.wait_visible("#login")
+
 
 if __name__ == "__main__":
     main()

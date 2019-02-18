@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from testlib_avocado import cockpit
 import base64
 import time
 import subprocess
@@ -27,7 +28,6 @@ from avocado import Test
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-from testlib_avocado import cockpit
 
 
 machine = "localhost"
@@ -40,7 +40,7 @@ class checklogin_raw(Test):
 
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
-        return subprocess.check_output(['/usr/bin/curl', '-s', '-k',  '-D', '-',
+        return subprocess.check_output(['/usr/bin/curl', '-s', '-k', '-D', '-',
                                         '--header', header,
                                         'http://%s:9090%s' % (machine, url)])
 
@@ -76,10 +76,12 @@ class checklogin_raw(Test):
             '/cockpit/login', 'a' * 4000 + ':b\nc\n'), 401)
 
         c.allow_journal_messages("Returning error-response ... with reason .*",
-                                    r"pam_unix\(cockpit:auth\): authentication failure; .*",
-                                    r"pam_unix\(cockpit:auth\): check pass; user unknown",
-                                    r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
-                                    r"couldn't parse login input: Malformed input",
-                                    r"couldn't parse login input: Authentication failed")
+                                 r"pam_unix\(cockpit:auth\): authentication failure; .*",
+                                 r"pam_unix\(cockpit:auth\): check pass; user unknown",
+                                 r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
+                                 r"couldn't parse login input: Malformed input",
+                                 r"couldn't parse login input: Authentication failed")
+
+
 if __name__ == "__main__":
     main()

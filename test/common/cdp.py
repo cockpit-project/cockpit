@@ -40,6 +40,7 @@ def browser_path():
 
     return None
 
+
 def jsquote(str):
     return json.dumps(str)
 
@@ -129,7 +130,7 @@ class CDP:
 
         for retry in range(100):
             # don't use the default CDP port 9222 to avoid interfering with running browsers
-            port = random.randint (9223, 10222)
+            port = random.randint(9223, 10222)
             if self.claim_port(port):
                 return port
         else:

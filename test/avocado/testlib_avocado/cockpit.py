@@ -28,6 +28,7 @@ from .common.testlib import Browser
 
 parent  # pyflakes
 
+
 class Cockpit():
 
     def __init__(self,):

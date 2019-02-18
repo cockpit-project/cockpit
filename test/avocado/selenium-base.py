@@ -1,18 +1,19 @@
 #!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
+from testlib_avocado.seleniumlib import SeleniumTest, user, clickable, passwd, visible
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from testlib_avocado.seleniumlib import SeleniumTest, user, clickable, passwd, visible
 
 class BasicTestSuite(SeleniumTest):
     """
     :avocado: enable
     """
+
     def test10Base(self):
         # this is minimal cockpit test what checks login page
         self.wait_id('server-name')

@@ -6,7 +6,7 @@ import os
 import sys
 
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
-if not machine_test_dir in sys.path:
+if machine_test_dir not in sys.path:
     sys.path.insert(1, machine_test_dir)
 
 

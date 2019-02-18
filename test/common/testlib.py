@@ -1154,7 +1154,7 @@ class TapRunner(object):
             test(result)
         except KeyboardInterrupt:
             return False
-        except:
+        except Exception:
             sys.stderr.write("Unexpected exception while running {0}\n".format(test))
             sys.stderr.write(traceback.print_exc())
             return False
@@ -1417,7 +1417,7 @@ def wait(func, msg=None, delay=1, tries=60):
             val = func()
             if val:
                 return val
-        except:
+        except Exception:
             if t == tries - 1:
                 raise
             else:

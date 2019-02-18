@@ -25,6 +25,7 @@ import random
 import ssl
 import subprocess
 import sys
+import time
 import urllib.request, urllib.parse, urllib.error
 
 import pika
@@ -84,7 +85,12 @@ def main():
         body = json.loads(body)
         sys.stderr.write("Consuming {0} task:\n{1}\n".format(body['type'],json.dumps(body, indent=2, sort_keys=True)))
         sys.stderr.flush()
-        if subprocess.call(body['command'], shell=True) in [0, 2]:
+        p = subprocess.Popen(body['command'], shell=True)
+        while p.poll() is None:
+            connection.process_data_events()
+            time.sleep(3)
+
+        if p.returncode in [0, 2]:
             channel.basic_ack(method_frame.delivery_tag)
 
     connection.close()

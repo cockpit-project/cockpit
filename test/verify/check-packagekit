@@ -153,8 +153,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
-        b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "vanilla")
+        b.wait_present("table.available")
+        b.wait_in_text("table.available", "vanilla")
         self.check_nth_update(1, "chocolate", "2.0-2")
         self.check_nth_update(2, "vanilla", "1.0-2")
 
@@ -176,7 +176,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
 
         # no update history yet
-        self.assertFalse(b.is_present("#history"))
+        self.assertFalse(b.is_present("table.updates-history"))
 
         # should only have one button (no security updates)
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
@@ -226,6 +226,13 @@ class TestUpdates(PackageCase):
         # new versions are now installed
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
+        # history shows the two packages, expanded by default
+        b.wait_present("table.updates-history tbody.open td.history-pkgcount")
+        b.wait_text("table.updates-history tbody.open td.history-pkgcount", "2 Packages")
+        b.wait_present("table.updates-history tbody.open .listing-ct-panel")
+        b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "chocolate")
+        b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "vanilla")
+
         # system page has current state as well
         b.go("/system")
         b.enter_page("/system")
@@ -270,8 +277,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
 
-        b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "sevcritical")
+        b.wait_present("table.available")
+        b.wait_in_text("table.available", "sevcritical")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
         sel = self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
@@ -382,14 +389,14 @@ class TestUpdates(PackageCase):
         b.wait_in_text("#state", "3 updates")
         b.wait_present(".container-fluid #available h2")
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
-        b.wait_in_text("table.listing-ct", "norefs-doc")
-        self.assertIn("buggy", b.text("table.listing-ct"))
-        self.assertNotIn("secdeclare", b.text("table.listing-ct"))
-        self.assertNotIn("secparse", b.text("table.listing-ct"))
+        b.wait_in_text("table.available", "norefs-doc")
+        self.assertIn("buggy", b.text("table.available"))
+        self.assertNotIn("secdeclare", b.text("table.available"))
+        self.assertNotIn("secparse", b.text("table.available"))
 
         # history should show the security updates
-        b.wait_present(".container-fluid #history h2")
-        assertHistory("#history ul", ["secdeclare", "secparse", "sevcritical"])
+        b.wait_present("table.updates-history")
+        assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
         m.execute("systemctl kill --signal=KILL packagekit.service")
@@ -438,8 +445,10 @@ class TestUpdates(PackageCase):
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
 
-        # history on "up to date" page should show the recent update
-        assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
+        # history on "up to date" page should show the recent update (expanded by default)
+        assertHistory("table.updates-history tbody.open ul", ["buggy", "norefs-bin", "norefs-doc"])
+        # and the previous one, not expaned
+        assertHistory("table.updates-history tbody:not(.open) ul", ["secdeclare", "secparse", "sevcritical"])
 
         self.allow_restart_journal_messages()
 
@@ -479,8 +488,8 @@ class TestUpdates(PackageCase):
             b.wait_in_text("#available h2", "Available Updates")
             b.wait_in_text("#state", "2")
 
-            b.wait_present("table.listing-ct")
-            b.wait_in_text("table.listing-ct", "secnocve")
+            b.wait_present("table.available")
+            b.wait_in_text("table.available", "secnocve")
 
             # secnocve should be displayed properly
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
@@ -512,8 +521,8 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "Things change")
+        b.wait_present("table.available")
+        b.wait_in_text("table.available", "Things change")
 
         # "coarse" package list should be complete
         t = b.text("#app .listing-ct tbody:nth-of-type(1) th")
@@ -627,8 +636,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
-        b.wait_present("table.listing-ct")
-        b.wait_in_text("table.listing-ct", "cockpit-ws")
+        b.wait_present("table.available")
+        b.wait_in_text("table.available", "cockpit-ws")
 
         b.wait_present("#app div.alert-warning")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
@@ -814,7 +823,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
         # no update history yet
-        self.assertFalse(b.is_present("#history"))
+        self.assertFalse(b.is_present("table.updates-history"))
 
         # has action buttons
         b.wait_present(".content-header-extra button")

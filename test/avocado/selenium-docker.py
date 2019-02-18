@@ -1,24 +1,25 @@
 #!/usr/bin/python3
 
 # we need to be able to find and import seleniumlib, so add this directory
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, invisible
 import os
 import sys
 machine_test_dir = os.path.dirname(os.path.abspath(__file__))
 if not machine_test_dir in sys.path:
     sys.path.insert(1, machine_test_dir)
 
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, invisible
 
 class DockerTestSuite(SeleniumTest):
     """
     :avocado: enable
     """
+
     def test10ContainerTab(self):
         self.login()
         self.click(self.wait_link('Containers', cond=clickable))
         self.wait_frame("docker")
         if self.wait_xpath("//*[@data-action='docker-start']", fatal=False, overridetry=5, cond=clickable):
-            self.click(self.wait_xpath("//*[@data-action='docker-start']",cond=clickable))
+            self.click(self.wait_xpath("//*[@data-action='docker-start']", cond=clickable))
         self.wait_id('containers')
         self.wait_id('containers-images')
         self.click(self.wait_link('Get new image', cond=clickable))
@@ -27,8 +28,8 @@ class DockerTestSuite(SeleniumTest):
         self.wait_id('containers-search-image-results')
         self.wait_text("Official Docker", element="td")
         self.click(self.wait_xpath(
-            "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel",cond=clickable))
-        self.wait_id('containers-search-image-dialog',cond=invisible)
+            "//div[@id='containers-search-image-dialog']//button[contains(text(), '%s')]" % "Cancel", cond=clickable))
+        self.wait_id('containers-search-image-dialog', cond=invisible)
         self.click(self.wait_link('Get new image', cond=clickable))
         self.wait_id('containers-search-image-dialog')
         self.send_keys(self.wait_id('containers-search-image-search'), "cockpit")

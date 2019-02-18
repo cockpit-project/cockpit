@@ -21,6 +21,7 @@ import sys
 import time
 import unittest
 
+
 class TapResult(unittest.TestResult):
     def __init__(self, verbosity):
         self.offset = 0
@@ -35,13 +36,13 @@ class TapResult(unittest.TestResult):
 
     def ok(self, test):
         data = "ok {0} {1} # duration: {2}s\n".format(self.offset,
-                str(test), int(time.time() - self.start_time))
+                                                      str(test), int(time.time() - self.start_time))
         sys.stdout.write(data)
         sys.stdout.flush()
 
     def not_ok(self, test, err):
         data = "not ok {0} {1} # duration: {2}s\n".format(self.offset,
-                str(test), int(time.time() - self.start_time))
+                                                          str(test), int(time.time() - self.start_time))
         if err:
             data = self._exc_info_to_string(err, test) + "\n" + data
         sys.stdout.write(data)
@@ -49,7 +50,7 @@ class TapResult(unittest.TestResult):
 
     def skip(self, test, reason):
         sys.stdout.write("ok {0} {1} # duration: {2}s # SKIP {3}\n".format(self.offset,
-            str(test), int(time.time() - self.start_time), reason))
+                                                                           str(test), int(time.time() - self.start_time), reason))
         sys.stdout.flush()
 
     def stop(self):
@@ -88,6 +89,7 @@ class TapResult(unittest.TestResult):
     def addUnexpectedSuccess(self, test):
         self.not_ok(test, None)
         super(TapResult, self).addUnexpectedSuccess(test)
+
 
 class TapRunner(object):
     resultclass = TapResult

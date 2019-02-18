@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+from testlib_avocado import cockpit
 from avocado import main
 from avocado import Test
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from testlib_avocado import cockpit
 
 username = "user"
 

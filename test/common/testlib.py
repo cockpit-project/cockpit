@@ -81,12 +81,14 @@ opts.address = None
 opts.jobs = 1
 opts.fetch = True
 
+
 def attach(filename):
     if not opts.attachments:
         return
     dest = os.path.join(opts.attachments, os.path.basename(filename))
     if os.path.exists(filename) and not os.path.exists(dest):
         shutil.move(filename, dest)
+
 
 class Browser:
     def __init__(self, address, label, port=None):
@@ -233,7 +235,7 @@ class Browser:
 
     def key_press(self, keys, modifiers=0):
         for key in keys:
-            args = { "type":"keyDown", "modifiers":modifiers }
+            args = {"type": "keyDown", "modifiers": modifiers}
 
             # If modifiers are used we need to pass windowsVirtualKeyCode which is
             # basically the asci decimal representation of the key
@@ -290,11 +292,14 @@ class Browser:
 
     def wait_timeout(self, timeout):
         browser = self
+
         class WaitParamsRestorer():
             def __init__(self, timeout):
                 self.timeout = timeout
+
             def __enter__(self):
                 pass
+
             def __exit__(self, type, value, traceback):
                 browser.cdp.timeout = self.timeout
         r = WaitParamsRestorer(self.cdp.timeout)
@@ -368,7 +373,7 @@ class Browser:
         Arguments:
           id: The 'id' attribute of the popup.
         """
-        self.wait_visible('#' + id);
+        self.wait_visible('#' + id)
 
     def wait_popdown(self, id):
         """Wait for a popup to close.
@@ -438,15 +443,15 @@ class Browser:
         self.switch_to_top()
 
     def wait_action_btn(self, sel, entry):
-        self.wait_text(sel + ' button:first-child', entry);
+        self.wait_text(sel + ' button:first-child', entry)
 
     def click_action_btn(self, sel, entry=None):
         # We don't need to open the menu, it's enough to simulate a
         # click on the invisible button.
         if entry:
-            self.click(sel + ' a:contains("%s")' % entry, True);
+            self.click(sel + ' a:contains("%s")' % entry, True)
         else:
-            self.click(sel + ' button:first-child');
+            self.click(sel + ' button:first-child')
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True):
         if user is None:
@@ -568,7 +573,7 @@ class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
     machine = None
-    machines = { }
+    machines = {}
     machine_class = None
     browser = None
     network = None
@@ -583,7 +588,7 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
-    def new_machine(self, image=None, forward={ }, **kwargs):
+    def new_machine(self, image=None, forward={}, **kwargs):
         try:
             from machine_core import testvm
         except ImportError:
@@ -685,8 +690,8 @@ class MachineCase(unittest.TestCase):
 
         self.machine = None
         self.browser = None
-        self.machines = { }
-        provision = self.provision or { 'machine1': { } }
+        self.machines = {}
+        provision = self.provision or {'machine1': {}}
 
         # First create all machines, wait for them later
         for key in sorted(provision.keys()):
@@ -882,9 +887,9 @@ class MachineCase(unittest.TestCase):
         machine = machine or self.machine
         # on main machine, only consider journal entries since test case start
         cursor = (machine == self.machine) and self.journal_start or None
-        syslog_ids = [ "cockpit-ws", "cockpit-bridge" ]
+        syslog_ids = ["cockpit-ws", "cockpit-bridge"]
         if not self.allow_core_dumps:
-            syslog_ids += [ "systemd-coredump" ]
+            syslog_ids += ["systemd-coredump"]
         messages = machine.journal_messages(syslog_ids, 5, cursor=cursor)
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
@@ -993,7 +998,6 @@ class MachineCase(unittest.TestCase):
                 if summaries:
                     test["failureSummaries"] = list(summaries)
 
-
         # write the report
         if suffix:
             suffix = "-" + suffix
@@ -1005,7 +1009,6 @@ class MachineCase(unittest.TestCase):
 
         # aXe triggers that *shrug*
         self.allow_journal_messages("received invalid message without channel prefix")
-
 
     def snapshot(self, title, label=None):
         """Take a snapshot of the current screen and save it as a PNG.
@@ -1042,22 +1045,27 @@ class MachineCase(unittest.TestCase):
                         print("Core dumps downloaded to %s" % (dest))
                         attach(dest)
 
+
 some_failed = False
+
 
 def jsquote(str):
     return json.dumps(str)
+
 
 def skipImage(reason, *args):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda func: func
 
+
 def skipPackage(*args):
-    packages_env = os.environ.get("TEST_SKIP_PACKAGES","").split()
+    packages_env = os.environ.get("TEST_SKIP_PACKAGES", "").split()
     for package in args:
         if package in packages_env:
             return unittest.skip("{0} is excluded in $TEST_SKIP_PACKAGES".format(package))
     return lambda func: func
+
 
 def enableAxe(method):
     """Enable aXe accessibility test code injection for this test case"""
@@ -1091,11 +1099,12 @@ class TestResult(tap.TapResult):
         sys.stdout.flush()
         super(TestResult, self).stopTest(test)
 
+
 class OutputBuffer(object):
     def __init__(self):
         self.poll = select.poll()
-        self.buffers = { }
-        self.fds = { }
+        self.buffers = {}
+        self.fds = {}
 
     def drain(self):
         while self.fds:
@@ -1128,6 +1137,7 @@ class OutputBuffer(object):
         os.close(fd)
         return buffer
 
+
 class TapRunner(object):
     resultclass = TestResult
 
@@ -1155,7 +1165,7 @@ class TapRunner(object):
     def run(self, testable):
         tap.TapResult.plan(testable)
 
-        tests = [ ]
+        tests = []
 
         # The things to test
         def collapse(test, tests):
@@ -1174,13 +1184,13 @@ class TapRunner(object):
         # For statistics
         start = time.time()
 
-        pids = { }
+        pids = {}
         options = 0
         buffer = None
         if not self.thorough and self.verbosity <= 1:
             buffer = OutputBuffer()
             options = os.WNOHANG
-        failures = { "count": 0 }
+        failures = {"count": 0}
 
         def join_some(n):
             while len(pids) > n:
@@ -1266,7 +1276,7 @@ class TapRunner(object):
             return failed, False
 
         # Otherwise pass through this command if it exists
-        cmd = [ "tests-policy", testvm.DEFAULT_IMAGE ]
+        cmd = ["tests-policy", testvm.DEFAULT_IMAGE]
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             (changed, unused) = proc.communicate(output)
@@ -1284,6 +1294,7 @@ class TapRunner(object):
 
         # Whether we should retry the test or not
         return failed, b"# RETRY " in output
+
 
 def arg_parser():
     parser = argparse.ArgumentParser(description='Run Cockpit test(s)')
@@ -1305,6 +1316,7 @@ def arg_parser():
 
     parser.set_defaults(verbosity=1, fetch=True)
     return parser
+
 
 def test_main(options=None, suite=None, attachments=None, **kwargs):
     """
@@ -1340,7 +1352,7 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
 
     # Have to copy into opts due to python globals across modules
     for (key, value) in vars(options).items():
-        setattr(opts, key, value);
+        setattr(opts, key, value)
 
     if opts.sit and opts.jobs > 1:
         parser.error("the -s or --sit argument not avalible with multiple jobs")
@@ -1365,14 +1377,18 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
         return ret
     sys.exit(ret)
 
+
 class Error(Exception):
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return self.msg
 
+
 class RetryError(Error):
     pass
+
 
 def wait(func, msg=None, delay=1, tries=60):
     """
@@ -1402,7 +1418,7 @@ def wait(func, msg=None, delay=1, tries=60):
             if val:
                 return val
         except:
-            if t == tries-1:
+            if t == tries - 1:
                 raise
             else:
                 pass
@@ -1410,7 +1426,8 @@ def wait(func, msg=None, delay=1, tries=60):
         sleep(delay)
     raise Error(msg or "Condition did not become true.")
 
-def sit(machines={ }):
+
+def sit(machines={}):
     """
     Wait until the user confirms to continue.
 

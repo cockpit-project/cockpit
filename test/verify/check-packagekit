@@ -179,8 +179,9 @@ class TestUpdates(PackageCase):
         self.assertFalse(b.is_present("table.updates-history"))
 
         # should only have one button (no security updates)
-        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
-        b.click("#app .container-fluid button")
+        b.wait_not_present("button.pk-update--security")
+        self.assertEqual(b.text("button.pk-update--all"), "Install All Updates")
+        b.click("button.pk-update--all")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -355,8 +356,8 @@ class TestUpdates(PackageCase):
         b.enter_page("/updates")
 
         # install only security updates
-        self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Install Security Updates")
-        b.click("#app .container-fluid button.btn-default")
+        self.assertEqual(b.text("button.pk-update--security"), "Install Security Updates")
+        b.click("button.pk-update--security")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -406,8 +407,9 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
 
         # should now only have one button (no security updates left)
-        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
-        b.click("#app .container-fluid button")
+        b.wait_not_present("button.pk-update--security")
+        self.assertEqual(b.text("button.pk-update--all"), "Install All Updates")
+        b.click("button.pk-update--all")
 
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
@@ -470,7 +472,8 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.text("#state"), "1 security fix")
 
         # should only have one button (only security updates)
-        self.assertEqual(b.text("#app .container-fluid button"), "Install Security Updates")
+        b.wait_not_present("button.pk-update--security")
+        self.assertEqual(b.text("button.pk-update--all"), "Install Security Updates")
 
         # security fix without CVE URLs
         # PackageKit's dnf backend does not recognize this (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
@@ -565,8 +568,8 @@ class TestUpdates(PackageCase):
         b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "1 update")
 
-        b.wait_present("#app .container-fluid button")
-        b.click("#app .container-fluid button")
+        b.wait_present("button.pk-update--all")
+        b.click("button.pk-update--all")
 
         b.wait_in_text("#state", "Applying updates failed")
 
@@ -598,8 +601,8 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("#app .container-fluid button")
-        b.click("#app .container-fluid button")
+        b.wait_present("button.pk-update--all")
+        b.click("button.pk-update--all")
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-description")
         b.wait_in_text("#app div.progress-description", "slow")
@@ -653,8 +656,8 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("#app .container-fluid button")
-        b.click("#app .container-fluid button")
+        b.wait_present("button.pk-update--all")
+        b.click("button.pk-update--all")
 
         # let updates start and zap PackageKit
         b.wait_present("#app div.progress-bar")
@@ -824,8 +827,8 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # has action buttons
         b.wait_present(".content-header-extra button")
-        b.wait_present("#app .container-fluid button")
-        self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
+        b.wait_not_present("button.pk-update--security")
+        self.assertEqual(b.text("button.pk-update--all"), "Install All Updates")
 
         # show available updates on system page too
         b.go("/system")

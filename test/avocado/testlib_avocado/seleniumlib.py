@@ -212,7 +212,7 @@ This function is only for internal purposes:
             try:
                 element = usedfunction() if usedfunction else element
                 self.everything_loaded(element)
-            except:
+            except Exception:
                 pass
         if failure:
             self.take_screenshot(fatal=False)
@@ -258,16 +258,18 @@ parameters:
         cond = cond if cond else visible
         internaltry = overridetry if overridetry else self.default_try
 
-        def usedfunction(): return WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+        def usedfunction():
+            return WebDriverWait(baseelement, self.default_explicit_wait).until(cond((method, text)))
+
         for foo in range(0, internaltry):
             try:
                 returned = usedfunction()
                 if jscheck:
-                    if not (cond == frame or fatal == False or cond == invisible) and self.everything_loaded(returned):
+                    if not (cond == frame or not fatal or cond == invisible) and self.everything_loaded(returned):
                         break
                 else:
                     break
-            except:
+            except Exception:
                 pass
         if returned is None:
             if fatal:

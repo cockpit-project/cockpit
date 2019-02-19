@@ -48,9 +48,9 @@ else
 fi
 
 if [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
-    LOCATION_PARAM="--cdrom $SOURCE"
+    INSTALL_METHOD="--cdrom $SOURCE"
 else
-    LOCATION_PARAM="--location $SOURCE"
+    INSTALL_METHOD="--location $SOURCE"
 fi
 
 # backup
@@ -71,7 +71,7 @@ virt-install \
     --noautoconsole \
     --noreboot \
     $DISKS_PARAM \
-    $LOCATION_PARAM \
+    $INSTALL_METHOD \
     $GRAPHICS_PARAM
 EXIT_STATUS=$?
 

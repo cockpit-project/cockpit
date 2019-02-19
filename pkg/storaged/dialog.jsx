@@ -633,8 +633,8 @@ export const SelectSpaces = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="checkbox" checked={selected} onChange={on_change} />
-                                    <span>{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span>{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
+                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
                                 </label>
                             </li>
                         );
@@ -670,8 +670,8 @@ export const SelectSpace = (tag, title, options) => {
                             <li key={spc.block ? spc.block.Device : spc.desc} className="list-group-item">
                                 <label className="select-space-row">
                                     <input type="radio" checked={val == spc} onChange={on_change} />
-                                    <span>{format_size_and_text(spc.size, spc.desc)}</span>
-                                    <span>{spc.block ? block_name(spc.block) : ""}</span>
+                                    <span className="select-space-name">{format_size_and_text(spc.size, spc.desc)}</span>
+                                    <span className="select-space-details">{spc.block ? block_name(spc.block) : ""}</span>
                                 </label>
                             </li>
                         );

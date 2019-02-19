@@ -785,7 +785,7 @@ export function CONSOLE_VM({
     };
 }
 
-export function CREATE_VM({ connectionName, vmName, source, os, memorySize, storageSize, startVm }) {
+export function CREATE_VM({ connectionName, vmName, source, sourceType, os, memorySize, storageSize, startVm }) {
     logDebug(`${this.name}.CREATE_VM(${vmName}):`);
     return dispatch => {
         // shows dummy vm  until we get vm from virsh (cleans up inProgress)
@@ -799,6 +799,7 @@ export function CREATE_VM({ connectionName, vmName, source, os, memorySize, stor
             connectionName,
             vmName,
             source,
+            sourceType,
             os,
             memorySize,
             storageSize,

@@ -4,10 +4,11 @@ set -eu -o noglob
 CONNECTION_URI="qemu:///$1" # example: qemu:///system
 VM_NAME="$2"
 SOURCE="$3"
-OS="$4"
-MEMORY_SIZE="$5" # in MiB
-STORAGE_SIZE="$6" # in GiB
-START_VM="$7"
+SOURCE_TYPE="$4"
+OS="$5"
+MEMORY_SIZE="$6" # in MiB
+STORAGE_SIZE="$7" # in GiB
+START_VM="$8"
 
 vmExists(){
    virsh -c "$CONNECTION_URI" list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
@@ -19,12 +20,16 @@ handleFailure(){
 }
 
 # prepare virt-install parameters
-COMPARISON=$(awk 'BEGIN{ print "'$STORAGE_SIZE'"<=0 }')
-if [ "$COMPARISON" -eq 1 ]; then
-    # default to no disk if size 0
-    DISK_OPTIONS="none"
+if [ "$SOURCE_TYPE" = "disk_image" ]; then
+    DISK_OPTIONS="$SOURCE,device=disk"
 else
-    DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
+    COMPARISON=$(awk 'BEGIN{ print "'$STORAGE_SIZE'"<=0 }')
+    if [ "$COMPARISON" -eq 1 ]; then
+        # default to no disk if size 0
+        DISK_OPTIONS="none"
+    else
+        DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
+    fi
 fi
 
 DOM_GRAPHICS_CAPABILITIES="$(virsh domcapabilities | awk "/<graphics supported='yes'/ {flag=1; next}; /<\/graphics/ {flag=0}; flag")"
@@ -44,27 +49,41 @@ if [ "$OS" = "other-os" -o  -z "$OS" ]; then
 fi
 
 if [ "$START_VM" = "true" ]; then
-    if [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
-        LOCATION_PARAM="--cdrom $SOURCE"
+    if [ "$SOURCE_TYPE" = "disk_image" ]; then
+        INSTALL_METHOD="--import"
+    elif [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
+        INSTALL_METHOD="--cdrom $SOURCE"
     else
-        LOCATION_PARAM="--location $SOURCE"
+        INSTALL_METHOD="--location $SOURCE"
     fi
 else
     # prevents creating duplicate cdroms if start vm is false
     # or if no source received
-    LOCATION_PARAM=""
+    INSTALL_METHOD=""
 fi
 
 
 XMLS_FILE="`mktemp`"
 
 if [ "$START_VM" = "true" ]; then
-    STARTUP_PARAMS="--wait -1 --noautoconsole --noreboot"
+    STARTUP_PARAMS="--wait -1 --noautoconsole"
+    # `noreboot` parameter should not be used for installation options that
+    # don't have install phase, because it blocks the domain from starting.
+    if [ "$SOURCE_TYPE" != "disk_image" ]; then
+        STARTUP_PARAMS="$STARTUP_PARAMS --noreboot"
+    fi
     HAS_INSTALL_PHASE="false"
 else
     # 2 = last phase only
     STARTUP_PARAMS="--print-xml"
-    HAS_INSTALL_PHASE="true"
+    # Installation options that don't have install phase should unset the
+    # HAS_INSTALL_PHASE to prevent the Install button from being shown in
+    # the UI.
+    if [ "$SOURCE_TYPE" = "disk_image" ]; then
+        HAS_INSTALL_PHASE="false"
+    else
+        HAS_INSTALL_PHASE="true"
+    fi
 fi
 
 virt-install \
@@ -75,7 +94,7 @@ virt-install \
     --quiet \
     --disk  "$DISK_OPTIONS" \
     $STARTUP_PARAMS \
-    $LOCATION_PARAM \
+    $INSTALL_METHOD \
     $GRAPHICS_PARAM \
 > "$XMLS_FILE" || handleFailure $?
 

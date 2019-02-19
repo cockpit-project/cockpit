@@ -995,8 +995,13 @@ class TestMachines(MachineCase):
 
         def createTest(dialog):
             runner.tryCreate(dialog) \
-                .assertScriptFinished() \
-                .deleteVm(dialog) \
+
+            # When start_vm is set the virt-install is used with --print-xml
+            # and thus the virt-install script should be running at this point
+            if not dialog.start_vm:
+                runner.assertScriptFinished()
+
+            runner.deleteVm(dialog) \
                 .checkEnvIsEmpty()
 
         def installWithErrorTest(dialog):
@@ -1113,6 +1118,32 @@ class TestMachines(MachineCase):
                                                    os_name=config.MACOS_X_LEOPARD,
                                                    connection='session'))
 
+        # Start of tests for import existing disk as installation option
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate16", sourceType='disk_image',
+                                         location=config.VALID_DISK_IMAGE_PATH,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         os_vendor=config.OPENBSD_VENDOR,
+                                         os_name=config.OPENBSD_5_4,
+                                         start_vm=False))
+
+        # Recreate the image the previous test just deleted to reuse it
+        self.machine.execute("qemu-img create {0} 500M".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
+
+        # Unload KVM module, otherwise we get errors getting the nested VMs
+        # to start properly.
+        # This is applicable only for the following test so let's keep it last,
+        # in order to allow the rest of the tests to run faster with QEMU KVM
+        # Run modprobe -r in retry loop because it fails sometimes with 'Module kvm is in use'
+        self.machine.execute("for i in 1 2 3 4 5; do modprobe -r kvm_intel && modprobe -r kvm && break || sleep 1; done")
+
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate17", sourceType='disk_image',
+                                         location=config.VALID_DISK_IMAGE_PATH,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         os_vendor=config.OPENBSD_VENDOR,
+                                         os_name=config.OPENBSD_5_4,
+                                         start_vm=True))
+        # End of tests for import existing disk as installation option
+
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
         # - for create vm and then install
@@ -1127,6 +1158,7 @@ class TestMachines(MachineCase):
 
     class TestCreateConfig:
         VALID_URL = 'http://mirror.i3d.net/pub/centos/7/os/x86_64/'
+        VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
 
@@ -1281,11 +1313,15 @@ class TestMachines(MachineCase):
 
             if self.sourceType == 'file':
                 expected_source_type = 'Local Install Media'
+            elif self.sourceType == 'disk_image':
+                expected_source_type = 'Existing Disk Image'
             else:
                 expected_source_type = 'URL'
             b.select_from_dropdown("#source-type", expected_source_type)
             if self.sourceType == 'file':
                 b.set_file_autocomplete_val("#source-file", self.location)
+            elif self.sourceType == 'disk_image':
+                b.set_file_autocomplete_val("#source-disk", self.location)
             else:
                 b.set_input_text("#source-url", self.location)
 
@@ -1406,9 +1442,11 @@ class TestMachines(MachineCase):
             self.assertTrue = test_obj.assertTrue
 
             self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+            self.machine.execute("qemu-img create {0} 500M".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
 
         def destroy(self):
             self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
+            self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
 
         @staticmethod
         def assertVmStates(test_obj, name, before, wanted, after):
@@ -1449,7 +1487,7 @@ class TestMachines(MachineCase):
 
             if dialog.start_vm:
                 # wait for console tab to open
-                b.expect_load_frame("vm-{0}-novnc-frame-container".format(name))
+                b.wait_present("li.active #vm-{0}-consoles".format(name))
             else:
                 # wait for Overview tab to open
                 b.wait_present("#vm-{0}-memory".format(name))
@@ -1465,8 +1503,11 @@ class TestMachines(MachineCase):
             b.wait_present("#vm-{0}-disks".format(name))  # wait for the tab
             b.click("#vm-{0}-disks".format(name))  # open the "Disks" subtab
 
-            # Test disk creation
-            if dialog.storage_size > 0:
+            # Test disk got imported/created
+            if dialog.sourceType == 'disk_image':
+                b.wait_present("#vm-{0}-disks-vda-device".format(name))
+                b.wait_in_text("#vm-{0}-disks-vda-source td.machines-disks-source-value".format(name), dialog.location)
+            elif dialog.storage_size > 0:
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
                 else:

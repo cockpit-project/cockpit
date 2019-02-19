@@ -189,7 +189,8 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
                     placeholder={_("Path to ISO file on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')} />
+                    onChange={this.onChangedValue.bind(this, 'source')}
+                    superUser="try" />
             );
             break;
         case URL_SOURCE:

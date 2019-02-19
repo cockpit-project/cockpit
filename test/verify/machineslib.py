@@ -1032,13 +1032,13 @@ class TestMachines(MachineCase):
 
         # check if older os are filtered
         checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate3", os_vendor=config.REDHAT_VENDOR,
-                                                  os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
+                                                  storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
         checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate4", os_vendor=config.MANDRIVA_FILTERED_VENDOR,
-                                                  os_name=config.MANDRIVA_2011_FILTERED_OS))
+                                                  storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
 
         checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate5", os_vendor=config.MAGEIA_VENDOR,
-                                                  os_name=config.MAGEIA_3_FILTERED_OS))
+                                                  storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
 
@@ -1047,7 +1047,7 @@ class TestMachines(MachineCase):
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", sourceType='url',
-                                                            location="invalid/url",
+                                                            location="invalid/url", storage_size='1',
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
@@ -1068,6 +1068,7 @@ class TestMachines(MachineCase):
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate10",
+                                                            storage_size='1',
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
@@ -1168,7 +1169,7 @@ class TestMachines(MachineCase):
 
         def __init__(self, test_obj, name, sourceType='file', location='',
                      memory_size=1, memory_size_unit='GiB',
-                     storage_size=1, storage_size_unit='GiB',
+                     storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
                      os_name=None,
                      start_vm=False,
@@ -1294,8 +1295,9 @@ class TestMachines(MachineCase):
             b.set_input_text("#memory-size", str(self.memory_size))
             b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
 
-            b.set_input_text("#storage-size", str(self.storage_size))
-            b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
+            if self.storage_size is not None:
+                b.set_input_text("#storage-size", str(self.storage_size))
+                b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
 
             b.wait_visible("#start-vm")
             if self.start_vm:

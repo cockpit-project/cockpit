@@ -1015,14 +1015,14 @@ class TestMachines(MachineCase):
 
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
-        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate1", is_filesystem_location=True,
+        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate1", sourceType='file',
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
                                                memory_size=1, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
                                                os_vendor=config.UNSPECIFIED_VENDOR,
                                                os_name=config.OTHER_OS,
                                                start_vm=True))
-        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate2", is_filesystem_location=False,
+        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate2", sourceType='url',
                                                location=config.VALID_URL,
                                                memory_size=12654, memory_size_unit='GiB',
                                                storage_size=0, storage_size_unit='MiB',
@@ -1046,7 +1046,7 @@ class TestMachines(MachineCase):
         checkDialogFormValidationTest(TestMachines.VmDialog(self, ""), {"Name": "Name should not be empty"})
 
         # location
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", is_filesystem_location=False,
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", sourceType='url',
                                                             location="invalid/url",
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
@@ -1073,13 +1073,13 @@ class TestMachines(MachineCase):
                                       {"Source": "Installation Source should not be empty"})
 
         # try to CREATE few machines
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate11", is_filesystem_location=False,
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate11", sourceType='url',
                                          location=config.VALID_URL,
                                          storage_size=1,
                                          os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_VISTA))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate12", is_filesystem_location=False,
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate12", sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
@@ -1087,7 +1087,7 @@ class TestMachines(MachineCase):
                                          os_name=config.MICROSOFT_XP_OS,
                                          start_vm=False))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate13", is_filesystem_location=False,
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate13", sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=900, memory_size_unit='GiB',
                                          storage_size=100, storage_size_unit='MiB',
@@ -1095,7 +1095,7 @@ class TestMachines(MachineCase):
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate14", is_filesystem_location=True,
+        createTest(TestMachines.VmDialog(self, "subVmTestCreate14", sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
@@ -1104,7 +1104,7 @@ class TestMachines(MachineCase):
                                          start_vm=False,
                                          connection='session'))
         # try to INSTALL WITH ERROR
-        installWithErrorTest(TestMachines.VmDialog(self, "subVmTestCreate15", is_filesystem_location=True,
+        installWithErrorTest(TestMachines.VmDialog(self, "subVmTestCreate15", sourceType='file',
                                                    location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    memory_size=900, memory_size_unit='GiB',
                                                    storage_size=10, storage_size_unit='MiB',
@@ -1166,7 +1166,7 @@ class TestMachines(MachineCase):
 
     class VmDialog:
 
-        def __init__(self, test_obj, name, is_filesystem_location=True, location='',
+        def __init__(self, test_obj, name, sourceType='file', location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=1, storage_size_unit='GiB',
                      os_vendor=None,
@@ -1174,7 +1174,7 @@ class TestMachines(MachineCase):
                      start_vm=False,
                      connection=None):
 
-            if not is_filesystem_location and start_vm:
+            if sourceType == 'url' and start_vm:
                 raise Exception("cannot start vm because url specified (no connection available in this test)")
 
             self.browser = test_obj.browser
@@ -1182,7 +1182,7 @@ class TestMachines(MachineCase):
             self.assertTrue = test_obj.assertTrue
 
             self.name = name
-            self.is_filesystem_location = is_filesystem_location
+            self.sourceType = sourceType
             self.location = location
             self.memory_size = memory_size
             self.memory_size_unit = memory_size_unit
@@ -1278,9 +1278,12 @@ class TestMachines(MachineCase):
             b = self.browser
             b.set_input_text("#vm-name", self.name)
 
-            expected_source_type = 'Filesystem' if self.is_filesystem_location else 'URL'
+            if self.sourceType == 'file':
+                expected_source_type = 'Filesystem'
+            else:
+                expected_source_type = 'URL'
             b.select_from_dropdown("#source-type", expected_source_type)
-            if self.is_filesystem_location:
+            if self.sourceType == 'file':
                 b.set_file_autocomplete_val("#source-file", self.location)
             else:
                 b.set_input_text("#source-url", self.location)

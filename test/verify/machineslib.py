@@ -1279,7 +1279,7 @@ class TestMachines(MachineCase):
             b.set_input_text("#vm-name", self.name)
 
             if self.sourceType == 'file':
-                expected_source_type = 'Filesystem'
+                expected_source_type = 'Local Install Media'
             else:
                 expected_source_type = 'URL'
             b.select_from_dropdown("#source-type", expected_source_type)

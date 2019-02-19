@@ -51,7 +51,7 @@ import VMS_CONFIG from '../../config.js';
 const _ = cockpit.gettext;
 
 const URL_SOURCE = 'url';
-const COCKPIT_FILESYSTEM_SOURCE = 'file';
+const LOCAL_INSTALL_MEDIA_SOURCE = 'file';
 
 /* Create a virtual machine
  * props:
@@ -184,7 +184,7 @@ class CreateVM extends React.Component {
         let installationSource;
         let installationSourceId;
         switch (this.state.sourceType) {
-        case COCKPIT_FILESYSTEM_SOURCE:
+        case LOCAL_INSTALL_MEDIA_SOURCE:
             installationSourceId = "source-file";
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
@@ -256,8 +256,8 @@ class CreateVM extends React.Component {
                 <Select.Select id="source-type"
                                initial={this.state.sourceType}
                                onChange={this.onChangedValue.bind(this, 'sourceType')}>
-                    <Select.SelectEntry data={COCKPIT_FILESYSTEM_SOURCE}
-                                        key={COCKPIT_FILESYSTEM_SOURCE}>{_("Filesystem")}</Select.SelectEntry>
+                    <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
+                                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
                 </Select.Select>
 
@@ -334,7 +334,7 @@ function validateParams(vmParams) {
 
     if (!isEmpty(source)) {
         switch (vmParams.sourceType) {
-        case COCKPIT_FILESYSTEM_SOURCE:
+        case LOCAL_INSTALL_MEDIA_SOURCE:
             if (!vmParams.source.startsWith("/")) {
                 validationFailed['source'] = _("Invalid filename");
             }
@@ -363,7 +363,7 @@ class CreateVmModal extends React.Component {
             'validate': false,
             'vmName': '',
             'connectionName': LIBVIRT_SYSTEM_CONNECTION,
-            "sourceType": COCKPIT_FILESYSTEM_SOURCE,
+            "sourceType": LOCAL_INSTALL_MEDIA_SOURCE,
             'source': '',
             'vendor': NOT_SPECIFIED,
             "os": OTHER_OS_SHORT_ID,

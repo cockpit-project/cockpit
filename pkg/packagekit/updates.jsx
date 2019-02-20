@@ -26,6 +26,7 @@ import moment from "moment";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 import Markdown from "react-remarkable";
 import AutoUpdates from "./autoupdates.jsx";
+import { History, PackageList } from "./history.jsx";
 
 import * as PK from "packagekit.js";
 
@@ -372,7 +373,7 @@ function UpdatesList(props) {
     });
 
     return (
-        <table className="listing-ct">
+        <table className="listing-ct available">
             <thead>
                 <tr>
                     <th />
@@ -385,40 +386,6 @@ function UpdatesList(props) {
             { updates.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }
         </table>
     );
-}
-
-function UpdateHistory(props) {
-    if (!props.history)
-        return null;
-
-    function formatHeading(time) {
-        if (time)
-            return cockpit.format(_("The following packages were updated $0:"), moment(time).fromNow());
-        return _("The following packages were recently updated:");
-    }
-
-    function formatPkgs(pkgs) {
-        let names = Object.keys(pkgs).filter(i => i != "_time");
-        names.sort();
-        return names.map(n => (
-            <OverlayTrigger key={n} overlay={ <Tooltip id="tip-history">{ n + " " + pkgs[n] }</Tooltip> } placement="top">
-                <li>{n}</li>
-            </OverlayTrigger>)
-        );
-    }
-
-    let history = props.history;
-    if (props.limit)
-        history = history.slice(0, props.limit);
-
-    var paragraphs = history.map(pkgs => (
-        <React.Fragment key={pkgs["_time"]}>
-            <p>{formatHeading(pkgs["_time"])}</p>
-            <ul className='flow-list'>{formatPkgs(pkgs)}</ul>
-        </React.Fragment>
-    ));
-
-    return paragraphs;
 }
 
 class ApplyUpdates extends React.Component {
@@ -532,7 +499,7 @@ function AskRestart(props) {
             </div>
             <div className="flow-list-blank-slate">
                 <Expander title={_("Package information")}>
-                    <UpdateHistory history={props.history} limit="1" />
+                    <PackageList packages={props.history[0]} />
                 </Expander>
             </div>
         </div>
@@ -549,9 +516,9 @@ class OsUpdates extends React.Component {
                        loadPercent: null,
                        cockpitUpdate: false,
                        allowCancel: null,
-                       history: null,
+                       history: [],
                        unregistered: false,
-                       autoUpdatesEnabled: null };
+                       autoUpdatesEnabled: undefined };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
@@ -871,13 +838,9 @@ class OsUpdates extends React.Component {
                     }
                     <UpdatesList updates={this.state.updates} />
 
-                    { /* Hide history with automatic updates, as they don't feed their history into PackageKit */
-                        this.state.history && !this.state.autoUpdatesEnabled
-                            ? <div id="history">
-                                <h2>{_("Update History")}</h2>
-                                <UpdateHistory history={this.state.history} limit="1" />
-                            </div>
-                            : null
+                    { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+                        (this.state.autoUpdatesEnabled !== undefined) &&
+                            <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
                     }
                 </div>
             );
@@ -911,11 +874,12 @@ class OsUpdates extends React.Component {
                             <span className="fa fa-check" />
                         </div>
                         <p>{_("System is up to date")}</p>
-
-                        { this.state.history && !this.state.autoUpdatesEnabled
-                            ? <div className="flow-list-blank-slate"><UpdateHistory history={this.state.history} limit="1" /></div>
-                            : null }
                     </div>
+
+                    { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+                        (this.state.autoUpdatesEnabled !== undefined) &&
+                            <History packagekit={this.state.autoUpdatesEnabled ? [] : this.state.history} />
+                    }
                 </React.Fragment>);
 
         default:

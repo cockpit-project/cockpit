@@ -53,7 +53,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
-    const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Networks")}</div>);
+    const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Network Interfaces")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
 
     let tabRenderers = [

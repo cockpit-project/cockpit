@@ -18,6 +18,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import subprocess
+import sys
+
+import task
+from task import github, REDHAT_STORE
+
 TRIGGERS = {
     "centos-7": [
         "verify/centos-7"
@@ -81,8 +88,6 @@ TRIGGERS = {
     ]
 }
 
-REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
-
 STORES = {
     "rhel-7-6": REDHAT_STORE,
     "rhel-8-0": REDHAT_STORE,
@@ -90,17 +95,10 @@ STORES = {
     "windows-10": REDHAT_STORE,
 }
 
-import os
-import subprocess
-import sys
-
-sys.dont_write_bytecode = True
-
-import task
-from task import github
-
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
+
+sys.dont_write_bytecode = True
 
 def run(image, verbose=False, **kwargs):
     if not image:

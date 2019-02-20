@@ -26,17 +26,9 @@ import ssl
 import subprocess
 import sys
 import time
-import urllib.request, urllib.parse, urllib.error
 
 import pika
-from task import REDHAT_PING
-
-# Check if we have access to Red Hat network
-try:
-    urllib.request.urlopen(REDHAT_PING).read()
-    run_redhat_tasks = True
-except IOError:
-    run_redhat_tasks = False
+from task import redhat_network
 
 
 def main():
@@ -71,7 +63,7 @@ def main():
         return 0
 
     queue='public'
-    if run_redhat_tasks:
+    if redhat_network():
         # Try the rhel queue if the public queue is empty
         if declare_public_result.method.message_count == 0:
             queue = 'rhel'

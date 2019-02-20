@@ -94,25 +94,17 @@ import ssl
 import sys
 import time
 import itertools
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
 
 sys.dont_write_bytecode = True
 
-from task import github, label, REDHAT_PING
+from task import github, label, redhat_network
 
 no_amqp = False
 try:
     import pika
 except ImportError:
     no_amqp = True
-
-# Check if we have access to Red Hat network
-try:
-    urllib.request.urlopen(REDHAT_PING).read()
-    run_redhat_tasks = True
-except IOError:
-    run_redhat_tasks = False
-
 
 def main():
     parser = argparse.ArgumentParser(description='Bot: scan and update status of pull requests on GitHub')
@@ -216,7 +208,7 @@ def tests_human(priority, name, number, revision, ref, context, base, repo, bots
 
 # Prepare a test invocation command
 def tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options):
-    if not options.amqp and not run_redhat_tasks and (context in REDHAT_VERIFY or
+    if not options.amqp and not redhat_network() and (context in REDHAT_VERIFY or
                                                       context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
         return ''
 

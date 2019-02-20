@@ -58,13 +58,10 @@ import argparse
 import pipes
 import os
 import sys
-import urllib.request
-import urllib.parse
-import urllib.error
 
 sys.dont_write_bytecode = True
 
-from task import github, REDHAT_PING
+from task import github, redhat_network
 
 BOTS = os.path.normpath(os.path.join(os.path.dirname(__file__)))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
@@ -79,12 +76,6 @@ def main():
     if not kvm:
         sys.stderr.write("issue-scan: No /dev/kvm access, not creating images here\n")
 
-    try:
-        urllib.request.urlopen(REDHAT_PING).read()
-        redhat = os.path.exists(os.path.expanduser(REDHAT_CREDS))
-    except IOError:
-        redhat = False
-
     # Figure if we're in a Kubernetes namespace. This file will always exist
     try:
         with open("/var/run/secrets/kubernetes.io/serviceaccount/namespace", "r") as f:
@@ -96,7 +87,7 @@ def main():
         if not kvm and contains_any(result, KVM_TASKS):
             sys.stderr.write("issue-scan: skipping (no kvm): {0}\n".format(result))
             continue
-        elif not redhat and contains_any(result, REDHAT_TASKS):
+        elif not redhat_network() and contains_any(result, REDHAT_TASKS):
             sys.stderr.write("issue-scan: skipping (outside redhat): {0}\n".format(result))
             continue
         elif contains_any(result, WINDOWS_TASKS):

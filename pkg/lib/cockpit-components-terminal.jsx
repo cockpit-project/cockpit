@@ -24,6 +24,58 @@ import { Terminal as Term } from "xterm";
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
 import "console.css";
 
+const theme_core = {
+    yellow: "#b58900",
+    brightRed: "#cb4b16",
+    red: "#dc322f",
+    magenta: "#d33682",
+    brightMagenta: "#6c71c4",
+    blue: "#268bd2",
+    cyan: "#2aa198",
+    green: "#859900"
+};
+
+const themes = {
+    "black-theme": {
+        background: "#000000",
+        foreground: "#ffffff"
+    },
+    "dark-theme": Object.assign({}, theme_core, {
+        background: "#002b36",
+        foreground: "#fdf6e3",
+        cursor: "#eee8d5",
+        selection: "#ffffff77",
+        brightBlack: "#002b36",
+        black: "#073642",
+        brightGreen: "#586e75",
+        brightYellow: "#657b83",
+        brightBlue: "#839496",
+        brightCyan: "#93a1a1",
+        white: "#eee8d5",
+        brightWhite: "#fdf6e3"
+    }),
+    "light-theme": Object.assign({}, theme_core, {
+        background: "#fdf6e3",
+        foreground: "#002b36",
+        cursor: "#073642",
+        selection: "#00000044",
+        brightWhite: "#002b36",
+        white: "#073642",
+        brightCyan: "#586e75",
+        brightBlue: "#657b83",
+        brightYellow: "#839496",
+        brightGreen: "#93a1a1",
+        black: "#eee8d5",
+        brightBlack: "#fdf6e3"
+    }),
+    "white-theme": {
+        background: "#ffffff",
+        foreground: "#000000",
+        selection: "#00000044",
+        cursor: "#000000",
+    },
+};
+
 /*
  * A terminal component that communicates over a cockpit channel.
  *
@@ -38,6 +90,8 @@ import "console.css";
  * the title of the terminal changes.
  *
  * Call focus() to set the input focus on the terminal.
+ *
+ * Also it is possible to set up theme by property 'theme'.
  */
 export class Terminal extends React.Component {
     constructor(props) {
@@ -53,6 +107,7 @@ export class Terminal extends React.Component {
         this.onFocusOut = this.onFocusOut.bind(this);
         this.setText = this.setText.bind(this);
         this.getText = this.getText.bind(this);
+        this.setTerminalTheme = this.setTerminalTheme.bind(this);
     }
 
     componentWillMount() {
@@ -85,6 +140,7 @@ export class Terminal extends React.Component {
             window.addEventListener('resize', this.onWindowResize);
             this.onWindowResize();
         }
+        this.setTerminalTheme(this.props.theme || 'black-theme');
         this.state.terminal.focus();
     }
 
@@ -103,6 +159,9 @@ export class Terminal extends React.Component {
             this.state.terminal.reset();
             this.disconnectChannel();
         }
+
+        if (nextProps.theme !== this.props.theme)
+            this.setTerminalTheme(nextProps.theme);
     }
 
     componentDidUpdate(prevProps) {
@@ -202,6 +261,10 @@ export class Terminal extends React.Component {
         });
     }
 
+    setTerminalTheme(theme) {
+        this.state.terminal.setOption("theme", themes[theme]);
+    }
+
     onBeforeUnload(event) {
         // Firefox requires this when the page is in an iframe
         event.preventDefault();
@@ -225,5 +288,6 @@ Terminal.propTypes = {
     cols: PropTypes.number,
     rows: PropTypes.number,
     channel: PropTypes.object.isRequired,
-    onTitleChanged: PropTypes.func
+    onTitleChanged: PropTypes.func,
+    theme: PropTypes.string
 };

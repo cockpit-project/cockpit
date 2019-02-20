@@ -26,7 +26,6 @@ const _ = cockpit.gettext;
                 "spawn": [user.shell || "/bin/bash", "-i"],
                 "environ": [
                     "TERM=xterm-256color",
-                    "PATH=/sbin:/bin:/usr/sbin:/usr/bin"
                 ],
                 "directory": user.home || "/",
                 "pty": true

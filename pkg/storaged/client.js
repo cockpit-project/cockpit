@@ -757,9 +757,6 @@ function vdo_overlay() {
                                     lines = buf.split("\n");
                                     buf = lines[lines.length - 1];
                                     if (lines.length >= 2) {
-                                        self.entries = JSON.parse(lines[lines.length - 2]);
-                                        self.fsys_sizes = { };
-                                        client.dispatchEvent('changed');
                                         update(JSON.parse(lines[lines.length - 2]));
                                     }
                                 })

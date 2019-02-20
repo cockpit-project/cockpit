@@ -46,11 +46,8 @@ __all__ = (
     "issue",
     "verbose",
     "stale",
-    "REDHAT_PING",
+    "redhat_network",
 )
-
-# Server to tell us if we can handle Red Hat images
-REDHAT_PING = "http://cockpit-11.e2e.bos.redhat.com"
 
 api = github.GitHub()
 verbose = False
@@ -449,3 +446,21 @@ def comment(issue, comment):
 def attach(filename):
     if "TEST_ATTACHMENTS" in os.environ:
         shutil.copy(filename, os.environ["TEST_ATTACHMENTS"])
+
+def redhat_network():
+    '''Check if we can access the Red Hat network
+
+    This checks if the image server can be accessed. The result gets cached,
+    so this can be called several times.
+    '''
+    if redhat_network.result is None:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect(("cockpit-11.e2e.bos.redhat.com", 8493))
+            redhat_network.result = True
+        except OSError:
+            redhat_network.result = False
+
+    return redhat_network.result
+
+redhat_network.result = None

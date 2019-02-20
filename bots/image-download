@@ -30,13 +30,6 @@
 # The stores are places to look for images or other state
 #
 
-CONFIG = "~/.config/image-stores"
-DEFAULT = [
-    "http://cockpit-images.verify.svc.cluster.local",
-    "https://images-cockpit.apps.ci.centos.org/",
-    "https://209.132.184.41:8493/",
-]
-
 import argparse
 import email
 import io
@@ -52,6 +45,15 @@ import fcntl
 import urllib.parse
 
 from machine import testvm
+from task import REDHAT_STORE
+
+CONFIG = "~/.config/image-stores"
+DEFAULT = [
+    "http://cockpit-images.verify.svc.cluster.local",
+    "https://images-cockpit.apps.ci.centos.org/",
+    "https://209.132.184.41:8493/",
+    REDHAT_STORE
+]
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
 IMAGES = os.path.join(BOTS, "..", "bots", "images")

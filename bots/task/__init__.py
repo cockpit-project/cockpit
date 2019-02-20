@@ -30,6 +30,7 @@ import subprocess
 import sys
 import time
 import traceback
+import urllib.parse
 
 sys.dont_write_bytecode = True
 
@@ -47,7 +48,11 @@ __all__ = (
     "verbose",
     "stale",
     "redhat_network",
+    "REDHAT_STORE",
 )
+
+# Server which has the private RHEL/Windows images
+REDHAT_STORE = "https://cockpit-11.e2e.bos.redhat.com:8493"
 
 api = github.GitHub()
 verbose = False
@@ -455,8 +460,9 @@ def redhat_network():
     '''
     if redhat_network.result is None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        store = urllib.parse.urlparse(REDHAT_STORE)
         try:
-            s.connect(("cockpit-11.e2e.bos.redhat.com", 8493))
+            s.connect((store.hostname, store.port))
             redhat_network.result = True
         except OSError:
             redhat_network.result = False

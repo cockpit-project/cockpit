@@ -93,6 +93,11 @@ function ph_has_attr (sel, attr, val)
     return ph_attr(sel, attr) == val;
 }
 
+function ph_attr_contains (sel, attr, val)
+{
+    return ph_attr(sel, attr).indexOf(val) > -1;
+}
+
 function ph_mouse(sel, type, x, y, btn, force) {
     let el = ph_find(sel);
 

@@ -442,7 +442,7 @@ class TestPcp(packagelib.PackageCase):
 
         pmlogger = {
             "/usr/bin/pmlogger": "",
-            "/etc/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/true"
+            "/etc/systemd/system/pmlogger.service": "[Service]\nExecStart=/bin/sh -c \"while [ ! -f /tmp/pmlogger.start ]; do sleep 1; done\"\nType=oneshot\nRemainAfterExit=true"
         }
 
         self.createPackage("cockpit-pcp", "999", "1", content=pmlogger,
@@ -466,6 +466,16 @@ class TestPcp(packagelib.PackageCase):
 
         b.wait_visible("#server-pmlogger-switch")
         b.wait_not_visible("#system-information-enable-pcp-link")
+
+        # Turn stored metrics on
+        self.assertIn("active", b.attr("#server-pmlogger-switch label:nth-child(2)", "class"))
+        b.click("#server-pmlogger-switch label:first-child")
+        if m.image == "rhel-7-6-distropkg": # PR #11224
+            return
+        b.wait_attr_contains("#server-pmlogger-switch label:first-child", "class", "disabled")
+        m.execute("touch /tmp/pmlogger.start")
+        b.wait_attr_not_contains("#server-pmlogger-switch label:first-child", "class", "disabled")
+        b.wait_attr_contains("#server-pmlogger-switch label:first-child", "class", "active")
 
 
 if __name__ == '__main__':

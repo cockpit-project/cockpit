@@ -74,12 +74,16 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             } else {
                 return fsys.Resize(size - crypto_overhead, { });
             }
+        } else if (vdo) {
+            if (size - crypto_overhead > vdo.physical_size)
+                return vdo.grow_physical();
+            else if (size - crypto_overhead < vdo.physical_size)
+                return cockpit.reject(_("VDO backing devices can not be made smaller"));
+            else
+                return cockpit.resolve();
         } else if (size < orig_size) {
             // This shouldn't happen.  But if it does, continuing is harmful, so we throw an error.
-            console.warn("Trying to shrink unrecognized content.  Ignored.");
-            return cockpit.reject();
-        } else if (vdo) {
-            return vdo.grow_physical();
+            return cockpit.reject(_("Unrecognized data can not be made smaller here."));
         } else {
             // Growing unrecognized content, nothing to do.
             return cockpit.resolve();

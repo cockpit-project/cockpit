@@ -908,6 +908,8 @@ class MachineCase(unittest.TestCase):
         if self.image in ['rhel-8-0']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { setsched } for .* comm="rngd".*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1679468
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { signull } for .* comm="systemd-journal".*')
 
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
         if self.image in ["debian-stable"]:

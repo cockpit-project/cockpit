@@ -100,8 +100,9 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
         # Check home directory
-        self.assertIn(":/home/berta:", m.execute("getent passwd berta"))
-        self.assertEqual(m.execute("stat -c '%U' /home/berta").strip(), "berta")
+        home_dir = m.execute("getent passwd berta | cut -f6 -d:").strip()
+        self.assertTrue(home_dir.endswith("/berta"))
+        self.assertEqual(m.execute("stat -c '%U' {0}".format(home_dir)).strip(), "berta")
 
         # Delete it externally
         m.execute("userdel berta")

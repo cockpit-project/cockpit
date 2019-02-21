@@ -349,6 +349,12 @@ class Browser:
     def wait_attr(self, selector, attr, val):
         return self.wait_js_func('ph_has_attr', selector, attr, val)
 
+    def wait_attr_contains(self, selector, attr, val):
+        return self.wait_js_func('ph_attr_contains', selector, attr, val)
+
+    def wait_attr_not_contains(self, selector, attr, val):
+        return self.wait_js_func('!ph_attr_contains', selector, attr, val)
+
     def wait_not_attr(self, selector, attr, val):
         return self.wait_js_func('!ph_has_attr', selector, attr, val)
 

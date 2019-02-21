@@ -355,6 +355,14 @@ PageServer.prototype = {
         var pmlogger_exists = false;
         var packagekit_exists = false;
 
+        function disable_logger_switch() {
+            $("#server-pmlogger-switch label").addClass("disabled");
+        }
+
+        function enable_logger_switch() {
+            $("#server-pmlogger-switch label").removeClass("disabled");
+        }
+
         function update_pmlogger_row() {
             var logger_switch = $("#server-pmlogger-switch");
             var enable_pcp = $('#system-information-enable-pcp-link');
@@ -364,10 +372,14 @@ PageServer.prototype = {
                 logger_switch.prev().hide();
             } else if (!pmlogger_promise) {
                 enable_pcp.hide();
-                logger_switch.onoff('value', pmlogger_service.enabled);
+                logger_switch.onoff('value', pmlogger_service.state === "running");
                 logger_switch.show();
                 logger_switch.prev().show();
             }
+            if (pmlogger_service.state === "starting")
+                disable_logger_switch();
+            else
+                enable_logger_switch();
         }
 
         function pmlogger_service_changed() {
@@ -400,6 +412,7 @@ PageServer.prototype = {
             if (!pmlogger_exists)
                 return;
 
+            disable_logger_switch();
             if ($(this).onoff('value')) {
                 pmlogger_promise = Promise.all([
                     pmcd_service.enable(),

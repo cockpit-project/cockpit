@@ -117,7 +117,68 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     }
 }
 
-function lvol_grow(client, lvol, info) {
+export function get_resize_info(client, block, to_fit) {
+    let info, shrink_excuse, grow_excuse;
+
+    if (block) {
+        if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
+            var encrypted = client.blocks_crypto[block.path];
+            var cleartext = client.blocks_cleartext[block.path];
+
+            if (!encrypted.Resize) {
+                info = { };
+                shrink_excuse = grow_excuse = _("Encrypted volumes can not be resized here.");
+            } else if (!cleartext) {
+                info = { };
+                shrink_excuse = grow_excuse = _("Encrypted volumes need to be unlocked before they can be resized.");
+            } else {
+                return get_resize_info(client, cleartext, to_fit);
+            }
+        } else if (block.IdUsage == 'filesystem') {
+            info = client.fsys_info[block.IdType];
+
+            if (!info) {
+                info = { };
+                shrink_excuse = grow_excuse = cockpit.format(_("$0 filesystems can not be resized here."),
+                                                             block.IdType);
+            } else {
+                if (!info.can_shrink)
+                    shrink_excuse = cockpit.format(_("$0 filesystems can not be made smaller."),
+                                                   block.IdType);
+                if (!info.can_grow)
+                    grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
+                                                 block.IdType);
+            }
+        } else if (block.IdUsage == 'raid') {
+            info = { };
+            shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
+        } else if (client.vdo_overlay.find_by_backing_block(block)) {
+            info = {
+                can_shrink: false,
+                can_grow: true,
+                grow_needs_unmount: false
+            };
+            shrink_excuse = _("VDO backing devices can not be made smaller");
+        } else {
+            info = {
+                can_shrink: false,
+                can_grow: true,
+                grow_needs_unmount: true
+            };
+            shrink_excuse = _("Unrecognized data can not be made smaller here.");
+        }
+        if (to_fit) {
+            // Shrink to fit doesn't need to resize the content
+            shrink_excuse = null;
+        }
+    } else {
+        info = { };
+        shrink_excuse = grow_excuse = _("This volume needs to be activated before it can be resized.");
+    }
+
+    return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
+}
+
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
     var pool = client.lvols[lvol.ThinPool];
@@ -244,63 +305,7 @@ export class BlockVolTab extends React.Component {
             lvol_rename(lvol);
         }
 
-        function get_info(block) {
-            if (block) {
-                if (block.IdUsage == 'crypto' && client.blocks_crypto[block.path]) {
-                    var encrypted = client.blocks_crypto[block.path];
-                    var cleartext = client.blocks_cleartext[block.path];
-
-                    if (!encrypted.Resize) {
-                        info = { };
-                        shrink_excuse = grow_excuse = _("Encrypted volumes can not be resized here.");
-                    } else if (!cleartext) {
-                        info = { };
-                        shrink_excuse = grow_excuse = _("Encrypted volumes need to be unlocked before they can be resized.");
-                    } else {
-                        return get_info(cleartext);
-                    }
-                } else if (block.IdUsage == 'filesystem') {
-                    info = client.fsys_info[block.IdType];
-
-                    if (!info) {
-                        info = { };
-                        shrink_excuse = grow_excuse = cockpit.format(_("$0 filesystems can not be resized here."),
-                                                                     block.IdType);
-                    } else {
-                        if (!info.can_shrink)
-                            shrink_excuse = cockpit.format(_("$0 filesystems can not be made smaller."),
-                                                           block.IdType);
-                        if (!info.can_grow)
-                            grow_excuse = cockpit.format(_("$0 filesystems can not be made larger."),
-                                                         block.IdType);
-                    }
-                } else if (block.IdUsage == 'raid') {
-                    info = { };
-                    shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
-                } else if (client.vdo_overlay.find_by_backing_block(block)) {
-                    info = {
-                        can_shrink: false,
-                        can_grow: true,
-                        grow_needs_unmount: false
-                    };
-                    shrink_excuse = _("VDO backing devices can not be made smaller");
-                } else {
-                    info = {
-                        can_shrink: false,
-                        can_grow: true,
-                        grow_needs_unmount: true
-                    };
-                    shrink_excuse = _("Unrecognized data can not be made smaller here.");
-                }
-            } else {
-                info = { };
-                shrink_excuse = grow_excuse = _("This volume needs to be activated before it can be resized.");
-            }
-
-            return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
-        }
-
-        var { info, shrink_excuse, grow_excuse } = get_info(block);
+        var { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, false);
 
         if (!grow_excuse && !pool && vgroup.FreeSize == 0) {
             grow_excuse = (

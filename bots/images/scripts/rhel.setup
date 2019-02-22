@@ -184,6 +184,7 @@ if [ "$IMAGE" = "rhel-8-0" ]; then
     TEST_PACKAGES="${TEST_PACKAGES} libvirt-daemon-config-network"
     # Install node for external Composer tests, they use our rhel-* images
     TEST_PACKAGES="${TEST_PACKAGES} nodejs"
+    TEST_PACKAGES="${TEST_PACKAGES} subscription-manager-cockpit"
 fi
 
 # in RHEL/CentOS 7, boom is shipped in a different package

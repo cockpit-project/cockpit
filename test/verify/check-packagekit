@@ -233,7 +233,6 @@ class TestUpdates(PackageCase):
         b.wait_text("#system_information_updates_text", "System Up To Date")
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-8-0")
     def testInfoSecurity(self):
         b = self.browser
         m = self.machine
@@ -443,7 +442,6 @@ class TestUpdates(PackageCase):
 
         self.allow_restart_journal_messages()
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-8-0")
     def testSecurityOnly(self):
         b = self.browser
         m = self.machine
@@ -485,7 +483,6 @@ class TestUpdates(PackageCase):
             # secnocve should be displayed properly
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1624852", "rhel-8-0")
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine

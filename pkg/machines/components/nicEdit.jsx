@@ -122,7 +122,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     return (
         <React.Fragment>
             <label className='control-label' htmlFor={`${idPrefix}-select-type`}>
-                {_("Network Type")}
+                {_("Interface Type")}
             </label>
             <Select.Select id={`${idPrefix}-select-type`}
                            onChange={value => onNetworkTypeChanged(value)}
@@ -213,7 +213,7 @@ export class EditNICAction extends React.Component {
             networkSource: this.state.networkSource
         }))
                 .fail((exc) => {
-                    this.dialogErrorSet(_("Network settings could not be saved"), exc.message);
+                    this.dialogErrorSet(_("Network interface settings could not be saved"), exc.message);
                 })
                 .then(() => {
                     dispatch(getVm({ connectionName: vm.connectionName, id: vm.id }));

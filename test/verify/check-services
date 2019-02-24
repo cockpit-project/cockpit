@@ -108,7 +108,10 @@ Unit=test.service
             b.wait_in_text(svc_sel(service), state)
 
         def wait_service_in_panel(service, title):
-            b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
+            if m.image == "rhel-7-6-distropkg": # Changed in #11241
+                b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
+            else:
+                wait_service_state(service, title)
 
         b.wait_in_text("#services", "test.service")
         wait_service_in_panel("test.service", "Disabled")

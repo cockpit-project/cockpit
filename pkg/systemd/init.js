@@ -204,6 +204,11 @@ $(function() {
                 active_state = load_state + " / " + active_state;
 
             unit.CombinedState = active_state;
+            unit.AutomaticStartup = _("Static");
+            if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled'))
+                unit.AutomaticStartup = _("Enabled");
+            else if (unit.UnitFileState && startsWith(unit.UnitFileState, 'disabled'))
+                unit.AutomaticStartup = _("Disabled");
 
             if (unit.Id.slice(-5) == "timer") {
                 unit.is_timer = true;
@@ -264,16 +269,15 @@ $(function() {
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
-            var enabled = [ ];
-            var disabled = [ ];
-            var statics = [ ];
+            var units = [ ];
             var header = {
                 Description: _("Description"),
                 Id: _("Id"),
                 is_timer: (~pattern.indexOf("timer")),
                 Next_Run_Time: _("Next Run"),
                 Last_Trigger_Time: _("Last Trigger"),
-                Current_State: _("State")
+                Current_State: _("State"),
+                Automatic_Startup: _("Automatic Startup")
             };
             if (header.is_timer)
                 $('#create-timer').show();
@@ -288,30 +292,18 @@ $(function() {
                 if (current_text_filter && unit.Description.toLowerCase().indexOf(current_text_filter) == -1 &&
                                            unit.Id.indexOf(current_text_filter) == -1)
                     return;
-                if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled'))
-                    enabled.push(unit);
-                else if (unit.UnitFileState && startsWith(unit.UnitFileState, 'disabled'))
-                    disabled.push(unit);
-                else
-                    statics.push(unit);
+                units.push(unit);
             });
 
-            function fill_table(parent, heading, units) {
-                var text = "";
-                if (units.length > 0)
-                    text = mustache.render(units_template, {
-                        heading: heading,
-                        table_head: header,
-                        units: units
-                    });
-                else
-                    text = mustache.render(empty_template);
-                parent.html(text);
-            }
-
-            fill_table($('#services-list-enabled'), _("Enabled"), enabled);
-            fill_table($('#services-list-disabled'), _("Disabled"), disabled);
-            fill_table($('#services-list-static'), _("Static"), statics);
+            var text = "";
+            if (units.length > 0)
+                text = mustache.render(units_template, {
+                    table_head: header,
+                    units: units
+                });
+            else
+                text = mustache.render(empty_template);
+            $("#services-list").html(text);
         }
 
         var render_holdoff_timer;

@@ -259,6 +259,8 @@ $(function() {
 
         function render_now() {
             var pattern = $('#services-filter button.active').attr('data-pattern');
+            var current_text_filter = $('#services-text-filter').val()
+                    .toLowerCase();
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
@@ -283,6 +285,9 @@ $(function() {
                     return;
                 if (unit.LoadState == "not-found")
                     return;
+                if (current_text_filter && unit.Description.toLowerCase().indexOf(current_text_filter) == -1 &&
+                                           unit.Id.indexOf(current_text_filter) == -1)
+                    return;
                 if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled'))
                     enabled.push(unit);
                 else if (unit.UnitFileState && startsWith(unit.UnitFileState, 'disabled'))
@@ -292,11 +297,15 @@ $(function() {
             });
 
             function fill_table(parent, heading, units) {
-                var text = mustache.render(units_template, {
-                    heading: heading,
-                    table_head: header,
-                    units: units
-                });
+                var text = "";
+                if (units.length > 0)
+                    text = mustache.render(units_template, {
+                        heading: heading,
+                        table_head: header,
+                        units: units
+                    });
+                else
+                    text = mustache.render(empty_template);
                 parent.html(text);
             }
 
@@ -324,6 +333,14 @@ $(function() {
                 render_now();
             }
         }
+
+        function clear_filters() {
+            $("#services-text-filter").val("");
+            render();
+        }
+
+        $("#services-text-filter").on("input", render);
+        $(document).on("click", "#clear-all-filters", clear_filters);
 
         var update_run = 0;
 
@@ -513,6 +530,9 @@ $(function() {
 
     var template_template = $("#service-template-tmpl").html();
     mustache.parse(template_template);
+
+    var empty_template = $("#service-empty-tmpl").html();
+    mustache.parse(empty_template);
 
     var unit_primary_actions = [ // <method>:<mode>
         { title: _("Start"), action: 'StartUnit' },

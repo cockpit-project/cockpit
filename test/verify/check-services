@@ -204,6 +204,36 @@ Unit=test.service
 
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
+        # Test searching and filtering
+        if m.image == "rhel-7-6-distropkg": # Introduced in #11241
+            return
+
+        def wait_service_present(service):
+            b.wait_present(svc_sel(service))
+            b.wait_visible(svc_sel(service))
+
+        def wait_service_not_present(service):
+            b.wait_not_present(svc_sel(service))
+
+        def init_filter_state():
+            b.set_input_text("#services-text-filter", "")
+            wait_service_present("test.service")
+            wait_service_present("test-fail.service")
+
+        b.go("#/")
+
+        # Filter by id
+        init_filter_state()
+        b.set_input_text("#services-text-filter", "fail.ser")
+        wait_service_not_present("test.service")
+        wait_service_present("test-fail.service")
+
+        # Filter by description
+        init_filter_state()
+        b.set_input_text("#services-text-filter", "failing")
+        wait_service_not_present("test.service")
+        wait_service_present("test-fail.service")
+
     def testApi(self):
         m = self.machine
         b = self.browser

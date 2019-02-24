@@ -205,10 +205,14 @@ $(function() {
 
             unit.CombinedState = active_state;
             unit.AutomaticStartup = _("Static");
-            if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled'))
+            unit.AutomaticStartupIndex = 3;
+            if (unit.UnitFileState && startsWith(unit.UnitFileState, 'enabled')) {
                 unit.AutomaticStartup = _("Enabled");
-            else if (unit.UnitFileState && startsWith(unit.UnitFileState, 'disabled'))
+                unit.AutomaticStartupIndex = 1;
+            } else if (unit.UnitFileState && startsWith(unit.UnitFileState, 'disabled')) {
                 unit.AutomaticStartup = _("Disabled");
+                unit.AutomaticStartupIndex = 2;
+            }
 
             if (unit.Id.slice(-5) == "timer") {
                 unit.is_timer = true;
@@ -266,6 +270,7 @@ $(function() {
             var pattern = $('#services-filter button.active').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
+            var current_type_filter = parseInt($('#current-service-type').attr("data-num"));
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
@@ -291,6 +296,8 @@ $(function() {
                     return;
                 if (current_text_filter && unit.Description.toLowerCase().indexOf(current_text_filter) == -1 &&
                                            unit.Id.indexOf(current_text_filter) == -1)
+                    return;
+                if (current_type_filter !== 0 && current_type_filter !== unit.AutomaticStartupIndex)
                     return;
                 units.push(unit);
             });
@@ -328,6 +335,8 @@ $(function() {
 
         function clear_filters() {
             $("#services-text-filter").val("");
+            $('#current-service-type').attr("data-num", 0);
+            $('#current-service-type').text(_("All"));
             render();
         }
 
@@ -487,6 +496,13 @@ $(function() {
             $(this)
                     .addClass('active')
                     .attr('aria-current', true);
+            render();
+        });
+
+        $('#services-dropdown .dropdown-menu li').on('click', function() {
+            var selected = $(this).children(":first");
+            $("#current-service-type").text(selected.text());
+            $("#current-service-type").attr("data-num", selected.attr("data-num"));
             render();
         });
 

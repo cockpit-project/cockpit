@@ -15,7 +15,6 @@
 
   <script id="services-units-tmpl" type="x-template/mustache">
     <div class="panel panel-default">
-      <div class="panel-heading">{{heading}}</div>
       <table class="table table-hover">
         {{#table_head}}
           <thead>
@@ -26,7 +25,8 @@
                 <th>{{Next_Run_Time}}</th>
                 <th>{{Last_Trigger_Time}}</th>
               {{/is_timer}}
-              <th class="service-unit-data {{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
+              <th class="{{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
+              <th class="service-unit-data">{{Automatic_Startup}}</th>
             </tr>
           </thead>
         {{/table_head}}
@@ -39,8 +39,11 @@
             <td>{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>
             <td>{{#LastTriggerTime}}{{LastTriggerTime}}{{/LastTriggerTime}}</td>
           {{/is_timer}}
-          <td class="service-unit-data {{#HasFailed}}service-unit-failed{{/HasFailed}}">
+          <td class="{{#HasFailed}}service-unit-failed{{/HasFailed}}">
             {{CombinedState}}
+          </td>
+          <td class="service-unit-data">
+            {{AutomaticStartup}}
           </td>
         {{/units}}
       </table>
@@ -63,9 +66,7 @@
     </div>
 
     <div class="container-fluid" role="tabpanel">
-      <div id="services-list-enabled"></div>
-      <div id="services-list-disabled"></div>
-      <div id="services-list-static"></div>
+      <div id="services-list"></div>
     </div>
   </div>
 

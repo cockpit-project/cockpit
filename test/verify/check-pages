@@ -100,7 +100,10 @@ OnCalendar=daily
         b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        b.wait_present("#services-list-enabled")
+        if m.image == "rhel-7-6-distropkg":
+            b.wait_present("#services-list-enabled")
+        else:
+            b.wait_present("#services-list")
         b.wait_not_visible("#service-unit")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname === "/system/services"')

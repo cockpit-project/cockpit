@@ -23,12 +23,13 @@ import json
 import os
 import sys
 import subprocess
+from testlib_avocado.machine_core import testvm
+
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.insert(1, CURRENT_DIR)
 
-from testlib_avocado.machine_core import testvm
 
 machine_test_dir = "/tmp/avocado_tests"
 
@@ -42,12 +43,14 @@ if not arg_attachments_dir:
 if not os.path.exists(arg_attachments_dir):
     os.makedirs(arg_attachments_dir)
 
+
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
     """
     machine.execute(command="mkdir -p " + avocado_results_dir)
     machine.upload(["avocado"], machine_test_dir)
     machine.execute(command="ls -l /tmp/avocado_tests")
+
 
 def tap_output(machine):
     try:
@@ -83,6 +86,7 @@ def tap_output(machine):
     else:
         print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
+
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
@@ -108,9 +112,9 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
             # try to get the list of failed tests
             try:
                 failed_tests_info = machine.execute(
-                        command="cat " + os.path.join(avocado_results_dir, "latest/results.json"),
-                        quiet=True
-                    )
+                    command="cat " + os.path.join(avocado_results_dir, "latest/results.json"),
+                    quiet=True
+                )
                 machine.execute("cp -v *.png %s/ 2>/dev/null || true" % avocado_results_dir)
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
@@ -127,18 +131,19 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
     tap_output(machine)
     return return_state
 
+
 def copy_avocado_logs(machine, title):
     if machine and machine.ssh_reachable:
         # check if the remote directory exists (if it doesn't, we want to quit silently)
         test_command = "if test -d '{0}'; then echo exists; fi".format(avocado_results_dir)
-        if "exists" not in machine.execute(command=test_command,quiet=True):
+        if "exists" not in machine.execute(command=test_command, quiet=True):
             return
 
         # get the screenshots first and move them on the guest so they won't get archived
         remote_screenshots = os.path.join(avocado_results_dir, "*.png")
         remote_archive_dir = os.path.split(avocado_results_dir)[0]
         test_command_screenshots = """for f in "{0}/"*.png; do [ -e  "$f" ] && echo "exists"; break; done""".format(avocado_results_dir)
-        if "exists" in machine.execute(command=test_command_screenshots,quiet=True):
+        if "exists" in machine.execute(command=test_command_screenshots, quiet=True):
             machine.download(remote_screenshots, arg_attachments_dir)
 
         # create a compressed archive on the remote host
@@ -149,6 +154,7 @@ def copy_avocado_logs(machine, title):
         local_archive = os.path.join(arg_attachments_dir, "{0}-{1}.avocado.tar.gz".format(machine.label, title))
         machine.download(remote_archive, local_archive)
 
+
 def wait_for_selenium_running(machine, host, port=4444):
     WAIT_SELENIUM_RUNNING = """#!/bin/sh
 until curl -s --connect-timeout 3 http://%s:%d >/dev/null; do
@@ -157,6 +163,35 @@ done;
 """ % (host, port)
     with testvm.Timeout(seconds=300, error_message="Timeout while waiting for selenium to start"):
         machine.execute(script=WAIT_SELENIUM_RUNNING)
+
+
+def prepare_machines_test_env(avocado_tests, machine):
+    prepare_env = False
+    for test in avocado_tests:
+        if "selenium-machines" in test:
+            prepare_env = True
+            break
+    if not prepare_env:
+        return
+
+    # Ensure everything has started correctly
+    machine.execute("systemctl start libvirtd.service")
+    # Wait until we can get a list of domains
+    machine.execute("until virsh list > /dev/null; do sleep 0.5; done")
+    # Wait for the network 'default' to become active
+    machine.execute("until virsh net-info default | grep Active > /dev/null; do sleep 0.5; done")
+    # Enforce use of cockpit-machines instead of cockpit-machines-ovirt
+    machine.execute(
+        "sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
+    machine.execute(
+        "[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
+    machine.execute("systemctl try-restart libvirtd")
+
+    # Prepare image
+    image_file = machine.pull("cirros")
+    machine.upload([image_file], "/var/lib/libvirt/images")
+    machine.execute("cd /var/lib/libvirt/images && mv {} cirros.qcow2 && chmod 644 cirros.qcow2".format(os.path.basename(image_file)))
+
 
 def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
     use_selenium = (browser != 'none')
@@ -182,7 +217,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             selenium.set_address("10.111.112.10/20")
 
             # start selenium on the server
-            selenium.upload([ "avocado/selenium_start.sh"], "/root")
+            selenium.upload(["avocado/selenium_start.sh"], "/root")
             selenium.execute(command="/root/selenium_start.sh")
         elif windows:
             selenium = windows
@@ -193,7 +228,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         machine.set_address("10.111.113.1/20")
         machine.start_cockpit()
         if selenium and 'edge' in browser:
-            machine.dhcp_server(range=['10.111.112.10', '10.111.112.10']);
+            machine.dhcp_server(range=['10.111.112.10', '10.111.112.10'])
 
         machine.execute("adduser test")
         machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
@@ -206,6 +241,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             wait_for_selenium_running(machine, "10.111.112.10")
 
         prepare_avocado_tests(machine)
+        prepare_machines_test_env(avocado_tests, machine)
 
         # Now actually run the tests
         selenium_address = "10.111.112.10" if selenium else ""
@@ -223,13 +259,14 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
                 input = raw_input
             except NameError:
                 pass
-            input ("Press RET to continue... ")
+            input("Press RET to continue... ")
 
         return success
     finally:
         machine.kill()
         if selenium:
             selenium.kill()
+
 
 def main():
     parser = argparse.ArgumentParser(description='Run Cockpit Avocado test(s)')
@@ -262,20 +299,29 @@ def main():
         "selenium-tuned.py",
         "selenium-network.py"
     ]
+    machines_tests = [
+        "selenium-machines-basic.py",
+        "selenium-machines-consoles.py",
+        "selenium-machines-disks.py",
+        "selenium-machines-networks.py",
+        "selenium-machines-usage.py",
+        "selenium-machines-vcpu.py"
+    ]
 
     if opts.regular_tests:
         opts.tests += regular_tests
     if opts.selenium_tests:
         opts.tests += browser_tests
+        opts.tests += machines_tests
 
     # if we don't have a browser but are supposed to run selenium related tests, fail
-    if opts.browser is 'none':
+    if opts.browser == 'none':
         for t in browser_tests:
             if t in opts.tests:
                 sys.stderr.write("Unable to run test {0} because browser isn't set.\n".format(t))
                 return 1
 
-    if len(opts.tests) is 0:
+    if len(opts.tests) == 0:
         sys.stderr.write("No tests specified.\n")
         return 0
 
@@ -283,6 +329,7 @@ def main():
         return 0
     else:
         return 1
+
 
 if __name__ == '__main__':
     sys.exit(main())

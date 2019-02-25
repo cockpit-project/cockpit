@@ -26,6 +26,7 @@ import {
     SET_HYPERVISOR_MAX_VCPU,
     SET_LOGGED_IN_USER,
     SET_PROVIDER,
+    UNDEFINE_NETWORK,
     UNDEFINE_STORAGE_POOL,
     UNDEFINE_VM,
     UPDATE_ADD_NETWORK,
@@ -133,6 +134,16 @@ export function setProvider(provider) {
     return {
         type: SET_PROVIDER,
         provider,
+    };
+}
+
+export function undefineNetwork({ connectionName, id }) {
+    return {
+        type: UNDEFINE_NETWORK,
+        payload: {
+            connectionName,
+            id,
+        }
     };
 }
 

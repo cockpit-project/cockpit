@@ -1267,6 +1267,16 @@ function updateNetworkIface({ domXml, networkMac, networkState, networkModelType
     return null;
 }
 
+export function changeNetworkAutostart(network, autostart, dispatch) {
+    return call(network.connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'NetworkLookupByName', [network.name], TIMEOUT)
+            .then(networkPath => {
+                const args = ['org.libvirt.Network', 'Autostart', cockpit.variant('b', autostart)];
+
+                return call(network.connectionName, networkPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
+            })
+            .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
+}
+
 export function storagePoolActivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
 }

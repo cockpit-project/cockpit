@@ -68,6 +68,7 @@ class App extends React.Component {
                     loggedUser={systemInfo.loggedUser} />
                 }
                 { this.state.activeTab == 3 && <NetworkList networks={networks}
+                    dispatch={dispatch}
                     changeActiveList={this.changeActiveList} />
                 }
             </div>

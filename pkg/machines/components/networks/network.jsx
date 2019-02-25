@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 
 export class Network extends React.Component {
     render() {
-        const { network } = this.props;
+        const { dispatch, network } = this.props;
         const idPrefix = `${networkId(network.name, network.connectionName)}`;
         const name = (
             <span id={`${idPrefix}-name`}>
@@ -70,7 +70,7 @@ export class Network extends React.Component {
             {
                 name: overviewTabName,
                 renderer: NetworkOverviewTab,
-                data: { network }
+                data: { network, dispatch }
             },
         ];
 
@@ -83,5 +83,6 @@ export class Network extends React.Component {
 }
 
 Network.propTypes = {
+    dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
 };

@@ -28,6 +28,7 @@ import {
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
     SET_LOGGED_IN_USER,
+    UNDEFINE_NETWORK,
     UNDEFINE_STORAGE_POOL,
     UNDEFINE_VM,
     UPDATE_ADD_NETWORK,
@@ -96,6 +97,12 @@ function networks(state, action) {
     state = state || [];
 
     switch (action.type) {
+    case UNDEFINE_NETWORK: {
+        const { connectionName, id } = action.payload;
+
+        return state
+                .filter(network => (connectionName !== network.connectionName || id != network.id));
+    }
     case UPDATE_ADD_NETWORK: {
         const { network } = action.payload;
         const connectionName = network.connectionName;

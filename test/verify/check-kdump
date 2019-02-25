@@ -126,7 +126,7 @@ class TestKdump(MachineCase):
 
             # test compression
             b.click(settingsLink, True)
-            b.wait_present("#kdump-settings-location")
+            b.wait_present("#kdump-settings-compression")
             b.click("#kdump-settings-compression")
             pathInput = "#kdump-settings-local-directory"
             b.click("button.btn-primary:contains('Apply')")

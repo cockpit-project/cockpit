@@ -29,7 +29,7 @@ const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
     render() {
-        const { networks } = this.props;
+        const { dispatch, networks } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
 
         return (
@@ -50,7 +50,7 @@ export class NetworkList extends React.Component {
                                 .sort(sortFunction)
                                 .map(network => {
                                     return (
-                                        <Network key={`${networkId(network.name, network.connectionName)}`} network={network} />
+                                        <Network key={`${networkId(network.name, network.connectionName)}`} dispatch={dispatch} network={network} />
                                     );
                                 })
                         }
@@ -61,6 +61,7 @@ export class NetworkList extends React.Component {
     }
 }
 NetworkList.propTypes = {
+    dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     changeActiveList: PropTypes.func.isRequired,
 };

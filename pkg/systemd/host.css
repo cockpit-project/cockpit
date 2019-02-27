@@ -353,10 +353,6 @@ body {
     width: 100%;
 }
 
-#services > .container-fluid {
-    margin-top: 5em;
-}
-
 .service-template input {
     width: 50em;
 }
@@ -365,8 +361,8 @@ body {
     padding-left: 10px;
 }
 
-#journal-box {
-    margin-top: 5em;
+.content-header-extra + #journal-box {
+    margin-top: 0.5rem;
 }
 
 #journal-entry-message:not(:empty) {
@@ -437,7 +433,7 @@ body {
     border-bottom: 1px solid #ddd;
     padding: 10px 20px;
     width: 100%;
-    position: fixed;
+    position: sticky;
     z-index: 900;
     top: 0;
 }

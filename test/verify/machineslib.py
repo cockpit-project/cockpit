@@ -1154,6 +1154,9 @@ class TestMachines(MachineCase):
         self.allow_journal_messages('.*Connection.*')
         self.allow_journal_messages('.*session closed.*')
 
+        # Deleting a running guest will disconnect the serial console
+        self.allow_browser_errors("Disconnection timed out.")
+
         runner.destroy()
 
     class TestCreateConfig:

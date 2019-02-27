@@ -19,14 +19,14 @@
         {{#table_head}}
           <thead>
             <tr>
-              <th>{{Id}}</th>
-              <th class="service-unit-description">{{Description}}</th>
+              <th scope="col">{{Id}}</th>
+              <th scope="col" class="service-unit-description">{{Description}}</th>
               {{#is_timer}}
-                <th>{{Next_Run_Time}}</th>
-                <th>{{Last_Trigger_Time}}</th>
+                <th scope="col">{{Next_Run_Time}}</th>
+                <th scope="col">{{Last_Trigger_Time}}</th>
               {{/is_timer}}
-              <th class="{{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
-              <th class="service-unit-data">{{Automatic_Startup}}</th>
+              <th scope="col" class="{{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
+              <th scope="col" class="service-unit-data">{{Automatic_Startup}}</th>
             </tr>
           </thead>
         {{/table_head}}
@@ -34,7 +34,7 @@
         {{#units}}
         <tr data-goto-unit="{{Id}}">
           <td>{{Id}}</td>
-          <td class="service-unit-description">{{Description}}</td>
+          <th scope="row" class="service-unit-description">{{Description}}</th>
           {{#is_timer}}
             <td>{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>
             <td>{{#LastTriggerTime}}{{LastTriggerTime}}{{/LastTriggerTime}}</td>

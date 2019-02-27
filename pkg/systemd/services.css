@@ -61,20 +61,25 @@ table.systemd-unit-relationship-table td:first-child {
   box-shadow: none;
 }
 
-#services-list table th,
-#services-list table td {
+#services-list table {
+  table-layout: fixed;
+}
+
+#services-list th,
+#services-list td {
   border: 1px solid #ddd;
   border-width: 0 0 1px;
 }
 
-#services-list table thead {
+#services-list thead {
   color: grey;
   background-color: #fff;
   font-weight: normal;
 }
 
-#services-list table {
-  table-layout: fixed;
+#services-list tbody th {
+  /* make tbody th padding the same as td */
+  padding: 8px;
 }
 
 .service-unit-description {

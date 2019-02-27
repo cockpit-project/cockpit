@@ -19,8 +19,8 @@
         {{#table_head}}
           <thead>
             <tr>
-              <th class="service-unit-description">{{Description}}</th>
               <th>{{Id}}</th>
+              <th class="service-unit-description">{{Description}}</th>
               {{#is_timer}}
                 <th>{{Next_Run_Time}}</th>
                 <th>{{Last_Trigger_Time}}</th>
@@ -33,8 +33,8 @@
 
         {{#units}}
         <tr data-goto-unit="{{Id}}">
-          <td class="service-unit-description">{{Description}}</td>
           <td>{{Id}}</td>
+          <td class="service-unit-description">{{Description}}</td>
           {{#is_timer}}
             <td>{{#NextRunTime}}{{NextRunTime}}{{/NextRunTime}}</td>
             <td>{{#LastTriggerTime}}{{LastTriggerTime}}{{/LastTriggerTime}}</td>

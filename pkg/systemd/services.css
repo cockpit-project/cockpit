@@ -30,11 +30,22 @@ table.systemd-unit-relationship-table td:first-child {
   justify-content: space-between;
 }
 
+@media screen and (max-width: 960px) {
+    #services .content-header-extra {
+        flex-direction: column-reverse;
+    }
+
+    #services-filter {
+        padding-top: 10px;
+    }
+}
+
 #services-text-filter {
   width: 21rem;
   display: inline;
   vertical-align: middle;
   padding-right: 35px;
+  margin-left: 16px;
 }
 
 .blank-screen {

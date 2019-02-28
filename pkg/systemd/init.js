@@ -267,6 +267,7 @@ $(function() {
         mustache.parse(units_template);
 
         function render_now() {
+            $("#loading-fallback").hide();
             var pattern = $('#services-filter li.active').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
@@ -890,8 +891,6 @@ $(function() {
     function update() {
         var path = cockpit.location.path;
 
-        ensure_units();
-
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
@@ -903,6 +902,7 @@ $(function() {
             cockpit.location = '';
         }
         $("body").show();
+        ensure_units();
     }
 
     $(cockpit).on("locationchanged", update);

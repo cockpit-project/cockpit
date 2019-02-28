@@ -11,8 +11,8 @@
     <script src="../base1/cockpit.js"></script>
     <script src="../*/po.js"></script>
 </head>
-<body id="services-page" hidden>
 
+<body id="services-page" hidden>
   <script id="services-units-tmpl" type="x-template/mustache">
     <div class="panel panel-default">
       <table class="table table-hover">
@@ -50,7 +50,7 @@
     </div>
   </script>
 
-  <div id="services" hidden>
+  <div id="services">
     <div class="content-header-extra with-navtabs">
       <ul class="nav nav-tabs" id="services-filter">
         <li tabindex="0" data-pattern="\.target$"><a translatable="yes">Targets</a></li>
@@ -80,6 +80,10 @@
 
     <div class="container-fluid" role="tabpanel">
       <div id="services-list"></div>
+    </div>
+    <div id="loading-fallback" class="blank-slate-pf blank-screen">
+      <div class="spinner spinner-lg"></div>
+      <h1 translate>Loading...</h1>
     </div>
   </div>
 

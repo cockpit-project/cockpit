@@ -156,6 +156,6 @@ The following environment variables are set by cockpit-ws when spawning an auth 
 
 The following environment variables are used to set options for the ```cockpit-ssh``` process.
 
- * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS**` Set to ```1``` to  allow connecting to hosts that are not present in the current ```known_hosts``` files. If not set, Cockpit will only connect to unknown hosts if either the remote peer is local, or if the ```Ssh-Login``` section in ```cockpit.conf``` has an ```connectToUnknownHosts``` option set to a true value (```1```, ```yes``` or ```true```).
+ * **COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS** Set to ```1``` to  allow connecting to hosts that are not present in the current ```known_hosts``` files. If not set, Cockpit will only connect to unknown hosts if either the remote peer is local, or if the ```Ssh-Login``` section in ```cockpit.conf``` has an ```connectToUnknownHosts``` option set to a true value (```1```, ```yes``` or ```true```).
  * **COCKPIT_SSH_KNOWN_HOSTS_FILE** Path to knownhost files. Defaults to ```PACKAGE_SYSCONF_DIR/ssh/ssh_known_hosts```
  * **COCKPIT_SSH_BRIDGE_COMMAND** Command to launch after a ssh connection is established. Defaults to ```cockpit-bridge``` if not provided.

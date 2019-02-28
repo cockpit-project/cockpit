@@ -126,6 +126,8 @@ const Enum = {
     VIR_STORAGE_POOL_EVENT_CREATED: 4,
     VIR_STORAGE_POOL_EVENT_DELETED: 5,
     VIR_STORAGE_POOL_EVENT_LAST: 6,
+    VIR_STORAGE_VOL_DELETE_NORMAL: 0,
+    VIR_STORAGE_VOL_DELETE_WITH_SNAPSHOTS: 2,
 };
 
 let LIBVIRT_DBUS_PROVIDER = {};
@@ -828,20 +830,27 @@ function getDomainMaxVCPU(capsXML) {
     return vcpuMaxAttr;
 }
 
-export function getStorageVolumeUsed(storagePool, vms, storageVolumeName) {
-    let usedBy = [];
+export function getVmDisksMap(vms, connectionName) {
+    let vmDisksMap = {};
 
     for (let vm of vms) {
+        if (vm.connectionName != connectionName)
+            continue;
+
+        if (!(vm.name in vmDisksMap))
+            vmDisksMap[vm.name] = [];
+
         for (let disk in vm.disks) {
             const diskProps = vm.disks[disk];
 
-            if ((diskProps.type == 'volume' && diskProps.source.pool == storagePool.name && diskProps.source.volume == storageVolumeName) ||
-                (diskProps.type == 'file' && diskProps.source.file == [storagePool.path, storageVolumeName].join('/'))) {
-                usedBy.push(vm.name);
-            }
+            if (diskProps.type == 'volume')
+                vmDisksMap[vm.name].push({ 'type': 'volume', 'pool': diskProps.source.pool, 'volume': diskProps.source.volume });
+            else if (diskProps.type == 'file')
+                vmDisksMap[vm.name].push({ 'type': 'file', 'source': diskProps.source.file });
+            /* Other disk types should be handled as well when we allow their creation from cockpit UI */
         }
     }
-    return usedBy;
+    return vmDisksMap;
 }
 
 /**
@@ -1217,6 +1226,10 @@ export function storagePoolActivate(connectionName, objPath) {
 
 export function storagePoolDeactivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Destroy', [], TIMEOUT);
+}
+
+export function storagePoolRefresh(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Refresh', [0], TIMEOUT);
 }
 
 export function storagePoolUndefine(connectionName, objPath) {

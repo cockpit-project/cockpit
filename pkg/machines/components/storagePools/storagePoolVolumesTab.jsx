@@ -20,57 +20,128 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { ExpandableNotification } from '../notification/inlineNotification.jsx';
+import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { storagePoolId, convertToUnit, units } from '../../helpers.js';
-import { getStorageVolumeUsed } from '../../libvirt-dbus.js';
+import { getVmDisksMap } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const StoragePoolVolumesTab = ({ storagePool, vms }) => {
-    const storagePoolIdPrefix = storagePoolId(storagePool.name, storagePool.connectionName);
-    const columnTitles = ['Name', 'Used by', 'Size'];
-    const volumes = storagePool.volumes || [];
-    const usedBy = volumes.reduce((resultDict, volume) => {
-        const domainsUsingVolume = getStorageVolumeUsed(storagePool, vms, volume.name);
+export class StoragePoolVolumesTab extends React.Component {
+    constructor(props) {
+        super(props);
 
-        resultDict[volume.name] = domainsUsingVolume;
-        return resultDict;
-    }, {});
-
-    if (!storagePool.volumes || storagePool.volumes.length === 0) {
-        return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>{_("No Storage Volumes defined for this Storage Pool")}</div>);
+        this.state = {
+            selected: [],
+            volumeUsed: {},
+        };
+        this.deleteErrorHandler = this.deleteErrorHandler.bind(this);
+        this.resetSelection = this.resetSelection.bind(this);
     }
 
-    return (
-        <div>
-            <Listing compact columnTitles={columnTitles} actions={null} emptyCaption=''>
-                {storagePool.volumes.map(volume => {
-                    const allocation = parseFloat(convertToUnit(volume.allocation, units.B, units.GiB).toFixed(2));
-                    const capacity = parseFloat(convertToUnit(volume.capacity, units.B, units.GiB).toFixed(2));
-                    const columns = [
-                        {
-                            name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-name`}>{volume.name}</div>),
-                            header: true,
-                        }
-                    ];
-                    columns.push(
-                        {
-                            name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{usedBy[volume.name].join(', ')}</div>),
-                        }
-                    );
-                    columns.push(
-                        {
-                            name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div>),
-                        }
-                    );
+    deleteErrorHandler(deleteError, deleteErrorDetail) {
+        this.setState({ deleteError, deleteErrorDetail });
+    }
 
-                    return (<ListingRow columns={columns} key={`${storagePoolIdPrefix}-volume-${volume.name}`} />);
-                })}
-            </Listing>
-        </div>
-    );
-};
+    selectedChanged(volumeName, isSelected) {
+        let selected = [...this.state.selected];
+        if (!isSelected) {
+            let index = selected.indexOf(volumeName);
+            if (index !== -1)
+                selected.splice(index, 1);
+        } else
+            selected.push(volumeName);
+        this.setState({ selected });
+    }
+
+    resetSelection() {
+        this.setState({ selected: [] });
+    }
+
+    render() {
+        const { storagePool, vms } = this.props;
+        const storagePoolIdPrefix = storagePoolId(storagePool.name, storagePool.connectionName);
+        const columnTitles = [_("Name"), _("Used by"), _("Size")];
+        const volumes = storagePool.volumes || [];
+
+        if (volumes.length === 0) {
+            return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>{_("No Storage Volumes defined for this Storage Pool")}</div>);
+        }
+
+        // Get a dictionary of vmName -> disks for a specific connection
+        const vmDisksMap = getVmDisksMap(vms, storagePool.connectionName);
+
+        // And make it a dictionary of volumeName -> array of Domains using volume
+        let isVolumeUsed = {};
+        for (let i in volumes) {
+            let volumeName = volumes[i].name;
+            const volumePath = [storagePool.path, volumeName].join('/');
+            isVolumeUsed[volumeName] = [];
+
+            for (let vmName in vmDisksMap) {
+                const disks = vmDisksMap[vmName];
+
+                for (let i in disks) {
+                    let disk = disks[i];
+                    if (disk.type == 'volume' && disk.volume == volumeName && disk.pool == storagePool.name)
+                        isVolumeUsed[volumeName].push(vmName);
+
+                    if (disk.type == 'file' && disk.source == volumePath)
+                        isVolumeUsed[volumeName].push(vmName);
+                }
+            }
+        }
+
+        /* Storage Volumes Deletion */
+        const actions = [
+            <StorageVolumeDelete key='volume-delete-action'
+                                 storagePool={storagePool}
+                                 isVolumeUsed={isVolumeUsed}
+                                 volumes={this.state.selected}
+                                 resetSelection={this.resetSelection}
+                                 deleteErrorHandler={this.deleteErrorHandler} />
+        ];
+
+        return (
+            <div id='storage-volumes-list'>
+                { this.state.deleteError &&
+                <ExpandableNotification type='error' text={this.state.deleteError}
+                    detail={this.state.deleteErrorDetail}
+                    onDismiss={() => this.setState({ deleteError: undefined }) } /> }
+                <Listing compact hasCheckbox columnTitles={columnTitles} actions={actions} emptyCaption=''>
+                    { volumes.map(volume => {
+                        const allocation = parseFloat(convertToUnit(volume.allocation, units.B, units.GiB).toFixed(2));
+                        const capacity = parseFloat(convertToUnit(volume.capacity, units.B, units.GiB).toFixed(2));
+                        const columns = [
+                            {
+                                name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-name`}>{volume.name}</div>),
+                                header: true,
+                            }
+                        ];
+                        columns.push(
+                            { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{(isVolumeUsed[volume.name] || []).join(', ')}</div>), }
+                        );
+                        columns.push(
+                            { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div>), }
+                        );
+                        let selectCallback = this.selectedChanged.bind(this, volume.name);
+
+                        return (
+                            <ListingRow addCheckbox
+                                selectChanged={selectCallback}
+                                selected={false}
+                                columns={columns}
+                                rowId={`${storagePoolIdPrefix}-volume-${volume.name}`}
+                                key={`${storagePoolIdPrefix}-volume-${volume.name}`} />
+                        );
+                    })}
+                </Listing>
+            </div>
+        );
+    }
+}
 StoragePoolVolumesTab.propTypes = {
     storagePool: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,

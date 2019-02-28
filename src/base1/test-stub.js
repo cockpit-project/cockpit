@@ -86,7 +86,8 @@ QUnit.test("http", function (assert) {
                         'pkgs': {
                             label: "Packages"
                         }
-                    }
+                    },
+                    'content-security-policy': "img-src 'self' data:",
                 }, "returned right data");
             })
             .always(function() {

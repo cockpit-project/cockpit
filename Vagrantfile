@@ -9,7 +9,7 @@ Vagrant.configure(2) do |config|
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder "./dist", "/cockpit/dist", type: "rsync", create: true, rsync__args: ["--verbose", "--archive", "--delete", "-z"]
     config.vm.network "private_network", ip: "192.168.50.10"
-    config.vm.network "forwarded_port", guest: 9090, host: 9090
+    config.vm.network "forwarded_port", guest: 9090, host: 9091
     config.vm.hostname = "cockpit-devel"
     config.vm.post_up_message = "You can now access Cockpit at http://localhost:9090 (login as 'admin' with password 'foobar')"
 

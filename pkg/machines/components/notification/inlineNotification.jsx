@@ -74,20 +74,12 @@ InlineNotification.propTypes = {
     textId: PropTypes.string, // optional, element id for the text
 };
 
-export const WarningAlert = ({ onDismiss, text, textId, detail }) => {
+export const ExpandableNotification = ({ onDismiss, text, textId, detail, type }) => {
     return (
-        <Alert type='warning' onDismiss={onDismiss}>
+        <Alert type={type} onDismiss={onDismiss}>
             <InlineNotification text={text} textId={textId} detail={detail} />
         </Alert>
 
-    );
-};
-
-export const Info = ({ onDismiss, text, textId, detail }) => {
-    return (
-        <Alert type='info' onDismiss={onDismiss} >
-            <InlineNotification text={text} textId={textId} detail={detail} />
-        </Alert>
     );
 };
 

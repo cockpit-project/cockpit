@@ -277,7 +277,7 @@ $(function() {
             var units = [ ];
             var header = {
                 Description: _("Description"),
-                Id: _("Id"),
+                Id: _("Name"),
                 is_timer: (~pattern.indexOf("timer")),
                 Next_Run_Time: _("Next Run"),
                 Last_Trigger_Time: _("Last Trigger"),

@@ -198,7 +198,7 @@ test_resource_simple (TestResourceCase *tc,
     "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\n"
     "Referrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -257,7 +257,7 @@ test_resource_simple_host (TestResourceCase *tc,
   const gchar *expected =
     "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; font-src 'self' http://my.host data:; img-src 'self' http://my.host data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://my.host\r\n"
@@ -315,7 +315,7 @@ test_resource_language (TestResourceCase *tc,
   gchar *url = "/@localhost/another/test.html";
   const gchar *expected =  "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -372,7 +372,7 @@ test_resource_cookie (TestResourceCase *tc,
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -881,7 +881,7 @@ test_resource_language_suffix (TestResourceCase *tc,
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -937,7 +937,7 @@ test_resource_language_fallback (TestResourceCase *tc,
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -1041,7 +1041,7 @@ test_resource_head (TestResourceCase *tc,
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
     "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
-    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; block-all-mixed-content\r\n"
+    "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"

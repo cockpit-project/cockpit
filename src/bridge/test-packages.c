@@ -43,7 +43,7 @@
 #define CHECKSUM_RELOAD_OLD     "53264dd51401b6f6de0ba63180397919697155653855848dee0f6f71c6e93f40"
 #define CHECKSUM_RELOAD_NEW     "eae62ca12c4a92b4ae7f6b0d2f41cb20be0005a6fc62466fccda1ebe0532cc23"
 #define CHECKSUM_RELOAD_UPDATED "0d1c0b7c6133cc7c3956197fd8a76bef68b158bd78beac75cfa80b75c36aa827"
-#define CHECKSUM_CSP            "25cab69451c3667cb9ed33f006fc7003c248f1029dae4a763bbadb0c4cafaf8d"
+#define CHECKSUM_CSP            "80921dc3cde9ff9f2acd2a5851f9b2a3b25ea7b4577128461d9e32fbdd671e16"
 
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
@@ -230,7 +230,7 @@ test_forwarded (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; font-src 'self' https://blah:9090 data:; img-src 'self' https://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -263,7 +263,7 @@ test_localized_translated (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -296,7 +296,7 @@ test_localized_unknown (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -330,7 +330,7 @@ test_localized_prefer_region (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -364,7 +364,7 @@ test_localized_fallback (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -1115,7 +1115,7 @@ test_csp_strip (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; block-all-mixed-content; img-src: 'self' http://blah:9090 data:; default-src 'self' http://blah:9090\",\"Content-Type\":\"text/html\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; block-all-mixed-content; img-src 'self' http://blah:9090; default-src 'self' http://blah:9090\",\"Content-Type\":\"text/html\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);

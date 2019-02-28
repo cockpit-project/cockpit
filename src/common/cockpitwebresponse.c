@@ -1860,6 +1860,8 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
   const gchar *form_action = "form-action 'self'";
   const gchar *base_uri = "base-uri 'self'";
   const gchar *object_src = "object-src 'none'";
+  const gchar *font_src = "font-src 'self' data:";
+  const gchar *img_src = "img-src 'self' data:";
   const gchar *block_all_mixed_content = "block-all-mixed-content";
   gchar **parts = NULL;
   GString *result;
@@ -1897,6 +1899,10 @@ cockpit_web_response_security_policy (const gchar *content_security_policy,
     g_string_append_printf (result, "%s; ", base_uri);
   if (!strv_have_prefix (parts, "object-src "))
     g_string_append_printf (result, "%s; ", object_src);
+  if (!strv_have_prefix (parts, "font-src "))
+    g_string_append_printf (result, "%s; ", font_src);
+  if (!strv_have_prefix (parts, "img-src "))
+    g_string_append_printf (result, "%s; ", img_src);
   if (!strv_have_prefix (parts, "block-all-mixed-content"))
     g_string_append_printf (result, "%s; ", block_all_mixed_content);
 

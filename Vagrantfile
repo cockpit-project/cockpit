@@ -5,7 +5,7 @@
 
 Vagrant.configure(2) do |config|
 
-    config.vm.box = "fedora/26-cloud-base"
+    config.vm.box = "fedora/29-cloud-base"
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.vm.synced_folder "./dist", "/cockpit/dist", type: "rsync", create: true, rsync__args: ["--verbose", "--archive", "--delete", "-z"]
     config.vm.network "private_network", ip: "192.168.50.10"

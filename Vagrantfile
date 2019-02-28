@@ -59,7 +59,6 @@ Vagrant.configure(2) do |config|
             tuned libvirt \
             yum-utils
         dnf install -y cockpit
-        debuginfo-install -y cockpit cockpit-pcp
 
         systemctl enable cockpit.socket
         systemctl start cockpit.socket

@@ -267,7 +267,7 @@ $(function() {
         mustache.parse(units_template);
 
         function render_now() {
-            var pattern = $('#services-filter button.active').attr('data-pattern');
+            var pattern = $('#services-filter li.active').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
             var current_type_filter = parseInt($('#current-service-type').attr("data-num"));
@@ -489,8 +489,8 @@ $(function() {
             update_all();
         });
 
-        $('#services-filter button').on('click', function() {
-            $('#services-filter button')
+        $('#services-filter li').on('click', function() {
+            $('#services-filter li')
                     .removeClass('active')
                     .removeAttr('aria-current');
             $(this)

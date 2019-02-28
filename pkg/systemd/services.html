@@ -51,14 +51,14 @@
   </script>
 
   <div id="services" hidden>
-    <div class="content-header-extra">
-      <div class="btn-group" id="services-filter" role="tablist">
-        <button class="btn btn-default" role="tab" data-pattern="\.target$" translatable="yes">Targets</button>
-        <button class="btn btn-default active" role="tab" aria-current=true data-pattern="\.service$" translatable="yes">System Services</button>
-        <button class="btn btn-default" role="tab" data-pattern="\.socket$" translatable="yes">Sockets</button>
-        <button class="btn btn-default" role="tab" data-pattern="\.timer$" translatable="yes">Timers</button>
-        <button class="btn btn-default" role="tab" data-pattern="\.path$" translatable="yes">Paths</button>
-      </div>
+    <div class="content-header-extra with-navtabs">
+      <ul class="nav nav-tabs" id="services-filter">
+        <li tabindex="0" data-pattern="\.target$"><a translatable="yes">Targets</a></li>
+        <li class="active" aria-current=true tabindex="0" data-pattern="\.service$"><a translatable="yes">System Services</a></li>
+        <li tabindex="0" data-pattern="\.socket$"><a translatable="yes">Sockets</a></li>
+        <li tabindex="0" data-pattern="\.timer$"><a translatable="yes">Timers</a><li>
+        <li tabindex="0" data-pattern="\.path$"><a translatable="yes">Paths</a><li>
+      </ul>
       <div class="filter-group">
         <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>
         <input type="search" id="services-text-filter" class="form-control" aria-label="Filter" placeholder="Filter by Id or description..." translate="placeholder"/>

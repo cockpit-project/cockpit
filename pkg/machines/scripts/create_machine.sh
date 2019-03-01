@@ -66,12 +66,9 @@ fi
 XMLS_FILE="`mktemp`"
 
 if [ "$START_VM" = "true" ]; then
-    STARTUP_PARAMS="--wait -1 --noautoconsole"
-    # `noreboot` parameter should not be used for installation options that
-    # don't have install phase, because it blocks the domain from starting.
-    if [ "$SOURCE_TYPE" != "disk_image" ]; then
-        STARTUP_PARAMS="$STARTUP_PARAMS --noreboot"
-    fi
+    # Use --wait 0 to not wait till guest console closes.
+    # Simply kick off the install and exit
+    STARTUP_PARAMS="--noautoconsole --wait 0"
     HAS_INSTALL_PHASE="false"
 else
     # 2 = last phase only

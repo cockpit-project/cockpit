@@ -491,25 +491,37 @@ $(function() {
             update_all();
         });
 
-        function service_type_change(obj) {
+        function service_type_change(obj, keep_focus) {
             $('#services-filter li')
                     .removeClass('active')
-                    .attr('aria-pressed', false)
+                    .attr('aria-selected', false)
                     .removeAttr('aria-current');
             $(obj)
                     .addClass('active')
-                    .attr('aria-pressed', true)
+                    .attr('aria-selected', true)
                     .attr('aria-current', true);
-            $("#services-text-filter").focus();
+            if (keep_focus)
+                $(obj).focus();
+            else
+                $("#services-text-filter").focus();
             render();
         }
 
+        $('#services-filter').on('focus', function() { $('#services-filter li .active').focus() });
         $('#services-filter li').on('click', function() { service_type_change(this) });
-        $('#services-filter li').on('keypress', function(e) {
-            // Only on enter and space key
-            if (e.keyCode === 32 || e.keyCode === 13) {
+        $('#services-filter li').on('keydown', function(e) {
+            if (e.keyCode === 37) { // left
+                var prev = $(this).prev();
+                console.log(prev);
+                if (prev.length)
+                    service_type_change(prev[0], true);
+            } else if (e.keyCode === 39) { // right
+                var next = $(this).next();
+                console.log(next);
+                if (next.length)
+                    service_type_change(next[0], true);
+            } else if (e.keyCode === 32 || e.keyCode === 13) // enter or space
                 service_type_change(this);
-            }
         });
 
         $('#services-dropdown .dropdown-menu li').on('click', function() {
@@ -910,7 +922,7 @@ $(function() {
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
-            $("#target-tab").parent()
+            $("#service-tab").parent()
                     .focus();
         } else if (path.length == 1) {
             $("#services").hide();

@@ -338,6 +338,7 @@ $(function() {
             $("#services-text-filter").val("");
             $('#current-service-type').attr("data-num", 0);
             $('#current-service-type').text(_("All"));
+            $("#services-text-filter").focus();
             render();
         }
 
@@ -497,6 +498,7 @@ $(function() {
             $(this)
                     .addClass('active')
                     .attr('aria-current', true);
+            $("#services-text-filter").focus();
             render();
         });
 
@@ -898,6 +900,8 @@ $(function() {
         if (path.length === 0) {
             show_unit(null);
             $("#services").show();
+            $("#target-tab").parent()
+                    .focus();
         } else if (path.length == 1) {
             $("#services").hide();
             show_unit(cockpit.location.path[0]);

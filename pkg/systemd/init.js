@@ -268,7 +268,7 @@ $(function() {
 
         function render_now() {
             $("#loading-fallback").hide();
-            var pattern = $('#services-filter li.active').attr('data-pattern');
+            var pattern = $('#services-filter [aria-current=true]').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
             var current_type_filter = parseInt($('#services-dropdown').val());
@@ -491,15 +491,44 @@ $(function() {
             update_all();
         });
 
-        $('#services-filter li').on('click', function() {
-            $('#services-filter li')
-                    .removeClass('active')
+        function service_type_change(obj, keep_focus) {
+            $('#services-filter a')
+                    .attr('aria-selected', false)
                     .removeAttr('aria-current');
-            $(this)
-                    .addClass('active')
+            $('#services-filter li')
+                    .removeClass('active');
+            $(obj)
+                    .attr('aria-selected', true)
                     .attr('aria-current', true);
-            $("#services-text-filter").focus();
+            $(obj).parent()
+                    .addClass('active');
+            if (keep_focus)
+                $(obj).focus();
+            else
+                $("#services-text-filter").focus();
             render();
+        }
+
+        $('#services-filter').on('focus', function() { $('#services-filter li.active a').focus() });
+        $('#services-filter a').on('click keydown', function(event) {
+            if (event.type === 'click' || event.keyCode === 13) {
+                service_type_change(this, false);
+                event.preventDefault();
+            }
+
+            var li = $(this).parent();
+
+            if (event.keyCode === 37) { // left
+                var prev = $(li).prev()
+                        .children()[0];
+                if (prev)
+                    service_type_change(prev, true);
+            } else if (event.keyCode === 39) { // right
+                var next = $(li).next()
+                        .children()[0];
+                if (next)
+                    service_type_change(next, true);
+            }
         });
 
         $('#services-dropdown').on('change', render);
@@ -899,7 +928,7 @@ $(function() {
             cockpit.location = '';
         }
         $("body").show();
-        $("#services-filter li:first-child").focus();
+        $("#services-filter li:first-child a").focus();
         ensure_units();
     }
 

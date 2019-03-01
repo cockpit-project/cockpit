@@ -53,11 +53,21 @@
   <div id="services">
     <div class="content-header-extra with-navtabs">
       <ul class="nav nav-tabs" id="services-filter">
-        <li tabindex="0" data-pattern="\.target$"><a tabindex="0" translatable="yes">Targets</a></li>
-        <li class="active" aria-current=true tabindex="0" data-pattern="\.service$"><a tabindex="0" translatable="yes">System Services</a></li>
-        <li tabindex="0" data-pattern="\.socket$"><a tabindex="0" translatable="yes">Sockets</a></li>
-        <li tabindex="0" data-pattern="\.timer$"><a tabindex="0" translatable="yes">Timers</a><li>
-        <li tabindex="0" data-pattern="\.path$"><a tabindex="0" translatable="yes">Paths</a><li>
+        <li>
+        <a href="#" role="tab" aria-controls="services-list" data-pattern="\.target$" id="target-tab" translatable="yes">Targets</a>
+        </li>
+        <li class="active">
+          <a href="#" aria-current=true aria-selected="true" role="tab" aria-controls="services-list" data-pattern="\.service$" id="service-tab" translatable="yes">System Services</a>
+        </li>
+        <li>
+          <a href="#" role="tab" aria-controls="services-list" data-pattern="\.socket$" id="socket-tab" translatable="yes">Sockets</a>
+        </li>
+        <li>
+          <a href="#" role="tab" aria-controls="services-list" data-pattern="\.timer$" id="timer-tab" translatable="yes">Timers</a>
+        </li>
+        <li>
+          <a href="#" role="tab" aria-controls="services-list" data-pattern="\.path$" id="path-tab" translatable="yes">Paths</a>
+        </li>
       </ul>
       <div class="filter-group">
         <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>

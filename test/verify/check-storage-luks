@@ -234,6 +234,9 @@ class TestStorage(StorageCase):
         b = self.browser
 
         luks_2 = m.image in ["rhel-8-0"]
+        error_base = "Error unlocking /dev/sda: Failed to activate device: "
+        error_messages = [error_base + "Operation not permitted",
+                          error_base + "Incorrect passphrase."]
 
         self.login_and_go("/storage")
 
@@ -289,7 +292,7 @@ class TestStorage(StorageCase):
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_apply()
         b.wait_present(".dialog-error")
-        b.wait_in_text(".dialog-error", "Error unlocking /dev/sda: Failed to activate device: Operation not permitted")
+        self.assertIn(b.text(".dialog-error"), error_messages)
         self.dialog_cancel()
 
         # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
@@ -332,7 +335,7 @@ class TestStorage(StorageCase):
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         b.wait_present(".dialog-error")
-        b.wait_in_text(".dialog-error", "Error unlocking /dev/sda: Failed to activate device: Operation not permitted")
+        self.assertIn(b.text(".dialog-error"), error_messages)
         self.dialog_cancel()
         # change one of the passphrases
         b.wait_present(slots_table + "tbody tr:last-child .pficon-edit")

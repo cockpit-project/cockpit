@@ -910,6 +910,11 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { mount } for .* comm="find" .*pcp_pmlogger_t.*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662866
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { execute } for .* comm="which" .*pcp_pmlogger_t.*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979
+            # The bug is closed and for old release but should be here as reference for the solutions
+            # It suggests configure auditd to dontaudit these messages since selinux can't offer whitelisting this directory for qemu process
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-system-x86" .* dev="proc" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-system-x86" .* dev="proc" .*')
 
         if self.image in ['rhel-8-0']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872

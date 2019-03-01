@@ -334,9 +334,11 @@ $(function() {
             }
         }
 
-        function clear_filters() {
+        function clear_filters(event) {
             $("#services-text-filter").val("");
             $('#services-dropdown').val(0);
+            $("#services-text-filter").focus();
+            event.preventDefault();
             render();
         }
 
@@ -496,6 +498,7 @@ $(function() {
             $(this)
                     .addClass('active')
                     .attr('aria-current', true);
+            $("#services-text-filter").focus();
             render();
         });
 
@@ -896,6 +899,7 @@ $(function() {
             cockpit.location = '';
         }
         $("body").show();
+        $("#services-filter li:first-child").focus();
         ensure_units();
     }
 

@@ -1040,7 +1040,7 @@ class TestMachines(MachineCase):
         # try to CREATE WITH DIALOG ERROR
 
         # name
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, ""), {"Name": "Name should not be empty"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size='1'), {"Name": "Name should not be empty"})
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", sourceType='url',
@@ -1125,8 +1125,8 @@ class TestMachines(MachineCase):
         # to start properly.
         # This is applicable only for the following test so let's keep it last,
         # in order to allow the rest of the tests to run faster with QEMU KVM
-        # Run modprobe -r in retry loop because it fails sometimes with 'Module kvm is in use'
-        self.machine.execute("for i in 1 2 3 4 5; do modprobe -r kvm_intel && modprobe -r kvm && break || sleep 1; done")
+        # Stop pmcd service if available which is invoking pmdakvm and is keeping KVM module used
+        self.machine.execute("(systemctl stop pmcd || true) && modprobe -r kvm_intel && modprobe -r kvm_amd && modprobe -r kvm")
 
         createTest(TestMachines.VmDialog(self, "subVmTestCreate17", sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
@@ -1302,7 +1302,9 @@ class TestMachines(MachineCase):
             b.set_input_text("#memory-size", str(self.memory_size))
             b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
 
-            if self.storage_size is not None:
+            if self.storage_size is None:
+                b.wait_not_present("#storage-size")
+            else:
                 b.set_input_text("#storage-size", str(self.storage_size))
                 b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
 

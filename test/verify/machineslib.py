@@ -989,12 +989,12 @@ class TestMachines(MachineCase):
         def createTest(dialog):
             runner.tryCreate(dialog) \
 
-            # When start_vm is set the virt-install is used with --print-xml
-            # and thus the virt-install script should be running at this point
-            if not dialog.start_vm:
-                runner.assertScriptFinished()
-
-            runner.deleteVm(dialog) \
+            # When creating VMs we should always wait for the virt-install script
+            # to finish the and VM to get defined
+            # Then we are ready to delete it.
+            runner.assertScriptFinished() \
+                .assertDomainDefined(dialog.name, dialog.connection) \
+                .deleteVm(dialog) \
                 .checkEnvIsEmpty()
 
         def installWithErrorTest(dialog):
@@ -1541,6 +1541,19 @@ class TestMachines(MachineCase):
         def assertScriptFinished(self):
             with self.browser.wait_timeout(20):
                 self.browser.wait(functools.partial(self._commandNotRunning, "virt-install"))
+
+            return self
+
+        def assertDomainDefined(self, name, connection):
+            listCmd = ""
+            if connection == "session":
+                listCmd = "runuser -l admin -c 'virsh -c qemu:///session list --persistent --all'"
+            else:
+                # When creating VMs from the UI default connection is the system
+                # In this case don't use runuser -l admin because we get errors 'authentication unavailable'
+                listCmd = "virsh -c qemu:///system list --persistent --all"
+
+            wait(lambda: name in self.machine.execute(listCmd))
 
             return self
 

@@ -53,11 +53,21 @@
   <div id="services">
     <div class="content-header-extra with-navtabs">
       <ul class="nav nav-tabs" id="services-filter">
-        <li tabindex="0" data-pattern="\.target$"><a translatable="yes">Targets</a></li>
-        <li class="active" aria-current=true tabindex="0" data-pattern="\.service$"><a translatable="yes">System Services</a></li>
-        <li tabindex="0" data-pattern="\.socket$"><a translatable="yes">Sockets</a></li>
-        <li tabindex="0" data-pattern="\.timer$"><a translatable="yes">Timers</a><li>
-        <li tabindex="0" data-pattern="\.path$"><a translatable="yes">Paths</a><li>
+        <li tabindex="0" role="button" aria-pressed="false" aria-labelledby="target-tab" data-pattern="\.target$">
+            <a id="target-tab" translatable="yes">Targets</a>
+        </li>
+        <li class="active" aria-current=true aria-pressed="true" tabindex="0" role="button" aria-labelledby="service-tab" data-pattern="\.service$">
+            <a id="service-tab" translatable="yes">System Services</a>
+        </li>
+        <li tabindex="0" role="button" aria-pressed="false" aria-labelledby="socket-tab" data-pattern="\.socket$">
+            <a id="socket-tab" translatable="yes">Sockets</a>
+        </li>
+        <li tabindex="0" role="button" aria-pressed="false" aria-labelledby="timer-tab" data-pattern="\.timer$">
+            <a id="timer-tab" translatable="yes">Timers</a>
+        <li>
+        <li tabindex="0" role="button" aria-pressed="false" aria-labelledby="path-tab" data-pattern="\.path$">
+            <a id="path-tab" translatable="yes">Paths</a>
+        <li>
       </ul>
       <div class="filter-group">
         <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>

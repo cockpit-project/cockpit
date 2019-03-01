@@ -491,15 +491,25 @@ $(function() {
             update_all();
         });
 
-        $('#services-filter li').on('click', function() {
+        function service_type_change(obj) {
             $('#services-filter li')
                     .removeClass('active')
+                    .attr('aria-pressed', false)
                     .removeAttr('aria-current');
-            $(this)
+            $(obj)
                     .addClass('active')
+                    .attr('aria-pressed', true)
                     .attr('aria-current', true);
             $("#services-text-filter").focus();
             render();
+        }
+
+        $('#services-filter li').on('click', function() { service_type_change(this) });
+        $('#services-filter li').on('keypress', function(e) {
+            // Only on enter and space key
+            if (e.keyCode === 32 || e.keyCode === 13) {
+                service_type_change(this);
+            }
         });
 
         $('#services-dropdown .dropdown-menu li').on('click', function() {

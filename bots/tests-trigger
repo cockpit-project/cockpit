@@ -24,7 +24,7 @@ def trigger_pull(api, opts):
     revision = pull['head']['sha']
     statuses = api.statuses(revision)
     if opts.context:
-        contexts = opts.context
+        contexts = [cntx for cntx in opts.context if github.known_context(cntx)]
         all = False
     else:
         contexts = set(statuses.keys())

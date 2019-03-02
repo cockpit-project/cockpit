@@ -24,7 +24,7 @@ def trigger_pull(api, opts):
     revision = pull['head']['sha']
     statuses = api.statuses(revision)
     if opts.context:
-        contexts = [ opts.context ]
+        contexts = opts.context
         all = False
     else:
         contexts = set(statuses.keys())
@@ -64,7 +64,7 @@ def main():
                         help="Allow triggering for users that aren't whitelisted")
     parser.add_argument('--repo', help="The repository to trigger the robots in", default=None)
     parser.add_argument('pull', help='The pull request to trigger')
-    parser.add_argument('context', nargs='?', help='The github task context to trigger')
+    parser.add_argument('context', nargs='*', help='The github task context(s) to trigger')
     opts = parser.parse_args()
 
     api = github.GitHub(repo=opts.repo)

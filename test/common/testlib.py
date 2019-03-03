@@ -195,7 +195,7 @@ class Browser:
         cookies = self.cdp.invoke("Network.getCookies")
         for c in cookies["cookies"]:
             if c["name"] == name:
-                return c["value"]
+                return c
         return None
 
     def go(self, hash, host="localhost"):

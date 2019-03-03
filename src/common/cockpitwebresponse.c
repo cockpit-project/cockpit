@@ -268,7 +268,7 @@ cockpit_web_response_new (GIOStream *io,
       host = g_hash_table_lookup (in_headers, "Host");
     }
 
-  protocol = cockpit_web_response_get_protocol (io, in_headers);
+  protocol = cockpit_web_response_get_protocol (self, in_headers);
   if (protocol && host)
     self->origin = g_strdup_printf ("%s://%s", protocol, host);
 
@@ -1929,8 +1929,21 @@ cockpit_web_response_get_origin (CockpitWebResponse *self)
 }
 
 const gchar *
-cockpit_web_response_get_protocol (GIOStream *connection,
+cockpit_web_response_get_protocol (CockpitWebResponse *self,
                                    GHashTable *headers)
+{
+  return cockpit_connection_get_protocol (self->io, headers);
+}
+
+static void
+cockpit_web_response_flow_iface_init (CockpitFlowIface *iface)
+{
+  /* No implementation */
+}
+
+const gchar *
+cockpit_connection_get_protocol (GIOStream *connection,
+                                 GHashTable *headers)
 {
   const gchar *protocol = NULL;
   const gchar *protocol_header;
@@ -1947,10 +1960,4 @@ cockpit_web_response_get_protocol (GIOStream *connection,
     }
 
   return protocol ? protocol : "http";
-}
-
-static void
-cockpit_web_response_flow_iface_init (CockpitFlowIface *iface)
-{
-  /* No implementation */
 }

@@ -1325,7 +1325,7 @@ cockpit_web_service_create_socket (const gchar **protocols,
     }
   else
     {
-      protocol = cockpit_web_response_get_protocol (io_stream, headers);
+      protocol = cockpit_connection_get_protocol (io_stream, headers);
     }
 
   secure = g_strcmp0 (protocol, "https") == 0;

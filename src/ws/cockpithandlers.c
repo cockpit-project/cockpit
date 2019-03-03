@@ -418,7 +418,8 @@ send_login_html (CockpitWebResponse *response,
   else
     {
       /* The login Content-Security-Policy allows the page to have inline <script> and <style> tags. */
-      cookie_line = cockpit_auth_empty_cookie_value (path);
+      gboolean secure = g_strcmp0 (cockpit_web_response_get_protocol (response, headers), "https") == 0;
+      cookie_line = cockpit_auth_empty_cookie_value (path, secure);
       content_security_policy = cockpit_web_response_security_policy ("default-src 'self' 'unsafe-inline'",
                                                                       cockpit_web_response_get_origin (response));
 

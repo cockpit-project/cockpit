@@ -50,6 +50,11 @@ class TestConnection(MachineCase):
         b.expect_load()
         b.enter_page("/system")
 
+        # cookie should not be marked as secure, it's not https
+        cookie = b.cookie("cockpit")
+        self.assertTrue(cookie["httpOnly"])
+        self.assertFalse(cookie["secure"])
+
         # take cockpit-ws down on the server page
         m.stop_cockpit()
         b.switch_to_top()
@@ -90,6 +95,14 @@ class TestConnection(MachineCase):
         b.expect_load()
         b.enter_page("/system")
         b.logout()
+
+        # deleted cookie after logout should not be marked as secure, it's not https
+        cookie = b.cookie("cockpit")
+        self.assertEqual(cookie["value"], "deleted")
+        if m.image != "rhel-7-6-distropkg":
+            # fixed in PR #10766
+            self.assertTrue(cookie["httpOnly"])
+        self.assertFalse(cookie["secure"])
 
         if not m.atomic_image:  # cannot write to /usr on Atomics, and cockpit-session is in a container
             # damage cockpit-session permissions (Fedora-ish and Debian-ish path), expect generic error message
@@ -134,6 +147,7 @@ class TestConnection(MachineCase):
 
     def testTls(self):
         m = self.machine
+        b = self.browser
 
         # Start Cockpit with TLS
         m.start_cockpit(tls=True)
@@ -192,6 +206,22 @@ class TestConnection(MachineCase):
         # check the Debian smoke test
         m.upload(["../tools/debian/tests/smoke"], "/tmp")
         m.execute("/tmp/smoke")
+
+        b.ignore_ssl_certificate_errors(True)
+        self.login_and_go("/system")
+        cookie = b.cookie("cockpit")
+        # cookie should be marked as secure
+        self.assertTrue(cookie["httpOnly"])
+        self.assertTrue(cookie["secure"])
+        # same after logout
+        b.logout()
+        cookie = b.cookie("cockpit")
+        self.assertEqual(cookie["value"], "deleted")
+        if m.image != "rhel-7-6-distropkg":
+            # fixed in PR #10766
+            self.assertTrue(cookie["httpOnly"])
+            # fixed in PR #11279
+            self.assertTrue(cookie["secure"])
 
     def testConfigOrigins(self):
         m = self.machine

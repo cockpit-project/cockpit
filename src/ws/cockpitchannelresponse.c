@@ -579,7 +579,6 @@ cockpit_channel_response_serve (CockpitWebService *service,
   GHashTableIter iter;
   JsonObject *object = NULL;
   JsonObject *heads;
-  GIOStream *connection;
   const gchar *protocol;
   const gchar *http_host = "localhost";
   gchar *channel = NULL;
@@ -680,8 +679,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
     }
 
   /* Send along the HTTP scheme the package should assume is accessing things */
-  connection = cockpit_web_response_get_stream (response);
-  protocol = cockpit_web_response_get_protocol (connection, in_headers);
+  protocol = cockpit_web_response_get_protocol (response, in_headers);
 
   json_object_set_string_member (heads, "Host", host);
   json_object_set_string_member (heads, "X-Forwarded-Proto", protocol);

@@ -145,7 +145,7 @@ const gchar *  cockpit_web_response_get_url_root         (CockpitWebResponse *re
 
 const gchar *  cockpit_web_response_get_origin           (CockpitWebResponse *response);
 
-const gchar *  cockpit_web_response_get_protocol         (GIOStream *connection,
+const gchar *  cockpit_web_response_get_protocol         (CockpitWebResponse *response,
                                                           GHashTable *headers);
 
 void           cockpit_web_response_template             (CockpitWebResponse *response,
@@ -155,6 +155,10 @@ void           cockpit_web_response_template             (CockpitWebResponse *re
 
 gchar *      cockpit_web_response_security_policy        (const gchar *content_security_policy,
                                                           const gchar *self_origin);
+
+
+const gchar *  cockpit_connection_get_protocol           (GIOStream *connection,
+                                                          GHashTable *headers);
 
 G_END_DECLS
 

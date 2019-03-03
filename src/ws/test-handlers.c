@@ -523,7 +523,7 @@ static const DefaultFixture fixture_shell_path_login = {
   .org_path = "/path/system/host",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
-      "Set-Cookie: cockpit=deleted*"
+      "Set-Cookie: cockpit=deleted; PATH=/; HttpOnly\r*"
       "<html>*"
       "<base href=\"/path/\">*"
       "login-button*"

@@ -41,6 +41,7 @@ export class PatternDialogBody extends React.Component {
                         <Select.SelectEntry data='one'>One</Select.SelectEntry>
                         <Select.SelectEntry data='two'>Two</Select.SelectEntry>
                         <Select.SelectEntry data='three'>Three</Select.SelectEntry>
+                        <Select.SelectDivider />
                         <Select.SelectEntry data='four' />
                     </Select.Select>
 

@@ -31,7 +31,7 @@
 #include <string.h>
 
 /* JSON dict snippet for headers that are present in every request */
-#define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\""
+#define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\""
 
 static void
 on_closed_set_flag (CockpitChannel *channel,

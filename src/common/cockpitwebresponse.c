@@ -744,6 +744,7 @@ enum {
     HEADER_CACHE_CONTROL = 1 << 3,
     HEADER_DNS_PREFETCH_CONTROL = 1 << 4,
     HEADER_REFERRER_POLICY = 1 << 5,
+    HEADER_CONTENT_TYPE_OPTIONS = 1 << 6,
 };
 
 static GString *
@@ -782,6 +783,8 @@ append_header (GString *string,
     return HEADER_DNS_PREFETCH_CONTROL;
   if (g_ascii_strcasecmp ("Referrer-Policy", name) == 0)
     return HEADER_REFERRER_POLICY;
+  if (g_ascii_strcasecmp ("X-Content-Type-Options", name) == 0)
+    return HEADER_CONTENT_TYPE_OPTIONS;
   if (g_ascii_strcasecmp ("Content-Length", name) == 0 ||
       g_ascii_strcasecmp ("Transfer-Encoding", name) == 0 ||
       g_ascii_strcasecmp ("Connection", name) == 0)
@@ -894,6 +897,8 @@ finish_headers (CockpitWebResponse *self,
     g_string_append (string, "X-DNS-Prefetch-Control: off\r\n");
   if ((seen & HEADER_REFERRER_POLICY) == 0)
     g_string_append (string, "Referrer-Policy: no-referrer\r\n");
+  if ((seen & HEADER_CONTENT_TYPE_OPTIONS) == 0)
+    g_string_append (string, "X-Content-Type-Options: nosniff\r\n");
 
   g_string_append (string, "\r\n");
   return g_string_free_to_bytes (string);

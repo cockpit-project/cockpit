@@ -82,14 +82,6 @@ class TestNetworking(NetworkCase):
         dhcp_delay = 60
         dhcp_timeout = 120
 
-        # HACK - the ipv4.dhcp-timeout doesn't survive a rollback, so
-        # we get the default of 45 seconds and have to use a shorter
-        # delay.  This seems to work, but it's too tight for comfort...
-        #
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1400540
-
-        dhcp_delay = 40
-
         self.slow_down_dhcp(dhcp_delay)
 
         iface = self.get_iface(m, "52:54:00:12:34:56")
@@ -97,6 +89,8 @@ class TestNetworking(NetworkCase):
         # Set the DHCP timeout
         con_id = self.iface_con_id(iface)
         m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
+        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1690389
+        m.execute('nmcli con up "%s"' % con_id)
 
         self.login_and_go("/network")
         self.wait_for_iface(iface, prefix="172.")

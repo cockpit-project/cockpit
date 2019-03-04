@@ -35,7 +35,7 @@
 #include <string.h>
 
 /* headers that are present in every request */
-#define STATIC_HEADERS "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n"
+#define STATIC_HEADERS "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\n\r\n"
 static gchar *srcdir;
 
 typedef struct {

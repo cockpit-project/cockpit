@@ -60,7 +60,7 @@ def main():
         declare_rhel_result = channel.queue_declare(queue='rhel', passive=True, auto_delete=False)
     except pika.exceptions.ChannelClosed:
         print("One of the queues doesn't exist")
-        return 0
+        return 1
 
     queue='public'
     if redhat_network():
@@ -74,6 +74,7 @@ def main():
     # Get one item from the queue if present
     method_frame, header_frame, body = channel.basic_get(queue=queue)
     if method_frame:
+        ret = 0
         body = json.loads(body)
         sys.stderr.write("Consuming {0} task:\n{1}\n".format(body['type'],json.dumps(body, indent=2, sort_keys=True)))
         sys.stderr.flush()
@@ -84,8 +85,12 @@ def main():
 
         if p.returncode in [0, 2]:
             channel.basic_ack(method_frame.delivery_tag)
+    else:
+        # nothing in queue, no work done
+        ret = 1
 
     connection.close()
+    return ret
 
 if __name__ == '__main__':
     sys.exit(main())

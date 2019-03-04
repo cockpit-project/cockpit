@@ -22,6 +22,7 @@ import cockpit from 'cockpit';
 
 import { networkId } from '../../helpers.js';
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
+import { ExpandableNotification } from '../notification/inlineNotification.jsx';
 
 import './networkOverviewTab.css';
 import 'form-layout.less';
@@ -73,77 +74,88 @@ export class NetworkOverviewTab extends React.Component {
         ip[0] = network.ip.find(ip => ip.family === "ipv4");
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
 
+        const error = (this.props.actionError && <ExpandableNotification
+                                                     type='warning'
+                                                     text={this.props.actionError}
+                                                     textId={`${idPrefix}-error`}
+                                                     detail={this.props.actionErrorDetail}
+                                                     onDismiss={this.props.onActionErrorDismiss} />
+        );
+
         return (
-            <div className="networks-page-grid">
-                <div className='ct-form-layout'>
-                    <label className='control-label label-title'> {_("General")} </label>
-                    <span />
-
-                    <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
-                    <div id={`${idPrefix}-persistent`}> {network.persistent ? _("yes") : _("no")} </div>
-
-                    <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
-                    <label className='checkbox-inline'>
-                        <input id={`${idPrefix}-autostart-checkbox`}
-                               type="checkbox"
-                               checked={network.autostart}
-                               onChange={this.onAutostartChanged} />
-                        {_("Run when host boots")}
-                    </label>
-
-                    { network.mtu && <React.Fragment>
-                        <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum Transmission Unit")} </label>
-                        <div id={`${idPrefix}-mtu`}> {network.mtu} </div>
-                    </React.Fragment> }
-                </div>
-
-                <div className="ct-form-layout">
-                    { ip[0] && <React.Fragment>
-                        <label className='control-label label-title'> {_("IPv4 Address")} </label>
+            <React.Fragment>
+                {error}
+                <div className="networks-page-grid">
+                    <div className='ct-form-layout'>
+                        <label className='control-label label-title'> {_("General")} </label>
                         <span />
 
-                        { ip[0].address && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv4-address`}> {_("Address")} </label>
-                            <div id={`${idPrefix}-ipv4-address`}> {ip[0].address} </div>
+                        <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>
+                        <div id={`${idPrefix}-persistent`}> {network.persistent ? _("yes") : _("no")} </div>
+
+                        <label className='control-label' htmlFor={`${idPrefix}-autostart`}> {_("Autostart")} </label>
+                        <label className='checkbox-inline'>
+                            <input id={`${idPrefix}-autostart-checkbox`}
+                                   type="checkbox"
+                                   checked={network.autostart}
+                                   onChange={this.onAutostartChanged} />
+                            {_("Run when host boots")}
+                        </label>
+
+                        { network.mtu && <React.Fragment>
+                            <label className='control-label' htmlFor={`${idPrefix}-mtu`}> {_("Maximum Transmission Unit")} </label>
+                            <div id={`${idPrefix}-mtu`}> {network.mtu} </div>
+                        </React.Fragment> }
+                    </div>
+
+                    <div className="ct-form-layout">
+                        { ip[0] && <React.Fragment>
+                            <label className='control-label label-title'> {_("IPv4 Address")} </label>
+                            <span />
+
+                            { ip[0].address && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-address`}> {_("Address")} </label>
+                                <div id={`${idPrefix}-ipv4-address`}> {ip[0].address} </div>
+                            </React.Fragment> }
+
+                            { ip[0].netmask && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-netmask`}> {_("Netmask")} </label>
+                                <div id={`${idPrefix}-ipv4-netmask`}> {ip[0].netmask} </div>
+                            </React.Fragment> }
+
+                            { ip[0].dhcp.range.start && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP Range")} </label>
+                                <div id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </div>
+                            </React.Fragment> }
+
+                            { ip[0].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[0].family, idPrefix))}
                         </React.Fragment> }
 
-                        { ip[0].netmask && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv4-netmask`}> {_("Netmask")} </label>
-                            <div id={`${idPrefix}-ipv4-netmask`}> {ip[0].netmask} </div>
+                        { ip[1] && <React.Fragment>
+                            <hr />
+                            <label className='control-label label-title'> {_("IPv6 Address")} </label>
+                            <span />
+
+                            { ip[1].address && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-address`}> {_("Address")} </label>
+                                <div id={`${idPrefix}-ipv6-address`}> {ip[1].address} </div>
+                            </React.Fragment> }
+
+                            { ip[1].prefix && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-prefix`}> {_("Prefix")} </label>
+                                <div id={`${idPrefix}-ipv6-prefix`}> {ip[1].prefix} </div>
+                            </React.Fragment> }
+
+                            { ip[1].dhcp.range.start && <React.Fragment>
+                                <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP Range")} </label>
+                                <div id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </div>
+                            </React.Fragment> }
+
+                            { ip[1].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[1].family, idPrefix))}
                         </React.Fragment> }
-
-                        { ip[0].dhcp.range.start && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv4-dhcp-range`}> {_("DHCP Range")} </label>
-                            <div id={`${idPrefix}-ipv4-dhcp-range`}> {ip[0].dhcp.range.start + " - " + ip[0].dhcp.range.end} </div>
-                        </React.Fragment> }
-
-                        { ip[0].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[0].family, idPrefix))}
-                    </React.Fragment> }
-
-                    { ip[1] && <React.Fragment>
-                        <hr />
-                        <label className='control-label label-title'> {_("IPv6 Address")} </label>
-                        <span />
-
-                        { ip[1].address && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv6-address`}> {_("Address")} </label>
-                            <div id={`${idPrefix}-ipv6-address`}> {ip[1].address} </div>
-                        </React.Fragment> }
-
-                        { ip[1].prefix && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv6-prefix`}> {_("Prefix")} </label>
-                            <div id={`${idPrefix}-ipv6-prefix`}> {ip[1].prefix} </div>
-                        </React.Fragment> }
-
-                        { ip[1].dhcp.range.start && <React.Fragment>
-                            <label className='control-label' htmlFor={`${idPrefix}-ipv6-dhcp-range`}> {_("DHCP Range")} </label>
-                            <div id={`${idPrefix}-ipv6-dhcp-range`}> {ip[1].dhcp.range.start + " - " + ip[1].dhcp.range.end} </div>
-                        </React.Fragment> }
-
-                        { ip[1].dhcp.hosts.map((host, index) => DHCPHost(host, index, ip[1].family, idPrefix))}
-                    </React.Fragment> }
+                    </div>
                 </div>
-            </div>
+            </React.Fragment>
         );
     }
 }
@@ -151,4 +163,7 @@ export class NetworkOverviewTab extends React.Component {
 NetworkOverviewTab.propTypes = {
     dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
+    actionError: PropTypes.string,
+    actionErrorDetail: PropTypes.string,
+    onActionErrorDismiss: PropTypes.func,
 };

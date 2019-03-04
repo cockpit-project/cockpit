@@ -396,14 +396,14 @@ function init_model(callback) {
     }
 
     function enable_vdo_features() {
-        return client.vdo_overlay.start()
-                .then(function (success) {
-                    client.features.vdo = success;
-                    return cockpit.resolve();
-                })
-                .fail(function () {
-                    return cockpit.resolve();
-                });
+        return client.vdo_overlay.start().then(
+            function (success) {
+                client.features.vdo = success;
+                return cockpit.resolve();
+            },
+            function () {
+                return cockpit.resolve();
+            });
     }
 
     function enable_clevis_features() {

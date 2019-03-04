@@ -328,6 +328,8 @@ WantedBy=default.target
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
+        if m.image != "rhel-7-6-distropkg": # Introduced in #11280
+            b.wait_not_visible("#loading-fallback")
         b.click('#services-filter :nth-child(4)')
         b.wait_visible("#create-timer")
         b.click('#create-timer')

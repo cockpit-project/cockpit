@@ -45,6 +45,10 @@
 #define CHECKSUM_RELOAD_UPDATED "0d1c0b7c6133cc7c3956197fd8a76bef68b158bd78beac75cfa80b75c36aa827"
 #define CHECKSUM_CSP            "80921dc3cde9ff9f2acd2a5851f9b2a3b25ea7b4577128461d9e32fbdd671e16"
 
+/* JSON dict snippet for headers that are present in every request */
+#define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\""
+#define STATIC_HEADERS_CACHECONTROL STATIC_HEADERS ",\"Cache-Control\":\"no-cache, no-store\""
+
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
 extern gint cockpit_bridge_packages_port;
@@ -198,7 +202,7 @@ test_simple (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL "}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -230,7 +234,7 @@ test_forwarded (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; font-src 'self' https://blah:9090 data:; img-src 'self' https://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Security-Policy\":\"default-src 'self' https://blah:9090; connect-src 'self' https://blah:9090 wss://blah:9090; form-action 'self' https://blah:9090; base-uri 'self' https://blah:9090; object-src 'none'; font-src 'self' https://blah:9090 data:; img-src 'self' https://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Access-Control-Allow-Origin\":\"https://blah:9090\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -263,7 +267,7 @@ test_localized_translated (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -296,7 +300,7 @@ test_localized_unknown (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -330,7 +334,7 @@ test_localized_prefer_region (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -364,7 +368,7 @@ test_localized_fallback (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Security-Policy\":\"default-src 'self' http://blah:9090; connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; img-src 'self' http://blah:9090 data:; block-all-mixed-content\",\"Content-Type\":\"text/html\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -395,7 +399,7 @@ test_incompatible_version (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package requires Cockpit version 999.5 or later\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\", \"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package requires Cockpit version 999.5 or later\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -425,7 +429,7 @@ test_incompatible_requires (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package is not compatible with this version of Cockpit\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\", \"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":503,\"reason\":\"This package is not compatible with this version of Cockpit\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -467,7 +471,7 @@ test_large (TestCase *tc,
   prefixlength = strcspn (g_bytes_get_data (data, NULL), "}}") + 2;
   g_assert_cmpuint (g_bytes_get_size (data), >, prefixlength);
   object = cockpit_json_parse_object (g_bytes_get_data (data, NULL), prefixlength, &error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL "}}");
   sub = g_bytes_new_from_bytes (data, prefixlength, g_bytes_get_size (data) - prefixlength);
   cockpit_assert_bytes_eq (sub, contents, length);
 
@@ -500,7 +504,7 @@ test_listing (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Cache-Control\":\"no-cache, no-store\",\"Content-Type\":\"application/json\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"Content-Type\":\"application/json\"}}");
   json_object_unref (object);
 
   message = mock_transport_combine_output (tc->transport, "444", &count);
@@ -564,7 +568,7 @@ test_not_found (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -588,7 +592,7 @@ test_unknown_package (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -612,7 +616,7 @@ test_no_path (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -636,7 +640,7 @@ test_bad_path (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -660,7 +664,7 @@ test_no_package (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -686,7 +690,7 @@ test_bad_package (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/html; charset=utf8\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":404,\"reason\":\"Not Found\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"text/html; charset=utf8\"}}");
   json_object_unref (object);
 }
 
@@ -731,7 +735,7 @@ test_list_bad_name (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Content-Type\":\"application/json\",\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ETag\":\"\\\"$" CHECKSUM_BADPACKAGE "\\\"\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"Content-Type\":\"application/json\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_BADPACKAGE "\",\"ETag\":\"\\\"$" CHECKSUM_BADPACKAGE "\\\"\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);
@@ -760,7 +764,7 @@ test_glob (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"X-DNS-Prefetch-Control\":\"off\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GLOB "\",\"Referrer-Policy\":\"no-referrer\",\"Content-Type\":\"text/plain\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GLOB "\",\"Content-Type\":\"text/plain\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");
@@ -1115,7 +1119,7 @@ test_csp_strip (TestCase *tc,
   data = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (data, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{\"Referrer-Policy\":\"no-referrer\",\"X-DNS-Prefetch-Control\":\"off\",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; block-all-mixed-content; img-src 'self' http://blah:9090; default-src 'self' http://blah:9090\",\"Content-Type\":\"text/html\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"Content-Security-Policy\":\"connect-src 'self' http://blah:9090 ws://blah:9090; form-action 'self' http://blah:9090; base-uri 'self' http://blah:9090; object-src 'none'; font-src 'self' http://blah:9090 data:; block-all-mixed-content; img-src 'self' http://blah:9090; default-src 'self' http://blah:9090\",\"Content-Type\":\"text/html\",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_CSP "\"}}");
   json_object_unref (object);
 
   data = mock_transport_combine_output (tc->transport, "444", &count);

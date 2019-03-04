@@ -52,6 +52,9 @@
 
 #define PASSWORD "this is the password"
 
+/* headers that are present in every request */
+#define STATIC_HEADERS "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+
 typedef struct {
   CockpitWebService *service;
   GIOStream *io;
@@ -196,8 +199,7 @@ test_resource_simple (TestResourceCase *tc,
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected =
     "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\n"
-    "Referrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -256,7 +258,7 @@ test_resource_simple_host (TestResourceCase *tc,
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected =
     "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://my.host; connect-src 'self' http://my.host ws://my.host; form-action 'self' http://my.host; base-uri 'self' http://my.host; object-src 'none'; font-src 'self' http://my.host data:; img-src 'self' http://my.host data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -314,7 +316,7 @@ test_resource_language (TestResourceCase *tc,
   gconstpointer str;
   gchar *url = "/@localhost/another/test.html";
   const gchar *expected =  "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -371,7 +373,7 @@ test_resource_cookie (TestResourceCase *tc,
   gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -430,7 +432,7 @@ test_resource_not_found (TestResourceCase *tc,
   const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "\r\n13\r\n"
     "<html><head><title>\r\n9\r\n"
     "Not Found\r\n15\r\n"
@@ -474,7 +476,7 @@ test_resource_no_path (TestResourceCase *tc,
   const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "\r\n13\r\n"
     "<html><head><title>\r\n9\r\n"
     "Not Found\r\n15\r\n"
@@ -517,8 +519,8 @@ test_resource_failure (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   GPid pid;
-  const gchar *expected = "HTTP/1.1 500 terminated\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n13\r\n<html><head><title>\r\na\r\nterminated\r\n15\r\n</title></head><body>\r\na\r\nterminated\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
-  const gchar *expected_alt = "HTTP/1.1 500 internal-error\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n13\r\n<html><head><title>\r\ne\r\ninternal-error\r\n15\r\n</title></head><body>\r\ne\r\ninternal-error\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
+  const gchar *expected = "HTTP/1.1 500 terminated\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\na\r\nterminated\r\n15\r\n</title></head><body>\r\na\r\nterminated\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
+  const gchar *expected_alt = "HTTP/1.1 500 internal-error\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\ne\r\ninternal-error\r\n15\r\n</title></head><body>\r\ne\r\ninternal-error\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
 
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*: bridge program failed:*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*: external channel failed: *");
@@ -600,7 +602,7 @@ test_resource_checksum (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "ETag: \"" CHECKSUM "-c\"\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
     "Transfer-Encoding: chunked\r\n"
@@ -650,7 +652,7 @@ test_resource_not_modified (TestResourceCase *tc,
   GBytes *bytes;
   const gchar *expected = "HTTP/1.1 304 Not Modified\r\n"
     "ETag: \"" CHECKSUM "-c\"\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "\r\n";
 
   request_checksum (tc);
@@ -685,7 +687,7 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "ETag: \"" CHECKSUM "-de\"\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
     "Transfer-Encoding: chunked\r\n"
@@ -737,7 +739,7 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   gconstpointer str;
   gchar *cookie;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "ETag: \"" CHECKSUM "-fr\"\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
     "Transfer-Encoding: chunked\r\n"
@@ -792,7 +794,7 @@ test_resource_no_checksum (TestResourceCase *tc,
   const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "\r\n13\r\n"
     "<html><head><title>\r\n9\r\n"
     "Not Found\r\n15\r\n"
@@ -837,7 +839,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
   const gchar *expected = "HTTP/1.1 404 Not Found\r\n"
     "Content-Type: text/html; charset=utf8\r\n"
     "Transfer-Encoding: chunked\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "\r\n13\r\n"
     "<html><head><title>\r\n9\r\n"
     "Not Found\r\n15\r\n"
@@ -880,7 +882,7 @@ test_resource_language_suffix (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -936,7 +938,7 @@ test_resource_language_fallback (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"
@@ -993,7 +995,7 @@ test_resource_gzip_encoding (TestResourceCase *tc,
   GBytes *bytes;
   gconstpointer str;
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Encoding: gzip\r\n"
     "Cache-Control: no-cache, no-store\r\n"
     "Access-Control-Allow-Origin: http://localhost\r\n"
@@ -1040,7 +1042,7 @@ test_resource_head (TestResourceCase *tc,
   gconstpointer str;
   const gchar *url = "/@localhost/another/test.html";
   const gchar *expected = "HTTP/1.1 200 OK\r\n"
-    "X-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n"
+    STATIC_HEADERS
     "Content-Security-Policy: default-src 'self' http://localhost; connect-src 'self' http://localhost ws://localhost; form-action 'self' http://localhost; base-uri 'self' http://localhost; object-src 'none'; font-src 'self' http://localhost data:; img-src 'self' http://localhost data:; block-all-mixed-content\r\n"
     "Content-Type: text/html\r\n"
     "Cache-Control: no-cache, no-store\r\n"

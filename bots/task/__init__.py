@@ -308,6 +308,10 @@ def issue(title, body, item, context=None, items=[], state="open", since=None):
     if context:
         item = "{0} {1}".format(item, context).strip()
 
+    if since:
+        # don't let all bots pass the deadline in the same second, to avoid many duplicates
+        since += random.randint(-3600, 3600)
+
     for issue in api.issues(state=state, since=since):
         checklist = github.Checklist(issue["body"])
         if item in checklist.items:

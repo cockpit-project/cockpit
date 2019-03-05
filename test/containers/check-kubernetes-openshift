@@ -77,9 +77,11 @@ class OCMachine(VirtMachine):
                 i = i + 1
                 time.sleep(1)
 
-    def start_cockpit(self, host=None):
+    def start_cockpit(self, host=None, tls=False):
         if self.started:
             return
+        if tls:
+            raise NotImplementedError("TLS support not implemented here")
 
         path = os.path.join(base_dir, "files", "cockpit-openshift-template.json")
         self.upload([path], "/tmp")

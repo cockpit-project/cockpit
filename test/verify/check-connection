@@ -208,7 +208,7 @@ class TestConnection(MachineCase):
         m.execute("/tmp/smoke")
 
         b.ignore_ssl_certificate_errors(True)
-        self.login_and_go("/system")
+        self.login_and_go("/system", tls=True)
         cookie = b.cookie("cockpit")
         # cookie should be marked as secure
         self.assertTrue(cookie["httpOnly"])

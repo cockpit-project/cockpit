@@ -1394,7 +1394,7 @@ cockpit_packages_dump (void)
   for (l = names; l != NULL; l = g_list_next (l))
     {
       package = g_hash_table_lookup (by_name, l->data);
-      g_print ("%s: %s\n", package->name, package->directory);
+      g_print ("%-20.20s %s\n", package->name, package->directory);
     }
 
   if (packages->checksum)

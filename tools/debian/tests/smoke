@@ -11,9 +11,9 @@ check_out() {
 echo " * bridge works and has expected packages"
 OUT=$(cockpit-bridge --packages)
 echo "$OUT"
-check_out "^base1: /usr/share/cockpit/base1"
-check_out "^system:"
-check_out "^users:"
+check_out "^base1.* /usr/share/cockpit/base1"
+check_out "^system"
+check_out "^users"
 
 # on an RPM based system we expect cockpit.socket not to be enabled by default;
 # on a Debian-based system we do

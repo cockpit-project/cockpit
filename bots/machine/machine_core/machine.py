@@ -222,15 +222,16 @@ class Machine(ssh_connection.SSHConnection):
             self.execute(script="""#!/bin/sh
             rm -f /etc/systemd/system/cockpit.service.d/notls.conf &&
             systemctl daemon-reload &&
+            systemctl stop cockpit.service &&
             systemctl start cockpit.socket
             """)
         else:
             self.execute(script="""#!/bin/sh
             mkdir -p /etc/systemd/system/cockpit.service.d/ &&
             rm -f /etc/systemd/system/cockpit.service.d/notls.conf &&
-            systemctl daemon-reload &&
             printf \"[Service]\nExecStartPre=-/bin/sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'\nExecStart=\n%s --no-tls\n\" `systemctl cat cockpit.service | grep ExecStart=` > /etc/systemd/system/cockpit.service.d/notls.conf &&
             systemctl daemon-reload &&
+            systemctl stop cockpit.service &&
             systemctl start cockpit.socket
             """)
 

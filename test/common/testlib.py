@@ -758,8 +758,8 @@ class MachineCase(unittest.TestCase):
             self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True):
-        self.machine.start_cockpit(host)
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, tls=False):
+        self.machine.start_cockpit(host, tls=tls)
         self.browser.login_and_go(path, user=user, host=host, authorized=authorized)
 
     allow_core_dumps = False

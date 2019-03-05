@@ -1371,6 +1371,42 @@ cockpit_packages_free (CockpitPackages *packages)
   g_free (packages);
 }
 
+static void
+cockpit_packages_print_menu_labels (JsonObject *manifest,
+                                    const gchar *menu_key,
+                                    GString *result)
+{
+  JsonNode *node;
+  JsonObject *menu;
+  JsonObjectIter iter;
+  JsonNode *member_node;
+
+  node = json_object_get_member (manifest, menu_key);
+  if (!node || !JSON_NODE_HOLDS_OBJECT (node))
+    return;
+
+  menu = json_node_get_object (node);
+
+  json_object_iter_init (&iter, menu);
+  while (json_object_iter_next (&iter, NULL, &member_node))
+    {
+      JsonObject *item;
+      const gchar *label;
+
+      if (!JSON_NODE_HOLDS_OBJECT (member_node))
+        continue;
+
+      item = json_node_get_object (member_node);
+      if (!cockpit_json_get_string (item, "label", NULL, &label))
+        continue;
+
+      if (result->len > 0)
+        g_string_append (result, ", ");
+
+      g_string_append (result, label);
+    }
+}
+
 void
 cockpit_packages_dump (void)
 {
@@ -1393,8 +1429,16 @@ cockpit_packages_dump (void)
   names = g_list_sort (names, (GCompareFunc)strcmp);
   for (l = names; l != NULL; l = g_list_next (l))
     {
+      GString *menuitems = g_string_new (NULL);
+
       package = g_hash_table_lookup (by_name, l->data);
-      g_print ("%-20.20s %s\n", package->name, package->directory);
+
+      cockpit_packages_print_menu_labels (package->manifest, "menu", menuitems);
+      cockpit_packages_print_menu_labels (package->manifest, "tools", menuitems);
+
+      g_print ("%-20.20s %-40.40s %s\n", package->name, menuitems->str, package->directory);
+
+      g_string_free (menuitems, TRUE);
     }
 
   if (packages->checksum)

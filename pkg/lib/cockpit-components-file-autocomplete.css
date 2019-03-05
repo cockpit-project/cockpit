@@ -1,5 +1,5 @@
 .file-autocomplete-ct input {
-    padding-right: 24px;
+    padding-right: 38px;
 }
 
 .file-autocomplete-ct ul {
@@ -25,16 +25,21 @@
     padding: 0;
 }
 
-.file-autocomplete-ct span.spinner,
-.file-autocomplete-ct span.caret {
+.file-autocomplete-ct .spinner,
+.file-autocomplete-ct .caret {
     position: absolute;
     top: 7px;
     z-index: 9;
 }
 
-.file-autocomplete-ct span.caret {
-    width: 1.5em;
-    height: 1.5em;
+.file-autocomplete-ct .caret {
+    top: 0;
+    height: 26px;
     cursor: pointer;
     pointer-events: all;
+    padding: 0 23px 0 12px;
+}
+
+.file-autocomplete-ct .caret:before {
+    position: static;
 }

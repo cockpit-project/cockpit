@@ -309,6 +309,7 @@ export default class AutoUpdates extends React.Component {
                         <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
                                        onChange={ d => this.handleChange(null, null, d, null) }>
                             <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
+                            <Select.SelectDivider />
                             <Select.SelectEntry data="mon">{_("Mondays")}</Select.SelectEntry>
                             <Select.SelectEntry data="tue">{_("Tuesdays")}</Select.SelectEntry>
                             <Select.SelectEntry data="wed">{_("Wednesdays")}</Select.SelectEntry>

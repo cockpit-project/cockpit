@@ -41,6 +41,8 @@ typedef struct {
     gboolean inet_only;
 } TestFixture;
 
+#define SKIP_NO_HOSTPORT if (!tc->hostport) { cockpit_test_skip ("No non-loopback network interface available"); return; }
+
 static void
 setup (TestCase *tc,
        gconstpointer data)
@@ -49,14 +51,14 @@ setup (TestCase *tc,
   GTlsCertificate *cert = NULL;
   GError *error = NULL;
   GInetAddress *inet;
-  gchar *str;
+  gchar *str = NULL;
   const gchar *address;
   gint port;
 
   inet = cockpit_test_find_non_loopback_address ();
-  g_assert (inet != NULL);
-
-  str = g_inet_address_to_string (inet);
+  /* this can fail in environments with only localhost */
+  if (inet != NULL)
+    str = g_inet_address_to_string (inet);
 
   if (fixture && fixture->cert_file)
     {
@@ -80,8 +82,10 @@ setup (TestCase *tc,
   /* Automatically chosen by the web server */
   g_object_get (tc->web_server, "port", &port, NULL);
   tc->localport = g_strdup_printf ("localhost:%d", port);
-  tc->hostport = g_strdup_printf ("%s:%d", str, port);
-  g_object_unref (inet);
+  if (str)
+    tc->hostport = g_strdup_printf ("%s:%d", str, port);
+  if (inet)
+    g_object_unref (inet);
   g_free (str);
 }
 
@@ -452,6 +456,8 @@ test_webserver_redirect_notls (TestCase *tc,
 {
   gchar *resp;
 
+  SKIP_NO_HOSTPORT;
+
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
@@ -476,6 +482,8 @@ test_webserver_noredirect_exception (TestCase *tc,
 {
   gchar *resp;
 
+  SKIP_NO_HOSTPORT;
+
   g_object_set (tc->web_server, "ssl-exception-prefix", "/shell", NULL);
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
@@ -488,6 +496,8 @@ test_webserver_noredirect_override (TestCase *tc,
                                     gconstpointer data)
 {
   gchar *resp;
+
+  SKIP_NO_HOSTPORT;
 
   cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
@@ -757,10 +767,13 @@ test_handle_resource_url_root (TestCase *tc,
   invoked = NULL;
 
   /* Should fail */
-  resp = perform_http_request (tc->hostport, "GET /oooo HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
-  cockpit_assert_strmatch (resp, "HTTP/* 404 *\r\n");
-  g_free (resp);
-  g_assert (invoked == NULL);
+  if (tc->hostport)
+    {
+      resp = perform_http_request (tc->hostport, "GET /oooo HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+      cockpit_assert_strmatch (resp, "HTTP/* 404 *\r\n");
+      g_free (resp);
+      g_assert (invoked == NULL);
+    }
 }
 
 static void
@@ -803,19 +816,24 @@ test_address (TestCase *tc,
     }
   else
     {
-      assert_cannot_connect (tc->localport);
+      /* If there is only one interface, then cockpit_web_server_new will get a NULL address and thus do listen on loopback */
+      if (tc->hostport)
+        assert_cannot_connect (tc->localport);
     }
 
-  if (fix->inet_only)
+  if (tc->hostport)
     {
-      resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
-      cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
-      g_free (resp);
-      resp = NULL;
-    }
-  else
-    {
-      assert_cannot_connect (tc->hostport);
+      if (fix->inet_only)
+        {
+          resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+          cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+          g_free (resp);
+          resp = NULL;
+        }
+      else
+        {
+          assert_cannot_connect (tc->hostport);
+        }
     }
 }
 

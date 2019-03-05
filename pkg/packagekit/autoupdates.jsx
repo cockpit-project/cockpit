@@ -309,13 +309,13 @@ export default class AutoUpdates extends React.Component {
                         <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
                                        onChange={ d => this.handleChange(null, null, d, null) }>
                             <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
-                            <Select.SelectEntry data="mon">{_("on Mondays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="tue">{_("on Tuesdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="wed">{_("on Wednesdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="thu">{_("on Thursdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="fri">{_("on Fridays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="sat">{_("on Saturdays")}</Select.SelectEntry>
-                            <Select.SelectEntry data="sun">{_("on Sundays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="mon">{_("Mondays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="tue">{_("Tuesdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="wed">{_("Wednesdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="thu">{_("Thursdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="fri">{_("Fridays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="sat">{_("Saturdays")}</Select.SelectEntry>
+                            <Select.SelectEntry data="sun">{_("Sundays")}</Select.SelectEntry>
                         </Select.Select>
                     </span>
 

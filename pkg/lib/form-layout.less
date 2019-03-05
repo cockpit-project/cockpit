@@ -174,20 +174,26 @@
       }
     }
 
-    // Allow dropdowns to be less wide
-    &:not(.ct-form-layout-relax) > .ct-select,
-    &:not(.ct-form-layout-relax) > .dropdown {
-      width: auto !important;
-    }
-
-    > .form-control {
-      width: auto;
-    }
-
     > .checkbox,
     > .radio {
         // Spacing is handled by grid, not margin
         margin: 0;
+    }
+  }
+
+  > [role=group],
+  > .ct-validation-wrapper > [role=group],
+  > .ct-validation-wrapper > [data-field] {
+    // Allow dropdowns to expand as needed
+    &:not(.ct-form-layout-relax) {
+      > .dropdown {
+        width: auto !important;
+      }
+
+      // <select>s need to be coaxed to be 100%
+      > .ct-select {
+        width: 100%;
+      }
     }
   }
 

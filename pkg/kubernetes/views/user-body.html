@@ -28,7 +28,7 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in getRegistryRolesMap() track by roleMp.displayRole"
                                 ng-class="{ checked: isRegistryRole(user(), roleMp.displayRole, member) }">
-                                <a ng-click="changeRole(user(), roleMp, getRegistryRoles(user(), member), member)" 
+                                <a tabindex="0" ng-click="changeRole(user(), roleMp, getRegistryRoles(user(), member), member)"
                                     value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
@@ -36,7 +36,7 @@
                         </ul>
                     </div>
                 </td>
-                <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
+                <td><a tabindex="0" class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
                         <i translate class=" pficon-close"></i>
                     </a>
                 </td>
@@ -53,7 +53,7 @@
                 </td>
                 <td>
                 </td>
-                <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
+                <td><a tabindex="0" class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
                         <i translate class=" pficon-close"></i>
                     </a>
                 </td>
@@ -62,7 +62,7 @@
         <thead>
             <tr>
                 <td colspan="3">
-                    <a class="pull-left" ng-click="addMemberToParent(user())">
+                    <a tabindex="0" class="pull-left" ng-click="addMemberToParent(user())">
                         <i translate class="pficon pficon-add-circle-o"></i>
                         <span translate>Add Membership</span>
                     </a>

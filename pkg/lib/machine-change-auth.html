@@ -20,7 +20,7 @@
                     <input class="form-control" id="login-custom-user" type="text" value="{{machine_user}}" placeholder="{{ default_user }}"/>
                 </td>
                 <td>
-                    <a tabindex="0" role="button" data-toggle="popover"
+                    <a tabindex="0" tabindex="0" role="button" data-toggle="popover"
                         data-trigger="focus" data-placement="bottom" translate="data-content"
                         data-content="Leave blank to connect to this machine as the currently logged in user{{#default_user}} ({{default_user}}){{/default_user}}. If you enter a different username, that user will always be used connecting to this machine.">
                         <span class="fa fa-lg fa-info-circle"></span>
@@ -39,9 +39,9 @@
                         </button>
                         <ul class="dropdown-menu">
                             {{#password}}
-                            <li value="password"><a translate>Type a password</a></li>
+                            <li value="password"><a tabindex="0" translate>Type a password</a></li>
                             {{/password}}
-                            <li value="stored"><a translate>Using available credentials</a></li>
+                            <li value="stored"><a tabindex="0" translate>Using available credentials</a></li>
                         </ul>
                     </div>
                 </td>
@@ -54,7 +54,7 @@
                     <input class="form-control" id="login-custom-password" type="password" />
                 </td>
                 <td>
-                    <a tabindex="0" role="button" data-toggle="popover"
+                    <a tabindex="0" tabindex="0" role="button" data-toggle="popover"
                         data-trigger="focus" data-placement="bottom" translate="data-content"
                         data-content="Entering a different password here means you will need to retype it every time you reconnect to this machine">
                         <span class="fa fa-lg fa-info-circle"></span>

@@ -17,7 +17,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="type in types" ng-class="{ checked: selected.name == type.name }">
-                                <a id="volume-type-{{type.type}}" ng-click="select(type)">{{type.name}}</a>
+                                <a tabindex="0" id="volume-type-{{type.type}}" ng-click="select(type)">{{type.name}}</a>
                             </li>
                         </ul>
                     </div>
@@ -103,7 +103,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="endpoint in fields.endpointOptions">
-                                <a ng-click="setField('endpoint', endpoint.metadata.name)">{{ endpoint.metadata.name }}</a>
+                                <a tabindex="0" ng-click="setField('endpoint', endpoint.metadata.name)">{{ endpoint.metadata.name }}</a>
                             </li>
                         </ul>
                     </div>

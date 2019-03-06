@@ -401,9 +401,9 @@ $(function() {
 
         $('#journal-entry-message').text('');
 
-        var ge_t = $('<li class="active">').append($('<a>').append($('<span translatable="yes">').text(_("General"))));
-        var pi_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem info"))));
-        var pd_t = $('<li>').append($('<a>').append($('<span translatable="yes">').text(_("Problem details"))));
+        var ge_t = $('<li class="active">').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("General"))));
+        var pi_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem info"))));
+        var pd_t = $('<li>').append($('<a tabindex="0">').append($('<span translatable="yes">').text(_("Problem details"))));
 
         var ge = $('<tbody>').addClass('tab');
         var pi = $('<tbody>').addClass('tab');
@@ -564,7 +564,7 @@ $(function() {
                                             .attr('data-target', '#' + key)
                                             .attr('data-parent', '#accordion-markup')
                                             .append($('<h4 class="panel-title">')
-                                                    .append($('<a class="accordion-toggle">')
+                                                    .append($('<a tabindex="0" class="accordion-toggle">')
                                                             .text(key))),
                                     $('<div class="panel-collapse collapse">')
                                             .attr('id', key)

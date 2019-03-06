@@ -16,7 +16,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="type in types" ng-class="{ checked: selected.name == type.name }">
-                                <a ng-click="select(type)">{{type.name}}</a>
+                                <a tabindex="0" ng-click="select(type)">{{type.name}}</a>
                             </li>
                         </ul>
                     </div>
@@ -47,7 +47,7 @@
                             </button>
                             <ul span ng-if="!namespace" class="dropdown-menu dropdown-menu-left">
                                 <li ng-repeat="name in namespaces track by name" ng-class="{ checked: fields.namespace == name }">
-                                    <a ng-click="fields.namespace = name">{{name}}</a>
+                                    <a tabindex="0" ng-click="fields.namespace = name">{{name}}</a>
                                 </li>
                             </ul>
                         </span>

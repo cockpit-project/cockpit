@@ -271,7 +271,7 @@ export class FileAutoComplete extends React.Component {
         } else {
             listItems = this.state.displayFiles.map(file => (
                 <li className={file.type} key={file.path}>
-                    <a data-type={file.type}>{file.path}</a>
+                    <a tabIndex="0" data-type={file.type}>{file.path}</a>
                 </li>
             ));
         }

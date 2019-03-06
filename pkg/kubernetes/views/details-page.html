@@ -10,12 +10,12 @@
         </button>
         <ul class="dropdown-menu">
             <li ng-class="{ checked: !type }">
-                <a ng-click="navigate()" value="">All Types</a>
+                <a tabindex="0" ng-click="navigate()" value="">All Types</a>
             </li>
             <li ng-repeat="(k, v) in names"
                 ng-class="{ checked: type == k }"
                 ng-if="!v.flavor || v.flavor == settings.flavor">
-                <a ng-click="navigate(k)">{{ v.name }}</a>
+                <a tabindex="0" ng-click="navigate(k)">{{ v.name }}</a>
             </li>
         </ul>
     </div>

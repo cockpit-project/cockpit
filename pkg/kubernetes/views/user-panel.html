@@ -6,9 +6,9 @@
     <h3><i class="pficon pficon-user"></i>{{ user().metadata.name }}</h3>
     <ul class="nav nav-tabs nav-tabs-pf">
         <li ng-class="{active: tab('main')}">
-        <a ng-click="tab('main', $event)" translate>User</a></li>
+        <a tabindex="0" ng-click="tab('main', $event)" translate>User</a></li>
         <li ng-class="{active: tab('membership')}">
-        <a ng-click="tab('membership', $event); tabbed = true" translate>Membership</a></li>
+        <a tabindex="0" ng-click="tab('membership', $event); tabbed = true" translate>Membership</a></li>
     </ul>
 </div>
 <div class="listing-ct-body project-panel">
@@ -45,14 +45,14 @@
                     <ul class="dropdown-menu">
                         <li ng-repeat="roleMp in getRegistryRolesMap() track by roleMp.displayRole"
                             ng-class="{ checked: isRegistryRole(user(), roleMp.displayRole, member) }">
-                            <a ng-click="changeRole(user(), roleMp, getRegistryRoles(user(), member), member)">
+                            <a tabindex="0" ng-click="changeRole(user(), roleMp, getRegistryRoles(user(), member), member)">
                                 {{ roleMp.displayRole }}
                             </a>
                         </li>
                     </ul>
                 </div>
             </td>
-            <td><a class="pull-right close-icon">
+            <td><a tabindex="0" class="pull-right close-icon">
                     <i translate class=" pficon-close" ng-click="removeMemberFromParent(user(), member)"></i>
                 </a>
             </td>
@@ -62,7 +62,7 @@
             <tr class="listing-ct-item inner-project-listing">
                 <td>{{ member.metadata.name }}</td>
                 <td></td>
-                <td><a class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
+                <td><a tabindex="0" class="pull-right close-icon" ng-click="removeMemberFromParent(user(), member)">
                         <i translate class=" pficon-close"></i>
                     </a>
                 </td>
@@ -71,7 +71,7 @@
         <thead>
             <tr>
                 <td colspan="3">
-                    <a class="pull-left" ng-click="addMemberToParent(user())">
+                    <a tabindex="0" class="pull-left" ng-click="addMemberToParent(user())">
                         <i translate class="pficon pficon-add-circle-o"></i>
                         <span translate>Add Membership</span>
                     </a>

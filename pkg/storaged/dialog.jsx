@@ -506,7 +506,7 @@ class ComboboxElement extends React.Component {
                                 <span className="caret" />
                             </span>
                             <ul className="typeahead typeahead-long dropdown-menu">
-                                { choices.map(c => <li key={c}><a onClick={ev => set_from_menu(ev, c)}>{c}</a></li>) }
+                                { choices.map(c => <li key={c}><a tabIndex="0" onClick={ev => set_from_menu(ev, c)}>{c}</a></li>) }
                             </ul>
                         </React.Fragment>
                         : null
@@ -693,7 +693,7 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
                 {title}
             </label>
             { tooltip && <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="right" >
-                <a className="dialog-item-tooltip">
+                <a tabIndex="0" className="dialog-item-tooltip">
                     <span className="fa fa-lg fa-info-circle" />
                 </a>
             </OverlayTrigger>

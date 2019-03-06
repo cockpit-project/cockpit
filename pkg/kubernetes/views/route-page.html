@@ -7,7 +7,7 @@
     </div>
     <h3 ng-if="item"><i class="pficon pficon-route"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="pficon pficon-route"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Routes</a>
+    <a tabindex="0" ng-click="navigate(type)" translate class="hidden-xs">Show all Routes</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">

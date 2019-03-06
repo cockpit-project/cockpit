@@ -440,6 +440,7 @@ PageServer.prototype = {
             if (cockpit.manifests[page]) {
                 var link = document.createElement("a");
                 link.innerHTML = text;
+                link.tabIndex = 0;
                 link.addEventListener("click", function() { cockpit.jump("/" + page) });
                 $(element_sel).html(link);
             } else {

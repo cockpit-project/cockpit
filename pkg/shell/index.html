@@ -40,34 +40,34 @@
                 </span>
               </li>
               <li id="navbar-oops" hidden>
-                <a><span class="oops-status" translatable="yes">Ooops!</span></a>
+                <a tabindex="0"><span class="oops-status" translatable="yes">Ooops!</span></a>
               </li>
               <li class="dropdown">
-                <a id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
+                <a tabindex="0" id="navbar-dropdown" class="dropdown-toggle" data-toggle="dropdown">
                   <span class="pficon pficon-user"></span>
                   <span id="content-user-name"></span><b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="display-language-menu">
-                    <a data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#display-language" translatable="yes">Display Language</a>
                   </li>
                   <li class="divider display-language-menu"></li>
                   <li>
-                    <a data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
+                    <a tabindex="0" data-toggle="modal" data-target="#about" translatable="yes">About Cockpit</a>
                   </li>
                   <li>
-                    <a id="active-pages" translatable="yes" class="navbar-advanced">Active Pages</a>
+                    <a tabindex="0" id="active-pages" translatable="yes" class="navbar-advanced">Active Pages</a>
                   </li>
                   <li class="divider"></li>
                   <li id="go-account" hidden>
-                    <a translatable="yes">Account Settings</a>
+                    <a tabindex="0" translatable="yes">Account Settings</a>
                   </li>
                   <li>
-                      <a data-toggle="modal" data-target="#credentials-dialog"
+                      <a tabindex="0" data-toggle="modal" data-target="#credentials-dialog"
                           id="credentials-item" translatable="yes">Authentication</a>
                   </li>
                   <li>
-                    <a id="go-logout" translatable="yes">Log Out</a>
+                    <a tabindex="0" id="go-logout" translatable="yes">Log Out</a>
                   </li>
                 </ul>
               </li>
@@ -167,7 +167,7 @@
                                 <tr id="credential-keys">
                                     <td colspan="2" translate>Use the following keys to authenticate against other systems</td>
                                     <td class="listing-ct-actions">
-                                        <a>
+                                        <a tabindex="0">
                                             <i translate class="pficon pficon-add-circle-o"></i>
                                             <span translate>Add key</span>
                                         </a>
@@ -351,7 +351,7 @@
                 <nav class="nav-sidebar nav-pf-vertical">
                     <ul id="main-navbar" class="list-group">
                         <li id="host-nav-item" class="list-group-item dashboard-link has-menu">
-                            <a id="host-nav-link">
+                            <a tabindex="0" id="host-nav-link">
                                 <span class="fa pficon-container-node"></span>
                                 <span class="list-group-item-value"></span>
                             </a>
@@ -362,7 +362,7 @@
 
             <div id="host-nav" class="area-ct-subnav">
                 <div id="machine-dropdown" class="nav-item-pf-header machine-dropdown">
-                    <a id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
+                    <a tabindex="0" id="machine-link" class="dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" role="button" aria-expanded="false">
                       <img src="../shell/images/server-small.png" id="machine-avatar" role="presentation" class="machine-avatar single-dashboard">
                       <span></span>

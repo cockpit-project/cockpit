@@ -43,18 +43,18 @@
                             <div class="caret"></div>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-action="goto-now" translate >Go to now</a></li>
                             <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-range="300" translate >5 minutes</a></li>
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-range="3600" translate>1 hour</a></li>
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-range="21600" translate>6 hours</a></li>
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-range="86400" translate>1 day</a></li>
-                            <li role="presentation"><a role="menuitem"
+                            <li role="presentation"><a tabindex="0" role="menuitem"
                                 data-range="604800" translate>1 week</a></li>
                         </ul>
                     </div>
@@ -67,10 +67,10 @@
                     </div>
                 </div>
                 <ul class="nav nav-tabs">
-                    <li data-monitor-id="0"><a><span translatable="yes">CPU</span></a></li>
-                    <li data-monitor-id="1"><a><span translatable="yes">Memory</span></a></li>
-                    <li data-monitor-id="2"><a><span translatable="yes">Network</span></a></li>
-                    <li data-monitor-id="3"><a><span translatable="yes">Disk I/O</span></a></li>
+                    <li data-monitor-id="0"><a tabindex="0"><span translatable="yes">CPU</span></a></li>
+                    <li data-monitor-id="1"><a tabindex="0"><span translatable="yes">Memory</span></a></li>
+                    <li data-monitor-id="2"><a tabindex="0"><span translatable="yes">Network</span></a></li>
+                    <li data-monitor-id="3"><a tabindex="0"><span translatable="yes">Disk I/O</span></a></li>
                 </ul>
                 <br>
                 <div class="dashboard-plot zoomable-plot" id="dashboard-plot-0"></div>
@@ -99,7 +99,7 @@
     <script id="dashboard-hosts-tmpl" type="x-template/mustache">
         {{#machines}}
             {{! state can be 'failed' or 'connected' }}
-            <a data-address="{{address}}" class="list-group-item {{state}}"
+            <a tabindex="0" data-address="{{address}}" class="list-group-item {{state}}"
                 data-color="{{ color }}" target="_parent" href="/@{{address}}">
                 <button class="btn btn-danger edit-button servers-privileged pficon btn-delete pficon-delete delete-{{address}}"></button>
                 <button class="btn btn-default edit-button servers-privileged pficon pficon-edit"></button>
@@ -169,7 +169,7 @@
                 </div>
                 </div>
                 <div class="modal-footer">
-                    <div class="pull-left"><a id="host-edit-sync-users" translatable="yes">Synchronize users</a></div>
+                    <div class="pull-left"><a tabindex="0" id="host-edit-sync-users" translatable="yes">Synchronize users</a></div>
                     <button class="btn btn-default" data-dismiss="modal" translatable="yes">Cancel</button>
                     <button class="btn btn-primary" id="host-edit-apply" translatable="yes">Set</button>
                 </div>

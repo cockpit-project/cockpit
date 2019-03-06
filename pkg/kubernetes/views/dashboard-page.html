@@ -1,6 +1,6 @@
 <filter-bar class="content-filter">
     <div class="content-filter-link pull-right" ng-if="settings.canChangeConnection">
-        <a id="kubernetes-change-connection" ng-click="changeAuth()" title="Connection Settings">
+        <a tabindex="0" id="kubernetes-change-connection" ng-click="changeAuth()" title="Connection Settings">
             <i class="fa fa-wrench"></i>
         </a>
     </div>
@@ -78,7 +78,7 @@
             <p class="pvc-notice" ng-if="status.volumes.PendingClaims.length">
                 <span class="card-pf-aggregate-status-notification">
                     <span class="pficon pficon-info"></span>
-                    <a href="#{{ viewUrl('volumes', true) }}">
+                    <a tabindex="0" href="#{{ viewUrl('volumes', true) }}">
                         <span class="card-pf-aggregate-status-text">{{status.volumes.PendingClaims.length}}</span>
                         <span class="card-pf-aggregate-status-text" translate>pending volume claims</span>
                     </a>

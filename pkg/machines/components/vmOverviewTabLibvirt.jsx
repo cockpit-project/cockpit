@@ -89,7 +89,7 @@ class VmOverviewTabLibvirt extends React.Component {
             );
         }
         const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
-        const memoryLink = (<a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.open}>{vm.vcpus.count}</a>);
+        const memoryLink = (<a tabIndex="0" id={`${vmId(vm.name)}-vcpus-count`} onClick={this.open}>{vm.vcpus.count}</a>);
 
         let items = [
             { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },

@@ -686,7 +686,7 @@ $(function() {
                                                   });
             var template_description = null;
             if (cur_unit_template) {
-                var link = mustache.render('<a data-goto-unit="{{unit}}">{{unit}}</a>',
+                var link = mustache.render('<a tabindex="0" data-goto-unit="{{unit}}">{{unit}}</a>',
                                            { unit: cur_unit_template });
                 template_description = cockpit.format(_("This unit is an instance of the $0 template."), link);
             }

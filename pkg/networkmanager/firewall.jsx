@@ -325,13 +325,13 @@ export class Firewall extends React.Component {
             addServiceAction = (
                 <OverlayTrigger className="pull-right" placement="top"
                                 overlay={ <Tooltip id="tip-auth">{ _("You are not authorized to modify the firewall.") }</Tooltip> } >
-                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Services…")} </Button>
+                    <Button bsStyle="primary" className="pull-right" disabled> {_("Add Services")} </Button>
                 </OverlayTrigger>
             );
         } else {
             addServiceAction = (
                 <Button bsStyle="primary" onClick={this.open} className="pull-right">
-                    {_("Add Services…")}
+                    {_("Add Services")}
                 </Button>
             );
         }

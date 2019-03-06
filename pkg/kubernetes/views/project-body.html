@@ -1,16 +1,16 @@
 <p ng-if="sharedImages(project()) == 'anonymous'">
     <span>
-        <a ng-click="modifyProject(project())" translate>Project access policy allows anonymous users to pull images.</a> <span translate>Grant additional push or admin access to specific members below.</span>
+        <a tabindex="0" ng-click="modifyProject(project())" translate>Project access policy allows anonymous users to pull images.</a> <span translate>Grant additional push or admin access to specific members below.</span>
     </span>
 </p>
 <p ng-if="sharedImages(project()) == 'shared'">
     <span>
-        <a ng-click="modifyProject(project())" translate>Project access policy allows any authenticated user to pull images.</a> <span translate>Grant additional push or admin access to specific members below.</span>
+        <a tabindex="0" ng-click="modifyProject(project())" translate>Project access policy allows any authenticated user to pull images.</a> <span translate>Grant additional push or admin access to specific members below.</span>
     </span>
 </p>
 <p ng-if="sharedImages(project()) == 'private'">
     <span>
-        <a ng-click="modifyProject(project())" translate>Project access policy only allows specific members to access images.</a> <span>Grant access to specific members below.</span>
+        <a tabindex="0" ng-click="modifyProject(project())" translate>Project access policy only allows specific members to access images.</a> <span>Grant access to specific members below.</span>
     </span>
 </p>
 
@@ -43,7 +43,7 @@
                     <ul class="dropdown-menu">
                         <li ng-repeat="roleMp in getRegistryRolesMap()"
                             ng-class="{ checked: isRegistryRole(user, roleMp.displayRole, project()) }">
-                            <a ng-click="changeRole(user, roleMp, getRegistryRoles(user, project()), project())"
+                            <a tabindex="0" ng-click="changeRole(user, roleMp, getRegistryRoles(user, project()), project())"
                                 value="{{ roleMp.displayRole }}">
                                 {{ roleMp.displayRole }}
                             </a>
@@ -59,7 +59,7 @@
                     </button>
                 </div>
             </td>
-            <td><a class="pull-right close-icon">
+            <td><a tabindex="0" class="pull-right close-icon">
                     <i translate class=" pficon-close" ng-click="removeMemberFromParent(user, project())"></i>
                 </a>
             </td>
@@ -86,7 +86,7 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in getRegistryRolesMap()"
                                 ng-class="{ checked: isRegistryRole(group, displayRole, project()) }">
-                                <a ng-click="changeRole(group, roleMp, getRegistryRoles(group, project()), project())"
+                                <a tabindex="0" ng-click="changeRole(group, roleMp, getRegistryRoles(group, project()), project())"
                                     value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
@@ -94,7 +94,7 @@
                         </ul>
                     </div>
             </td>
-            <td><a class="pull-right close-icon">
+            <td><a tabindex="0" class="pull-right close-icon">
                     <i translate class=" pficon-close" ng-click="removeMemberFromParent(group, project())"></i>
                 </a>
             </td>
@@ -103,7 +103,7 @@
     <thead>
         <tr>
             <td colspan="3">
-                <a class="pull-left" ng-click="addMember(project())">
+                <a tabindex="0" class="pull-left" ng-click="addMember(project())">
                     <i translate class="pficon pficon-add-circle-o"></i>
                     <span translate>Add Member</span>
                 </a>

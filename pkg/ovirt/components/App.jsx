@@ -59,7 +59,7 @@ const LoginInProgress = ({ ovirtConfig }) => {
         return (
             <p className='ovirt-login-in-progress'>
                 {_("No oVirt connection") + '\xa0'}
-                <a href="#" onClick={onReload}>{_("Reload")}</a>
+                <a tabIndex="0" href="#" onClick={onReload}>{_("Reload")}</a>
             </p>
         );
     }
@@ -154,7 +154,7 @@ const createOvirtVmAction = () => {
     return (
         <div className='card-pf-link-with-icon pull-right' key='create-vm-ovirt'>
             <OverlayTrigger overlay={ <Tooltip id="tip-create">{tip}</Tooltip> } placement="bottom">
-                <a className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
+                <a tabIndex="0" className='card-pf-link-with-icon pull-right unused-link' id='create-new-vm' onClick={noop}>
                     <span className="pficon pficon-add-circle-o" />
                     {_("Create New VM")}
                 </a>

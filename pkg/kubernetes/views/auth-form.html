@@ -13,11 +13,11 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li ng-repeat="cluster in clusters" ng-class="{ checked: currentCluster.name == cluster.name }">
-                            <a ng-click="selectCluster(cluster)">{{cluster.name}}</a>
+                            <a tabindex="0" ng-click="selectCluster(cluster)">{{cluster.name}}</a>
                         </li>
                         <li role="separator" class="divider"></li>
                         <li ng-class="{ checked: !currentCluster.name }">
-                            <a ng-click="selectCluster()" translate>Add New Cluster</a>
+                            <a tabindex="0" ng-click="selectCluster()" translate>Add New Cluster</a>
                         </li>
                     </ul>
                 </div>
@@ -69,11 +69,11 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li ng-repeat="user in users" ng-class="{ checked: currentUser.name == user.name }">
-                            <a ng-click="selectUser(user)">{{user.name}}</a>
+                            <a tabindex="0" ng-click="selectUser(user)">{{user.name}}</a>
                         </li>
                         <li role="separator" class="divider"></li>
                         <li ng-class="{ checked: !currentUser.name }">
-                            <a ng-click="selectUser()" translate>Add New User</a>
+                            <a tabindex="0" ng-click="selectUser()" translate>Add New User</a>
                         </li>
                     </ul>
                 </div>

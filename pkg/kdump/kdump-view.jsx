@@ -459,7 +459,7 @@ export class KdumpPage extends React.Component {
             const tooltip = _("Kdump service not installed. Please ensure package kexec-tools is installed.");
             kdumpServiceDetails = (
                 <OverlayTrigger overlay={ <Tooltip id="tip-service">{tooltip}</Tooltip> } placement="bottom">
-                    <a className="popover-ct-kdump">
+                    <a tabIndex="0" className="popover-ct-kdump">
                         <span className="fa fa-lg fa-info-circle" />
                     </a>
                 </OverlayTrigger>
@@ -506,7 +506,7 @@ export class KdumpPage extends React.Component {
 
                     <div role="group">
                         {testButton}
-                        <a className="popover-ct-kdump">
+                        <a tabIndex="0" className="popover-ct-kdump">
                             <OverlayTrigger overlay={ <Tooltip id="tip-test-info">{tooltip_info}</Tooltip> } placement="top">
                                 <span className="fa fa-lg fa-info-circle" />
                             </OverlayTrigger>

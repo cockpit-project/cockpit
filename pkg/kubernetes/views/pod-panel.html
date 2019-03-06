@@ -5,14 +5,14 @@
                 ng-click="deleteItem(item)"></button>
         </div>
         <ul class="nav nav-tabs nav-tabs-pf">
-            <li ng-class="{active: tab('main')}"><a ng-click="tab('main', $event)">Pod</a></li>
-            <li ng-class="{active: tab('containers')}"><a ng-click="tab('containers', $event)">Containers</a></li>
+            <li ng-class="{active: tab('main')}"><a tabindex="0" ng-click="tab('main', $event)">Pod</a></li>
+            <li ng-class="{active: tab('containers')}"><a tabindex="0" ng-click="tab('containers', $event)">Containers</a></li>
             <li ng-class="{active: tab('logs')}">
-                <a ng-click="tab('logs', $event); tabbed = true">Logs</a></li>
+                <a tabindex="0" ng-click="tab('logs', $event); tabbed = true">Logs</a></li>
             <li ng-class="{active: tab('shell')}">
-                <a ng-click="tab('shell', $event); tabbed = true">Shell</a></li>
+                <a tabindex="0" ng-click="tab('shell', $event); tabbed = true">Shell</a></li>
             <li ng-class="{active: tab('volumes')}">
-                <a ng-click="tab('volumes', $event); tabbed = true">Volumes</a></li>
+                <a tabindex="0" ng-click="tab('volumes', $event); tabbed = true">Volumes</a></li>
         </ul>
     </div>
     <div class="listing-ct-body" ng-show="tab('main')">

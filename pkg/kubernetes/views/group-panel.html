@@ -16,7 +16,7 @@
             <tbody colspan="3" ng-repeat="user in group().users">
                 <tr class="listing-ct-item inner-project-listing">
                     <td><i class=" pficon-user"></i>  {{ user }}</span></td>
-                    <td><a class="pull-right close-icon">
+                    <td><a tabindex="0" class="pull-right close-icon">
                         <i translate class="pficon-close " ng-click="removeUserFromGroup(user, group())"></i>
                     </a></td>
                 </tr>
@@ -24,7 +24,7 @@
             <thead>
                 <tr>
                     <td colspan="3">
-                        <a class="pull-left" disabled>
+                        <a tabindex="0" class="pull-left" disabled>
                             <i translate class="pficon pficon-add-circle-o"></i>
                             <span translate ng-click="addUserToGroup(group())">Add Member</span>
                         </a>

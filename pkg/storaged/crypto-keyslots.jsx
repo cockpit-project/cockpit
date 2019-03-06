@@ -299,7 +299,7 @@ class Revealer extends React.Component {
             return <div>{this.props.children}</div>;
         else
             return (
-                <a onClick={event => { if (event.button == 0) this.setState({ revealed: true }); }}>
+                <a tabIndex="0" onClick={event => { if (event.button == 0) this.setState({ revealed: true }); }}>
                     {this.props.summary}
                 </a>
             );

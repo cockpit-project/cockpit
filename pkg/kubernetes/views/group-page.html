@@ -11,7 +11,7 @@
         <i class="pficon pficon-users"></i>
         <span>{{ groupName }}</span>
     </h3>
-    <a ng-href="#/projects" translate>Show all Projects</a>
+    <a tabindex="0" ng-href="#/projects" translate>Show all Projects</a>
 </div>
 <div class="project-panel" ng-if="group()">
     <div>
@@ -25,7 +25,7 @@
             <tbody colspan="3" ng-repeat="user in group().users" data-id="{{ user }}">
                 <tr class="listing-ct-item inner-project-listing">
                     <td ng-click="listing.activate('/users/' + user)"><i class=" pficon-user"></i>  {{ user }}</span></td>
-                    <td><a class="pull-right close-icon" ng-click="removeUserFromGroup(user, group())">
+                    <td><a tabindex="0" class="pull-right close-icon" ng-click="removeUserFromGroup(user, group())">
                         <i translate class="pficon-close"></i>
                     </a></td>
                 </tr>
@@ -33,7 +33,7 @@
             <thead>
                 <tr>
                     <td colspan="3">
-                        <a class="pull-left" ng-click="addUserToGroup(group())">
+                        <a tabindex="0" class="pull-left" ng-click="addUserToGroup(group())">
                             <i translate class="pficon pficon-add-circle-o"></i>
                             <span translate>Add Member</span>
                         </a>

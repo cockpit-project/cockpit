@@ -131,6 +131,6 @@ export class TunedLink extends React.Component {
             classes += " disabled";
         }
 
-        return <a className={ classes } {...opts}>{ text }</a>;
+        return <a tabIndex="0" className={ classes } {...opts}>{ text }</a>;
     }
 }

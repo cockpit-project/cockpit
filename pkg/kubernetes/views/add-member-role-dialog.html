@@ -24,7 +24,7 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-left">
                                 <li ng-repeat="member in selected.getMembers() track by itemTracker(member)" ng-class="{active: member.metadata.name == selected.member}">
-                                    <a ng-click="selected.member = member.metadata.name; selected.memberName = member.metadata.name; selected.memberObj = member"
+                                    <a tabindex="0" ng-click="selected.member = member.metadata.name; selected.memberName = member.metadata.name; selected.memberObj = member"
                                         value="{{ member.metadata.name }}">
                                         {{ member.metadata.name }}
                                     </a>
@@ -46,7 +46,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li ng-repeat="roleMp in selected.roles track by roleMp.displayRole" ng-class="{active: roleMp.displayRole == selected.displayRole}">
-                                <a ng-click="selected.displayRole = roleMp.displayRole; selected.ocRole = roleMp.ocRole" value="{{ roleMp.displayRole }}">
+                                <a tabindex="0" ng-click="selected.displayRole = roleMp.displayRole; selected.ocRole = roleMp.ocRole" value="{{ roleMp.displayRole }}">
                                     {{ roleMp.displayRole }}
                                 </a>
                             </li>

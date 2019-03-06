@@ -9,11 +9,11 @@
     </button>
     <ul class="dropdown-menu">
         <li ng-class="{ checked: !filter.namespace() }">
-            <a ng-click="filter.namespace(null)" value="">All Projects</a>
+            <a tabindex="0" ng-click="filter.namespace(null)" value="">All Projects</a>
         </li>
         <li ng-repeat="name in filter.namespaces() track by name"
             ng-class="{ checked: name == filter.namespace() }">
-            <a ng-click="filter.namespace(name)" value="{{name}}">{{name}}</a>
+            <a tabindex="0" ng-click="filter.namespace(name)" value="{{name}}">{{name}}</a>
         </li>
     </ul>
 </div>

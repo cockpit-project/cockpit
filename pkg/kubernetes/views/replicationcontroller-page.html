@@ -7,7 +7,7 @@
     </div>
     <h3 ng-if="item"><i class="fa pficon-replicator"></i>{{ item.metadata.name }}</h3>
     <h3 ng-if="!item"><i class="fa pficon-replicator"></i>{{ target }}</h3>
-    <a ng-click="navigate(type)" translate class="hidden-xs">Show all Replication Controllers</a>
+    <a tabindex="0" ng-click="navigate(type)" translate class="hidden-xs">Show all Replication Controllers</a>
 </div>
 
 <div class="listing-ct-inline" ng-if="item">

@@ -2,7 +2,7 @@
     <div class="modal-header">
         <h4 class="modal-title" ng-if="!project">
           <span translate>New project</span>
-          <a tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
+          <a tabindex="0" tabindex="0" role="button" popover-placement="right" popover-trigger="focus"
               popover="A repository namespace for images">
             <span class="fa fa-lg fa-info-circle"></span>
           </a>
@@ -16,7 +16,7 @@
                     <label translate class="control-label" for="project-new-name">Name</label>
                 </td>
                 <td>
-                    <a class="input-icon" ng-if="!project" popover-placement="left"
+                    <a tabindex="0" class="input-icon" ng-if="!project" popover-placement="left"
                        tabindex="0" role="button" popover-trigger="focus"
                        popover="The project name is used as the repository name when referencing images, registry/project/image:[tag]">
                        <span class="fa fa-lg fa-info-circle"></span>
@@ -59,7 +59,7 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="(value, label) in labels.access"
                                 ng-class="{checked: value == fields.access}">
-                                <a ng-click="fields.access = value" value="{{value}}">{{ label }}</a>
+                                <a tabindex="0" ng-click="fields.access = value" value="{{value}}">{{ label }}</a>
                             </li>
                         </ul>
                     </div>

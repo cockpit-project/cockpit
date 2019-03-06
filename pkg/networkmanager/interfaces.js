@@ -66,7 +66,7 @@ function select_btn(func, spec, klass) {
     var choice = spec[0].choice;
 
     function option_mapper(opt) {
-        return $('<li>', { value: opt.choice }).append($("<a>").text(opt.title));
+        return $('<li>', { value: opt.choice }).append($("<a tabindex='0'>").text(opt.title));
     }
 
     var toggle = $('<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">').append(
@@ -1402,7 +1402,7 @@ $.fn.extend({
 });
 
 function render_interface_link(iface) {
-    return $('<a>')
+    return $('<a tabindex="0">')
             .text(iface)
             .click(function () {
                 cockpit.location.go([ iface ]);
@@ -1428,7 +1428,7 @@ function render_connection_link(con) {
         $('<span>').append(
             array_join(
                 con.Interfaces.map(function (iface) {
-                    return $('<a>')
+                    return $('<a tabindex="0">')
                             .text(iface.Name)
                             .click(function () {
                                 cockpit.location.go([ iface.Name ]);
@@ -2554,7 +2554,7 @@ PageNetworkInterface.prototype = {
         $('#network-interface-mac').empty();
         if (can_edit_mac) {
             $('#network-interface-mac').append(
-                $('<a>')
+                $('<a tabindex="0">')
                         .text(mac)
                         .syn_click(self.model, function () {
                             self.set_mac();
@@ -2721,7 +2721,7 @@ PageNetworkInterface.prototype = {
                             .text(title)
                             .css('vertical-align', rows.length > 1 ? "top" : "center"),
                     $('<td>').append(
-                        $('<a class="network-privileged">')
+                        $('<a tabindex="0" class="network-privileged">')
                                 .append(link_text)
                                 .syn_click(self.model, function () { configure() })));
             }
@@ -3078,7 +3078,7 @@ PageNetworkInterface.prototype = {
                                     !slave_ifaces[iface.Name] &&
                                     iface != self.iface) {
                                         return $('<li role="presentation">').append(
-                                            $('<a role="menuitem" class="network-privileged">')
+                                            $('<a tabindex="0" role="menuitem" class="network-privileged">')
                                                     .text(iface.Name)
                                                     .syn_click(self.model, function () {
                                                         with_checkpoint(
@@ -3596,7 +3596,7 @@ function fill_mac_menu(menu, input, model) {
     function menu_append(title, value) {
         menu.append(
             $('<li class="presentation">').append(
-                $('<a>')
+                $('<a tabindex="0">')
                         .text(title)
                         .click(function () {
                             input.val(value).trigger("change");

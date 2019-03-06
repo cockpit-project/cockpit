@@ -125,7 +125,7 @@
         <i class="fa fa-cube fa-fw"></i>
         <span></span>
       </h3>
-      <a translatable="yes">Show all containers</a>
+      <a tabindex="0" translatable="yes">Show all containers</a>
     </div>
     <div class="panel-default panel">
       <div class="panel-heading">
@@ -251,7 +251,7 @@
         <i class="pficon pficon-image"></i>
         <span></span>
       </h3>
-      <a translatable="yes">Show all images</a>
+      <a tabindex="0" translatable="yes">Show all images</a>
     </div>
 
     <div class="content">
@@ -284,7 +284,7 @@
 
   <div id="storage" class="container-fluid" hidden>
     <ol class="breadcrumb">
-      <li><a translatable="yes">Containers</a></li>
+      <li><a tabindex="0" translatable="yes">Containers</a></li>
       <li class="active" translate>Storage</li>
     </ol>
 
@@ -328,8 +328,8 @@
                   <div class="caret"></div>
               </button>
               <ul class="dropdown-menu">
-                  <li><a value="TCP" translate>TCP</a></li>
-                  <li><a value="UDP" translate>UDP</a></li>
+                  <li><a tabindex="0" value="TCP" translate>TCP</a></li>
+                  <li><a tabindex="0" value="UDP" translate>UDP</a></li>
               </ul>
           </div>
       </div>
@@ -358,9 +358,9 @@
             <div class="caret"></div>
           </button>
           <ul class="dropdown-menu">
-            <li><a translatable="yes">Default</a></li>
-            <li><a translatable="yes">ReadWrite</a></li>
-            <li><a translatable="yes">ReadOnly</a></li>
+            <li><a tabindex="0" translatable="yes">Default</a></li>
+            <li><a tabindex="0" translatable="yes">ReadWrite</a></li>
+            <li><a tabindex="0" translatable="yes">ReadOnly</a></li>
           </ul>
         </div>
       </div>
@@ -405,7 +405,7 @@
                   <div class="caret"></div>
               </button>
               <ul class="dropdown-menu">
-                  {{#containers}}<li><a value="{{.}}">{{.}}</a></li>{{/containers}}
+                  {{#containers}}<li><a tabindex="0" value="{{.}}">{{.}}</a></li>{{/containers}}
               </ul>
           </div>
       </div>
@@ -543,10 +543,10 @@
                         <span class="caret"></span>
                       </button>
                       <ul class="dropdown-menu" id="restart-policy-dropdown">
-                        <li><a translatable="yes" data-value="no">No</a></li>
-                        <li><a translatable="yes" data-value="on-failure">On Failure</a></li>
-                        <li><a translatable="yes" data-value="always">Always</a></li>
-                        <li><a translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
+                        <li><a tabindex="0" translatable="yes" data-value="no">No</a></li>
+                        <li><a tabindex="0" translatable="yes" data-value="on-failure">On Failure</a></li>
+                        <li><a tabindex="0" translatable="yes" data-value="always">Always</a></li>
+                        <li><a tabindex="0" translatable="yes" data-value="unless-stopped">Unless Stopped</a></li>
                       </ul>
                     </div>
                     <div id="restart-policy-retries-container" class="hidden">

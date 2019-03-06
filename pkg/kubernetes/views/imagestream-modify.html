@@ -32,7 +32,7 @@
                             <ul dropdown-menu class="dropdown-menu" role="menu">
                                 <li ng-repeat="name in projects() track by name"
                                     ng-class="{ checked: name == fields.project }">
-                                    <a ng-click="fields.project = name" value="{{name}}">{{ name }}</a>
+                                    <a tabindex="0" ng-click="fields.project = name" value="{{name}}">{{ name }}</a>
                                 </li>
                             </ul>
                         </span>
@@ -55,7 +55,7 @@
                         <ul class="dropdown-menu">
                             <li ng-repeat="(value, label) in labels.populate"
                                 ng-class="{checked: value == fields.populate}">
-                                <a ng-click="fields.populate = value" value="{{value}}">{{ label }}</a>
+                                <a tabindex="0" ng-click="fields.populate = value" value="{{value}}">{{ label }}</a>
                             </li>
                         </ul>
                     </div>

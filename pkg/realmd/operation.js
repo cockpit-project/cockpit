@@ -320,7 +320,7 @@ function instance(realmd, mode, realm, button) {
                 if ((!owner || owner == supported[i][1]) && type == supported[i][0]) {
                     choice = type + "/" + supported[i][1];
                     item = $("<li>").attr("data-value", choice)
-                            .append($("<a>").text(text));
+                            .append($("<a tabindex='0'>").text(text));
                     list.append(item);
                     if (first) {
                         auth_changed(item);
@@ -527,7 +527,7 @@ function instance(realmd, mode, realm, button) {
                                     $(".realms-op-error").show();
                                     if (diagnostics) {
                                         $(".realms-op-message")
-                                                .append('<a class="realms-op-more-diagnostics">' + _("More") + '</a>');
+                                                .append('<a tabindex="0" class="realms-op-more-diagnostics">' + _("More") + '</a>');
                                         $(".realms-op-diagnostics").text(diagnostics);
                                     }
                                 }
@@ -564,7 +564,7 @@ function setup() {
     var $ = jQuery;
 
     var element = $("<span>");
-    var link = $("<a>");
+    var link = $("<a tabindex='0'>");
     element.append(link);
     var hostname_link = $("#system_information_hostname_button");
 

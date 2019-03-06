@@ -38,7 +38,7 @@ $(function() {
         $(path).each(function (i, p) {
             if (i < path.length - 1) {
                 $('#nav').append(
-                    $('<a>')
+                    $('<a tabindex="0">')
                             .text(p)
                             .click(function () {
                                 cockpit.location.go(path.slice(1, i + 1));

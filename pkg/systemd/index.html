@@ -62,7 +62,7 @@
       {{^Server}}
       <div translatable="yes">Not synchronized</div>
       {{#service}}
-      <a data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
+      <a tabindex="0" data-goto-service="{{.}}" class="small-messages" translate>Log messages</a>
       {{/service}}
       {{/Server}}
       {{/Synched}}
@@ -86,7 +86,7 @@
             <form class="ct-form-layout">
                 <label class="control-label" for="system_information_hardware_text" translatable="yes">Hardware</label>
                 <span> <!-- wrap the <a> so that it doesn't stretch to the whole page width; otherwise tooltip looks bad -->
-                    <a id="system_information_hardware_text"></a>
+                    <a tabindex="0" id="system_information_hardware_text"></a>
                 </span>
 
                 <label class="control-label" for="system_information_asset_tag_text" translatable="yes">Asset Tag</label>
@@ -104,15 +104,15 @@
                 </div>
 
                 <label class="control-label" for="system-ssh-keys-link" translatable="yes">Secure Shell Keys</label>
-                <a id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
+                <a tabindex="0" id="system-ssh-keys-link" translatable="yes" data-toggle="modal"
                    data-target="#system_information_ssh_keys">Show fingerprints</a>
 
                 <label class="control-label hidden" for="system-ostree-version-link" translatable="yes">Version</label>
-                <a id="system-ostree-version-link" class="hidden"></a>
+                <a tabindex="0" id="system-ostree-version-link" class="hidden"></a>
 
                 <label class="control-label" for="system_information_hostname_button" translatable="yes">Host Name</label>
                 <span id="hostname-tooltip">
-                    <a class="hostname-privileged" id="system_information_hostname_button"></a>
+                    <a tabindex="0" class="hostname-privileged" id="system_information_hostname_button"></a>
                 </span>
 
                 <label class="control-label" for="system-info-domain" translatable="yes" hidden>Domain</label>
@@ -121,9 +121,9 @@
                 <label class="control-label" for="system_information_systime_button" translatable="yes">System Time</label>
                 <div role="group">
                     <span id="systime-tooltip">
-                        <a class="systime-privileged" id="system_information_systime_button"></a>
+                        <a tabindex="0" class="systime-privileged" id="system_information_systime_button"></a>
                     </span>
-                      <a hidden id="system_information_systime_ntp_status"
+                      <a tabindex="0" hidden id="system_information_systime_ntp_status"
                          tabindex="0" role="button" data-toggle="tooltip"
                          data-placement="bottom" data-html="true" >
                       </a>
@@ -141,10 +141,10 @@
                     </button>
                     <ul role="menu" class="dropdown-menu">
                         <li class="presentation">
-                            <a role="menuitem" data-action="restart" translatable="yes">Restart</a>
+                            <a tabindex="0" role="menuitem" data-action="restart" translatable="yes">Restart</a>
                         </li>
                         <li class="presentation">
-                            <a role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
+                            <a tabindex="0" role="menuitem" data-action="shutdown" translatable="yes">Shut Down</a>
                         </li>
                     </ul>
                 </div>
@@ -164,7 +164,7 @@
                     </label>
                 </div>
 
-                <a id="system-information-enable-pcp-link" hidden>
+                <a tabindex="0" id="system-information-enable-pcp-link" hidden>
                     <span class="pficon pficon-info"></span>
                     <span translate>Enable stored metrics…</span>
                 </a>
@@ -179,18 +179,18 @@
                         <div class="caret"></div>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-action="goto-now" translate>Go to now</a></li>
                         <li role="presentation" class="divider"></li>
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-range="300" translate>5 minutes</a></li>
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-range="3600" translate>1 hour</a></li>
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-range="21600" translate>6 hours</a></li>
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-range="86400" translate>1 day</a></li>
-                        <li role="presentation"><a role="menuitem"
+                        <li role="presentation"><a tabindex="0" role="menuitem"
                             data-range="604800" translate>1 week</a></li>
                     </ul>
                 </div>
@@ -203,14 +203,14 @@
                 </div>
             </div>
             <div>
-              <span class="plot-unit" id="server_cpu_unit">%</span><a id="link-cpu"></a>
+              <span class="plot-unit" id="server_cpu_unit">%</span><a tabindex="0" id="link-cpu"></a>
             </div>
             <div id="server_cpu_graph" class="server-graph zoomable-plot"></div>
             <br/>
             <div>
               <span class="plot-unit" id="server_memory_unit"></span>
-              <a id="link-memory" translate>Memory</a>
-              <a id="link-memory-and-swap" hidden translate>Memory & Swap</a>
+              <a tabindex="0" id="link-memory" translate>Memory</a>
+              <a tabindex="0" id="link-memory-and-swap" hidden translate>Memory & Swap</a>
             </div>
             <div id="server_memory_graph" class="server-graph zoomable-plot"></div>
             <br/>
@@ -393,9 +393,9 @@
                                         <div class="caret"></div>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li value="manual_time"><a translatable="yes">Manually</a></li>
-                                        <li value="ntp_time"><a translatable="yes">Automatically using NTP</a></li>
-                                        <li value="ntp_time_custom"><a translatable="yes">Automatically using specific NTP servers</a></li>
+                                        <li value="manual_time"><a tabindex="0" translatable="yes">Manually</a></li>
+                                        <li value="ntp_time"><a tabindex="0" translatable="yes">Automatically using NTP</a></li>
+                                        <li value="ntp_time_custom"><a tabindex="0" translatable="yes">Automatically using specific NTP servers</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -453,14 +453,14 @@
                                         <div class="caret"></div>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li value="1"><a translatable="yes">1 Minute</a></li>
-                                        <li value="5"><a translatable="yes">5 Minutes</a></li>
-                                        <li value="20"><a translatable="yes">20 Minutes</a></li>
-                                        <li value="40"><a translatable="yes">40 Minutes</a></li>
-                                        <li value="60"><a translatable="yes">60 Minutes</a></li>
+                                        <li value="1"><a tabindex="0" translatable="yes">1 Minute</a></li>
+                                        <li value="5"><a tabindex="0" translatable="yes">5 Minutes</a></li>
+                                        <li value="20"><a tabindex="0" translatable="yes">20 Minutes</a></li>
+                                        <li value="40"><a tabindex="0" translatable="yes">40 Minutes</a></li>
+                                        <li value="60"><a tabindex="0" translatable="yes">60 Minutes</a></li>
                                         <li role="separator" class="divider"></li>
-                                        <li value="0"><a translatable="yes">No Delay</a></li>
-                                        <li value="x"><a translatable="yes">Specific Time</a></li>
+                                        <li value="0"><a tabindex="0" translatable="yes">No Delay</a></li>
+                                        <li value="x"><a tabindex="0" translatable="yes">Specific Time</a></li>
                                     </ul>
                                 </div>
                             </td>

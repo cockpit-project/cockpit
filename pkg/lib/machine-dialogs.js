@@ -735,7 +735,7 @@ function ChangeAuth(dialog) {
             'machines.allow_connection_string' : machines.allow_connection_string,
             'sync_link' : function() {
                 return function(text, render) {
-                    return '<a id="do-sync-users">' + render(text) + "</a>";
+                    return '<a tabindex="0" id="do-sync-users">' + render(text) + "</a>";
                 };
             }
         }, template);

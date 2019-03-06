@@ -52,7 +52,7 @@ const VmCpu = ({ vm, dispatch }) => {
         });
     };
 
-    return (<a title={tooltip} id={`cluster-${vm.name}-cpus`} data-toggle='tooltip' data-placement='left' onClick={handleOpenModal}>{vCpus}</a>);
+    return (<a tabIndex="0" title={tooltip} id={`cluster-${vm.name}-cpus`} data-toggle='tooltip' data-placement='left' onClick={handleOpenModal}>{vCpus}</a>);
 };
 
 const VmHost = ({ id, hosts, dispatch }) => {

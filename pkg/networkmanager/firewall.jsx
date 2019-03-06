@@ -48,9 +48,6 @@ function EmptyState(props) {
 }
 
 function ServiceRow(props) {
-    if (!props.service.name)
-        return <ListingRow key={props.service.id} columns={["", "", ""]} />;
-
     var tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
     var udp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'UDP');
 
@@ -144,7 +141,12 @@ class AddServicesBody extends React.Component {
 
     componentDidMount() {
         firewall.getAvailableServices()
-                .then(services => this.setState({ services: services }));
+                .then(services => this.setState({
+                    services: services.map(s => {
+                        s.name = s.name || s.id;
+                        return s;
+                    })
+                }));
     }
 
     onFilterChanged(value) {
@@ -334,7 +336,11 @@ export class Firewall extends React.Component {
             );
         }
 
-        var services = [...this.state.firewall.enabledServices].map(id => this.state.firewall.services[id]);
+        var services = [...this.state.firewall.enabledServices].map(id => {
+            const service = this.state.firewall.services[id];
+            service.name = service.name || id;
+            return service;
+        });
         services.sort((a, b) => a.name.localeCompare(b.name));
 
         var enabled = this.state.pendingTarget !== null ? this.state.pendingTarget : this.state.firewall.enabled;

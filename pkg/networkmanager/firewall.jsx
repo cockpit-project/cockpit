@@ -85,9 +85,9 @@ function ServiceRow(props) {
         deleteButton
     ];
 
-    var tabs = [
-        { name: _("Details"), renderer: () => <p>{props.service.description}</p> }
-    ];
+    var tabs = [];
+    if (props.service.description)
+        tabs.push({ name: _("Details"), renderer: () => <p>{props.service.description}</p> });
 
     return <ListingRow key={props.service.id}
                        rowId={props.service.id}

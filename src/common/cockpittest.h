@@ -107,7 +107,7 @@ void     _cockpit_assert_bytes_eq_msg       (const char *domain,
   (_cockpit_assert_bytes_eq_msg (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, (data), (exp), (len)))
 
 
-void            cockpit_test_skip                      (const gchar *reason);
+void            g_test_skip                      (const gchar *reason);
 
 void            cockpit_test_signal_backtrace          (int sig);
 

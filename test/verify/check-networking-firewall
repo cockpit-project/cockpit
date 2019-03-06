@@ -115,6 +115,11 @@ class TestFirewall(MachineCase):
         b.wait_not_present("tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
+        # Test that service without name is shown properly
+        if m.image != "rhel-7-6-distropkg": # Fixed in #11318
+            m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
+            b.wait_present("tr[data-row-id='empty']")
+
         # switch service off again
         b.click(".btn-onoff-ct label.active span")
         b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
@@ -126,6 +131,7 @@ class TestFirewall(MachineCase):
     @skipImage("Filtering got fixed, and IDs changed to data-id in 184", "rhel-7-6-distropkg")
     def testAddServices(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/network/firewall")
 
@@ -164,6 +170,12 @@ class TestFirewall(MachineCase):
         b.wait_not_present("#cockpit_modal_dialog li input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
+
+        # Service without name should appear in the dialog
+        if m.image != "rhel-7-6-distropkg": # Fixed in #11318
+            m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
+            b.click("caption button.btn-primary")
+            b.wait_present("#cockpit_modal_dialog li input[data-id='empty']")
 
 
 if __name__ == '__main__':

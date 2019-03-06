@@ -115,7 +115,8 @@ class SearchInput extends React.Component {
     }
 
     render() {
-        return <input id={this.props.id}
+        return <input autoFocus
+                      id={this.props.id}
                       className={this.props.className}
                       onChange={this.onValueChanged} />;
     }

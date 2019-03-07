@@ -24,10 +24,6 @@ from testlib import *
 
 
 class PackageCase(MachineCase):
-    provision = {
-        "machine1": {"address": "10.111.113.2/20", "dns": "10.111.113.2"}
-    }
-
     def setUp(self):
         super(PackageCase, self).setUp()
 
@@ -49,17 +45,37 @@ class PackageCase(MachineCase):
 
         # disable all existing repositories to avoid hitting the network
         if self.backend == "apt":
-            self.machine.execute("rm -f /etc/apt/sources.list.d/*; echo > /etc/apt/sources.list; apt-get update")
+            self.machine.execute("""
+                mv /etc/apt/sources.list.d /etc/apt/sources.list.d.test;
+                mkdir -p /etc/apt/sources.list.d;
+                mv /etc/apt/sources.list /etc/apt/sources.list.test;
+                touch /etc/apt/sources.list;
+                apt-get update""")
+
+            self.addCleanup(self.machine.execute, """
+                rm -rf /etc/apt/sources.list.d;
+                mv /etc/apt/sources.list.d.test /etc/apt/sources.list.d;
+                mv /etc/apt/sources.list.test /etc/apt/sources.list""")
         else:
-            self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/*")
+            self.machine.execute("""
+                mv /etc/yum.repos.d /etc/yum.repos.d.test;
+                mkdir -p /etc/yum.repos.d;
+                rm -rf /var/cache/yum/* /var/cache/dnf/*""")
+            self.addCleanup(self.machine.execute, """
+                rm -rf /etc/yum.repos.d;
+                mv /etc/yum.repos.d.test /etc/yum.repos.d""")
 
         # have PackageKit start from a clean slate
-        self.machine.execute("systemctl stop packagekit; rm -rf /var/cache/PackageKit")
+        self.machine.execute("""
+            systemctl stop packagekit;
+            rm -rf /var/cache/PackageKit;
+            [ ! -e /var/lib/PackageKit/transactions.db ] || mv /var/lib/PackageKit/transactions.db /var/lib/PackageKit/transactions.db.test""")
+        self.addCleanup(self.machine.execute, "mv /var/lib/PackageKit/transactions.db.test /var/lib/PackageKit/transactions.db 2>/dev/null || true")
 
-        # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
-        # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
-        # network stack; add a bogus default route to coerce it into being "online".
-        self.machine.execute("systemctl stop NetworkManager; ip route add default via 10.111.113.1 dev eth1")
+        if self.image in ["debian-stable", "debian-testing"]:
+            # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
+            self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
+            self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
 
         self.updateInfo = {}
 
@@ -108,6 +124,7 @@ class PackageCase(MachineCase):
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
+        self.addCleanup(self.machine.execute, "dpkg -P --force-depends %s 2>/dev/null || true" % name)
 
     def createRpm(self, name, version, release, requires, post, install, content):
         '''Create a dummy rpm in repo_dir on self.machine
@@ -158,6 +175,7 @@ rm -rf ~/rpmbuild
         if install:
             cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
         self.machine.execute(cmd.format(self.repo_dir, name, version, release))
+        self.addCleanup(self.machine.execute, "rpm -e %s 2>/dev/null || true" % name)
 
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog

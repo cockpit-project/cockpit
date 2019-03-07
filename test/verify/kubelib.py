@@ -61,7 +61,7 @@ class KubernetesCase(testlib.MachineCase):
             """sed -i '/KUBELET_ARGS=/ { s/"$/ --eviction-hard=imagefs.available<0% --eviction-soft=imagefs.available<0%"/ }' /etc/kubernetes/kubelet""")
 
         # HACK: default systemd cgroup driver has been broken for a long time (https://bugzilla.redhat.com/show_bug.cgi?id=1558425)
-        if self.machine.image in ["fedora-29", "fedora-testing"]:
+        if self.machine.image in ["fedora-29", "fedora-30", "fedora-testing"]:
             self.machine.execute("""
 sed -i 's/--cgroup-driver=systemd/--cgroup-driver=cgroupfs/' /etc/kubernetes/kubelet
 sed -i 's/native.cgroupdriver=systemd/native.cgroupdriver=cgroupfs/' /usr/lib/systemd/system/docker.service

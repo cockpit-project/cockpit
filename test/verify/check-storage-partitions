@@ -98,7 +98,8 @@ class TestStorage(StorageCase):
 
         # With old Udisks2 versions, the partition will end up being
         # 25.1M while newer versions give us 26M.
-        wait(lambda: m.execute("lsblk -no SIZE /dev/sda1").strip() in [ "25.1M", "26M" ])
+        wait(lambda: m.execute("lsblk -no SIZE /dev/sda1").strip() in ["25.1M", "26M"])
+
 
 if __name__ == '__main__':
     test_main()

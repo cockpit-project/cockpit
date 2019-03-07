@@ -211,14 +211,6 @@ Unit=test.service
         if m.image == "rhel-7-6-distropkg": # Introduced in #11241
             return
 
-        def select_from_dropdown(value):
-            button_text_selector = "#services-dropdown button span:nth-of-type(1)"
-            item_selector = "#services-dropdown ul li a:contains({0})".format(value)
-            b.click("#services-dropdown button")
-            b.wait_visible(item_selector)
-            b.click(item_selector)
-            b.wait_in_text(button_text_selector, value)
-
         def wait_service_present(service):
             b.wait_present(svc_sel(service))
             b.wait_visible(svc_sel(service))
@@ -230,7 +222,7 @@ Unit=test.service
             b.set_input_text("#services-text-filter", "")
             wait_service_present("test.service")
             wait_service_present("test-fail.service")
-            select_from_dropdown("All")
+            b.select_from_dropdown("#services-dropdown", "All")
 
         b.go("#/")
 
@@ -248,12 +240,12 @@ Unit=test.service
 
         # Select only static services
         init_filter_state()
-        select_from_dropdown("Static")
+        b.select_from_dropdown("#services-dropdown", "Static")
         wait_service_not_present("test.service")
         wait_service_present("test-fail.service")
 
         # Select only disabled services
-        select_from_dropdown("Disabled")
+        b.select_from_dropdown("#services-dropdown", "Disabled")
         wait_service_present("test.service")
         wait_service_not_present("test-fail.service")
 
@@ -268,7 +260,7 @@ Unit=test.service
         wait_service_present("test.service")
         wait_service_present("test-fail.service")
         self.assertEqual(b.val("#services-text-filter"), "")
-        self.assertEqual(b.text("#services-dropdown button span:nth-of-type(1)"), "All")
+        self.assertEqual(b.val("#services-dropdown"), "0")
 
     def testApi(self):
         m = self.machine

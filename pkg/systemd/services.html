@@ -59,8 +59,12 @@
         <li tabindex="0" data-pattern="\.timer$"><a tabindex="0" translatable="yes">Timers</a><li>
         <li tabindex="0" data-pattern="\.path$"><a tabindex="0" translatable="yes">Paths</a><li>
       </ul>
-      <div class="filter-group">
+
+      <div class="content-header-actions">
         <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>
+      </div>
+
+      <div class="filter-group">
         <input type="search" id="services-text-filter" class="form-control" aria-label="Filter" placeholder="Filter by name or description..." translate="placeholder"/>
 
         <select class="ct-select" id="services-dropdown" aria-labelledby="service-automatic-startup-label">

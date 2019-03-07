@@ -1,7 +1,3 @@
-#services > .content-header-extra + .container-fluid {
-    margin-top: 1rem;
-}
-
 #services-page {
     overflow-y: scroll;
 }
@@ -30,28 +26,131 @@ table.systemd-unit-relationship-table td:first-child {
   justify-content: space-between;
 }
 
-#create-timer {
-  margin-right: 1.5rem;
+#services .content-header-actions {
+  margin: 0 1.5rem 0 0;
+}
+
+#services .nav-tabs {
+  border-bottom: none;
+  flex: auto;
+}
+
+#services .nav-tabs > li:not([tabindex]),
+#services .nav-tabs:before,
+#services .nav-tabs:after {
+  /* Hide odd non-tabs */
+  display: none;
+}
+
+.content-header-extra.with-navtabs {
+  padding-bottom: 0;
+}
+
+@media screen and (max-width: 640px) {
+  /*** Make content-header more finger-friendly ***/
+
+  #services .nav-tabs > li {
+    /* Make tabs at least 1/3 width, minus 2px for borders, */
+    /* for better alignment & touchability */
+    min-width: calc(33.333% - 2px);
+    text-align: center;
+  }
+
+  #services .nav-tabs > li > a {
+    /* Add padding to make the tabs more finger friendly */
+    padding: 0.75rem 1.25rem;
+    /* 1px is to compensate for negative margin */
+    width: calc(100% + 1px);
+  }
+
+  /* Stretch the text input to use available width */
+  #services-text-filter {
+    flex: auto;
+  }
+
+  /* Clear header background to allow panel background to shine through */
+  #services-list > .panel thead {
+    background: transparent;
+  }
+
+  /*** Table horizontal overflow & scrolling ***/
+
+  #services-list .table {
+    /* Un-"fix" the widths, to allow it to expand/contract to content */
+    table-layout: auto;
+  }
+
+  #services > .container-fluid {
+    /* Undo the padding, to make the table edge-to-edge (for scrolling) */
+    margin: 0;
+    padding: 0;
+  }
+
+  #services-list thead > tr > th {
+    /* Force table headings to not wrap */
+    white-space: nowrap;
+  }
+
+  #services-list .service-unit-id,
+  #services-list .service-unit-description {
+    /* Make sure first two columns (name and description) have a decent size */
+    min-width: 13em;
+  }
+
+  #services-list .service-unit-id {
+    max-width: 33vw;
+    word-break: break-word;
+  }
+
+  #services-list .service-unit-description {
+    max-width: 50vw;
+  }
+
+  #services-list > .panel > table td:not(.service-unit-id) {
+    /* Collapse metadata into minimum size — and don't wrap */
+    width: auto;
+    white-space: nowrap;
+  }
 }
 
 @media screen and (max-width: 960px) {
-    #services .content-header-extra {
-        flex-direction: column-reverse;
-    }
+  #services .nav-tabs > li.active > a {
+    border-bottom-color: #ddd;
+  }
 
-    #services-filter {
-        padding-top: 10px;
-    }
+  #services .nav-tabs {
+    display: flex;
+    flex-flow: row wrap;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
 
-    .filter-group {
-        display: flex;
-        justify-content: flex-end;
-    }
+  #services .nav-tabs > li {
+    float: none;
+  }
 
-    .filter-group .ct-select,
-    .filter-group .dropdown {
-         margin-left: 4px;
-    }
+  #services .content-header-extra.with-navtabs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    align-items: stretch;
+  }
+
+  #services .filter-group {
+    margin-top: 1rem;
+    display: flex;
+  }
+
+  #services .content-header-actions > button {
+    margin-top: 1rem;
+  }
+}
+
+@media screen and (min-width: 961px) {
+  #services > .content-header-extra + .container-fluid {
+    margin-top: 1rem;
+  }
 }
 
 #services-text-filter {
@@ -66,14 +165,10 @@ table.systemd-unit-relationship-table td:first-child {
   border: initial;
 }
 
-#services .filter-group {
-  align-items: baseline;
-  display: flex;
-}
-
 #services-dropdown {
   margin-left: 0.5rem;
   width: 12em;
+  padding: 0;
 }
 
 #service-type {
@@ -117,16 +212,6 @@ table.systemd-unit-relationship-table td:first-child {
   padding: 8px;
 }
 
-.content-header-extra.with-navtabs {
-    padding-bottom: 0;
-}
-
-
 .service-unit-description {
   width: 40%;
-}
-
-#services .nav-tabs {
-    border-bottom: none;
-    flex: auto;
 }

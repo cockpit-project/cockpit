@@ -25,7 +25,7 @@ BRANCHES = [ 'master', 'rhel-7.6', 'rhel-7.7', 'rhel-8.0', 'rhel-8-appstream' ]
 
 DEFAULT_VERIFY = {
     'avocado/fedora': BRANCHES,
-    'container/kubernetes': BRANCHES,
+    'container/kubernetes': [ 'master', 'rhel-7.6', 'rhel-7.7' ],
     'container/bastion': BRANCHES,
     'selenium/firefox': BRANCHES,
     'selenium/chrome': BRANCHES,

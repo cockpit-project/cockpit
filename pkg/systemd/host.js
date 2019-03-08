@@ -82,7 +82,12 @@ function ServerTime() {
     var time_offset = null;
     var remote_offset = null;
 
+    this.client = client;
+
     self.timedate = timedate;
+
+    this.ntp_waiting_value = null;
+    this.ntp_waiting_resolve = null;
 
     self.timedate1_service = service.proxy("dbus-org.freedesktop.timedate1.service");
     self.timesyncd_service = service.proxy("systemd-timesyncd.service");
@@ -192,6 +197,15 @@ function ServerTime() {
                 });
     };
 
+    self.ntp_updated = function ntp_updated(path, iface, member, args) {
+        if (!self.ntp_waiting_resolve || !args[1].NTP)
+            return;
+        if (self.ntp_waiting_value !== args[1].NTP.v)
+            console.warn("Unexpected value of NTP");
+        self.ntp_waiting_resolve();
+        self.ntp_waiting_resolve = null;
+    };
+
     self.close = function close() {
         client.close();
     };
@@ -266,6 +280,11 @@ PageServer.prototype = {
         $(self.server_time).on("changed", function() {
             $('#system_information_systime_button').text(self.server_time.format(true));
         });
+
+        self.server_time.client.subscribe({
+            'interface': "org.freedesktop.DBus.Properties",
+            'member': "PropertiesChanged"
+        }, self.server_time.ntp_updated);
 
         self.ntp_status_tmpl = $("#ntp-status-tmpl").html();
         mustache.parse(this.ntp_status_tmpl);
@@ -1336,7 +1355,17 @@ PageSystemInformationChangeSystime.prototype = {
         }
 
         function set_ntp(val) {
-            return self.server_time.timedate.call('SetNTP', [val, true]);
+            var promise = new Promise((resolve, reject) => {
+                self.server_time.ntp_waiting_resolve = resolve;
+            });
+            self.server_time.ntp_waiting_value = val;
+            self.server_time.timedate.call('SetNTP', [val, true])
+                    .catch(e => {
+                        self.server_time.ntp_waiting_resolve();
+                        self.ntp_waiting_resolve = null;
+                        console.error(e.message);
+                    });
+            return promise;
         }
 
         if (manual_time) {

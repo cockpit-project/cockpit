@@ -129,19 +129,16 @@ function ServerTime() {
     };
 
     self.update = function update() {
-        return cockpit.spawn(["date", "+%s:%:z"], { err: "message" })
+        return cockpit.spawn(["date", "+%s:%z"], { err: "message" })
                 .done(function(data) {
-                    var parts = data
-                            .trim()
-                            .split(":")
-                            .map(function(x) {
-                                return parseInt(x, 10);
-                            });
-                    if (parts[1] < 0)
-                        parts[2] = -(parts[2]);
-                    var timems = parts[0] * 1000;
-                    var offsetms = (parts[1] * 3600000) + parts[2] * 60000;
-                    var now = new Date();
+                    const parts = data.trim().split(":");
+                    const timems = parseInt(parts[0], 10) * 1000;
+                    let tzmin = parseInt(parts[1].slice(-2), 10);
+                    let tzhour = parseInt(parts[1].slice(0, -2));
+                    if (tzhour < 0)
+                        tzmin = -tzmin;
+                    const offsetms = (tzhour * 3600000) + tzmin * 60000;
+                    const now = new Date();
                     time_offset = (timems - now.valueOf());
                     remote_offset = offsetms;
                     $(self).triggerHandler("changed");

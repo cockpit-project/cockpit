@@ -19,6 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
+import { debounce } from "throttle-debounce";
 
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import * as Select from "cockpit-components-select.jsx";
@@ -255,6 +256,13 @@ export default class AutoUpdates extends React.Component {
         super();
         this.state = { backend: null, pending: false, pendingEnable: null };
         this.initializeBackend();
+        this.debouncedSetConfig = debounce(300, false, (enabled, type, day, time) => {
+            this.state.backend.setConfig(enabled, type, day, time)
+                    .always(() => {
+                        this.debugBackendState("handleChange: setConfig finished");
+                        this.setState({ pending: false, pendingEnable: null });
+                    });
+        });
     }
 
     initializeBackend(forceReinit) {
@@ -278,11 +286,7 @@ export default class AutoUpdates extends React.Component {
     handleChange(enabled, type, day, time) {
         this.debugBackendState(`handleChange(${enabled}, ${type}, ${day}, ${time})`);
         this.setState({ pending: true, pendingEnable: enabled });
-        this.state.backend.setConfig(enabled, type, day, time)
-                .always(() => {
-                    this.debugBackendState("handleChange: setConfig finished");
-                    this.setState({ pending: false, pendingEnable: null });
-                });
+        this.debouncedSetConfig(enabled, type, day, time);
     }
 
     render() {
@@ -306,7 +310,7 @@ export default class AutoUpdates extends React.Component {
                     </span>
 
                     <span className="auto-conf-group">
-                        <Select.Select id="auto-update-day" enabled={!this.state.pending} initial={backend.day}
+                        <Select.Select id="auto-update-day" initial={backend.day}
                                        onChange={ d => this.handleChange(null, null, d, null) }>
                             <Select.SelectEntry data="">{_("every day")}</Select.SelectEntry>
                             <Select.SelectDivider />
@@ -323,7 +327,7 @@ export default class AutoUpdates extends React.Component {
                     <span className="auto-conf-group">
                         <span className="auto-conf-text">{_("at")}</span>
 
-                        <Select.Select id="auto-update-time" enabled={!this.state.pending} initial={backend.time}
+                        <Select.Select id="auto-update-time" initial={backend.time}
                                        onChange={ t => this.handleChange(null, null, null, t) }>
                             { hours.map(h => <Select.SelectEntry key={h} data={h + ":00"}>{('0' + h).slice(-2) + ":00"}</Select.SelectEntry>)}
                         </Select.Select>

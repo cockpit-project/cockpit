@@ -72,13 +72,13 @@ EOF
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [RHEL-8-NIGHTLY-BaseOS]
 name=baseos
-baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8/compose/BaseOS/x86_64/os/
+baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8.0/compose/BaseOS/x86_64/os/
 enabled=1
 gpgcheck=0
 
 [RHEL-8-NIGHTLY-AppStream]
 name=appstream
-baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8/compose/AppStream/x86_64/os/
+baseurl=http://download.devel.redhat.com/rhel-8/nightly/RHEL-8/latest-RHEL-8.0/compose/AppStream/x86_64/os/
 enabled=1
 gpgcheck=0
 EOF
@@ -86,7 +86,7 @@ EOF
         dnf module enable -y idm:client
     fi
 
-    if [ "$IMAGE" != "rhel-8-0" ]; then
+    if [ "${IMAGE#rhel-7*}" != "$IMAGE" ]; then
         # needed for atomic-openshift-clients
         yum-config-manager --enable rhel-7-server-ose-3.9-rpms
 
@@ -170,14 +170,12 @@ if [ "$IMAGE" == "rhel-7-6" ]; then
     # needed for composer testing
     TEST_PACKAGES="${TEST_PACKAGES} gcc-c++ lorax-composer"
 fi
-if [ "$IMAGE" = "rhel-8-0" ]; then
+if [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     TEST_PACKAGES="${TEST_PACKAGES} dnf-automatic"
-    # some packages are still missing from RHEL 8
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1567740
+    # Atomic/docker are not on RHEL 8
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
-    # docker is not a rhel-8-0 thing (https://bugzilla.redhat.com/show_bug.cgi?id=1602951)
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
     COCKPIT_DEPS="${COCKPIT_DEPS} podman"
     COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-daemon-kvm libvirt-dbus"
@@ -243,7 +241,7 @@ config_opts['chroothome'] = '/builddir'
 config_opts['use_host_resolv'] = False
 config_opts['basedir'] = '/var/lib/mock'
 config_opts['rpmbuild_timeout'] = 86400
-config_opts['yum.conf'] = '[main]\\ncachedir=/var/cache/yum\\ndebuglevel=1\\nlogfile=/var/log/yum.log\\nreposdir=/dev/null\\nretries=20\\nobsoletes=1\\ngpgcheck=0\\nassumeyes=1\\nkeepcache=1\\ninstall_weak_deps=0\\nstrict=1\\n\\n# repos\\n\\n[build]\\nname=build\\nbaseurl=http://download.devel.redhat.com/brewroot/repos/rhel-8.0-go-toolset-build/latest/x86_64\\n'
+config_opts['yum.conf'] = '[main]\\ncachedir=/var/cache/yum\\ndebuglevel=1\\nlogfile=/var/log/yum.log\\nreposdir=/dev/null\\nretries=20\\nobsoletes=1\\ngpgcheck=0\\nassumeyes=1\\nkeepcache=1\\ninstall_weak_deps=0\\nstrict=1\\n\\n# repos\\n\\n[build]\\nname=build\\nbaseurl=http://download.devel.redhat.com/brewroot/repos/rhel-8.0.0-build/latest/x86_64/\\n'
 config_opts['chroot_setup_cmd'] = 'groupinstall build'
 config_opts['target_arch'] = 'x86_64'
 config_opts['root'] = u'rhel-8.0-candidate-x86_64'
@@ -318,12 +316,6 @@ fi
 # Fixed in parted-3.1-23.el7
 #
 systemctl disable kdump.service
-
-if [ "$IMAGE" = "rhel-8-0" ]; then
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1600823
-    # dnf-makecache.timer causes dependency loops and excessive boot times
-    systemctl disable dnf-makecache.timer
-fi
 
 # Install node for external Composer tests, they use our rhel-* images
 if [ "$IMAGE" = "rhel-7-6" ]; then

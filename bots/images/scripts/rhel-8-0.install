@@ -7,7 +7,3 @@ set -e
 rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
 
 /var/lib/testvm/fedora.install --rhel "$@"
-
-# HACK: work around https://bugzilla.redhat.com/show_bug.cgi?id=1637875: net.ifnames=0 is ignored
-touch /etc/udev/rules.d/80-net-setup-link.rules
-dracut --force

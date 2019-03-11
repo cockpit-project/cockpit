@@ -913,14 +913,17 @@ class MachineCase(unittest.TestCase):
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979
             # The bug is closed and for old release but should be here as reference for the solutions
             # It suggests configure auditd to dontaudit these messages since selinux can't offer whitelisting this directory for qemu process
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-system-x86" .* dev="proc" .*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-system-x86" .* dev="proc" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')
 
         if self.image in ['rhel-8-0']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { setsched } for .* comm="rngd".*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1679468
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { signull } for .* comm="systemd-journal".*')
+            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979 (see above)
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
+            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')
 
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
         if self.image in ["debian-stable"]:

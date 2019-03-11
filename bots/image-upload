@@ -47,6 +47,7 @@ def upload(store, source):
     cmd = ["curl", "--progress-bar", "--cacert", ca, "--fail", "--upload-file", source ]
 
     def try_curl(cmd):
+        print("Uploading to", cmd[-1])
         # Passing through a non terminal stdout is necessary to make progress work
         curl = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         cat = subprocess.Popen(["cat"], stdin=curl.stdout)

@@ -2400,11 +2400,7 @@ PageNetworkInterface.prototype = {
             // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
             // https://github.com/cockpit-project/cockpit/issues/10956
             // eslint-disable-next-line cockpit/no-cockpit-all
-            return cockpit.all(con.delete_(),
-                               // eslint-disable-next-line cockpit/no-cockpit-all
-                               cockpit.all(con.Slaves.map(function (s) {
-                                   return free_slave_connection(s);
-                               })));
+            return cockpit.all(con.Slaves.map(s => free_slave_connection(s))).then(() => con.delete_());
         }
 
         function delete_connections(cons) {

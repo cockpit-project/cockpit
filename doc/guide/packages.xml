@@ -97,20 +97,6 @@ $ cockpit-bridge --packages
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>dashboard</term>
-        <listitem><para>An optional JSON object containing any dashboard items that this package
-          provides. These will be added into the Cockpit user interface on the top bar.
-          Each property on this object is named for the identifier of such an item, and the
-          property value is a JSON object described below.</para></listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>menu</term>
-        <listitem><para>An optional JSON object containing any main menu items that this package
-          provides. These will be added into the Cockpit user interface on the side bar.
-          Each property on this object is named for the identifier of such an item, and the
-          property value is a JSON object described below.</para></listitem>
-      </varlistentry>
-      <varlistentry>
         <term>name</term>
         <listitem><para>An optional string that changes the name of the package. Normally
           packages derive their name from the directory that they are located in. This
@@ -129,15 +115,41 @@ $ cockpit-bridge --packages
           and javascript base are equal or newer than the given version number.</para></listitem>
       </varlistentry>
       <varlistentry>
-        <term>tools</term>
-        <listitem><para>An optional JSON object containing all the tools that this package
-          provides. These will be added into the Cockpit user interface under the 'Tools' menu.
-          Each property on this object is named for the identifier of such a tool, and the
-          property value is a JSON object described below.</para></listitem>
-      </varlistentry>
-      <varlistentry>
         <term>version</term>
         <listitem><para>An informational version number for the package.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>In addition, the following keys contain information about where components of the package
+      should appear in Cockpit's user interface. Each of these keys is optional and contains an
+      object mapping unique identifiers to menu items, which are described below. (The naming of
+      these fields doesn't perfectly match the current user interface for historical reasons.)
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>dashboard</term>
+        <listitem><para>Dashboard items appear in the leftmost navigation bar, next to Cockpit's
+        <emphasis>Dashboard</emphasis> and the machines themselves.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>menu</term>
+        <listitem><para>These items appear in the sidebar for an individual machine.
+          This section is roughly ordered into these categories (with their
+          <emphasis>order</emphasis> in parentheses):
+          <itemizedlist>
+            <listitem><para>System Information (10)</para></listitem>
+            <listitem><para>Logs (20)</para></listitem>
+            <listitem><para>Configuring major subsystems (30-40)</para></listitem>
+            <listitem><para>Things running on the machine (VMs, Containers - 50-60)</para></listitem>
+            <listitem><para>Implementation Details (Accounts, Services - 70-100)</para></listitem>
+          </itemizedlist></para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>tools</term>
+        <listitem><para>These items also appear in the sidebar for an individual machine, but are 
+        put in a lower position, next to Cockpit's <emphasis>Terminal</emphasis>.
+        </para></listitem>
       </varlistentry>
     </variablelist>
 

@@ -941,7 +941,7 @@ class MachineCase(unittest.TestCase):
             # Fedora 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
-        if self.image in ['rhel-8-0']:
+        if self.image in ['rhel-8-0', 'rhel-8-1']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979 (see above)
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')

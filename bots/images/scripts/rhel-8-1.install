@@ -1,0 +1,9 @@
+#! /bin/bash
+
+set -e
+
+# remove cockpit distro packages, testing with upstream master
+# subscription-manager-cockpit needs these, thus --nodeps
+rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
+
+/var/lib/testvm/fedora.install --rhel "$@"

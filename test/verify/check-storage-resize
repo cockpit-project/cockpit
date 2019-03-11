@@ -117,7 +117,7 @@ class TestStorage(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0")
+    @skipImage("No NTFS support installed", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-1")
     def testResizeNtfs(self):
         self.checkResize("ntfs",
                          can_shrink=True, shrink_needs_unmount=True,
@@ -125,12 +125,12 @@ class TestStorage(StorageCase):
 
     def testResizeLuks(self):
         # Only newer versions of UDisks support resizing encrypted block devices
-        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "fedora-29",
+        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-1", "fedora-29",
                                   "fedora-30", "fedora-testing", "fedora-i386", "debian-testing", "centos-7"]:
             self.checkResize("luks+ext4",
                              can_shrink=True, shrink_needs_unmount=True,
                              can_grow=True, grow_needs_unmount=False,
-                             need_passphrase=(self.machine.image == "rhel-8-0"))
+                             need_passphrase=(self.machine.image in ["rhel-8-0", "rhel-8-1"]))
         else:
             self.checkResize("luks+ext4",
                              can_shrink=False,
@@ -254,7 +254,7 @@ class TestStorage(StorageCase):
             self.dialog_wait_close()
 
         self.content_tab_action(2, 2, "Grow Content")
-        if self.machine.image == "rhel-8-0":
+        if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(warning_tab)
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
@@ -269,7 +269,7 @@ class TestStorage(StorageCase):
         warning_tab = self.content_tab_expand(2, 2)
 
         self.content_tab_action(2, 2, "Shrink Volume")
-        if self.machine.image == "rhel-8-0":
+        if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(warning_tab)
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
@@ -282,7 +282,7 @@ class TestStorage(StorageCase):
         warning_tab = self.content_tab_expand(2, 2)
 
         self.content_tab_action(2, 2, "Grow Content")
-        if self.machine.image == "rhel-8-0":
+        if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(warning_tab)
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
@@ -297,7 +297,7 @@ class TestStorage(StorageCase):
         warning_tab = self.content_tab_expand(2, 2)
 
         self.content_tab_action(2, 2, "Shrink Volume")
-        if self.machine.image == "rhel-8-0":
+        if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
         self.wait_not_present_with_udev_trigger(warning_tab)
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))

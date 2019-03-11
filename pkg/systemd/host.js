@@ -1359,11 +1359,21 @@ PageSystemInformationChangeSystime.prototype = {
                 self.server_time.ntp_waiting_resolve = resolve;
             });
             self.server_time.ntp_waiting_value = val;
-            self.server_time.timedate.call('SetNTP', [val, true])
-                    .catch(e => {
-                        self.server_time.ntp_waiting_resolve();
-                        self.ntp_waiting_resolve = null;
-                        console.error(e.message);
+            self.server_time.client.call(self.server_time.timedate.path,
+                                         "org.freedesktop.DBus.Properties", "Get", [ "org.freedesktop.timedate1", "NTP" ])
+                    .done(function(result) {
+                        // Check if don't want to enable enabled or disable disabled
+                        if (result[0].v === val) {
+                            self.server_time.ntp_waiting_resolve();
+                            self.ntp_waiting_resolve = null;
+                            return;
+                        }
+                        self.server_time.timedate.call('SetNTP', [val, true])
+                                .catch(e => {
+                                    self.server_time.ntp_waiting_resolve();
+                                    self.ntp_waiting_resolve = null;
+                                    console.error(e.message);
+                                });
                     });
             return promise;
         }

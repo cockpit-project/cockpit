@@ -1277,6 +1277,14 @@ export function changeNetworkAutostart(network, autostart, dispatch) {
             .then(() => dispatch(getNetwork({ connectionName: network.connectionName, id: network.id, name: network.name })));
 }
 
+export function networkActivate(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.Network', 'Create', [], TIMEOUT);
+}
+
+export function networkDeactivate(connectionName, objPath) {
+    return call(connectionName, objPath, 'org.libvirt.Network', 'Destroy', [], TIMEOUT);
+}
+
 export function storagePoolActivate(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
 }

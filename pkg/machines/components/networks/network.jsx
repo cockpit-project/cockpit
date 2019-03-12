@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'patternfly-react';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -25,12 +26,29 @@ import {
     networkId
 } from '../../helpers.js';
 import { NetworkOverviewTab } from './networkOverviewTab.jsx';
+import {
+    networkActivate,
+    networkDeactivate
+} from '../../libvirt-dbus.js';
 
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
 export class Network extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            actionError: undefined,
+            actionErrorDetail: undefined
+        };
+        this.actionErrorSet = this.actionErrorSet.bind(this);
+    }
+
+    actionErrorSet(error, detail) {
+        this.setState({ actionError: error, actionErrorDetail: detail });
+    }
+
     render() {
         const { dispatch, network } = this.props;
         const idPrefix = `${networkId(network.name, network.connectionName)}`;
@@ -48,6 +66,7 @@ export class Network extends React.Component {
             </span>);
         const state = (
             <React.Fragment>
+                { this.state.actionError && <span className='pficon-warning-triangle-o machines-status-alert' /> }
                 <span id={`${idPrefix}-state`}>
                     { network.active ? _("active") : _("inactive") }
                 </span>
@@ -70,14 +89,18 @@ export class Network extends React.Component {
             {
                 name: overviewTabName,
                 renderer: NetworkOverviewTab,
-                data: { network, dispatch }
+                data: { network, dispatch, actionError: this.state.actionError,
+                        actionErrorDetail: this.state.actionErrorDetail,
+                        onActionErrorDismiss: () => { this.setState({ actionError:  undefined }) }
+                }
             },
         ];
 
         return (
             <ListingRow rowId={idPrefix}
                 columns={cols}
-                tabRenderers={tabRenderers} />
+                tabRenderers={tabRenderers}
+                listingActions={<NetworkActions actionErrorSet={this.actionErrorSet} network={network} />} />
         );
     }
 }
@@ -86,3 +109,40 @@ Network.propTypes = {
     dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
 };
+
+class NetworkActions extends React.Component {
+    constructor() {
+        super();
+        this.onActivate = this.onActivate.bind(this);
+        this.onDeactivate = this.onDeactivate.bind(this);
+    }
+
+    onActivate() {
+        networkActivate(this.props.network.connectionName, this.props.network.id)
+                .fail(exc => this.props.actionErrorSet(_("Network failed to get activated"), exc.message));
+    }
+
+    onDeactivate() {
+        networkDeactivate(this.props.network.connectionName, this.props.network.id)
+                .fail(exc => this.props.actionErrorSet(_("Network failed to get deactivated"), exc.message));
+    }
+
+    render() {
+        const network = this.props.network;
+        const id = networkId(network.name, network.connectionName);
+
+        return (
+            <React.Fragment>
+                { network.active &&
+                <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
+                    {_("Deactivate")}
+                </Button> }
+                { !network.active &&
+                <Button id={`activate-${id}`} onClick={this.onActivate}>
+                    {_("Activate")}
+                </Button>
+                }
+            </React.Fragment>
+        );
+    }
+}

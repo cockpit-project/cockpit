@@ -51,10 +51,12 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
         yum-config-manager --enable rhel-7-server-extras-rpms
 
     elif [ "$IMAGE" = "rhel-7-7" ]; then
+        # HACK: No Extras 7.7 nightly repo yet
 cat <<EOF > /etc/yum.repos.d/nightly.repo
-[EXTRAS-7.7-LATEST]
+[EXTRAS-7.6-LATEST]
 name=rhel-extras-compose
-baseurl=http://download.devel.redhat.com/nightly/EXTRAS-RHEL-7.7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/os/
+#baseurl=http://download.devel.redhat.com/nightly/EXTRAS-RHEL-7.7/latest-EXTRAS-7.7-RHEL-7/compose/Server/x86_64/os/
+baseurl=http://download.devel.redhat.com/rhel-7/rel-eng/EXTRAS-7/latest-EXTRAS-7.6-RHEL-7/compose/Server/x86_64/os/
 enabled=1
 gpgcheck=0
 
@@ -163,10 +165,10 @@ if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
-if [ "$IMAGE" == "rhel-7-6" ] || [ "$IMAGE" == "centos-7" ]; then
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "$IMAGE" == "centos-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
 fi
-if [ "$IMAGE" == "rhel-7-6" ]; then
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     # needed for composer testing
     TEST_PACKAGES="${TEST_PACKAGES} gcc-c++ lorax-composer"
 fi
@@ -318,7 +320,7 @@ fi
 systemctl disable kdump.service
 
 # Install node for external Composer tests, they use our rhel-* images
-if [ "$IMAGE" = "rhel-7-6" ]; then
+if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     NODE_VERSION="8.12.0"
     # key 7E37093B: public key "Christopher Dickinson <christopher.s.dickinson@gmail.com>" imported
     # key DBE9B9C5: public key "Colin Ihrig <cjihrig@gmail.com>" imported

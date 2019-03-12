@@ -677,16 +677,12 @@ class VirtMachine(Machine):
         self.message(output.strip())
         return output
 
-    def add_netiface(self, networking=None, vlan=0):
+    def add_netiface(self, networking=None):
         if not networking:
             networking = VirtNetwork().interface()
-        cmd = "device_add virtio-net-pci,mac={0}".format(networking["mac"])
-        if vlan == 0:
-            self._qemu_monitor("netdev_add socket,mcast=230.0.0.1:{mcast},id={id}".format(mcast=networking["mcast"], id=networking["hostnet"]))
-            cmd += ",netdev={id}".format(id=networking["hostnet"])
-        else:
-            cmd += ",vlan={vlan}".format(vlan=vlan)
-        self._qemu_monitor(cmd)
+        self._qemu_monitor("netdev_add socket,mcast=230.0.0.1:{mcast},id={id}".format(mcast=networking["mcast"], id=networking["hostnet"]))
+        cmd = "device_add virtio-net-pci,mac={0},netdev={1}".format(networking["mac"], networking["hostnet"])
+        self._qemu_monitor("device_add virtio-net-pci,mac={0},netdev={1}".format(networking["mac"], networking["hostnet"]))
         return networking["mac"]
 
     def needs_writable_usr(self):

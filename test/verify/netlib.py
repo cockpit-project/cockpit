@@ -66,9 +66,9 @@ class NetworkCase(MachineCase):
         print("%s -> %s" % (mac, iface))
         return iface
 
-    def add_iface(self, mac=None, vlan=0, activate=True):
+    def add_iface(self, activate=True):
         m = self.machine
-        mac = m.add_netiface(networking=self.network.interface(), vlan=vlan)
+        mac = m.add_netiface(networking=self.network.interface())
         # Wait for the interface to show up
         self.get_iface(m, mac)
         # Trigger udev to make sure that it has been renamed to its final name

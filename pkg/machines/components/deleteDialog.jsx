@@ -31,16 +31,18 @@ const _ = cockpit.gettext;
 const DeleteDialogBody = ({ disks, destroy, onChange }) => {
     function disk_row(disk, index) {
         return (
-            <tr key={disk.target}>
-                <td>
-                    <input type="checkbox" checked={disk.checked}
-                           onChange={(event) => {
-                               onChange(index, event.target.checked);
-                           }} />
-                </td>
-                <td>{disk.file}</td>
-                <td>{disk.target}</td>
-            </tr>
+            <li className='list-group-item' key={disk.target}>
+                <div className='checkbox disk-row'>
+                    <label>
+                        <input type="checkbox" checked={disk.checked}
+                            onChange={(event) => {
+                                onChange(index, event.target.checked);
+                            }} />
+                        <strong>{disk.target}</strong>
+                        <div className='disk-file'>{disk.file}</div>
+                    </label>
+                </div>
+            </li>
         );
     }
 
@@ -51,14 +53,14 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
     let disksBody = null;
     if (disks.length > 0)
         disksBody = (
-            <div>
+            <React.Fragment>
                 <p>{_("Delete associated storage files:")}</p>
-                <table className="table delete-dialog-disks">
-                    <tbody>
+                <form>
+                    <ul className="list-group dialog-list-ct">
                         { disks.map(disk_row) }
-                    </tbody>
-                </table>
-            </div>
+                    </ul>
+                </form>
+            </React.Fragment>
         );
 
     return (

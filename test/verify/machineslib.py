@@ -916,7 +916,7 @@ class TestMachines(MachineCase):
 
         b.wait_present("#vm-{0}-delete-modal-dialog".format(name))
         b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
-        b.wait_present("#vm-{1}-delete-modal-dialog tr:contains({0})".format(img2, name))
+        b.wait_present("#vm-{1}-delete-modal-dialog .disk-file:contains({0})".format(img2, name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 

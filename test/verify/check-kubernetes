@@ -40,8 +40,8 @@ class TestKubernetes(kubelib.KubernetesCase, kubelib.KubernetesCommonTests):
 
         m.upload(["verify/files/mock-k8s-tiny-app.json"], "/tmp")
         self.wait_api_server()
-        # HACK: https://github.com/cockpit-project/cockpit/issues/9179 ; fix this
-        # in docker-images.setup instead and rebuild images
+        # HACK: https://github.com/cockpit-project/cockpit/issues/9179 ; fixed
+        # in docker-images.setup, drop this after all images got rebuilt
         m.execute("docker tag gcr.io/google_containers/pause-amd64:3.0 k8s.gcr.io/pause-amd64:3.1 || true")
 
 

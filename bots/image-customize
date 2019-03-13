@@ -35,7 +35,8 @@ parser = argparse.ArgumentParser(
     )
 parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
 parser.add_argument('-i', '--install', action='append', dest="packagelist", default=[], help='Install packages')
-parser.add_argument('-I', '--install-command', action='store', dest="installcommand", default="yum -y install",
+parser.add_argument('-I', '--install-command', action='store', dest="installcommand",
+                    default="yum --setopt=skip_missing_names_on_install=False -y install",
                                                help="Command used to install packages in machine")
 parser.add_argument('-r', '--run-command', action='append', dest="commandlist",
                                            default=[], help='Run command inside virtual machine')

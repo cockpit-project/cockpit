@@ -3,6 +3,8 @@
 set -e
 IMAGE="$1"
 
+YUM_INSTALL="yum --setopt=skip_missing_names_on_install=False -y install"
+
 # HACK - virt-resize might not be able to resize our xfs rootfs,
 # depending on how it was compiled and which plugins are installed,
 # and will just silently not do it.  So we do it here.
@@ -46,7 +48,7 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
 
     if [ "$IMAGE" = "rhel-7-6" ]; then
         # if disabling the repos doesn't work, do without
-        yum -y --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms install yum-utils || yum -y install yum-utils
+        $YUM_INSTALL --disablerepo=rhel-7-server-htb-rpms --disablerepo=rhel-sjis-for-rhel-7-server-rpms yum-utils || $YUM_INSTALL yum-utils
         yum-config-manager --enable rhel-7-server-optional-rpms
         yum-config-manager --enable rhel-7-server-extras-rpms
 
@@ -68,7 +70,7 @@ gpgcheck=0
 EOF
         # disable all default repos as they don't exist yet
         sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
-        yum -y install yum-utils
+        $YUM_INSTALL yum-utils
 
     elif [ "$IMAGE" = "rhel-8-0" ]; then
 cat <<EOF > /etc/yum.repos.d/nightly.repo
@@ -193,29 +195,16 @@ if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "${IMAGE#centos-7}" != "$IMAGE" ] ; th
 fi
 
 pkgs="$TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES"
-yum install -y $pkgs
+$YUM_INSTALL $pkgs
 
 # Pre-install cockpit packages from base preinstalled, to check for API breakages
 # and more convenient interactive debugging
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "${IMAGE#centos-7}" != "$IMAGE" ] ; then
-    yum install -y cockpit
+    $YUM_INSTALL cockpit
 else
     # >= 8 supports weak dependencies
     sudo dnf --setopt=install_weak_deps=False install -y cockpit
 fi
-
-# the above silently skips over unknown packages, so make sure we got everything
-set +x
-installed=$(rpm -qa --queryformat '%{NAME}\n')
-error=
-for pkg in $pkgs; do
-    if ! echo $pkg | grep -qF "$installed"; then
-        echo "ERROR: package $pkg is not installed" >&2
-        error=1
-    fi
-done
-[ -z "$error" ] || exit 1
-set -x
 
 # For debugging udisks/storaged crashes
 debuginfo-install -y udisks2
@@ -256,7 +245,7 @@ EOF
         if [ ! -f "$SKIP_REPO_FLAG" ]; then
             mkdir /tmp/dep
             cd /tmp/dep
-            yum -y install wget
+            $YUM_INSTALL wget
             wget -T 15 -t 4 http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
             yum -y remove wget
             rpm -Uvh epel-release-*.rpm
@@ -264,7 +253,7 @@ EOF
             rm -rf /tmp/dep
         fi
 
-        yum -y install rpm-build mock
+        $YUM_INSTALL rpm-build mock
 
         # disable epel again
         yum-config-manager --disable 'epel*'

@@ -21,6 +21,7 @@
 import parent
 from storagelib import *
 from testlib import *
+from time import sleep
 
 
 def info_field(name, image_name):
@@ -161,6 +162,11 @@ class TestStorage(StorageCase):
                           "QEMU QEMU HARDDISK (DISK3)": "In Sync"})
 
         wait_degraded_state(False)
+
+        # HACK - wait a bit before stopping newly created device
+        # https://github.com/storaged-project/udisks/issues/643
+        if m.image == "debian-testing":
+            sleep(10)
 
         # Turn it off and on again
         self.raid_default_action("Stop")

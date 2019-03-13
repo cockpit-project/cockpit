@@ -5,12 +5,12 @@ from testlib_avocado.seleniumlib import clickable, visible
 class MachinesNonrootTestSuite(MachinesLib):
     '''
     :avocado: enable
-    :avocado: tags=machines_nonroot
+    :avocado: tags=machines
     '''
 
     def testNoneRootOperationWithVm(self):
-        self.create_vm()
-
+        name = 'staticvm'
+        self.create_vm(name)
 
         self.machine.execute(
             'useradd auto && echo "auto" | passwd --stdin auto')

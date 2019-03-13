@@ -79,16 +79,18 @@ class MachinesOverviewTestSuite(MachinesLib):
         self.vcpuConfigureAndCheck('running', '16', '8', '2', '4', '2')
 
     def testVcpuUsageOff(self):
-        self.create_vm(state='shut off')
+        name = 'staticvm'
+        self.create_vm(name, state='shut off')
 
-        self.click(self.wait_css('#vm-staticvm-usage', cond=clickable))
+        self.click(self.wait_css('#vm-{}-usage'.format(name), cond=clickable))
         self.assertEqual(self.wait_css('#chart-donut-1 .donut-title-big-pf', cond=visible).text, '0.0')
 
     @skipIf('can not get the cpu usage')
     def testVcpuUsageRunning(self):
-        self.create_vm()
+        name = 'staticvm'
+        self.create_vm(name)
 
-        self.click(self.wait_css('#vm-staticvm-usage', cond=clickable))
+        self.click(self.wait_css('#vm-{}-usage'.format(name), cond=clickable))
         # # wait for appearing the data
         sleep(15)
         self.assertNotEqual(self.wait_css('#chart-donut-1 .donut-title-big-pf', cond=visible).text, '0.0')

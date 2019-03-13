@@ -87,7 +87,7 @@ class MachinesLib(SeleniumTest):
     :avocado: disable
     """
 
-    def create_vm(self, name='staticvm', graphics='spice', ptyconsole=False, state='running', wait=False):
+    def create_vm(self, name, graphics='spice', ptyconsole=False, state='running', wait=False):
         self.virshvm = name
 
         img = "{}/cirros.qcow2".format(SYS_POOL_PATH)
@@ -198,56 +198,12 @@ class MachinesLib(SeleniumTest):
                 && sudo virsh vol-create-as {mypool} {mypool}disk1 --capacity 1G --format qcow2 \
                 && sudo virsh vol-create-as {mypool} {mypool}disk2 --capacity 1G --format qcow2'.format(apool='apool', mypool='mypool'))
 
-    def create_vm_on_ui(self,
-                        name='vmOnUI',
-                        connection_type=None,
-                        source_type=None,
-                        source='/var/lib/libvirt/images/cirros.qcow2',
-                        os_vendor=None,
-                        os=None,
-                        mem=None,
-                        mem_unit='G',
-                        storage=None,
-                        storage_unit='G',
-                        imme=False):
-        self.vmlist.append(name)
-        self.click(self.wait_css('#create-new-vm', cond=clickable))
-
-        if connection_type:
-            pass
-        else:
-            pass
-        self.send_keys(self.wait_css('#vm-name'), name)
-        if source_type:
-            self.click(self.wait_css('#source-type', cond=clickable))
-            self.click(self.wait_css('#source-type li:nth-child(2) a', cond=clickable))
-            self.send_keys(self.wait_css('#source-url'), source)
-        else:
-            self.send_keys(self.wait_css('#source-file input'), source)
-        if os_vendor:
-            self.click(self.wait_css('#vendor-select .caret', cond=clickable))
-            self.click(self.wait_css('#vendor-select li[data-value={}] a'.format(os_vendor), cond=clickable))
-        if os:
-            self.click(self.wait_css('#system-select .caret', cond=clickable))
-            self.click(self.wait_css('#system-select li[data-value*="{}"] a'.format(os)))
-        if mem:
-            self.send_keys(self.wait_css('#memory-size'), mem)
-        if mem_unit != 'G':
-            self.click(self.wait_css('#memory-size-unit-select > button', cond=clickable))
-            self.click(self.wait_css('#memory-size-unit-select li:nth-child(1) a'))
-        if storage:
-            self.send_keys(self.wait_css('#storage-size'), storage)
-        if storage_unit != 'G':
-            self.click(self.wait_css('#storage-size-unit-select button', cond=clickable))
-            self.click(self.wait_css('#storage-size-unit-select li:nth-child(1) a', cond=clickable))
-        if imme:
-            self.click(self.wait_css('#start-vm', cond=clickable))
-        # for waiting the element has right input
-        sleep(2)
-        self.click(self.wait_css('#create-vm-dialog .btn-primary', cond=clickable))
-        self.wait_dialog_disappear()
-
     def wait_dialog_disappear(self):
+        # loop for the dialog disappear and it will break after trying with 40 times
+        count = 0
         while self.wait_css('#app').get_attribute('aria-hidden'):
-            pass
+            if count == self.default_try:
+                break
+            count += 1
+        # sleep for the quick disappearing
         sleep(1)

@@ -39,7 +39,7 @@ const _ = cockpit.gettext;
 
 /** One VM in the list (a row)
  */
-const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onForceoff, onReboot, onForceReboot,
+const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
               onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks }) => {
     const defaultTabName = 'overview';
     const stateAlert = (
@@ -106,6 +106,8 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
             onReboot,
             onForceReboot,
             onShutdown,
+            onPause,
+            onResume,
             onForceoff,
             onSendNMI,
         })} />);
@@ -118,6 +120,8 @@ Vm.propTypes = {
     hostDevices: PropTypes.object.isRequired,
     onStart: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,
+    onPause: PropTypes.func.isRequired,
+    onResume: PropTypes.func.isRequired,
     onForceoff: PropTypes.func.isRequired,
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,

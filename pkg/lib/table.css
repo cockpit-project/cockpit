@@ -48,36 +48,43 @@
 }
 
 /* Make things line up */
-.table tbody tr td:first-child,
-.table thead tr th:first-child {
-    padding-left: 15px;
+.table tbody tr > :first-child,
+.table thead tr > :first-child {
+    padding-left: 1.5rem;
 }
 
-.table tbody tr td:last-child,
-.table thead tr th:last-child {
-    padding-right: 15px;
+.table tbody tr > :last-child,
+.table thead tr > :last-child {
+    padding-right: 1.5rem;
+}
+
+.info-table-ct > tbody > tr > th,
+.info-table-ct > tr > td,
+.info-table-ct > tbody > tr > td {
+    line-height: 26px;
+    vertical-align: baseline;
+}
+
+.info-table-ct > tr > th,
+.info-table-ct > tr > td,
+.info-table-ct > tbody > tr > th,
+.info-table-ct > tbody > tr > td {
+    padding-bottom: 0.5rem;
 }
 
 .info-table-ct > tr > td,
 .info-table-ct > tbody > tr > td {
-    white-space: nowrap;
     overflow: hidden;
+    padding-left: 1rem;
     text-overflow: ellipsis;
-    padding-left: 0.75em;
-    padding-top: 0.25em;
-    vertical-align: top;
-    line-height: 26px;
+    white-space: nowrap;
 }
 
+.info-table-ct > tbody > tr > th,
 .info-table-ct > tr > td:first-child,
 .info-table-ct > tbody > tr > td:first-child {
+    font-weight: 600;
     text-align: right;
-    color: #888888;
-}
-
-.info-table-ct > tr > td:not(:first-child),
-.info-table-ct > tbody > tr > td:not(:first-child) {
-    color: black;
 }
 
 .info-table-ct > tr > td button,
@@ -97,6 +104,7 @@
     line-height: 26px;
 }
 
+
 .form-table-ct td.top {
     vertical-align: top;
 }
@@ -104,9 +112,10 @@
 .form-table-ct td:first-child {
     text-align: right;
     white-space: nowrap;
-    color: #888888;
+    font-weight: 600;
     width: 5px; /* will be expanded by nowrap */
 }
+
 
 .form-table-ct td[colspan] {
     text-align: inherit;

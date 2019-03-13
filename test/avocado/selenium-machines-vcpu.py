@@ -1,4 +1,6 @@
 from selenium.webdriver.support.select import Select
+from time import sleep
+from avocado import skipIf
 from testlib_avocado.seleniumlib import clickable, invisible, visible, text_in
 from testlib_avocado.machineslib import MachinesLib
 from testlib_avocado.timeoutlib import wait
@@ -75,3 +77,18 @@ class MachinesOverviewTestSuite(MachinesLib):
 
     def testVcpuConfig1(self):
         self.vcpuConfigureAndCheck('running', '16', '8', '2', '4', '2')
+
+    def testVcpuUsageOff(self):
+        self.create_vm(state='shut off')
+
+        self.click(self.wait_css('#vm-staticvm-usage', cond=clickable))
+        self.assertEqual(self.wait_css('#chart-donut-1 .donut-title-big-pf', cond=visible).text, '0.0')
+
+    @skipIf('can not get the cpu usage')
+    def testVcpuUsageRunning(self):
+        self.create_vm()
+
+        self.click(self.wait_css('#vm-staticvm-usage', cond=clickable))
+        # # wait for appearing the data
+        sleep(15)
+        self.assertNotEqual(self.wait_css('#chart-donut-1 .donut-title-big-pf', cond=visible).text, '0.0')

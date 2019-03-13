@@ -233,7 +233,7 @@ class SSHConnection(object):
             self._start_ssh_master()
 
     def execute(self, command=None, script=None, input=None, environment={},
-                stdout=None, quiet=False, direct=False, timeout=120,
+                stdout=None, quiet=False, direct=False, timeout=120,raising=True,
                 ssh_env=["env", "-u", "LANGUAGE", "LC_ALL=C"]):
         """Execute a shell command in the test machine and return its output.
 
@@ -342,7 +342,7 @@ class SSHConnection(object):
                             proc.stdin.close()
             proc.wait()
 
-        if proc.returncode != 0:
+        if proc.returncode != 0 and raising:
             raise subprocess.CalledProcessError(proc.returncode, command, output=output)
         return output
 

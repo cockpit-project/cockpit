@@ -16,8 +16,12 @@ yum -y install $CANDLEPIN_DEPS
 
 # Check out candlepin; HACK: newer releases split out Ansible roles to
 # https://github.com/candlepin/ansible-role-candlepin, but these playbooks are
-# completely broken with Ansible 2.6.
+# impossible to work with: https://bugzilla.redhat.com/show_bug.cgi?id=1688153
 git clone --depth=1 -b candlepin-2.5.1-1 https://github.com/candlepin/candlepin.git /root/candlepin
+
+# HACK: Apply https://github.com/candlepin/ansible-role-candlepin/commit/82ae5bf521 to old checkout
+sed -i '/rubygem-qpid_proton/ s/$/\n    - rubygem-json_pure/' /root/candlepin/vagrant/roles/candlepin-root/tasks/main.yml
+perl -i -00ne 'print unless /(Gem refreshing|Install gem dependencies)/' /root/candlepin/vagrant/roles/candlepin-root/tasks/main.yml
 
 # Insert our variables and change parameters
 cp /var/lib/testvm/candlepin-defaults.yml /root/candlepin/vagrant/roles/candlepin-user/defaults/main.yml

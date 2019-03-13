@@ -2,8 +2,10 @@
 
 set -ex
 
+YUM_INSTALL="yum --setopt=skip_missing_names_on_install=False -y install"
+
 # We deploy candlepin via ansible
-yum -y install epel-release
+$YUM_INSTALL epel-release
 
 # Install dependencies
 CANDLEPIN_DEPS="\
@@ -12,7 +14,7 @@ git \
 openssl \
 "
 
-yum -y install $CANDLEPIN_DEPS
+$YUM_INSTALL $CANDLEPIN_DEPS
 
 mkdir -p playbookdir; cd playbookdir;
 

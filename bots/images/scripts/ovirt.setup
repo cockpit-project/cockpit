@@ -2,6 +2,8 @@
 
 set -eux
 
+YUM_INSTALL="yum --setopt=skip_missing_names_on_install=False -y install"
+
 echo foobar | passwd --stdin root
 
 systemctl stop firewalld NetworkManager kdump
@@ -18,7 +20,7 @@ rpm --import /etc/pki/rpm-gpg/RPM-GPG-ovirt-*
 rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 
 # Install ovirt-engine
-yum install -y ovirt-engine-setup
+$YUM_INSTALL ovirt-engine-setup
 echo "SSO_CALLBACK_PREFIX_CHECK=false" >> /etc/ovirt-engine/engine.conf.d/999-ovirt-engine.conf
 cat << EOF > /answers.conf
 [environment:default]
@@ -55,7 +57,7 @@ systemctl restart ovirt-engine
 
 # Install VDSM
 rpm --import https://raw.githubusercontent.com/CentOS-Storage-SIG/centos-release-storage-common/master/RPM-GPG-KEY-CentOS-SIG-Storage
-yum install -y vdsm vdsm-client vdsm-hook-faqemu
+$YUM_INSTALL vdsm vdsm-client vdsm-hook-faqemu
 cat << 'EOF' > /etc/vdsm/vdsm.conf
 [vars]
 ssl = false

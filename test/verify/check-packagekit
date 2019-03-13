@@ -723,7 +723,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # download product info from the candlepin machine and install it
         product_file = os.path.join(self.tmpdir, "88888.pem")
-        self.candlepin.download("/root/candlepin/generated_certs/88888.pem", product_file)
+        self.candlepin.download("/home/admin/candlepin/generated_certs/88888.pem", product_file)
 
         # # upload product info to the test machine
         m.execute("mkdir -p /etc/pki/product")

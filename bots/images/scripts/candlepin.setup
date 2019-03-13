@@ -14,24 +14,39 @@ openssl \
 
 yum -y install $CANDLEPIN_DEPS
 
-# Check out candlepin; HACK: newer releases split out Ansible roles to
-# https://github.com/candlepin/ansible-role-candlepin, but these playbooks are
-# completely broken with Ansible 2.6.
-git clone --depth=1 -b candlepin-2.5.1-1 https://github.com/candlepin/candlepin.git /root/candlepin
+mkdir -p playbookdir; cd playbookdir;
 
-# Insert our variables and change parameters
-cp /var/lib/testvm/candlepin-defaults.yml /root/candlepin/vagrant/roles/candlepin-user/defaults/main.yml
-
-# The playbook expects buildr to be linked from the home dir for some reason
-mkdir /root/bin
-ln -sf /usr/local/bin/buildr /root/bin/buildr
+mkdir -p roles
+git clone https://github.com/candlepin/ansible-role-candlepin.git roles/candlepin
 
 # Run the playbook
-cat > /root/inventory <<- EOF
+cat > inventory <<- EOF
 [dev]
 localhost
 EOF
-ansible-playbook -i /root/inventory -c local -v /root/candlepin/vagrant/candlepin.yml
+
+useradd -m admin
+echo admin:foobar | chpasswd
+echo 'admin ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/admin
+
+cat > playbook.yml <<- EOF
+- hosts: dev
+
+  environment:
+    JAVA_HOME: /usr/lib/jvm/java-1.8.0/
+
+  roles:
+     - role: candlepin
+       candlepin_git_pull: True
+       candlepin_deploy_args: "-g -a -f -t"
+       candlepin_user: admin
+       candlepin_user_home: /home/admin
+       candlepin_checkout: /home/admin/candlepin
+EOF
+
+ansible-playbook -i inventory -c local -v --skip-tags 'system_update' playbook.yml
+
+rm -rf playbookdir
 
 # reduce image size
 yum clean all
@@ -45,3 +60,4 @@ echo "kernel.core_pattern=|/usr/lib/systemd/systemd-coredump %p %u %g %s %t %e" 
 # Audit events to the journal
 rm -f '/etc/systemd/system/multi-user.target.wants/auditd.service'
 rm -rf /var/log/audit/
+

@@ -35,8 +35,8 @@ from testlib import *
 # if you download product files onto the test machine, these will show up as installed products
 # local directory: /etc/pki/product
 # sample products used in the tests (different subscription results for doc and admin):
-# /root/candlepin/generated_certs/6050.pem
-# /root/candlepin/generated_certs/88888.pem
+# /home/admin/candlepin/generated_certs/6050.pem
+# /home/admin/candlepin/generated_certs/88888.pem
 #
 # to use the candlepin image on a test machine, either add the certificate or
 # allow insecure connections (/etc/rhsm/rhsm.conf -> "insecure = 1")
@@ -99,8 +99,8 @@ class TestSubscriptions(MachineCase):
         # download product info from the candlepin machine
         product_file_one = os.path.join(self.tmpdir, "6050.pem")
         product_file_two = os.path.join(self.tmpdir, "88888.pem")
-        self.candlepin.download("/root/candlepin/generated_certs/6050.pem", product_file_one)
-        self.candlepin.download("/root/candlepin/generated_certs/88888.pem", product_file_two)
+        self.candlepin.download("/home/admin/candlepin/generated_certs/6050.pem", product_file_one)
+        self.candlepin.download("/home/admin/candlepin/generated_certs/88888.pem", product_file_two)
 
         # upload product info to the test machine
         m = self.machine

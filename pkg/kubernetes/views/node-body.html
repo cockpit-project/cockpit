@@ -4,8 +4,8 @@
         <dd title="{{ item.metadata.creationTimestamp }}">{{ item.metadata.creationTimestamp | dateRelative }}</dd>
         <dt translate>Address</dt>
         <dd>
-            <a tabindex="0" class="machine-jump" ng-if="item.status.addresses" ng-click="jump(item)">{{item.spec.externalID}}</a>
-            <span ng-if="!item.status.addresses">{{item.spec.externalID}}</span>
+            <a tabindex="0" class="machine-jump" ng-if="item.status.addresses" ng-click="jump(item)">{{item.metadata.name}}</a>
+            <span ng-if="!item.status.addresses">{{item.metadata.name}}</span>
         </dd>
         <dt translate>IP</dt>
         <dd ng-if="item.status.addresses">{{ nodeIPAddress(item) }}</dd>

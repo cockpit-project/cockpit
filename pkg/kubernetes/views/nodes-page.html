@@ -60,7 +60,7 @@
             <td>
                 <div ng-if="item.status.nodeInfo.osImage">{{item.status.nodeInfo.osImage}}</div>
             </td>
-            <td>{{item.spec.externalID}}</td>
+            <td>{{ nodeIPAddress(item) }}</td>
             <td>
                 <span class="spinner-inline node-status" kubernetes-status-icon status="nodeStatusIcon(item)"></span>
                 {{ nodeStatus(item) }}

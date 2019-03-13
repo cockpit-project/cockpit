@@ -434,8 +434,13 @@ require("./kube-client-mock");
                 "uid": "6e51438e-d161-11e4-acbc-10c37bdb8410",
                 "resourceVersion": "634539",
             },
-            "spec": {
-                "externalID": "172.2.3.1"
+            "status": {
+                "addresses": [
+                    {
+                        "address": "172.2.3.1",
+                        "type": "ExternalIP"
+                    }
+                ]
             }
         }
     ];

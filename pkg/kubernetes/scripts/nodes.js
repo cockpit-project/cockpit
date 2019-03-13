@@ -164,10 +164,10 @@
 
                     $scope.jump = function (node) {
                         var host, ip;
-                        if (!node || !node.spec)
+                        if (!node || !node.metadata)
                             return;
 
-                        host = node.spec.externalID;
+                        host = node.metadata.name;
                         ip = nodeData.nodeIPAddress(node);
 
                         if (ip == "127.0.0.1" || ip == "::1") {
@@ -421,9 +421,6 @@
                                 "apiVersion": "v1",
                                 "metadata": {
                                     "name": name || address,
-                                },
-                                "spec": {
-                                    "externalID": address
                                 }
                             };
                             defer.resolve(item);

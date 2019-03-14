@@ -223,7 +223,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Wait for the footer warning to appear
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
-        b.set_val("#vm-subVmTest1-network-1-select-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-select-source", "default")
         b.set_val("#vm-subVmTest1-network-1-select-source", "test_network")
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")

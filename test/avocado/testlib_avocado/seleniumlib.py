@@ -144,6 +144,12 @@ class SeleniumTest(Test):
         try:
             self.driver.save_screenshot(os.path.join(relative_path, filename))
             self.log.info("Screenshot({}) - Wrote: {}".format(phase, filename))
+
+            # get HTML page output for better debugging of issues
+            html_file_path = os.path.join(relative_path, filename + ".html")
+            with open(html_file_path, 'w') as output:
+                output.write(self.driver.page_source)
+                self.log.info("Html page content dump ({}) - Wrote: {}".format(phase, html_file_path))
         except WebDriverException as e:
             msg = 'Unable to store ({}) screenshot: {} (Exception: {})'.format(phase, filename, e)
             if get_debug_logs_if_fail:

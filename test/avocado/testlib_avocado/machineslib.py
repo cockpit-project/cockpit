@@ -167,9 +167,8 @@ class MachinesLib(SeleniumTest):
         super().tearDown()
         if self.virshvm:
             self.destroy_vm(self.virshvm)
-        if len(self.vmlist) != 0:
-            for vm in self.vmlist:
-                self.destroy_vm(vm)
+        for vm in self.vmlist:
+            self.destroy_vm(vm)
         if self.machine.execute("sudo virsh pool-list | grep apool", raising=False) != '' and self.machine.execute("virsh pool-list | grep mypool", raising=False) != '':
             self.machine.execute(
                 'sudo virsh vol-delete apooldisk1 apool \

@@ -4,6 +4,7 @@ set -o pipefail
 set -eux
 
 export LANG=C.UTF-8
+export MAKEFLAGS="-j $(nproc)"
 
 # HACK: Something invoked by our build system is setting stdio to non-blocking.
 # Validate that this isn't the surrounding context. See more below.
@@ -55,12 +56,12 @@ python3 -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcnt
 
 # only run distcheck on main arch
 if [ "$ARCH" = amd64 ]; then
-    make -j8 distcheck 2>&1
+    make distcheck 2>&1
 else
-    make -j8 check 2>&1
+    make check 2>&1
 fi
 
-make -j8 check-memory 2>&1 || {
+make check-memory 2>&1 || {
     cat test-suite.log
     exit 1
 }

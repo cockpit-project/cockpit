@@ -52,24 +52,27 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
-        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'qcow2disk')
+        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'qcow2disk')
         self.storage_pool[pool_name[0]].append('qcow2disk')
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vda-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'raw2disk')
         self.storage_pool[pool_name[0]].append('raw2disk')
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdb-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdc-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
@@ -77,11 +80,12 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
+        self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdd-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
+        self.wait_css('#vm-{}-run'.format(name), cond=invisible)
 
-        # wait until the vm start
-        sleep(1)
         self.assertEqual(self.machine.execute("sudo virsh list --all | grep staticvm | awk '{print $3}' ORS=''"), 'running')
         self.assertEqual(int(self.machine.execute('sudo virsh domblklist {} | wc -l'.format(name))), 8)
 
@@ -96,21 +100,24 @@ class MachinesDisksTestSuite(MachinesLib):
         self.storage_pool[pool_name[0]].append('qcow2disk')
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-new-permanent'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vda-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'raw2disk')
         self.storage_pool[pool_name[0]].append('raw2disk')
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdb-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
-
         self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdc-device'.format(name))
+
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
@@ -119,10 +126,11 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-existing-permanent'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
+        self.wait_dialog_disappear()
+        self.wait_css('#vm-{}-disks-vdd-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-off'.format(name), cond=clickable))
-        # wait vm off
-        sleep(5)
+        self.wait_css('#vm-{}-off'.format(name), cond=invisible)
 
         self.assertEqual(
             self.wait_css('#vm-staticvm-disks-vda-source > tbody > tr:nth-child(2) > td:nth-child(2)', cond=visible).text,
@@ -137,36 +145,36 @@ class MachinesDisksTestSuite(MachinesLib):
         name = "staticvm"
         self.create_vm(name, wait=True)
 
-        # add the disk
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'detachdisk')
         self.storage_pool['detachdisk'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
-        # It will not detach if the script click too fast
-        sleep(2)
+        self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-reboot'.format(name), cond=clickable))
+        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
+        self.click(self.wait_css('#vm-{}-off'.format(name), cond=clickable))
+        self.wait_css('#vm-{}-off'.format(name), cond=invisible)
+        self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
+        self.wait_css('#vm-{}-run'.format(name), cond=invisible)
+        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
 
-        self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=invisible, overridetry=1)
         self.assertEqual(int(self.machine.execute('sudo virsh domblklist {} | wc -l'.format(name))), 4)
 
     def testDetachDiskVmOff(self):
         name = "staticvm"
         self.create_vm(name, state='shut off')
 
-        # add the disk
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'detachdisk')
         self.storage_pool['detachdisk'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
-
-        # It will not detach if the script click too quickly
-        sleep(2)
+        self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))
+        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
         self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
+        self.wait_css('#vm-{}-run'.format(name), cond=invisible)
+        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
 
-        self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=invisible, overridetry=1)
         self.assertEqual(int(self.machine.execute('sudo virsh domblklist {} | wc -l'.format(name))), 4)

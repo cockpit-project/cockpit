@@ -2081,7 +2081,7 @@ function choice_title(choices, choice, def) {
  *
  * settle_time too high:    All operations take a long time, and the
  *                          curtain needs to come up to prevent the
- *                          user form interacting with the page.  Thus settle_time
+ *                          user from interacting with the page.  Thus settle_time
  *                          should be shorter than curtain_time.
  *
  * rollback_time too short: Good changes that take a long time to complete
@@ -2092,8 +2092,8 @@ function choice_title(choices, choice, def) {
  *                          consider Cockpit to be dead already.
  */
 
-var curtain_time = 0.5;
-var settle_time = 0.3;
+var curtain_time = 1.5;
+var settle_time = 1.0;
 var rollback_time = 15.0;
 
 function with_checkpoint(model, modify, options) {

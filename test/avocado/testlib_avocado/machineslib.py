@@ -157,8 +157,10 @@ class MachinesLib(SeleniumTest):
 
     def setUp(self):
         super().setUp()
+
         self.virshvm = None
-        self.vmlist = []
+        self.storage_pool = {}
+
         self.login()
         self.click(self.wait_link('Virtual Machines', cond=clickable))
         self.wait_frame("machines")
@@ -167,35 +169,23 @@ class MachinesLib(SeleniumTest):
         super().tearDown()
         if self.virshvm:
             self.destroy_vm(self.virshvm)
-        for vm in self.vmlist:
-            self.destroy_vm(vm)
-        if self.machine.execute("sudo virsh pool-list | grep apool", raising=False) != '' and self.machine.execute("virsh pool-list | grep mypool", raising=False) != '':
-            self.machine.execute(
-                'sudo virsh vol-delete apooldisk1 apool \
-                    && sudo virsh vol-delete apooldisk2 apool \
-                    && sudo virsh vol-delete qcow2disk apool \
-                    && sudo virsh vol-delete raw2disk apool \
-                    && sudo virsh pool-destroy apool \
-                    && sudo rm -rf /home/apool \
-                    && sudo virsh vol-delete mypooldisk1 mypool \
-                    && sudo virsh vol-delete mypooldisk2 mypool \
-                    && sudo virsh pool-destroy mypool \
-                    && sudo rm -rf /home/mypool')
+
+        # clean the disk,if they are existing
+        for key,value in self.storage_pool.items():
+            while len(value) != 0:
+                self.machine.execute('sudo virsh vol-delete {disk} {pool}'.format(disk=value.pop(), pool=key))
+        while len(self.storage_pool) != 0:
+            pool = self.storage_pool.popitem()
+            self.machine.execute('sudo virsh pool-destroy {}'.format(pool[0]))
+            self.machine.execute('sudo rm -rf /home/{}'.format(pool[0]))
+
+        # clean the detachdisk
         if self.machine.execute("sudo virsh vol-list default | grep detachdisk", raising=False) != '':
             self.machine.execute('sudo virsh vol-delete detachdisk default')
+
+        # clean the user for none root
         if self.machine.execute('sudo cat /etc/passwd | grep auto', raising=False) != "":
             self.machine.execute('sudo userdel -rf auto')
-
-    def prepare_disk(self):
-        self.machine.execute(
-            'sudo mkdir /home/{apool} \
-                && sudo virsh pool-create-as {apool} --type dir --target /home/{apool} \
-                && sudo virsh vol-create-as {apool} {apool}disk1 --capacity 1G --format qcow2 \
-                && sudo virsh vol-create-as {apool} {apool}disk2 --capacity 1G --format qcow2 \
-                && sudo mkdir /home/{mypool} \
-                && sudo virsh pool-create-as {mypool} --type dir --target /home/{mypool} \
-                && sudo virsh vol-create-as {mypool} {mypool}disk1 --capacity 1G --format qcow2 \
-                && sudo virsh vol-create-as {mypool} {mypool}disk2 --capacity 1G --format qcow2'.format(apool='apool', mypool='mypool'))
 
     def wait_dialog_disappear(self):
         # loop for the dialog disappear and it will break after trying with 40 times
@@ -204,5 +194,6 @@ class MachinesLib(SeleniumTest):
             if count == self.default_try:
                 break
             count += 1
-        # sleep for the quick disappearing
+            
+        # sleep for avoiding the quick disappearing
         sleep(1)

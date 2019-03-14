@@ -88,18 +88,19 @@ class MachinesDisksTestSuite(MachinesLib):
     def testAddDiskWithVmOn(self):
         name = "staticvm"
         self.create_vm(name, wait=True)
-
-        self.prepare_disk()
+        pool_name = self.prepare_disk()
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'qcow2disk')
+        self.storage_pool[pool_name[0]].append('qcow2disk')
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-new-permanent'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
 
         self.wait_dialog_disappear()
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'raw2disk')
+        self.storage_pool[pool_name[0]].append('raw2disk')
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
@@ -140,6 +141,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'detachdisk')
+        self.storage_pool['detachdisk'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
 
         # It will not detach if the script click too fast
@@ -158,6 +160,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name), cond=visible), 'detachdisk')
+        self.storage_pool['detachdisk'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
 
         # It will not detach if the script click too quickly

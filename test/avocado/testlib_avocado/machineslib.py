@@ -172,16 +172,15 @@ class MachinesLib(SeleniumTest):
 
         # clean the disk,if they are existing
         for key,value in self.storage_pool.items():
-            while len(value) != 0:
+            while len(value) != 0 and value != 'disk':
                 self.machine.execute('sudo virsh vol-delete {disk} {pool}'.format(disk=value.pop(), pool=key))
         while len(self.storage_pool) != 0:
-            pool = self.storage_pool.popitem()
-            self.machine.execute('sudo virsh pool-destroy {}'.format(pool[0]))
-            self.machine.execute('sudo rm -rf /home/{}'.format(pool[0]))
-
-        # clean the detachdisk
-        if self.machine.execute("sudo virsh vol-list default | grep detachdisk", raising=False) != '':
-            self.machine.execute('sudo virsh vol-delete detachdisk default')
+            item = self.storage_pool.popitem()
+            if item[1] == 'disk':
+                self.machine.execute('sudo virsh vol-delete {} default'.format(item[0]))
+            else:
+                self.machine.execute('sudo virsh pool-destroy {}'.format(item[0]))
+                self.machine.execute('sudo rm -rf /home/{}'.format(item[0]))
 
         # clean the user for none root
         if self.machine.execute('sudo cat /etc/passwd | grep auto', raising=False) != "":

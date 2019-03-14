@@ -193,6 +193,3 @@ class MachinesLib(SeleniumTest):
             if count == self.default_try:
                 break
             count += 1
-            
-        # sleep for avoiding the quick disappearing
-        sleep(1)

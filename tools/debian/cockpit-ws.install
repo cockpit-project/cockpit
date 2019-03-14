@@ -15,6 +15,7 @@ lib/systemd/system/cockpit-wsinstance-https@.service
 lib/systemd/system/cockpit-wsinstance-https@.socket
 lib/systemd/system/system-cockpithttps.slice
 lib/*/security/pam_ssh_add.so
+lib/*/security/pam_cockpit_cert.so
 usr/lib/tmpfiles.d/cockpit-tempfiles.conf
 usr/lib/cockpit/cockpit-session
 usr/lib/cockpit/cockpit-ws
@@ -31,5 +32,6 @@ usr/share/man/man1/cockpit-desktop.1
 usr/share/man/man5/cockpit.conf.5
 usr/share/man/man8/cockpit-ws.8
 usr/share/man/man8/cockpit-tls.8
+usr/share/man/man8/pam_cockpit_cert.8
 usr/share/man/man8/pam_ssh_add.8
 usr/share/man/man8/remotectl.8

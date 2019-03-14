@@ -18,8 +18,10 @@
       access is controlled by a cockpit specific pam stack, generally located
       at <filename>/etc/pam.d/cockpit</filename>. By default this is configured
       to allow you to login with the username and password of any local account on the
-      system or you can setup a <link linkend="sso">Kerberos based SSO
-      solution</link>.</para>
+      system. You can also setup a <link linkend="sso">Kerberos based SSO
+      solution</link> or <link linkend="cert-authentication">certificate/smart
+      card authentication</link>.
+    </para>
 
     <para>The web server can also be run from the
       <ulink url="https://hub.docker.com/r/cockpit/ws/">cockpit/ws</ulink>

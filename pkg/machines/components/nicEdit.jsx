@@ -108,7 +108,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     } else {
         networkSourcesContent = (
             <Select.SelectEntry data='empty' key='empty-list'>
-                <i>{_("No virtual networks")}</i>
+                {_("No virtual networks")}
             </Select.SelectEntry>
         );
         defaultNetworkSource = 'empty';

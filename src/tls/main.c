@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <common/cockpitconf.h>
 #include <common/cockpitwebcertificate.h>
 #include "utils.h"
 #include "server.h"
@@ -92,6 +93,7 @@ int
 main (int argc, char **argv)
 {
   struct arguments arguments;
+  gnutls_certificate_request_t client_cert_mode = GNUTLS_CERT_IGNORE;
 
   /* default option values */
   arguments.no_tls = false;
@@ -111,8 +113,10 @@ main (int argc, char **argv)
         errx (EXIT_FAILURE, "Could not locate server certificate: %s", error);
       debug (SERVER, "Using certificate %s", certfile);
 
-      /* TODO: Add cockpit.conf option to enable client-certificate auth, once we support that */
-      connection_crypto_init (certfile, NULL, GNUTLS_CERT_IGNORE);
+      if (cockpit_conf_bool ("WebService", "ClientCertAuthentication", false))
+        client_cert_mode = GNUTLS_CERT_REQUEST;
+
+      connection_crypto_init (certfile, NULL, client_cert_mode);
       free (certfile);
     }
 

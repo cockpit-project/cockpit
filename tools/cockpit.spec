@@ -395,6 +395,7 @@ Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
 Requires: systemd >= 235
+Suggests: sssd-dbus
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -411,12 +412,16 @@ Requires(post): policycoreutils
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
 
+If sssd-dbus is installed, you can enable client certificate/smart card
+authentication via sssd/FreeIPA.
+
 %files ws -f cockpit.lang
 %doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz
 %doc %{_mandir}/man8/cockpit-tls.8.gz
 %doc %{_mandir}/man8/remotectl.8.gz
+%doc %{_mandir}/man8/pam_cockpit_cert.8.gz
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
@@ -439,6 +444,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{_sbindir}/remotectl
 %{_libdir}/security/pam_ssh_add.so
+%{_libdir}/security/pam_cockpit_cert.so
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
@@ -471,12 +477,18 @@ module local 1.0;
 require {
     type cockpit_ws_t;
     type cockpit_ws_exec_t;
+    type cockpit_session_t;
+    type cockpit_var_run_t;
     class unix_stream_socket { create_stream_socket_perms connectto };
-    class file { execute_no_trans};
+    class file { open read map getattr execute_no_trans};
+    class dir { getattr search open read };
 }
 
 allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { create_stream_socket_perms connectto };
 allow cockpit_ws_t cockpit_ws_exec_t:file { execute_no_trans };
+
+# https://github.com/fedora-selinux/selinux-policy-contrib/pull/130
+allow cockpit_session_t cockpit_var_run_t:file { open read map getattr };
 EOF
 checkmodule -M -m -o $tmp/local.mod $tmp/local.te
 semodule_package -o $tmp/local.pp -m $tmp/local.mod

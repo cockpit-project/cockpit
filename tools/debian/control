@@ -193,9 +193,13 @@ Depends: ${misc:Depends},
          openssl,
          systemd (>= 235),
 Conflicts: ${ws:Conflicts}
+Suggests: sssd-dbus
 Description: Cockpit Web Service
  The Cockpit Web Service listens on the network, and authenticates
  users.
+ .
+ Install sssd-dbus for supporting client certificate/smart card authentication
+ via sssd/FreeIPA.
 
 Package: cockpit-sosreport
 Architecture: all

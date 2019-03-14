@@ -66,9 +66,11 @@ EXTRA_DIST += \
 noinst_LIBRARIES += libcockpit-ws.a
 
 libcockpit_ws_a_SOURCES = \
-	src/ws/cockpitws.h				\
-	src/ws/cockpithandlers.h	src/ws/cockpithandlers.c	\
-	src/ws/cockpitauth.h		src/ws/cockpitauth.c		\
+	src/ws/cockpitws.h \
+	src/ws/cockpithandlers.h \
+	src/ws/cockpithandlers.c \
+	src/ws/cockpitauth.h \
+	src/ws/cockpitauth.c \
 	src/ws/cockpitcertificate.c \
 	src/ws/cockpitcertificate.h \
 	src/ws/cockpitcompat.c \
@@ -82,6 +84,8 @@ libcockpit_ws_a_SOURCES = \
 	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
 	src/ws/cockpitwebservice.h \
 	src/ws/cockpitwebservice.c \
+	src/ws/cockpitwsinstancecert.h \
+	src/ws/cockpitwsinstancecert.c \
 	$(NULL)
 
 libcockpit_ws_a_CFLAGS = \
@@ -206,6 +210,22 @@ $(nodist_tempconf_DATA): $(tempconf_in)
 install-exec-hook::
 	chown -f root:$(COCKPIT_WSINSTANCE_GROUP) $(DESTDIR)$(libexecdir)/cockpit-session || true
 	test "$(COCKPIT_USER)" != "root" && chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true
+
+noinst_PROGRAMS += pam_cockpit_cert.so
+pam_cockpit_cert_so_SOURCES = \
+	src/ws/cockpitwsinstancecert.c \
+	src/ws/pam_cockpit_cert.c
+pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)
+
+CLEANFILES += pam_cockpit_cert.so
+
+install-exec-local::
+	$(MKDIR_P) $(DESTDIR)$(pamdir)
+	$(INSTALL) pam_cockpit_cert.so $(DESTDIR)$(pamdir)
+
+uninstall-local::
+	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
 
 libexec_SCRIPTS = cockpit-desktop
 

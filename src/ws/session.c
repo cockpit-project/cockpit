@@ -522,6 +522,48 @@ out:
 }
 
 static int
+pam_conv_func_dummy (int num_msg,
+                     const struct pam_message **msg,
+                     struct pam_response **ret_resp,
+                     void *appdata_ptr)
+{
+  /* we don't expect (nor can handle) any actual auth conversation here, but
+   * PAM sometimes sends messages like "Creating home directory for USER" */
+  for (int i = 0; i < num_msg; ++i)
+      debug ("got PAM conversation message, ignoring: %s", msg[i]->msg);
+  return PAM_CONV_ERR;
+}
+
+static pam_handle_t *
+perform_tlscert (const char *rhost)
+{
+  struct pam_conv conv = { pam_conv_func_dummy, };
+  pam_handle_t *pamh;
+  int res;
+
+  debug ("start tls-cert authentication for cockpit-ws %u", getppid ());
+
+  /* pam_cockpit_cert sets the user name from the certificate */
+  res = pam_start ("cockpit", NULL, &conv, &pamh);
+  if (res != PAM_SUCCESS)
+    errx (EX, "couldn't start pam: %s", pam_strerror (NULL, res));
+
+  if (pam_set_item (pamh, PAM_RHOST, rhost) != PAM_SUCCESS)
+    errx (EX, "couldn't setup pam rhost");
+
+  res = pam_authenticate (pamh, 0);
+  if (res == PAM_SUCCESS)
+    res = open_session (pamh);
+
+  /* Our exit code is a PAM code */
+  if (res != PAM_SUCCESS)
+    exit_init_problem (res);
+
+  return pamh;
+}
+
+
+static int
 session (char **env)
 {
   char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge >&3", NULL };
@@ -648,6 +690,8 @@ main (int argc,
     pamh = perform_basic (rhost, authorization);
   else if (strcmp (type, "negotiate") == 0)
     pamh = perform_gssapi (rhost, authorization);
+  else if (strcmp (type, "tls-cert") == 0)
+    pamh = perform_tlscert (rhost);
 
   cockpit_memory_clear (authorization, -1);
   free (authorization);

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "cockpitauth.h"
+#include "cockpitwsinstancecert.h"
 
 #include "cockpitws.h"
 
@@ -1436,12 +1437,34 @@ cockpit_auth_login_async (CockpitAuth *self,
     }
 
   application = cockpit_auth_parse_application (path, NULL);
-  authorization = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
 
-  if (!application || !authorization)
+  /* If the client sends a TLS certificate to cockpit-tls, treat this as a
+   * definitive login type, and don't just silently fall back to other types */
+  if (https_instance_has_certificate_file (NULL, 0) != -1)
+    {
+      g_debug ("TLS connection has peer certificate, using tls-cert auth type");
+      type = g_strdup ("tls-cert");
+      /* don't send any actual authorization here; we don't want to put any trust in data sent from cockpit-ws */
+      authorization = g_strdup ("tls-cert");
+    }
+  else
+    {
+      g_debug ("No peer certificate");
+      authorization = cockpit_auth_steal_authorization (headers, connection, &type, &conversation);
+
+      if (!authorization)
+        {
+          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                           "Authentication required");
+          g_simple_async_result_complete_in_idle (result);
+          goto out;
+        }
+    }
+
+  if (!application)
     {
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
-                                       "Authentication required");
+                                       "Application required");
       g_simple_async_result_complete_in_idle (result);
       goto out;
     }

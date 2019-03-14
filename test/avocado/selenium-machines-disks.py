@@ -1,6 +1,5 @@
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
-from time import sleep
 import time
 
 

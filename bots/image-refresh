@@ -80,6 +80,9 @@ TRIGGERS = {
         "verify/rhel-7-6-distropkg",
         "verify/rhel-atomic"  # builds in rhel-7-6
     ],
+    "rhel-7-7": [
+        "verify/rhel-7-7",
+    ],
     "rhel-8-0": [
         "verify/rhel-8-0"
     ],
@@ -90,6 +93,7 @@ TRIGGERS = {
 
 STORES = {
     "rhel-7-6": REDHAT_STORE,
+    "rhel-7-7": REDHAT_STORE,
     "rhel-8-0": REDHAT_STORE,
     "rhel-atomic": REDHAT_STORE,
     "windows-10": REDHAT_STORE,

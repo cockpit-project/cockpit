@@ -99,7 +99,7 @@ class MachinesBasicTestSuite(MachinesLib):
         self.wait_css('#vm-{}-disks-vda-bus'.format(name))
 
         self.click(self.wait_css("#vm-{}-delete".format(name), cond=clickable))
-        self.click(self.wait_css("#vm-{}-delete-modal-dialog tbody tr:nth-of-type(1) input".format(name), cond=clickable))
+        self.click(self.wait_css("#vm-{}-delete-modal-dialog li:nth-of-type(1) input".format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog button.btn-danger".format(name), cond=clickable))
         self.wait_css("#vm-{}-row".format(name), cond=invisible)
 

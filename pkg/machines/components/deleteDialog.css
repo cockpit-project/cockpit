@@ -1,13 +1,31 @@
-.table tbody tr:last-child td {
-    border-bottom: 1px solid #d1d1d1;
+.modal[id$=delete-modal-dialog] .list-group-item {
+    /* Remove padding here and move into the label */
+    padding: 0;
 }
 
-table.delete-dialog-disks.table tbody tr td:nth-child(1) {
-    padding-left: 5px;
-    padding-right: 5px;
-    width: 20px;
+.modal .list-group-item > .disk-row > label {
+    align-items: center;
+    display: grid;
+    grid: auto-flow / auto 1fr;
+    grid-gap: 0 1rem;
+    padding: 1rem 1.5em;
 }
 
-table.delete-dialog-disks.table tbody tr td:nth-child(3) {
-    text-align: right;
+.modal .disk-row {
+    margin: 0;
+}
+
+/* override PatternFly checkmark placement */
+.modal .disk-row input[type=checkbox] {
+    position: static;
+    margin: 0;
+}
+
+.modal .disk-row > label + label {
+    border-top: 1px solid #d1d1d1; /* pf-black-300 */
+}
+
+.modal .disk-file {
+    grid-column-start: 2;
+    opacity: 0.85; /* approx pf-black-700; AAA contrast; works with hover */
 }

@@ -72,7 +72,7 @@
       <li class="active"></li>
     </ol>
 
-    <div class="panel panel-default" id="account-details">
+    <div class="panel panel-default account-details" id="account-details">
       <div class="panel-heading">
         <div class="pull-right">
           <button translatable="yes" class="btn btn-default accounts-privileged" id="account-logout">Terminate Session</button>
@@ -81,28 +81,27 @@
         <span id="account-title"></span>
       </div>
       <div class="panel-body">
-        <table class="info-table-ct col-sm-3">
+        <table class="info-table-ct">
           <tr>
-            <td translatable="yes">Full Name</td>
+            <th scope="row"><label for="account-real-name" translatable="yes">Full Name</label></th>
             <td class="accounts-privileged" id="account-real-name-wrapper"><input id="account-real-name" class="form-control" data-container="body"></td>
           </tr>
           <tr>
-            <td translatable="yes">User Name</td>
-            <td id="account-user-name"></td>
+            <th scope="row"><label for="account-user-name" translatable="yes">User Name</label></th>
+             <td><output id="account-user-name"></output></td>
           </tr>
           <tr>
-            <td translatable="yes" class="align-top">Roles</td>
+            <th scope="row"><label translatable="yes">Roles</label></th>
             <td id="account-roles">
               <div id="account-change-roles-roles">
               </div>
             </td>
           <tr>
-            <td translatable="yes">Last Login</td>
-            <td id="account-last-login">
-            </td>
+            <th scope="row"><label for="account-last-login" translatable="yes">Last Login</label></th>
+            <td><output id="account-last-login"></output></td>
           </tr>
           <tr>
-            <td translatable="yes">Access</td>
+            <th scope="row"><label for="account-locked" translatable="yes">Access</label></th>
             <td>
               <div class="account-column-one">
                 <div class="checkbox accounts-privileged" data-container="body">
@@ -116,7 +115,7 @@
             </td>
           </tr>
           <tr>
-            <td translatable="yes">Password</td>
+            <th scrope="row"><label for="account-set-password" translatable="yes">Password</label></th>
             <td>
               <div class="account-column-one">
                 <button class="btn btn-default accounts-self-privileged" translatable="yes" id="account-set-password" data-container="body">Set Password</button>

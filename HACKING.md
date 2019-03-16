@@ -40,7 +40,10 @@ Note that `tools/cockpit.spec` is a template filled in by
 The following should work in a fresh Git clone:
 
     $ sudo dnf install dnf-utils
-    $ sed 's/%{npm-version:.*}/0/' tools/cockpit.spec | sudo dnf builddep --spec /dev/stdin
+    $ TEMPFILE=$(mktemp -u --suffix=.spec) && \
+      sed 's/%{npm-version:.*}/0/' tools/cockpit.spec >$TEMPFILE && \
+      sudo dnf builddep --spec $TEMPFILE && \
+      rm $TEMPFILE
 
 In addition, for testing, the following dependencies are required:
 

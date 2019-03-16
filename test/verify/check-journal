@@ -34,7 +34,7 @@ class TestJournal(MachineCase):
             self.python = "python3"
             self.crash_fn = "os_kill"
 
-    def select_from_dropdown(self, browser, selector, value):
+    def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
 
         browser.wait_visible(selector)
@@ -42,8 +42,12 @@ class TestJournal(MachineCase):
             item_selector = "{0} ul li a:contains({1})".format(selector, value)
             browser.click("{0} button".format(selector))
             browser.wait_present(item_selector)
-            browser.click(item_selector)
-            browser.wait_in_text(button_text_selector, value)
+            if click:
+                browser.wait_visible(item_selector)
+                browser.click(item_selector)
+                browser.wait_in_text(button_text_selector, value)
+            else:
+                browser.click(button_text_selector)
 
     def testBasic(self):
         b = self.browser
@@ -225,6 +229,15 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
             wait_log_lines([expected_date, ["sh", "SLOW", "10"]
                             ])
 
+        def wait_log_present(message):
+            sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message
+            b.wait_present(sel)
+            b.wait_visible(sel)
+
+        def wait_log_not_present(message):
+            sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message
+            b.wait_not_present(sel)
+
         m.execute("systemctl start slow10")
 
         wait_slow10()
@@ -270,6 +283,29 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
+
+        # Check selecting of services
+        if m.image == "rhel-7-6-distropkg": # Introduced in #8347
+            return
+
+        b.go("#/?start=boot&prio=6")
+
+        wait_log_present("AFTER BOOT")
+        m.execute("logger -p 5 --tag just-a-service WORK PLEASE")
+        wait_log_present("WORK PLEASE")
+        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
+        self.select_from_dropdown(b, "#journal-service-menu", "just-a-service", click=True)
+        wait_log_not_present("AFTER BOOT")
+        wait_log_present("WORK PLEASE")
+        self.select_from_dropdown(b, "#journal-service-menu", "All", click=True)
+        wait_log_present("AFTER BOOT")
+        wait_log_present("WORK PLEASE")
+
+        self.select_from_dropdown(b, "#journal-prio-menu", "Error and above")
+        self.select_from_dropdown(b, "#journal-service-menu", "check-journal", click=False)
+        b.click("#journal-service-menu button")
+        b.wait_not_present("#journal-services-list ul li a:contains('just-a-service')")
+
 
     def testBinary(self):
         b = self.browser

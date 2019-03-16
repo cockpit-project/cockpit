@@ -25,6 +25,9 @@ $(function() {
     cockpit.translate();
     const _ = cockpit.gettext;
 
+    var update_services_list = true;
+    var current_services = new Set();
+
     var problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
     var service = problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
     var problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
@@ -104,15 +107,20 @@ $(function() {
         var renderitems_day_cache = null;
         var procs = [];
 
+        var loading_services = false;
+
         function query_error(error) {
             /* TODO: blank slate */
             console.warn(cockpit.message(error));
         }
 
         function prepend_entries(entries) {
-            for (var i = 0; i < entries.length; i++)
+            for (var i = 0; i < entries.length; i++) {
                 renderer.prepend(entries[i]);
+                current_services.add(entries[i]['SYSLOG_IDENTIFIER']);
+            }
             renderer.prepend_flush();
+            show_service_filters();
             /* empty cache for day offsets */
             renderitems_day_cache = null;
         }
@@ -192,7 +200,64 @@ $(function() {
             }
         }
 
+        function clear_service_list() {
+            if (loading_services) {
+                $('#journal-services-list').empty()
+                        .append($('<li>').text(_("Loading...")));
+                return;
+            }
+
+            $('#journal-services-list').empty()
+                    .append($('<li>').append($('<a>')
+                            .text(_("All"))
+                            .attr('data-service', "")))
+                    .append($('<li>')
+                            .addClass("divider"));
+        }
+
+        function load_service_filters(match, options) {
+            loading_services = true;
+            current_services = new Set();
+            var service_options = Object.assign({ "output": "verbose" }, options);
+            var cmd = journal.build_cmd(match, service_options)[0].join(" ");
+            cmd += " | grep SYSLOG_IDENTIFIER= | sort -u";
+            cockpit.spawn(["sh", "-ec", cmd], { host: options.host, superuser: "try" })
+                    .then(function(entries) {
+                        entries.split("\n").forEach(function(entry) {
+                            if (entry)
+                                current_services.add(entry.substr(entry.indexOf('=') + 1));
+                        });
+                    })
+                    .done(function () {
+                        loading_services = false;
+                        show_service_filters();
+                    });
+        }
+
+        function show_service_filters() {
+            clear_service_list();
+
+            if (loading_services)
+                return;
+
+            // Sort and put into list
+            Array.from(current_services).sort((a, b) =>
+                a.toLowerCase().localeCompare(b.toLowerCase())
+            )
+                    .forEach(function(unit) {
+                        $('#journal-services-list').append(
+                            $('<li>').append($('<a>')
+                                    .text(unit)
+                                    .attr('data-service', unit)));
+                    });
+        }
+
         start_box.text(_("Loading..."));
+
+        $('#journal-service-menu').on("click", "a", function() {
+            update_services_list = false;
+            cockpit.location.go([], $.extend(cockpit.location.options, { tag: $(this).attr('data-service') }));
+        });
 
         $(window).on('scroll', update_day_box);
 
@@ -210,6 +275,17 @@ $(function() {
             options["since"] = "-7days";
         } else {
             all = true;
+        }
+
+        var tags_match = [];
+        match.forEach(function (field) {
+            if (!field.startsWith("SYSLOG_IDENTIFIER"))
+                tags_match.push(field);
+        });
+
+        if (update_services_list) {
+            clear_service_list();
+            load_service_filters(tags_match, options);
         }
 
         var last = null;
@@ -298,6 +374,7 @@ $(function() {
             match.push('_SYSTEMD_UNIT=' + options['service']);
         else if (options['tag'])
             match.push('SYSLOG_IDENTIFIER=' + options['tag']);
+        $('#journal-service').text(options['tag'] || _("All"));
 
         var query_start = cockpit.location.options['start'] || "recent";
         if (query_start == 'recent')
@@ -797,9 +874,13 @@ $(function() {
         $("body").show();
     }
 
-    $(cockpit).on("locationchanged", update);
+    $(cockpit).on("locationchanged", function() {
+        update_services_list = true;
+        update();
+    });
 
     $('#journal-current-day-menu a').on('click', function() {
+        update_services_list = true;
         cockpit.location.go([], $.extend(cockpit.location.options, { start: $(this).attr("data-op") }));
     });
 
@@ -810,10 +891,16 @@ $(function() {
     });
 
     $('#journal-prio-menu a').on('click', function() {
+        update_services_list = true;
         cockpit.location.go([], $.extend(cockpit.location.options, { prio: $(this).attr('data-prio') }));
     });
 
     $('#journal-navigate-home').on("click", function() {
+        if (current_services.size > 0)
+            update_services_list = false;
+        else
+            update_services_list = true;
+
         var parent_options;
         if (cockpit.location.options.parent_options) {
             parent_options = JSON.parse(cockpit.location.options.parent_options);

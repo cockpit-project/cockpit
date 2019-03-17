@@ -570,7 +570,7 @@ PageAccountsCreate.prototype = {
             var translate_table = {
                 'a' :  '[àáâãäå]',
                 'ae':  'æ',
-                'c' :  'čç',
+                'c' :  '[čç]',
                 'd' :  'ď',
                 'e' :  '[èéêë]',
                 'i' :  '[íìïî]',

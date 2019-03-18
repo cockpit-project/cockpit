@@ -139,7 +139,9 @@ class App extends React.Component {
                     dispatch={dispatch}
                     vms={vms}
                     changeActiveList={this.changeActiveList}
-                    loggedUser={systemInfo.loggedUser} />
+                    loggedUser={systemInfo.loggedUser}
+                    resourceHasError={this.state.resourceHasError}
+                    onAddErrorNotification={this.onAddErrorNotification} />
                 }
                 { this.state.activeTab == 3 && <NetworkList networks={networks}
                     dispatch={dispatch}

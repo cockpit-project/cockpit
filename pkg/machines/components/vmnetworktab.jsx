@@ -21,8 +21,7 @@ import PropTypes from 'prop-types';
 import { OverlayTrigger, Tooltip } from "patternfly-react";
 
 import cockpit from 'cockpit';
-import { changeNetworkState } from "../actions/provider-actions.js";
-import VmLastMessage from './vmLastMessage.jsx';
+import { changeNetworkState, getVm } from "../actions/provider-actions.js";
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { rephraseUI, vmId } from "../helpers.js";
 import EditNICAction from './nicEdit.jsx';
@@ -30,7 +29,7 @@ import './nicEdit.css';
 
 const _ = cockpit.gettext;
 
-const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) {
+const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks, onAddErrorNotification }) {
     const id = vmId(vm.name);
 
     const warningInactive = (id) => {
@@ -70,7 +69,14 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
         return (e) => {
             e.stopPropagation();
             if (network.mac) {
-                dispatch(changeNetworkState(vm, network.mac, network.state === 'up' ? 'down' : 'up'));
+                dispatch(changeNetworkState(vm, network.mac, network.state === 'up' ? 'down' : 'up'))
+                        .catch(ex => {
+                            onAddErrorNotification({
+                                text: cockpit.format(_("NIC $0 of VM $1 failed to change state"), network.mac, vm.name),
+                                detail: ex.message, resourceId: vm.id,
+                            });
+                        })
+                        .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id, name: vm.name })));
             }
         };
     };
@@ -148,12 +154,9 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
     ];
 
     let networkId = 1;
-    const currentTab = 'network';
-    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
 
     return (
         <div className="machines-network-list">
-            {message}
             <Listing compact columnTitles={detailMap.map(target => target.name)} actions={null} emptyCaption=''>
                 {vm.interfaces.sort().map(target => {
                     const columns = detailMap.map(d => {
@@ -179,6 +182,7 @@ const VmNetworkTab = function ({ vm, dispatch, config, hostDevices, networks }) 
 
 VmNetworkTab.propTypes = {
     vm: PropTypes.object.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };
 
 export default VmNetworkTab;

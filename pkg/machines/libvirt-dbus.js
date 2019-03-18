@@ -245,33 +245,12 @@ LIBVIRT_DBUS_PROVIDER = {
         networkMac,
         state,
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .then(domXml => {
-                        let updatedXml = updateNetworkIface({ domXml: domXml[0], networkMac, networkState: state });
-                        if (!updatedXml) {
-                            dispatch(vmActionFailed({
-                                name,
-                                connectionName,
-                                message: _("VM CHANGE_NETWORK_STATE action failed"),
-                                detail: { exception: "Updated device XML couldn't not be generated" },
-                                tab: 'network',
-                            }));
-                        } else {
-                            return call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT);
-                        }
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM CHANGE_NETWORK_STATE action failed"),
-                        detail: { exception },
-                        tab: 'network',
-                    })))
-                    .then(() => {
-                        dispatch(getVm({ connectionName, id:objPath }));
-                    });
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXml = updateNetworkIface({ domXml: domXml[0], networkMac, networkState: state });
+                    // updateNetworkIface can fail but we 'll catch the exception from the API call itself that will error on null argument
+                    return call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT);
+                });
     },
 
     CHANGE_VM_AUTOSTART ({

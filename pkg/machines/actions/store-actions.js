@@ -70,11 +70,6 @@ export function deleteUnlistedVMs(connectionName, vmNames, vmIds) {
     };
 }
 
-export function deleteVmMessage({ name, connectionName, tab }) {
-    // recently there's just the last error message kept so we can reuse the code
-    return vmActionFailed({ name, connectionName, message: null, detail: null, extraPayload: null, tab });
-}
-
 export function setHypervisorMaxVCPU({ count, connectionName }) {
     return {
         type: SET_HYPERVISOR_MAX_VCPU,

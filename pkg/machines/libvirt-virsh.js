@@ -383,15 +383,7 @@ LIBVIRT_PROVIDER = {
 
     CHANGE_NETWORK_STATE ({ name, networkMac, state, connectionName }) {
         logDebug(`${this.name}.CHANGE_NETWORK_STATE(${name}.${networkMac} ${state}):`);
-        return dispatch => {
-            spawnVirsh({ connectionName,
-                         method: 'CHANGE_NETWORK_STATE',
-                         failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("CHANGE NETWORK STATE action failed") }),
-                         args: ['domif-setlink', name, networkMac, state]
-            }).then(() => {
-                dispatch(getVm({ connectionName, name }));
-            });
-        };
+        return spawnVirshNoHandler({ connectionName, args: ['domif-setlink', name, networkMac, state] });
     },
 
     USAGE_START_POLLING ({ name, connectionName }) {

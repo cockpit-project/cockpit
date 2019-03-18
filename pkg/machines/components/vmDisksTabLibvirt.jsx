@@ -121,7 +121,8 @@ class VmDisksTabLibvirt extends React.Component {
                 disks={disks}
                 renderCapacity={areDiskStatsSupported}
                 dispatch={dispatch}
-                provider={config.provider.name} />
+                provider={config.provider.name}
+                onAddErrorNotification={this.props.onAddErrorNotification} />
         );
     }
 }

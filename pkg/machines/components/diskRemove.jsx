@@ -17,18 +17,28 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
+import cockpit from 'cockpit';
 
-import { detachDisk } from '../actions/provider-actions.js';
+import { detachDisk, getVm } from '../actions/provider-actions.js';
 
-const onDetachDisk = (dispatch, vm, target) => {
+const _ = cockpit.gettext;
+
+const onDetachDisk = (dispatch, vm, target, onAddErrorNotification) => {
     return () => {
-        dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target, live: vm.state == 'running' }));
+        dispatch(detachDisk({ connectionName:vm.connectionName, id:vm.id, name:vm.name, target, live: vm.state == 'running' }))
+                .catch(ex => {
+                    onAddErrorNotification({
+                        text: cockpit.format(_("Disk $0 fail to get detached from VM $1"), target, vm.name),
+                        detail: ex.message, resourceId: vm.id,
+                    });
+                })
+                .then(() => dispatch(getVm({ connectionName: vm.connectionName, id:vm.id })));
     };
 };
 
-const RemoveDiskAction = ({ dispatch, vm, target, idPrefixRow }) => {
+const RemoveDiskAction = ({ dispatch, vm, target, idPrefixRow, onAddErrorNotification }) => {
     return (
-        <button id={`${idPrefixRow}-detach`} className="btn btn-default btn-control-ct fa fa-minus" onClick={onDetachDisk(dispatch, vm, target)} />
+        <button id={`${idPrefixRow}-detach`} className="btn btn-default btn-control-ct fa fa-minus" onClick={onDetachDisk(dispatch, vm, target, onAddErrorNotification)} />
     );
 };
 

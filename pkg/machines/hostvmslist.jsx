@@ -94,6 +94,7 @@ class HostVmsList extends React.Component {
                             return (
                                 <Vm vm={vm} config={config}
                                     resourceHasError={this.props.resourceHasError}
+                                    onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}
                                     storagePools={storagePools}
                                     onStart={() => dispatch(startVm(vm)).catch(ex => {

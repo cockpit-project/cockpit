@@ -23,7 +23,6 @@ import cockpit from 'cockpit';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { convertToUnit, toReadableNumber, units } from "../helpers.js";
 import RemoveDiskAction from './diskRemove.jsx';
-import VmLastMessage from './vmLastMessage.jsx';
 
 const _ = cockpit.gettext;
 
@@ -55,11 +54,9 @@ const VmDiskCell = ({ value, id }) => {
     );
 };
 
-const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, provider }) => {
+const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, provider, onAddErrorNotification }) => {
     const columnTitles = [_("Device")];
     let renderCapacityUsed, renderReadOnly;
-    const currentTab = 'disk';
-    const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
 
     if (disks && disks.length > 0) {
         renderCapacityUsed = !!disks.find(disk => (!!disk.used));
@@ -82,7 +79,6 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, pr
 
     return (
         <div className="machines-disks">
-            {message}
             <Listing compact columnTitles={columnTitles} actions={actions} emptyCaption={_("No disks defined for this VM")}>
                 {disks.map(disk => {
                     const idPrefixRow = `${idPrefix}-${disk.target || disk.device}`;
@@ -111,6 +107,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, pr
                             vm,
                             target: disk.target,
                             idPrefixRow,
+                            onAddErrorNotification,
                         });
                         columns.push(removeDiskAction);
                     }
@@ -128,6 +125,7 @@ VmDisksTab.propTypes = {
     disks: PropTypes.array.isRequired,
     renderCapacity: PropTypes.bool,
     provider: PropTypes.string,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };
 
 export default VmDisksTab;

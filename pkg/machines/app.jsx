@@ -145,7 +145,9 @@ class App extends React.Component {
                 }
                 { this.state.activeTab == 3 && <NetworkList networks={networks}
                     dispatch={dispatch}
-                    changeActiveList={this.changeActiveList} />
+                    changeActiveList={this.changeActiveList}
+                    resourceHasError={this.state.resourceHasError}
+                    onAddErrorNotification={this.onAddErrorNotification} />
                 }
             </div>
         );

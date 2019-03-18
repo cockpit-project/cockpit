@@ -789,6 +789,8 @@ export let canReset = (vmState) => vmState == 'running' || vmState == 'idle' || 
 export let canRun = (vmState, hasInstallPhase) => !hasInstallPhase && vmState == 'shut off';
 export let canSendNMI = (vmState) => canReset(vmState);
 export let canShutdown = (vmState) => canReset(vmState);
+export let canPause = (vmState) => vmState == 'running';
+export let canResume = (vmState) => vmState == 'paused';
 export let isRunning = (vmState) => canReset(vmState);
 export let serialConsoleCommand = ({ vm }) => vm.displays['pty'] ? [ 'virsh', ...VMS_CONFIG.Virsh.connections[vm.connectionName].params, 'console', vm.name ] : false;
 

@@ -50,7 +50,9 @@ import {
     GET_VM,
     INIT_DATA_RETRIEVAL,
     INSTALL_VM,
+    PAUSE_VM,
     REBOOT_VM,
+    RESUME_VM,
     SENDNMI_VM,
     SET_VCPU_SETTINGS,
     SHUTDOWN_VM,
@@ -192,8 +194,16 @@ export function installVm(vm) {
     return virt(INSTALL_VM, vm);
 }
 
+export function pauseVm(vm) {
+    return virt(PAUSE_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+}
+
 export function rebootVm(vm) {
     return virt(REBOOT_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
+}
+
+export function resumeVm(vm) {
+    return virt(RESUME_VM, { name: vm.name, id: vm.id, connectionName: vm.connectionName });
 }
 
 export function sendNMI(vm) {

@@ -72,7 +72,9 @@ import {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -159,7 +161,9 @@ LIBVIRT_DBUS_PROVIDER = {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -746,6 +750,19 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    PAUSE_VM({
+        name,
+        connectionName,
+        id: objPath
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT)
+                    .catch(exception => dispatch(vmActionFailed(
+                        { name, connectionName, message: _("VM Pause action failed"), detail: { exception } }
+                    )));
+        };
+    },
+
     REBOOT_VM({
         name,
         connectionName,
@@ -759,6 +776,19 @@ LIBVIRT_DBUS_PROVIDER = {
                         message: _("VM REBOOT action failed"),
                         detail: { exception }
                     })));
+        };
+    },
+
+    RESUME_VM({
+        name,
+        connectionName,
+        id: objPath
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT)
+                    .catch(exception => dispatch(vmActionFailed(
+                        { name, connectionName, message: _("VM Resume action failed"), detail: { exception } }
+                    )));
         };
     },
 

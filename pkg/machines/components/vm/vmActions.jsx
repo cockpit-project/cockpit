@@ -30,7 +30,7 @@ import DropdownButtons from '../dropdownButtons.jsx';
 
 const _ = cockpit.gettext;
 
-const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onForceoff, onSendNMI }) => {
+const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForceReboot, onShutdown, onPause, onResume, onForceoff, onSendNMI }) => {
     const id = vmId(vm.name);
     const state = vm.state;
     const hasInstallPhase = vm.metadata.hasInstallPhase;
@@ -71,6 +71,20 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
         shutdown = DropdownButtons({ buttons: buttons });
     }
 
+    let pause = null;
+    if (config.provider.name === "LibvirtDBus" && config.provider.canPause(state)) {
+        pause = (<button key='action-pause' className="btn btn-default" onClick={mouseClick(onPause)} id={`${id}-pause`}>
+            {_("Pause")}
+        </button>);
+    }
+
+    let resume = null;
+    if (config.provider.name === "LibvirtDBus" && config.provider.canResume(state)) {
+        resume = (<button key='action-resume' className="btn btn-default" onClick={mouseClick(onResume)} id={`${id}-resume`}>
+            {_("Resume")}
+        </button>);
+    }
+
     let run = null;
     if (config.provider.canRun(state, hasInstallPhase)) {
         run = (<button key='action-run' className="btn btn-default btn-danger" onClick={mouseClick(onStart)} id={`${id}-run`}>
@@ -100,6 +114,8 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
 
     return [
         reset,
+        pause,
+        resume,
         shutdown,
         run,
         install,
@@ -116,6 +132,8 @@ VmActions.propTypes = {
     onReboot: PropTypes.func.isRequired,
     onForceReboot: PropTypes.func.isRequired,
     onShutdown: PropTypes.func.isRequired,
+    onPause: PropTypes.func.isRequired,
+    onResume: PropTypes.func.isRequired,
     onForceoff: PropTypes.func.isRequired,
     onSendNMI: PropTypes.func.isRequired,
 };

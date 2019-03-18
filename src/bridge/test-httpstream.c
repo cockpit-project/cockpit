@@ -30,9 +30,6 @@
 
 #include <string.h>
 
-/* Declared in cockpitwebserver.c */
-extern gboolean cockpit_webserver_want_certificate;
-
 /* JSON dict snippet for headers that are present in every request */
 #define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\""
 
@@ -489,7 +486,7 @@ setup_tls (TestTls *test,
                                                         SRCDIR "/src/bridge/mock-server.key", &error);
   g_assert_no_error (error);
 
-  test->web_server = cockpit_web_server_new (NULL, 0, test->certificate, COCKPIT_WEB_SERVER_NONE, NULL, &error);
+  test->web_server = cockpit_web_server_new (NULL, 0, test->certificate, COCKPIT_WEB_SERVER_REQUEST_CLIENT_CERT, NULL, &error);
   g_assert_no_error (error);
 
   test->port = cockpit_web_server_get_port (test->web_server);
@@ -509,7 +506,6 @@ teardown_tls (TestTls *test,
   g_object_unref (test->web_server);
   g_object_unref (test->transport);
   g_clear_object (&test->peer);
-  cockpit_webserver_want_certificate = FALSE;
 }
 
 static void
@@ -681,9 +677,6 @@ test_tls_certificate (TestTls *test,
   const gchar *control;
   GBytes *bytes;
   GBytes *data;
-
-  /* tell server to request client cert */
-  cockpit_webserver_want_certificate = TRUE;
 
   tls = cockpit_json_parse_object (json, -1, &error);
   g_assert_no_error (error);

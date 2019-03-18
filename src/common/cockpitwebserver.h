@@ -37,7 +37,8 @@ typedef enum {
   COCKPIT_WEB_SERVER_REDIRECT_TLS = 1 << 1,
   /* http → https redirection for reverse proxy setups: Look at Host: header instead of connection IP */
   COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY = 1 << 2,
-  COCKPIT_WEB_SERVER_FLAGS_MAX = 1 << 3
+  COCKPIT_WEB_SERVER_REQUEST_CLIENT_CERT = 1 << 3,
+  COCKPIT_WEB_SERVER_FLAGS_MAX = 1 << 4
 } CockpitWebServerFlags;
 
 

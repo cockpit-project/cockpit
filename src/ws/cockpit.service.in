@@ -6,6 +6,12 @@ Requires=cockpit.socket
 [Service]
 ExecStartPre=@sbindir@/remotectl certificate --ensure --user=root --group=@group@ --selinux-type=@selinux_config_type@
 ExecStart=@libexecdir@/cockpit-ws
+# deprecated, replace with + prefix once we stop supporting systemd 219
 PermissionsStartOnly=true
 User=@user@
 Group=@group@
+ProtectSystem=full
+# cockpit-ssh needs to read ~/.ssh/
+ProtectHome=read-only
+PrivateTmp=true
+RemoveIPC=true

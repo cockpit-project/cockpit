@@ -23,6 +23,7 @@ import { Modal, Button } from 'patternfly-react';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
+import { ModalError } from './notification/inlineNotification.jsx';
 
 import './deleteDialog.css';
 
@@ -95,6 +96,11 @@ export class DeleteDialog extends React.Component {
         this.close = this.close.bind(this);
         this.delete = this.delete.bind(this);
         this.onDiskCheckedChanged = this.onDiskCheckedChanged.bind(this);
+        this.dialogErrorSet = this.dialogErrorSet.bind(this);
+    }
+
+    dialogErrorSet(text, detail) {
+        this.setState({ dialogError: text, dialogErrorDetail: detail });
     }
 
     onDiskCheckedChanged(index, value) {
@@ -105,7 +111,7 @@ export class DeleteDialog extends React.Component {
     }
 
     close() {
-        this.setState({ showModal: false });
+        this.setState({ showModal: false, dialogError: undefined });
     }
 
     open() {
@@ -125,7 +131,10 @@ export class DeleteDialog extends React.Component {
     delete() {
         const storage = this.state.disks.filter(d => d.checked);
 
-        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }));
+        return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }))
+                .catch(exc => {
+                    this.dialogErrorSet(cockpit.format(_("VM $0 failed to get deleted"), this.props.vm.name), exc.message);
+                });
     }
 
     render() {
@@ -144,6 +153,7 @@ export class DeleteDialog extends React.Component {
                         <DeleteDialogBody disks={this.state.disks} destroy={this.state.destroy} onChange={this.onDiskCheckedChanged} />
                     </Modal.Body>
                     <Modal.Footer>
+                        {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                         <Button bsStyle='default' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>

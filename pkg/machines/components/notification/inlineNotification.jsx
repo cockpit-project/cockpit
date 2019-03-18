@@ -26,7 +26,7 @@ import './inlineNotification.css';
 
 const _ = cockpit.gettext;
 
-class InlineNotification extends React.Component {
+export class InlineNotification extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,13 +57,13 @@ class InlineNotification extends React.Component {
         }
 
         return (
-            <div>
+            <React.Fragment>
                 <strong id={textId}>
                     {text}
                 </strong>
                 {detailButton}
                 {this.state.isDetail && (<p>{detail}</p>)}
-            </div>
+            </React.Fragment>
         );
     }
 }

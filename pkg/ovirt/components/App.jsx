@@ -130,6 +130,8 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
         <div className='container-fluid'>
             <HostStatus host={host} />
             <HostVmsList vms={vms}
+                         resourceHasError={{}}
+                         onAddErrorNotification={() => {}}
                          config={config}
                          systemInfo={systemInfo}
                          ui={ui}

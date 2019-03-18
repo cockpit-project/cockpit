@@ -305,49 +305,27 @@ LIBVIRT_PROVIDER = {
 
     SHUTDOWN_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SHUTDOWN_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'SHUTDOWN_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SHUT DOWN action failed") }),
-                                        args: ['shutdown', name]
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['shutdown', name] });
     },
 
     FORCEOFF_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEOFF_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'FORCEOFF_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE OFF action failed") }),
-                                        args: ['destroy', name]
-        }).then(() => {
-            dispatch(getVm(connectionName, name));
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['destroy', name] });
     },
 
     REBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.REBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'REBOOT_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM REBOOT action failed") }),
-                                        args: ['reboot', name]
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['reboot', name] });
     },
 
     FORCEREBOOT_VM ({ name, connectionName }) {
         logDebug(`${this.name}.FORCEREBOOT_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'FORCEREBOOT_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM FORCE REBOOT action failed") }),
-                                        args: ['reset', name]
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['reset', name] });
     },
 
     START_VM ({ name, connectionName }) {
         logDebug(`${this.name}.START_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'START_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM START action failed") }),
-                                        args: ['start', name]
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['start', name] });
     },
 
     SET_VCPU_SETTINGS ({ name, connectionName, count, max, sockets, cores, threads, isRunning }) {
@@ -431,11 +409,7 @@ LIBVIRT_PROVIDER = {
 
     SENDNMI_VM ({ name, connectionName }) {
         logDebug(`${this.name}.SENDNMI_VM(${name}):`);
-        return dispatch => spawnVirsh({ connectionName,
-                                        method: 'SENDNMI_VM',
-                                        failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM SEND Non-Maskable Interrrupt action failed") }),
-                                        args: ['inject-nmi', name]
-        });
+        return spawnVirshNoHandler({ connectionName, args: ['inject-nmi', name] });
     },
 
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
@@ -494,6 +468,13 @@ function spawnVirshReadOnly({ connectionName, method, name, params, failHandler 
     let args = params ? ['-r', method, params, name] : ['-r', method, name];
 
     return spawnVirsh({ connectionName, method, args, failHandler });
+}
+
+function spawnVirshNoHandler({ connectionName, args }) {
+    return spawnProcess({
+        cmd: 'virsh',
+        args: VMS_CONFIG.Virsh.connections[connectionName].params.concat(args),
+    });
 }
 
 function parseDominfo(dispatch, connectionName, name, domInfo) {

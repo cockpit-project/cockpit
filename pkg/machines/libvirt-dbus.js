@@ -448,35 +448,17 @@ LIBVIRT_DBUS_PROVIDER = {
     },
 
     FORCEOFF_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM FORCE OFF action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
     },
 
     FORCEREBOOT_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Reset', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM FORCE REBOOT action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Reset', [0], TIMEOUT);
     },
 
     GET_ALL_NETWORKS({
@@ -767,61 +749,31 @@ LIBVIRT_DBUS_PROVIDER = {
     },
 
     PAUSE_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM Pause action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT);
     },
 
     REBOOT_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Reboot', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM REBOOT action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Reboot', [0], TIMEOUT);
     },
 
     RESUME_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM Resume action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT);
     },
 
     SENDNMI_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'InjectNMI', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM SENDNMI action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'InjectNMI', [0], TIMEOUT);
     },
 
     SET_VCPU_SETTINGS ({
@@ -843,32 +795,17 @@ LIBVIRT_DBUS_PROVIDER = {
     },
 
     SHUTDOWN_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Shutdown', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM SHUT DOWN action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Shutdown', [0], TIMEOUT);
     },
 
     START_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Create', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM START action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Create', [0], TIMEOUT);
     },
 
     USAGE_START_POLLING({

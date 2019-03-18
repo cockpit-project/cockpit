@@ -382,29 +382,77 @@ class TestMachines(NetworkCase):
         # triangle by status
         b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
-        b.wait_in_text("#vm-subVmTest2-last-message", "VM START action failed")
+        b.wait_present("div.alert.alert-danger strong")
+        b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
 
         b.wait_present("a.alert-link.machines-more-button") # more/less button
         b.wait_in_text("a.alert-link.machines-more-button", "show more")
         b.click("a.alert-link.machines-more-button")
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p")
-        b.wait_in_text("a.alert-link.machines-more-button", "show less")
+        b.wait_present("a.alert-link + p")
 
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+            b.wait_in_text("a.alert-link + p",
                            "domain is already running")
         else:
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+            b.wait_in_text("a.alert-link + p",
                            "Domain is already active")
 
-        b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
+        b.wait_in_text("a.alert-link.machines-more-button", "show less")
+        b.click("div.alert.alert-danger button") # close button
         # inline notification is gone
-        b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
+        b.wait_not_present("div.alert.alert-danger")
         # triangle by status is gone
         b.wait_not_present(
             "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
+
+        # Check correctness of the toast notifications list
+        # We 'll create errors by starting to start domains when the default network in inactive
+        self.startVm("subVmTest3")
+        m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
+
+        def tryRunDomain(index, name):
+            b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index))
+            b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
+
+            row_classes = b.attr("#virtual-machines-listing .listing-ct tbody:nth-of-type({0})".format(index), "class")
+            expanded = row_classes and 'open' in row_classes
+            if not expanded:
+                b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index)) # click on the row header
+
+            b.wait_present("#vm-{0}-run".format(name))
+            b.click("#vm-{0}-run".format(name))
+
+        # Try to run subVmTest1 - it will fail because of inactive default network
+        tryRunDomain(1, 'subVmTest1')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest1 failed to start")
+
+        # Try to run subVmTest2
+        tryRunDomain(2, 'subVmTest2')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest2 failed to start")
+
+        # Delete the first notification and check notifications list again
+        b.focus(".toast-notifications-list-pf")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1)")
+        b.click(".toast-notifications-list-pf div:nth-child(1) button.close")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+
+        # Add one more notification
+        tryRunDomain(3, 'subVmTest3')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest3 failed to start")
+
+        # Delete the last notification
+        b.focus(".toast-notifications-list-pf")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) button.close")
+        b.click(".toast-notifications-list-pf div:nth-child(2) button.close")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser

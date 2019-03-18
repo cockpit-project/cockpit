@@ -51,7 +51,6 @@ import {
     updateStorageVolumes,
     updateVm,
     setHypervisorMaxVCPU,
-    vmActionFailed,
 } from './actions/store-actions.js';
 
 import {
@@ -100,8 +99,6 @@ import {
     INSTALL_VM,
     START_LIBVIRT,
 } from './libvirt-common.js';
-
-const _ = cockpit.gettext;
 
 let clientLibvirt = {};
 /* Default timeout for libvirt-dbus method calls */
@@ -319,18 +316,11 @@ LIBVIRT_DBUS_PROVIDER = {
         options
     }) {
         function destroy(dispatch) {
-            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed({
-                        name: name,
-                        connectionName,
-                        message: _("VM DELETE action failed"),
-                        detail: { exception }
-                    })));
+            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
         }
 
         function undefine(dispatch) {
             let storageVolPromises = [];
-            let storageVolPathsPromises = [];
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
 
             for (let i = 0; i < options.storage.length; i++) {
@@ -338,16 +328,16 @@ LIBVIRT_DBUS_PROVIDER = {
 
                 switch (disk.type) {
                 case 'file':
-                    storageVolPathsPromises.push(
+                    storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], TIMEOUT)
+                                .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
                     break;
                 case 'volume':
-                    storageVolPathsPromises.push(
+                    storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [disk.source.pool], TIMEOUT)
-                                .then(objPath => {
-                                    return call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT);
-                                })
+                                .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT))
+                                .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
                     break;
                 default:
@@ -355,37 +345,17 @@ LIBVIRT_DBUS_PROVIDER = {
                 }
             }
 
-            Promise.all(storageVolPathsPromises)
-                    .then((storageVolPaths) => {
-                        for (let i = 0; i < storageVolPaths.length; i++) {
-                            storageVolPromises.push(
-                                call(connectionName, storageVolPaths[i][0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT)
-                            );
-                        }
-
-                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                        // https://github.com/cockpit-project/cockpit/issues/10956
-                        // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(storageVolPathsPromises);
-                    })
+            return dispatch => Promise.all(storageVolPromises)
                     .then(() => {
-                        call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name: name,
-                        connectionName,
-                        message: _("VM DELETE action failed"),
-                        detail: { exception }
-                    })));
+                        return call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
+                    });
         }
 
-        return dispatch => {
-            if (options.destroy) {
-                return destroy(dispatch).then(undefine(dispatch));
-            } else {
-                return undefine(dispatch);
-            }
-        };
+        if (options.destroy) {
+            return destroy().then(undefine());
+        } else {
+            return undefine();
+        }
     },
 
     DETACH_DISK({

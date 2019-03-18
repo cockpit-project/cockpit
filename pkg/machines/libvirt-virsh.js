@@ -353,11 +353,7 @@ LIBVIRT_PROVIDER = {
 
         return dispatch => {
             function destroy() {
-                return spawnVirsh({ connectionName,
-                                    method: 'DELETE_VM',
-                                    failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM DELETE (DESTROY) action failed") }),
-                                    args: [ 'destroy', name ]
-                });
+                return spawnVirshNoHandler({ connectionName, args: [ 'destroy', name ] });
             }
 
             function undefine() {
@@ -366,11 +362,7 @@ LIBVIRT_PROVIDER = {
                     args.push('--storage');
                     args.push(options.storage.map(disk => disk.target).join(','));
                 }
-                return spawnVirsh({ connectionName,
-                                    method: 'DELETE_VM',
-                                    failHandler: buildFailHandler({ dispatch, name, connectionName, message: _("VM DELETE (UNDEFINE) action failed") }),
-                                    args: args
-                });
+                return spawnVirshNoHandler({ connectionName, args });
             }
 
             if (options.destroy) {

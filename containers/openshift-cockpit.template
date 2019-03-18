@@ -158,13 +158,13 @@
       },
       {
         "kind": "OAuthClient",
-        "apiVersion": "v1",
+        "apiVersion": "oauth.openshift.io/v1",
         "metadata": {
           "name": "${OPENSHIFT_OAUTH_CLIENT_ID}"
         },
         "respondWithChallenges": false,
         "secret": "${OPENSHIFT_OAUTH_CLIENT_SECRET}",
-        "allowAnyScope": true,
+        "grantMethod": "auto",
         "redirectURIs": [
             "${COCKPIT_KUBE_URL}"
         ]

@@ -74,15 +74,8 @@ export function buildFailHandler({ dispatch, name, connectionName, message, extr
         }));
 }
 
-export function buildScriptTimeoutFailHandler(args, delay) {
-    let handler = buildFailHandler(args);
-    return ({ message, exception }) => {
-        window.setTimeout(() => {
-            handler({
-                exception: exception || message,
-            });
-        }, delay);
-    };
+export function buildScriptTimeoutFailHandler(handler, delay) {
+    return () => window.setTimeout(handler, delay);
 }
 
 export function canLoggedUserConnectSession (connectionName, loggedUser) {
@@ -935,7 +928,7 @@ export function INIT_DATA_RETRIEVAL () {
     };
 }
 
-export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName }) {
+export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displays, connectionName, onAddErrorNotification }) {
     logDebug(`${this.name}.INSTALL_VM(${name}):`);
     return dispatch => {
         // shows dummy vm until we get vm from virsh (cleans up inProgress)
@@ -954,15 +947,11 @@ export function INSTALL_VM({ name, vcpus, currentMemory, metadata, disks, displa
             prepareDisplaysParam(displays),
         ], { err: "message", environ: ['LC_ALL=C'] })
                 .done(() => finishVmInstallInProgress(dispatch, name))
-                .fail(({ message, exception }) => {
+                .fail(ex => {
                     finishVmInstallInProgress(dispatch, name, { openConsoleTab: false });
-                    const handler = buildScriptTimeoutFailHandler({
-                        dispatch,
-                        name,
-                        connectionName,
-                        message: _("INSTALL VM action failed"),
-                    }, VMS_CONFIG.WaitForRetryInstallVm);
-                    handler({ message, exception });
+                    buildScriptTimeoutFailHandler(
+                        () => onAddErrorNotification({ text: cockpit.format(_("VM $0 failed to get installed"), name), detail: ex.message })
+                        , VMS_CONFIG.WaitForRetryInstallVm);
                 });
     };
 }

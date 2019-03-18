@@ -40,14 +40,8 @@ const _ = cockpit.gettext;
 /** One VM in the list (a row)
  */
 const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks }) => {
-    const defaultTabName = 'overview';
-    const stateAlert = (
-        vm.errorMessages &&
-        vm.errorMessages[defaultTabName] &&
-        vm.errorMessages[defaultTabName].lastMessage &&
-        (<span className='pficon-warning-triangle-o machines-status-alert' />)
-    );
+              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, resourceHasError }) => {
+    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
     const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
 
     const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);
@@ -130,6 +124,7 @@ Vm.propTypes = {
     onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
+    resourceHasError: PropTypes.object.isRequired,
 };
 
 export default Vm;

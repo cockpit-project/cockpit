@@ -190,8 +190,8 @@ export function initDataRetrieval() {
     return virt(INIT_DATA_RETRIEVAL);
 }
 
-export function installVm(vm) {
-    return virt(INSTALL_VM, vm);
+export function installVm(vm, addErrorNotifications) {
+    return virt(INSTALL_VM, Object.assign({}, vm, { addErrorNotifications }));
 }
 
 export function pauseVm(vm) {

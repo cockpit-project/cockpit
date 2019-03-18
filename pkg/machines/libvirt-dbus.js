@@ -421,30 +421,20 @@ LIBVIRT_DBUS_PROVIDER = {
         if (live)
             detachFlags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
 
-        return dispatch => {
-            call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .then(domXml => {
-                        let getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
-                        diskXML = getDiskElemByTarget(domXml[0], target);
+        return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
+                    diskXML = getDiskElemByTarget(domXml[0], target);
 
-                        return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT);
-                    })
-                    .then(domInactiveXml => {
-                        let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
-                        if (diskInactiveXML)
-                            detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+                    return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT);
+                })
+                .then(domInactiveXml => {
+                    let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
+                    if (diskInactiveXML)
+                        detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
-                        return call(connectionName, vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT);
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM DETACH_DISK action failed"),
-                        detail: { exception },
-                        tab: 'disk',
-                    })))
-                    .then(() => dispatch(getVm({ connectionName, id:vmPath })));
-        };
+                    return call(connectionName, vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT);
+                });
     },
 
     FORCEOFF_VM({

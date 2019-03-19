@@ -46,7 +46,7 @@ def parse_tab(name):
         if sline == "" or sline[0] == "#":
             continue
         fields = list(map(field_unescape, re.split("[ \t]+", sline)))
-        if len(fields) > 0 and ":" in fields[0]:
+        if len(fields) > 2 and ":" in fields[0] and fields[2].startswith("nfs"):
             entries.append(fields)
     return entries
 

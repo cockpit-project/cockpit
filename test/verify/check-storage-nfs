@@ -143,9 +143,13 @@ class TestStorage(StorageCase):
         b.wait_present("#nfs-mounts td:contains(/somewhere)")
         b.wait_present("#nfs-mounts td:contains(Not mounted)")
 
+        # Ignores non-FS mounts which look similar
+        m.execute("echo '2.3.4.5:/marmalade /dunno rfs defaults 0 0' >> /etc/fstab")
+        # But recognizes variants like "nfs4"
         m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
         b.wait_present("#nfs-mounts td:contains(5.6.7.8)")
         b.wait_present("#nfs-mounts td:contains(/four)")
+        self.assertFalse(b.is_present("#nfs-mounts td:contains(marmalade)"))
 
     def testNfsListExports(self):
         m = self.machine

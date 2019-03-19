@@ -5,8 +5,21 @@ import "plot.css";
 
 $(function () {
     var pl = new plot.Plot($('#plot'), 300);
-    pl.set_options(plot.plot_simple_template());
-    pl.add_metrics_sum_series({ direct: [ "mem.util.used" ], }, { });
+    var options = plot.plot_simple_template();
+    $.extend(options.yaxis, {
+        ticks: plot.memory_ticks,
+        tickFormatter: plot.format_bytes_tick_no_unit
+    });
+    options.post_hook = function memory_post_hook(p) {
+        var axes = p.getAxes();
+        $('#plot_unit').text(plot.bytes_tick_unit(axes.yaxis));
+    };
+
+    pl.set_options(options);
+    pl.add_metrics_difference_series({
+        direct: [ "mem.physmem", "mem.util.available" ],
+        units: "bytes"
+    }, { });
 
     $("body").show();
     $("#plot").css({ height: "200px" });

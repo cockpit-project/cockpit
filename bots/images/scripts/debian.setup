@@ -42,6 +42,7 @@ udisks2-lvm2 \
 # We also install the packages necessary to join a FreeIPA domain so
 # that we don't have to go to the network during a test run.
 IPA_CLIENT_PACKAGES="\
+freeipa-client \
 sssd-tools \
 sssd-dbus \
 packagekit \
@@ -71,6 +72,7 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-dbus /}"
+        IPA_CLIENT_PACKAGES="${IPA_CLIENT_PACKAGES/freeipa-client /}"
         # keep in sync with allowed messages in test/common/testlib.py
         COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
@@ -88,7 +90,6 @@ case "$RELEASE" in
 esac
 
 if grep -q 'ID=ubuntu' /etc/os-release; then
-    IPA_CLIENT_PACKAGES="$IPA_CLIENT_PACKAGES freeipa-client"
     PBUILDER_OPTS='COMPONENTS="main universe"'
 
     # We want to use/test NetworkManager instead of netplan/networkd for ethernets

@@ -33,14 +33,10 @@ import {
     usageStartPolling,
     usageStopPolling,
 } from "./actions/provider-actions.js";
-import {
-    clearNotification,
-} from "./actions/store-actions.js";
 
 import { vmId } from "./helpers.js";
 
 import { Listing } from "cockpit-components-listing.jsx";
-import NotificationArea from './components/notification/notificationArea.jsx';
 import Vm from './components/vm/vm.jsx';
 import DummyVm from './components/vm/dummyVm.jsx';
 
@@ -83,9 +79,6 @@ class HostVmsList extends React.Component {
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
         return (<div id='virtual-machines-listing' className='container-fluid'>
-            <NotificationArea id={"notification-area"}
-                notifications={ui.notifications}
-                onDismiss={(id) => dispatch(clearNotification(id))} />
             <Listing title={_("Virtual Machines")}
                 columnTitles={[_("Name"), _("Connection"), _("State")]}
                 actions={actions}

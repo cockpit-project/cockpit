@@ -17,10 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import {
-    ADD_NOTIFICATION,
     ADD_UI_VM,
-    CLEAR_NOTIFICATION,
-    CLEAR_NOTIFICATIONS,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_HYPERVISOR_MAX_VCPU,
@@ -50,44 +47,10 @@ import {
  *  The naming convention for action creator names is: <verb><Noun>
  *  with the present tense.
  */
-
-export function addErrorNotification(notification) {
-    if (typeof notification === 'string') {
-        notification = { message: notification };
-    }
-    notification.type = 'error';
-
-    return {
-        type: ADD_NOTIFICATION,
-        notification,
-    };
-}
-
-export function addNotification(notification) {
-    return {
-        type: ADD_NOTIFICATION,
-        notification,
-    };
-}
-
 export function addUiVm(vm) {
     return {
         type: ADD_UI_VM,
         vm,
-    };
-}
-
-export function clearNotification(id) {
-    return {
-        type: CLEAR_NOTIFICATION,
-        id,
-
-    };
-}
-
-export function clearNotifications() {
-    return {
-        type: CLEAR_NOTIFICATIONS,
     };
 }
 

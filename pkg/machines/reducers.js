@@ -20,10 +20,7 @@ import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.js";
 import { logDebug } from './helpers.js';
 import {
-    ADD_NOTIFICATION,
     ADD_UI_VM,
-    CLEAR_NOTIFICATION,
-    CLEAR_NOTIFICATIONS,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
@@ -345,26 +342,6 @@ function ui(state, action) {
         newState.vms = Object.assign({}, state.vms);
         delete newState.vms[action.vm.name];
         return newState;
-    }
-    case ADD_NOTIFICATION: {
-        const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
-        const notifs = state.notifications;
-        notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
-
-        if (!notification.type) {
-            notification.type = 'info';
-        }
-
-        state.notifications = [...notifs, notification];
-        return state;
-    }
-    case CLEAR_NOTIFICATION: {
-        state.notifications = state.notifications.filter(error => error.id !== action.id);
-        return state;
-    }
-    case CLEAR_NOTIFICATIONS: {
-        state.notifications = [];
-        return state;
     }
     default:
         return state;

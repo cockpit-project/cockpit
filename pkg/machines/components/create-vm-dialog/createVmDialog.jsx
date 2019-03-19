@@ -26,7 +26,6 @@ import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
 import * as Select from "cockpit-components-select.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 import { createVm } from '../../actions/provider-actions.js';
-import { addErrorNotification } from '../../actions/store-actions.js';
 import {
     isEmpty,
     convertToUnit,
@@ -457,10 +456,10 @@ class CreateVmModal extends React.Component {
                 VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
                 () => this.props.close(),
                 (exception) => {
-                    dispatch(addErrorNotification({
-                        message: cockpit.format(_("Creation of vm $0 failed"), vmParams.vmName),
-                        description: exception,
-                    }));
+                    this.props.onAddErrorNotification({
+                        text: cockpit.format(_("Creation of VM $0 failed"), vmParams.vmName),
+                        detail: exception.message,
+                    });
                     this.props.close();
                 });
         }
@@ -539,6 +538,7 @@ export class CreateVmAction extends React.Component {
                     networks={this.props.networks}
                     nodeDevices={this.props.nodeDevices}
                     osInfoList={this.props.systemInfo.osInfoList}
+                    onAddErrorNotification={this.props.onAddErrorNotification}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
             </React.Fragment>
         );

@@ -52,7 +52,6 @@ import {
 } from './helpers.js';
 
 import {
-    buildFailHandler,
     canConsole,
     canDelete,
     canInstall,
@@ -82,8 +81,6 @@ import {
 } from './libvirt-common.js';
 
 import VMS_CONFIG from './config.js';
-
-const _ = cockpit.gettext;
 
 /**
  * Parse non-XML stdout of virsh.
@@ -399,10 +396,10 @@ LIBVIRT_PROVIDER = {
     GET_HYPERVISOR_MAX_VCPU ({ connectionName }) {
         logDebug(`${this.name}.GET_HYPERVISOR_MAX_VCPU:`);
         if (connectionName) {
-            return dispatch => spawnVirsh({ connectionName,
-                                            method: 'GET_HYPERVISOR_MAX_VCPU',
-                                            failHandler: buildFailHandler({ dispatch, connectionName, message: _("GET HYPERVISOR MAX VCPU action failed") }),
-                                            args: ['-r', 'maxvcpus']
+            return dispatch => spawnVirshNoHandler({ connectionName,
+                                                     method: 'GET_HYPERVISOR_MAX_VCPU',
+                                                     failHandler: (exc) => console.warning("GET HYPERVISOR MAX VCPU action failed: ", exc.message),
+                                                     args: ['-r', 'maxvcpus']
             }).then((count) => dispatch(setHypervisorMaxVCPU({ count, connectionName })));
         }
 

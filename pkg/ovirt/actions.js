@@ -156,3 +156,17 @@ export function setHostIPs(ips) {
         }
     };
 }
+
+export function vmActionFailed({ name, connectionName, message, detail, extraPayload, tab = 'overview' }) {
+    return {
+        type: 'VM_ACTION_FAILED',
+        payload: {
+            name,
+            connectionName,
+            message,
+            detail,
+            extraPayload,
+            tab,
+        },
+    };
+}

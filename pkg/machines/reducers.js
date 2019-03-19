@@ -37,7 +37,6 @@ import {
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
     UPDATE_VM,
-    VM_ACTION_FAILED,
 } from './constants/store-action-types.js';
 
 // --- helpers -------------------
@@ -188,22 +187,6 @@ function vms(state, action) {
         }
 
         // replace whole object
-        return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
-    }
-    case VM_ACTION_FAILED: {
-        const indexedVm = findVmToUpdate(state, action.payload);
-        let tab = action.payload.tab || 'overview';
-        if (!indexedVm) { // already logged
-            return state;
-        }
-        if (!indexedVm.vmCopy.errorMessages)
-            indexedVm.vmCopy.errorMessages = {};
-
-        let updatedVm = Object.assign({}, indexedVm.vmCopy);
-        updatedVm.errorMessages = Object.assign({}, indexedVm.vmCopy.errorMessages);
-        updatedVm.errorMessages[tab] = Object.assign({}, indexedVm.vmCopy.errorMessages[tab]);
-        updatedVm.errorMessages[tab].lastMessage = action.payload.message;
-        updatedVm.errorMessages[tab].lastMessageDetail = action.payload.detail;
         return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
     case UNDEFINE_VM: {

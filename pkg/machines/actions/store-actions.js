@@ -35,7 +35,6 @@ import {
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
     UPDATE_VM,
-    VM_ACTION_FAILED,
 } from '../constants/store-action-types.js';
 
 /**
@@ -190,19 +189,5 @@ export function updateVm(props) {
     return {
         type: UPDATE_VM,
         vm: props,
-    };
-}
-
-export function vmActionFailed({ name, connectionName, message, detail, extraPayload, tab = 'overview' }) {
-    return {
-        type: VM_ACTION_FAILED,
-        payload: {
-            name,
-            connectionName,
-            message,
-            detail,
-            extraPayload,
-            tab,
-        },
     };
 }

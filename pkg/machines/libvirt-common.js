@@ -7,7 +7,6 @@ import getLibvirtServiceNameScript from 'raw-loader!./scripts/get_libvirt_servic
 
 import {
     setLoggedInUser,
-    vmActionFailed,
     updateLibvirtState,
     updateOsInfoList,
 } from './actions/store-actions.js';
@@ -55,23 +54,6 @@ export function buildConsoleVVFile(consoleDetail) {
         `port=${consoleDetail.port}\n` +
         'delete-this-file=1\n' +
         'fullscreen=0\n';
-}
-
-/**
- * Returns a function handling VM action failures.
- */
-export function buildFailHandler({ dispatch, name, connectionName, message, extraPayload }) {
-    return ({ exception, data }) =>
-        dispatch(vmActionFailed({
-            name,
-            connectionName,
-            message,
-            detail: {
-                exception,
-                data,
-            },
-            extraPayload,
-        }));
 }
 
 export function buildScriptTimeoutFailHandler(handler, delay) {

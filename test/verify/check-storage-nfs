@@ -54,6 +54,10 @@ class TestStorage(StorageCase):
         b.wait_present("#nfs-mounts tr:contains(/mnt) .usage-text")
         b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
 
+        # Should be saved to fstab
+        self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
+                         "127.0.0.1:/home/foo /mnt nfs defaults")
+
         # Add /home/bar
         b.click("#nfs-mounts button .fa-plus")
         self.dialog_wait_open()
@@ -107,6 +111,10 @@ class TestStorage(StorageCase):
 
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "noauto,ro,ac")
 
+        # Should be saved to fstab
+        self.assertEqual(m.execute("grep /barbar /etc/fstab").strip(),
+                         "127.0.0.1:/home/bar /mounts/barbar nfs noauto,ro,ac")
+
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
@@ -126,6 +134,18 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage")
         b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
         m.execute("! test -e /mnt")
+        # Should be removed from fstab, too
+        self.assertNotIn("/home/foo", m.execute("cat /etc/fstab"))
+
+        # Picks up mounts in fstab
+        m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")
+        b.wait_present("#nfs-mounts td:contains(1.2.3.4 /something)")
+        b.wait_present("#nfs-mounts td:contains(/somewhere)")
+        b.wait_present("#nfs-mounts td:contains(Not mounted)")
+
+        m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
+        b.wait_present("#nfs-mounts td:contains(5.6.7.8)")
+        b.wait_present("#nfs-mounts td:contains(/four)")
 
     def testNfsListExports(self):
         m = self.machine

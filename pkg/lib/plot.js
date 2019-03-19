@@ -197,6 +197,15 @@ class Metrics_sum_series extends Metrics_series {
                 host: this.desc.host
             });
         }
+        if (this.desc.pmcd) {
+            this.chanopts_list.push({
+                source: 'pmcd',
+                metrics: this.desc.pmcd.map(this.build_metric, this),
+                instances: this.desc.instances,
+                'omit-instances': this.desc['omit-instances'],
+                host: this.desc.host
+            });
+        }
         if (this.desc.internal) {
             this.chanopts_list.push({
                 source: 'internal',
@@ -255,6 +264,15 @@ class Metrics_difference_series extends Metrics_series {
                 source: 'direct',
                 archive_source: 'pcp-archive',
                 metrics: this.desc.direct.map(this.build_metric, this),
+                instances: this.desc.instances,
+                'omit-instances': this.desc['omit-instances'],
+                host: this.desc.host
+            });
+        }
+        if (this.desc.pmcd) {
+            this.chanopts_list.push({
+                source: 'pmcd',
+                metrics: this.desc.pmcd.map(this.build_metric, this),
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],
                 host: this.desc.host
@@ -320,6 +338,16 @@ class Metrics_stacked_instances_series extends Metrics_series {
                 source: 'direct',
                 archive_source: 'pcp-archive',
                 metrics: [ this.build_metric(this.desc.direct) ],
+                metrics_path_names: [ 'a' ],
+                instances: this.desc.instances,
+                'omit-instances': this.desc['omit-instances'],
+                host: this.desc.host
+            });
+        }
+        if (this.desc.pmcd) {
+            this.chanopts_list.push({
+                source: 'pmcd',
+                metrics: this.desc.pmcd.map(this.build_metric, this),
                 metrics_path_names: [ 'a' ],
                 instances: this.desc.instances,
                 'omit-instances': this.desc['omit-instances'],

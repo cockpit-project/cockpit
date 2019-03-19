@@ -18,7 +18,6 @@
  */
 import cockpit from 'cockpit';
 
-import { buildFailHandler } from '../machines/libvirt-common.js';
 import LIBVIRT_PROVIDER from '../machines/libvirt-virsh.js';
 import { logDebug, logError, fileDownload } from '../machines/helpers.js';
 import { readConfiguration } from './configFuncs.js';
@@ -27,7 +26,7 @@ import { ovirtApiGet, ovirtApiPost, ovirtApiPut } from './ovirtApiAccess.js';
 import { pollOvirt, forceNextOvirtPoll } from './ovirt.js';
 import { oVirtIconToInternal } from './ovirtConverters.js';
 
-import { updateIcon, downloadIcon } from './actions.js';
+import { updateIcon, downloadIcon, vmActionFailed } from './actions.js';
 import { getHypervisorMaxVCPU } from '../machines/actions/provider-actions.js';
 
 import { getAllIcons, isVmManagedByOvirt } from './selectors.js';
@@ -456,6 +455,20 @@ export function setOvirtApiCheckResult (passed) {
 
 export function isOvirtApiCheckPassed () {
     return OVIRT_PROVIDER.ovirtApiMetadata.passed;
+}
+
+function buildFailHandler({ dispatch, name, connectionName, message, extraPayload }) {
+    return ({ exception, data }) =>
+        dispatch(vmActionFailed({
+            name,
+            connectionName,
+            message,
+            detail: {
+                exception,
+                data,
+            },
+            extraPayload,
+        }));
 }
 
 export default OVIRT_PROVIDER;

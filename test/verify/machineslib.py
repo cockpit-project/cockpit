@@ -1603,6 +1603,8 @@ class TestMachines(NetworkCase):
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
+                    b.wait_in_text("a.alert-link.machines-more-button", "show more")
+                    b.click("a.alert-link.machines-more-button")
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
@@ -1612,14 +1614,20 @@ class TestMachines(NetworkCase):
                     allowBugErrors(error_location, x1)
                 else:
                     # then error should be shown in the notification area
-                    error_location = "#notification-area-notification-1 div.notification-message"
+                    error_location = ".toast-notifications-list-pf div.alert"
                     try:
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
+                            b.wait_in_text("a.alert-link.machines-more-button", "show more")
+                            b.click("a.alert-link.machines-more-button")
                             waitForError(errors, error_location)
                     except Error as x2:
                         # allow CPU errors in the notification area
                         allowBugErrors(error_location, x2)
+
+            # Close the notificaton
+            b.click(".toast-notifications-list-pf div.alert button.close")
+            b.wait_not_present(".toast-notifications.list-pf div.alert")
 
             return self
 
@@ -1728,9 +1736,9 @@ class TestMachines(NetworkCase):
             b.wait_present("#vm-{0}-overview".format(name)) # wait for the tab
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
-            b.wait_present("#vm-{0}-last-message".format(name))
-            b.wait_in_text("#vm-{0}-last-message".format(name), "INSTALL VM action failed")
-            b.click("#app .listing-ct tbody:nth-of-type(1) a:contains(show more)")
+            b.wait_present("div.alert.alert-danger strong")
+            b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
+            b.wait_in_text("a.alert-link.machines-more-button", "show more")
 
             return self
 
@@ -1787,10 +1795,10 @@ class TestMachines(NetworkCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present("#notification-area-notification-1 .close"):
-                b.click("#notification-area-notification-1 .close")
+            if b.is_present(".toast-notifications.list-pf div.alert .close"):
+                b.click(".toast-notifications.list-pf div.alert .close")
 
-            b.wait_not_present("#notification-area")
+            b.wait_not_present(".toast-notifications.list-pf div.alert")
 
             return self
 

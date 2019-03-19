@@ -95,6 +95,7 @@ class App extends React.Component {
                 providerName={config.provider ? config.provider.name : 'Libvirt'}
                 networks={networks}
                 nodeDevices={nodeDevices}
+                onAddErrorNotification={this.onAddErrorNotification}
                 systemInfo={systemInfo} />
         );
 

@@ -100,9 +100,14 @@ export class StoragePool extends React.Component {
                 data: { storagePool, vms }
             },
         ];
+        let extraClasses = [];
+
+        if (this.props.resourceHasError[storagePool.id])
+            extraClasses.push('error');
 
         return (
             <ListingRow rowId={idPrefix}
+                extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
                 listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} />} />

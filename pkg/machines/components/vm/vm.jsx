@@ -80,8 +80,13 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
     }
 
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
+    let extraClasses = [];
+
+    if (resourceHasError[vm.id])
+        extraClasses.push('error');
 
     return (<ListingRow
+        extraClasses={extraClasses}
         rowId={`${vmId(vm.name)}`}
         columns={[
             { name, 'header': true },

@@ -19,6 +19,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ToastNotificationList, ToastNotification } from 'patternfly-react';
+import cockpit from 'cockpit';
 
 import HostVmsList from "./hostvmslist.jsx";
 import { StoragePoolList } from "./components/storagePools/storagePoolList.jsx";
@@ -32,15 +33,23 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeTab: 1,
             notifications: {},
             /* Dictionary with keys being a resource's UUID and values the number of active error notifications for that resource */
             resourceHasError: {},
             notificationIdCnt: 0,
+            path: cockpit.location.path,
         };
-        this.changeActiveList = this.changeActiveList.bind(this);
         this.onAddErrorNotification = this.onAddErrorNotification.bind(this);
         this.onDismissErrorNotification = this.onDismissErrorNotification.bind(this);
+        this.onNavigate = () => this.setState({ path: cockpit.location.path });
+    }
+
+    componentDidMount() {
+        cockpit.addEventListener("locationchanged", this.onNavigate);
+    }
+
+    componentWillUnmount() {
+        cockpit.removeEventListener("locationchanged", this.onNavigate);
     }
 
     /*
@@ -83,12 +92,9 @@ class App extends React.Component {
         this.setState({ notifications, resourceHasError });
     }
 
-    changeActiveList(tabId) {
-        this.setState({ activeTab: tabId });
-    }
-
     render() {
         const { vms, config, storagePools, systemInfo, ui, networks, nodeDevices } = this.props.store.getState();
+        const path = this.state.path;
         const dispatch = this.props.store.dispatch;
         const createVmAction = (
             <CreateVmAction dispatch={dispatch}
@@ -103,10 +109,12 @@ class App extends React.Component {
             return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
         }
 
+        const pathVms = path.length == 0 || (path.length > 0 && path[0] == 'vms');
+
         return (
             <div>
-                { config.provider.name === 'LibvirtDBus' && this.state.activeTab == 1 &&
-                <AggregateStatusCards networks={networks} storagePools={storagePools} changeActiveList={this.changeActiveList} />
+                { config.provider.name === 'LibvirtDBus' && pathVms &&
+                <AggregateStatusCards networks={networks} storagePools={storagePools} />
                 }
                 {Object.keys(this.state.notifications).length > 0 &&
                 <section className="toast-notification-wrapper">
@@ -125,7 +133,7 @@ class App extends React.Component {
                         })}
                     </ToastNotificationList>
                 </section>}
-                { this.state.activeTab == 1 && <HostVmsList vms={vms}
+                {pathVms && <HostVmsList vms={vms}
                     config={config}
                     ui={ui}
                     storagePools={storagePools}
@@ -135,17 +143,17 @@ class App extends React.Component {
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }
-                { this.state.activeTab == 2 && <StoragePoolList storagePools={storagePools}
+                {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'storages' &&
+                <StoragePoolList storagePools={storagePools}
                     dispatch={dispatch}
                     vms={vms}
-                    changeActiveList={this.changeActiveList}
                     loggedUser={systemInfo.loggedUser}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }
-                { this.state.activeTab == 3 && <NetworkList networks={networks}
+                {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'networks' &&
+                <NetworkList networks={networks}
                     dispatch={dispatch}
-                    changeActiveList={this.changeActiveList}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }

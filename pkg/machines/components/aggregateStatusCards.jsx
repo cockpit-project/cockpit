@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import cockpit from 'cockpit';
 
 import {
     Card,
@@ -36,8 +37,8 @@ export class AggregateStatusCards extends React.Component {
         return (
             <div className='cards-pf grid-cards-ct cards-ct-hybrid'>
                 <Card accented aggregated id='card-pf-storage-pools'>
-                    <CardTitle onClick={ () => this.props.changeActiveList(2) }>
-                        <a href='#'>
+                    <CardTitle onClick={ () => cockpit.location.go(['storages']) }>
+                        <a>
                             <Icon type='pf' name='server' />
                             <AggregateStatusCount>
                                 { this.props.storagePools.length }
@@ -61,8 +62,8 @@ export class AggregateStatusCards extends React.Component {
                     </CardBody>
                 </Card>
                 <Card accented aggregated id='card-pf-networks'>
-                    <CardTitle onClick={ () => this.props.changeActiveList(3) }>
-                        <a href='#'>
+                    <CardTitle onClick={ () => cockpit.location.go(['networks']) }>
+                        <a>
                             <Icon type='pf' name='network' />
                             <AggregateStatusCount>
                                 { this.props.networks.length }
@@ -92,5 +93,4 @@ export class AggregateStatusCards extends React.Component {
 AggregateStatusCards.propTypes = {
     networks: PropTypes.array.isRequired,
     storagePools: PropTypes.array.isRequired,
-    changeActiveList: PropTypes.func.isRequired,
 };

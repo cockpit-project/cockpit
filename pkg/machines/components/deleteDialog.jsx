@@ -39,7 +39,19 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
                                 onChange(index, event.target.checked);
                             }} />
                         <strong>{disk.target}</strong>
-                        <div className='disk-file'>{disk.file}</div>
+                        {disk.type == 'file' &&
+                        <div className='disk-source'>
+                            <span> {_("Path")} </span>
+                            <strong id='disk-source-file'> {disk.source.file} </strong>
+                        </div>}
+                        {disk.type == 'volume' &&
+                        <div className='disk-source'>
+                            <span htmlFor='disk-source-volume'> {_("Volume")} </span>
+                            <strong id='disk-source-volume'> {disk.source.volume} </strong>
+
+                            <span htmlFor='disk-source-pool'> {_("Pool")} </span>
+                            <strong id='disk-source-pool'> {disk.source.pool} </strong>
+                        </div>}
                     </label>
                 </div>
             </li>
@@ -103,16 +115,16 @@ export class DeleteDialog extends React.Component {
         Object.keys(vm.disks).sort()
                 .forEach(t => {
                     let d = vm.disks[t];
-                    if (d.type == 'file' && d.source.file)
-                        disks.push({ target: d.target, file: d.source.file, checked: !d.readonly });
+
+                    if ((d.type == 'file' && d.source.file) || d.type == 'volume')
+                        disks.push(Object.assign(d, { checked: !d.readonly }));
                 });
         this.setState({ showModal: true, disks: disks, destroy: vm.state === 'running' });
     }
 
     delete() {
-        let storage = [ ];
+        const storage = this.state.disks.filter(d => d.checked);
 
-        this.state.disks.forEach(d => { if (d.checked) storage.push(d.file); });
         return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }));
     }
 

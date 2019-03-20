@@ -911,18 +911,53 @@ class TestMachines(MachineCase):
         m.execute("test -f {0}".format(img2))
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
+
+        def addDisk(volName, poolName):
+            # Virsh does not offer some option to create disks of type volume
+            # We have to do this from cockpit UI
+            b.wait_present("#vm-subVmTest1-disks") # wait for the tab
+            b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
+
+            b.wait_present("#vm-subVmTest1-disks-adddisk") # button
+            b.click("#vm-subVmTest1-disks-adddisk")
+            b.wait_present("label:contains(Create New)") # radio button label in the modal dialog
+            b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
+
+            b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
+            b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)
+            b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "10")
+            b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-unit", "MiB")
+            b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
+
+            b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
+            b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
+
+            b.wait_present("#vm-subVmTest1-disks-vda-source")
+
+        secondDiskVolName = "mydisk"
+        poolName = "images"
+        secondDiskPoolPath = "/var/lib/libvirt/images/"
+        addDisk(secondDiskVolName, poolName)
+
         b.wait_present("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete".format(name))
 
         b.wait_present("#vm-{0}-delete-modal-dialog".format(name))
         b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
-        b.wait_present("#vm-{1}-delete-modal-dialog .disk-file:contains({0})".format(img2, name))
+        b.wait_present("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
+        # virsh attach-disk does not create disks of type volume
+        if self.provider == "libvirt-dbus":
+            b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-volume:contains({0})".format(secondDiskVolName, name))
+            b.wait_present("#vm-{1}-delete-modal-dialog #disk-source-pool:contains({0})".format(poolName, name))
+        else:
+            b.wait_present("#vm-{1}-delete-modal-dialog ul li:nth-child(2) #disk-source-file:contains({0})".format(secondDiskPoolPath, name))
         b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(name))
         b.wait_not_present("#vm-{0}-delete-modal-dialog".format(name))
 
         b.wait_not_present("#vm-{0}-row".format(name))
 
         m.execute("while test -f {0}; do sleep 1; done".format(img2))
+        m.execute("while test -f {0}; do sleep 1; done".format(secondDiskPoolPath + secondDiskVolName))
 
         self.assertNotIn(name, m.execute("virsh list --all"))
 

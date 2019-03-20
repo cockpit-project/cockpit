@@ -355,9 +355,25 @@ LIBVIRT_DBUS_PROVIDER = {
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
 
             for (let i = 0; i < options.storage.length; i++) {
-                storageVolPathsPromises.push(
-                    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [options.storage[i]], TIMEOUT)
-                );
+                const disk = options.storage[i];
+
+                switch (disk.type) {
+                case 'file':
+                    storageVolPathsPromises.push(
+                        call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], TIMEOUT)
+                    );
+                    break;
+                case 'volume':
+                    storageVolPathsPromises.push(
+                        call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [disk.source.pool], TIMEOUT)
+                                .then(objPath => {
+                                    return call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT);
+                                })
+                    );
+                    break;
+                default:
+                    logDebug("Disks of type $0 are currently ignored during VM deletion".format(disk.type));
+                }
             }
 
             Promise.all(storageVolPathsPromises)

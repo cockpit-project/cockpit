@@ -67,42 +67,65 @@ class TestNetworking(NetworkCase):
         b = self.browser
         m = self.machine
 
-        # Slow down DHCP requests.  This would normally cause the
-        # global health check to fail during rollback and prevent
-        # showing the #confirm-breaking-change-popup.  We expect the
-        # global health check failure to be ignored.
-
+        # A slow rollback would normally cause the global health check
+        # to fail during rollback and prevent showing the
+        # #confirm-breaking-change-popup.  We expect the global health
+        # check failure to be ignored.
+        #
+        # We test slow rollbacks by slowing down DHCP requests.
+        #
         # We need at least 60 seconds of network disconnection to let
         # the health check fail reliably.  A rollback is started 15
         # seconds after disconnection, so we need to delay the DHCP
         # request by at least 45 seconds.  However, NetworkManager has
         # a default DHCP timeout of 45 seconds, so we need to increase
         # that.
+        #
+        # Sometimes, NetworkManager extends the DHCP timeout by an
+        # additional 480 seconds grace period.  This doesn't always
+        # happen, so we don't rely on it.
 
         dhcp_delay = 60
         dhcp_timeout = 120
 
-        self.slow_down_dhcp(dhcp_delay)
+        # There are a couple of considerations for ordering the
+        # following actions:
+        #
+        # - Changing the main.dhcp config value requires a restart of NM.
+        #
+        # - A restart of NM might run dhclient, and we don't want it
+        #   to be slowed down already at that point.
+        #
+        # - After restarting NM, we need to wait for it to settle
+        #   again before messing with dhclient.
+        #
+        # - Simply setting ipv4.dhcp_timeout is not enough if it
+        #   should be used immediately for a checkpoint rollback, see
+        #   https://bugzilla.redhat.com/show_bug.cgi?id=1690389.  A
+        #   additional restart is enough.
+        #
+        # So we set ipv4.dhcp_timeout and main.dhcp, do a restart, log
+        # into the UI and wait for the expected interface to appear
+        # and be active, and then slow down dhclient.
 
         iface = self.get_iface(m, "52:54:00:12:34:56")
-
-        # Set the DHCP timeout
         con_id = self.iface_con_id(iface)
         m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
-        # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1690389
-        m.execute('nmcli con up "%s"' % con_id)
+
+        self.ensure_nm_uses_dhclient()
 
         self.login_and_go("/network")
         self.wait_for_iface(iface, prefix="172.")
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
         b.wait_visible("#network-interface")
 
-        # Disconnect
+        self.slow_down_dhclient(dhcp_delay)
+
+        # Disconnect and trigger a slow rollback
         b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
         with b.wait_timeout(120):
             b.wait_visible("#confirm-breaking-change-popup")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
-
 
 if __name__ == '__main__':
     test_main()

@@ -176,6 +176,10 @@ export class ListingRow extends React.Component {
         }
 
         let listingItemClasses = ["listing-ct-item"];
+
+        if (this.props.extraClasses)
+            listingItemClasses = listingItemClasses.concat(this.props.extraClasses);
+
         if (!allowNavigate)
             listingItemClasses.push("listing-ct-nonavigate");
         if (!allowExpand)
@@ -298,7 +302,8 @@ ListingRow.propTypes = {
     addCheckbox: PropTypes.bool,
     initiallyExpanded: PropTypes.bool,
     expandChanged: PropTypes.func,
-    initiallyActiveTab: PropTypes.number
+    initiallyActiveTab: PropTypes.number,
+    extraClasses: PropTypes.array
 };
 /* Implements a PatternFly 'List View' pattern
  * https://www.patternfly.org/list-view/

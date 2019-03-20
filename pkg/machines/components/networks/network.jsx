@@ -79,9 +79,14 @@ export class Network extends React.Component {
                 data: { network, dispatch, }
             },
         ];
+        let extraClasses = [];
+
+        if (resourceHasError[network.id])
+            extraClasses.push('error');
 
         return (
             <ListingRow rowId={idPrefix}
+                extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
                 listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />

@@ -125,9 +125,25 @@ EOF
 
 cleanup_builder_vm
 
+# HACK: Due to #1686464
+ks_path="file:/$ks"
+ks_inject="--initrd-inject=$ks"
+if [[ "$url" == *30/Server* ]]
+then
+    tmpdir=`mktemp -d`
+    pushd .
+    cp $ks $tmpdir
+    cd $tmpdir
+    python3 -m http.server &
+    popd
+    server_pid=$!
+    ks_path="http://_gateway:8000/$ks"
+    ks_inject=""
+fi
+
 supervised_virt_install $connect \
-                        --initrd-inject=$ks \
-                        --extra-args="ks=file:/$ks console=ttyS0,115200" \
+                        $ks_inject \
+                        --extra-args="ks=$ks_path console=ttyS0,115200" \
                         --name=$name \
                         --disk "path=$out,format=qcow2" \
                         --ram 4096 \
@@ -137,6 +153,12 @@ supervised_virt_install $connect \
                         --location="$url" \
                         --nographics \
                         --noreboot
+
+if [ -n "$server_pid" ]
+then
+    kill $server_pid
+    rm -rf $tmpdir
+fi
 
 rm $ks
 

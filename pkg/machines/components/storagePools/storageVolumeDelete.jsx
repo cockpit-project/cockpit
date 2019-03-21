@@ -42,7 +42,7 @@ export class StorageVolumeDelete extends React.Component {
         const { volumes, storagePool, resetSelection } = this.props;
 
         Promise.all(volumes.map(volume =>
-            storageVolumeDelete(storagePool.connectionName, [storagePool.path, volume].join('/'))
+            storageVolumeDelete(storagePool.connectionName, storagePool.name, volume)
         ))
                 .catch(exc => {
                     this.props.deleteErrorHandler(_("Storage Volumes could not be deleted"), exc.message);

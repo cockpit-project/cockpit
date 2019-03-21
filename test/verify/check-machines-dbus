@@ -620,6 +620,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.create()
                 if not self.xfail:
                     self.verify_dialog()
+                    self.verify_overview()
 
             def open(self):
                 b.wait_present("#create-storage-pool")
@@ -695,6 +696,18 @@ class TestMachinesDBus(machineslib.TestMachines):
                     self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device])
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
+
+            def verify_overview(self):
+                # Check basic pool properties
+                connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+                b.click("tbody tr[data-row-id=pool-{0}-{1}] th".format(self.name, connectionName)) # click on the row header
+
+                b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
+                b.wait_in_text("#pool-{0}-{1}-type".format(self.name, connectionName), self.pool_type)
+                if "host" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-host".format(self.name, connectionName), self.source["host"])
+                if "source_path" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
         StoragePoolCreateDialog(
             self,

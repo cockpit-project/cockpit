@@ -74,7 +74,7 @@ export class StoragePoolDelete extends React.Component {
         };
 
         if (this.state.deleteVolumes && storagePool.volumes.length > 0) {
-            Promise.all(volumes.map(volume => storageVolumeDelete(storagePool.connectionName, volume.path)))
+            Promise.all(volumes.map(volume => storageVolumeDelete(storagePool.connectionName, storagePool.name, volume.name)))
                     .then(() => storagePoolDeactivateAndUndefine(storagePool))
                     .then(() => this.close,
                           exc => this.dialogErrorSet(_("The Storage Pool could not be deleted"), exc.message));

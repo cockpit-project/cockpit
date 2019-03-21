@@ -1374,8 +1374,9 @@ export function storagePoolUndefine(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Undefine', [], TIMEOUT);
 }
 
-export function storageVolumeDelete(connectionName, path) {
-    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [path], TIMEOUT)
+export function storageVolumeDelete(connectionName, poolName, volName) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
+            .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [volName], TIMEOUT))
             .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT));
 }
 

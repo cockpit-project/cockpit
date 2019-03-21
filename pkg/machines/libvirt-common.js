@@ -662,6 +662,14 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         const targetElem = storagePoolElem.getElementsByTagName('target')[0];
         result['target'] = { 'path': getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
     }
+    const sourceElem = storagePoolElem.getElementsByTagName('source')[0];
+    if (sourceElem) {
+        result['source'] = {};
+
+        const hostElem = sourceElem.getElementsByTagName('host');
+        if (hostElem[0])
+            result['source']['host'] = { 'name': hostElem[0].getAttribute('name') };
+    }
 
     return result;
 }

@@ -40,9 +40,19 @@ export const StoragePoolOverviewTab = ({ storagePool, actionError, actionErrorDe
                 </div>
             </React.Fragment> }
 
+            { storagePool.source && storagePool.source.device && <React.Fragment>
+                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source Path")} </label>
+                <div id={`${idPrefix}-source-path`}> {storagePool.source.device.path} </div>
+            </React.Fragment> }
+
+            { storagePool.source && storagePool.source.dir && <React.Fragment>
+                <label className='control-label' htmlFor={`${idPrefix}-source-path`}> {_("Source Path")} </label>
+                <div id={`${idPrefix}-source-path`}> {storagePool.source.dir.path} </div>
+            </React.Fragment> }
+
             { storagePool.target && storagePool.target.path && <React.Fragment>
-                <label className='control-label' htmlFor={`${idPrefix}-path`}> {_("Path")} </label>
-                <div id={`${idPrefix}-path`}> {storagePool.target.path} </div>
+                <label className='control-label' htmlFor={`${idPrefix}-target-path`}> {_("Target Path")} </label>
+                <div id={`${idPrefix}-target-path`}> {storagePool.target.path} </div>
             </React.Fragment> }
 
             <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>

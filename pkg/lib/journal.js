@@ -69,7 +69,7 @@ export var journal = { };
  *  .stop(): stop following or retrieving entries.
  */
 
-journal.journalctl = function journalctl(/* ... */) {
+journal.build_cmd = function build_cmd(/* ... */) {
     var matches = [];
     var i, arg;
     var options = { follow: true };
@@ -124,6 +124,11 @@ journal.journalctl = function journalctl(/* ... */) {
 
     cmd.push("--");
     cmd.push.apply(cmd, matches);
+    return [cmd, options];
+};
+
+journal.journalctl = function journalctl(/* ... */) {
+    var [cmd, options] = journal.build_cmd.apply(null, arguments);
 
     var dfd = cockpit.defer();
     var promise;

@@ -108,11 +108,11 @@ class TestOVirtMachines(MachineCase):
         curl = "curl -s -k -u {0}:{1} -H Content-type:application/xml".format(OVIRT_USER, OVIRT_PWD)
         cmd = "{0} https://{1}/ovirt-engine/api/datacenters?search=name%3DDefault | xmllint --xpath \"string(/data_centers/data_center/@id)\" -".format(
             curl, OVIRT_ADDR)
-        dc_id = m.execute(cmd)
+        dc_id = m.execute(cmd).strip()
 
         cmd = "{0} https://{1}/ovirt-engine/api/datacenters/{2} | xmllint --xpath \"string(/data_center/status)\" -".format(
             curl, OVIRT_ADDR, dc_id)
-        status = m.execute(cmd)
+        status = m.execute(cmd).strip()
         if status != "up":
             print(("Data Center status: {0}, waiting for automatic reactivation".format(status)))
             wait(lambda: "up" in m.execute(cmd), delay=10)

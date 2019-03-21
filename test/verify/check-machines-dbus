@@ -479,7 +479,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Check basic pool properties
         b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
-        b.wait_in_text("#pool-myPoolOne-{0}-path".format(connectionName), "/mnt/vm_one")
+        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), "/mnt/vm_one")
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
         # Check storage volumes of a pool

@@ -669,6 +669,14 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
         const hostElem = sourceElem.getElementsByTagName('host');
         if (hostElem[0])
             result['source']['host'] = { 'name': hostElem[0].getAttribute('name') };
+
+        const deviceElem = sourceElem.getElementsByTagName('device');
+        if (deviceElem[0])
+            result['source']['device'] = { 'path': deviceElem[0].getAttribute('path') };
+
+        const dirElem = sourceElem.getElementsByTagName('dir');
+        if (dirElem[0])
+            result['source']['dir'] = { 'path': dirElem[0].getAttribute('path') };
     }
 
     return result;

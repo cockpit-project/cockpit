@@ -76,6 +76,12 @@ export function getPoolXML({ name, type, source, target }) {
         dirElem.setAttribute('path', source.dir);
         sourceElem.appendChild(dirElem);
     }
+    if (source.device) {
+        let deviceElem = doc.createElement('device');
+
+        deviceElem.setAttribute('path', source.device);
+        sourceElem.appendChild(deviceElem);
+    }
     if (source.host) {
         let hostElem = doc.createElement('host');
 

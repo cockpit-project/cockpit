@@ -96,11 +96,14 @@ journal.build_cmd = function build_cmd(/* ... */) {
             options.count = null;
     }
 
-    var cmd = [ "journalctl", "-q", "--output=json" ];
+    var cmd = [ "journalctl", "-q" ];
     if (!options.count)
         cmd.push("--no-tail");
     else
         cmd.push("--lines=" + options.count);
+
+    cmd.push("--output=" + (options.output || "json"));
+
     if (options.directory)
         cmd.push("--directory=" + options.directory);
     if (options.boot)

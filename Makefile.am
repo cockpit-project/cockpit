@@ -403,6 +403,7 @@ include src/branding/fedora/Makefile.am
 include src/branding/kubernetes/Makefile.am
 include src/branding/registry/Makefile.am
 include src/branding/rhel/Makefile.am
+include src/branding/scientific/Makefile.am
 include src/branding/ubuntu/Makefile.am
 include src/bridge/Makefile.am
 include src/common/Makefile-common.am

@@ -651,24 +651,19 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
     if (!storagePoolElem) {
         return;
     }
-    const type = storagePoolElem.getAttribute('type');
-    const name = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
-    const id = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
-    let path;
+
+    let result = { connectionName };
+    result['type'] = storagePoolElem.getAttribute('type');
+    result['name'] = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
+    result['id'] = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
 
     // Fetch path property if target is contained for this type of pool
-    if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(type) > -1) {
+    if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(result.type) > -1) {
         const targetElem = storagePoolElem.getElementsByTagName('target')[0];
-        path = getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue;
+        result['target'] = { 'path': getSingleOptionalElem(targetElem, 'path').childNodes[0].nodeValue };
     }
 
-    return {
-        connectionName,
-        name,
-        id,
-        type,
-        path,
-    };
+    return result;
 }
 
 export function parseStorageVolumeDumpxml(connectionName, storageVolumeXml, id_overwrite) {

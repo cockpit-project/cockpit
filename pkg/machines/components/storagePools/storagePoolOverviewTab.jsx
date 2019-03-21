@@ -34,9 +34,9 @@ export const StoragePoolOverviewTab = ({ storagePool, actionError, actionErrorDe
         <div className='ct-form-layout'>
             { actionError && <ExpandableNotification type='warning' text={actionError} textId={`${idPrefix}-error`} detail={actionErrorDetail} onDismiss={onActionErrorDismiss} /> }
 
-            { storagePool.path && <React.Fragment>
+            { storagePool.target && storagePool.target.path && <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-path`}> {_("Path")} </label>
-                <div id={`${idPrefix}-path`}> {storagePool.path} </div>
+                <div id={`${idPrefix}-path`}> {storagePool.target.path} </div>
             </React.Fragment> }
 
             <label className='control-label' htmlFor={`${idPrefix}-persistent`}> {_("Persistent")} </label>

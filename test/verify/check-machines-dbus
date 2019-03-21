@@ -636,8 +636,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if self.target:
                     b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
 
-                if 'dirpath' in self.source:
-                    b.set_input_text("#storage-pool-dialog-source", self.source['dirpath'])
+                if 'source_path' in self.source:
+                    b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
 
                 if 'host' in self.source:
                     b.set_input_text("#storage-pool-dialog-host", self.source['host'])
@@ -689,9 +689,10 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
-                source_path = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
-                if "dirpath" in self.source:
-                    self.test_obj.assertEqual(self.source["dirpath"], source_path)
+                source_path_dir = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
+                source_path_device = m.execute(xmllint_element.format(prop="source/device/@path")).strip()
+                if "source_path" in self.source:
+                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device])
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
@@ -726,8 +727,35 @@ class TestMachinesDBus(machineslib.TestMachines):
             name="my_dir_pool_two",
             pool_type="netfs",
             target="/tmp/my_dir_pool_two/",
-            source={"host": "127.0.0.1", "dirpath": "/mnt/exports"}
+            source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
         ).execute()
+
+        # Debian and ubuntu images don't have open-iscsi already installed
+        # FIXME: Add open-iscsi to debian and ubuntu images
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # Preparations for testing ISCSI pools
+
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+            # Increase the iSCSI timeouts for heavy load during our testing
+            m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+            # Setup a iSCSI target
+            m.execute("""
+                      targetcli /backstores/ramdisk create test 50M
+                      targetcli /iscsi create %(tgt)s
+                      targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+                      targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+                      """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+            StoragePoolCreateDialog(
+                self,
+                name="my_iscsi_pool",
+                pool_type="iscsi",
+                target="/dev/disk/by-path/",
+                source={"host": "127.0.0.1", "source_path": target_iqn}
+            ).execute()
 
 
 if __name__ == '__main__':

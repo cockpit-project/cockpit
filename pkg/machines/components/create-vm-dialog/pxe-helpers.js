@@ -36,7 +36,7 @@ function filterVirtualBridgesFromNetNodeDevices(netNodeDevices, virtualNetworks)
 
     return netNodeDevices.filter(netNodeDevice => {
         if (!netNodeDevice.capability.interface.endsWith('-nic'))
-            return false;
+            return true;
 
         for (let i in libvirtVirBridges) {
             if (netNodeDevice.capability.interface == (libvirtVirBridges[i] + '-nic'))

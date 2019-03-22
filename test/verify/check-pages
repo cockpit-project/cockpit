@@ -418,8 +418,11 @@ OnCalendar=daily
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl start pmcd")
+
         self.login_and_go("/playground/plot")
-        b.wait_present("#plot")
+        b.wait_present("#plot_direct")
+        b.wait_present("#plot_pmcd")
 
         def read_mem_info(machine):
             info = {}
@@ -483,7 +486,11 @@ OnCalendar=daily
 
         meminfo = read_mem_info(m)
         mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
-        b.wait_js_func("ph_flot_data_plateau", "#plot", mem_used * 0.95, mem_used * 1.05, 15, "mem")
+        b.wait_js_func("ph_flot_data_plateau", "#plot_direct", mem_used * 0.95, mem_used * 1.05, 15, "mem")
+
+        meminfo = read_mem_info(m)
+        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
+        b.wait_js_func("ph_flot_data_plateau", "#plot_pmcd", mem_used * 0.95, mem_used * 1.05, 15, "mem")
 
 
 if __name__ == '__main__':

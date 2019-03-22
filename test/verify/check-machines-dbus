@@ -679,17 +679,17 @@ class TestMachinesDBus(machineslib.TestMachines):
                 pool_xml = "virsh -c qemu:///system pool-dumpxml {0}".format(self.name)
                 xmllint_element = "{0} | xmllint --xpath 'string(//pool/{{prop}})' - 2>&1 || true".format(pool_xml)
 
-                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')))
-                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')) + '/')
-                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')))
+                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')).strip() + '/')
+                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')).strip())
 
-                host = m.execute(xmllint_element.format(prop='source/host/@name'))
+                host = m.execute(xmllint_element.format(prop='source/host/@name')).strip()
                 if "host" in self.source:
                     self.test_obj.assertEqual(self.source["host"], host)
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
-                source_path = m.execute(xmllint_element.format(prop="source/dir/@path"))
+                source_path = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
                 if "dirpath" in self.source:
                     self.test_obj.assertEqual(self.source["dirpath"], source_path)
                 else:

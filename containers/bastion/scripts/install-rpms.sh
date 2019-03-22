@@ -37,7 +37,7 @@ OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 
 for package in $@
 do
-    rpm=$(ls /container/rpms/$package-*$OSVER.*$arch.rpm || true)
+    rpm=$(ls /container/rpms/$package-[0-9]*$OSVER.*$arch.rpm || true)
     if [ -z "$rpm" ]; then
         if [ -n "$VERSION" ]; then
             package="$package-$VERSION"

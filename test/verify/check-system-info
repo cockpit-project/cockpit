@@ -274,11 +274,17 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
+        def can_ntp():
+            return 'true' in m.execute(
+                'busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 CanNTP')
+
         conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
 
         # Use systemd-timedated as the provider of
         # org.freedesktop.timedate1 instead of timedatex.
         m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
+
+        wait(can_ntp)
 
         self.login_and_go("/system")
 

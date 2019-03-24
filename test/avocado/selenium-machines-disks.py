@@ -6,7 +6,7 @@ import time
 class MachinesDisksTestSuite(MachinesLib):
     """
     :avocado: enable
-    :avocado: tags=machines_d
+    :avocado: tags=machines
     """
 
     def prepare_disk(self):

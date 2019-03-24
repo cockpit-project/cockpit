@@ -112,5 +112,5 @@ class MachinesBasicTestSuite(MachinesLib):
         self.create_vm(name)
 
         self.assertEqual(
-            self.machine.execute('virsh domstate {}'.format(name)).replace("\n",""),
+            self.machine.execute('sudo virsh domstate {}'.format(name)).replace("\n",""),
             self.wait_css('#vm-{}-state'.format(name)).text)

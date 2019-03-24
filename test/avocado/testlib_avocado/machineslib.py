@@ -184,6 +184,7 @@ class MachinesLib(SeleniumTest):
 
         # clean the user for none root
         if self.machine.execute('sudo cat /etc/passwd | grep auto', raising=False) != "":
+            self.machine.execute('sudo killall -u auto')
             self.machine.execute('sudo userdel -rf auto')
 
     def wait_dialog_disappear(self):

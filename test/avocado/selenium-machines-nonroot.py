@@ -13,7 +13,7 @@ class MachinesNonrootTestSuite(MachinesLib):
         self.create_vm(name)
 
         self.machine.execute(
-            'useradd auto && echo "auto" | passwd --stdin auto')
+            'sudo useradd auto && echo "auto" | sudo passwd --stdin auto')
 
         self.mainframe()
         self.click(self.wait_css('#navbar-dropdown', cond=clickable))

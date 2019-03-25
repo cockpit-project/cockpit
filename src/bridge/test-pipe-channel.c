@@ -752,6 +752,19 @@ add_remainder (gpointer user_data)
 }
 
 static void
+print_gbytes (GBytes *bytes)
+{
+    gsize i, len;
+    const char* data;
+
+    data = g_bytes_get_data (bytes, &len);
+    g_assert (data);
+    for (i = 0; i < len; ++i)
+      g_printf ("%X", data[i]);
+    puts("");
+}
+
+static void
 test_recv_valid_batched (TestCase *tc,
                          gconstpointer unused)
 {
@@ -773,7 +786,14 @@ test_recv_valid_batched (TestCase *tc,
 
   converted = g_bytes_new ("Marmalaade!\xe2\x94\x80", 14);
   received = mock_transport_combine_output (tc->transport, "548", NULL);
-  g_assert (g_bytes_equal (converted, received));
+  if (!g_bytes_equal (converted, received))
+    {
+      g_test_fail ();
+      puts ("ERROR: unexpected output\nconverted:");
+      print_gbytes (converted);
+      puts ("received:");
+      print_gbytes (received);
+    }
   g_bytes_unref (converted);
   g_bytes_unref (received);
 }

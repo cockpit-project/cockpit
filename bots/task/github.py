@@ -23,6 +23,7 @@
 
 import errno
 import http.client
+from http import HTTPStatus
 import json
 import os
 import socket
@@ -159,7 +160,8 @@ class GitHub(object):
         if self.token:
             headers["Authorization"] = "token " + self.token
         connected = False
-        while not connected:
+        bad_gateway_errors = 0
+        while not connected and bad_gateway_errors < 5:
             if not self.conn:
                 if self.url.scheme == 'http':
                     self.conn = http.client.HTTPConnection(self.url.netloc)
@@ -170,6 +172,12 @@ class GitHub(object):
             try:
                 self.conn.request(method, self.qualify(resource), data, headers)
                 response = self.conn.getresponse()
+                if response.status == HTTPStatus.BAD_GATEWAY:
+                    bad_gateway_errors += 1
+                    self.conn = None
+                    connected = False
+                    time.sleep(bad_gateway_errors * 2)
+                    continue
                 break
             # This happens when GitHub disconnects in python3
             except ConnectionResetError:

@@ -48,7 +48,7 @@ typedef struct {
   MockTransport *transport;
   CockpitChannel *channel;
   gchar *channel_problem;
-  const gchar *unix_path;
+  gchar *unix_path;
   gchar *temp_file;
 } TestCase;
 
@@ -105,12 +105,12 @@ setup (TestCase *tc,
   GSocketAddress *address;
   GError *error = NULL;
 
-  tc->unix_path = data;
+  tc->unix_path = g_strdup (data);
   if (tc->unix_path == NULL)
     {
-      tc->unix_path = tc->temp_file = g_strdup ("/tmp/cockpit-test-XXXXXX.sock");
+      tc->temp_file = g_strdup ("/tmp/cockpit-test-XXXXXX");
       g_assert (close (g_mkstemp (tc->temp_file)) == 0);
-      g_assert (g_unlink (tc->temp_file) == 0);
+      tc->unix_path = g_strconcat (tc->temp_file, ".sock", NULL);
     }
 
   address = g_unix_socket_address_new (tc->unix_path);
@@ -171,6 +171,8 @@ teardown (TestCase *tc,
   g_clear_object (&tc->conn_sock);
 
   g_unlink (tc->unix_path);
+  g_free (tc->unix_path);
+  g_unlink (tc->temp_file);
   g_free (tc->temp_file);
 
   g_object_unref (tc->transport);

@@ -5,6 +5,7 @@ import glob
 import json
 import os
 import random
+import resource
 import shutil
 import socket
 import subprocess
@@ -179,7 +180,7 @@ class CDP:
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                     "--window-size=1280x1200", "--remote-debugging-port=%i" % cdp_port, "about:blank"],
-                env=environ, close_fds=True)
+                env=environ, close_fds=True, preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_CORE, (0, 0)))
             if self.verbose:
                 sys.stderr.write("Started %s (pid %i) on port %i\n" % (exe, self._browser.pid, cdp_port))
 

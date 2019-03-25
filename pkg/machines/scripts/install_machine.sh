@@ -4,12 +4,13 @@ set -u -o noglob
 
 CONNECTION_URI="qemu:///$1" # example: qemu:///system
 VM_NAME="$2"
-SOURCE="$3"
-OS="$4"
-MEMORY_SIZE="$5" # in Mib
-VCPUS="$6"
-DISKS="$7"
-DISPLAYS="$8"
+SOURCE_TYPE="$3"
+SOURCE="$4"
+OS="$5"
+MEMORY_SIZE="$6" # in Mib
+VCPUS="$7"
+DISKS="$8"
+DISPLAYS="$9"
 
 # prepare virt-install parameters
 
@@ -47,7 +48,9 @@ else
     GRAPHICS_PARAM="$CREATE_OPTIONS_RESULT"
 fi
 
-if [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
+if [ "$SOURCE_TYPE" = "pxe" ]; then
+    INSTALL_METHOD="--pxe --network $SOURCE"
+elif [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
     INSTALL_METHOD="--cdrom $SOURCE"
 else
     INSTALL_METHOD="--location $SOURCE"

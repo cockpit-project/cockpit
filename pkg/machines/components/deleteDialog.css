@@ -1,13 +1,69 @@
-.table tbody tr:last-child td {
-    border-bottom: 1px solid #d1d1d1;
+.modal[id$=delete-modal-dialog] .list-group-item {
+    /* Remove padding here and move into the label */
+    padding: 0;
 }
 
-table.delete-dialog-disks.table tbody tr td:nth-child(1) {
-    padding-left: 5px;
-    padding-right: 5px;
-    width: 20px;
+.modal[id$=delete-modal-dialog] .dialog-list-ct {
+    /* Only overflow the dialog when needed */
+    --dialog-delete--padding: 18rem;
+    /* Screen height - toolbar - dialog padding */
+    max-height: calc(100vh - 70px - var(--dialog-delete--padding));
 }
 
-table.delete-dialog-disks.table tbody tr td:nth-child(3) {
-    text-align: right;
+.modal .list-group-item > .disk-row > label {
+    align-items: center;
+    display: grid;
+    grid: auto-flow / auto 1fr;
+    grid-gap: 0 1rem;
+    padding: 1rem 1.5em;
+}
+
+.modal .disk-row {
+    margin: 0;
+}
+
+/* override PatternFly checkmark placement */
+.modal .disk-row input[type=checkbox] {
+    position: static;
+    margin: 0;
+}
+
+.modal .disk-row > label + label {
+    border-top: 1px solid #d1d1d1; /* pf-black-300 */
+}
+
+.disk-source {
+    --disk-source-grid-columns: 2;
+    grid-column-start: 2; /* Align to label in outer grid */
+    display: grid;
+    grid: auto / repeat(var(--disk-source-grid-columns), auto 1fr);
+    grid-gap: 0 0.5rem;
+    opacity: 0.85; /* approx pf-black-700; AAA contrast; works with hover */
+}
+
+.disk-source > span {
+    justify-self: end;
+}
+
+.disk-source > strong {
+    font-weight: 600;
+}
+
+.disk-source > strong:only-of-type {
+    /* Stretch single data blurb to the end */
+    grid-column: 2 / -1;
+}
+
+@media (max-width: 480px) {
+    .disk-source {
+        /* Collapse mobile */
+        --disk-source-grid-columns: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal[id$=delete-modal-dialog] .dialog-list-ct {
+        /* Account for no dialog top-margin in mobile */
+        --dialog-delete--padding: 14rem;
+    }
 }

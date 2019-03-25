@@ -31,16 +31,30 @@ const _ = cockpit.gettext;
 const DeleteDialogBody = ({ disks, destroy, onChange }) => {
     function disk_row(disk, index) {
         return (
-            <tr key={disk.target}>
-                <td>
-                    <input type="checkbox" checked={disk.checked}
-                           onChange={(event) => {
-                               onChange(index, event.target.checked);
-                           }} />
-                </td>
-                <td>{disk.file}</td>
-                <td>{disk.target}</td>
-            </tr>
+            <li className='list-group-item' key={disk.target}>
+                <div className='checkbox disk-row'>
+                    <label>
+                        <input type="checkbox" checked={disk.checked}
+                            onChange={(event) => {
+                                onChange(index, event.target.checked);
+                            }} />
+                        <strong>{disk.target}</strong>
+                        {disk.type == 'file' &&
+                        <div className='disk-source'>
+                            <span> {_("Path")} </span>
+                            <strong id='disk-source-file'> {disk.source.file} </strong>
+                        </div>}
+                        {disk.type == 'volume' &&
+                        <div className='disk-source'>
+                            <span htmlFor='disk-source-volume'> {_("Volume")} </span>
+                            <strong id='disk-source-volume'> {disk.source.volume} </strong>
+
+                            <span htmlFor='disk-source-pool'> {_("Pool")} </span>
+                            <strong id='disk-source-pool'> {disk.source.pool} </strong>
+                        </div>}
+                    </label>
+                </div>
+            </li>
         );
     }
 
@@ -51,14 +65,14 @@ const DeleteDialogBody = ({ disks, destroy, onChange }) => {
     let disksBody = null;
     if (disks.length > 0)
         disksBody = (
-            <div>
+            <React.Fragment>
                 <p>{_("Delete associated storage files:")}</p>
-                <table className="table delete-dialog-disks">
-                    <tbody>
+                <form>
+                    <ul className="list-group dialog-list-ct">
                         { disks.map(disk_row) }
-                    </tbody>
-                </table>
-            </div>
+                    </ul>
+                </form>
+            </React.Fragment>
         );
 
     return (
@@ -101,16 +115,16 @@ export class DeleteDialog extends React.Component {
         Object.keys(vm.disks).sort()
                 .forEach(t => {
                     let d = vm.disks[t];
-                    if (d.type == 'file' && d.source.file)
-                        disks.push({ target: d.target, file: d.source.file, checked: !d.readonly });
+
+                    if ((d.type == 'file' && d.source.file) || d.type == 'volume')
+                        disks.push(Object.assign(d, { checked: !d.readonly }));
                 });
         this.setState({ showModal: true, disks: disks, destroy: vm.state === 'running' });
     }
 
     delete() {
-        let storage = [ ];
+        const storage = this.state.disks.filter(d => d.checked);
 
-        this.state.disks.forEach(d => { if (d.checked) storage.push(d.file); });
         return this.props.dispatch(deleteVm(this.props.vm, { destroy: this.state.destroy, storage: storage }));
     }
 

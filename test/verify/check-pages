@@ -412,6 +412,79 @@ OnCalendar=daily
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
 
+    @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    @skipImage("No PCP available on Debian 9", "debian-stable")
+    def testPlots(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/playground/plot")
+        b.wait_present("#plot")
+
+        def read_mem_info(machine):
+            info = {}
+            for l in machine.execute("cat /proc/meminfo").splitlines():
+                (name, value) = l.strip().split(":")
+                if value.endswith("kB"):
+                    info[name] = int(value[:-2]) * 1024
+                else:
+                    info[name] = int(value)
+            return info
+
+        b.eval_js("""
+          ph_plot_timestamp = function (sel) {
+            var data = $(sel).data("flot_data")[0]['data'];
+            return data[data.length-1][0];
+          }
+        """)
+
+        b.eval_js("""
+          ph_plot_timestamp_is = function (sel, ts) {
+            return ph_plot_timestamp(sel, 0) >= ts;
+          }
+        """)
+
+        def wait_for_plot(sel, seconds):
+            now = b.call_js_func("ph_plot_timestamp", sel)
+            b.wait_js_func("ph_plot_timestamp_is", sel, now + 20 * 1000)
+
+        # When checking whether the plots show the expected results,
+        # we look for a segment of the data of a certain duration
+        # whose average is in a certain range.  Otherwise any short
+        # outlier will make us miss the expected plateau.  Such
+        # outliers happen frequently with the CPU plot.
+
+        b.eval_js("""
+          ph_plateau = function (data, min, max, duration, label) {
+              var i, j;
+              var sum;  // sum of data[i..j]
+
+              sum = 0;
+              i = 0;
+              for (j = 0; j < data.length; j++) {
+                  sum += data[j][1];
+                  while (i < j && (data[j][0] - data[i][0]) > duration * 1000) {
+                      avg = sum / (j - i + 1);
+                      if ((min === null || avg >= min) && (max === null || avg <= max))
+                          return true;
+                      sum -= data[i][1];
+                      i++;
+                  }
+              }
+            return false;
+          }
+        """)
+
+        b.eval_js("""
+          ph_flot_data_plateau = function (sel, min, max, duration, label) {
+            return ph_plateau($(sel).data("flot_data")[0]['data'], min, max, duration, label);
+          }
+        """)
+
+        meminfo = read_mem_info(m)
+        mem_used = meminfo['MemTotal'] - meminfo['MemAvailable']
+        b.wait_js_func("ph_flot_data_plateau", "#plot", mem_used * 0.95, mem_used * 1.05, 15, "mem")
+
 
 if __name__ == '__main__':
     test_main()

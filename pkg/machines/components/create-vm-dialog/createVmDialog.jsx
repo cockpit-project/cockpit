@@ -34,6 +34,12 @@ import {
     units,
     LIBVIRT_SYSTEM_CONNECTION,
 } from "../../helpers.js";
+import {
+    getPXEInitialNetworkSource,
+    getPXENetworkRows,
+    getVirtualNetworkByName,
+    getVirtualNetworkPXESupport
+} from './pxe-helpers.js';
 
 import {
     NOT_SPECIFIED,
@@ -53,6 +59,7 @@ const _ = cockpit.gettext;
 const URL_SOURCE = 'url';
 const LOCAL_INSTALL_MEDIA_SOURCE = 'file';
 const EXISTING_DISK_IMAGE_SOURCE = 'disk_image';
+const PXE_SOURCE = 'pxe';
 
 /* Create a virtual machine
  * props:
@@ -119,7 +126,15 @@ class CreateVM extends React.Component {
             break;
         case 'sourceType':
             this.setState({ [key]: value });
-            notifyValuesChanged('source', null);
+            if (value != PXE_SOURCE) {
+                notifyValuesChanged('source', null);
+            } else {
+                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices,
+                                                                  this.props.networks,
+                                                                  this.props.vmParams.connectionName);
+
+                notifyValuesChanged('source', initialPXESource);
+            }
             break;
         case 'memorySize':
             this.setState({ [key]: value });
@@ -183,6 +198,7 @@ class CreateVM extends React.Component {
 
         let installationSource;
         let installationSourceId;
+        let installationSourceWarning;
         switch (this.state.sourceType) {
         case LOCAL_INSTALL_MEDIA_SOURCE:
             installationSourceId = "source-file";
@@ -200,6 +216,34 @@ class CreateVM extends React.Component {
                     placeholder={_("Existing disk image on host's file system")}
                     onChange={this.onChangedValue.bind(this, 'source')}
                     superuser="try" />
+            );
+            break;
+        case PXE_SOURCE:
+            installationSourceId = "network";
+            if (this.state.source.includes('type=direct')) {
+                installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
+            } else if (this.state.source.includes('network=')) {
+                let netObj = getVirtualNetworkByName(this.state.source.split('network=')[1],
+                                                     this.props.networks,
+                                                     this.state.connectionName);
+
+                if (!getVirtualNetworkPXESupport(netObj))
+                    installationSourceWarning = _("Network Selection does not support PXE.");
+            }
+
+            installationSource = (
+                <React.Fragment>
+                    <Select.StatelessSelect id="network-select"
+                                            selected={this.state.source}
+                                            onChange={this.onChangedValue.bind(this, 'source')}>
+                        {getPXENetworkRows(this.props.nodeDevices, this.props.networks, this.state.connectionName)}
+                    </Select.StatelessSelect>
+
+                    {installationSourceWarning &&
+                    <HelpBlock>
+                        <p className="text-warning">{installationSourceWarning}</p>
+                    </HelpBlock> }
+                </React.Fragment>
             );
             break;
         case URL_SOURCE:
@@ -269,6 +313,8 @@ class CreateVM extends React.Component {
                     <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
                                         key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
+                    { this.props.providerName == 'LibvirtDBus' &&
+                    <Select.SelectEntry data={PXE_SOURCE} key={PXE_SOURCE}>{_("Network Boot (PXE)")}</Select.SelectEntry> }
                     <Select.SelectEntry data={EXISTING_DISK_IMAGE_SOURCE} key={EXISTING_DISK_IMAGE_SOURCE}>{_("Existing Disk Image")}</Select.SelectEntry>
                 </Select.Select>
 
@@ -346,6 +392,8 @@ function validateParams(vmParams) {
 
     if (!isEmpty(source)) {
         switch (vmParams.sourceType) {
+        case PXE_SOURCE:
+            break;
         case LOCAL_INSTALL_MEDIA_SOURCE:
         case EXISTING_DISK_IMAGE_SOURCE:
             if (!vmParams.source.startsWith("/")) {
@@ -426,9 +474,12 @@ class CreateVmModal extends React.Component {
             <CreateVM vmParams={vmParams}
                 familyList={vendors.familyList}
                 familyMap={vendors.familyMap}
+                networks={this.props.networks}
+                nodeDevices={this.props.nodeDevices}
                 vendorMap={vendors.vendorMap}
                 valuesChanged={this.onValueChanged}
-                loggedUser={loggedUser} />
+                loggedUser={loggedUser}
+                providerName={this.props.providerName} />
         );
 
         return (
@@ -483,7 +534,10 @@ export class CreateVmAction extends React.Component {
                 </Button>
                 { this.state.showModal &&
                 <CreateVmModal
+                    providerName={this.props.providerName}
                     close={this.close} dispatch={this.props.dispatch}
+                    networks={this.props.networks}
+                    nodeDevices={this.props.nodeDevices}
                     osInfoList={this.props.systemInfo.osInfoList}
                     loggedUser={this.props.systemInfo.loggedUser} /> }
             </React.Fragment>

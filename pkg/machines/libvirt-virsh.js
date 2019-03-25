@@ -56,7 +56,9 @@ import {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -129,7 +131,9 @@ LIBVIRT_PROVIDER = {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -382,7 +386,7 @@ LIBVIRT_PROVIDER = {
                 let args = ['undefine', name, '--managed-save', '--nvram'];
                 if (options.storage) {
                     args.push('--storage');
-                    args.push(options.storage.join(','));
+                    args.push(options.storage.map(disk => disk.target).join(','));
                 }
                 return spawnVirsh({ connectionName,
                                     method: 'DELETE_VM',

@@ -504,10 +504,13 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.37.4
+# RHEL/CentOS 7 has firewalld 0.6.x, but does not ship cockpit service
+%if 0%{?rhel} != 7
 %if 0%{?firewalld_service}
 Conflicts: firewalld >= 0.6.0-1
 %else
 Conflicts: firewalld < 0.6.0-1
+%endif
 %endif
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends: sscg >= 2.3

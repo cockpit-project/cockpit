@@ -22,6 +22,8 @@ import cockpit from 'cockpit';
 
 import {
     shutdownVm,
+    pauseVm,
+    resumeVm,
     forceVmOff,
     forceRebootVm,
     rebootVm,
@@ -105,6 +107,8 @@ class HostVmsList extends React.Component {
                                     onReboot={() => dispatch(rebootVm(vm))}
                                     onForceReboot={() => dispatch(forceRebootVm(vm))}
                                     onShutdown={() => dispatch(shutdownVm(vm))}
+                                    onPause={() => dispatch(pauseVm(vm))}
+                                    onResume={() => dispatch(resumeVm(vm))}
                                     onForceoff={() => dispatch(forceVmOff(vm))}
                                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}

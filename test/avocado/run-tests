@@ -116,6 +116,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
                     quiet=True
                 )
                 machine.execute("cp -v *.png %s/ 2>/dev/null || true" % avocado_results_dir)
+                machine.execute("cp -v *.html %s/ 2>/dev/null || true" % avocado_results_dir)
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
                     test_status = t['status']

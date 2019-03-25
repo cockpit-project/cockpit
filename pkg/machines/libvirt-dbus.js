@@ -28,10 +28,12 @@ import {
     checkLibvirtStatus,
     delayPolling,
     getAllNetworks,
+    getAllNodeDevices,
     getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
     getNetwork,
+    getNodeDevice,
     getStoragePool,
     getStorageVolumes,
     getVm,
@@ -43,6 +45,7 @@ import {
     undefineStoragePool,
     undefineVm,
     updateOrAddNetwork,
+    updateOrAddNodeDevice,
     updateOrAddVm,
     updateOrAddStoragePool,
     updateStorageVolumes,
@@ -69,7 +72,9 @@ import {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -78,6 +83,7 @@ import {
     isRunning,
     parseDumpxml,
     parseNetDumpxml,
+    parseNodeDeviceDumpxml,
     parseStoragePoolDumpxml,
     parseStorageVolumeDumpxml,
     resolveUiState,
@@ -155,7 +161,9 @@ LIBVIRT_DBUS_PROVIDER = {
     canConsole,
     canDelete,
     canInstall,
+    canPause,
     canReset,
+    canResume,
     canRun,
     canSendNMI,
     canShutdown,
@@ -347,9 +355,25 @@ LIBVIRT_DBUS_PROVIDER = {
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
 
             for (let i = 0; i < options.storage.length; i++) {
-                storageVolPathsPromises.push(
-                    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [options.storage[i]], TIMEOUT)
-                );
+                const disk = options.storage[i];
+
+                switch (disk.type) {
+                case 'file':
+                    storageVolPathsPromises.push(
+                        call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], TIMEOUT)
+                    );
+                    break;
+                case 'volume':
+                    storageVolPathsPromises.push(
+                        call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [disk.source.pool], TIMEOUT)
+                                .then(objPath => {
+                                    return call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT);
+                                })
+                    );
+                    break;
+                default:
+                    logDebug("Disks of type $0 are currently ignored during VM deletion".format(disk.type));
+                }
             }
 
             Promise.all(storageVolPathsPromises)
@@ -470,6 +494,16 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    GET_ALL_NODE_DEVICES({
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNodeDevices', [0], TIMEOUT)
+                    .then(objPaths => Promise.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
+                    .fail(ex => console.warn('GET_ALL_NODE_DEVICES action failed:', JSON.stringify(ex)));
+        };
+    },
+
     GET_ALL_STORAGE_POOLS({
         connectionName,
     }) {
@@ -501,6 +535,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
                 dispatch(getAllStoragePools(connectionName));
                 dispatch(getAllNetworks(connectionName));
+                dispatch(getAllNodeDevices(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 doGetAllVms(dispatch, connectionName);
             };
@@ -549,18 +584,30 @@ LIBVIRT_DBUS_PROVIDER = {
                     })
                     .then(xml => {
                         const network = parseNetDumpxml(xml);
-
-                        if (network) {
-                            props.mode = network.mode;
-                            props.device = network.device;
-                            props.ip = network.ip;
-                            props.bandwidth = network.bandwidth;
-                            props.mtu = network.mtu;
-                        }
-
-                        dispatch(updateOrAddNetwork(Object.assign({}, props)));
+                        dispatch(updateOrAddNetwork(Object.assign({}, props, network)));
                     })
                     .catch(ex => console.warn('GET_NETWORK action failed failed for path', objPath, ex));
+        };
+    },
+
+    /*
+     * Read properties of a single NodeDevice
+     *
+     * @param NodeDevice object path
+     */
+    GET_NODE_DEVICE({
+        id: objPath,
+        connectionName,
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.NodeDevice', 'GetXMLDesc', [0], TIMEOUT)
+                    .then(deviceXml => {
+                        let deviceXmlObject = parseNodeDeviceDumpxml(deviceXml);
+                        deviceXmlObject.connectionName = connectionName;
+
+                        dispatch(updateOrAddNodeDevice(deviceXmlObject));
+                    })
+                    .catch(ex => console.warn('GET_NODE_DEVICE action failed failed for path', objPath, ex));
         };
     },
 
@@ -719,6 +766,19 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
+    PAUSE_VM({
+        name,
+        connectionName,
+        id: objPath
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT)
+                    .catch(exception => dispatch(vmActionFailed(
+                        { name, connectionName, message: _("VM Pause action failed"), detail: { exception } }
+                    )));
+        };
+    },
+
     REBOOT_VM({
         name,
         connectionName,
@@ -732,6 +792,19 @@ LIBVIRT_DBUS_PROVIDER = {
                         message: _("VM REBOOT action failed"),
                         detail: { exception }
                     })));
+        };
+    },
+
+    RESUME_VM({
+        name,
+        connectionName,
+        id: objPath
+    }) {
+        return dispatch => {
+            call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT)
+                    .catch(exception => dispatch(vmActionFailed(
+                        { name, connectionName, message: _("VM Resume action failed"), detail: { exception } }
+                    )));
         };
     },
 
@@ -1301,8 +1374,9 @@ export function storagePoolUndefine(connectionName, objPath) {
     return call(connectionName, objPath, 'org.libvirt.StoragePool', 'Undefine', [], TIMEOUT);
 }
 
-export function storageVolumeDelete(connectionName, path) {
-    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [path], TIMEOUT)
+export function storageVolumeDelete(connectionName, poolName, volName) {
+    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
+            .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [volName], TIMEOUT))
             .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT));
 }
 

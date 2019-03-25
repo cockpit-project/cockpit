@@ -75,13 +75,13 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues }) => {
     const poolTypes = [
         { type: 'dir', detail: _("Filesystem Directory") },
         { type: 'netfs', detail:_("Network File System") },
+        { type: 'iscsi', detail: _("iSCSI Target") },
     ];
 
     /* TODO
         { type: 'disk', detail _("Physical Disk Device") },
         { type: 'fs', detail _("Pre-formated Block Device") },
         { type: 'gluster', detail _("Gluster Filesystem") },
-        { type: 'iscsi', detail _("iSCSI Target") },
         { type: 'logical', detail _("LVM Volume Group") },
         { type: 'mpath', detail _("Multipath Device Enumerator") },
         { type: 'rbd', detail _("RADOS Block Device/Ceph") },
@@ -115,7 +115,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues }) => {
 const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.target.length == 0 && dialogValues.validationFailed.target ? 'error' : undefined;
 
-    if (['dir', 'netfs'].includes(dialogValues.type)) {
+    if (['dir', 'netfs', 'iscsi'].includes(dialogValues.type)) {
         return (
             <React.Fragment>
                 <label className='control-label'>
@@ -138,7 +138,7 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
 const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.source.host.length == 0 && dialogValues.validationFailed.host ? 'error' : undefined;
 
-    if (['netfs'].includes(dialogValues.type))
+    if (['netfs', 'iscsi'].includes(dialogValues.type))
         return (
             <React.Fragment>
                 <label className='control-label'>
@@ -163,9 +163,14 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
 };
 
 const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
-    const validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+    let validationState;
 
-    if (['netfs'].includes(dialogValues.type))
+    if (dialogValues.type == 'netfs')
+        validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+    if (dialogValues.type == 'iscsi')
+        validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+
+    if (['netfs', 'iscsi'].includes(dialogValues.type))
         return (
             <React.Fragment>
                 <label className='control-label'>
@@ -175,9 +180,14 @@ const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
                     <input id='storage-pool-dialog-source'
                            type='text'
                            minLength={1}
-                           placeholder={_("The directory on the server being exported")}
-                           value={dialogValues.source.dir || ''}
-                           onChange={e => onValueChanged('source', { 'dir': e.target.value })}
+                           value={dialogValues.source.dir || dialogValues.source.device || ''}
+                           onChange={e => {
+                               if (dialogValues.type == 'netfs')
+                                   return onValueChanged('source', { 'dir': e.target.value });
+                               else
+                                   return onValueChanged('source', { 'device': e.target.value });
+                           }}
+                           placeholder={dialogValues.type == 'netfs' ? _("The directory on the server being exported") : _("iSCSI target IQN")}
                            className='form-control' />
                     { validationState == 'error' &&
                     <HelpBlock>
@@ -215,7 +225,7 @@ class CreateStoragePoolModal extends React.Component {
             name: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             type: 'dir',
-            source: { 'host': '', 'dir': '' },
+            source: { 'host': '', 'dir': '', 'device': '' },
             target: '',
             autostart: true,
             validationFailed: {},
@@ -261,6 +271,18 @@ class CreateStoragePoolModal extends React.Component {
         // Mandatory props for netfs pool type
         if (this.state.type == 'netfs') {
             if (this.state.source.dir.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.source = true;
+            }
+            if (this.state.source.host.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.host = true;
+            }
+        }
+
+        // Mandatory props for iscsi pool type
+        if (this.state.type == 'iscsi') {
+            if (this.state.source.device.length == 0) {
                 modalIsIncomplete = true;
                 validationFailed.source = true;
             }

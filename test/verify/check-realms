@@ -57,7 +57,7 @@ done
 
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No freeipa available", "debian-stable", "debian-testing")
+@skipImage("No freeipa available", "debian-stable")
 class TestRealms(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -440,7 +440,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No freeipa available", "debian-stable", "debian-testing")
+@skipImage("No freeipa available", "debian-stable")
 class TestKerberos(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
@@ -654,8 +654,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # disable the realmd package's service, so that we can restore it, but
         # the package install code path will be triggered
-        m.execute(
-            "systemctl stop realmd && mv /usr/share/dbus-1/system-services/org.freedesktop.realmd.service{,.disabled}")
+        m.execute("systemctl stop realmd && systemctl mask realmd")
 
         self.login_and_go("/system")
 
@@ -671,7 +670,7 @@ class TestPackageInstall(packagelib.PackageCase):
         b.click("#system-info-domain a")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
         # restore realmd service, to pretend that package install completed
-        m.execute("mv /usr/share/dbus-1/system-services/org.freedesktop.realmd.service{.disabled,}")
+        m.execute("systemctl unmask realmd")
         b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")
 

@@ -375,7 +375,7 @@
                         if (prompt_data)
                             show_converse(prompt_data);
                         else
-                            fatal(xhr.statusText);
+                            fatal(decodeURIComponent(xhr.statusText));
                     }
                 }
             };

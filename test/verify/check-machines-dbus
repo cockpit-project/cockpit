@@ -223,7 +223,8 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Wait for the footer warning to appear
         b.wait_present("#vm-subVmTest1-network-1-edit-dialog-idle-message")
         # Change network type and source of a running domain
-        b.set_val("#vm-subVmTest1-network-1-select-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-select-source", "default")
         b.set_val("#vm-subVmTest1-network-1-select-source", "test_network")
         # Save the network settings
         b.click("#vm-subVmTest1-network-1-edit-dialog-save")
@@ -399,6 +400,35 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-range".format(connectionName))
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-host-0".format(connectionName))
 
+    def testPause(self):
+        b = self.browser
+        m = self.machine
+
+        self.startVm("subVmTest1")
+
+        self.login_and_go("/machines")
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_present("tbody tr th")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+
+        b.click("tbody tr th") # click on the row header
+        b.wait_present("#vm-subVmTest1-state")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+
+        b.wait_present("#vm-subVmTest1-pause")
+
+        # pause the machine
+        b.click("#vm-subVmTest1-pause")
+        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
+        self.assertEqual(state, "paused")
+
+        # resume the machine
+        b.click("#vm-subVmTest1-resume")
+        b.wait_in_text("#vm-subVmTest1-state", "running")
+        state = m.execute("virsh dominfo subVmTest1 | grep 'State:' | awk '{print $2}'").strip()
+        self.assertEqual(state, "running")
+
     def testStoragePools(self):
         b = self.browser
         m = self.machine
@@ -449,7 +479,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Check basic pool properties
         b.click("tbody tr[data-row-id=pool-myPoolOne-{0}] th".format(connectionName)) # click on the row header
-        b.wait_in_text("#pool-myPoolOne-{0}-path".format(connectionName), "/mnt/vm_one")
+        b.wait_in_text("#pool-myPoolOne-{0}-target-path".format(connectionName), "/mnt/vm_one")
         b.wait_in_text("#pool-myPoolOne-{0}-type".format(connectionName), "dir")
 
         # Check storage volumes of a pool
@@ -590,6 +620,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.create()
                 if not self.xfail:
                     self.verify_dialog()
+                    self.verify_overview()
 
             def open(self):
                 b.wait_present("#create-storage-pool")
@@ -606,8 +637,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if self.target:
                     b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
 
-                if 'dirpath' in self.source:
-                    b.set_input_text("#storage-pool-dialog-source", self.source['dirpath'])
+                if 'source_path' in self.source:
+                    b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
 
                 if 'host' in self.source:
                     b.set_input_text("#storage-pool-dialog-host", self.source['host'])
@@ -649,21 +680,34 @@ class TestMachinesDBus(machineslib.TestMachines):
                 pool_xml = "virsh -c qemu:///system pool-dumpxml {0}".format(self.name)
                 xmllint_element = "{0} | xmllint --xpath 'string(//pool/{{prop}})' - 2>&1 || true".format(pool_xml)
 
-                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')))
-                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')) + '/')
-                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')))
+                self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
+                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')).strip() + '/')
+                self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')).strip())
 
-                host = m.execute(xmllint_element.format(prop='source/host/@name'))
+                host = m.execute(xmllint_element.format(prop='source/host/@name')).strip()
                 if "host" in self.source:
                     self.test_obj.assertEqual(self.source["host"], host)
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
-                source_path = m.execute(xmllint_element.format(prop="source/dir/@path"))
-                if "dirpath" in self.source:
-                    self.test_obj.assertEqual(self.source["dirpath"], source_path)
+                source_path_dir = m.execute(xmllint_element.format(prop="source/dir/@path")).strip()
+                source_path_device = m.execute(xmllint_element.format(prop="source/device/@path")).strip()
+                if "source_path" in self.source:
+                    self.test_obj.assertTrue(self.source["source_path"] in [source_path_dir, source_path_device])
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
+
+            def verify_overview(self):
+                # Check basic pool properties
+                connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
+                b.click("tbody tr[data-row-id=pool-{0}-{1}] th".format(self.name, connectionName)) # click on the row header
+
+                b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
+                b.wait_in_text("#pool-{0}-{1}-type".format(self.name, connectionName), self.pool_type)
+                if "host" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-host".format(self.name, connectionName), self.source["host"])
+                if "source_path" in self.source:
+                    b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
         StoragePoolCreateDialog(
             self,
@@ -696,8 +740,35 @@ class TestMachinesDBus(machineslib.TestMachines):
             name="my_dir_pool_two",
             pool_type="netfs",
             target="/tmp/my_dir_pool_two/",
-            source={"host": "127.0.0.1", "dirpath": "/mnt/exports"}
+            source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
         ).execute()
+
+        # Debian and ubuntu images don't have open-iscsi already installed
+        # FIXME: Add open-iscsi to debian and ubuntu images
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # Preparations for testing ISCSI pools
+
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+            # Increase the iSCSI timeouts for heavy load during our testing
+            m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+            # Setup a iSCSI target
+            m.execute("""
+                      targetcli /backstores/ramdisk create test 50M
+                      targetcli /iscsi create %(tgt)s
+                      targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+                      targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+                      """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+            StoragePoolCreateDialog(
+                self,
+                name="my_iscsi_pool",
+                pool_type="iscsi",
+                target="/dev/disk/by-path/",
+                source={"host": "127.0.0.1", "source_path": target_iqn}
+            ).execute()
 
 
 if __name__ == '__main__':

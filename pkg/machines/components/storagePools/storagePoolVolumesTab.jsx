@@ -77,7 +77,8 @@ export class StoragePoolVolumesTab extends React.Component {
         let isVolumeUsed = {};
         for (let i in volumes) {
             let volumeName = volumes[i].name;
-            const volumePath = [storagePool.path, volumeName].join('/');
+            const targetPath = storagePool.target ? storagePool.target.path : '';
+            const volumePath = [targetPath, volumeName].join('/');
             isVolumeUsed[volumeName] = [];
 
             for (let vmName in vmDisksMap) {

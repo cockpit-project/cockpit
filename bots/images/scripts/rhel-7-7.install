@@ -1,0 +1,8 @@
+#! /bin/bash
+
+set -e
+
+# remove cockpit distro packages, testing with upstream master
+rpm --erase --verbose cockpit cockpit-ws cockpit-bridge cockpit-system
+
+/var/lib/testvm/fedora.install --rhel "$@"

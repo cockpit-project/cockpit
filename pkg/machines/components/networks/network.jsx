@@ -58,11 +58,11 @@ export class Network extends React.Component {
             </span>);
         const device = (
             <span id={`${idPrefix}-device`}>
-                { network.device }
+                { network.bridge && network.bridge.name }
             </span>);
         const forwarding = (
             <span id={`${idPrefix}-forwarding`}>
-                { rephraseUI('networkForward', network.mode) }
+                { rephraseUI('networkForward', network.forward ? network.forward.mode : "none") }
             </span>);
         const state = (
             <React.Fragment>

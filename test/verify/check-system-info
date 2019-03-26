@@ -34,6 +34,14 @@ VERSION_ID="2.0"
 PRETTY_NAME="Foobar Adventure Linux Server 2.0 (Day of Doom)"
 """
 
+lscpu = """#!/bin/sh
+echo 'CPU(s):              8'
+echo 'On-line CPU(s) list: 0-7'
+echo 'Thread(s) per core:  {0}'
+echo 'Core(s) per socket:  4'
+echo 'Socket(s):           1'
+"""
+
 
 def ssh_reconnect(machine, timeout_sec=120):
     start_time = time.time()
@@ -392,6 +400,140 @@ class TestSystemInfo(MachineCase):
         # go back to system page
         b.click('.breadcrumb a')
         b.enter_page("/system")
+
+    @skipImage("Added in pull 11368", "rhel-7-6-distropkg")
+    def testCPUSecurityMitigations(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go('/system/hwinfo')
+        b.wait_present('#hwinfo th:contains(CPU)')
+
+        def spoof_threads(threads_per_core, expect_link_present, expect_smt_state=None, cmdline=None):
+            m.write('/usr/local/bin/lscpu', lscpu.format(threads_per_core))
+            m.execute('chmod +x /usr/local/bin/lscpu')
+            if cmdline:
+                m.write('/run/cmdline', cmdline)
+                m.execute('mount --bind /run/cmdline /proc/cmdline')
+
+            b.reload()
+            b.enter_page('/system/hwinfo')
+
+            if not expect_link_present:
+                b.wait_present('#hwinfo th:contains(CPU)')
+                b.wait_not_present('#hwinfo th:contains(CPU Security)')
+            else:
+                b.wait_present('#hwinfo a:contains(Mitigations)')
+                b.click('#hwinfo a:contains(Mitigations)')
+
+            if expect_smt_state:
+                b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
+                b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', expect_smt_state)
+
+            if cmdline:
+                m.execute('umount /proc/cmdline')
+                m.execute('rm /run/cmdline')
+
+        # We expect our test VMs to not set nosmt
+        spoof_threads(1, False)
+        spoof_threads(2, True, 'On', 'param1 param2 nosmt param3=value3')
+        spoof_threads(2, True, 'On', 'param1 param2 nosmt=force param3=value3')
+        spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
+        spoof_threads(2, True, 'Off', None)
+
+        # Enable nosmt option
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        b.wait_present('#hwinfo a:contains(Mitigations)')
+        b.click('#hwinfo a:contains(Mitigations)')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch')
+        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
+        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        m.wait_reboot()
+        self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
+
+        # Ensure that future kernel upgrades also retain the option; various
+        # Fedora and RHEL version are in different stages of the BLS
+        # transition, so there are three cases:
+        # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
+        # - BLS, options go directly into entries (RHEL 8.0)
+        # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
+        if not m.atomic_image:
+            m.execute(r"""set -e
+. /etc/os-release
+touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --install 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null # Fedora/RHEL >= 8
+    fi
+fi
+grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
+  grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
+  ( grub2-editenv list | grep -q kernelopts.*nosmt &&
+    grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
+""")
+            # clean up so that next reboot works
+            m.execute(r"""set -e
+. /etc/os-release
+rm /boot/vmlinuz-42.0.0
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --remove 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0  # Fedora/RHEL >= 8
+    fi
+fi
+""")
+
+        # Disable nosmt option
+        self.login_and_go('/system/hwinfo')
+        b.wait_present('#hwinfo a:contains(Mitigations)')
+        b.click('#hwinfo a:contains(Mitigations)')
+        b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
+        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
+        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
+        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'Off')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        m.wait_reboot()
+        self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
+
+        # Behaviour for non-admins
+        self.login_and_go('/system/hwinfo', authorized=False)
+        b.wait_present('#hwinfo th:contains(CPU)')
+        b.wait_present('#hwinfo span:contains(Mitigations)')
+        b.mouse('#hwinfo span:contains(Mitigations)', 'mouseover')
+        b.wait_present('#tip-cpu-security')
+        b.wait_text('#tip-cpu-security .tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
+
+        # Behaviour if grub update tools are missing
+        b.logout()
+        m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
+        m.write('/tmp/grubby', '#!/bin/sh\necho 0')
+        m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
+        self.login_and_go('/system/hwinfo')
+        b.wait_present('#hwinfo a:contains(Mitigations)')
+        b.click('#hwinfo a:contains(Mitigations)')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch')
+        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
+        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
+        b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
+        b.wait_present('#cpu-mitigations-dialog .alert:contains(No supported grub update mechanism found)')
+
+        self.allow_journal_messages('Sourcing file `/etc/default/grub.*',
+                                    'Generating grub configuration file.*',
+                                    'Found linux image.*',
+                                    'Found initrd image.*',
+                                    '.*warning: setlocale: LC_ALL: cannot change locale.*',
+                                    'done')
+        self.allow_authorize_journal_messages()
+        self.allow_restart_journal_messages()
 
 
 class TestPcp(packagelib.PackageCase):

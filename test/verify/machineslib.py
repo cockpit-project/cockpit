@@ -26,6 +26,7 @@ import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
+from netlib import NetworkCase
 
 
 def readFile(name):
@@ -167,7 +168,7 @@ reboot"""
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-class TestMachines(MachineCase):
+class TestMachines(NetworkCase):
     created_pool = False
     provider = None
 
@@ -1222,6 +1223,9 @@ class TestMachines(MachineCase):
             ]
             self.machine.execute(" && ".join(cmds))
 
+            # Add an extra network interface that should appear in the PXE source dropdown
+            iface = self.add_iface(activate=False)
+
             # We don't handle events for networks yet, so reload the page to refresh the state
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1283,6 +1287,15 @@ class TestMachines(MachineCase):
             wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
             self.machine.execute("virsh destroy subVmTestCreate18 && virsh undefine subVmTestCreate18")
+
+            # Check that host network devices are appearing in the options for PXE boot sources
+            createTest(TestMachines.VmDialog(self, "subVmTestCreate19", sourceType='pxe',
+                                             location="Host Device {0}: macvtap".format(iface),
+                                             memory_size=50, memory_size_unit='MiB',
+                                             storage_size=0, storage_size_unit='MiB',
+                                             os_vendor=config.NOVELL_VENDOR,
+                                             os_name=config.NOVELL_NETWARE_6,
+                                             start_vm=False))
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm

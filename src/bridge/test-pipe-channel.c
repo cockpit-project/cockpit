@@ -649,7 +649,7 @@ test_spawn_pty_resize (void)
    * Set shell option `checkwinsize`, which tells bash to update $LINES
    * and $COLUMNS after each command.
    */
-  sent = bytes_from_string ("shopt -s checkwinsize\necho -e \"\\x7b$COLUMNS $LINES\\x7d\"\n");
+  sent = bytes_from_string ("echo -e \"\\x7b$(stty size)\\x7d\"\n");
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   g_bytes_unref (sent);
 
@@ -676,7 +676,7 @@ test_spawn_pty_resize (void)
   cockpit_transport_emit_control (COCKPIT_TRANSPORT (transport), "options", "548", options, NULL);
   json_object_unref (options);
 
-  sent = bytes_from_string ("echo -e \"\\x7b$COLUMNS $LINES\\x7d\"\nexit\n");
+  sent = bytes_from_string ("echo -e \"\\x7b$(stty size)\\x7d\"\nexit\n");
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   g_bytes_unref (sent);
 
@@ -691,7 +691,7 @@ test_spawn_pty_resize (void)
         }
     }
 
-  cockpit_assert_strmatch (received->str, "*{4567 1234}*{42 24}*");
+  cockpit_assert_strmatch (received->str, "*{1234 4567}*{24 42}*");
   g_string_free (received, TRUE);
 
   g_assert_cmpstr (problem, ==, "");

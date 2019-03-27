@@ -304,7 +304,7 @@ def prioritize(status, title, labels, priority, context):
     # Ignore context when the PR has [no-test] in the title or as label, unless
     # the context was directly triggered
     if (('no-test' in list(labels()) or '[no-test]' in title) and
-        status.get("description", "") != github.NOT_TESTED_DIREC):
+        status.get("description", "") != github.NOT_TESTED_DIRECT):
         priority = 0
         update = None
 

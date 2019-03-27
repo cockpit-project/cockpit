@@ -21,6 +21,7 @@ import {
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_HYPERVISOR_MAX_VCPU,
+    SET_NODE_MAX_MEMORY,
     SET_LOGGED_IN_USER,
     SET_PROVIDER,
     UNDEFINE_NETWORK,
@@ -76,6 +77,13 @@ export function setHypervisorMaxVCPU({ count, connectionName }) {
             count,
             connectionName,
         }
+    };
+}
+
+export function setNodeMaxMemory({ memory }) {
+    return {
+        type: SET_NODE_MAX_MEMORY,
+        payload: { memory }
     };
 }
 

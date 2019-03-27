@@ -445,6 +445,11 @@ def label(issue, labels=['bot']):
         resource = "issues/{0}/labels".format(issue)
     return api.post(resource, labels)
 
+def labels_of_pull(pull):
+    if "labels" not in pull:
+        pull["labels"] = api.get("issues/{0}/labels".format(pull["number"]))
+    return map(lambda label: label["name"], pull["labels"])
+
 def comment(issue, comment):
     try:
         number = issue["number"]

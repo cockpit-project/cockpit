@@ -100,7 +100,7 @@ import urllib.request
 
 sys.dont_write_bytecode = True
 
-from task import github, label, redhat_network
+from task import github, label, redhat_network, labels_of_pull
 
 no_amqp = False
 try:
@@ -303,13 +303,13 @@ def prioritize(status, title, labels, priority, context):
 
     # Ignore context when the PR has [no-test] in the title or as label, unless
     # the context was directly triggered
-    if (('no-test' in list(labels()) or '[no-test]' in title) and
+    if (('no-test' in list(labels) or '[no-test]' in title) and
         status.get("description", "") != github.NOT_TESTED_DIRECT):
         priority = 0
         update = None
 
     if priority > 0:
-        values = list(labels())
+        values = list(labels)
         if "priority" in values:
             priority += 2
         if "blocked" in values:
@@ -390,10 +390,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
         if sha and revision != sha and not revision.startswith(sha):
             continue
 
-        def labels():
-            if "labels" not in pull:
-                pull["labels"] = api.get("issues/{0}/labels".format(number))
-            return map(lambda label: label["name"], pull["labels"])
+        labels = labels_of_pull(pull)
 
         # Do we have any statuses for this commit?
         have = len(statuses.keys()) > 0
@@ -432,7 +429,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
                 return False
             if base != "master":  # bots/ is always taken from master branch
                 return False
-            if LABEL_TEST_EXTERNAL in labels():  # already checked before?
+            if LABEL_TEST_EXTERNAL in labels_of_pull(pull):  # already checked before?
                 return True
 
             if not have:

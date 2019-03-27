@@ -747,8 +747,8 @@ ExecStart=/bin/true
         def rel_link_sel(service):
             return "table.systemd-unit-relationship-table a:contains('%s')" % service
 
-        b.wait_in_text("#services", "test.service")
-        b.wait_not_in_text("#services", "not-found.service")
+        b.wait_present(svc_sel("test.service"))
+        b.wait_not_present(svc_sel("not-found.service"))
 
         b.click(svc_sel("test.service"))
         b.wait_js_cond('window.location.hash === "#/test.service"')

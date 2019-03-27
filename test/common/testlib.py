@@ -267,7 +267,7 @@ class Browser:
         value_id = self.attr(text_selector, "value")
         self.set_val(selector, value_id)
 
-    def set_input_text(self, selector, val, append=False):
+    def set_input_text(self, selector, val, append=False, value_check=True):
         self.wait_present(selector)
         self.focus(selector)
         if not append:
@@ -277,7 +277,8 @@ class Browser:
         else:
             self.key_press(val)
 
-        self.wait_val(selector, val)
+        if value_check:
+            self.wait_val(selector, val)
         self.blur(selector)
 
     def set_file_autocomplete_val(self, selector, location):

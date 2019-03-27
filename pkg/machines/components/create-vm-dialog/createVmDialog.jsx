@@ -167,6 +167,10 @@ class CreateVM extends React.Component {
             }
             break;
         case 'memorySize':
+            value = Math.min(
+                value,
+                Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
+            );
             this.setState({ [key]: value });
             value = convertToUnit(value, this.state.memorySizeUnit, units.MiB);
             break;
@@ -381,20 +385,37 @@ class CreateVM extends React.Component {
 
                 <hr />
 
-                <MemorySelectRow label={_("Memory")}
-                                 id={"memory-size"}
-                                 value={this.state.memorySize}
-                                 initialUnit={this.state.memorySizeUnit}
-                                 onValueChange={e => this.onChangedEventValue('memorySize', e)}
-                                 onUnitChange={e => this.onChangedValue('memorySizeUnit', e)} />
+                <label htmlFor='memory-size' className='control-label'>
+                    {_("Memory")}
+                </label>
+                <FormGroup bsClass='ct-validation-wrapper' controlId='memory'>
+                    <MemorySelectRow id='memory-size'
+                                     value={this.state.memorySize}
+                                     maxValue={this.props.nodeMaxMemory && convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit)}
+                                     initialUnit={this.state.memorySizeUnit}
+                                     onValueChange={e => this.onChangedEventValue('memorySize', e)}
+                                     onUnitChange={e => this.onChangedValue('memorySizeUnit', e)} />
+                    {this.props.nodeMaxMemory &&
+                    <HelpBlock>
+                        {cockpit.format(
+                            _("Up to $0 $1 available on the host"),
+                            Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit)),
+                            this.state.memorySizeUnit,
+                        )}
+                    </HelpBlock>}
+                </FormGroup>
 
                 {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-                <MemorySelectRow label={_("Storage Size")}
-                                 id={"storage-size"}
-                                 value={this.state.storageSize}
-                                 initialUnit={this.state.storageSizeUnit}
-                                 onValueChange={e => this.onChangedEventValue('storageSize', e)}
-                                 onUnitChange={e => this.onChangedValue('storageSizeUnit', e)} />}
+                <React.Fragment>
+                    <label htmlFor='storage-size' className='control-label'>
+                        {_("Storage Size")}
+                    </label>
+                    <MemorySelectRow id={"storage-size"}
+                                     value={this.state.storageSize}
+                                     initialUnit={this.state.storageSizeUnit}
+                                     onValueChange={e => this.onChangedEventValue('storageSize', e)}
+                                     onUnitChange={e => this.onChangedValue('storageSizeUnit', e)} />
+                </React.Fragment>}
 
                 <hr />
 
@@ -519,6 +540,7 @@ class CreateVmModal extends React.Component {
                 familyMap={vendors.familyMap}
                 networks={this.props.networks}
                 nodeDevices={this.props.nodeDevices}
+                nodeMaxMemory={this.props.nodeMaxMemory}
                 vendorMap={vendors.vendorMap}
                 valuesChanged={this.onValueChanged}
                 loggedUser={loggedUser}
@@ -582,6 +604,7 @@ export class CreateVmAction extends React.Component {
                     close={this.close} dispatch={this.props.dispatch}
                     networks={this.props.networks}
                     nodeDevices={this.props.nodeDevices}
+                    nodeMaxMemory={this.props.nodeMaxMemory}
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}
                     loggedUser={this.props.systemInfo.loggedUser} /> }

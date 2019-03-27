@@ -26,7 +26,7 @@ from testlib import *
 
 
 @skipPackage("cockpit-docker")
-@skipImage("No docker packaged", "rhel-8-0")
+@skipImage("No docker packaged", "debian-stable", "rhel-8-0")
 class TestDocker(MachineCase):
 
     def setUp(self):
@@ -264,10 +264,6 @@ class TestDocker(MachineCase):
         b = self.browser
         m = self.machine
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
-
-        # HACK: port forwarding with our docker Debian 8 package on Debian 9 does not work with firewalld
-        if m.image == 'debian-stable':
-            m.execute("systemctl stop firewalld; systemctl restart docker")
 
         m.execute("systemctl start docker || systemctl start docker-latest")
 

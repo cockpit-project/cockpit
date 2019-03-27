@@ -37,7 +37,7 @@ export class StoragePoolList extends React.Component {
         return (
             <React.Fragment>
                 <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => this.props.changeActiveList(1)}>
+                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
                         {_("Virtual Machines")}
                     </Breadcrumb.Item>
                     <Breadcrumb.Item active>
@@ -72,7 +72,6 @@ export class StoragePoolList extends React.Component {
 StoragePoolList.propTypes = {
     storagePools: PropTypes.array.isRequired,
     vms: PropTypes.array.isRequired,
-    changeActiveList: PropTypes.func.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     resourceHasError: PropTypes.object.isRequired,
 };

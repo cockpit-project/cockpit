@@ -1044,9 +1044,10 @@ class TestMachines(NetworkCase):
                                                os_vendor=config.UNSPECIFIED_VENDOR,
                                                os_name=config.OTHER_OS,
                                                start_vm=True))
+
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                location=config.VALID_URL,
-                                               memory_size=12654, memory_size_unit='GiB',
+                                               memory_size=256, memory_size_unit='MiB',
                                                storage_size=0, storage_size_unit='MiB',
                                                os_vendor=config.NOVELL_VENDOR,
                                                os_name=config.NOVELL_NETWARE_4,
@@ -1072,14 +1073,6 @@ class TestMachines(NetworkCase):
                                                             location="invalid/url", storage_size='1',
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
-
-        # memory
-        checkDialogErrorTest(TestMachines.VmDialog(self, location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                   memory_size=100, memory_size_unit='GiB',
-                                                   storage_size=100, storage_size_unit='MiB',
-                                                   os_vendor=config.NOVELL_VENDOR,
-                                                   os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), ["memory", "RAM", "buffer"])
 
         # disk
         checkDialogErrorTest(TestMachines.VmDialog(self, location=config.NOVELL_MOCKUP_ISO_PATH,
@@ -1118,7 +1111,7 @@ class TestMachines(NetworkCase):
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
-                                         memory_size=900, memory_size_unit='GiB',
+                                         memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
                                          os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
@@ -1132,14 +1125,16 @@ class TestMachines(NetworkCase):
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False,
                                          connection='session'))
-        # try to INSTALL WITH ERROR
-        installWithErrorTest(TestMachines.VmDialog(self, sourceType='file',
-                                                   location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                   memory_size=900, memory_size_unit='GiB',
-                                                   storage_size=10, storage_size_unit='MiB',
-                                                   os_vendor=config.APPLE_VENDOR,
-                                                   os_name=config.MACOS_X_LEOPARD,
-                                                   connection='session'))
+
+        # Try setting the memory to value bigger than it's available on the OS
+        # The dialog should auto-adjust it to match the OS'es total memory
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=100000, memory_size_unit='MiB',
+                                         storage_size=0, storage_size_unit='MiB',
+                                         os_vendor=config.APPLE_VENDOR,
+                                         os_name=config.MACOS_X_TIGER,
+                                         start_vm=False))
 
         # Start of tests for import existing disk as installation option
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
@@ -1444,8 +1439,15 @@ class TestMachines(NetworkCase):
             b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
             b.select_from_dropdown("#system-select", self.os_name, substring=True)
 
-            b.set_input_text("#memory-size", str(self.memory_size))
+            # First select the unit so that UI will auto-adjust the memory input
+            # value according to the available total memory on the host
             b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
+            b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
+            help_block_line = b.text("label:contains(Memory) ~ .ct-validation-wrapper .help-block")
+            host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
+            # Write the final memory back to self so that other function can read it
+            self.memory_size = min(self.memory_size, host_total_memory)
+            b.wait_val("#memory-size", self.memory_size)
 
             if self.storage_size is None:
                 b.wait_not_present("#storage-size")

@@ -221,9 +221,9 @@ LIBVIRT_PROVIDER = {
             return dispatch => {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
+                dispatch(getNodeMaxMemory(connectionName));
                 doGetAllVms(dispatch, connectionName);
                 dispatch(getAllStoragePools(connectionName));
-                dispatch(getNodeMaxMemory(connectionName));
             };
         }
 

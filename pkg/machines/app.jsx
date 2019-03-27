@@ -101,6 +101,7 @@ class App extends React.Component {
                 providerName={config.provider ? config.provider.name : 'Libvirt'}
                 networks={networks}
                 nodeDevices={nodeDevices}
+                nodeMaxMemory={config.nodeMaxMemory}
                 onAddErrorNotification={this.onAddErrorNotification}
                 systemInfo={systemInfo} />
         );

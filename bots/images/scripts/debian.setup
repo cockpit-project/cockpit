@@ -13,7 +13,7 @@ sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT/# GRUB_CMDLINE_LINUX_DEFAULT/' /etc/default
 #
 COCKPIT_DEPS="\
 cryptsetup \
-docker.io
+docker.io \
 libblockdev-mdraid2 \
 libjson-glib-1.0-0 \
 libpcp3 \
@@ -72,15 +72,13 @@ case "$RELEASE" in
         COCKPIT_DEPS="${COCKPIT_DEPS/libblockdev-mdraid2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/udisks2-lvm2 /}"
         COCKPIT_DEPS="${COCKPIT_DEPS/libvirt-dbus /}"
+        COCKPIT_DEPS="${COCKPIT_DEPS/docker.io /}"
         IPA_CLIENT_PACKAGES="${IPA_CLIENT_PACKAGES/freeipa-client /}"
         # keep in sync with allowed messages in test/common/testlib.py
         COCKPIT_DEPS="${COCKPIT_DEPS/tuned /}"
 
         echo >> /etc/apt/sources.list
         echo 'deb http://security.debian.org/debian-security stable/updates main' >> /etc/apt/sources.list
-
-        # docker.io is in backports only
-        echo "deb http://deb.debian.org/debian jessie-backports main" >/etc/apt/sources.list.d/jessie-backports.list
         ;;
 
     bionic)
@@ -137,17 +135,21 @@ systemctl disable apt-daily.service apt-daily.timer || true
 echo "kernel.core_pattern=|/lib/systemd/systemd-coredump %P %u %g %s %t %c %e" > /etc/sysctl.d/50-coredump.conf
 printf 'DefaultLimitCORE=infinity\n' >> /etc/systemd/system.conf
 
-# HACK: we need to restart it in case aufs-dkms was installed after docker.io
-# and thus docker.io auto-switches its backend
-systemctl restart docker || journalctl -u docker
-I=$(docker info)
-if ! echo "$I" | grep -Eq 'Storage.*(aufs|overlay)'; then
-    echo "ERROR! docker does not use aufs or overlayfs"
-    exit 1
-fi
+if [ "$RELEASE" != "stable" ]; then
+    # HACK: we need to restart it in case aufs-dkms was installed after docker.io
+    # and thus docker.io auto-switches its backend
+    systemctl restart docker || journalctl -u docker
+    I=$(docker info)
+    if ! echo "$I" | grep -Eq 'Storage.*(aufs|overlay)'; then
+        echo "ERROR! docker does not use aufs or overlayfs"
+        exit 1
+    fi
 
-# docker images that we need for integration testing
-/var/lib/testvm/docker-images.setup
+    # docker images that we need for integration testing
+    /var/lib/testvm/docker-images.setup
+
+    rm -rf /var/lib/docker/devicemapper
+fi
 
 # in case there are unnecessary packages
 eatmydata apt-get -y autoremove || true
@@ -155,7 +157,6 @@ eatmydata apt-get -y autoremove || true
 # reduce image size
 apt-get clean
 pbuilder clean
-rm -rf /var/lib/docker/devicemapper
 rm -f /var/cache/apt/*cache.bin
 /var/lib/testvm/zero-disk.setup
 

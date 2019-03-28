@@ -191,7 +191,14 @@ class AddServicesBody extends React.Component {
 
     render() {
         let services;
-        if (this.state.filter && this.state.services)
+        if (this.state.filter && this.state.services && !isNaN(this.state.filter))
+            services = this.state.services.filter(s => {
+                for (let port of s.ports)
+                    if (port.port === this.state.filter)
+                        return true;
+                return false;
+            });
+        else if (this.state.filter && this.state.services)
             services = this.state.services.filter(s => s.name.toLowerCase().indexOf(this.state.filter) > -1);
         else
             services = this.state.services;

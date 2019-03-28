@@ -496,7 +496,6 @@ class TestSystemInfo(MachineCase):
         m.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
-        b.logout()
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')
         b.wait_present('#hwinfo span:contains(Mitigations)')

@@ -120,6 +120,23 @@ class SearchInput extends React.Component {
     }
 }
 
+const renderPorts = ports => {
+    let tcpPorts = [];
+    let udpPorts = [];
+    for (let port of ports) {
+        if (port.protocol === "tcp")
+            tcpPorts.push(port.port);
+        else
+            udpPorts.push(port.port);
+    }
+    return (
+        <small>
+            { tcpPorts.length > 0 && <span><strong>TCP: </strong>{ tcpPorts.join(', ') }&nbsp;</span> }
+            { udpPorts.length > 0 && <span><strong>UDP: </strong>{ udpPorts.join(', ') }</span> }
+        </small>
+    );
+};
+
 class AddServicesBody extends React.Component {
     constructor() {
         super();
@@ -211,7 +228,7 @@ class AddServicesBody extends React.Component {
                                                                       type="checkbox"
                                                                       checked={this.state.selected.has(s.id)}
                                                                       onChange={this.onToggleService} /> }
-                                               heading={ <span>{s.name}</span> }>
+                                               heading={ <React.Fragment><span>{s.name}</span>{ renderPorts(s.ports) }</React.Fragment> }>
                                 </ListView.Item>
                             ))
                         }

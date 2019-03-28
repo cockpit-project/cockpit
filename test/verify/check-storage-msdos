@@ -38,7 +38,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         # Format it with a DOS partition table
-        b.click('button:contains(Create partition table)')
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "dos"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 

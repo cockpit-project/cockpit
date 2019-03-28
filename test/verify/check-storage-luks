@@ -39,7 +39,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "MYDISK")
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
-        b.click('button:contains(Create partition table)')
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 

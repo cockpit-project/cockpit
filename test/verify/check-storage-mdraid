@@ -189,8 +189,8 @@ class TestStorage(StorageCase):
             # (https://github.com/storaged-project/storaged/issues/98)
             part_prefix = dev + "p"
 
-        # Create partition table
-        b.click('button:contains(Create partition table)')
+        # Create Partition Table
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 

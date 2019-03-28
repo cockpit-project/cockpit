@@ -48,8 +48,8 @@ class TestStorage(StorageCase):
         b.click('tr:contains("%s")' % dev)
         b.wait_present('#storage-detail')
 
-        b.wait_visible('button:contains(Create partition table)')
-        b.click('button:contains(Create partition table)')
+        b.wait_visible('button:contains(Create Partition Table)')
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 
@@ -73,8 +73,8 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("DISK1")')
         b.wait_present('#storage-detail')
 
-        b.wait_visible('button:contains(Create partition table)')
-        b.click('button:contains(Create partition table)')
+        b.wait_visible('button:contains(Create Partition Table)')
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 

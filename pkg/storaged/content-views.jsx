@@ -553,7 +553,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         format_disk_btn = (
             <div className="pull-right">
                 <StorageButton onClick={format_disk} excuse={block.ReadOnly ? _("Device is read-only") : null}>
-                    {_("Create partition table")}
+                    {_("Create Partition Table")}
                 </StorageButton>
             </div>);
 

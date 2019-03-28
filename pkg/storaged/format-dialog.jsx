@@ -180,7 +180,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 
     var title;
     if (create_partition)
-        title = cockpit.format(_("Create partition on $0"), utils.block_name(block));
+        title = cockpit.format(_("Create Partition on $0"), utils.block_name(block));
     else
         title = cockpit.format(_("Format $0"), utils.block_name(block));
 
@@ -329,7 +329,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                           dlg.set_nested_values("crypto_options", { ro: false });
                   },
                   Action: {
-                      Title: create_partition ? _("Create partition") : _("Format"),
+                      Title: create_partition ? _("Create Partition") : _("Format"),
                       Danger: (create_partition
                           ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {

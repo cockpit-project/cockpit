@@ -82,7 +82,7 @@
   }
 
   // Auto-stretch elements to the grid (except when relaxed)
-  > :not(.ct-form-layout-relax) {
+  > :not(.ct-form-layout-relax):not(.spinner) {
     width: auto;
   }
 
@@ -145,7 +145,7 @@
 
   // Some elements need special width considerations
   // as PatternFly normally fixes the width
-  > :not(.ct-form-layout-relax) {
+  > :not(.ct-form-layout-relax):not(.spinner) {
     width: auto !important;
   }
 

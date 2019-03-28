@@ -138,17 +138,17 @@ class TestFirewall(MachineCase):
         # click on the "Add Services" button
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='pop3']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
 
         # filter for pop3
-        b.wait_present("#cockpit_modal_dialog li input[data-id='imap']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.set_input_text("#filter-services-input", "pop")
-        b.wait_not_present("#cockpit_modal_dialog li input[data-id='imap']")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='pop3']")
+        b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         # clear filter
         b.set_input_text("#filter-services-input", "")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='imap']")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='pop3']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
 
         # don't select anything in the dialog
         b.wait_present("#add-services-dialog .modal-footer .btn-primary")
@@ -158,16 +158,16 @@ class TestFirewall(MachineCase):
         # now add pop3
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='pop3']")
-        b.click("#cockpit_modal_dialog li input[data-id='pop3']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
+        b.click("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")
         b.wait_present("tr[data-row-id='pop3']")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click("caption button.btn-primary")
-        b.wait_present("#cockpit_modal_dialog li input[data-id='imap']")
-        b.wait_not_present("#cockpit_modal_dialog li input[data-id='pop3']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
 
@@ -175,7 +175,7 @@ class TestFirewall(MachineCase):
         if m.image != "rhel-7-6-distropkg": # Fixed in #11318
             m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
             b.click("caption button.btn-primary")
-            b.wait_present("#cockpit_modal_dialog li input[data-id='empty']")
+            b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
 
 
 if __name__ == '__main__':

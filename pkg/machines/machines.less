@@ -281,3 +281,162 @@ td > .utilization-bar-pf {
         height: 0.75rem;
     }
 }
+
+.error.listing-ct-item {
+    background-color: #fbf0f0 !important;  /* keep red background when expanded */
+}
+
+// Toast-related variables
+@toast-stack-offset: 0.75rem;
+@toast-anim-speed: 200ms;
+
+// Notification wrapper styles that apply to both mobile and desktop
+.toast-notification-wrapper {
+    position: relative;
+    display: inline;
+    // WebKit (Safari, GNOME Web) somehow _still_ needs a prefix for stickiness
+    position: -webkit-sticky;
+    position: sticky;
+    // Dialogs are z-index 1050 in PatternFly, inheriting from Bootstrap.
+    // As we want notifications to be the topmost element except for dialogs,
+    // we'll make it 1050 - 1 for the toasts.
+    z-index: 1049;
+
+    // Limit toast details to 33% of the viewport height
+    .toast-pf p {
+        max-height: 33vh;
+        overflow: auto;
+    }
+}
+
+// Notification stack (static & reversed, so new is on bottom) for mobile
+@media screen and (max-width: 640px) {
+    .toast-notification-wrapper {
+        right: 0.5rem;
+        bottom: 0;
+        left: 0.5rem;
+        position: fixed;
+    }
+
+    .toast-notifications-list-pf {
+        display: flex;
+        flex-direction: column-reverse;
+        margin: auto;
+        max-height: calc(100vh - 1rem);
+        overflow: auto;
+        position: static;
+
+        .toast-pf {
+            animation: toast-fade-in @toast-anim-speed ease-out;
+            transform-origin: bottom;
+        }
+    }
+}
+
+// Notification stacking for desktop browsers
+@media screen and (min-width: 641px) {
+    .toast-notification-wrapper {
+        // Toast grid can escape a 0 height flex without reflowing
+        display: flex;
+        height: 0;
+        top: 0.5rem - @toast-stack-offset;
+    }
+
+    .toast-pf {
+        // Animation for toasts fading & sliding in
+        animation: toast-fade-in @toast-anim-speed ease-out;
+        // Animations should happen from the top
+        transform-origin: top;
+        // Animation setup for the stack collapse & expanding
+        transition: all @toast-anim-speed ease-out;
+        // Delay the stacking until the fade-in animation is done
+        transition-delay: @toast-anim-speed;
+        margin: 0;
+        max-width: calc(100vw - 4rem);
+        width: 72ch;
+        z-index: 2;
+
+        // Animate CSS changes for the icon and other toast children
+        .pficon::before, a, p {
+            transition: all @toast-anim-speed ease-out;
+        }
+    }
+
+    .toast-notifications-list-pf {
+        display: grid;
+        grid-gap: 0.5rem;
+        margin: @toast-stack-offset auto 0;
+        max-width: 100% !important;
+        position: static;
+
+        // When hovering, expand the mouse area
+        // better for jittery mice and people with tremor
+        // and important for preserving the hover when dismissing
+        // the bottom-most notification
+        &:hover {
+            border: 1px solid transparent;
+            // Notifications are approximately 36px (== 3.6rem) tall; round up
+            border-width: 0 4rem 5rem;
+
+            .toast-pf {
+                // Speed up hover animations on hover
+                transition-delay: 0;
+            }
+        }
+
+        // Collapsed list with progressive enhancement:
+        // Require :focus-within support for hover collapsing to work,
+        // so keyboard navigation always works with *all* browsers.
+        // We're using :not() here as we want the default to be expanded
+        // and for the notifications to collapse when not being hovered
+        // or have focus inside (either expanding from tabbing to the elements
+        // or persisting expansion after clicking a details link).
+        &:not(:hover):not(:focus-within) {
+            .toast-pf {
+                // Collapse down everything but the last
+                &:not(:last-child) {
+                    // Complately fade text
+                    color: transparent;
+                    // Stack the cards
+                    margin-bottom: -4.5rem;
+                    // Fade the cards
+                    opacity: 0.25;
+
+                    > .pficon::before {
+                        // Fade the icon
+                        color: transparent;
+                        // Delay fading until toast appears and slides up
+                        transition-delay: @toast-anim-speed * 2;
+                    }
+                }
+
+                // All notifications, except when there's just one:
+                // Hide text when collapsed
+                &:not(:only-child) {
+                    a, p {
+                        opacity: 0;
+                    }
+
+                    p {
+                        line-height: 0;
+                        max-height: 0;
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes toast-fade-in {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: scaleY(1);
+    }
+}

@@ -158,7 +158,7 @@ def download(dest, force, state, quiet, stores):
     if not quiet:
         sys.stderr.write(" > {0}\n".format(urllib.parse.urljoin(message, name)))
 
-    (fd, temp) = tempfile.mkstemp(suffix=".partial", prefix=os.path.basename(dest), dir=os.path.dirname(dest))
+    temp = dest + ".partial"
 
     # Adjust the command above that worked to make it visible and download real stuff
     cmd.remove("--head")
@@ -171,25 +171,24 @@ def download(dest, force, state, quiet, stores):
     cmd.append(since)
     cmd.append("--output")
     cmd.append(temp)
-    os.close(fd)
+    if os.path.exists(temp):
+        if force:
+            os.remove(temp)
+        else:
+            cmd.append("-C")
+            cmd.append("-")
 
-    try:
-        curl = subprocess.Popen(cmd)
-        ret = curl.wait()
-        if ret != 0:
-            raise RuntimeError("curl: unable to download %s (returned: %s)" % (message, ret))
+    curl = subprocess.Popen(cmd)
+    ret = curl.wait()
+    if ret != 0:
+        raise RuntimeError("curl: unable to download %s (returned: %s)" % (message, ret))
 
-        os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+    os.chmod(temp, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
-        # Due to time-cond the file size may be zero
-        # A new file downloaded, put it in place
-        if not exists or os.path.getsize(temp) > 0:
-            shutil.move(temp, dest)
-
-    finally:
-        # if we had an error and the temp file is left over, delete it
-        if os.path.exists(temp):
-            os.unlink(temp)
+    # Due to time-cond the file size may be zero
+    # A new file downloaded, put it in place
+    if not exists or os.path.getsize(temp) > 0:
+        shutil.move(temp, dest)
 
 # Calculate a place to put images where links are not committed in git
 def state_target(path):

@@ -30,14 +30,14 @@ const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
     render() {
-        const { storagePools, dispatch, loggedUser, vms } = this.props;
+        const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
         const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} />);
 
         return (
             <React.Fragment>
                 <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => this.props.changeActiveList(1)}>
+                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
                         {_("Virtual Machines")}
                     </Breadcrumb.Item>
                     <Breadcrumb.Item active>
@@ -57,7 +57,9 @@ export class StoragePoolList extends React.Component {
                                     return (
                                         <StoragePool key={`${storagePoolId(storagePool.name, storagePool.connectionName)}`}
                                             storagePool={storagePool}
-                                            vms={filterVmsByConnection} />
+                                            vms={filterVmsByConnection}
+                                            resourceHasError={resourceHasError}
+                                            onAddErrorNotification={onAddErrorNotification} />
                                     );
                                 })
                         }
@@ -70,5 +72,6 @@ export class StoragePoolList extends React.Component {
 StoragePoolList.propTypes = {
     storagePools: PropTypes.array.isRequired,
     vms: PropTypes.array.isRequired,
-    changeActiveList: PropTypes.func.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
+    resourceHasError: PropTypes.object.isRequired,
 };

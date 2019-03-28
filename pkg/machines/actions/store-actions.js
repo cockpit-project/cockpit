@@ -17,10 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import {
-    ADD_NOTIFICATION,
     ADD_UI_VM,
-    CLEAR_NOTIFICATION,
-    CLEAR_NOTIFICATIONS,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_HYPERVISOR_MAX_VCPU,
@@ -38,7 +35,6 @@ import {
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
     UPDATE_VM,
-    VM_ACTION_FAILED,
 } from '../constants/store-action-types.js';
 
 /**
@@ -50,44 +46,10 @@ import {
  *  The naming convention for action creator names is: <verb><Noun>
  *  with the present tense.
  */
-
-export function addErrorNotification(notification) {
-    if (typeof notification === 'string') {
-        notification = { message: notification };
-    }
-    notification.type = 'error';
-
-    return {
-        type: ADD_NOTIFICATION,
-        notification,
-    };
-}
-
-export function addNotification(notification) {
-    return {
-        type: ADD_NOTIFICATION,
-        notification,
-    };
-}
-
 export function addUiVm(vm) {
     return {
         type: ADD_UI_VM,
         vm,
-    };
-}
-
-export function clearNotification(id) {
-    return {
-        type: CLEAR_NOTIFICATION,
-        id,
-
-    };
-}
-
-export function clearNotifications() {
-    return {
-        type: CLEAR_NOTIFICATIONS,
     };
 }
 
@@ -105,11 +67,6 @@ export function deleteUnlistedVMs(connectionName, vmNames, vmIds) {
         vmIds,
         connectionName,
     };
-}
-
-export function deleteVmMessage({ name, connectionName, tab }) {
-    // recently there's just the last error message kept so we can reuse the code
-    return vmActionFailed({ name, connectionName, message: null, detail: null, extraPayload: null, tab });
 }
 
 export function setHypervisorMaxVCPU({ count, connectionName }) {
@@ -232,19 +189,5 @@ export function updateVm(props) {
     return {
         type: UPDATE_VM,
         vm: props,
-    };
-}
-
-export function vmActionFailed({ name, connectionName, message, detail, extraPayload, tab = 'overview' }) {
-    return {
-        type: VM_ACTION_FAILED,
-        payload: {
-            name,
-            connectionName,
-            message,
-            detail,
-            extraPayload,
-            tab,
-        },
     };
 }

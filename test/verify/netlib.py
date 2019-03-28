@@ -107,7 +107,12 @@ class NetworkCase(MachineCase):
         else:
             return con_id
 
-    def slow_down_dhcp(self, delay):
+    def ensure_nm_uses_dhclient(self):
+        m = self.machine
+        m.write("/etc/NetworkManager/conf.d/99-dhcp.conf", "[main]\ndhcp=dhclient\n")
+        m.execute("systemctl restart NetworkManager")
+
+    def slow_down_dhclient(self, delay):
         m = self.machine
         m.needs_writable_usr()
         m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")

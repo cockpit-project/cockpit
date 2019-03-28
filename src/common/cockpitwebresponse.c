@@ -861,15 +861,8 @@ finish_headers (CockpitWebResponse *self,
       else
         {
           self->chunked = FALSE;
-          if (length >= 0)
-            {
-              g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
-              self->out_queueable = length;
-            }
-          else
-            {
-              self->keep_alive = FALSE;
-            }
+          g_string_append_printf (string, "Content-Length: %" G_GSSIZE_FORMAT "\r\n", length);
+          self->out_queueable = length;
         }
     }
 

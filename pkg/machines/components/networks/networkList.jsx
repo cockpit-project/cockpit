@@ -29,13 +29,13 @@ const _ = cockpit.gettext;
 
 export class NetworkList extends React.Component {
     render() {
-        const { dispatch, networks } = this.props;
+        const { dispatch, networks, resourceHasError, onAddErrorNotification } = this.props;
         const sortFunction = (networkA, networkB) => networkA.name.localeCompare(networkB.name);
 
         return (
             <React.Fragment>
                 <Breadcrumb className='machines-listing-breadcrumb' title>
-                    <Breadcrumb.Item onClick={() => this.props.changeActiveList(1)}>
+                    <Breadcrumb.Item onClick={() => cockpit.location.go(['vms']) }>
                         {_("Virtual Machines")}
                     </Breadcrumb.Item>
                     <Breadcrumb.Item active>
@@ -50,7 +50,10 @@ export class NetworkList extends React.Component {
                                 .sort(sortFunction)
                                 .map(network => {
                                     return (
-                                        <Network key={`${networkId(network.name, network.connectionName)}`} dispatch={dispatch} network={network} />
+                                        <Network key={`${networkId(network.name, network.connectionName)}`}
+                                            dispatch={dispatch} network={network}
+                                            resourceHasError={resourceHasError}
+                                            onAddErrorNotification={onAddErrorNotification} />
                                     );
                                 })
                         }
@@ -63,5 +66,6 @@ export class NetworkList extends React.Component {
 NetworkList.propTypes = {
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
-    changeActiveList: PropTypes.func.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
+    resourceHasError: PropTypes.object.isRequired,
 };

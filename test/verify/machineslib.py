@@ -26,6 +26,7 @@ import xml.etree.ElementTree as ET
 
 import parent
 from testlib import *
+from netlib import NetworkCase
 
 
 def readFile(name):
@@ -167,7 +168,7 @@ reboot"""
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-class TestMachines(MachineCase):
+class TestMachines(NetworkCase):
     created_pool = False
     provider = None
 
@@ -381,29 +382,77 @@ class TestMachines(MachineCase):
         # triangle by status
         b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
-        b.wait_in_text("#vm-subVmTest2-last-message", "VM START action failed")
+        b.wait_present("div.alert.alert-danger strong")
+        b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
 
         b.wait_present("a.alert-link.machines-more-button") # more/less button
         b.wait_in_text("a.alert-link.machines-more-button", "show more")
         b.click("a.alert-link.machines-more-button")
-        b.wait_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p")
-        b.wait_in_text("a.alert-link.machines-more-button", "show less")
+        b.wait_present("a.alert-link + p")
 
         # the message when trying to start active VM differs between virsh and libvirt-dbus provider
         if (self.provider == "libvirt-dbus"):
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+            b.wait_in_text("a.alert-link + p",
                            "domain is already running")
         else:
-            b.wait_in_text("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning div > p",
+            b.wait_in_text("a.alert-link + p",
                            "Domain is already active")
 
-        b.click("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning button") # close button
+        b.wait_in_text("a.alert-link.machines-more-button", "show less")
+        b.click("div.alert.alert-danger button") # close button
         # inline notification is gone
-        b.wait_not_present("tr.listing-ct-panel div.listing-ct-body div.alert.alert-warning")
+        b.wait_not_present("div.alert.alert-danger")
         # triangle by status is gone
         b.wait_not_present(
             "tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
+
+        # Check correctness of the toast notifications list
+        # We 'll create errors by starting to start domains when the default network in inactive
+        self.startVm("subVmTest3")
+        m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
+
+        def tryRunDomain(index, name):
+            b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index))
+            b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
+
+            row_classes = b.attr("#virtual-machines-listing .listing-ct tbody:nth-of-type({0})".format(index), "class")
+            expanded = row_classes and 'open' in row_classes
+            if not expanded:
+                b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index)) # click on the row header
+
+            b.wait_present("#vm-{0}-run".format(name))
+            b.click("#vm-{0}-run".format(name))
+
+        # Try to run subVmTest1 - it will fail because of inactive default network
+        tryRunDomain(1, 'subVmTest1')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest1 failed to start")
+
+        # Try to run subVmTest2
+        tryRunDomain(2, 'subVmTest2')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest2 failed to start")
+
+        # Delete the first notification and check notifications list again
+        b.focus(".toast-notifications-list-pf")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1)")
+        b.click(".toast-notifications-list-pf div:nth-child(1) button.close")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+
+        # Add one more notification
+        tryRunDomain(3, 'subVmTest3')
+        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest3 failed to start")
+
+        # Delete the last notification
+        b.focus(".toast-notifications-list-pf")
+        b.wait_present(".toast-notifications-list-pf div:nth-child(2) button.close")
+        b.click(".toast-notifications-list-pf div:nth-child(2) button.close")
+        b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
+        b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
 
     def wait_for_disk_stats(self, name, target):
         b = self.browser
@@ -1222,6 +1271,9 @@ class TestMachines(MachineCase):
             ]
             self.machine.execute(" && ".join(cmds))
 
+            # Add an extra network interface that should appear in the PXE source dropdown
+            iface = self.add_iface(activate=False)
+
             # We don't handle events for networks yet, so reload the page to refresh the state
             self.browser.reload()
             self.browser.enter_page('/machines')
@@ -1283,6 +1335,15 @@ class TestMachines(MachineCase):
             wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
             self.machine.execute("virsh destroy subVmTestCreate18 && virsh undefine subVmTestCreate18")
+
+            # Check that host network devices are appearing in the options for PXE boot sources
+            createTest(TestMachines.VmDialog(self, "subVmTestCreate19", sourceType='pxe',
+                                             location="Host Device {0}: macvtap".format(iface),
+                                             memory_size=50, memory_size_unit='MiB',
+                                             storage_size=0, storage_size_unit='MiB',
+                                             os_vendor=config.NOVELL_VENDOR,
+                                             os_name=config.NOVELL_NETWARE_6,
+                                             start_vm=False))
 
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
@@ -1542,6 +1603,8 @@ class TestMachines(MachineCase):
             try:
                 with b.wait_timeout(10):
                     b.wait_present(error_location)
+                    b.wait_in_text("a.alert-link.machines-more-button", "show more")
+                    b.click("a.alert-link.machines-more-button")
                     waitForError(errors, error_location)
 
                 # dialog can complete if the error was not returned immediately
@@ -1551,14 +1614,20 @@ class TestMachines(MachineCase):
                     allowBugErrors(error_location, x1)
                 else:
                     # then error should be shown in the notification area
-                    error_location = "#notification-area-notification-1 div.notification-message"
+                    error_location = ".toast-notifications-list-pf div.alert"
                     try:
                         with b.wait_timeout(20):
                             b.wait_present(error_location)
+                            b.wait_in_text("a.alert-link.machines-more-button", "show more")
+                            b.click("a.alert-link.machines-more-button")
                             waitForError(errors, error_location)
                     except Error as x2:
                         # allow CPU errors in the notification area
                         allowBugErrors(error_location, x2)
+
+            # Close the notificaton
+            b.click(".toast-notifications-list-pf div.alert button.close")
+            b.wait_not_present(".toast-notifications.list-pf div.alert")
 
             return self
 
@@ -1667,9 +1736,9 @@ class TestMachines(MachineCase):
             b.wait_present("#vm-{0}-overview".format(name)) # wait for the tab
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
-            b.wait_present("#vm-{0}-last-message".format(name))
-            b.wait_in_text("#vm-{0}-last-message".format(name), "INSTALL VM action failed")
-            b.click("#app .listing-ct tbody:nth-of-type(1) a:contains(show more)")
+            b.wait_present("div.alert.alert-danger strong")
+            b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
+            b.wait_in_text("a.alert-link.machines-more-button", "show more")
 
             return self
 
@@ -1726,10 +1795,10 @@ class TestMachines(MachineCase):
             b.wait(lambda: self.machine.execute(
                 "ls /home/admin/.local/share/libvirt/images/ 2>/dev/null | wc -l") == '0\n')
 
-            if b.is_present("#notification-area-notification-1 .close"):
-                b.click("#notification-area-notification-1 .close")
+            if b.is_present(".toast-notifications.list-pf div.alert .close"):
+                b.click(".toast-notifications.list-pf div.alert .close")
 
-            b.wait_not_present("#notification-area")
+            b.wait_not_present(".toast-notifications.list-pf div.alert")
 
             return self
 

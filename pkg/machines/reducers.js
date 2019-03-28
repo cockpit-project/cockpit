@@ -20,10 +20,7 @@ import { combineReducers } from 'redux/dist/redux';
 import VMS_CONFIG from "./config.js";
 import { logDebug } from './helpers.js';
 import {
-    ADD_NOTIFICATION,
     ADD_UI_VM,
-    CLEAR_NOTIFICATION,
-    CLEAR_NOTIFICATIONS,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
     SET_PROVIDER,
@@ -40,7 +37,6 @@ import {
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
     UPDATE_VM,
-    VM_ACTION_FAILED,
 } from './constants/store-action-types.js';
 
 // --- helpers -------------------
@@ -193,22 +189,6 @@ function vms(state, action) {
         // replace whole object
         return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
-    case VM_ACTION_FAILED: {
-        const indexedVm = findVmToUpdate(state, action.payload);
-        let tab = action.payload.tab || 'overview';
-        if (!indexedVm) { // already logged
-            return state;
-        }
-        if (!indexedVm.vmCopy.errorMessages)
-            indexedVm.vmCopy.errorMessages = {};
-
-        let updatedVm = Object.assign({}, indexedVm.vmCopy);
-        updatedVm.errorMessages = Object.assign({}, indexedVm.vmCopy.errorMessages);
-        updatedVm.errorMessages[tab] = Object.assign({}, indexedVm.vmCopy.errorMessages[tab]);
-        updatedVm.errorMessages[tab].lastMessage = action.payload.message;
-        updatedVm.errorMessages[tab].lastMessageDetail = action.payload.detail;
-        return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
-    }
     case UNDEFINE_VM: {
         if (action.id)
             return state
@@ -345,26 +325,6 @@ function ui(state, action) {
         newState.vms = Object.assign({}, state.vms);
         delete newState.vms[action.vm.name];
         return newState;
-    }
-    case ADD_NOTIFICATION: {
-        const notification = typeof action.notification === 'string' ? { message: action.notification } : action.notification;
-        const notifs = state.notifications;
-        notification.id = notifs.length > 0 ? notifs[notifs.length - 1].id + 1 : 1;
-
-        if (!notification.type) {
-            notification.type = 'info';
-        }
-
-        state.notifications = [...notifs, notification];
-        return state;
-    }
-    case CLEAR_NOTIFICATION: {
-        state.notifications = state.notifications.filter(error => error.id !== action.id);
-        return state;
-    }
-    case CLEAR_NOTIFICATIONS: {
-        state.notifications = [];
-        return state;
     }
     default:
         return state;

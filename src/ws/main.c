@@ -164,8 +164,6 @@ main (int argc,
   if (outfd < 0 || dup2 (2, 1) < 1)
     {
       g_printerr ("ws couldn't redirect stdout to stderr");
-      if (outfd > -1)
-        close (outfd);
       goto out;
     }
 

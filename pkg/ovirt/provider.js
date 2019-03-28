@@ -18,7 +18,6 @@
  */
 import cockpit from 'cockpit';
 
-import { buildFailHandler } from '../machines/libvirt-common.js';
 import LIBVIRT_PROVIDER from '../machines/libvirt-virsh.js';
 import { logDebug, logError, fileDownload } from '../machines/helpers.js';
 import { readConfiguration } from './configFuncs.js';
@@ -27,7 +26,7 @@ import { ovirtApiGet, ovirtApiPost, ovirtApiPut } from './ovirtApiAccess.js';
 import { pollOvirt, forceNextOvirtPoll } from './ovirt.js';
 import { oVirtIconToInternal } from './ovirtConverters.js';
 
-import { updateIcon, downloadIcon } from './actions.js';
+import { updateIcon, downloadIcon, vmActionFailed } from './actions.js';
 import { getHypervisorMaxVCPU } from '../machines/actions/provider-actions.js';
 
 import { getAllIcons, isVmManagedByOvirt } from './selectors.js';
@@ -117,13 +116,23 @@ OVIRT_PROVIDER.SHUTDOWN_VM = function (payload) {
 
 OVIRT_PROVIDER.FORCEOFF_VM = function (payload) {
     logDebug(`FORCEOFF_VM(payload: ${JSON.stringify(payload)})`);
+    const vmName = payload.name;
+    const connectionName = payload.connectionName;
+
     if (!isOvirtApiCheckPassed()) {
         logDebug('oVirt API version does not match, redirecting the action to Libvirt');
-        return LIBVIRT_PROVIDER.FORCEOFF_VM(payload);
+        return dispatch => LIBVIRT_PROVIDER.FORCEOFF_VM(payload)
+                .catch(exc =>
+                    buildFailHandler({
+                        dispatch,
+                        name: vmName,
+                        connectionName: connectionName,
+                        message: cockpit.format(_("FORCEOFF action failed: $0"), exc.message)
+                    })
+                );
     }
 
     const id = payload.id;
-    const vmName = payload.name;
     return (dispatch) => {
         forceNextOvirtPoll();
         return ovirtApiPost(
@@ -132,7 +141,7 @@ OVIRT_PROVIDER.FORCEOFF_VM = function (payload) {
             buildFailHandler({
                 dispatch,
                 name: vmName,
-                connectionName: payload.connectionName,
+                connectionName: connectionName,
                 message: _("SHUTDOWN action failed")
             })
         );
@@ -141,12 +150,22 @@ OVIRT_PROVIDER.FORCEOFF_VM = function (payload) {
 
 OVIRT_PROVIDER.REBOOT_VM = function (payload) {
     logDebug(`REBOOT_VM(payload: ${JSON.stringify(payload)})`);
+    const vmName = payload.name;
+    const connectionName = payload.connectionName;
+
     if (!isOvirtApiCheckPassed()) {
         logDebug('oVirt API version does not match, redirecting the action to Libvirt');
-        return LIBVIRT_PROVIDER.REBOOT_VM(payload);
+        return dispatch => LIBVIRT_PROVIDER.REBOOT_VM(payload)
+                .catch(exc =>
+                    buildFailHandler({
+                        dispatch,
+                        name: vmName,
+                        connectionName: connectionName,
+                        message: cockpit.format(_("REBOOT_VM action failed: %s0"), exc.message)
+                    })
+                );
     }
 
-    const vmName = payload.name;
     const id = payload.id;
     return (dispatch) => {
         forceNextOvirtPoll();
@@ -170,13 +189,23 @@ OVIRT_PROVIDER.FORCEREBOOT_VM = function (payload) {
 
 OVIRT_PROVIDER.START_VM = function (payload) {
     logDebug(`START_VM(payload: ${JSON.stringify(payload)})`);
+    const vmName = payload.name;
+    const connectionName = payload.connectionName;
+
     if (!isOvirtApiCheckPassed()) {
         logDebug('oVirt API version does not match, redirecting the action to Libvirt');
-        return LIBVIRT_PROVIDER.START_VM(payload);
+        return dispatch => LIBVIRT_PROVIDER.START_VM(payload)
+                .catch(exc =>
+                    buildFailHandler({
+                        dispatch,
+                        name: vmName,
+                        connectionName: connectionName,
+                        message: cockpit.format(_("START_VM action failed: %s0"), exc.message)
+                    })
+                );
     }
 
     const id = payload.id;
-    const vmName = payload.name;
     const hostName = payload.hostName; // optional
 
     const actionXml = hostName
@@ -426,6 +455,20 @@ export function setOvirtApiCheckResult (passed) {
 
 export function isOvirtApiCheckPassed () {
     return OVIRT_PROVIDER.ovirtApiMetadata.passed;
+}
+
+function buildFailHandler({ dispatch, name, connectionName, message, extraPayload }) {
+    return ({ exception, data }) =>
+        dispatch(vmActionFailed({
+            name,
+            connectionName,
+            message,
+            detail: {
+                exception,
+                data,
+            },
+            extraPayload,
+        }));
 }
 
 export default OVIRT_PROVIDER;

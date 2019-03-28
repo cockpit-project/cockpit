@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
-import VmLastMessage from './vmLastMessage.jsx';
 import { VCPUModal } from './vcpuModal.jsx';
 import {
     rephraseUI,
@@ -74,7 +73,6 @@ class VmOverviewTabLibvirt extends React.Component {
     render() {
         const { vm, dispatch, config } = this.props;
         const idPrefix = vmId(vm.name);
-        const currentTab = 'overview';
 
         let autostart = rephraseUI('autostart', vm.autostart);
         if (config.provider.name === "LibvirtDBus") {
@@ -88,7 +86,6 @@ class VmOverviewTabLibvirt extends React.Component {
                 </label>
             );
         }
-        const message = (<VmLastMessage vm={vm} dispatch={dispatch} tab={currentTab} />);
         const memoryLink = (<a tabIndex="0" id={`${vmId(vm.name)}-vcpus-count`} onClick={this.open}>{vm.vcpus.count}</a>);
 
         let items = [
@@ -102,9 +99,7 @@ class VmOverviewTabLibvirt extends React.Component {
 
         return (
             <div>
-                <VmOverviewTab message={message}
-                    idPrefix={idPrefix}
-                    items={items}
+                <VmOverviewTab idPrefix={idPrefix} items={items}
                     extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />
                 { this.state.showModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
             </div>

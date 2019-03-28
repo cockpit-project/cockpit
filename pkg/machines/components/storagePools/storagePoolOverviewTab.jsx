@@ -20,19 +20,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storagePoolId } from '../../helpers.js';
-import { ExpandableNotification } from '../notification/inlineNotification.jsx';
 import cockpit from 'cockpit';
 
 import 'form-layout.less';
 
 const _ = cockpit.gettext;
 
-export const StoragePoolOverviewTab = ({ storagePool, actionError, actionErrorDetail, onActionErrorDismiss }) => {
+export const StoragePoolOverviewTab = ({ storagePool }) => {
     const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
 
     return (
         <div className='ct-form-layout'>
-            { actionError && <ExpandableNotification type='warning' text={actionError} textId={`${idPrefix}-error`} detail={actionErrorDetail} onDismiss={onActionErrorDismiss} /> }
             { storagePool.source && storagePool.source.host && <React.Fragment>
                 <label className='control-label' htmlFor={`${idPrefix}-host`}> {_("Host")} </label>
                 <div id={`${idPrefix}-host`}>
@@ -68,7 +66,4 @@ export const StoragePoolOverviewTab = ({ storagePool, actionError, actionErrorDe
 };
 StoragePoolOverviewTab.propTypes = {
     storagePool: PropTypes.object.isRequired,
-    actionError: PropTypes.string,
-    actionErrorDetail: PropTypes.string,
-    onActionErrorDismiss: PropTypes.func,
 };

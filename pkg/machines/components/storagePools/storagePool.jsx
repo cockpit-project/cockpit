@@ -37,19 +37,6 @@ import cockpit from 'cockpit';
 const _ = cockpit.gettext;
 
 export class StoragePool extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            actionError: undefined,
-            actionErrorDetail: undefined
-        };
-        this.actionErrorSet = this.actionErrorSet.bind(this);
-    }
-
-    actionErrorSet(error, detail) {
-        this.setState({ actionError: error, actionErrorDetail: detail });
-    }
-
     render() {
         const { storagePool, vms } = this.props;
         const idPrefix = `${storagePoolId(storagePool.name, storagePool.connectionName)}`;
@@ -78,7 +65,7 @@ export class StoragePool extends React.Component {
         );
         const state = (
             <React.Fragment>
-                { this.state.actionError && <span className='pficon-warning-triangle-o machines-status-alert' /> }
+                { this.props.resourceHasError[storagePool.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { storagePool.active ? _("active") : _("inactive") }
                 </span>
@@ -105,11 +92,7 @@ export class StoragePool extends React.Component {
             {
                 name: overviewTabName,
                 renderer: StoragePoolOverviewTab,
-                data: {
-                    storagePool, actionError: this.state.actionError,
-                    actionErrorDetail: this.state.actionErrorDetail,
-                    onActionErrorDismiss: () => { this.setState({ actionError:  undefined }) }
-                }
+                data: { storagePool }
             },
             {
                 name: storageVolsTabName,
@@ -117,16 +100,23 @@ export class StoragePool extends React.Component {
                 data: { storagePool, vms }
             },
         ];
+        let extraClasses = [];
+
+        if (this.props.resourceHasError[storagePool.id])
+            extraClasses.push('error');
 
         return (
             <ListingRow rowId={idPrefix}
+                extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
-                listingActions={<StoragePoolActions actionErrorSet={this.actionErrorSet} storagePool={storagePool} />} />
+                listingActions={<StoragePoolActions onAddErrorNotification={this.props.onAddErrorNotification} storagePool={storagePool} />} />
         );
     }
 }
 StoragePool.propTypes = {
+    onAddErrorNotification: PropTypes.func.isRequired,
+    resourceHasError: PropTypes.object.resourceHasError,
     storagePool: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,
 };
@@ -139,16 +129,26 @@ class StoragePoolActions extends React.Component {
     }
 
     onActivate() {
-        storagePoolActivate(this.props.storagePool.connectionName, this.props.storagePool.id)
+        const storagePool = this.props.storagePool;
+
+        storagePoolActivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
-                    this.props.actionErrorSet(_("Storage Pool failed to get activated"), exc.message);
+                    this.props.onAddErrorNotification({
+                        text: cockpit.format(_("Storage Pool $0 failed to get activated"), storagePool.name),
+                        detail: exc.message, resourceId: storagePool.id,
+                    });
                 });
     }
 
     onDeactivate() {
-        storagePoolDeactivate(this.props.storagePool.connectionName, this.props.storagePool.id)
+        const storagePool = this.props.storagePool;
+
+        storagePoolDeactivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
-                    this.props.actionErrorSet(_("Storage Pool failed to get deactivated"), exc.message);
+                    this.props.onAddErrorNotification({
+                        text: cockpit.format(_("Storage Pool $0 failed to get deactivated"), storagePool.name),
+                        detail: exc.message, resourceId: storagePool.id,
+                    });
                 });
     }
 
@@ -175,4 +175,5 @@ class StoragePoolActions extends React.Component {
 StoragePool.propTypes = {
     storagePool: PropTypes.object.isRequired,
     vms: PropTypes.array.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };

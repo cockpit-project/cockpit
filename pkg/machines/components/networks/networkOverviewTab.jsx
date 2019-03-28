@@ -22,7 +22,6 @@ import cockpit from 'cockpit';
 
 import { networkId } from '../../helpers.js';
 import { changeNetworkAutostart } from '../../libvirt-dbus.js';
-import { ExpandableNotification } from '../notification/inlineNotification.jsx';
 
 import './networkOverviewTab.css';
 import 'form-layout.less';
@@ -74,17 +73,8 @@ export class NetworkOverviewTab extends React.Component {
         ip[0] = network.ip.find(ip => ip.family === "ipv4");
         ip[1] = network.ip.find(ip => ip.family === "ipv6");
 
-        const error = (this.props.actionError && <ExpandableNotification
-                                                     type='warning'
-                                                     text={this.props.actionError}
-                                                     textId={`${idPrefix}-error`}
-                                                     detail={this.props.actionErrorDetail}
-                                                     onDismiss={this.props.onActionErrorDismiss} />
-        );
-
         return (
             <React.Fragment>
-                {error}
                 <div className="networks-page-grid">
                     <div className='ct-form-layout'>
                         <label className='control-label label-title'> {_("General")} </label>
@@ -163,7 +153,4 @@ export class NetworkOverviewTab extends React.Component {
 NetworkOverviewTab.propTypes = {
     dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
-    actionError: PropTypes.string,
-    actionErrorDetail: PropTypes.string,
-    onActionErrorDismiss: PropTypes.func,
 };

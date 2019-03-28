@@ -33,14 +33,10 @@ import {
     usageStartPolling,
     usageStopPolling,
 } from "./actions/provider-actions.js";
-import {
-    clearNotification,
-} from "./actions/store-actions.js";
 
 import { vmId } from "./helpers.js";
 
 import { Listing } from "cockpit-components-listing.jsx";
-import NotificationArea from './components/notification/notificationArea.jsx';
 import Vm from './components/vm/vm.jsx';
 import DummyVm from './components/vm/dummyVm.jsx';
 
@@ -83,9 +79,6 @@ class HostVmsList extends React.Component {
         const sortFunction = (vmA, vmB) => vmA.name.localeCompare(vmB.name);
 
         return (<div id='virtual-machines-listing' className='container-fluid'>
-            <NotificationArea id={"notification-area"}
-                notifications={ui.notifications}
-                onDismiss={(id) => dispatch(clearNotification(id))} />
             <Listing title={_("Virtual Machines")}
                 columnTitles={[_("Name"), _("Connection"), _("State")]}
                 actions={actions}
@@ -100,19 +93,66 @@ class HostVmsList extends React.Component {
                             }
                             return (
                                 <Vm vm={vm} config={config}
+                                    resourceHasError={this.props.resourceHasError}
+                                    onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}
                                     storagePools={storagePools}
-                                    onStart={() => dispatch(startVm(vm))}
-                                    onInstall={() => dispatch(installVm(vm))}
-                                    onReboot={() => dispatch(rebootVm(vm))}
-                                    onForceReboot={() => dispatch(forceRebootVm(vm))}
-                                    onShutdown={() => dispatch(shutdownVm(vm))}
-                                    onPause={() => dispatch(pauseVm(vm))}
-                                    onResume={() => dispatch(resumeVm(vm))}
-                                    onForceoff={() => dispatch(forceVmOff(vm))}
+                                    onStart={() => dispatch(startVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to start"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onInstall={() => dispatch(installVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to get installed"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onReboot={() => dispatch(rebootVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to Reboot"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onForceReboot={() => dispatch(forceRebootVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to force Reboot"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onShutdown={() => dispatch(shutdownVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onPause={() => dispatch(pauseVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to pause"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onResume={() => dispatch(resumeVm(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to resume"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onForceoff={() => dispatch(forceVmOff(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
+                                    onSendNMI={() => dispatch(sendNMI(vm)).catch(ex => {
+                                        this.props.onAddErrorNotification({
+                                            text: cockpit.format(_("VM $0 failed to send NMI"), vm.name),
+                                            detail: ex.message, resourceId: vm.id,
+                                        });
+                                    })}
                                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
-                                    onSendNMI={() => dispatch(sendNMI(vm))}
                                     dispatch={dispatch}
                                     networks={networks}
                                     key={`${vmId(vm.name)}`}
@@ -130,6 +170,8 @@ HostVmsList.propTypes = {
     storagePools: PropTypes.array.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
+    resourceHasError: PropTypes.object.isRequired,
+    onAddErrorNotification: PropTypes.func.isRequired,
 };
 
 export default HostVmsList;

@@ -36,21 +36,8 @@ import cockpit from 'cockpit';
 const _ = cockpit.gettext;
 
 export class Network extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            actionError: undefined,
-            actionErrorDetail: undefined
-        };
-        this.actionErrorSet = this.actionErrorSet.bind(this);
-    }
-
-    actionErrorSet(error, detail) {
-        this.setState({ actionError: error, actionErrorDetail: detail });
-    }
-
     render() {
-        const { dispatch, network } = this.props;
+        const { dispatch, network, resourceHasError, onAddErrorNotification } = this.props;
         const idPrefix = `${networkId(network.name, network.connectionName)}`;
         const name = (
             <span id={`${idPrefix}-name`}>
@@ -66,7 +53,7 @@ export class Network extends React.Component {
             </span>);
         const state = (
             <React.Fragment>
-                { this.state.actionError && <span className='pficon-warning-triangle-o machines-status-alert' /> }
+                { resourceHasError[network.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null }
                 <span id={`${idPrefix}-state`}>
                     { network.active ? _("active") : _("inactive") }
                 </span>
@@ -89,23 +76,27 @@ export class Network extends React.Component {
             {
                 name: overviewTabName,
                 renderer: NetworkOverviewTab,
-                data: { network, dispatch, actionError: this.state.actionError,
-                        actionErrorDetail: this.state.actionErrorDetail,
-                        onActionErrorDismiss: () => { this.setState({ actionError:  undefined }) }
-                }
+                data: { network, dispatch, }
             },
         ];
+        let extraClasses = [];
+
+        if (resourceHasError[network.id])
+            extraClasses.push('error');
 
         return (
             <ListingRow rowId={idPrefix}
+                extraClasses={extraClasses}
                 columns={cols}
                 tabRenderers={tabRenderers}
-                listingActions={<NetworkActions actionErrorSet={this.actionErrorSet} network={network} />} />
+                listingActions={<NetworkActions onAddErrorNotification={onAddErrorNotification} network={network} />} />
         );
     }
 }
 
 Network.propTypes = {
+    onAddErrorNotification: PropTypes.func.isRequired,
+    resourceHasError: PropTypes.object.isRequired,
     dispatch: PropTypes.func.isRequired,
     network: PropTypes.object.isRequired,
 };
@@ -118,13 +109,27 @@ class NetworkActions extends React.Component {
     }
 
     onActivate() {
-        networkActivate(this.props.network.connectionName, this.props.network.id)
-                .fail(exc => this.props.actionErrorSet(_("Network failed to get activated"), exc.message));
+        const network = this.props.network;
+
+        networkActivate(network.connectionName, network.id)
+                .fail(exc => {
+                    this.props.onAddErrorNotification({
+                        text: cockpit.format(_("Network $0 failed to get activated"), network.name),
+                        detail: exc.message, resourceId: network.id,
+                    });
+                });
     }
 
     onDeactivate() {
+        const network = this.props.network;
+
         networkDeactivate(this.props.network.connectionName, this.props.network.id)
-                .fail(exc => this.props.actionErrorSet(_("Network failed to get deactivated"), exc.message));
+                .fail(exc => {
+                    this.props.onAddErrorNotification({
+                        text: cockpit.format(_("Network $0 failed to get deactivated"), network.name),
+                        detail: exc.message, resourceId: network.id,
+                    });
+                });
     }
 
     render() {

@@ -51,7 +51,6 @@ import {
     updateStorageVolumes,
     updateVm,
     setHypervisorMaxVCPU,
-    vmActionFailed,
 } from './actions/store-actions.js';
 
 import {
@@ -100,8 +99,6 @@ import {
     INSTALL_VM,
     START_LIBVIRT,
 } from './libvirt-common.js';
-
-const _ = cockpit.gettext;
 
 let clientLibvirt = {};
 /* Default timeout for libvirt-dbus method calls */
@@ -245,33 +242,12 @@ LIBVIRT_DBUS_PROVIDER = {
         networkMac,
         state,
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .then(domXml => {
-                        let updatedXml = updateNetworkIface({ domXml: domXml[0], networkMac, networkState: state });
-                        if (!updatedXml) {
-                            dispatch(vmActionFailed({
-                                name,
-                                connectionName,
-                                message: _("VM CHANGE_NETWORK_STATE action failed"),
-                                detail: { exception: "Updated device XML couldn't not be generated" },
-                                tab: 'network',
-                            }));
-                        } else {
-                            return call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT);
-                        }
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM CHANGE_NETWORK_STATE action failed"),
-                        detail: { exception },
-                        tab: 'network',
-                    })))
-                    .then(() => {
-                        dispatch(getVm({ connectionName, id:objPath }));
-                    });
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXml = updateNetworkIface({ domXml: domXml[0], networkMac, networkState: state });
+                    // updateNetworkIface can fail but we 'll catch the exception from the API call itself that will error on null argument
+                    return call(connectionName, objPath, 'org.libvirt.Domain', 'UpdateDevice', [updatedXml, Enum.VIR_DOMAIN_AFFECT_CURRENT], TIMEOUT);
+                });
     },
 
     CHANGE_VM_AUTOSTART ({
@@ -340,18 +316,11 @@ LIBVIRT_DBUS_PROVIDER = {
         options
     }) {
         function destroy(dispatch) {
-            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed({
-                        name: name,
-                        connectionName,
-                        message: _("VM DELETE action failed"),
-                        detail: { exception }
-                    })));
+            return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
         }
 
         function undefine(dispatch) {
             let storageVolPromises = [];
-            let storageVolPathsPromises = [];
             let flags = Enum.VIR_DOMAIN_UNDEFINE_MANAGED_SAVE | Enum.VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA | Enum.VIR_DOMAIN_UNDEFINE_NVRAM;
 
             for (let i = 0; i < options.storage.length; i++) {
@@ -359,16 +328,16 @@ LIBVIRT_DBUS_PROVIDER = {
 
                 switch (disk.type) {
                 case 'file':
-                    storageVolPathsPromises.push(
+                    storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StorageVolLookupByPath', [disk.source.file], TIMEOUT)
+                                .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
                     break;
                 case 'volume':
-                    storageVolPathsPromises.push(
+                    storageVolPromises.push(
                         call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [disk.source.pool], TIMEOUT)
-                                .then(objPath => {
-                                    return call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT);
-                                })
+                                .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [disk.source.volume], TIMEOUT))
+                                .then(volPath => call(connectionName, volPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT))
                     );
                     break;
                 default:
@@ -376,37 +345,17 @@ LIBVIRT_DBUS_PROVIDER = {
                 }
             }
 
-            Promise.all(storageVolPathsPromises)
-                    .then((storageVolPaths) => {
-                        for (let i = 0; i < storageVolPaths.length; i++) {
-                            storageVolPromises.push(
-                                call(connectionName, storageVolPaths[i][0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT)
-                            );
-                        }
-
-                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                        // https://github.com/cockpit-project/cockpit/issues/10956
-                        // eslint-disable-next-line cockpit/no-cockpit-all
-                        return cockpit.all(storageVolPathsPromises);
-                    })
+            return dispatch => Promise.all(storageVolPromises)
                     .then(() => {
-                        call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name: name,
-                        connectionName,
-                        message: _("VM DELETE action failed"),
-                        detail: { exception }
-                    })));
+                        return call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
+                    });
         }
 
-        return dispatch => {
-            if (options.destroy) {
-                return destroy(dispatch).then(undefine(dispatch));
-            } else {
-                return undefine(dispatch);
-            }
-        };
+        if (options.destroy) {
+            return destroy().then(undefine());
+        } else {
+            return undefine();
+        }
     },
 
     DETACH_DISK({
@@ -421,62 +370,34 @@ LIBVIRT_DBUS_PROVIDER = {
         if (live)
             detachFlags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
 
-        return dispatch => {
-            call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
-                    .then(domXml => {
-                        let getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
-                        diskXML = getDiskElemByTarget(domXml[0], target);
+        return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let getXMLFlags = Enum.VIR_DOMAIN_XML_INACTIVE;
+                    diskXML = getDiskElemByTarget(domXml[0], target);
 
-                        return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT);
-                    })
-                    .then(domInactiveXml => {
-                        let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
-                        if (diskInactiveXML)
-                            detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
+                    return call(connectionName, vmPath, 'org.libvirt.Domain', 'GetXMLDesc', [getXMLFlags], TIMEOUT);
+                })
+                .then(domInactiveXml => {
+                    let diskInactiveXML = getDiskElemByTarget(domInactiveXml[0], target);
+                    if (diskInactiveXML)
+                        detachFlags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
-                        return call(connectionName, vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT);
-                    })
-                    .catch(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM DETACH_DISK action failed"),
-                        detail: { exception },
-                        tab: 'disk',
-                    })))
-                    .then(() => dispatch(getVm({ connectionName, id:vmPath })));
-        };
+                    return call(connectionName, vmPath, 'org.libvirt.Domain', 'DetachDevice', [diskXML, detachFlags], TIMEOUT);
+                });
     },
 
     FORCEOFF_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM FORCE OFF action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Destroy', [0], TIMEOUT);
     },
 
     FORCEREBOOT_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Reset', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM FORCE REBOOT action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Reset', [0], TIMEOUT);
     },
 
     GET_ALL_NETWORKS({
@@ -767,61 +688,31 @@ LIBVIRT_DBUS_PROVIDER = {
     },
 
     PAUSE_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM Pause action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Suspend', [], TIMEOUT);
     },
 
     REBOOT_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Reboot', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM REBOOT action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Reboot', [0], TIMEOUT);
     },
 
     RESUME_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT)
-                    .catch(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM Resume action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Resume', [], TIMEOUT);
     },
 
     SENDNMI_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'InjectNMI', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM SENDNMI action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'InjectNMI', [0], TIMEOUT);
     },
 
     SET_VCPU_SETTINGS ({
@@ -843,32 +734,17 @@ LIBVIRT_DBUS_PROVIDER = {
     },
 
     SHUTDOWN_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Shutdown', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed(
-                        { name, connectionName, message: _("VM SHUT DOWN action failed"), detail: { exception } }
-                    )));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Shutdown', [0], TIMEOUT);
     },
 
     START_VM({
-        name,
         connectionName,
         id: objPath
     }) {
-        return dispatch => {
-            call(connectionName, objPath, 'org.libvirt.Domain', 'Create', [0], TIMEOUT)
-                    .fail(exception => dispatch(vmActionFailed({
-                        name,
-                        connectionName,
-                        message: _("VM START action failed"),
-                        detail: { exception }
-                    })));
-        };
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'Create', [0], TIMEOUT);
     },
 
     USAGE_START_POLLING({

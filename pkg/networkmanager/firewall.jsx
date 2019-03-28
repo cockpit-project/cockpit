@@ -22,6 +22,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
     Button,
+    ListView,
     Modal,
     OverlayTrigger,
     Tooltip
@@ -202,22 +203,19 @@ class AddServicesBody extends React.Component {
                             </tr>
                         </tbody>
                     </table>
-                    <ul className="list-group dialog-list-ct">
+                    <ListView className="dialog-list-ct">
                         {
                             services.map(s => (
-                                <li key={s.id} className="list-group-item">
-                                    <label>
-                                        <input data-id={s.id}
-                                               type="checkbox"
-                                               checked={this.state.selected.has(s.id)}
-                                               onChange={this.onToggleService} />
-                                        &nbsp;
-                                        <span>{s.name}</span>
-                                    </label>
-                                </li>
+                                <ListView.Item key={s.id}
+                                               checkboxInput={ <input data-id={s.id}
+                                                                      type="checkbox"
+                                                                      checked={this.state.selected.has(s.id)}
+                                                                      onChange={this.onToggleService} /> }
+                                               heading={ <span>{s.name}</span> }>
+                                </ListView.Item>
                             ))
                         }
-                    </ul>
+                    </ListView>
                 </Modal.Body>
             );
         } else {

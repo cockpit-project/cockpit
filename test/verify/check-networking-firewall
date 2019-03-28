@@ -152,6 +152,18 @@ class TestFirewall(MachineCase):
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
 
+        # filter for port 110
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.set_input_text("#filter-services-input", "110")
+        b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
+        self.assertIn("TCP: 110", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
+        self.assertNotIn("UDP", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
+        # clear filter
+        b.set_input_text("#filter-services-input", "")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
+        b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
+
         # don't select anything in the dialog
         b.wait_present("#add-services-dialog .modal-footer .btn-primary")
         b.click("#add-services-dialog .modal-footer .btn-primary")

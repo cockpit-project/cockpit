@@ -177,11 +177,17 @@ h1 .btn-onoff-ct {
 /* set min-height to the same as max-height, so that the list doesn't shrink
  * when filtering */
 #add-services-dialog .dialog-list-ct {
-    min-height: 230px;
+    height: 100vh;
+    /* Constrain the list to a maximum size of the viewport height - UI chrome */
+    max-height: calc(100vh - 30rem);
+    min-height: 13em;
 }
 
-#add-services-dialog .form-table-ct {
-    margin-bottom: 0.5em;
+@media screen and (min-width: 640px) {
+    /* Add a bit more padding in desktop mode */
+    #add-services-dialog .dialog-list-ct {
+        max-height: calc(100vh - 40rem);
+    }
 }
 
 #add-services-dialog .list-group-item {
@@ -193,7 +199,8 @@ h1 .btn-onoff-ct {
     padding-bottom: 0;
 }
 
-#add-services-dialog .list-view-pf-checkbox {
+#add-services-dialog .list-view-pf-checkbox,
+#add-services-dialog .list-view-pf-view {
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -202,12 +209,17 @@ h1 .btn-onoff-ct {
     font-size: 90%;
 }
 
-.toggle-body > input {
-    margin-right: 2px;
+#add-services-dialog .spinner-lg {
+    /* (Max-height of dialog-list-ct (above) - spinner size + grid gap) / 2 */
+    margin: calc(((100vh - 40rem) - 30px + 0.5rem) / 2) auto;
 }
 
-.toggle-body > :not(input) {
-    margin-left: 14px;
+#add-services-dialog .toggle-body > .ct-form-layout {
+    margin-left: 1rem;
+}
+
+#add-services-dialog .toggle-body > .ct-form-layout > .control-label {
+    padding-left: 0;
 }
 
 .form-control.error {

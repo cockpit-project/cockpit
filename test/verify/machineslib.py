@@ -1037,14 +1037,14 @@ class TestMachines(NetworkCase):
 
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
-        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate1", sourceType='file',
+        cancelDialogTest(TestMachines.VmDialog(self, sourceType='file',
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
                                                memory_size=1, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
                                                os_vendor=config.UNSPECIFIED_VENDOR,
                                                os_name=config.OTHER_OS,
                                                start_vm=True))
-        cancelDialogTest(TestMachines.VmDialog(self, "subVmTestCreate2", sourceType='url',
+        cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
                                                location=config.VALID_URL,
                                                memory_size=12654, memory_size_unit='GiB',
                                                storage_size=0, storage_size_unit='MiB',
@@ -1053,13 +1053,13 @@ class TestMachines(NetworkCase):
                                                start_vm=False))
 
         # check if older os are filtered
-        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate3", os_vendor=config.REDHAT_VENDOR,
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.REDHAT_VENDOR,
                                                   storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate4", os_vendor=config.MANDRIVA_FILTERED_VENDOR,
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.MANDRIVA_FILTERED_VENDOR,
                                                   storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, "subVmTestCreate5", os_vendor=config.MAGEIA_VENDOR,
+        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.MAGEIA_VENDOR,
                                                   storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
@@ -1068,13 +1068,13 @@ class TestMachines(NetworkCase):
         checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size='1'), {"Name": "Name should not be empty"})
 
         # location
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate7", sourceType='url',
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
                                                             location="invalid/url", storage_size='1',
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
         # memory
-        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate8", location=config.NOVELL_MOCKUP_ISO_PATH,
+        checkDialogErrorTest(TestMachines.VmDialog(self, location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    memory_size=100, memory_size_unit='GiB',
                                                    storage_size=100, storage_size_unit='MiB',
                                                    os_vendor=config.NOVELL_VENDOR,
@@ -1082,27 +1082,26 @@ class TestMachines(NetworkCase):
                                                    start_vm=True), ["memory", "RAM", "buffer"])
 
         # disk
-        checkDialogErrorTest(TestMachines.VmDialog(self, "subVmTestCreate9", location=config.NOVELL_MOCKUP_ISO_PATH,
+        checkDialogErrorTest(TestMachines.VmDialog(self, location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    storage_size=10000, storage_size_unit='GiB',
                                                    os_vendor=config.NOVELL_VENDOR,
                                                    os_name=config.NOVELL_NETWARE_6,
                                                    start_vm=True), ["space"])
 
         # start vm
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "subVmTestCreate10",
-                                                            storage_size='1',
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size='1',
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
         # try to CREATE few machines
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate11", sourceType='url',
+        createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          storage_size=1,
                                          os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_VISTA))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate12", sourceType='url',
+        createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
@@ -1110,7 +1109,7 @@ class TestMachines(NetworkCase):
                                          os_name=config.MICROSOFT_XP_OS,
                                          start_vm=False))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate13", sourceType='url',
+        createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=900, memory_size_unit='GiB',
                                          storage_size=100, storage_size_unit='MiB',
@@ -1118,7 +1117,7 @@ class TestMachines(NetworkCase):
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False))
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate14", sourceType='file',
+        createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
@@ -1127,7 +1126,7 @@ class TestMachines(NetworkCase):
                                          start_vm=False,
                                          connection='session'))
         # try to INSTALL WITH ERROR
-        installWithErrorTest(TestMachines.VmDialog(self, "subVmTestCreate15", sourceType='file',
+        installWithErrorTest(TestMachines.VmDialog(self, sourceType='file',
                                                    location=config.NOVELL_MOCKUP_ISO_PATH,
                                                    memory_size=900, memory_size_unit='GiB',
                                                    storage_size=10, storage_size_unit='MiB',
@@ -1136,7 +1135,7 @@ class TestMachines(NetworkCase):
                                                    connection='session'))
 
         # Start of tests for import existing disk as installation option
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate16", sourceType='disk_image',
+        createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          os_vendor=config.OPENBSD_VENDOR,
@@ -1153,7 +1152,7 @@ class TestMachines(NetworkCase):
         # Stop pmcd service if available which is invoking pmdakvm and is keeping KVM module used
         self.machine.execute("(systemctl stop pmcd || true) && modprobe -r kvm_intel && modprobe -r kvm_amd && modprobe -r kvm")
 
-        createTest(TestMachines.VmDialog(self, "subVmTestCreate17", sourceType='disk_image',
+        createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          os_vendor=config.OPENBSD_VENDOR,
@@ -1194,7 +1193,7 @@ class TestMachines(NetworkCase):
 
             # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
             # to have serial console at bios and also redirect serial console to a file
-            createTest(TestMachines.VmDialog(self, "subVmTestCreate18", sourceType='pxe',
+            createTest(TestMachines.VmDialog(self, name='pxe-guest', sourceType='pxe',
                                              location="Virtual Network pxe-nat: NAT",
                                              memory_size=50, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
@@ -1204,13 +1203,13 @@ class TestMachines(NetworkCase):
 
             # We don't want to use start_vm == False because if we get a seperate install phase
             # virt-install will overwrite our changes.
-            self.machine.execute("virsh destroy subVmTestCreate18")
+            self.machine.execute("virsh destroy pxe-guest")
 
             # Remove all serial ports and consoles first and tehn add a console of type file
             # virt-xml tool does not allow to remove both serial and console devices at once
             # https://bugzilla.redhat.com/show_bug.cgi?id=1685541
             # So use python xml parsing to change the domain XML.
-            domainXML = self.machine.execute("virsh dumpxml subVmTestCreate18")
+            domainXML = self.machine.execute("virsh dumpxml pxe-guest")
             root = ET.fromstring(domainXML)
 
             # Find the parent element of each "console" element, using XPATH
@@ -1242,15 +1241,15 @@ class TestMachines(NetworkCase):
 
             self.machine.execute("echo \'{0}\' > /tmp/domain.xml && virsh define --file /tmp/domain.xml".format(xmlstr))
 
-            self.machine.execute("virsh start subVmTestCreate18")
+            self.machine.execute("virsh start pxe-guest")
 
             # The file is full of ANSI control characters in between every letter, filter them out
             wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
-            self.machine.execute("virsh destroy subVmTestCreate18 && virsh undefine subVmTestCreate18")
+            self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
 
             # Check that host network devices are appearing in the options for PXE boot sources
-            createTest(TestMachines.VmDialog(self, "subVmTestCreate19", sourceType='pxe',
+            createTest(TestMachines.VmDialog(self, sourceType='pxe',
                                              location="Host Device {0}: macvtap".format(iface),
                                              memory_size=50, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
@@ -1320,8 +1319,9 @@ class TestMachines(NetworkCase):
             'system': 'QEMU/KVM System connection'}
 
     class VmDialog:
+        vmId = 0
 
-        def __init__(self, test_obj, name, sourceType='file', location='',
+        def __init__(self, test_obj, name=None, sourceType='file', location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
@@ -1330,6 +1330,13 @@ class TestMachines(NetworkCase):
                      delete=True,
                      connection=None):
 
+            TestMachines.VmDialog.vmId += 1 # This variable is static - don't use self here
+
+            if name is None:
+                self.name = 'subVmTestCreate' + str(TestMachines.VmDialog.vmId)
+            else:
+                self.name = name
+
             if sourceType == 'url' and start_vm:
                 raise Exception("cannot start vm because url specified (no connection available in this test)")
 
@@ -1337,7 +1344,6 @@ class TestMachines(NetworkCase):
             self.machine = test_obj.machine
             self.assertTrue = test_obj.assertTrue
 
-            self.name = name
             self.sourceType = sourceType
             self.location = location
             self.memory_size = memory_size

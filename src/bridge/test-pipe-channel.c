@@ -668,30 +668,61 @@ test_spawn_pty_resize (void)
         }
     }
 
+  cockpit_assert_strmatch (received->str, "*{1234 4567}*");
+
   options = json_object_new ();
   window = json_object_new ();
   json_object_set_int_member (window, "rows", 24);
   json_object_set_int_member (window, "cols", 42);
   json_object_set_object_member (options, "window", window);
-  cockpit_transport_emit_control (COCKPIT_TRANSPORT (transport), "options", "548", options, NULL);
-  json_object_unref (options);
 
-  sent = bytes_from_string ("echo -e \"\\x7b$(stty size)\\x7d\"\nexit\n");
+  /* HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1693179
+   * setting PTY size sometimes gets ignored, so retry a few times */
+  for (int retry = 1;; ++retry)
+    {
+      cockpit_transport_emit_control (COCKPIT_TRANSPORT (transport), "options", "548", options, NULL);
+
+      sent = bytes_from_string ("echo -e \"\\x7b$(stty size)\\x7d\"\n");
+      cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
+      g_bytes_unref (sent);
+
+      g_string_truncate (received, 0);
+      while (!problem)
+        {
+          g_main_context_iteration (NULL, TRUE);
+          sent = mock_transport_pop_channel (transport, "548");
+          if (sent)
+            {
+              data = g_bytes_get_data (sent, &len);
+              g_string_append_len (received, data, len);
+              if (memchr (data, '}', len))
+                break;
+            }
+        }
+
+      if (strstr (received->str, "{24 42}"))
+        break;
+
+      g_message ("setting PTY size failed, retry #%i: %s", retry, received->str);
+
+      if (retry == 5)
+      {
+        g_warning ("repeatedly failed to set terminal size for stream channel: %s", received->str);
+        g_test_fail ();
+        break;
+      }
+    }
+
+  sent = bytes_from_string ("exit\n");
   cockpit_transport_emit_recv (COCKPIT_TRANSPORT (transport), "548", sent);
   g_bytes_unref (sent);
-
   while (!problem)
     {
       g_main_context_iteration (NULL, TRUE);
-      sent = mock_transport_pop_channel (transport, "548");
-      if (sent)
-        {
-          data = g_bytes_get_data (sent, &len);
-          g_string_append_len (received, data, len);
-        }
+      mock_transport_pop_channel (transport, "548");
     }
 
-  cockpit_assert_strmatch (received->str, "*{1234 4567}*{24 42}*");
+  json_object_unref (options);
   g_string_free (received, TRUE);
 
   g_assert_cmpstr (problem, ==, "");

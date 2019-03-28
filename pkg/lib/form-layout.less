@@ -31,6 +31,9 @@
 // elsewhere, you can force it to stretch. This is mainly useful when
 // using <div role="group"> to group elements.
 //
+// `ct-form-layout-full`: Force a widget to be the full width of the form,
+// invading the label space.
+//
 // role="group": When there are two related elements, such as a text
 // input and a dropdown, you can group them together using this HTML
 // attribute. It's similar in purpose to a <fieldset>, but works for
@@ -74,7 +77,7 @@
 
   // Put all control elements to the right of the labels,
   // stretching to the rightmost column
-  > :not(.control-label):not(hr):not(.ct-form-layout-split) {
+  > :not(.control-label):not(hr):not(.ct-form-layout-split):not(.ct-form-layout-full) {
     grid-column: ~"2 / -1";
   }
 
@@ -240,6 +243,11 @@
   // Relax split elements to only take up one column
   > .ct-form-layout-split {
     grid-column: ~"auto / auto";
+  }
+
+  // Stretch to full width
+  > .ct-form-layout-full {
+    grid-column: ~"1 / -1";
   }
 }
 

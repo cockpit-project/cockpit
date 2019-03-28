@@ -61,18 +61,34 @@ function sos_create() {
     //        an API exists.
 
     var output = "";
-    var progress_regex = /Running ([0-9]+)\/([0-9]+):/g;
+    var plugins_count = 0;
+    var progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
+    var finishing_regex = /Finishing plugins.*\[Running: (.*)\]/;
+    var starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
     var archive_regex = /Your sosreport has been generated and saved in:[ \r\n]+(\/[^\r\n]+)/;
 
     task.stream(function (text) {
         if (sos_task == task) {
             var m, p;
+            p = 0;
 
             output += text;
-
-            p = 0;
-            while ((m = progress_regex.exec(output))) {
-                p = (parseInt(m[1], 10) / parseInt(m[2], 10)) * 100;
+            var lines = output.split("\n");
+            for (var i = lines.length - 1; i >= 0; i--) {
+                if ((m = starting_regex.exec(lines[i]))) {
+                    plugins_count = parseInt(m[2], 10);
+                    p = ((parseInt(m[1], 10) - m[3].split(" ").length) / plugins_count) * 100;
+                    break;
+                } else if ((m = finishing_regex.exec(lines[i]))) {
+                    if (!plugins_count)
+                        p = 100;
+                    else
+                        p = ((plugins_count - m[1].split(" ").length) / plugins_count) * 100;
+                    break;
+                } else if ((m = progress_regex.exec(lines[i]))) {
+                    p = (parseInt(m[1], 10) / parseInt(m[2], 10)) * 100;
+                    break;
+                }
             }
             $("#sos-alert, #sos-progress").show();
             $("#sos-progress .progress-bar").css("width", p.toString() + "%");

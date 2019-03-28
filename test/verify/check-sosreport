@@ -38,7 +38,8 @@ class TestSOS(MachineCase):
         m.write("/etc/sos.conf",
                 """
 [general]
-only-plugins=release
+only-plugins=release,date,host
+threads=2
 """)
 
         self.login_and_go("/sosreport")
@@ -47,6 +48,8 @@ only-plugins=release
         b.wait_visible("#sos")
 
         with b.wait_timeout(360):
+            if m.image != "rhel-7-6-distropkg": # Fixed in #11484
+                b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
             b.wait_visible("#sos-download")
 
         download_dir = tempfile.mkdtemp()

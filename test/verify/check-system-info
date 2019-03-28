@@ -474,6 +474,7 @@ class TestSystemInfo(MachineCase):
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
         spoof_threads(2, True, 'Off', None)
 
+        # Enable nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
         b.wait_present('#hwinfo a:contains(Mitigations)')
@@ -485,6 +486,46 @@ class TestSystemInfo(MachineCase):
         m.wait_reboot()
         self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
 
+        # Ensure that future kernel upgrades also retain the option; various
+        # Fedora and RHEL version are in different stages of the BLS
+        # transition, so there are three cases:
+        # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
+        # - BLS, options go directly into entries (RHEL 8.0)
+        # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
+        if not m.atomic_image:
+            m.execute(r"""set -e
+. /etc/os-release
+touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --install 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null # Fedora/RHEL >= 8
+    fi
+fi
+grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
+  grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
+  ( grub2-editenv list | grep -q kernelopts.*nosmt &&
+    grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
+""")
+            # clean up so that next reboot works
+            m.execute(r"""set -e
+. /etc/os-release
+rm /boot/vmlinuz-42.0.0
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --remove 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0  # Fedora/RHEL >= 8
+    fi
+fi
+""")
+
+        # Disable nosmt option
         self.login_and_go('/system/hwinfo')
         b.wait_present('#hwinfo a:contains(Mitigations)')
         b.click('#hwinfo a:contains(Mitigations)')
@@ -496,6 +537,7 @@ class TestSystemInfo(MachineCase):
         m.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
+        # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')
         b.wait_present('#hwinfo span:contains(Mitigations)')
@@ -503,6 +545,7 @@ class TestSystemInfo(MachineCase):
         b.wait_present('#tip-cpu-security')
         b.wait_text('#tip-cpu-security .tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
 
+        # Behaviour if grub update tools are missing
         b.logout()
         m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
         m.write('/tmp/grubby', '#!/bin/sh\necho 0')

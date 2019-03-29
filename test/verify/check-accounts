@@ -42,10 +42,26 @@ class TestAccounts(MachineCase):
         b.go("#/anton")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "anton")
+        b.wait_text("#account-title", "anton")
         b.set_val('#account-real-name', "Anton Arbitrary")
         b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
         # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
-        self.assertIn("Anton Arbitrary", m.execute("grep anton /etc/passwd"))
+        self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
+        # Table title changes along
+        b.wait_text("#account-title", "Anton Arbitrary")
+
+        # Add some other GECOS fields
+        b.set_val('#account-real-name', "Anton Arbitrary,1,123")
+        b.wait_not_attr('#account-real-name', 'data-dirty', 'true')
+        # don't wait for /etc/passwd to be current - this should hold true once the 'data-dirty' was removed
+        self.assertIn(":Anton Arbitrary,1,123:", m.execute("grep anton /etc/passwd"))
+        # Table title only shows real name, no other GECOS fields
+        b.wait_text("#account-title", "Anton Arbitrary")
+        # On the overview page it also shows only real name
+        b.go("/users")
+        b.wait_present('.cockpit-account-real-name:contains("Anton")')
+        b.wait_text('.cockpit-account-real-name:contains("Anton")', "Anton Arbitrary")
+        b.go("/users/#anton")
 
         good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
         # Delete it
@@ -192,6 +208,7 @@ class TestAccounts(MachineCase):
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")
+        self.allow_journal_messages("lastlog: Unknown user or range: anton")
 
     def testUnprivileged(self):
         m = self.machine

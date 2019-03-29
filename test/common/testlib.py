@@ -921,10 +921,6 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 
         if self.image in ['rhel-8-0']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { setsched } for .* comm="rngd".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1679468
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { signull } for .* comm="systemd-journal".*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979 (see above)
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')

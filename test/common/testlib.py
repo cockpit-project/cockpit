@@ -329,49 +329,49 @@ class Browser:
         return self.call_js_func('ph_is_present', selector)
 
     def wait_present(self, selector):
-        return self.wait_js_func('ph_is_present', selector)
+        self.wait_js_func('ph_is_present', selector)
 
     def wait_not_present(self, selector):
-        return self.wait_js_func('!ph_is_present', selector)
+        self.wait_js_func('!ph_is_present', selector)
 
     def is_visible(self, selector):
         return self.call_js_func('ph_is_visible', selector)
 
     def wait_visible(self, selector):
-        return self.wait_js_func('ph_is_visible', selector)
+        self.wait_js_func('ph_is_visible', selector)
 
     def wait_val(self, selector, val):
-        return self.wait_js_func('ph_has_val', selector, val)
+        self.wait_js_func('ph_has_val', selector, val)
 
     def wait_not_val(self, selector, val):
-        return self.wait_js_func('!ph_has_val', selector, val)
+        self.wait_js_func('!ph_has_val', selector, val)
 
     def wait_attr(self, selector, attr, val):
-        return self.wait_js_func('ph_has_attr', selector, attr, val)
+        self.wait_js_func('ph_has_attr', selector, attr, val)
 
     def wait_attr_contains(self, selector, attr, val):
-        return self.wait_js_func('ph_attr_contains', selector, attr, val)
+        self.wait_js_func('ph_attr_contains', selector, attr, val)
 
     def wait_attr_not_contains(self, selector, attr, val):
-        return self.wait_js_func('!ph_attr_contains', selector, attr, val)
+        self.wait_js_func('!ph_attr_contains', selector, attr, val)
 
     def wait_not_attr(self, selector, attr, val):
-        return self.wait_js_func('!ph_has_attr', selector, attr, val)
+        self.wait_js_func('!ph_has_attr', selector, attr, val)
 
     def wait_not_visible(self, selector):
-        return self.wait_js_func('!ph_is_visible', selector)
+        self.wait_js_func('!ph_is_visible', selector)
 
     def wait_in_text(self, selector, text):
-        return self.wait_js_func('ph_in_text', selector, text)
+        self.wait_js_func('ph_in_text', selector, text)
 
     def wait_not_in_text(self, selector, text):
-        return self.wait_js_func('!ph_in_text', selector, text)
+        self.wait_js_func('!ph_in_text', selector, text)
 
     def wait_text(self, selector, text):
-        return self.wait_js_func('ph_text_is', selector, text)
+        self.wait_js_func('ph_text_is', selector, text)
 
     def wait_text_not(self, selector, text):
-        return self.wait_js_func('!ph_text_is', selector, text)
+        self.wait_js_func('!ph_text_is', selector, text)
 
     def wait_popup(self, id):
         """Wait for a popup to open.

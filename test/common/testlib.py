@@ -204,33 +204,42 @@ class Browser:
         self.call_js_func('ph_go', hash)
 
     def mouse(self, selector, type, x=0, y=0, btn=0, force=False):
+        self.wait_present(selector)
         self.call_js_func('ph_mouse', selector, type, x, y, btn, force)
 
     def click(self, selector, force=False):
         self.mouse(selector, "click", 0, 0, 0, force)
 
     def val(self, selector):
+        self.wait_present(selector)
         return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
+        self.wait_present(selector)
         return self.call_js_func('ph_text', selector)
 
     def attr(self, selector, attr):
+        self.wait_present(selector)
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def set_checked(self, selector, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector):
+        self.wait_present(selector)
         self.call_js_func('ph_focus', selector)
 
     def blur(self, selector):
+        self.wait_present(selector)
         self.call_js_func('ph_blur', selector)
 
     def key_press(self, keys, modifiers=0):
@@ -260,6 +269,7 @@ class Browser:
         self.set_val(selector, value_id)
 
     def set_input_text(self, selector, val, append=False):
+        self.wait_present(selector)
         self.focus(selector)
         if not append:
             self.key_press("a", 2) # Ctrl + a
@@ -338,39 +348,50 @@ class Browser:
         return self.call_js_func('ph_is_visible', selector)
 
     def wait_visible(self, selector):
+        self.wait_present(selector)
         self.wait_js_func('ph_is_visible', selector)
 
     def wait_val(self, selector, val):
+        self.wait_present(selector)
         self.wait_js_func('ph_has_val', selector, val)
 
     def wait_not_val(self, selector, val):
+        self.wait_present(selector)
         self.wait_js_func('!ph_has_val', selector, val)
 
     def wait_attr(self, selector, attr, val):
+        self.wait_present(selector)
         self.wait_js_func('ph_has_attr', selector, attr, val)
 
     def wait_attr_contains(self, selector, attr, val):
+        self.wait_present(selector)
         self.wait_js_func('ph_attr_contains', selector, attr, val)
 
     def wait_attr_not_contains(self, selector, attr, val):
+        self.wait_present(selector)
         self.wait_js_func('!ph_attr_contains', selector, attr, val)
 
     def wait_not_attr(self, selector, attr, val):
+        self.wait_present(selector)
         self.wait_js_func('!ph_has_attr', selector, attr, val)
 
     def wait_not_visible(self, selector):
         self.wait_js_func('!ph_is_visible', selector)
 
     def wait_in_text(self, selector, text):
+        self.wait_present(selector)
         self.wait_js_func('ph_in_text', selector, text)
 
     def wait_not_in_text(self, selector, text):
+        self.wait_present(selector)
         self.wait_js_func('!ph_in_text', selector, text)
 
     def wait_text(self, selector, text):
+        self.wait_present(selector)
         self.wait_js_func('ph_text_is', selector, text)
 
     def wait_text_not(self, selector, text):
+        self.wait_present(selector)
         self.wait_js_func('!ph_text_is', selector, text)
 
     def wait_popup(self, id):

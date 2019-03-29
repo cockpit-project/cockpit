@@ -103,7 +103,9 @@ class App extends React.Component {
                 nodeDevices={nodeDevices}
                 nodeMaxMemory={config.nodeMaxMemory}
                 onAddErrorNotification={this.onAddErrorNotification}
-                systemInfo={systemInfo} />
+                storagePools={storagePools}
+                systemInfo={systemInfo}
+                vms={vms} />
         );
 
         if (systemInfo.libvirtService.activeState !== 'running') {

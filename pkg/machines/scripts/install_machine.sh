@@ -73,6 +73,7 @@ virt-install \
     --wait -1 \
     --noautoconsole \
     --noreboot \
+    --check path_in_use=off \
     $DISKS_PARAM \
     $INSTALL_METHOD \
     $GRAPHICS_PARAM

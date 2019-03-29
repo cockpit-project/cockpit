@@ -70,7 +70,6 @@ class TestUpdates(PackageCase):
         else:
             self.assertEqual(b.text(row + "th span"), pkgname)
             b.mouse(row + "th span", "mouseover")
-            b.wait_present("div.tooltip")
             b.wait_text("div.tooltip", "dummy " + pkgname)
             b.mouse(row + "th span", "mouseout")
             b.wait_not_present("div.tooltip")
@@ -84,7 +83,6 @@ class TestUpdates(PackageCase):
         self.assertFalse(b.is_present(row + ".listing-ct-body"))
         # expand
         b.click(row + "td.listing-ct-toggle")
-        b.wait_present(row + ".listing-ct-body")
         b.wait_in_text(row + ".listing-ct-body", "Packages:")
         desc = b.text(row + ".listing-ct-body")
 
@@ -97,7 +95,6 @@ class TestUpdates(PackageCase):
     def wait_checking_updates(self):
         '''Wait until spinner is gone from #system_information_updates_icon for 3 s'''
 
-        self.browser.wait_present("#system_information_updates_icon")
         good_count = 0
         for retry in range(60):
             classes = self.browser.attr("#system_information_updates_icon", "class")
@@ -128,7 +125,6 @@ class TestUpdates(PackageCase):
         b.enter_page("/updates")
         b.wait_present(".content-header-extra button")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_present(".content-header-extra--updated")
         # PK starts from a blank state, thus should force refresh and set the "time since" to 0
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
         # empty state visible in main area
@@ -149,11 +145,9 @@ class TestUpdates(PackageCase):
 
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
 
-        b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
 
-        b.wait_present("table.available")
         b.wait_in_text("table.available", "vanilla")
         self.check_nth_update(1, "chocolate", "2.0-2")
         self.check_nth_update(2, "vanilla", "1.0-2")
@@ -187,7 +181,6 @@ class TestUpdates(PackageCase):
 
         # no refresh button or "last checked", but Cancel button
         b.wait_text(".content-header-extra--updated", "")
-        b.wait_present(".content-header-extra button")
         b.wait_in_text(".content-header-extra button", "Cancel")
 
         # Cancel button should eventually get disabled
@@ -196,9 +189,7 @@ class TestUpdates(PackageCase):
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_present("#update-log"))
         # expand it
-        b.wait_present(".expander-title span")
         b.click(".expander-title span")
-        b.wait_present("#update-log")
         b.wait_visible("#update-log")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
@@ -207,16 +198,12 @@ class TestUpdates(PackageCase):
         m.execute("touch {0}".format(install_lockfile))
 
         # update should succeed and show restart page; cancel
-        b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.wait_present("#app .container-fluid button.btn-primary")
         self.assertEqual(b.text("#app .container-fluid button.btn-primary"), "Restart Now")
-        b.wait_present("#app .container-fluid button.btn-default")
         self.assertEqual(b.text("#app .container-fluid button.btn-default"), "Ignore")
         b.click("#app .container-fluid button.btn-default")
 
         # should go back to updates overview, nothing pending any more
-        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
         b.wait_in_text(".content-header-extra--updated", "Last checked:")
 
@@ -227,9 +214,7 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
 
         # history shows the two packages, expanded by default
-        b.wait_present("table.updates-history tbody.open td.history-pkgcount")
         b.wait_text("table.updates-history tbody.open td.history-pkgcount", "2 Packages")
-        b.wait_present("table.updates-history tbody.open .listing-ct-panel")
         b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "chocolate")
         b.wait_in_text("table.updates-history tbody.open .listing-ct-panel", "vanilla")
 
@@ -272,11 +257,9 @@ class TestUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "6 updates, including 3 security fixes")
 
-        b.wait_present("table.available")
         b.wait_in_text("table.available", "sevcritical")
 
         # security updates should get sorted on top and then alphabetically, so start with "secdeclare"
@@ -303,7 +286,6 @@ class TestUpdates(PackageCase):
             # icon has critical class
             self.assertIn("severity-critical", b.attr(sel + " td.type span", "class"))
             b.mouse(sel + " td.type span", "mouseover")
-            b.wait_present("div.tooltip")
             b.wait_text("div.tooltip", "critical")
             b.mouse(sel + " td.type span", "mouseout")
             b.wait_not_present("div.tooltip")
@@ -319,7 +301,6 @@ class TestUpdates(PackageCase):
         # should show bug fix icon and tooltip
         self.assertIn("fa-bug", b.attr(sel + " td.type span", "class"))
         b.mouse(sel + " td.type span", "mouseover")
-        b.wait_present("div.tooltip")
         b.wait_text("div.tooltip", "bug fix")
         b.mouse(sel + " td.type span", "mouseout")
         b.wait_not_present("div.tooltip")
@@ -362,31 +343,24 @@ class TestUpdates(PackageCase):
         b.wait_present("#app div.progress-bar")
 
         # should have succeeded and show restart page
-        b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
 
         def assertHistory(path, updates):
             selector = path + " li:nth-child({0})"
-            b.wait_present(path)
-            b.wait_present(selector.format(len(updates)))
             for index, pkg in enumerate(updates, start=1):
                 b.wait_in_text(selector.format(index), pkg)
             # make sure we don't have any extra ones
             self.assertFalse(b.is_present(selector.format(len(updates) + 1)))
 
         # history on restart page should show the three security updates
-        b.wait_present(".expander-title span")
         b.click(".expander-title span")
         assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
-        b.wait_present("#app .container-fluid button.btn-default")
         b.click("#app .container-fluid button.btn-default")
 
         # should have succeeded; 3 non-security updates left
-        b.wait_present("#state")
         b.wait_in_text("#state", "3 updates")
-        b.wait_present(".container-fluid #available h2")
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
         b.wait_in_text("table.available", "norefs-doc")
         self.assertIn("buggy", b.text("table.available"))
@@ -394,7 +368,6 @@ class TestUpdates(PackageCase):
         self.assertNotIn("secparse", b.text("table.available"))
 
         # history should show the security updates
-        b.wait_present("table.updates-history")
         assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
@@ -413,7 +386,6 @@ class TestUpdates(PackageCase):
         b.wait_present("#app div.progress-bar")
 
         # should have succeeded and show restart
-        b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
         b.wait_present("#app .container-fluid button.btn-default")
 
@@ -421,14 +393,12 @@ class TestUpdates(PackageCase):
         m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
 
         # history on restart page should show the three non-security updates
-        b.wait_present(".expander-title span")
         b.click(".expander-title span")
         assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         # do the reboot; this will disconnect the web UI
         b.click("#app .container-fluid button.btn-primary")
         b.switch_to_top()
-        b.wait_present(".curtains-ct")
         b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
@@ -439,7 +409,6 @@ class TestUpdates(PackageCase):
         b.login_and_go("/updates")
 
         # no further updates
-        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
         # empty state visible in main area
         b.wait_present(".container-fluid div.blank-slate-pf")
@@ -465,7 +434,6 @@ class TestUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "1 security fix")
 
@@ -482,11 +450,9 @@ class TestUpdates(PackageCase):
             # check for updates
             b.wait_in_text(".content-header-extra button", "Check for Updates")
             b.click(".content-header-extra button")
-            b.wait_present("#available h2")
             b.wait_in_text("#available h2", "Available Updates")
             b.wait_in_text("#state", "2")
 
-            b.wait_present("table.available")
             b.wait_in_text("table.available", "secnocve")
 
             # secnocve should be displayed properly
@@ -518,7 +484,6 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("table.available")
         b.wait_in_text("table.available", "Things change")
 
         # "coarse" package list should be complete
@@ -561,16 +526,13 @@ class TestUpdates(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_present(".container-fluid h2")
         b.wait_in_text(".container-fluid h2", "Available Updates")
         self.assertEqual(b.text("#state"), "1 update")
 
-        b.wait_present("#app .container-fluid button")
         b.click("#app .container-fluid button")
 
         b.wait_in_text("#state", "Applying updates failed")
 
-        b.wait_present("#app .container-fluid pre")
         self.assertRegex(b.text("#app .container-fluid pre:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory")
 
@@ -598,16 +560,13 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("#app .container-fluid button")
         b.click("#app .container-fluid button")
         b.wait_in_text("#state", "Applying updates")
-        b.wait_present("#app div.progress-description")
         b.wait_in_text("#app div.progress-description", "slow")
 
         # restarting should pick up that install progress
         m.restart_cockpit()
         b.login_and_go("/updates")
-        b.wait_present("#state")
         b.wait_in_text("#state", "Applying updates")
         b.wait_present("#app div.progress-bar")
 
@@ -615,11 +574,8 @@ class TestUpdates(PackageCase):
         m.execute("touch {0}".format(install_lockfile))
 
         # should have succeeded and show restart page; cancel
-        b.wait_present("#app .container-fluid h1")
         b.wait_in_text("#app .container-fluid h1", "Restart Recommended")
-        b.wait_present("#app .container-fluid button.btn-default")
         b.click("#app .container-fluid button.btn-default")
-        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
 
         # now pretend that there is a newer cockpit-ws available, warn about disconnect
@@ -629,14 +585,9 @@ class TestUpdates(PackageCase):
         b.wait_in_text(".content-header-extra button", "Check for Updates")
         b.click(".content-header-extra button")
 
-        b.wait_present(".container-fluid #available h2")
         b.wait_in_text(".container-fluid #available h2", "Available Updates")
         self.assertEqual(b.text("#state"), "2 updates")
-
-        b.wait_present("table.available")
         b.wait_in_text("table.available", "cockpit-ws")
-
-        b.wait_present("#app div.alert-warning")
         b.wait_in_text("#app div.alert-warning", "This web console will be updated.")
 
     def testPackageKitCrash(self):
@@ -653,7 +604,6 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("#app .container-fluid button")
         b.click("#app .container-fluid button")
 
         # let updates start and zap PackageKit
@@ -682,15 +632,12 @@ class TestUpdates(PackageCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_present("#state")
         b.wait_in_text("#state", "Loading available updates failed")
-        b.wait_present("#app pre")
         b.wait_in_text("#app pre", "PackageKit is not installed")
 
         # update status on front page should be invisible
         b.go("/system")
         b.enter_page("/system")
-        b.wait_present("#system_information_updates_text")
         b.wait_not_visible("#system_information_updates_text")
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
@@ -743,7 +690,6 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
         b.login_and_go("/system")
         # show unregistered status on system front page
-        b.wait_present("#system_information_updates_text")
         b.wait_in_text("#system_information_updates_text", "Not Registered")
         self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
 
@@ -766,15 +712,12 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_present(".content-header-extra button")
-        b.wait_present("#state")
         b.wait_in_text("#state", "No updates pending")
-        b.wait_present(".container-fluid div.blank-slate-pf")
         b.wait_in_text(".container-fluid div.blank-slate-pf", "up to date")
 
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        b.wait_present("#system_information_updates_text")
         b.wait_text("#system_information_updates_text", "System Up To Date")
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
@@ -792,7 +735,6 @@ class TestUpdatesSubscriptions(PackageCase):
 
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
-        b.wait_present("#system_information_updates_text")
         b.wait_in_text("#system_information_updates_text", "Not Registered")
         self.assertIn("triangle", b.attr("#system_information_updates_icon", "class"))
         # should be a link leading to subscriptions page
@@ -808,7 +750,6 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_in_text(".container-fluid div.blank-slate-pf", "This system is not registered")
 
         # should show header bar
-        b.wait_present("#state")
         b.wait_text("#state", "1 update")
         b.wait_text(".content-header-extra--updated", "Last checked: a few seconds ago")
 
@@ -817,20 +758,17 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_not_present(".container-fluid div.blank-slate-pf")
-        b.wait_present("#available h2")
         b.wait_in_text("#available h2", "Available Updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 
         # has action buttons
         b.wait_present(".content-header-extra button")
-        b.wait_present("#app .container-fluid button")
         self.assertEqual(b.text("#app .container-fluid button"), "Install All Updates")
 
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        b.wait_present("#system_information_updates_text")
         b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
         self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
@@ -914,7 +852,6 @@ class TestAutoUpdates(PackageCase):
 
         # automatic updates are supported, but off
         b.wait_present("#automatic h2")
-        b.wait_present("#automatic div.btn-onoff-ct label.active")
         b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
@@ -925,11 +862,8 @@ class TestAutoUpdates(PackageCase):
         b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
         assertTimer("06")
         assertType("all")
-        b.wait_present("#auto-update-type")
         b.wait_in_text("#auto-update-type", "Apply all updates")
-        b.wait_present("#auto-update-time")
         b.wait_in_text("#auto-update-time", "06:00")
-        b.wait_present("#auto-update-day")
         b.wait_in_text("#auto-update-day", "every day")
 
         # change type to security
@@ -991,8 +925,6 @@ class TestAutoUpdates(PackageCase):
             self.assertFalse(b.is_present("#auto-update-type"))
             return
 
-        b.wait_present("#automatic")
-        b.wait_present("#automatic div.btn-onoff-ct label.active")
         b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
         self.assertFalse(b.is_present("#auto-update-type"))
 
@@ -1047,7 +979,6 @@ class TestAutoUpdates(PackageCase):
         b.login_and_go("/updates")
         b.wait_present("#available")
         if self.backend == 'dnf':
-            b.wait_present('#automatic')
             b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'Off')
         else:
             # on-demand installation isn't supported, switch to enable it isn't visible
@@ -1057,7 +988,6 @@ class TestAutoUpdates(PackageCase):
         b.click("#app .container-fluid button.pk-update--all")
 
         # empty state visible in main area
-        b.wait_present(".container-fluid div.blank-slate-pf button.btn-default")
         b.click('.container-fluid div.blank-slate-pf button.btn-default')
         self.assertFalse(b.is_present("#available"))
         if self.backend == 'dnf':
@@ -1100,7 +1030,6 @@ WantedBy=basic.target
         b.login_and_go('/updates')
 
         # click through install dialog
-        b.wait_present('#automatic div.btn-onoff-ct > .btn.active')
         b.click('#automatic div.btn-onoff-ct > .btn.active > span')
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')

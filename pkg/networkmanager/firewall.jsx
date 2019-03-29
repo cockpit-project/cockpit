@@ -94,14 +94,16 @@ function ServiceRow(props) {
 }
 
 class SearchInput extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.state = { value: props.value || "" };
     }
 
     onValueChanged(event) {
         let value = event.target.value;
+        this.setState({ value:value });
 
         if (this.timer)
             window.clearTimeout(this.timer);
@@ -115,6 +117,7 @@ class SearchInput extends React.Component {
     render() {
         return <input autoFocus
                       id={this.props.id}
+                      value={this.state.value}
                       className={this.props.className}
                       onChange={this.onValueChanged} />;
     }

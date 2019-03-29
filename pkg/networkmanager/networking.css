@@ -201,3 +201,49 @@ h1 .btn-onoff-ct {
 #add-services-dialog small {
     font-size: 90%;
 }
+
+.toggle-body > input {
+    margin-right: 2px;
+}
+
+.toggle-body > :not(input) {
+    margin-left: 14px;
+}
+
+.form-control.error {
+    border-color: #cc0000;
+}
+
+.form-control.error:hover {
+    border-color: #990000;
+}
+
+.form-control.error:focus {
+    border-color: #990000;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+}
+
+#add-services-dialog .has-error {
+    animation: 300ms error-slide-down ease-in-out;
+    color: #c00;
+    padding: 0;
+}
+
+#add-services-dialog .has-error:empty {
+    display: none;
+}
+
+@keyframes error-slide-down {
+    0% {
+        line-height: 0;
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+    }
+    100% {
+        line-height: inherit;
+        height: auto;
+        opacity: 1;
+    }
+}

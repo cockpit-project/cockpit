@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import time
 from testlib import *
 
 
@@ -190,6 +191,82 @@ class TestFirewall(MachineCase):
             m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
             b.click("caption button.btn-primary")
             b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
+
+    @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg")
+    def testAddCustomServices(self):
+        b = self.browser
+
+        self.login_and_go("/network/firewall")
+
+
+        def open_dialog():
+            b.wait_present("caption button.btn-primary:enabled")
+            b.click("caption button.btn-primary")
+            b.wait_present("#add-services-dialog input[value='ports']:enabled")
+            b.click("#add-services-dialog input[value='ports']")
+            b.wait_present("#tcp-ports")
+            b.wait_visible("#tcp-ports")
+
+        def set_field(sel, val, expected):
+            b.set_input_text(sel, val)
+            b.wait_val("#service-name", expected)
+
+        def check_error(text):
+            b.wait_present(".has-error:contains({0})".format(text))
+            b.wait_visible(".has-error:contains({0})".format(text))
+
+        def save(identifier, name, tcp, udp):
+            b.click("button:contains(Add Ports)")
+            b.wait_not_present("#add-services-dialog")
+            line_sel = "tr[data-row-id='{0}']".format(identifier)
+            b.wait_present(line_sel)
+            b.wait_in_text(line_sel, "".join([name, tcp, udp]))
+
+        open_dialog()
+        set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
+        set_field("#tcp-ports", "", "")
+        set_field("#tcp-ports", "80,7", "http, echo")
+        set_field("#udp-ports", "194", "http, echo, irc")
+        set_field("#udp-ports", "194,   50000", "http, echo, irc...")
+        set_field("#tcp-ports", "", "irc, 50000")
+        set_field("#tcp-ports", "https", "https, irc, 50000")
+        save("custom--https-irc-50000", "https, irc, 50000", "443", "194, 50000")
+
+        open_dialog()
+        set_field("#tcp-ports", "80-82", "80-82")
+        set_field("#tcp-ports", "80-82, echo", "80-82, echo")
+        set_field("#udp-ports", "ntp-irc", "80-82, echo, 123-194")
+        set_field("#udp-ports", "83-ntp", "80-82, echo, 83-123")
+        set_field("#udp-ports", "83-ntp, irc", "80-82, echo, 83-123...")
+        save("custom--80-82-echo-83-123-irc", "80-82, echo, 83-123...", "80-82, 7", "83-123, 194")
+
+        open_dialog()
+        set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
+        b.set_input_text("#service-name", "I am persistent")
+        b.set_input_text("#tcp-ports", "7")
+        time.sleep(5) # We need to validate that the service name did not change
+        b.wait_val("#service-name", "I am persistent")
+        save("custom--echo", "I am persistent", "7", "")
+
+        open_dialog()
+        set_field("#tcp-ports", "500000", "")
+        check_error("Invalid port number")
+        set_field("#tcp-ports", "-1", "")
+        check_error("Invalid port number")
+        set_field("#tcp-ports", "8a", "")
+        check_error("Unknown service name")
+        set_field("#tcp-ports", "foobar", "")
+        check_error("Unknown service name")
+        set_field("#tcp-ports", "80-80", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "80-79", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "https-http", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "80-90-", "")
+        check_error("Invalid range")
+        set_field("#tcp-ports", "80-90-100", "")
+        check_error("Invalid range")
 
 
 if __name__ == '__main__':

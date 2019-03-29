@@ -1206,8 +1206,31 @@ class TestMachines(NetworkCase):
                                          start_vm=True))
         # End of tests for import existing disk as installation option
 
-        # test PXE Source
+        cmds = [
+            "mkdir /mnt/tmpPool; chmod a+rwx /mnt/tmpPool",
+            "virsh pool-define-as tmpPool --type dir --target /mnt/tmpPool",
+            "virsh pool-start tmpPool",
+            "qemu-img create -f qcow2 /mnt/tmpPool/vmTmpDestination.qcow2 128M",
+            "virsh pool-refresh tmpPool"
+        ]
+        self.machine.execute(" && ".join(cmds))
+
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
+
+        # Check choosing existing volume as destination storage
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=50, memory_size_unit='MiB',
+                                         os_vendor=config.NOVELL_VENDOR,
+                                         os_name=config.NOVELL_NETWARE_6,
+                                         storage_pool="tmpPool",
+                                         storage_volume="vmTmpDestination.qcow2",
+                                         start_vm=True,))
+
         if self.provider == "libvirt-dbus":
+            # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
 
             # Disable selinux because it makes TFTP directory inaccesible and we don't want sophisticated configuration for tests
@@ -1399,6 +1422,7 @@ class TestMachines(NetworkCase):
                      storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
                      os_name=None,
+                     storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
                      delete=True,
                      connection=None):
@@ -1427,6 +1451,8 @@ class TestMachines(NetworkCase):
             self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
             self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
             self.start_vm = start_vm
+            self.storage_pool = storage_pool
+            self.storage_volume = storage_volume
             self.delete = delete
             self.connection = connection
             if self.connection:
@@ -1519,6 +1545,22 @@ class TestMachines(NetworkCase):
             if self.sourceTypeSecondChoice:
                 b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
 
+            if not self.sourceType == 'disk_image' and not self.sourceTypeSecondChoice == 'disk_image':
+                b.wait_visible("#storage-pool-select")
+                b.select_from_dropdown("#storage-pool-select", self.storage_pool)
+
+                if self.storage_pool == 'Create New Volume':
+                    b.wait_not_present("#storage-volume-select")
+                else:
+                    b.wait_visible("#storage-volume-select")
+                    b.select_from_dropdown("#storage-volume-select", self.storage_volume)
+
+                if self.storage_size is None or self.storage_pool != 'Create New Volume':
+                    b.wait_not_present("#storage-size")
+                else:
+                    b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
+                    b.set_input_text("#storage-size", str(self.storage_size))
+
             b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
             b.select_from_dropdown("#system-select", self.os_name, substring=True)
 
@@ -1531,12 +1573,6 @@ class TestMachines(NetworkCase):
             # Write the final memory back to self so that other function can read it
             self.memory_size = min(self.memory_size, host_total_memory)
             b.wait_val("#memory-size", self.memory_size)
-
-            if self.storage_size is None:
-                b.wait_not_present("#storage-size")
-            else:
-                b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                b.set_input_text("#storage-size", str(self.storage_size))
 
             b.wait_visible("#start-vm")
             if self.start_vm:

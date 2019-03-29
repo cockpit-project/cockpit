@@ -9,6 +9,8 @@ OS="$5"
 MEMORY_SIZE="$6" # in MiB
 STORAGE_SIZE="$7" # in GiB
 START_VM="$8"
+STORAGE_POOL="$9"
+STORAGE_VOLUME="${10}"
 
 vmExists(){
    virsh -c "$CONNECTION_URI" list --all | awk  '{print $2}' | grep -q --line-regexp --fixed-strings "$1"
@@ -27,6 +29,8 @@ else
     if [ "$COMPARISON" -eq 1 ]; then
         # default to no disk if size 0
         DISK_OPTIONS="none"
+    elif [ "$STORAGE_POOL" != "NewVolume" ]; then
+        DISK_OPTIONS="vol=$STORAGE_POOL/$STORAGE_VOLUME"
     else
         DISK_OPTIONS="size=$STORAGE_SIZE,format=qcow2"
     fi
@@ -85,6 +89,13 @@ else
     fi
 fi
 
+
+if [ "$STORAGE_POOL" != "NewVolume" ]; then
+    CHECK_PARAM="--check path_in_use=off"
+else
+    CHECK_PARAM=""
+fi
+
 virt-install \
     --connect "$CONNECTION_URI" \
     --name "$VM_NAME" \
@@ -92,6 +103,7 @@ virt-install \
     --memory "$MEMORY_SIZE" \
     --quiet \
     --disk  "$DISK_OPTIONS" \
+    $CHECK_PARAM \
     $STARTUP_PARAMS \
     $INSTALL_METHOD \
     $GRAPHICS_PARAM \

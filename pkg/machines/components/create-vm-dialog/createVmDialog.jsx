@@ -31,6 +31,7 @@ import {
     convertToUnit,
     timeoutedPromise,
     units,
+    getStorageVolumesUsage,
     LIBVIRT_SYSTEM_CONNECTION,
 } from "../../helpers.js";
 import {
@@ -60,6 +61,19 @@ const URL_SOURCE = 'url';
 const LOCAL_INSTALL_MEDIA_SOURCE = 'file';
 const EXISTING_DISK_IMAGE_SOURCE = 'disk_image';
 const PXE_SOURCE = 'pxe';
+
+/**
+ * Returns an array of storage pools, filtered by connection and presence of volumes
+ *
+ * @param {array} storagePools
+ * @param {string} connectionName
+ * @returns {array}
+ */
+function filterStoragePools(storagePools, connectionName) {
+    return storagePools.filter(pool => pool.volumes &&
+                                       pool.volumes.length &&
+                                       pool.connectionName === connectionName);
+}
 
 function validateParams(vmParams) {
     let validationFailed = {};
@@ -309,17 +323,62 @@ const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged }
     );
 };
 
-const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged }) => {
+const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged, storagePoolName, storagePools, storageVolume, vms }) => {
+    let volumeEntries;
+    let isVolumeUsed = {};
+    // Existing storage pool is chosen
+    if (storagePoolName !== "NewVolume") {
+        const storagePool = storagePools.find(pool => pool.name === storagePoolName);
+
+        isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
+        volumeEntries = (
+            storagePool.volumes.map(vol => <Select.SelectEntry data={vol.name} key={vol.name}>{vol.name}</Select.SelectEntry>)
+        );
+    }
+
     return (
         <React.Fragment>
-            <label htmlFor='storage-size' className='control-label'>
-                {_("Storage Size")}
+            <label className="control-label" htmlFor="storage-pool-select">
+                {_("Storage")}
             </label>
-            <MemorySelectRow id={"storage-size"}
-                value={storageSize}
-                initialUnit={storageSizeUnit}
-                onValueChange={e => onValueChanged('storageSize', e.target.value)}
-                onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
+            <Select.Select id="storage-pool-select"
+                           initial={storagePoolName}
+                           onChange={e => onValueChanged('storagePool', e)}>
+                <Select.SelectEntry data="NewVolume" key="NewVolume">{"Create New Volume"}</Select.SelectEntry>
+                <Select.SelectDivider />
+                <optgroup key="Storage Pools" label="Storage Pools">
+                    { storagePools.map(pool => <Select.SelectEntry data={pool.name} key={pool.name}>{pool.name}</Select.SelectEntry>)}
+                </optgroup>
+            </Select.Select>
+
+            { storagePoolName !== "NewVolume" &&
+            <React.Fragment>
+                <label className="control-label" htmlFor="storage-volume-select">
+                    {_("Volume")}
+                </label>
+                <Select.Select id="storage-volume-select"
+                               initial={storageVolume}
+                               onChange={e => onValueChanged('storageVolume', e)}>
+                    {volumeEntries}
+                </Select.Select>
+
+                { isVolumeUsed[storageVolume] && isVolumeUsed[storageVolume].length > 0 &&
+                <HelpBlock>
+                    <p className="text-warning">{_("This volume is already used by another VM.")}</p>
+                </HelpBlock> }
+            </React.Fragment> }
+
+            { storagePoolName === "NewVolume" &&
+            <React.Fragment>
+                <label htmlFor='storage-size' className='control-label'>
+                    {_("Size")}
+                </label>
+                <MemorySelectRow id={"storage-size"}
+                    value={storageSize}
+                    initialUnit={storageSizeUnit}
+                    onValueChange={e => onValueChanged('storageSize', e.target.value)}
+                    onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
+            </React.Fragment> }
         </React.Fragment>
     );
 };
@@ -341,6 +400,8 @@ class CreateVmModal extends React.Component {
             memorySizeUnit: units.GiB.name,
             storageSize: 10, // GiB
             storageSizeUnit: units.GiB.name,
+            storagePool: 'NewVolume',
+            storageVolume: '',
             startVm: false,
         };
         this.onCreateClicked = this.onCreateClicked.bind(this);
@@ -400,6 +461,19 @@ class CreateVmModal extends React.Component {
                 this.setState({ source: '' });
             }
             break;
+        case 'storagePool': {
+            const storagePool = filterStoragePools(this.props.storagePools, this.state.connectionName).find(pool => pool.name === value);
+            const storageVolumes = storagePool ? storagePool.volumes : undefined;
+            const storageVolume = storageVolumes ? storageVolumes[0] : undefined;
+            this.setState({
+                [key]: value,
+                storageVolume: storageVolume ? storageVolume.name : undefined,
+            });
+            break;
+        }
+        case 'storageVolume':
+            this.setState({ [key]: value });
+            break;
         case 'memorySize':
             value = Math.min(
                 value,
@@ -433,6 +507,12 @@ class CreateVmModal extends React.Component {
                 // If the installation source mode is PXE refresh the list of available networks
                 this.onValueChanged('sourceType', PXE_SOURCE);
             }
+
+            // specific storage pool is selected
+            if (this.state.storagePool !== "NewVolume" && this.state.storagePool !== "NoStorage") {
+                // storage pools are different for each connection, so we set storagePool value to default (newVolume)
+                this.setState({ storagePool: "NewVolume" });
+            }
             break;
         default:
             break;
@@ -458,6 +538,8 @@ class CreateVmModal extends React.Component {
                 os: this.state.os,
                 memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
                 storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
+                storagePool: this.state.storagePool,
+                storageVolume: this.state.storageVolume,
                 startVm: this.state.startVm,
             };
 
@@ -476,7 +558,7 @@ class CreateVmModal extends React.Component {
     }
 
     render() {
-        const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName } = this.props;
+        const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams(this.state);
         const dialogBody = (
             <form className="ct-form-layout">
@@ -508,15 +590,19 @@ class CreateVmModal extends React.Component {
 
                 <hr />
 
-                <OSRow
-                    vendor={this.state.vendor}
-                    vendors={this.state.vendors}
-                    os={this.state.os}
-                    osInfoList={osInfoList}
-                    onValueChanged={this.onValueChanged}
-                    validationFailed={validationFailed} />
-
-                <hr />
+                { this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+                <React.Fragment>
+                    <StorageRow
+                        storageSize={this.state.storageSize}
+                        storageSizeUnit={this.state.storageSizeUnit}
+                        onValueChanged={this.onValueChanged}
+                        storagePoolName={this.state.storagePool}
+                        storagePools={filterStoragePools(storagePools, this.state.connectionName)}
+                        storageVolume={this.state.storageVolume}
+                        vms={vms}
+                    />
+                    <hr />
+                </React.Fragment>}
 
                 <MemoryRow
                     memorySize={this.state.memorySize}
@@ -525,12 +611,15 @@ class CreateVmModal extends React.Component {
                     onValueChanged={this.onValueChanged}
                 />
 
-                {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-                <StorageRow
-                    storageSize={this.state.storageSize}
-                    storageSizeUnit={this.state.storageSizeUnit}
+                <hr />
+
+                <OSRow
+                    vendor={this.state.vendor}
+                    vendors={this.state.vendors}
+                    os={this.state.os}
+                    osInfoList={osInfoList}
                     onValueChanged={this.onValueChanged}
-                />}
+                    validationFailed={validationFailed} />
 
                 <hr />
 
@@ -600,6 +689,8 @@ export class CreateVmAction extends React.Component {
                     networks={this.props.networks}
                     nodeDevices={this.props.nodeDevices}
                     nodeMaxMemory={this.props.nodeMaxMemory}
+                    storagePools={this.props.storagePools}
+                    vms={this.props.vms}
                     osInfoList={this.props.systemInfo.osInfoList}
                     onAddErrorNotification={this.props.onAddErrorNotification}
                     loggedUser={this.props.systemInfo.loggedUser} /> }

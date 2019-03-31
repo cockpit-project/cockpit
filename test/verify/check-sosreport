@@ -22,6 +22,7 @@ import glob
 import os.path
 import shutil
 import tempfile
+import tarfile
 
 import parent
 from testlib import *
@@ -32,6 +33,13 @@ class TestSOS(MachineCase):
 
     def testBasic(self):
         b = self.browser
+        m = self.machine
+
+        m.write("/etc/sos.conf",
+                """
+[general]
+only-plugins=release
+""")
 
         self.login_and_go("/sosreport")
 
@@ -49,7 +57,9 @@ class TestSOS(MachineCase):
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
         wait(lambda: len(glob.glob(os.path.join(download_dir, "sosreport-*.xz"))) > 0)
         report = glob.glob(os.path.join(download_dir, "sosreport-*.xz"))[0]
-        self.assertGreater(os.path.getsize(report), 1000000)
+        # Check that /etc/release was saved. It the files does not exist, getmember raises KeyError
+        with tarfile.open(report) as tar:
+            tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
 
         self.allow_journal_messages('.*comm="sosreport".*')
 

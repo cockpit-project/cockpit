@@ -42,6 +42,10 @@ class TestFirewall(MachineCase):
         b = self.browser
         m = self.machine
 
+        # default zone has no interface in permanent configuration
+        # https://github.com/cockpit-project/cockpit/issues/11748
+        if m.image in ["debian-stable"]:
+            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
         m.execute("systemctl stop firewalld")
 
         self.login_and_go("/network")
@@ -83,6 +87,11 @@ class TestFirewall(MachineCase):
         b = self.browser
         m = self.machine
 
+        # default zone has no interface in permanent configuration
+        # https://github.com/cockpit-project/cockpit/issues/11748
+        if m.image in ["debian-stable"]:
+            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
+
         m.execute("systemctl stop firewalld")
         self.login_and_go("/network/firewall")
 
@@ -95,6 +104,10 @@ class TestFirewall(MachineCase):
         b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
         b.wait_in_text(".btn-onoff-ct label.active", "On")
         wait_unit_state(m, "firewalld", "active")
+
+        # Wait until the default zone is listed
+        b.wait_in_text("#zones-listing", "Public")
+        b.wait_in_text("#zones-listing", "default")
 
         # "Add Services" button should be enabled
         b.wait_present("caption button.btn-primary:enabled")
@@ -109,12 +122,15 @@ class TestFirewall(MachineCase):
         # all services should be shown after the one we added above is
         # visible, so do a basic sanity check now
         active_rules = m.execute("firewall-cmd --list-services").split()
-        b.call_js_func("ph_count_check", "tr.listing-ct-item", len(active_rules))
+        b.call_js_func("ph_count_check", "#services-listing tr.listing-ct-item", len(active_rules))
 
         b.click("tr[data-row-id='pop3'] .listing-ct-toggle")
         b.wait_in_text("tbody.open tr.listing-ct-panel", "Post Office Protocol")
 
         b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.wait_present("#remove-services-dialog")
+        b.wait_present("#remove-services-dialog input[value=public]:checked")
+        b.click("#remove-services-dialog button.btn-primary")
         b.wait_not_present("tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -137,15 +153,16 @@ class TestFirewall(MachineCase):
         m = self.machine
 
         self.login_and_go("/network/firewall")
-
-        def removeService(service):
-            b.click("tr[data-row-id='{}'] .btn.pficon-delete".format(service))
-            b.wait_not_present("tr[data-row-id='{}']".format(service))
+        b.wait_in_text("#zones-listing", "Public")
+        b.wait_in_text("#zones-listing", "default")
 
         # click on the "Add Services" button
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
+        # rhel-8 comes with an extra preconfigured libvirt zone
+        if m.image not in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            b.wait_not_present("#cockpit_modal_dialog input[value='public']")
 
         # filter for pop3
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
@@ -178,6 +195,10 @@ class TestFirewall(MachineCase):
         # now add pop3
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
+        # rhel-8 comes with an extra preconfigured libvirt zone
+        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            b.click("#add-services-dialog input[value='public']")
+            b.click("#add-services-dialog input[value='libvirt']")
         b.click("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
         b.click("#add-services-dialog .modal-footer .btn-primary")
         b.wait_not_present("#cockpit_modal_dialog")
@@ -198,17 +219,50 @@ class TestFirewall(MachineCase):
         b.click("#add-services-dialog .modal-footer .btn-cancel")
         b.wait_not_present("#cockpit_modal_dialog")
 
+        def removeService(service, zones=[]):
+            b.click("tr[data-row-id='{}'] .btn.pficon-delete".format(service))
+            for zone in zones:
+                b.click("#remove-services-dialog input[value={}]".format(zone))
+            b.click("#remove-services-dialog button.btn-primary")
+            b.wait_not_present("tr[data-row-id='{}']".format(service))
+
         # remove all services
-        services = m.execute("firewall-cmd --list-services").strip().split(' ')
+        services = set(m.execute("firewall-cmd --list-services").strip().split(" "))
+        # rhel-8 comes with an extra preconfigured libvirt zone so remove all
+        # the service which belong to both libvirt and public (and thus
+        # requiring checkboxes to be clicked), then remove all the services
+        # belonging either libvirt or public
+        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            libvirt_services = set(m.execute("firewall-cmd --zone=libvirt --list-services").strip().split(" "))
+            for service in libvirt_services & services:
+                removeService(service, zones=["libvirt", "public"])
+            for service in libvirt_services ^ services:
+                removeService(service)
+        else:
+            for service in services:
+                removeService(service)
+
         for service in services:
-            removeService(service)
+            b.wait_not_present("tr[data-row-id='{}']".format(service))
+        self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
+        if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+            self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
+            for service in libvirt_services:
+                b.wait_not_present("tr[data-row-id='{}']".format(service))
 
     @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddCustomServices(self):
         b = self.browser
+        m = self.machine
+
+        # default zone has no interface in permanent configuration
+        # https://github.com/cockpit-project/cockpit/issues/11748
+        if m.image in ["debian-stable"]:
+            m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
 
         self.login_and_go("/network/firewall")
-
+        b.wait_in_text("#zones-listing", "Public")
+        b.wait_in_text("#zones-listing", "default")
 
         def open_dialog():
             b.wait_present("caption button.btn-primary:enabled")
@@ -217,6 +271,9 @@ class TestFirewall(MachineCase):
             b.click("#add-services-dialog input[value='ports']")
             b.wait_present("#tcp-ports")
             b.wait_visible("#tcp-ports")
+            # rhel-8 comes with an extra preconfigured libvirt zone
+            if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
+                b.click("#add-services-dialog input[value='public']")
 
         def set_field(sel, val, expected):
             b.set_input_text(sel, val)
@@ -232,6 +289,7 @@ class TestFirewall(MachineCase):
             line_sel = "tr[data-row-id='{0}']".format(identifier)
             b.wait_present(line_sel)
             b.wait_in_text(line_sel, "".join([name, tcp, udp]))
+            b.wait_in_text(line_sel, "Public")
 
         open_dialog()
         set_field("#tcp-ports", "80", "WorldWideWeb HTTP")
@@ -279,7 +337,48 @@ class TestFirewall(MachineCase):
         set_field("#tcp-ports", "80-90-100", "")
         check_error("Invalid range")
 
+    @skipImage("Zones were introduced in #11745", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+    def testMultipleZones(self):
+        b = self.browser
+        m = self.machine
 
+        workSource = "192.168.1.0/24"
+        m.execute("firewall-cmd --permanent --zone=work --change-source={}".format(workSource))
+        m.execute("firewall-cmd --reload")
+
+        def addServiceToZone(service, zone):
+            b.click("caption button.btn-primary")
+            b.click("#add-services-dialog input[value='{}']".format(zone))
+            b.click("#add-services-dialog .list-view-pf input[data-id='{}']".format(service))
+            b.click("#add-services-dialog .modal-footer .btn-primary")
+            b.wait_not_present("#cockpit_modal_dialog")
+            b.wait_present("tr[data-row-id='{}']".format(service))
+            self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
+
+        self.login_and_go("/network/firewall")
+        b.wait_present("#zones-listing:contains({})".format(workSource))
+        b.wait_present("#zones-listing:contains(Work)")
+
+        addServiceToZone("pop3", "work")
+        b.wait_present("tr[data-row-id='pop3']:contains(Work)")
+        self.assertNotIn("Public", b.text("tr[data-row-id='pop3']"))
+        addServiceToZone("pop3", "public")
+        b.wait_present("tr[data-row-id='pop3']:contains(Public)")
+
+
+        # Remove the service from Public zone
+        b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.wait_present("#remove-services-dialog button.btn-primary:disabled")
+        b.click("#remove-services-dialog input[value='work']")
+        b.click("#remove-services-dialog button.btn-primary")
+        b.wait_not_present("tr[data-row-id='pop3']:contains(Work)")
+        self.assertIn("Public", b.text("tr[data-row-id='pop3']"))
+
+        # Remove the service from the remaining zone(s)
+        b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
+        b.wait_present("#remove-services-dialog")
+        b.click("#remove-services-dialog button.btn-primary")
+        b.wait_not_present("tr[data-row-id='pop3']")
 
 if __name__ == '__main__':
     test_main()

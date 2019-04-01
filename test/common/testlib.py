@@ -820,8 +820,6 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1404 audit.*",
         # happens on Atomic (https://bugzilla.redhat.com/show_bug.cgi?id=1298157)
         "(audit: )?type=1400 audit.*: avc:  granted .*",
-        # HACK: affects *all* tests, impractical for a naughty (https://bugzilla.redhat.com/show_bug.cgi?id=1461893)
-        "type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process.*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
@@ -924,11 +922,6 @@ class MachineCase(unittest.TestCase):
         if self.image in ['fedora-29', 'fedora-30', 'fedora-testing', 'fedora-i386', 'fedora-atomic']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662441
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="find" path="/proc.*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { mount } for .* comm="find" .*pcp_pmlogger_t.*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662866
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { execute } for .* comm="which" .*pcp_pmlogger_t.*')
 

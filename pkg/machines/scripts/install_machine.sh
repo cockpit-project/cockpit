@@ -50,7 +50,7 @@ fi
 
 if [ "$SOURCE_TYPE" = "pxe" ]; then
     INSTALL_METHOD="--pxe --network $SOURCE"
-elif [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ]; then
+elif ( [ "${SOURCE#/}" != "$SOURCE" ] && [ -f "${SOURCE}" ] ) || ( [ "$SOURCE_TYPE" = "url" ] && [ "${SOURCE%.iso}" != "$SOURCE" ] ); then
     INSTALL_METHOD="--cdrom $SOURCE"
 else
     INSTALL_METHOD="--location $SOURCE"

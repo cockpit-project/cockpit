@@ -1,0 +1,12 @@
+# Minimal openssl configuration file containing Subject Alternative Name (SAN)
+
+[ req ]
+distinguished_name = dn
+
+[ dn ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost

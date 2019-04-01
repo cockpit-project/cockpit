@@ -134,10 +134,10 @@ const renderPorts = ports => {
             udpPorts.push(port.port);
     }
     return (
-        <small>
-            { tcpPorts.length > 0 && <span><strong>TCP: </strong>{ tcpPorts.join(', ') }&nbsp;</span> }
-            { udpPorts.length > 0 && <span><strong>UDP: </strong>{ udpPorts.join(', ') }</span> }
-        </small>
+        <React.Fragment>
+            { tcpPorts.length > 0 && <span className="service-ports tcp"><strong>TCP: </strong>{ tcpPorts.join(', ') }</span> }
+            { udpPorts.length > 0 && <span className="service-ports udp"><strong>UDP: </strong>{ udpPorts.join(', ') }</span> }
+        </React.Fragment>
     );
 };
 
@@ -419,10 +419,13 @@ class AddServicesModal extends React.Component {
                                                         <ListView.Item key={s.id}
                                                                        className="list-group-item"
                                                                        checkboxInput={ <input data-id={s.id}
+                                                                                              id={"firewall-service-" + s.id}
                                                                                               type="checkbox"
                                                                                               checked={this.state.selected.has(s.id)}
                                                                                               onChange={this.onToggleService} /> }
-                                                                       heading={ <React.Fragment><span>{s.name}</span>{ renderPorts(s.ports) }</React.Fragment> }>
+                                                                       stacked
+                                                                       heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
+                                                                       description={ renderPorts(s.ports) }>
                                                         </ListView.Item>
                                                     ))
                                                 }
@@ -433,7 +436,6 @@ class AddServicesModal extends React.Component {
                                     )}
                                 </React.Fragment>
                             }
-                            <div />
                             <label className="radio ct-form-layout-full">
                                 <input type="radio" name="type" value="ports" onChange={this.onToggleType} disabled={this.state.avail_services == null} />
                                 {_("Custom Ports")}

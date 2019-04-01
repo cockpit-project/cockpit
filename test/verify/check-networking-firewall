@@ -146,8 +146,8 @@ class TestFirewall(MachineCase):
         b.set_input_text("#filter-services-input", "pop")
         b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
-        self.assertNotIn("UDP", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
+        self.assertIn("TCP: 110", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child .service-ports.tcp"))
+        b.wait_not_present("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
@@ -158,8 +158,8 @@ class TestFirewall(MachineCase):
         b.set_input_text("#filter-services-input", "110")
         b.wait_not_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='pop3']")
-        self.assertIn("TCP: 110", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
-        self.assertNotIn("UDP", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child small"))
+        self.assertIn("TCP: 110", b.text("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child .service-ports.tcp"))
+        b.wait_not_present("#cockpit_modal_dialog .list-view-pf .list-group-item:first-child .service-ports.udp")
         # clear filter
         b.set_input_text("#filter-services-input", "")
         b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='imap']")

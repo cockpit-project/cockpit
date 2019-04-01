@@ -1358,6 +1358,11 @@ class TestMachines(NetworkCase):
         # Deleting a running guest will disconnect the serial console
         self.allow_browser_errors("Disconnection timed out.")
 
+        # See https://bugzilla.redhat.com/show_bug.cgi?id=1406979, this is a WONTFIX:
+        # It suggests configure auditd to dontaudit these messages since selinux can't
+        # offer whitelisting this directory for qemu process
+        self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied .*for .* comm="qemu-.* dev="proc" .*')
+
         runner.destroy()
 
     class TestCreateConfig:

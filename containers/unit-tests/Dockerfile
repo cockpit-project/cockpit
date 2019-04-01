@@ -13,7 +13,7 @@ ARG _crossdeps="libglib2.0-dev libgudev-1.0-dev libjson-glib-dev libkeyutils-dev
 RUN dpkg --add-architecture ${arch} && echo ${arch} > /arch && apt-get update && \
     apt-get install -y --no-install-recommends build-essential gcc-multilib clang python3 \
       autoconf automake gdb gtk-doc-tools intltool libjavascript-minifier-xs-perl libjson-perl valgrind \
-      xmlto xsltproc npm nodejs-legacy git libfontconfig1 dbus ssh curl chromium-browser \
+      xmlto xsltproc npm nodejs-legacy git libfontconfig1 dbus ssh curl chromium-browser appstream-util \
       $(for p in ${_crossdeps}; do echo $p:${arch}; done) && \
     apt-get install -y --allow-downgrades libssh-dev:${arch}=0.6.3-4.3 libssh-4:${arch}=0.6.3-4.3 && \
     echo 'deb http://archive.ubuntu.com/ubuntu bionic universe' > /etc/apt/sources.list.d/stable.list && \

@@ -253,6 +253,26 @@
   > .ct-form-layout-full {
     grid-column: ~"1 / -1";
   }
+
+  // Move warnings, errors, info, etc. up a bit to associate with previous field
+  .bump-up() {
+    position: relative;
+    top: -0.5rem;
+  }
+
+  > .has-success,
+  > .has-warning,
+  > .has-error {
+    &:not(.form-group) {
+      .bump-up();
+    }
+
+
+  }
+
+  > .help-block {
+    .bump-up();
+  }
 }
 
 // Apply left-padding to control-labels when in a modal dialog

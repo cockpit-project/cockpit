@@ -218,9 +218,9 @@ function generateDeps(makefile, stats) {
     lines.push("");
 
     lines.push(prefix + ": " + stampfile);
-    lines.push("clean-" + prefix + ": ");
+    lines.push("maintainer-clean-" + prefix + ": ");
     lines.push("\trm -rf $(" + prefix + "_OUTPUTS) $(" + prefix + "_INSTALL) " + stampfile);
-    lines.push("clean-local:: clean-" + prefix);
+    lines.push("maintainer-clean-local:: clean-" + prefix);
 
     data = lines.join("\n") + "\n";
     fs.writeFileSync(makefile, data);

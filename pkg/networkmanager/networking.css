@@ -195,18 +195,37 @@ h1 .btn-onoff-ct {
 }
 
 #add-services-dialog .list-view-pf-main-info {
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 1rem 0;
 }
 
-#add-services-dialog .list-view-pf-checkbox,
+#add-services-dialog .list-view-pf-checkbox {
+    margin: 1rem 1rem 1rem 0;
+}
+
 #add-services-dialog .list-view-pf-view {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 0;
 }
 
-#add-services-dialog small {
-    font-size: 90%;
+#add-services-dialog .list-view-pf-description {
+    flex: auto;
+}
+
+#add-services-dialog .list-group-item-heading {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+#add-services-dialog .list-group-item-text {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#add-services-dialog .service-ports {
+    opacity: 0.75;
+}
+
+#add-services-dialog .service-ports:first-of-type {
+    margin-right: 1em;
 }
 
 #add-services-dialog .spinner-lg {
@@ -216,6 +235,10 @@ h1 .btn-onoff-ct {
 
 #add-services-dialog .toggle-body > .ct-form-layout {
     margin-left: 1rem;
+}
+
+#add-services-dialog .toggle-body > .ct-form-layout + label {
+    margin-top: 1rem;
 }
 
 #add-services-dialog .toggle-body > .ct-form-layout > .control-label {

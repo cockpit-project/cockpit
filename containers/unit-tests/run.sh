@@ -54,10 +54,18 @@ make V=1 all
 # not yet been able to figure out what is putting it non-blocknig.
 python3 -c "import fcntl, os; map(lambda fd: fcntl.fcntl(fd, fcntl.F_SETFL, fcntl.fcntl(fd, fcntl.F_GETFL) &~ os.O_NONBLOCK), [0, 1, 2])"
 
-# only run distcheck on main arch
 if [ "$ARCH" = amd64 ]; then
+    # run distcheck on main arch
     make distcheck 2>&1
 else
+    # on i386, validate that "distclean" does not remove too much
+    make dist-gzip
+    mkdir _distcleancheck
+    tar -C _distcleancheck -xf cockpit-[0-9]*.tar.gz
+    cd _distcleancheck/cockpit-*
+    ./configure
+    make distclean
+    ./configure
     make check 2>&1
 fi
 

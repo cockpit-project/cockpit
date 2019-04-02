@@ -231,7 +231,6 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
 
         def wait_log_present(message):
             sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message
-            b.wait_present(sel)
             b.wait_visible(sel)
 
         def wait_log_not_present(message):
@@ -322,7 +321,6 @@ s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
@@ -350,7 +348,6 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         self.login_and_go("/system/logs")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('[no data]')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
@@ -401,14 +398,12 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
 
         self.select_from_dropdown(b, "#journal-prio-menu", "Critical and above")
-        b.wait_present(sel)
         b.wait_visible(sel)
 
         self.select_from_dropdown(b, "#journal-prio-menu", "Alert and above")
         b.wait_not_present(sel)
 
         self.select_from_dropdown(b, "#journal-prio-menu", "Critical and above")
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
@@ -428,7 +423,6 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.click("li:contains(Problem details)")
         sel = "#journal-entry-fields #accordion-markup .panel .panel-heading"
         sel += " .panel-title .accordion-toggle:contains('core_backtrace')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
@@ -450,14 +444,11 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         m.execute("ulimit -c unlimited; " + self.python + " -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
-        b.wait_present("#journal-entry-id")
         b.wait_in_text("#journal-entry-id", "python")
         sel = "#journal-entry-fields .nav .btn-danger"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
@@ -467,10 +458,8 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
 
-        b.wait_present("#journal-entry-id")
         b.wait_in_text("#journal-entry-id", "python")
         # details view should hide log view
-        b.wait_present('.cockpit-log-panel')
         b.wait_not_visible('.cockpit-log-panel')
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav")
@@ -497,24 +486,20 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         m.execute("./slp; pkill -x -SEGV sleep")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in __nanosleep()')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
         # Wait until loaded (when delete button is loaded, all is loaded)
         sel = "#journal-entry-fields .nav .btn-danger"
-        b.wait_present(sel)
         b.wait_visible(sel)
 
         sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
         # jQuery magic on this page updates the whole frame for changing to "Reported" state
         b.expect_load_frame("cockpit1:localhost/system/logs")
         sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
 
@@ -532,14 +517,12 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         self.allow_journal_messages('.*https://bugzilla.example.com/show_bug.cgi\?id=123456')
 
         sel = "#journal-entry-fields .nav .btn-primary:contains('Report')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
         # jQuery magic on this page updates the whole frame for changing to "Reported" state
         b.expect_load_frame("cockpit1:localhost/system/logs")
         sel = "#journal-entry-fields .nav .problem-btn:contains('Reported')"
-        b.wait_present(sel)
         b.wait_visible(sel)
         self.assertIn("/reports/bthash/123deadbeef", b.attr(sel, 'href'))
 

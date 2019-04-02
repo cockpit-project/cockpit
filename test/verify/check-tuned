@@ -47,13 +47,11 @@ class TestTuned(MachineCase):
 
         def check_status_tooltip(expected):
             b.mouse("#system-info-performance .action-trigger", "mouseover")
-            b.wait_present("#system-info-performance .tooltip-inner")
             b.wait_text("#system-info-performance .tooltip-inner", expected)
             # move mouse away again, to let the tooltip disappear and update
             b.mouse("#system-info-performance .action-trigger", "mouseout")
             b.wait_not_present("#system-info-performance .tooltip-inner")
 
-        b.wait_present('#system-info-performance a.action-trigger')
         b.wait_text('#system-info-performance a.action-trigger', "none")
         check_status_tooltip("Tuned is not running")
 
@@ -64,11 +62,9 @@ class TestTuned(MachineCase):
 
         # Informative message when not authorized
         b.relogin('/system', authorized=False)
-        b.wait_present('#system-info-performance a.action-trigger.disabled')
         b.wait_text('#system-info-performance a.action-trigger.disabled', recommended_profile)
         check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
-        b.wait_present('#system-info-performance a.action-trigger')
         b.wait_visible('#system-info-performance a.action-trigger')
 
         # Switch the profile

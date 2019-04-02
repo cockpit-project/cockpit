@@ -106,10 +106,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.wait_dashboard_addresses(b2, ["localhost", "10.111.113.2"])
 
         # Should show successful state and icon
-        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
         b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
                     'src', '../shell/images/server-small.png')
-        b2.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
         b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
                      'src', '../shell/images/server-small.png')
 
@@ -139,10 +137,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.check_discovered_addresses(b2, ["10.111.113.3"])
 
         # Should show successful state and icon again
-        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
         b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
                     'src', '../shell/images/server-small.png')
-        b2.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
         b2.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
                      'src', '../shell/images/server-small.png')
 
@@ -162,7 +158,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         self.add_machine(b, "10.111.113.2", True)
         self.wait_dashboard_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
         # Should be connected, no error
-        b.wait_present("#dashboard-hosts a.connected[data-address='10.111.113.2'] img")
         b.wait_attr("#dashboard-hosts a.connected[data-address='10.111.113.2'] img",
                     'src', '../shell/images/server-small.png')
 
@@ -225,7 +220,6 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
             sel = "#link-network"
         else:
             sel = "#link-network a"
-        b.wait_present(sel)
         b.click(sel)
         b.enter_page("/network", "10.111.113.3")
 
@@ -281,11 +275,9 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
         b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_in_text('#dashboard_setup_server_dialog .modal-title', "Log in to")
-        b.wait_present("#do-sync-users")
         b.click("#do-sync-users")
 
         b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Synchronize")
-        b.wait_present("#sync-users")
         b.wait_in_text("#sync-users", "admin")
         b.wait_present("#sync-username")
 
@@ -298,7 +290,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
-        b.wait_present('#sync-password')
         b.set_val('#sync-password', "foobar")
 
         b.click('#dashboard_setup_server_dialog .btn-primary')
@@ -336,7 +327,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         def goDashboardWithSuperuser():
             # force spawning of privileged bridge, so that migration runs
             self.login_and_go("/playground/test", authorized=True)
-            b.wait_present(".super-channel .btn")
             b.click(".super-channel .btn")
             b.wait_in_text(".super-channel span", 'result:')
             b.switch_to_top()

@@ -48,7 +48,6 @@ class TestStorage(StorageCase):
 
         # Create a volume group out of two disks
         m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
-        b.wait_present("#vgroups")
         b.wait_in_text("#vgroups", "TEST1")
         b.click('tr:contains("TEST1")')
         b.wait_visible("#storage-detail")
@@ -172,7 +171,6 @@ class TestStorage(StorageCase):
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
 
         # remove disk
-        b.wait_present('#detail-sidebar tr:nth-child(2) button')
         b.click('#detail-sidebar tr:nth-child(2) button')
         b.wait_not_in_text("#detail-sidebar", "DISK2")
         b.wait_in_text("#detail-header label:contains(Capacity) + div", "48 MiB")
@@ -271,7 +269,6 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK1")
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        b.wait_present("#vgroups")
         b.wait_in_text("#vgroups", "TEST")
         b.click('tr:contains("TEST")')
         b.wait_visible("#storage-detail")

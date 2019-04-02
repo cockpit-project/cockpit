@@ -53,11 +53,11 @@ class TestDockerStorageDirect(MachineCase):
         m.execute("systemctl start docker")
         self.login_and_go("/docker")
 
-        b.wait_present("#containers-storage-details .free-text")
         b.wait_text_not("#containers-storage-details .free-text", "")
 
         if can_manage(m):
             b.wait_present("#containers-storage-details a")
+
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")
@@ -164,7 +164,6 @@ class TestDockerStorage(MachineCase):
 
         b.click("#storage-drives tr:contains(DISK1)")
         b.click("#storage-drives .btn-primary")
-        b.wait_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
         b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Add Additional Storage)")
@@ -178,7 +177,6 @@ class TestDockerStorage(MachineCase):
         b.wait_in_text("#storage-drives", "DISK2")
         b.click("#storage-drives tr:contains(DISK2)")
         b.click("#storage-drives .btn-primary")
-        b.wait_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
         b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
         b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
@@ -222,7 +220,6 @@ class TestDockerStorage(MachineCase):
         b.wait_in_text("#storage-drives", "DISK2")
         b.click("#storage-drives tr:contains(DISK2)")
         b.click("#storage-drives .btn-primary")
-        b.wait_present(".modal-dialog:contains(Add Additional Storage)")
         b.wait_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK2")
         b.wait_not_in_text(".modal-dialog:contains(Add Additional Storage)", "DISK1")
         b.click(".modal-dialog:contains(Add Additional Storage) .btn-danger")
@@ -234,7 +231,6 @@ class TestDockerStorage(MachineCase):
         # Reset
 
         b.click("#storage-reset")
-        b.wait_present(".modal-dialog:contains(Reset Storage Pool)")
         b.click(".modal-dialog:contains(Reset Storage Pool) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Reset Storage Pool)")
 

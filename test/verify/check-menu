@@ -68,7 +68,6 @@ class TestMenu(MachineCase):
 
         # UI should also show the crash
         b.switch_to_top()
-        b.wait_present("#navbar-oops")
         b.wait_visible("#navbar-oops")
 
 

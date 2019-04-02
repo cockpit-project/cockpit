@@ -53,7 +53,6 @@ class OCBrowser(Browser):
         self.click('.btn-primary')
         self.expect_load()
         self.expect_load_frame("cockpit1:localhost/" + ("Registry" in self.label and "registry" or "kubernetes"))
-        self.wait_present('#content')
         self.wait_visible('#content')
         if path:
             self.enter_page(path.split("#")[0], host=host)

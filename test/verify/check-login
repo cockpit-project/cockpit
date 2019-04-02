@@ -85,7 +85,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if not m.atomic_image:
             m.execute("usermod --shell /bin/false admin; sync")
             b.reload()
-            b.wait_present("#login")
             login("admin", "foobar")
             b.wait_text_not("#login-error-message", "")
             m.execute("usermod --shell /bin/bash admin; sync")
@@ -120,14 +119,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("printf '[WebService]\nLoginTo = false\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
         b.open("/system")
-        b.wait_present("#option-group")
         b.wait_not_visible("#option-group")
 
         # Default options be to display these options
         m.execute("rm /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
         b.open("/system")
-        b.wait_present("#option-group")
         b.wait_visible("#option-group")
 
         # And now we remove cockpit-ssh which affects the default
@@ -135,7 +132,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute("rm -f /usr/libexec/cockpit-ssh /usr/lib/cockpit/cockpit-ssh")
             m.restart_cockpit()
             b.open("/system")
-            b.wait_present("#option-group")
             b.wait_not_visible("#option-group")
 
         self.allow_journal_messages("Returning error-response ... with reason .*",

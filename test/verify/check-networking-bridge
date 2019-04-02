@@ -82,7 +82,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bridge-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbridge']")
 
         # Check that it has the interface enslaved and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")

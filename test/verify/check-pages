@@ -71,12 +71,10 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.reload()
         b.enter_page("/system/services")
-        b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         m.restart_cockpit()
         b.relogin("/system/services")
-        b.wait_present("#service-unit .panel-heading")
         b.wait_text("#service-unit .panel-heading", "Test Service")
 
         # check that navigating away and back preserves place
@@ -153,7 +151,6 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go("/system")
         b.enter_page("/system")
-        b.wait_present("#server")
         b.wait_in_text("#server", "Neustarten")
 
         # Systemd timer localization
@@ -169,7 +166,6 @@ OnCalendar=daily
         # BIOS date parsing using moment
         b.go("/system/hwinfo")
         b.enter_page("/system/hwinfo")
-        b.wait_present("#hwinfo .info-table-ct")
         b.wait_in_text("#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td", ".20")
 
         # Check the playground page
@@ -255,7 +251,6 @@ OnCalendar=daily
         # Check that the system page is translated
         b.go('/system')
         b.enter_page('/system')
-        b.wait_present('#server')
         b.wait_in_text('#server', 'Reiniciar')
 
         # Systemd timer localization
@@ -322,7 +317,6 @@ OnCalendar=daily
 
         self.login_and_go("/playground/test")
 
-        b.wait_present('#file-content')
         b.wait_text('#file-content', "0")
         b.click("#modify-file")
         b.wait_text('#file-content', "1")
@@ -334,7 +328,6 @@ OnCalendar=daily
 
         b.enter_page("/playground/test")
 
-        b.wait_present('#file-content')
         b.wait_text('#file-content', "1")
 
         self.allow_restart_journal_messages()
@@ -363,7 +356,6 @@ OnCalendar=daily
 
         self.login_and_go("/playground/react-patterns")
         # "initially expanded" entry in demo listing
-        b.wait_present("#demo-listing tbody.open th")
         b.wait_text("#demo-listing tbody.open th", "initially expanded")
 
         # test file completion widget
@@ -373,11 +365,8 @@ OnCalendar=daily
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         time.sleep(1)
         b.key_press([" ", "\b"])
-        b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
-        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
-        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='directory']")
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='directory']", "dir1/")
         # no other items; b.text() removes newlines
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
@@ -389,10 +378,8 @@ OnCalendar=daily
         b.focus(".file-autocomplete-ct input")
         time.sleep(1)
         b.key_press([" ", "\b"])
-        b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         # this should still be unique
-        b.wait_present(".file-autocomplete-ct .dropdown-menu a[data-type='file']")
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
         # no other items
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txt")
@@ -408,7 +395,6 @@ OnCalendar=daily
         b.key_press("/")
         time.sleep(1)
         b.key_press(" ")
-        b.wait_present(".file-autocomplete-ct .dropdown-menu")
         b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
 

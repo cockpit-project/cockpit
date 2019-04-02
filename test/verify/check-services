@@ -215,7 +215,6 @@ Unit=test.service
             button_text_selector = "#services-dropdown button span:nth-of-type(1)"
             item_selector = "#services-dropdown ul li a:contains({0})".format(value)
             b.click("#services-dropdown button")
-            b.wait_present(item_selector)
             b.wait_visible(item_selector)
             b.click(item_selector)
             b.wait_in_text(button_text_selector, value)
@@ -261,11 +260,9 @@ Unit=test.service
         # Check filtering and selecting together - empty state
         b.set_input_text("#services-text-filter", "failing")
         wait_service_not_present("test.service")
-        b.wait_present("#empty-search")
         b.wait_visible("#empty-search")
 
         # Check resetting filter
-        b.wait_present("#clear-all-filters")
         b.wait_visible("#clear-all-filters")
         b.click("#clear-all-filters")
         wait_service_present("test.service")
@@ -356,9 +353,7 @@ WantedBy=default.target
         b.set_val("[data-index=0][data-content='hours']", "s")
         b.set_val("[data-index=1][data-content='minutes']", "w")
         b.click("#timer-save-button")
-        b.wait_present("[data-content='hr-error'][data-index=0]")
         b.wait_text("[data-content='hr-error'][data-index=0]", "Hour needs to be a number between 0-23")
-        b.wait_present("[data-content='min-error'][data-index=1]")
         b.wait_text("[data-content='min-error'][data-index=1]", "Minute needs to be a number between 0-59")
         # creates a new yearly timer at 2020-01-01 16:00 and at 2021-01-01 01:22
         b.set_val("#servicename", "yearly_timer")
@@ -625,7 +620,6 @@ WantedBy=multi-user.target
         b.wait_action_btn(unit_primary_action_btn, "Start")
         b.click_action_btn(unit_primary_action_btn)
 
-        b.wait_present("#service-unit div.cond-fail")
         b.wait_in_text("#service-unit div.cond-fail", "ConditionDirectoryNotEmpty")
 
         # If the condition succeeds the message disappears

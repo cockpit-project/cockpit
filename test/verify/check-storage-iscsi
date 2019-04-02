@@ -146,12 +146,10 @@ class TestStorage(StorageCase):
         b.wait_in_text('#iscsi-sessions', "172.27.0.15")
 
         b.click('#iscsi-sessions .fa-check')
-        b.wait_present('#iscsi-sessions tr:contains(127.0.0.1) button .pficon-delete')
         b.click('#iscsi-sessions tr:contains(127.0.0.1) button .pficon-delete')
         b.wait_not_present('#iscsi-sessions tr:contains(127.0.0.1)')
 
         b.click('#iscsi-sessions .fa-check')
-        b.wait_present('#iscsi-sessions tr:contains(172.27.0.15) button .pficon-delete')
         b.click('#iscsi-sessions tr:contains(172.27.0.15) button .pficon-delete')
         b.wait_not_present('#iscsi-sessions tr:contains(172.27.0.15)')
 

@@ -88,9 +88,7 @@ class TestKdump(MachineCase):
                 # Old cockpit-system versions used custom Tooltip component
                 b.wait_in_text("#app", "No memory reserved.")
             else:
-                b.wait_present("#app span.popover-ct-kdump")
                 b.mouse("#app span.popover-ct-kdump", "mouseover")
-                b.wait_present("div.tooltip")
                 b.wait_in_text("div.tooltip", "No memory reserved.")
                 b.mouse("#app span.popover-ct-kdump", "mouseout")
             # service should indicate an error and the button should be off
@@ -108,12 +106,9 @@ class TestKdump(MachineCase):
         if m.image not in ["rhel-7-6-distropkg"]:
             # minimal nfs validation
             settingsLink = "a:contains('locally in /var/crash')"
-            b.wait_present(settingsLink)
             b.click(settingsLink, True)
-            b.wait_present("#kdump-settings-location")
             b.set_val("#kdump-settings-location", "nfs")
             mountInput = "#kdump-settings-nfs-mount"
-            b.wait_present(mountInput)
             b.set_input_text(mountInput, ":/var/crash")
             b.click("button.btn-primary:contains('Apply')")
             b.wait_present("div.dialog-error:contains('Unable to apply settings')")
@@ -124,7 +119,6 @@ class TestKdump(MachineCase):
 
             # test compression
             b.click(settingsLink, True)
-            b.wait_present("#kdump-settings-compression")
             b.click("#kdump-settings-compression")
             pathInput = "#kdump-settings-local-directory"
             b.click("button.btn-primary:contains('Apply')")
@@ -132,17 +126,12 @@ class TestKdump(MachineCase):
             m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
 
             # generate a valid kdump config with ssh target
-            b.wait_present(settingsLink)
             b.click(settingsLink, True)
-            b.wait_present("#kdump-settings-location")
             b.set_val("#kdump-settings-location", "ssh")
             sshInput = "#kdump-settings-ssh-server"
-            b.wait_present(sshInput)
             b.set_input_text(sshInput, "root@localhost")
             sshKeyInput = "#kdump-settings-ssh-key"
-            b.wait_present(sshKeyInput)
             b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
-            b.wait_present(pathInput)
             b.set_input_text(pathInput, "/var/crash")
             b.click("button.btn-primary:contains('Apply')")
             b.wait_not_present(pathInput)
@@ -161,12 +150,9 @@ class TestKdump(MachineCase):
         # try to change the path to a directory that doesn't exist
         customPath = "/var/crash2"
         settingsLink = "a:contains('Remote over SSH')"
-        b.wait_present(settingsLink)
         b.click(settingsLink, True)
-        b.wait_present("#kdump-settings-location")
         b.set_val("#kdump-settings-location", "local")
         pathInput = "#kdump-settings-local-directory"
-        b.wait_present(pathInput)
         b.set_input_text(pathInput, customPath)
         b.click("button.btn-primary:contains('Apply')")
         # we should get an error
@@ -188,7 +174,6 @@ class TestKdump(MachineCase):
         b.click("button.btn-default")
         # we should get a warning dialog, confirm
         crashButton = "button.btn-danger:contains('Crash system')"
-        b.wait_present(crashButton)
         b.click(crashButton)
 
         # wait until we've actuall triggered a crash
@@ -196,7 +181,6 @@ class TestKdump(MachineCase):
 
         # wait for disconnect and then try connecting again
         b.switch_to_top()
-        b.wait_present("div.curtains-ct")
         b.wait_in_text("div.curtains-ct h1", "Disconnected")
         m.disconnect()
         m.wait_boot(timeout_sec=300)

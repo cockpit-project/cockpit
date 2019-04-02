@@ -126,11 +126,9 @@ class TestSubscriptions(MachineCase):
 
         # wait until we can open the registration dialog
         register_button_sel = "button.btn-primary:contains('Register')"
-        b.wait_present(register_button_sel)
         b.wait_visible(register_button_sel)
         b.click(register_button_sel)
 
-        b.wait_present("#subscription-register-url")
         b.wait_visible("#subscription-register-url")
 
         # optionally: check custom url
@@ -138,7 +136,6 @@ class TestSubscriptions(MachineCase):
             b.click("#subscription-register-url button")
             b.wait_visible("#subscription-register-url .dropdown-menu")
             custom_url_selector = "#subscription-register-url a:contains('Custom')"
-            b.wait_present(custom_url_selector)
             b.wait_visible(custom_url_selector)
             b.click(custom_url_selector)
             b.wait_not_present("#subscription-register-url.open")
@@ -146,7 +143,6 @@ class TestSubscriptions(MachineCase):
             b.set_val("#subscription-register-url", "custom")
 
         # enter server and incorrect login data
-        b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
         b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
         b.set_input_text("#subscription-register-username", "doc")
@@ -193,7 +189,6 @@ class TestSubscriptions(MachineCase):
 
         # make sure this product isn't subscribed
         product_selector = "tr.listing-ct-item:contains('Snowy OS Premium Architecture Bits')"
-        b.wait_present(product_selector)
         # expand
         b.click(product_selector)
         details_selector = "tr.listing-ct-panel:contains('Snowy OS Premium Architecture Bits')"
@@ -204,7 +199,6 @@ class TestSubscriptions(MachineCase):
 
         # find another one that is subscribed
         product_selector = "tr.listing-ct-item:contains('Shared File System Bits')"
-        b.wait_present(product_selector)
         # expand
         b.click(product_selector)
         details_selector = "tr.listing-ct-panel:contains('Shared File System Bits')"
@@ -215,17 +209,14 @@ class TestSubscriptions(MachineCase):
 
         # unregister
         unregister_button_sel = "button.btn-primary:contains('Unregister')"
-        b.wait_present(unregister_button_sel)
         b.wait_visible(unregister_button_sel)
         b.click(unregister_button_sel)
 
         # wait until we can register again and open the dialog
         # wait until we can open the registration dialog
-        b.wait_present(register_button_sel)
         b.wait_visible(register_button_sel)
         b.click(register_button_sel)
 
-        b.wait_present("#subscription-register-url")
         b.wait_visible("#subscription-register-url")
 
         # check custom url
@@ -233,7 +224,6 @@ class TestSubscriptions(MachineCase):
             b.click("#subscription-register-url button")
             b.wait_visible("#subscription-register-url .dropdown-menu")
             custom_url_selector = "#subscription-register-url a:contains('Custom')"
-            b.wait_present(custom_url_selector)
             b.wait_visible(custom_url_selector)
             b.click(custom_url_selector)
             b.wait_not_present("#subscription-register-url.open")
@@ -241,7 +231,6 @@ class TestSubscriptions(MachineCase):
             b.set_val("#subscription-register-url", "custom")
 
         # enter server data
-        b.wait_present("#subscription-register-url-custom")
         b.wait_visible("#subscription-register-url-custom")
         b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
 
@@ -258,7 +247,6 @@ class TestSubscriptions(MachineCase):
 
         # make sure this product isn't subscribed
         product_selector = "tr.listing-ct-item:contains('Snowy OS Premium Architecture Bits')"
-        b.wait_present(product_selector)
         # expand
         b.click(product_selector)
         details_selector = "tr.listing-ct-panel:contains('Snowy OS Premium Architecture Bits')"
@@ -271,7 +259,6 @@ class TestSubscriptions(MachineCase):
         b.logout()
         self.machine.execute("useradd junior; echo junior:foobar | chpasswd")
         self.login_and_go("/subscriptions", user="junior")
-        b.wait_present(".curtains-ct h1")
         b.wait_in_text(".curtains-ct h1", "current user isn't allowed to access system subscription")
         self.allow_authorize_journal_messages()
 

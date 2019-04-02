@@ -99,14 +99,11 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-autostart-checkbox")
 
         # set checkbox state and check state of checkbox
         b.set_checked("#vm-subVmTest1-autostart-checkbox", True) # don't know the initial state of checkbox, so set it to checked
@@ -136,15 +133,12 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Wait for the edit button
-        b.wait_present("#vm-subVmTest1-boot-order")
         bootOrder = b.text("#vm-subVmTest1-boot-order")
 
         # Open dialog
@@ -214,18 +208,13 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         # Test detaching non permanent disk of a running domain
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-
-        b.wait_present("#vm-subVmTest1-disks-vdb-detach") # button
         b.click("#vm-subVmTest1-disks-vdb-detach")
         b.wait_not_present("vm-subVmTest1-disks-vdb-target")
 
@@ -238,10 +227,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("vm-subVmTest1-disks-vdb-target")
 
         # Test detaching permanent disk of a stopped domain
-        b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-
-        b.wait_present("#vm-subVmTest1-disks-vdc-detach") # button
         b.click("#vm-subVmTest1-disks-vdc-detach")
         b.wait_not_present("vm-subVmTest1-disks-vdc-target")
 
@@ -256,18 +242,14 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-networks") # wait for the tab
         b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
 
         # Wait for the edit button
-        b.wait_present("#vm-subVmTest1-network-1-edit-dialog")
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # Make sure the footer warning does not appear until we change something
@@ -281,7 +263,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         current_model_type = b.text("#vm-subVmTest1-network-1-model")
 
         # Reopen dialog modal
-        b.wait_present("#vm-subVmTest1-network-1-edit-dialog")
         b.click("#vm-subVmTest1-network-1-edit-dialog")
 
         # Change network model type of a running domain
@@ -474,14 +455,11 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-pause")
 
         # pause the machine
         b.click("#vm-subVmTest1-pause")
@@ -522,7 +500,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "subVmTest1")
 
 
@@ -570,7 +547,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Delete Storage Volume that is not used by any VM
         b.wait_present("tbody tr[data-row-id=pool-myPoolTwo-{0}-volume-VolumeTwo] input[type=checkbox]".format(connectionName))
         b.click("tbody tr[data-row-id=pool-myPoolTwo-{0}-volume-VolumeTwo] input[type=checkbox]".format(connectionName))
-        b.wait_present("#storage-volumes-delete")
         b.wait_in_text("#storage-volumes-delete", "Delete 1 volume")
         b.click("#storage-volumes-delete")
         b.wait_not_present("#storage-volumes-list tbody tr[data-row-id=pool-myPoolTwo-{0}-volume-VolumeTwo]".format(connectionName))
@@ -598,7 +574,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Delete an inactive Pool. It's volumes won't be deleted
         b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
-        b.wait_present("div.modal-dialog")
         b.wait_in_text("div.modal-dialog div.modal-body div.ct-form-layout", "Its content will not be deleted.")
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
@@ -617,7 +592,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_present("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.click("#delete-pool-myPoolTwo-{0}".format(connectionName))
         b.wait_present("div.modal-dialog")
-        b.wait_present("input#storage-pool-delete-volumes")
         b.set_checked("input#storage-pool-delete-volumes", True)
         b.click('div.modal-footer button:contains("Delete")')
         b.wait_not_present("div.modal-dialog")
@@ -689,7 +663,6 @@ class TestMachinesDBus(machineslib.TestMachines):
                     self.verify_overview()
 
             def open(self):
-                b.wait_present("#create-storage-pool")
                 b.click("#create-storage-pool")
                 b.wait_present("#create-storage-pool-dialog")
                 b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create Storage Pool")

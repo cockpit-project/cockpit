@@ -51,7 +51,6 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mnt)")
-        b.wait_present("#nfs-mounts tr:contains(/mnt) .usage-text")
         b.wait_text_not("#nfs-mounts tr:contains(/mnt) .usage-text", "")
 
         # Should be saved to fstab
@@ -69,7 +68,6 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/bar)")
         b.wait_present("#nfs-mounts td:contains(/mounts/bar)")
-        b.wait_present("#nfs-mounts tr:contains(/mounts/bar) .usage-text")
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .usage-text", "")
         m.execute("test -d /mounts/bar")
 
@@ -125,7 +123,6 @@ class TestStorage(StorageCase):
 
         # Unmount and remount /home/foo
         b.click("#detail-header button:contains(Unmount)")
-        b.wait_present("#detail-header button:contains(Mount)")
         b.click("#detail-header button:contains(Mount)")
         b.wait_present("#detail-header button:contains(Unmount)")
 
@@ -199,7 +196,6 @@ class TestStorage(StorageCase):
 
         b.wait_present("#nfs-mounts td:contains(/home/foo)")
         b.wait_present("#nfs-mounts td:contains(/mounts/foo)")
-        b.wait_present("#nfs-mounts tr:contains(/mounts/foo) .usage-text")
         b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .usage-text", "")
 
         # Go to details of /home/foo
@@ -245,7 +241,6 @@ class TestStoragePackages(StorageCase, PackageCase):
 
         # The fake-nfs-utils package is not available yet
 
-        b.wait_present("button:contains('Install NFS Support')")
         b.click("button:contains('Install NFS Support')")
 
         self.dialog_wait_open()
@@ -272,7 +267,6 @@ class TestStoragePackages(StorageCase, PackageCase):
 
         b.reload()
         b.enter_page("/storage")
-        b.wait_present("button:contains('Install NFS Support')")
         b.click("button:contains('Install NFS Support')")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "fake-nfs-utils will be installed")

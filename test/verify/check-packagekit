@@ -721,7 +721,6 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_text("#system_information_updates_text", "System Up To Date")
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
-    @skipImage("HACK: subscription-manager cockpit needs to be installed and fixed on rhel-8-* images", "rhel-8-0", "rhel-8-1")
     def testAvailableUpdates(self):
         m = self.machine
         b = self.browser
@@ -769,7 +768,11 @@ class TestUpdatesSubscriptions(PackageCase):
         # show available updates on system page too
         b.go("/system")
         b.enter_page("/system")
-        b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
+        # PackageKit's dnf backend misparses severities (https://bugs.freedesktop.org/show_bug.cgi?id=101070)
+        if self.backend == "dnf":
+            b.wait_text("#system_information_updates_text", "Updates Available")
+        else:
+            b.wait_text("#system_information_updates_text", "Bug Fix Updates Available")
         self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
 

@@ -132,7 +132,7 @@ try:
 
     # for a bridged network, up its interface with DHCP and show it in the console message
     message = ""
-    if args.network and bridge:
+    if args.network and bridge and 'windows' not in args.image:
         machine.execute("nmcli connection modify 'System eth1' ipv4.method auto && nmcli connection up 'System eth1'")
         output = machine.execute("ip -4 a show dev eth1")
         ip = re.search("inet ([^/]+)", output).group(1)

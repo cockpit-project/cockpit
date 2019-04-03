@@ -45,7 +45,6 @@ class TestStorage(StorageCase):
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
-        b.wait_present("#vgroups")
         b.wait_in_text("#vgroups", "vdo_vgroup")
 
         # Create VDO
@@ -92,7 +91,6 @@ class TestStorage(StorageCase):
         # Grow physical
 
         m.execute("lvresize vdo_vgroup/lvol -L 9G")
-        b.wait_present(".alert:contains(VDO)")
         b.wait_in_text(".alert:contains(VDO)", '5 GiB of 9 GiB')
         b.click("button:contains('Grow to take all space')")
         b.wait_not_present(".alert:contains(VDO)")
@@ -175,7 +173,6 @@ config: !Configuration
         b.click("#vdos tr:contains(vdo0)")
         b.wait_visible("#storage-detail")
 
-        b.wait_present("#storage-detail .alert-danger")
         b.click("#storage-detail .alert-danger button:contains('Remove device')")
         b.wait_visible("#storage")
         b.wait_not_in_text("#vdos", "vdo0")
@@ -291,7 +288,6 @@ class TestStoragePackages(StorageCase, PackageCase):
         m.execute("pkcon refresh")
 
         self.login_and_go("/storage")
-        b.wait_present("button:contains('Install VDO support')")
         b.click("button:contains('Install VDO support')")
 
         self.dialog_wait_open()

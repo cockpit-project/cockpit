@@ -83,19 +83,14 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.execute("chown -R admin:admin /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
-        b.wait_present("a[href='#/volumes']")
         b.click("a[href='#/volumes']")
-        b.wait_present(".pv-listing")
         b.wait_in_text(".pv-listing", "No volumes are present")
         b.click("a[href='#/']")
 
-        b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
         b.wait_present("modal-dialog")
         b.wait_present("#kubernetes-cluster")
-        b.wait_present("#kubernetes-user")
         b.wait_not_present("#kubernetes-username")
         b.wait_not_present("#kubernetes-password")
         b.wait_not_present("#kubernetes-token")
@@ -117,19 +112,14 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         b.wait_not_present("modal-dialog")
 
         # scruffy isn't a admin
-        b.wait_present("#service-list")
         b.wait_not_in_text("#service-list", "docker-registry")
-        b.wait_present("a[href='#/volumes']")
         b.click("a[href='#/volumes']")
-        b.wait_present(".pv-listing")
         b.wait_in_text(".pv-listing", "cannot watch all")
         b.click("a[href='#/']")
 
-        b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
         b.wait_present("modal-dialog")
         b.wait_present("#kubernetes-cluster")
-        b.wait_present("#kubernetes-user")
         b.wait_not_present("#kubernetes-username")
         b.wait_not_present("#kubernetes-password")
         b.wait_present("#kubernetes-token")
@@ -148,7 +138,6 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         self.login_and_go("/kubernetes")
 
-        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "docker-registry")
 
     @unittest.skipIf(True, "Nulecule deploys temporarily removed.")
@@ -163,7 +152,6 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
         m.upload([tmpfile], "/usr/local/bin")
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 
         # 1)check atomic version
@@ -360,7 +348,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         m.execute("chown -R admin:admin /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        b.wait_present(".curtains-ct")
         b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct", "Couldn't connect to server")
         b.wait_in_text(".curtains-ct", "Unauthorized")

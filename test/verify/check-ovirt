@@ -170,12 +170,9 @@ class TestOVirtMachines(MachineCase):
         b.wait_present(".main-app-div")
         b.wait_in_text("body", "Virtual Machines")
 
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM")
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-VM-state")
         b.wait_in_text("#vm-VM-state", "running")
-        b.wait_present("#vm-VM-vcpus")
         b.wait_in_text("#vm-VM-vcpus", "1")
 
         b.wait_not_present("#vm-VM-delete") # oVirt-managed VM can not be deleted from Cockpit
@@ -184,7 +181,6 @@ class TestOVirtMachines(MachineCase):
         b.wait_present("#vm-VM-ovirt-suspendbutton") # oVirt specific extension
 
         # switch to and check the 'oVirt' subtab (data retrieved from oVirt API)
-        b.wait_present("#vm-VM-ovirt")
         b.click("#vm-VM-ovirt")
         b.wait_present("#vm-VM-ovirt-template") # wait till templates are retrieved
         b.wait_present("#vm-VM-ovirt-description")
@@ -195,14 +191,12 @@ class TestOVirtMachines(MachineCase):
         b.wait_in_text("#vm-VM-ovirt-optimizedfor", "desktop")
 
         b.wait_present("#vm-VM-ovirt-migratetobutton") # do not click, so far test environment has single host only
-        b.wait_present("#vm-VM-ovirt-migratetoselect")
         b.click("#vm-VM-ovirt-migratetoselect") # expand
 
         # force shutdown and wait till VM list is empty
         b.click("#vm-VM-off-caret")
         b.wait_visible("#vm-VM-forceOff")
         b.click("#vm-VM-forceOff")
-        b.wait_present("thead tr td")
         b.wait_in_text("thead tr td", "No VM is running")
 
         # switch to cluster view and check expected cluster content
@@ -224,12 +218,9 @@ class TestOVirtMachines(MachineCase):
 
         # switch back to VM list and check
         b.click("#ovirt-topnav-hostvms")
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM")
         b.click("tbody tr th") # click on the row header
-        b.wait_present("#vm-VM-state")
         b.wait_in_text("#vm-VM-state", "running")
-        b.wait_present("#vm-VM-vcpus")
         b.wait_in_text("#vm-VM-vcpus", "1")
 
         # switch to Templates
@@ -245,13 +236,9 @@ class TestOVirtMachines(MachineCase):
         b.wait_in_text("tr.listing-ct-item > td:nth-child(10)", "no") # stateless
 
         # create a VM from the single Base template
-        b.wait_present("button:contains('Create VM')")
+        b.click("button:contains('Create VM')") # check Cancel
+        b.click("button:contains('Cancel')") # try again
         b.click("button:contains('Create VM')")
-        b.wait_present("button:contains('Cancel')") # check Cancel
-        b.click("button:contains('Cancel')")
-        b.wait_present("button:contains('Create VM')") # try again
-        b.click("button:contains('Create VM')")
-        b.wait_present("input.form-control")
         b.set_input_text("input.form-control", "myVMFromBlankTemplate")
 
         # Workaround to speed-up whole test execution - should be in setUp() but effectively needed up here.
@@ -259,13 +246,10 @@ class TestOVirtMachines(MachineCase):
         b.click("button:contains('Create')") # create a VM from Blank template
 
         # check error message by attempt to create a VM with existing name
-        b.wait_present("button:contains('Create VM')")
         b.click("button:contains('Create VM')")
-        b.wait_present("input.form-control")
         b.set_input_text("input.form-control", "VM") # the 'VM' machine exists already
         # assuming the DC is still up - otherwise its environment issue
         b.click("button:contains('Create')") # expected to fail here
-        b.wait_present("#clustervm-Blank-actionerror")
         b.wait_in_text("#clustervm-Blank-actionerror", "CREATE VM action failed")
 
         # check the VM created in previous step
@@ -277,19 +261,15 @@ class TestOVirtMachines(MachineCase):
                        "myVMFromBlankTemplate") # check 'name' of the second one
 
         # check error message by attempt to run an unexecutable VM
-        b.wait_present("#cluster-myVMFromBlankTemplate-run") # run button
         b.click("#cluster-myVMFromBlankTemplate-run") # expected to fail
-        b.wait_present("#clustervm-myVMFromBlankTemplate-actionerror")
         b.wait_in_text("#clustervm-myVMFromBlankTemplate-actionerror", "START action failed")
 
         # switch to VDSM view
         b.click("#ovirt-topnav-vdsm")
         b.wait_in_text("body", "Edit the vdsm.conf")
         b.wait_present("#vdsmview-data-loaded")
-        b.wait_present("textarea")
         b.set_input_text("textarea", TEST_VDSM_CONF_CONTENT)
         b.click("button:contains('Save')")
-        b.wait_present("button:contains('OK')")
         # Limitation of this test env: In fact self.machine is updated and not the VDSM, see hack_for_missing_vdsm().
         b.click("button:contains('OK')")
         b.wait(lambda: TEST_VDSM_CONF_CONTENT in self.machine.execute("cat {0}".format(VDSM_CONF_FILE)))
@@ -305,9 +285,7 @@ class TestOVirtMachines(MachineCase):
         b.wait_present(".main-app-div")
         b.wait_in_text("body", "Virtual Machines")
 
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM") # row with a vitual machine
-        b.wait_present("#ovirt-host-to-maintenance")
         b.click("#ovirt-host-to-maintenance")
 
         b.wait_present("#cockpit_modal_dialog")
@@ -336,23 +314,19 @@ class TestOVirtMachines(MachineCase):
         b.wait_present(".main-app-div")
         b.wait_in_text("body", "Virtual Machines")
 
-        b.wait_present("tbody tr th")
         b.wait_in_text("tbody tr th", "VM")
         b.click("tbody tr th") # click on the row header
 
-        b.wait_present("#vm-VM-state")
         b.wait_in_text("#vm-VM-state", "running")
 
         b.click("#vm-VM-off-caret")
         b.wait_visible("#vm-VM-forceOff")
         b.click("#vm-VM-forceOff")
-        b.wait_present("thead tr td")
         b.wait_in_text("thead tr td", "No VM is running")
 
         # Go to Cluster tab
         b.click("#ovirt-topnav-clustervms")
         b.wait_in_text("body", "Virtual Machines of Default cluster")
-        b.wait_present("tr.listing-ct-item > th")
         b.wait_in_text("tr.listing-ct-item > th", "VM") # name
         with b.wait_timeout(180):
             b.wait_in_text("tr.listing-ct-item > td:nth-child(12)", "shut off") # state

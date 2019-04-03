@@ -135,7 +135,6 @@ class TestStorage(StorageCase):
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
             if is_degraded:
-                b.wait_present(degraded_selector)
                 b.wait_visible(degraded_selector)
             else:
                 b.wait_not_present(degraded_selector)

@@ -52,7 +52,6 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         def wait_line(i, t):
             b.wait_in_text(line_sel(i), t)
 
-        b.wait_present('.terminal')
         b.focus('.terminal')
 
         # wait until first line is not empty
@@ -124,13 +123,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # Right click and pick copy
         b.mouse(sel, "contextmenu", btn=2)
-        b.wait_present('.contextMenu')
         b.wait_visible('.contextMenu')
         b.click('.contextMenu .contextMenuOption:first-child')
 
         # Right click and pick paste
         b.mouse(sel, "contextmenu", btn=2)
-        b.wait_present('.contextMenu')
         b.wait_visible('.contextMenu')
         b.click('.contextMenu .contextMenuOption:nth-child(2)')
 

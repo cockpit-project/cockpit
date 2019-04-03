@@ -148,7 +148,6 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Wait for PROBE2 to Exit
-        b.wait_present('#containers-containers tr:contains("PROBE2")')
         b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
         b.wait_visible("#container-details")
@@ -194,12 +193,10 @@ class TestDocker(MachineCase):
         # Delete the container from the image-details page
         b.wait_visible("#container-details")
         b.click("#container-details .content-filter a")
-        b.wait_present('#containers-images tr:contains("busybox:latest")')
         b.wait_visible('#containers-images tr:contains("busybox:latest")')
         b.click('#containers-images tr:contains("busybox:latest")')
         b.wait_visible("#image-details")
         b.wait_present(".image-details-used")
-        b.wait_present(".image-details-used tr td")
         b.wait_visible(".image-details-used tr td:first-child")
         b.click(".image-details-used .enable-danger")
         b.click(".image-details-used .btn-delete")
@@ -308,13 +305,11 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
                      'second_message': second_message})
         b.set_val(".containers-run-portmapping form:eq(0) input:eq(1)", port)
         b.click(".containers-run-portmapping form:eq(0) .fa-plus")
-        b.wait_present(".containers-run-portmapping form:eq(1) input:eq(0)")
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(0)", nport)
         b.set_val(".containers-run-portmapping form:eq(1) input:eq(1)", nport)
 
         # Add a mount point
         b.click("#mount-volumes")
-        b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
 
@@ -323,7 +318,6 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Check output of the probe
-        b.wait_present('#containers-containers tr:contains("PROBE2")')
         b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
         b.wait_visible("#container-details")
@@ -385,13 +379,11 @@ CMD ["/bin/sh"]
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(0)", "zero")
         b.wait_val("#select-claimed-envvars form:eq(1) input:eq(1)", "GGG")
         b.click("#select-claimed-envvars form:eq(0) .fa-plus")
-        b.wait_present("#select-claimed-envvars form:eq(2) input:eq(0)")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(0)", "SECOND")
         b.set_val("#select-claimed-envvars form:eq(2) input:eq(1)", "marmalade")
 
         # And a mount point
         b.click("#mount-volumes")
-        b.wait_present("#select-mounted-volumes form:eq(0)")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(0)", "/blah")
         b.set_val("#select-mounted-volumes form:eq(0) input:eq(1)", "/mnt")
         if m.image not in ["debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable"]:
@@ -403,7 +395,6 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-containers", "PROBE4")
 
         # Check output of the probe
-        b.wait_present('#containers-containers tr:contains("PROBE4")')
         b.wait_visible('#containers-containers tr:contains("PROBE4")')
         b.click('#containers-containers tr:contains("PROBE4")')
         b.wait_visible("#container-details")
@@ -606,19 +597,16 @@ CMD ["/bin/sh"]
         self.login_and_go("/docker")
 
         sel = "#containers-containers .listing-ct-item .listing-ct-toggle"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
         # wait for the Problems tab then click it
         sel = '#containers-containers .listing-ct-panel .listing-ct-head ul li a:contains("Problems")'
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.click(sel)
 
         # open link to logs
         sel = "#containers-containers .listing-ct-panel .listing-ct-body a.list-group-item"
-        b.wait_present(sel)
         b.wait_visible(sel)
         b.wait_in_text(sel, "sleep")
         b.click(sel + ':contains("sleep")')
@@ -627,7 +615,6 @@ CMD ["/bin/sh"]
         b.enter_page("/system/logs")
 
         # check for abrtd service in text
-        b.wait_present("#journal-entry-id")
         b.wait_in_text("#journal-entry-id", "sleep")
         b.wait_in_text("#journal-entry-fields", "abrtd.service")
 

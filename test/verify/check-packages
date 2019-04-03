@@ -70,7 +70,6 @@ class TestPackages(MachineCase):
         b.click("#reload")
 
         b.switch_to_top()
-        b.wait_present("#sidebar-tools a:contains(Test)")
         b.click("#sidebar-tools a:contains(Test)")
 
         b.enter_page("/test/test")

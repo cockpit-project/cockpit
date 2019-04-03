@@ -75,7 +75,6 @@ class TestNetworking(NetworkCase):
         b.wait_in_text("tr:contains('Status')", "Inactive")
         b.reload()
         b.enter_page("/network")
-        b.wait_present("#network-interface-name")
         b.wait_text("#network-interface-name", "tteam")
         b.wait_text("#network-interface-hw", "Team")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
@@ -109,7 +108,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-team-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that it has the interface enslaved and the right IP address
         b.click("#networking-interfaces tr[data-interface='tteam'] td:first-child")

@@ -115,7 +115,6 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_present("#content")
         b.wait_text("#content-user-name", "Administrator")
         b.logout()
 
@@ -145,7 +144,6 @@ class TestBastion(MachineCase):
         self.approve_key(b)
 
         b.expect_load()
-        b.wait_present("#content")
         b.wait_text("#content-user-name", "Administrator")
         b.logout()
 

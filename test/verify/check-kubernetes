@@ -57,7 +57,6 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Connect without starting a kube server
         self.login_and_go("/kubernetes")
-        b.wait_present(".curtains-ct")
         b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct", "Couldn't connect to server")
         b.wait_in_text(".curtains-ct", "Couldn't find running API server")
@@ -74,7 +73,6 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Click the Reconnect button
         b.click("#kubernetes-reconnect")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
         b.logout()
 
@@ -90,7 +88,6 @@ class TestConnection(kubelib.KubernetesCase):
         self.login_and_go("/kubernetes")
 
         b.wait_present(".curtains-ct")
-        b.wait_present("#kubernetes-connection-tb")
         b.click("#kubernetes-connection-tb")
 
         b.wait_present("modal-dialog")
@@ -140,7 +137,6 @@ class TestConnection(kubelib.KubernetesCase):
         b.click("modal-dialog div.modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         b.wait_not_present("#kubernetes-change-connection")
@@ -149,26 +145,21 @@ class TestConnection(kubelib.KubernetesCase):
         b.reload()
         b.enter_page("/kubernetes")
         b.wait_present(".curtains-ct")
-        b.wait_present("#kubernetes-connection-tb")
         b.click("#kubernetes-connection-tb")
 
         b.wait_present("modal-dialog input[value='pem']")
-        b.wait_present("modal-dialog input[value='skip']")
         b.click("modal-dialog input[value='skip']")
         b.click("modal-dialog div.modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
 
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # Reload works
         b.reload()
         b.enter_page("/kubernetes")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # Changing works
-        b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
         b.wait_present("modal-dialog")
         b.wait_present("#kubernetes-cluster")
@@ -189,7 +180,6 @@ class TestConnection(kubelib.KubernetesCase):
         b.wait_not_present("modal-dialog")
 
         # Changes took and dropdowns work
-        b.wait_present("#kubernetes-change-connection")
         b.click("#kubernetes-change-connection")
         b.wait_present("modal-dialog")
         b.wait_present("#kubernetes-cluster")
@@ -225,7 +215,6 @@ class TestConnection(kubelib.KubernetesCase):
         b.click("modal-dialog div.modal-footer button.btn-cancel")
         b.wait_not_present("modal-dialog")
 
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         self.allow_journal_messages(".*: couldn't connect: Connection refused",
@@ -252,7 +241,6 @@ class TestNulecule(kubelib.KubernetesCase):
         m = self.machine
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # 1)check atomic version

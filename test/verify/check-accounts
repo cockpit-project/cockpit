@@ -59,7 +59,6 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-title", "Anton Arbitrary")
         # On the overview page it also shows only real name
         b.go("/users")
-        b.wait_present('.cockpit-account-real-name:contains("Anton")')
         b.wait_text('.cockpit-account-real-name:contains("Anton")', "Anton Arbitrary")
         b.go("/users/#anton")
 
@@ -75,12 +74,10 @@ class TestAccounts(MachineCase):
 
         # Check root user
         b.go("#/root")
-        b.wait_present("#account")
         b.wait_visible("#account")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
         b.wait_present("#account-delete.disabled")
-        b.wait_present("#account-logout")
         b.wait_attr("#account-logout", "disabled", "disabled")
         b.wait_present("#account-real-name-wrapper.disabled")
         b.wait_present("#account-locked:not(:checked)")
@@ -104,7 +101,6 @@ class TestAccounts(MachineCase):
         # wrong password confirmation
         b.set_val('#accounts-create-pw2', good_password + 'b')
         b.click('#accounts-create-create')
-        b.wait_present("#accounts-create-dialog .dialog-error")
         b.wait_visible("#accounts-create-dialog .dialog-error")
         b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "The passwords do not match")
 
@@ -177,14 +173,12 @@ class TestAccounts(MachineCase):
         b.set_val("#account-set-password-pw1", 'a')
         b.set_val("#account-set-password-pw2", 'a')
         b.click('#account-set-password-apply')
-        b.wait_present(".check-passwords.has-error")
         b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "Password quality check failed:")
 
         # password mismatch
         b.set_val("#account-set-password-pw1", good_password + 'a')
         b.set_val("#account-set-password-pw2", good_password + 'b')
         b.click('#account-set-password-apply')
-        b.wait_present(".check-passwords.has-error")
         b.wait_in_text(".check-passwords.has-error .dialog-error.help-block", "The passwords do not match")
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
@@ -244,7 +238,6 @@ class TestAccounts(MachineCase):
         m.execute("chage --mindays 7 anton")
         b.enter_page("/users")
         b.go("#/anton")
-        b.wait_present("#account-user-name")
         b.wait_text("#account-user-name", "anton")
         b.wait_present('#account-set-password:enabled')
         b.click('#account-set-password')
@@ -253,7 +246,6 @@ class TestAccounts(MachineCase):
         b.set_val("#account-set-password-pw1", new_password_2)
         b.set_val("#account-set-password-pw2", new_password_2)
         b.click('#account-set-password-apply')
-        b.wait_present(".dialog-error")
         b.wait_in_text(".dialog-error", "must wait longer")
 
         self.allow_restart_journal_messages()
@@ -326,7 +318,6 @@ class TestAccounts(MachineCase):
         # Try an invalid date
         b.set_val("#account-expiration-input", "blah")
         b.click("#account-expiration .btn-primary")
-        b.wait_present("#account-expiration .dialog-error")
         b.wait_text("#account-expiration .dialog-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
@@ -356,7 +347,6 @@ class TestAccounts(MachineCase):
         # Try an invalid number
         b.set_val("#password-expiration-input", "-3")
         b.click("#password-expiration .btn-primary")
-        b.wait_present("#password-expiration .dialog-error")
         b.wait_text("#password-expiration .dialog-error", "Invalid number of days")
 
         # Expire password every 30 days

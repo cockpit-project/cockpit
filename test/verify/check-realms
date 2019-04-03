@@ -123,7 +123,6 @@ class TestRealms(MachineCase):
             # fixed in Cockpit 186
             b.wait_present("#system_information_hostname_button[disabled]")
             b.mouse("#system_information_hostname_button", "mouseover")
-            b.wait_present(".tooltip-inner")
             b.wait_in_text(".tooltip-inner", "Host name should not be changed in a domain")
             b.mouse("#system_information_hostname_button", "mouseout")
             b.wait_not_present(".tooltip-inner")
@@ -174,7 +173,6 @@ class TestRealms(MachineCase):
         b.password = 'foobarfoo'
 
         self.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='admin@cockpit.lan')
-        b.wait_present('#service-unit')
         b.wait_in_text('#service-unit', "active")
         b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]:not(.disabled)')
         b.click('#service-unit-primary-action button[data-action="StopUnit"]')
@@ -188,7 +186,6 @@ class TestRealms(MachineCase):
         # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
         # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
         b.login_and_go("/dashboard")
-        b.wait_present('#dashboard-add')
         b.click('#dashboard-add')
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#add-machine-address', 'x0.cockpit.lan')
@@ -206,7 +203,6 @@ class TestRealms(MachineCase):
 
         # Test domain info (PR #11096), leave the domain
         b.login_and_go("/system")
-        b.wait_present("#system-info-domain a")
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
@@ -307,7 +303,6 @@ class TestRealms(MachineCase):
         # login should now work with the IPA admin user
         b.password = 'foobarfoo'
         self.login_and_go("/system")
-        b.wait_present("#system-info-domain a")
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
 
         # Show domain information (PR #11096)
@@ -325,9 +320,7 @@ class TestRealms(MachineCase):
         # should be able to run admin operations
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
-        b.wait_present('#service-unit')
         b.wait_in_text('#service-unit', "active")
-        b.wait_present('#service-unit-primary-action button[data-action="StopUnit"]')
         b.click('#service-unit-primary-action button[data-action="StopUnit"]')
         b.wait_in_text('#service-unit', "inactive")
 
@@ -496,10 +489,8 @@ class TestKerberos(MachineCase):
 
         cookie = re.search("Set-Cookie: cockpit=([^ ;]+)", output).group(1)
         b.open("/system/terminal", cookie={"name": "cockpit", "value": cookie, "domain": m.web_address, "path": "/"})
-        b.wait_present('#content')
         b.wait_visible('#content')
         b.enter_page("/system/terminal")
-        b.wait_present(".terminal")
         b.focus(".terminal")
 
         def line_sel(i):
@@ -529,7 +520,6 @@ class TestKerberos(MachineCase):
         b.wait_visible("#machine-troubleshoot")
         b.click("#machine-troubleshoot")
         b.wait_popup('troubleshoot-dialog')
-        b.wait_present("#add-machine-address")
 
         b.set_val("#add-machine-address", "bad-user@x0.cockpit.lan")
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
@@ -541,7 +531,6 @@ class TestKerberos(MachineCase):
             b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
-        b.wait_present("#login-type button")
         b.click("#login-type button")
         b.click("#login-type li[value=stored] a")
         b.wait_in_text("#login-type button span", "Using available credentials")
@@ -556,7 +545,6 @@ class TestKerberos(MachineCase):
 
         b.wait_popdown('troubleshoot-dialog')
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
-        b.wait_present(".terminal")
         b.wait_visible(".terminal")
 
         # Make sure we connected via SSH
@@ -598,7 +586,6 @@ class TestPackageInstall(packagelib.PackageCase):
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
-        b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "realmd is not available on this system")
         b.mouse("#system-info-domain span", "mouseout")
         b.logout()
@@ -611,12 +598,10 @@ class TestPackageInstall(packagelib.PackageCase):
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
-        b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 
         b.click("#system-info-domain a")
-        b.wait_present("#cockpit_modal_dialog .dialog-error")
         b.wait_in_text("#cockpit_modal_dialog .dialog-error", "realmd is not available")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:disabled")
         b.click("#cockpit_modal_dialog .modal-footer button.cancel")
@@ -635,7 +620,6 @@ class TestPackageInstall(packagelib.PackageCase):
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
-        b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 
@@ -663,7 +647,6 @@ class TestPackageInstall(packagelib.PackageCase):
         # check tooltip
         b.wait_present("#system-info-domain [data-original-title]")
         b.mouse("#system-info-domain span", "mouseover")
-        b.wait_present(".tooltip-inner")
         b.wait_in_text(".tooltip-inner", "requires installation of realmd")
         b.mouse("#system-info-domain span", "mouseout")
 

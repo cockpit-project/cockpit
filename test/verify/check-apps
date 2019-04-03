@@ -88,15 +88,12 @@ class TestApps(PackageCase):
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.enableAppStreamRepo()
 
-        b.wait_present(".app-list tr:contains('An application for testing')")
         b.click(".app-list tr:contains('An application for testing')")
         b.wait_present('.app-links a[href="https://app-1.com"]')
-        b.wait_present(".breadcrumb a:contains('Applications')")
         b.click(".breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
         b.wait_not_visible("#app-page")
-        b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
 
         b.click(".app-list tr:contains('app-1') button:contains('Install')")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Remove')")

@@ -342,7 +342,16 @@ if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
         B9AE9905FFD7803F25714661B63B535A4C206CA9 \
         C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
     ; do
-        gpg --keyserver pool.sks-keyservers.net --recv-keys "$key";
+        # this is very flaky from our internal network; retry a few times
+        retry=0
+        until gpg --keyserver pool.sks-keyservers.net --recv-keys "$key"; do
+            retry=$((retry + 1))
+            if [ $retry -eq 10 ]; then
+                echo "Repeatedly failed to retrieve key, giving up." >&2
+                exit 1
+            fi
+            sleep 5
+        done
     done
 
     curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"

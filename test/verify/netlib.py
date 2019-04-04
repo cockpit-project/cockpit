@@ -91,7 +91,6 @@ class NetworkCase(MachineCase):
             text = "Inactive"
 
         try:
-            self.browser.wait_present(sel)
             self.browser.wait_visible(sel)
             self.browser.wait_in_text(sel, text)
         except Error as e:

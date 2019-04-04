@@ -70,6 +70,8 @@ class TestApps(PackageCase):
             """.format(body)})
         self.enableRepo()
         self.machine.execute("systemctl stop packagekit && pkcon refresh force")
+        # ignore the corresponding journal entry
+        self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
         self.machine.execute("pkcon -y install appstream-data-test")
 
     def testBasic(self):

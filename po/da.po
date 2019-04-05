@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-29 09:20+0000\n"
+"POT-Creation-Date: 2019-04-05 11:23+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,6 +226,11 @@ msgstr ""
 #: pkg/subscriptions/subscriptions-client.js:201
 msgid "'Organization' required when using activation keys."
 msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:467
+#, fuzzy
+msgid "(Optional)"
+msgstr "Indstillinger"
 
 #: pkg/storaged/fsys-tab.jsx:163
 msgid "(default)"
@@ -692,12 +697,16 @@ msgstr ""
 msgid "Add New User"
 msgstr ""
 
+#: pkg/networkmanager/firewall.jsx:392
+msgid "Add Ports"
+msgstr ""
+
 #: pkg/kubernetes/views/add-role-dialog.html:3
 msgid "Add Role"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:244 pkg/networkmanager/firewall.jsx:328
-#: pkg/networkmanager/firewall.jsx:334
+#: pkg/networkmanager/firewall.jsx:392 pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:568
 msgid "Add Services"
 msgstr ""
 
@@ -900,7 +909,7 @@ msgstr ""
 msgid "All running virtual machines will be turned off."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:360
+#: pkg/networkmanager/firewall.jsx:594
 msgid "Allowed Services"
 msgstr ""
 
@@ -1359,7 +1368,7 @@ msgstr ""
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:128
 #: pkg/machines/components/vcpuModal.jsx:244
 #: pkg/machines/components/vm/bootOrderModal.jsx:329
-#: pkg/networkmanager/firewall.jsx:241
+#: pkg/networkmanager/firewall.jsx:475
 #: pkg/ovirt/components/ClusterTemplates.jsx:75
 #: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:179
@@ -1690,6 +1699,10 @@ msgid "Combined usage of $0 CPU core"
 msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] ""
 msgstr[1] ""
+
+#: pkg/networkmanager/firewall.jsx:447
+msgid "Comma-separated ports, ranges, and aliases are accepted"
+msgstr ""
 
 #: pkg/docker/index.html:269 pkg/docker/index.html:445
 #: pkg/docker/index.html:706 pkg/systemd/services.html:429
@@ -2101,8 +2114,16 @@ msgstr ""
 msgid "Create New VM"
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:438
+#: pkg/storaged/content-views.jsx:438 pkg/storaged/format-dialog.jsx:332
 msgid "Create Partition"
+msgstr ""
+
+#: pkg/storaged/content-views.jsx:556
+msgid "Create Partition Table"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:183
+msgid "Create Partition on $0"
 msgstr ""
 
 #: pkg/storaged/mdraids-panel.jsx:38
@@ -2166,14 +2187,6 @@ msgstr ""
 
 #: pkg/storaged/content-views.jsx:712
 msgid "Create new Logical Volume"
-msgstr ""
-
-#: pkg/storaged/format-dialog.jsx:183
-msgid "Create Partition on $0"
-msgstr ""
-
-#: pkg/storaged/content-views.jsx:556
-msgid "Create Partition Table"
 msgstr ""
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
@@ -2264,6 +2277,11 @@ msgstr ""
 #: pkg/storaged/format-dialog.jsx:257
 msgid "Custom (Enter filesystem type)"
 msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:441
+#, fuzzy
+msgid "Custom Ports"
+msgstr "Indstillinger"
 
 #: pkg/subscriptions/subscriptions-register.jsx:103
 msgid "Custom URL"
@@ -2376,7 +2394,7 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2432 pkg/users/local.js:1177
+#: pkg/networkmanager/interfaces.js:2432 pkg/users/local.js:1179
 msgid "Delete $0"
 msgstr ""
 
@@ -2532,7 +2550,7 @@ msgstr ""
 #: pkg/kubernetes/index.html:67 pkg/shell/index.html:249
 #: pkg/docker/containers-view.jsx:336 pkg/docker/containers-view.jsx:504
 #: pkg/docker/containers-view.jsx:514 pkg/docker/containers-view.jsx:642
-#: pkg/networkmanager/firewall.jsx:87 pkg/packagekit/updates.jsx:383
+#: pkg/networkmanager/firewall.jsx:89 pkg/packagekit/updates.jsx:383
 #: pkg/subscriptions/subscriptions-view.jsx:232 pkg/systemd/host.js:741
 msgid "Details"
 msgstr ""
@@ -2989,7 +3007,7 @@ msgstr ""
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/systemd/services.html:377 pkg/apps/utils.jsx:99
 #: pkg/storaged/multipath.jsx:57 pkg/storaged/storage-controls.jsx:99
-#: pkg/storaged/storage-controls.jsx:192 pkg/users/local.js:1470
+#: pkg/storaged/storage-controls.jsx:192 pkg/users/local.js:1472
 msgid "Error"
 msgstr ""
 
@@ -3041,7 +3059,15 @@ msgstr ""
 msgid "Everything"
 msgstr ""
 
-#: pkg/users/local.js:473 pkg/users/local.js:1415
+#: pkg/networkmanager/firewall.jsx:454
+msgid "Example: 22,ssh,8080,5900-5910"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:462
+msgid "Example: 88,2019,nfs,rsync"
+msgstr ""
+
+#: pkg/users/local.js:473 pkg/users/local.js:1417
 msgid "Excellent password"
 msgstr ""
 
@@ -3177,7 +3203,7 @@ msgstr ""
 msgid "Filesystems"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:194
+#: pkg/networkmanager/firewall.jsx:410
 msgid "Filter Services"
 msgstr ""
 
@@ -3190,11 +3216,11 @@ msgid "Fingerprint"
 msgstr ""
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:96
-#: pkg/networkmanager/firewall.jsx:352 pkg/networkmanager/firewall.jsx:355
+#: pkg/networkmanager/firewall.jsx:586 pkg/networkmanager/firewall.jsx:589
 msgid "Firewall"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:317
+#: pkg/networkmanager/firewall.jsx:551
 msgid "Firewall is not available"
 msgstr ""
 
@@ -3854,7 +3880,7 @@ msgstr ""
 msgid "Invalid date format."
 msgstr ""
 
-#: pkg/users/local.js:1235
+#: pkg/users/local.js:1237
 msgid "Invalid expiration date"
 msgstr ""
 
@@ -3874,7 +3900,7 @@ msgstr ""
 msgid "Invalid metric $0"
 msgstr ""
 
-#: pkg/users/local.js:1311
+#: pkg/users/local.js:1313
 msgid "Invalid number of days"
 msgstr ""
 
@@ -3886,12 +3912,20 @@ msgstr ""
 msgid "Invalid port"
 msgstr ""
 
+#: pkg/networkmanager/firewall.jsx:285
+msgid "Invalid port number"
+msgstr ""
+
 #: pkg/networkmanager/utils.js:41
 msgid "Invalid prefix $0"
 msgstr ""
 
 #: pkg/networkmanager/utils.js:132
 msgid "Invalid prefix or netmask $0"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:312
+msgid "Invalid range"
 msgstr ""
 
 #: pkg/systemd/host.js:1446 pkg/systemd/shutdown.js:141
@@ -4202,7 +4236,7 @@ msgstr ""
 msgid "Lock Account"
 msgstr ""
 
-#: pkg/users/local.js:879 pkg/users/local.js:1216
+#: pkg/users/local.js:879 pkg/users/local.js:1218
 msgid "Lock account on $0"
 msgstr ""
 
@@ -4242,7 +4276,7 @@ msgstr ""
 msgid "Log messages"
 msgstr ""
 
-#: pkg/users/local.js:959
+#: pkg/users/local.js:961
 msgid "Logged In"
 msgstr ""
 
@@ -4695,10 +4729,6 @@ msgstr ""
 msgid "NSNA Ping"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:252
-msgid "NTFS - Compatible with most systems"
-msgstr ""
-
 #: pkg/systemd/host.js:1510
 msgid "NTP Server"
 msgstr ""
@@ -4870,7 +4900,7 @@ msgid "NetworkManager is not running."
 msgstr ""
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:393
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Networking"
 msgstr ""
 
@@ -4890,7 +4920,7 @@ msgstr ""
 msgid "Networks"
 msgstr "Netværks Traffik"
 
-#: pkg/users/local.js:961
+#: pkg/users/local.js:963
 msgid "Never"
 msgstr ""
 
@@ -5166,7 +5196,7 @@ msgstr ""
 msgid "No oVirt connection"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:362
+#: pkg/networkmanager/firewall.jsx:596
 msgid "No open ports"
 msgstr ""
 
@@ -5816,7 +5846,7 @@ msgstr ""
 msgid "Please enter new volume size"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:318
+#: pkg/networkmanager/firewall.jsx:552
 msgid "Please install the $0 package"
 msgstr ""
 
@@ -5900,7 +5930,7 @@ msgstr ""
 msgid "Please select a valid policy option."
 msgstr ""
 
-#: pkg/users/local.js:1230
+#: pkg/users/local.js:1232
 msgid "Please specify an expiration date"
 msgstr ""
 
@@ -6009,6 +6039,10 @@ msgstr ""
 #: pkg/ovirt/components/InstallationDialog.jsx:65
 #: pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
+msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:289
+msgid "Port number and type do not match"
 msgstr ""
 
 #: pkg/lib/machine-info.js:71
@@ -6342,6 +6376,10 @@ msgstr ""
 msgid "Random"
 msgstr ""
 
+#: pkg/networkmanager/firewall.jsx:320
+msgid "Range must be strictly ordered"
+msgstr ""
+
 #: pkg/kdump/kdump-view.jsx:388
 msgid "Raw to a device"
 msgstr ""
@@ -6442,6 +6480,10 @@ msgstr ""
 
 #: pkg/kubernetes/views/pv-body.html:6 pkg/kubernetes/views/pv-modify.html:56
 msgid "Reclaim Policy"
+msgstr ""
+
+#: pkg/storaged/format-dialog.jsx:247
+msgid "Recommended default"
 msgstr ""
 
 #: pkg/kubernetes/index.html:108 pkg/kubernetes/registry.html:75
@@ -6728,7 +6770,7 @@ msgstr ""
 msgid "Requests"
 msgstr ""
 
-#: pkg/users/local.js:1294
+#: pkg/users/local.js:1296
 msgid "Require password change every $0 days"
 msgstr ""
 
@@ -7174,7 +7216,7 @@ msgstr ""
 #: pkg/kubernetes/views/service-page.html:12
 #: pkg/kubernetes/views/service-panel.html:8
 #: pkg/kubernetes/views/topology-page.html:30 pkg/systemd/logs.html:65
-#: pkg/networkmanager/firewall.jsx:361 pkg/storaged/dialog.jsx:1037
+#: pkg/networkmanager/firewall.jsx:595 pkg/storaged/dialog.jsx:1037
 msgid "Service"
 msgstr ""
 
@@ -7217,6 +7259,7 @@ msgstr "Værtsnavn"
 #: pkg/kubernetes/views/dashboard-page.html:134
 #: pkg/kubernetes/views/details-page.html:29 pkg/systemd/services.html:4
 #: pkg/systemd/services.html:332 pkg/kubernetes/scripts/details.js:213
+#: pkg/networkmanager/firewall.jsx:403
 msgid "Services"
 msgstr ""
 
@@ -7876,7 +7919,7 @@ msgid "System is up to date"
 msgstr ""
 
 #: pkg/docker/index.html:327 pkg/docker/index.html:331
-#: pkg/networkmanager/firewall.jsx:361
+#: pkg/networkmanager/firewall.jsx:595
 msgid "TCP"
 msgstr ""
 
@@ -8049,7 +8092,7 @@ msgstr ""
 msgid "The VM is suspended by guest power management."
 msgstr ""
 
-#: pkg/users/local.js:1336
+#: pkg/users/local.js:1338
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 
@@ -8174,7 +8217,7 @@ msgstr ""
 msgid "The node doesn't have enough free memory"
 msgstr ""
 
-#: pkg/users/local.js:439 pkg/users/local.js:1393
+#: pkg/users/local.js:439 pkg/users/local.js:1395
 msgid "The passwords do not match"
 msgstr ""
 
@@ -8670,7 +8713,7 @@ msgstr ""
 msgid "Type:"
 msgstr ""
 
-#: pkg/docker/index.html:332 pkg/networkmanager/firewall.jsx:361
+#: pkg/docker/index.html:332 pkg/networkmanager/firewall.jsx:595
 msgid "UDP"
 msgstr ""
 
@@ -8754,7 +8797,7 @@ msgid "Unavailable"
 msgstr ""
 
 #: pkg/docker/index.html:730 pkg/networkmanager/index.html:690
-#: pkg/shell/base_index.js:737 pkg/users/local.js:1479
+#: pkg/shell/base_index.js:737 pkg/users/local.js:1481
 msgid "Unexpected error"
 msgstr ""
 
@@ -8807,6 +8850,11 @@ msgstr ""
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
 msgstr ""
+
+#: pkg/networkmanager/firewall.jsx:283
+#, fuzzy
+msgid "Unknown service name"
+msgstr "Værtsnavn"
 
 #: pkg/storaged/crypto-keyslots.jsx:562
 msgid "Unknown type"
@@ -9071,10 +9119,6 @@ msgstr ""
 #, fuzzy
 msgid "VDSM Service Management"
 msgstr "Værtsnavn"
-
-#: pkg/storaged/format-dialog.jsx:251
-msgid "VFAT - Compatible with all systems and devices"
-msgstr ""
 
 #: pkg/networkmanager/interfaces.js:2511 pkg/networkmanager/interfaces.js:2523
 #: pkg/networkmanager/interfaces.js:2898
@@ -9359,10 +9403,6 @@ msgstr ""
 msgid "Wrong user name or password"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:247
-msgid "XFS - Red Hat Enterprise Linux 7 default"
-msgstr ""
-
 #: pkg/networkmanager/interfaces.js:1973
 msgid "XOR"
 msgstr ""
@@ -9382,7 +9422,7 @@ msgid ""
 "You are currently connected directly to this server. You cannot delete it."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:66 pkg/networkmanager/firewall.jsx:327
+#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:561
 msgid "You are not authorized to modify the firewall."
 msgstr ""
 
@@ -9551,10 +9591,6 @@ msgstr ""
 
 #: pkg/packagekit/autoupdates.jsx:315
 msgid "every day"
-msgstr ""
-
-#: pkg/storaged/format-dialog.jsx:248
-msgid "ext4 - Red Hat Enterprise Linux 6 default"
 msgstr ""
 
 #: pkg/systemd/host.js:882

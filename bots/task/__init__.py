@@ -450,8 +450,7 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
 
     if pull["number"]:
         # Drop [no-test] from the title
-        if not issue:
-            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+        pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
         last_commit_m = execute("git", "show", "--no-patch", "--format=%B")
         last_commit_m += "Closes #" + str(pull["number"])
         execute("git", "commit", "--amend", "-m", last_commit_m)

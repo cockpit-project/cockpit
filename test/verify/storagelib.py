@@ -84,7 +84,6 @@ class StorageCase(MachineCase):
 
     def content_row_action(self, index, title):
         btn = self.content_row_tbody(index) + " .listing-ct-item .listing-ct-actions button:contains(%s)" % title
-        self.browser.wait_present(btn)
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
@@ -98,14 +97,12 @@ class StorageCase(MachineCase):
     def content_head_action(self, index, title):
         self.content_row_expand(index)
         btn = self.content_row_tbody(index) + " .listing-ct-head .listing-ct-actions button:contains(%s)" % title
-        self.browser.wait_present(btn)
         self.browser.click(btn)
 
     def content_tab_expand(self, row_index, tab_index):
         tab_btn = self.content_row_tbody(row_index) + " .listing-ct-head li:nth-child(%d) a" % tab_index
         tab = self.content_row_tbody(row_index) + " .listing-ct-body:nth-child(%d)" % (tab_index + 1)
         self.content_row_expand(row_index)
-        self.browser.wait_present(tab_btn)
         self.browser.click(tab_btn)
         self.browser.wait_present(tab)
         return tab
@@ -113,7 +110,6 @@ class StorageCase(MachineCase):
     def content_tab_action(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
         btn = tab + " button:contains(%s)" % title
-        self.browser.wait_present(btn)
         self.browser.wait_attr(btn, "disabled", None)
         self.browser.click(btn)
 
@@ -180,13 +176,11 @@ class StorageCase(MachineCase):
             link = label + " + div a"
         else:
             link = label + " + a"
-        self.browser.wait_present(link)
         self.browser.click(link)
 
     # Dialogs
 
     def dialog_wait_open(self):
-        self.browser.wait_present('#dialog')
         self.browser.wait_visible('#dialog')
 
     def dialog_wait_alert(self, text):
@@ -261,7 +255,6 @@ class StorageCase(MachineCase):
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
-        self.browser.wait_present('#dialog .dialog-error')
         self.browser.wait_in_text('#dialog .dialog-error', val)
 
     def dialog_wait_not_visible(self, field):

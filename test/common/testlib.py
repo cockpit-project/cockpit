@@ -259,7 +259,6 @@ class Browser:
     def select_from_dropdown(self, selector, value, substring=False):
         # This is a backwards compat helper method; new code should use .set_val()
 
-        self.wait_present(selector)
         self.wait_visible(selector)
 
         # translate text value into <option value=".."> ID
@@ -286,7 +285,6 @@ class Browser:
         spinner_selector = "{0} .spinner".format(selector)
         file_item_selector_template = "{0} ul li a:contains({1})"
 
-        self.wait_present(selector)
         self.wait_visible(selector)
 
         for path_part in filter(None, location.split('/')):

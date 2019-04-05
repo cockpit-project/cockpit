@@ -257,11 +257,9 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
@@ -277,13 +275,10 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
-        b.wait_present("#vm-subVmTest1-vcpus")
         b.wait_in_text("#vm-subVmTest1-vcpus", "1")
 
         b.wait_in_text("#vm-subVmTest1-bootorder", "disk,network")
@@ -291,13 +286,10 @@ class TestMachines(NetworkCase):
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
         # switch to and check Usage
-        b.wait_present("#vm-subVmTest1-usage")
         b.click("#vm-subVmTest1-usage")
-        b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
         b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
         b.wait(lambda: float(b.text("#chart-donut-0 .donut-title-big-pf")) > 0.0)
-        b.wait_present("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption")
         b.wait_in_text("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
         b.wait_present("#chart-donut-1 .donut-title-big-pf")
@@ -338,18 +330,14 @@ class TestMachines(NetworkCase):
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")
-        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
-        b.wait_present("#vm-subVmTest2-state")
         b.wait_in_text("#vm-subVmTest2-state", "running")
-        b.wait_present("#vm-subVmTest2-vcpus")
         b.wait_in_text("#vm-subVmTest2-vcpus", "1")
         b.wait_in_text("#vm-subVmTest2-bootorder", "disk,network")
 
         # restart libvirtd
         m.execute("systemctl stop libvirtd.service")
-        b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         m.execute("systemctl start libvirtd.service")
         # HACK: https://launchpad.net/bugs/1802005
@@ -357,17 +345,12 @@ class TestMachines(NetworkCase):
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait_in_text("body", "Virtual Machines")
         b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
-        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(1) th")
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(1) th", "subVmTest1")
-        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
-        b.wait_present("#vm-subVmTest2-state")
         b.wait_in_text("#vm-subVmTest2-state", "running")
 
         # stop second VM, event handling should still work
-        b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th")
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.click("#vm-subVmTest2-off-caret")
@@ -382,11 +365,9 @@ class TestMachines(NetworkCase):
         # triangle by status
         b.wait_present("tr.listing-ct-item.listing-ct-nonavigate span span.pficon-warning-triangle-o.machines-status-alert")
         # inline notification with error
-        b.wait_present("div.alert.alert-danger strong")
         b.wait_in_text("div.alert.alert-danger strong", "VM subVmTest2 failed to start")
 
-        b.wait_present("a.alert-link.machines-more-button") # more/less button
-        b.wait_in_text("a.alert-link.machines-more-button", "show more")
+        b.wait_in_text("a.alert-link.machines-more-button", "show more") # more/less button
         b.click("a.alert-link.machines-more-button")
         b.wait_present("a.alert-link + p")
 
@@ -412,7 +393,6 @@ class TestMachines(NetworkCase):
         m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
 
         def tryRunDomain(index, name):
-            b.wait_present("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index))
             b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
 
             row_classes = b.attr("#virtual-machines-listing .listing-ct tbody:nth-of-type({0})".format(index), "class")
@@ -420,36 +400,29 @@ class TestMachines(NetworkCase):
             if not expanded:
                 b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index)) # click on the row header
 
-            b.wait_present("#vm-{0}-run".format(name))
             b.click("#vm-{0}-run".format(name))
 
         # Try to run subVmTest1 - it will fail because of inactive default network
         tryRunDomain(1, 'subVmTest1')
-        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest1 failed to start")
 
         # Try to run subVmTest2
         tryRunDomain(2, 'subVmTest2')
-        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest2 failed to start")
 
         # Delete the first notification and check notifications list again
         b.focus(".toast-notifications-list-pf")
-        b.wait_present(".toast-notifications-list-pf div:nth-child(1)")
         b.click(".toast-notifications-list-pf div:nth-child(1) button.close")
         b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
 
         # Add one more notification
         tryRunDomain(3, 'subVmTest3')
-        b.wait_present(".toast-notifications-list-pf div:nth-child(1) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
-        b.wait_present(".toast-notifications-list-pf div:nth-child(2) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(2) strong", "VM subVmTest3 failed to start")
 
         # Delete the last notification
         b.focus(".toast-notifications-list-pf")
-        b.wait_present(".toast-notifications-list-pf div:nth-child(2) button.close")
         b.click(".toast-notifications-list-pf div:nth-child(2) button.close")
         b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
@@ -483,13 +456,11 @@ class TestMachines(NetworkCase):
         self.login_and_go("/machines")
 
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl disable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#start-libvirt")
@@ -499,11 +470,9 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: checkLibvirtEnabled())
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl stop {0}".format(libvirtServiceName))
-        b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
         b.click("#enable-libvirt") # uncheck it ; ; TODO: fix this, do not assume initial state of the checkbox
@@ -513,13 +482,11 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus" and m.image == "ubuntu-stable":
             m.execute("chmod o+rwx /run/libvirt/libvirt-sock")
         b.wait(lambda: not checkLibvirtEnabled())
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         m.execute("systemctl enable {0}".format(libvirtServiceName))
         m.execute("systemctl stop {0}".format(libvirtServiceName))
 
-        b.wait_present("#slate-header")
         b.wait_in_text("#slate-header", "Virtualization Service (libvirt) is Not Active")
         b.wait_present("#enable-libvirt:checked")
 
@@ -536,14 +503,11 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
         # Test basic disk properties
@@ -559,7 +523,6 @@ class TestMachines(NetworkCase):
         self.wait_for_disk_stats("subVmTest1", "hda")
         if b.is_present("#vm-subVmTest1-disks-hda-used"):
             b.wait_in_text("#vm-subVmTest1-disks-hda-used", "0.0")
-            b.wait_present("#vm-subVmTest1-disks-hdb-used")
             b.wait_in_text("#vm-subVmTest1-disks-hdb-used", "0.0")
 
             b.wait_in_text("#vm-subVmTest1-disks-hdb-capacity", "1")
@@ -573,7 +536,6 @@ class TestMachines(NetworkCase):
 
         b.wait_in_text("#vm-subVmTest1-disks-hda-bus", "ide")
 
-        b.wait_present("#vm-subVmTest1-disks-vdc-device") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "/var/lib/libvirt/images/image3.img")
@@ -612,20 +574,15 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-disks") # wait for the tab
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
-        b.wait_present("#vm-subVmTest1-disks-adddisk") # button
-        b.click("#vm-subVmTest1-disks-adddisk")
+        b.click("#vm-subVmTest1-disks-adddisk") # button
         b.wait_present("label:contains(Create New)") # radio button label in the modal dialog
-        b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
 
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_temporary")
@@ -639,31 +596,25 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "running") # re-check
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
-        b.wait_present("#vm-subVmTest1-disks-vda-device") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
         # should be gone after shut down
         b.wait_in_text("#vm-subVmTest1-disks-vda-source", "mydiskofpoolone_temporary")
 
         b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present("#vm-subVmTest1-disks-adddisk-new-permanent")
-        b.wait_present("#vm-subVmTest1-disks-adddisk-new-name")
         b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2") # keep GiB and qcow2 format
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
-        b.wait_present("#vm-subVmTest1-disks-vdb-device") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vdb-source",
                        "mydiskofpoolone_permanent") # should survive the shut down
 
-        b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present("label:contains(Use Existing)") # radio button label in the modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk") # radio button label in the modal dialog
         b.click("label:contains(Use Existing)") # radio button label in the modal dialog
-        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-pool")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolOne")
         # since both disks are already attached
         b.wait_attr("#vm-subVmTest1-disks-adddisk-existing-select-volume", "disabled", "")
@@ -671,18 +622,14 @@ class TestMachines(NetworkCase):
         b.click("#vm-subVmTest1-disks-adddisk-dialog-cancel")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
 
-        b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present("label:contains(Use Existing)") # radio button label in the modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk") # radio button label in the modal dialog
         b.click("label:contains(Use Existing)") # radio button label in the modal dialog
-        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-select-volume")
-        b.wait_present("#vm-subVmTest1-disks-adddisk-existing-permanent")
         b.click("#vm-subVmTest1-disks-adddisk-existing-permanent")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_permanent")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
 
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
-        b.wait_present("#vm-subVmTest1-disks-vdc-device") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "mydiskofpooltwo_permanent")
@@ -697,28 +644,24 @@ class TestMachines(NetworkCase):
         # or adding the _temporary volume results in showing that the _permanent one actually gets added
         # See https://github.com/cockpit-project/cockpit/issues/9945
         # b.click("#vm-subVmTest1-disks-adddisk")
-        # b.wait_present(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         # b.click(".add-disk-dialog label:contains(Use Existing)") # radio button label in the modal dialog
         # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-pool", "myPoolTwo")
         # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-select-volume", "mydiskofpooltwo_temporary")
         # b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-existing-target", "vdb")
         # b.click(".modal-footer button:contains(Add)")
         # b.wait_not_present("#cockpit_modal_dialog")
-        # b.wait_present("#vm-subVmTest1-disks-vdb-target") # verify after modal dialog close
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-target", "vdb")
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
         # b.wait_in_text("#vm-subVmTest1-disks-vdb-source", "/mnt/vm_two/mydiskofpooltwo_temporary")
 
         # check the autoselected options
-        b.click("#vm-subVmTest1-disks-adddisk")
-        b.wait_present("label:contains(Use Existing)") # radio button label in modal dialog
+        b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
         b.click("label:contains(Use Existing)")
         # default_tmp pool should be autoselected since it's the first in alphabetical order
         # defaultVol volume should be autoselected since it's the only volume in default_tmp pool
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
-        b.wait_present("#vm-subVmTest1-disks-vdd-device") # verify after modal dialog close
         b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "defaultVol")
@@ -743,17 +686,13 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-networks") # wait for the tab
         b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
 
-        b.wait_present("#vm-subVmTest1-network-1-type")
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
 
@@ -762,7 +701,6 @@ class TestMachines(NetworkCase):
         # Test add network
         m.execute("virsh attach-interface --domain subVmTest1 --type network --source default --model virtio --mac 52:54:00:4b:73:5f --config --live")
 
-        b.wait_present("#vm-subVmTest1-network-2-type")
         b.wait_in_text("#vm-subVmTest1-network-2-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-2-source", "default")
         b.wait_in_text("#vm-subVmTest1-network-2-model", "virtio")
@@ -778,14 +716,11 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
 
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
-        b.wait_present("#vm-subVmTest1-vcpus-count") # wait for the tab
         b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
 
         b.wait_present(".vcpu-detail-modal-table")
@@ -851,7 +786,6 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # Open dialog
-        b.wait_present("#vm-subVmTest1-vcpus-count")
         b.click("#vm-subVmTest1-vcpus-count")
 
         b.wait_present(".vcpu-detail-modal-table")
@@ -877,7 +811,6 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Open dialog
-        b.wait_present("#vm-subVmTest1-vcpus-count")
         b.click("#vm-subVmTest1-vcpus-count")
 
         b.wait_present(".vcpu-detail-modal-table")
@@ -902,23 +835,18 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
 
-        b.wait_present("#vm-subVmTest1-consoles") # wait for the tab
         b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
 
         # since VNC is not defined for this VM, the view for "Desktop Viewer" is rendered by default
-        b.wait_present("#vm-subVmTest1-consoles-manual-address") # wait for the tab
         b.wait_in_text("#vm-subVmTest1-consoles-manual-address", "127.0.0.1")
         b.wait_in_text("#vm-subVmTest1-consoles-manual-port-spice", "5900")
 
-        b.wait_present("#vm-subVmTest1-consoles-launch") # "Launch Remote Viewer" button
-        b.click("#vm-subVmTest1-consoles-launch")
+        b.click("#vm-subVmTest1-consoles-launch") # "Launch Remote Viewer" button
         b.wait_present("#dynamically-generated-file") # is .vv file generated for download?
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
@@ -930,14 +858,11 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
-        b.wait_present("#vm-subVmTest1-state")
         b.wait_in_text("#vm-subVmTest1-state", "running") # running or paused
 
-        b.wait_present("#vm-subVmTest1-consoles") # wait for the tab
         b.click("#vm-subVmTest1-consoles") # open the "Console" subtab
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
@@ -954,7 +879,6 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-subVmTest1] th")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", name)
 
         m.execute("test -f {0}".format(img2))
@@ -964,13 +888,10 @@ class TestMachines(NetworkCase):
         def addDisk(volName, poolName):
             # Virsh does not offer some option to create disks of type volume
             # We have to do this from cockpit UI
-            b.wait_present("#vm-subVmTest1-disks") # wait for the tab
             b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
 
-            b.wait_present("#vm-subVmTest1-disks-adddisk") # button
-            b.click("#vm-subVmTest1-disks-adddisk")
+            b.click("#vm-subVmTest1-disks-adddisk") # button
             b.wait_present("label:contains(Create New)") # radio button label in the modal dialog
-            b.wait_present("#vm-subVmTest1-disks-adddisk-new-select-pool")
 
             b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", poolName)
             b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", volName)
@@ -988,10 +909,8 @@ class TestMachines(NetworkCase):
         secondDiskPoolPath = "/var/lib/libvirt/images/"
         addDisk(secondDiskVolName, poolName)
 
-        b.wait_present("#vm-{0}-delete".format(name))
         b.click("#vm-{0}-delete".format(name))
 
-        b.wait_present("#vm-{0}-delete-modal-dialog".format(name))
         b.wait_present("#vm-{0}-delete-modal-dialog div:contains(The VM is running)".format(name))
         b.wait_present("#vm-{1}-delete-modal-dialog ul li:first-child #disk-source-file:contains({0})".format(img2, name))
         # virsh attach-disk does not create disks of type volume
@@ -1018,25 +937,19 @@ class TestMachines(NetworkCase):
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
-        b.wait_present("tbody tr[data-row-id=vm-{0}] th".format(name))
         b.wait_in_text("tbody tr[data-row-id=vm-{0}] th".format(name), name)
 
         b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
-        b.wait_present("#vm-{0}-state".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "running") # running or paused
 
-        b.wait_present("#vm-{0}-consoles".format(name)) # wait for the tab
         b.click("#vm-{0}-consoles".format(name)) # open the "Console" subtab
 
-        b.wait_present("#console-type-select")
         b.set_val("#console-type-select", "serial-browser")
         b.wait_present("div.terminal canvas.xterm-text-layer") # if connected the xterm canvas is rendered
 
-        b.wait_present("#{0}-serialconsole-reconnect".format(name))
         b.click("#{0}-serialconsole-reconnect".format(name))
         b.wait_present("div.terminal canvas.xterm-text-layer")
 
-        b.wait_present("#{0}-serialconsole-disconnect".format(name))
         b.click("#{0}-serialconsole-disconnect".format(name))
         b.wait_not_present("div.terminal canvas.xterm-text-layer")
         b.wait_present("div.blank-slate-pf")
@@ -1445,7 +1358,6 @@ class TestMachines(NetworkCase):
         def open(self):
             b = self.browser
 
-            b.wait_present("#create-new-vm")
             b.click("#create-new-vm")
             b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
@@ -1484,7 +1396,6 @@ class TestMachines(NetworkCase):
             b.wait_visible(system_selector)
             try:
                 with b.wait_timeout(1):
-                    b.wait_present(system_item_selector)
                     b.wait_visible(system_item_selector)
                 # os found which is not ok
                 raise AssertionError("{0} was not filtered".format(self.os_name))
@@ -1684,7 +1595,6 @@ class TestMachines(NetworkCase):
                 .create()
 
             # successfully created
-            b.wait_present("#vm-{0}-row".format(name))
             b.wait_in_text("#vm-{0}-row".format(name), name)
 
             if dialog.start_vm:
@@ -1696,14 +1606,11 @@ class TestMachines(NetworkCase):
                 b.wait_present("#vm-{0}-vcpus".format(name))
 
             # check memory
-            b.wait_present("#vm-{0}-usage".format(name))
             b.click("#vm-{0}-usage".format(name))
-            b.wait_present("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption")
             b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", dialog.getMemoryText())
 
             # check disks
-            b.wait_present("#vm-{0}-disks".format(name))  # wait for the tab
-            b.click("#vm-{0}-disks".format(name))  # open the "Disks" subtab
+            b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
 
             # Test disk got imported/created
             if dialog.sourceType == 'disk_image':
@@ -1728,20 +1635,16 @@ class TestMachines(NetworkCase):
                 .fill() \
                 .create()
 
-            b.wait_present("#vm-{0}-install".format(name))
             # should fail because of memory error
             b.click("#vm-{0}-install".format(name))
             b.wait_in_text("#vm-{0}-state".format(name), "shut off")
-            b.wait_present("#app .listing-ct tbody:nth-of-type(1) th")
             b.wait_in_text("#app .listing-ct tbody:nth-of-type(1) th", name)
             b.wait_present("#app .listing-ct tbody:nth-of-type(1) tr td span span.pficon-warning-triangle-o")
 
             b.wait_present("#vm-{0}-install".format(name))
             # Overview should be opened
-            b.wait_present("#vm-{0}-overview".format(name)) # wait for the tab
             b.click("#vm-{0}-overview".format(name)) # open the "overView" subtab
 
-            b.wait_present("div.alert.alert-danger strong")
             b.wait_in_text("div.alert.alert-danger strong", "VM {0} failed to get installed".format(name))
             b.wait_in_text("a.alert-link.machines-more-button", "show more")
 
@@ -1751,7 +1654,6 @@ class TestMachines(NetworkCase):
             b = self.browser
             vm_delete_button = "#vm-{0}-delete".format(dialog.name)
 
-            b.wait_present(vm_delete_button)
             b.click(vm_delete_button)
             b.wait_present("#vm-{0}-delete-modal-dialog".format(dialog.name))
             b.click("#vm-{0}-delete-modal-dialog button:contains(Delete)".format(dialog.name))
@@ -1793,7 +1695,6 @@ class TestMachines(NetworkCase):
 
         def checkEnvIsEmpty(self):
             b = self.browser
-            b.wait_present("#virtual-machines-listing thead tr td")
             b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
             # wait for the vm and disks to be deleted
             b.wait(lambda: self.machine.execute("virsh list --all | wc -l") == '3\n')

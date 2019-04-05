@@ -344,6 +344,7 @@ def execute(*args):
         env["GIT_ASKPASS"] = "/bin/true"
     output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env, universal_newlines=True)
     sys.stderr.write(censored(output))
+    return output
 
 def find_our_fork(user):
     repos = api.get("/users/{0}/repos".format(user))
@@ -357,11 +358,22 @@ def find_our_fork(user):
                 return full["full_name"]
     raise RuntimeError("%s doesn't have a fork of %s" % (user, api.repo))
 
-def branch(context, message, pathspec=".", issue=None, **kwargs):
-    current = time.strftime('%Y%m%d-%H%M%M')
+def push_branch(user, branch, force=False):
+    fork_repo = find_our_fork(user)
+
+    url = "https://github.com/{0}".format(fork_repo)
+    cmd = ["git", "push", url, "+HEAD:refs/heads/{0}".format(branch)]
+    if force:
+        cmd.insert(2, "-f")
+    execute(*cmd)
+
+def branch(context, message, pathspec=".", issue=None, branch=None, push=True, **kwargs):
     name = named(kwargs)
-    branch = "{0} {1} {2}".format(name, context or "", current).strip()
-    branch = branch.replace(" ", "-").replace("--", "-")
+    if not branch:
+        execute("git", "checkout", "--detach")
+        current = time.strftime('%Y%m%d-%H%M%M')
+        branch = "{0} {1} {2}".format(name, context or "", current).strip()
+        branch = branch.replace(" ", "-").replace("--", "-")
 
     # Tell git about our github token as a user name
     try:
@@ -372,12 +384,10 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     user = api.get("/user")['login']
     fork_repo = find_our_fork(user)
 
-    url = "https://github.com/{0}".format(fork_repo)
     clean = "https://github.com/{0}".format(fork_repo)
 
     if pathspec is not None:
         execute("git", "add", "--", pathspec)
-    execute("git", "checkout", "--detach")
 
     # If there's nothing to add at that pathspec return None
     try:
@@ -385,7 +395,9 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     except subprocess.CalledProcessError:
         return None
 
-    execute("git", "push", url, "+HEAD:refs/heads/{0}".format(branch))
+    # No need to push if we want to add another commits into the same branch
+    if push:
+        push_branch(user, branch)
 
     # Comment on the issue if present
     if issue:
@@ -413,7 +425,7 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
         except TypeError:
             data["issue"] = int(issue)
     else:
-        data["title"] = kwargs["title"]
+        data["title"] = "[no-test] " + kwargs["title"]
         if body:
             data["body"] = body
 
@@ -435,6 +447,16 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
             issue["pull_request"] = { "url": pull["url"] }
         except TypeError:
             pass
+
+    if pull["number"]:
+        # Drop [no-test] from the title
+        if not issue:
+            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+        last_commit_m = execute("git", "show", "--no-patch", "--format=%B")
+        last_commit_m += "Closes #" + str(pull["number"])
+        execute("git", "commit", "--amend", "-m", last_commit_m)
+        (user, branch) = branch.split(":")
+        push_branch(user, branch, True)
 
     return pull
 

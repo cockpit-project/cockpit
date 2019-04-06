@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import json
 import subprocess
 import sys
 
@@ -56,15 +57,73 @@ def run(context, verbose=False, **kwargs):
     work = os.path.abspath(line.strip())
 
     # Do the various updates
-    cmd = [ "make", "upload-pot", "download-po" ]
+    cmd = [ "make", "upload-pot", "clean-po", "download-po" ]
     if verbose:
         sys.stderr.write("+ " + " ".join(cmd) + "\n")
     subprocess.check_call(cmd, cwd=work)
 
+    local_branch = None
+    user = None
+    current_manifest = None
+    current_linguas = []
+    language_map = {}
+
+    # Get locale from language-map file. Fail with keyError when not found
+    def get_locale(file_name):
+        language = os.path.splitext(os.path.basename(file_name))[0]
+        return language_map[language]
+
+    def add_and_commit_lang(name, language, action):
+        with open("po/LINGUAS", "w", encoding='utf-8') as lngs:
+            print("\n".join(current_linguas), file=lngs)
+        with open("pkg/shell/manifest.json.in", "w", encoding='utf-8') as mnfst:
+            text = json.dumps(current_manifest, ensure_ascii=False, indent=4)
+            print(text, file=mnfst)
+        execute("git", "add", "--", "po/LINGUAS", "pkg/shell/manifest.json.in", name)
+        return task.branch(context, "po: {0} '{1}' language".format(action, language),
+                           pathspec=None, branch=local_branch, push=False, **kwargs)
+
+    # Build language map
+    with open("po/language_map.txt", "r") as lm:
+        for line in lm:
+            line = line.strip()
+            if not line:
+                continue
+            items = line.split(":")
+            language_map[items[0]] = items
+
+    # Read manifest
+    with open("pkg/shell/manifest.json.in", "r", encoding='utf-8') as mnfst:
+        current_manifest = json.load(mnfst)
+
+    # Read linguas
+    with open("po/LINGUAS", "r", encoding='utf-8') as lngs:
+        current_linguas = lngs.read().strip().split()
+
+    # Remove languages that fall under 50% translated
+    files = output("git", "ls-files", "--deleted", "po/")
+    for name in files.splitlines():
+        if name.endswith(".po"):
+            locale = get_locale(name)
+            current_manifest["locales"].pop(locale[2])
+            current_linguas.remove(locale[0])
+            (user, local_branch) = add_and_commit_lang(name, locale[0], "Drop").split(":")
+
+    # Add languages that got over 50% translated
+    files = output("git", "ls-files", "--others", "--exclude-standard", "po/")
+    for name in files.splitlines():
+        if name.endswith(".po"):
+            locale = get_locale(name)
+            current_manifest["locales"][locale[2]] = locale[1]
+            current_manifest["locales"] = dict(sorted(current_manifest["locales"].items()))
+            current_linguas.append(locale[0])
+            current_linguas.sort()
+            (user, local_branch) = add_and_commit_lang(name, locale[0], "Add").split(":")
+
     # Here we have logic to only include files that actually
     # changed translations, and reset all the remaining ones
     files = output("git", "ls-files", "--modified", "po/")
-    for name in files.split("\n"):
+    for name in files.splitlines():
         if name.endswith(".po"):
             if changed(name):
                 execute("git", "add", "--", name)
@@ -72,9 +131,15 @@ def run(context, verbose=False, **kwargs):
                 execute("git", "checkout", "--", name)
 
     # Create a pull request from these changes
-    branch = task.branch(context, "po: Update from Fedora Zanata", pathspec="po/", **kwargs)
+    branch = task.branch(context, "po: Update from Fedora Zanata", pathspec="po/",
+                         branch=local_branch, **kwargs)
+
     if branch:
         task.pull(branch, **kwargs)
+    elif local_branch:
+        task.push_branch(user, local_branch)
+        task.pull("{0}:{1}".format(user, local_branch), **kwargs)
+
 
 if __name__ == '__main__':
     task.main(function=run, title="Update translations from Fedora Zanata")

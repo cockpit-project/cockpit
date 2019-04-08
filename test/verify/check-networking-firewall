@@ -139,6 +139,10 @@ class TestFirewall(MachineCase):
 
         self.login_and_go("/network/firewall")
 
+        def removeService(service):
+            b.click("tr[data-row-id='{}'] .btn.pficon-delete".format(service))
+            b.wait_not_present("tr[data-row-id='{}']".format(service))
+
         # click on the "Add Services" button
         b.wait_present("caption button.btn-primary:enabled")
         b.click("caption button.btn-primary")
@@ -192,6 +196,13 @@ class TestFirewall(MachineCase):
             m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
             b.click("caption button.btn-primary")
             b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
+        b.click("#add-services-dialog .modal-footer .btn-cancel")
+        b.wait_not_present("#cockpit_modal_dialog")
+
+        # remove all services
+        services = m.execute("firewall-cmd --list-services").strip().split(' ')
+        for service in services:
+            removeService(service)
 
     @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddCustomServices(self):

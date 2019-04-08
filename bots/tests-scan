@@ -95,10 +95,12 @@ import pipes
 import ssl
 import sys
 import time
+import logging
 import itertools
 import urllib.request
 
 sys.dont_write_bytecode = True
+logging.basicConfig(level=logging.INFO)
 
 from task import github, label, redhat_network, labels_of_pull
 
@@ -127,7 +129,7 @@ def main():
 
     opts = parser.parse_args()
     if opts.amqp and no_amqp:
-        sys.stderr.write("AMQP host:port specified but python-amqp not available\n")
+        logging.error("AMQP host:port specified but python-amqp not available")
         return 1
     api = github.GitHub(repo=opts.repo)
 
@@ -150,7 +152,7 @@ def main():
         if not opts.repo:
             results += scan_external_projects(opts)
     except RuntimeError as ex:
-        sys.stderr.write("tests-scan: " + str(ex) + "\n")
+        logging.error("tests-scan: " + str(ex))
         return 1
 
     for result in results:
@@ -169,7 +171,7 @@ def distributed_queue(amqp_server):
     try:
         host, port = amqp_server.split(':')
     except ValueError:
-        sys.stderr.write('Please format --amqp as host:port\n')
+        logging.error('Please format --amqp as host:port')
         sys.exit(1)
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host=host,
@@ -284,13 +286,15 @@ def queue_test(priority, name, number, revision, ref, context, base, repo, bots_
             queue.basic_publish('', 'rhel', json.dumps(body), properties=pika.BasicProperties(priority=priority))
         else:
             queue.basic_publish('', 'public', json.dumps(body), properties=pika.BasicProperties(priority=priority))
+        logging.info("Published '{0}' on '{1}' with command: '{2}'".format(name, revision, command))
 
-def prioritize(status, title, labels, priority, context):
+def prioritize(status, title, labels, priority, context, number):
     state = status.get("state", None)
     update = { "state": "pending" }
 
     # This commit definitively succeeded or failed
     if state in [ "success", "failure" ]:
+        logging.info("Skipping '{0}' on #{1} because it has already finished".format(context, number))
         priority = 0
         update = None
 
@@ -299,12 +303,14 @@ def prioritize(status, title, labels, priority, context):
         priority -= 2
 
     elif state in [ "pending" ]:
+        logging.info("Skipping '{0}' on #{1} because it is pending".format(context, number))
         update = None
 
     # Ignore context when the PR has [no-test] in the title or as label, unless
     # the context was directly triggered
     if (('no-test' in list(labels) or '[no-test]' in title) and
         status.get("description", "") != github.NOT_TESTED_DIRECT):
+        logging.info("Skipping '{0}' on #{1} because it is no-test".format(context, number))
         priority = 0
         update = None
 
@@ -322,11 +328,13 @@ def prioritize(status, title, labels, priority, context):
         # Is testing already in progress?
         description = status.get("description", "")
         if description.startswith(github.TESTING):
+            logging.info("Skipping '{0}' on #{1} because it is already running".format(context, number))
             priority = description
             update = None
 
     if update:
         if priority <= 0:
+            logging.info("Skipping '{0}' on #{1} because of low priority".format(context, number))
             update = None
         else:
             update["description"] = github.NOT_TESTED
@@ -372,7 +380,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
             if pull:
                 pulls.append(pull)
             else:
-                sys.stderr.write("Can't find pull request {0}\n".format(pull_number))
+                logging.error("Can't find pull request {0}".format(pull_number))
                 return 1
     else:
         pulls = api.pulls()
@@ -385,6 +393,8 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
         statuses = api.statuses(revision)
         login = pull["head"]["user"]["login"]
         base = pull["base"]["ref"]  # The branch this pull request targets
+
+        logging.info("Processing #{0} titled '{1}' on revision {2}".format(number, title, revision))
 
         # If sha is present only scan PR with selected sha
         if sha and revision != sha and not revision.startswith(sha):
@@ -418,7 +428,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
                 priority = github.NO_TESTING
                 changes = { "description": github.NO_TESTING, "context": context, "state": "pending" }
             else:
-                (priority, changes) = prioritize(status, title, labels, baseline, context)
+                (priority, changes) = prioritize(status, title, labels, baseline, context, number)
             if not update or update_status(api, revision, context, status, changes):
                 results.append((priority, "pull-%d" % number, number, revision, "pull/%d/head" % number, context, base, repo, None))
 
@@ -455,7 +465,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
                         priority = github.NO_TESTING
                         changes = { "description": github.NO_TESTING, "context": repo_context, "state": "pending" }
                     else:
-                        (priority, changes) = prioritize(status, title, labels, baseline, repo_context)
+                        (priority, changes) = prioritize(status, title, labels, baseline, repo_context, number)
                     if not update or update_status(api, revision, repo_context, status, changes):
                         # don't specify a ref to check out; make-source already checks out project master
                         results.append((priority, "pull-%d" % number, number, revision, "", context, base, proj_repo, "pull/%s/head" % number))
@@ -465,7 +475,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
 def scan_for_pull_tasks(api, policy, opts, repo):
     kvm = os.access("/dev/kvm", os.R_OK | os.W_OK)
     if not kvm:
-        sys.stderr.write("tests-scan: No /dev/kvm access, not running tests here\n")
+        logging.error("tests-scan: No /dev/kvm access, not running tests here")
         return []
 
     results = cockpit_tasks(api, not opts.dry, policy, repo, opts.pull_number, opts.sha, opts.amqp)

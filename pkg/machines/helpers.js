@@ -577,3 +577,64 @@ export function getSortedBootOrderDevices(vm) {
 
     return devices;
 }
+
+function getVmDisksMap(vms, connectionName) {
+    let vmDisksMap = {};
+
+    for (let vm of vms) {
+        if (vm.connectionName != connectionName)
+            continue;
+
+        if (!(vm.name in vmDisksMap))
+            vmDisksMap[vm.name] = [];
+
+        for (let disk in vm.disks) {
+            const diskProps = vm.disks[disk];
+
+            if (diskProps.type == 'volume')
+                vmDisksMap[vm.name].push({ 'type': 'volume', 'pool': diskProps.source.pool, 'volume': diskProps.source.volume });
+            else if (diskProps.type == 'file')
+                vmDisksMap[vm.name].push({ 'type': 'file', 'source': diskProps.source.file });
+            /* Other disk types should be handled as well when we allow their creation from cockpit UI */
+        }
+    }
+    return vmDisksMap;
+}
+
+/**
+ * Returns a object of key-value pairs of Storage Volume names mapping
+ * to arrays of VM names using the relevant Storage Volume
+ *
+ * @param {object} vms
+ * @param {object} storagePool
+ * @returns {object}
+ */
+export function getStorageVolumesUsage(vms, storagePool) {
+    // Get a dictionary of vmName -> disks for a specific connection
+    const vmDisksMap = getVmDisksMap(vms, storagePool.connectionName);
+    const volumes = storagePool.volumes || [];
+
+    // And make it a dictionary of volumeName -> array of Domains using volume
+    let isVolumeUsed = {};
+    for (let i in volumes) {
+        let volumeName = volumes[i].name;
+        const targetPath = storagePool.target ? storagePool.target.path : '';
+        const volumePath = [targetPath, volumeName].join('/');
+        isVolumeUsed[volumeName] = [];
+
+        for (let vmName in vmDisksMap) {
+            const disks = vmDisksMap[vmName];
+
+            for (let i in disks) {
+                let disk = disks[i];
+                if (disk.type == 'volume' && disk.volume == volumeName && disk.pool == storagePool.name)
+                    isVolumeUsed[volumeName].push(vmName);
+
+                if (disk.type == 'file' && disk.source == volumePath)
+                    isVolumeUsed[volumeName].push(vmName);
+            }
+        }
+    }
+
+    return isVolumeUsed;
+}

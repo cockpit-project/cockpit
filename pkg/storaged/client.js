@@ -61,6 +61,10 @@ function instance_sampler(metrics, source) {
             for (var i = 0; i < instances[m].length; i++)
                 self.data[instances[m][i]] = [ ];
         }
+        if (Object.keys(self.data).length > 100) {
+            close();
+            self.data = { };
+        }
     }
 
     function handle_data(msg) {

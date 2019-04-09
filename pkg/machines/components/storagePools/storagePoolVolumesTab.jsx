@@ -23,8 +23,7 @@ import PropTypes from 'prop-types';
 import { ExpandableNotification } from 'cockpit-components-inline-notification.jsx';
 import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
-import { storagePoolId, convertToUnit, units } from '../../helpers.js';
-import { getVmDisksMap } from '../../libvirt-dbus.js';
+import { storagePoolId, convertToUnit, units, getStorageVolumesUsage } from '../../helpers.js';
 import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
@@ -70,30 +69,7 @@ export class StoragePoolVolumesTab extends React.Component {
             return (<div id={`${storagePoolIdPrefix}-storage-volumes-list`}>{_("No Storage Volumes defined for this Storage Pool")}</div>);
         }
 
-        // Get a dictionary of vmName -> disks for a specific connection
-        const vmDisksMap = getVmDisksMap(vms, storagePool.connectionName);
-
-        // And make it a dictionary of volumeName -> array of Domains using volume
-        let isVolumeUsed = {};
-        for (let i in volumes) {
-            let volumeName = volumes[i].name;
-            const targetPath = storagePool.target ? storagePool.target.path : '';
-            const volumePath = [targetPath, volumeName].join('/');
-            isVolumeUsed[volumeName] = [];
-
-            for (let vmName in vmDisksMap) {
-                const disks = vmDisksMap[vmName];
-
-                for (let i in disks) {
-                    let disk = disks[i];
-                    if (disk.type == 'volume' && disk.volume == volumeName && disk.pool == storagePool.name)
-                        isVolumeUsed[volumeName].push(vmName);
-
-                    if (disk.type == 'file' && disk.source == volumePath)
-                        isVolumeUsed[volumeName].push(vmName);
-                }
-            }
-        }
+        const isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
 
         /* Storage Volumes Deletion */
         const actions = [

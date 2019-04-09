@@ -873,29 +873,6 @@ function getDomainMaxVCPU(capsXML) {
     return vcpuMaxAttr;
 }
 
-export function getVmDisksMap(vms, connectionName) {
-    let vmDisksMap = {};
-
-    for (let vm of vms) {
-        if (vm.connectionName != connectionName)
-            continue;
-
-        if (!(vm.name in vmDisksMap))
-            vmDisksMap[vm.name] = [];
-
-        for (let disk in vm.disks) {
-            const diskProps = vm.disks[disk];
-
-            if (diskProps.type == 'volume')
-                vmDisksMap[vm.name].push({ 'type': 'volume', 'pool': diskProps.source.pool, 'volume': diskProps.source.volume });
-            else if (diskProps.type == 'file')
-                vmDisksMap[vm.name].push({ 'type': 'file', 'source': diskProps.source.file });
-            /* Other disk types should be handled as well when we allow their creation from cockpit UI */
-        }
-    }
-    return vmDisksMap;
-}
-
 /**
  * Calculates disk statistics.
  * @param  {info} Object returned by GetStats method call.

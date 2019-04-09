@@ -352,8 +352,6 @@ export function show_modal_dialog(props, footerProps) {
         if (footerProps.static_error)
             console.warn(footerProps.static_error);
         dialogObj.footerProps = footerProps;
-        if (dialogObj.footerProps === null || dialogObj.footerProps === undefined)
-            dialogObj.footerProps = { };
         if (dialogObj.footerProps.dialog_done != closeCallback) {
             origCallback = dialogObj.footerProps.dialog_done;
             dialogObj.footerProps.dialog_done = closeCallback;

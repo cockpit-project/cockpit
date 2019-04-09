@@ -74,7 +74,7 @@ export class StorageVolumeDelete extends React.Component {
 
         return (
             <OverlayTrigger placement='top'
-                            overlay={<Tooltip id='volume-delete-tooltip'>{ anyVolumeUsed ? _("One or more selected volumes are used by domains. Detach the disks first to allow volume deletion.") : "" }</Tooltip>}>
+                            overlay={<Tooltip id='volume-delete-tooltip'>{ _("One or more selected volumes are used by domains. Detach the disks first to allow volume deletion.") }</Tooltip>}>
                 { deleteBtn }
             </OverlayTrigger>
         );

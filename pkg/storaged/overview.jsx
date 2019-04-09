@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
 import React from "react";
 
 import { fmt_rate } from "./utils.js";
@@ -36,8 +37,28 @@ import { OptionalPanel } from "./optional-panel.jsx";
 import { JobsPanel } from "./jobs-panel.jsx";
 import { StorageLogsPanel } from "./logs-panel.jsx";
 
+const _ = cockpit.gettext;
+
 export class OverviewSidePanel extends React.Component {
+    constructor() {
+        super();
+        this.state = { collapsed: true };
+    }
+
     render() {
+        var show_all_button = null;
+        var children = this.props.children;
+
+        if (this.state.collapsed && children.length > 20) {
+            show_all_button = (
+                <tr>
+                    <td colSpan="3" onClick={() => { this.setState({ collapsed: false }) }}>
+                        {this.props.show_all_text || _("Show all")}
+                    </td>
+                </tr>);
+            children = children.slice(0, 20);
+        }
+
         return (
             <OptionalPanel id={this.props.id}
                            title={this.props.title}
@@ -49,7 +70,8 @@ export class OverviewSidePanel extends React.Component {
                 { this.props.children.length > 0
                     ? <table className={"table" + (this.props.hover !== false ? " table-hover" : "")}>
                         <tbody>
-                            { this.props.children }
+                            { children }
+                            { show_all_button }
                         </tbody>
                     </table>
                     : <div className="empty-panel-text">{this.props.empty_text}</div>

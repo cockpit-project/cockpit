@@ -122,6 +122,8 @@ def main():
                         help='Test contexts to use.')
     parser.add_argument('-p', '--pull-number', default=None,
                         help='Single pull request to scan for tasks')
+    parser.add_argument('--pull-data', default=None,
+                        help='pull_request GitHub JSON data to evaluate; mutualy exclusive with -p and -s')
     parser.add_argument('-s', '--sha', default=None,
                         help='SHA beloging to pull request to scan for tasks')
     parser.add_argument('--amqp', default=None,
@@ -131,6 +133,9 @@ def main():
     if opts.amqp and no_amqp:
         logging.error("AMQP host:port specified but python-amqp not available")
         return 1
+    if opts.pull_data and (opts.pull_number or opts.sha):
+        parser.error("--pull-data and --pull-number/--sha are mutually exclusive")
+
     api = github.GitHub(repo=opts.repo)
 
     try:
@@ -361,7 +366,7 @@ def update_status(api, revision, context, last, changes):
         return False
     return True
 
-def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
+def cockpit_tasks(api, update, contexts, repo, pull_data, pull_number, sha, amqp):
     results = []
     branch_contexts = { }
     for (context, branches) in contexts.items():
@@ -371,17 +376,20 @@ def cockpit_tasks(api, update, contexts, repo, pull_number, sha, amqp):
             branch_contexts[branch].append(context)
 
     pulls = []
-    if pull_number:
+    if pull_number or pull_data:
         # Avoid processing pull requests with the same number on external
         # repositories: if repo is None, the api is querying the repo the pull
         # request belongs to
         if repo is None:
-            pull = api.get("pulls/{0}".format(pull_number))
-            if pull:
-                pulls.append(pull)
+            if pull_data:
+                pulls.append(json.loads(pull_data))
             else:
-                logging.error("Can't find pull request {0}".format(pull_number))
-                return 1
+                pull = api.get("pulls/{0}".format(pull_number))
+                if pull:
+                    pulls.append(pull)
+                else:
+                    logging.error("Can't find pull request {0}".format(pull_number))
+                    return 1
     else:
         pulls = api.pulls()
 
@@ -478,7 +486,7 @@ def scan_for_pull_tasks(api, policy, opts, repo):
         logging.error("tests-scan: No /dev/kvm access, not running tests here")
         return []
 
-    results = cockpit_tasks(api, not opts.dry, policy, repo, opts.pull_number, opts.sha, opts.amqp)
+    results = cockpit_tasks(api, not opts.dry, policy, repo, opts.pull_data, opts.pull_number, opts.sha, opts.amqp)
 
     if opts.human_readable:
         func = lambda x: tests_human(*x)

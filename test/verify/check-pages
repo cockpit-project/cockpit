@@ -216,6 +216,58 @@ OnCalendar=daily
         b.wait_visible('#password-group')
         b.wait_text("#password-group > label", "Passwort")
 
+        # Test all languages
+        # Test that pages do not oops and that locale is valid
+
+        if m.image not in ["fedora-29", "fedora-30"]:
+            return
+
+        def line_sel(i):
+            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+
+        pages = ["/system", "/system/logs", "/network", "/users", "/system/services", "/system/terminal"]
+
+        self.login_and_go('/system')
+        b.wait_present('#server')
+
+        b.switch_to_top()
+        b.click('#content-user-name')
+        b.click(".display-language-menu a")
+        b.wait_popup('display-language')
+        languages = b.eval_js("ph_select('#display-language-list option').map(function(e) { return e.value })")
+        b.click("#display-language button:nth-child(1)") # Close the menu
+
+        for language in languages:
+            b.go("/system")
+            b.enter_page("/system")
+
+            b.switch_to_top()
+            b.click('#content-user-name')
+            b.click(".display-language-menu a")
+            b.wait_popup('display-language')
+            b.set_val("#display-language select", language)
+            b.click("#display-language-select-button")
+            b.expect_load()
+            # HACK: work around language switching in Chrome not working in current session (issue #8160)
+            b.reload(ignore_cache=True)
+            b.wait_present("#content")
+
+            # Test some pages, end up in terminal
+            for page in pages:
+                b.go(page)
+                b.enter_page(page)
+
+            locale = language.split("-")
+            if len(locale) == 1:
+                locale.append("")
+            locale = "{0}_{1}.UTF-8".format(locale[0], locale[1].upper())
+
+            b.focus('.terminal')
+            function_str = "(function (sel) { return ph_text(sel).trim() != 'Blank line'})"
+            b.wait_js_func(function_str, line_sel(1))
+            b.key_press("echo $LANG\r")
+            b.wait_in_text(line_sel(2), locale)
+
     def testPtBRLocale(self):
         m = self.machine
         b = self.browser

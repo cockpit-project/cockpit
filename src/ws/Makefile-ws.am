@@ -378,12 +378,9 @@ noinst_SCRIPTS += \
 
 if WITH_COCKPIT_SSH
 
-# HACK: https://bugs.libssh.org/T117: libssh 0.8.4 breaks interactive keyboard auth on server side, i. e. our mock-ssh for unit tests
-if !HAVE_BROKEN_SSH_KBDINT
 WS_CHECKS += \
 	test-authssh \
 	$(NULL)
-endif
 
 test_authssh_CFLAGS = $(cockpit_ws_CFLAGS)
 test_authssh_SOURCES = \

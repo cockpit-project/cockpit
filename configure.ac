@@ -150,12 +150,6 @@ fi
 AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
 AM_CONDITIONAL(HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY, test "$ac_cv_have_decl_ssh_session_has_known_hosts_entry" = "yes")
 
-# HACK: https://bugs.libssh.org/T117: libssh 0.8.4 breaks interactive keyboard auth on server side, i. e. our mock-ssh for unit tests
-# This also affects Debian stable (https://bugs.debian.org/913870)
-PKG_CHECK_MODULES(LIBSSH_BROKEN_KBDINT, [libssh = 0.8.4], [broken_ssh_kbdint=yes], [broken_ssh_kbdint=no])
-AM_CONDITIONAL(HAVE_BROKEN_SSH_KBDINT, test "$broken_ssh_kbdint" = "yes" ||
-                                       test $(dpkg-query --show --showformat='${Version}' libssh-4 2>/dev/null) = "0.7.3-2+deb9u1")
-
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
   [AC_MSG_ERROR([Couldn't find PAM headers. Try installing pam-devel])]

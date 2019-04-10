@@ -58,12 +58,10 @@ mock_sshd_CFLAGS = \
 	$(COCKPIT_SSH_SESSION_CFLAGS) \
 	$(NULL)
 
-SSH_CHECKS = test-sshoptions
-
-# HACK: https://bugs.libssh.org/T117: libssh 0.8.4 breaks interactive keyboard auth on server side, i. e. our mock-ssh for unit tests
-if !HAVE_BROKEN_SSH_KBDINT
-SSH_CHECKS += test-sshbridge
-endif
+SSH_CHECKS = \
+	test-sshoptions \
+	test-sshbridge \
+	$(NULL)
 
 test_sshoptions_CFLAGS = $(cockpit_ssh_CFLAGS)
 test_sshoptions_SOURCES = src/ssh/test-sshoptions.c

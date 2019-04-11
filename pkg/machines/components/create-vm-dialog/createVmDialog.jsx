@@ -41,6 +41,7 @@ import {
 } from './pxe-helpers.js';
 
 import {
+    autodetectOS,
     NOT_SPECIFIED,
     OTHER_OS_SHORT_ID,
     DIVIDER_FAMILY,
@@ -122,6 +123,33 @@ class CreateVM extends React.Component {
             break;
         case 'source':
             this.setState({ [key]: value });
+
+            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.vendor == NOT_SPECIFIED && value != '' && value != undefined) {
+                // Clears the previously set timer.
+                clearTimeout(this.typingTimeout);
+
+                const onOsAutodetect = (os) => {
+                    autodetectOS(os)
+                            .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
+                            .then(res => {
+                                let osName = res.match(/OS ['"](.*)['"]/)[1];
+                                // osinfo-query is nto yet aware of variants, https://gitlab.com/libosinfo/libosinfo/issues/24
+                                // but osinfo-detect is. Remove the variant suffix to eliminate this issue
+                                osName = osName.replace(/ Server$/, "");
+                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.name == osName);
+
+                                if (osEntry) {
+                                    this.setState({
+                                        vendor: osEntry[0].vendor,
+                                        os: osEntry[0].shortId
+                                    });
+                                    notifyValuesChanged('vendor', osEntry[0].vendor);
+                                    notifyValuesChanged('os', osEntry[0].shortId);
+                                }
+                            });
+                };
+                this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
+            }
             break;
         case 'sourceType':
             this.setState({ [key]: value });
@@ -491,7 +519,8 @@ class CreateVmModal extends React.Component {
                 vendorMap={vendors.vendorMap}
                 valuesChanged={this.onValueChanged}
                 loggedUser={loggedUser}
-                providerName={this.props.providerName} />
+                providerName={this.props.providerName}
+                osInfoList={this.props.osInfoList} />
         );
 
         return (

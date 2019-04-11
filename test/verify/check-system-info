@@ -282,9 +282,15 @@ class TestSystemInfo(MachineCase):
         # org.freedesktop.timedate1 instead of timedatex.
         m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
 
-        wait(can_ntp)
-
         self.login_and_go("/system")
+
+        # HACK: This check needs to stay here, since it solves the following race condition;
+        # Previously the test was opening the dialog before the proxy was initialized, resulting in showing only
+        # the manual select entry in the dialog.
+        # Keeping the can_ntp call here, will make sure that the dialog will get updated, since
+        # can_ntp call will start the timedated service, and the dialog will
+        # receive the changed signal to update the enabled select entries.
+        wait(can_ntp)
 
         # Wait until everything is ready to go...
         b.wait_text_not("#system_information_systime_button", "")

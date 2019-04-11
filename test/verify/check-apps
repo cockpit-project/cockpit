@@ -35,7 +35,7 @@ class TestApps(PackageCase):
         self.createPackage(name, version, revision, content={
             "/usr/share/metainfo/org.cockpit-project.{0}.metainfo.xml".format(name): """
 <component type="addon">
-  <extends>cockpit.desktop</extends>
+  <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{0}</id>
   <name>{0}</name>
   <summary>An application for testing</summary>
@@ -49,7 +49,7 @@ class TestApps(PackageCase):
         for p in self.appstream_collection:
             body += """
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+  <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.{0}</id>
     <name>{0}</name>
     <summary>An application for testing</summary>
@@ -127,7 +127,7 @@ class TestApps(PackageCase):
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.foo</id>
     <name>NAME:none</name>
     <name xml:lang="de">NAME:de</name>
@@ -188,7 +188,7 @@ class TestApps(PackageCase):
             m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.test</id>
     <name>Name</name>
     <summary>Summary</summary>
@@ -223,7 +223,7 @@ This <is <not XML.
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components>
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.test</id>
     <name>Name</name>
     <summary>Summary</summary>
@@ -241,7 +241,7 @@ This <is <not XML.
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.test</id>
     <name>Name</name>
     <summary>Summary</summary>
@@ -258,7 +258,7 @@ This <is <not XML.
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <name>Name</name>
     <summary>No description</summary>
     <launchable type="cockpit-manifest">foo</launchable>
@@ -272,7 +272,7 @@ This <is <not XML.
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.test2</id>
     <name>Name</name>
     <summary>Summary</summary>
@@ -283,7 +283,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
   <component type="addon">
-    <extends>cockpit.desktop</extends>
+    <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.test</id>
     <name>Name</name>
     <summary>Summary 2</summary>

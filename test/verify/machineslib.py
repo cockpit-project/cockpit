@@ -1094,6 +1094,13 @@ class TestMachines(NetworkCase):
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
+        # disallow UNSPECIFIED_VENDOR in case of URL installation media and start_vm=False
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
+                                                            os_vendor=config.UNSPECIFIED_VENDOR,
+                                                            storage_size=100, storage_size_unit='MiB',
+                                                            os_name=config.OTHER_OS, start_vm=False),
+                                      {"OS Vendor": "You need to select the most closely matching OS vendor and Operating System"})
+
         # try to CREATE few machines
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,

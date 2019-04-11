@@ -844,7 +844,10 @@ on_transport_closed (CockpitTransport *transport,
       if (cockpit_pipe_get_pid (pipe, NULL))
         status = cockpit_pipe_exit_status (pipe);
       g_debug ("%s: authentication process exited: %d; problem %s", session->name, status, problem);
-      if (problem)
+
+      /* we get "access-denied" both if cockpit-session cannot execute cockpit-bridge (common case)
+       * and if cockpit-session itself is not executable (corner case, messed up install) */
+      if (problem && (!session->authorize || g_strcmp0 (problem, "access-denied") != 0))
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                        g_strcmp0 (problem, "no-cockpit") == 0

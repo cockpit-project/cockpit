@@ -117,6 +117,8 @@ on_pipe_close (CockpitPipe *pipe,
             problem = "terminated";
           else if (is_cockpit && WIFEXITED (status) && WEXITSTATUS (status) == 127)
             problem = "no-cockpit";      // cockpit-bridge not installed
+          else if (is_cockpit && WIFEXITED (status) && WEXITSTATUS (status) == 1)
+            problem = "access-denied";   // disabled user shells like /bin/false or /sbin/nologin exit 1
           else if (WIFEXITED (status) && WEXITSTATUS (status) == 255)
             problem = "terminated";      // failed or got a signal, etc.
           else if (!g_spawn_check_exit_status (status, &error))

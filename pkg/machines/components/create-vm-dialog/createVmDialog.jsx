@@ -262,6 +262,7 @@ class CreateVM extends React.Component {
         const validationFailed = this.props.vmParams.validate && validateParams(this.props.vmParams);
         const validationStateName = validationFailed.vmName ? 'error' : undefined;
         const validationStateSource = validationFailed.source ? 'error' : undefined;
+        const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
 
         const installationSourceVal = (
             <FormGroup validationState={validationStateSource} controlId='source'>
@@ -326,11 +327,17 @@ class CreateVM extends React.Component {
                 <label className="control-label" htmlFor="vendor-select">
                     {_("OS Vendor")}
                 </label>
-                <Select.Select id="vendor-select"
-                               initial={this.state.vendor}
-                               onChange={this.onChangedValue.bind(this, 'vendor')}>
-                    {vendorSelectEntries}
-                </Select.Select>
+                <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
+                    <Select.Select id="vendor-select"
+                                   initial={this.state.vendor}
+                                   onChange={this.onChangedValue.bind(this, 'vendor')}>
+                        {vendorSelectEntries}
+                    </Select.Select>
+                    { validationFailed.vendor && this.state.vendor == NOT_SPECIFIED &&
+                    <HelpBlock>
+                        <p className="text-danger">{validationFailed.vendor}</p>
+                    </HelpBlock> }
+                </FormGroup>
 
                 <label className="control-label" htmlFor="vendor-select">
                     {_("Operating System")}
@@ -386,6 +393,12 @@ function validateParams(vmParams) {
     if (isEmpty(vmParams.vmName.trim())) {
         validationFailed['vmName'] = _("Name should not be empty");
     }
+
+    // If we select installation media from URL force the user to select
+    // OS, since virt-install will not detect the OS, in case we don't choose
+    // to start the guest immediately.
+    if (vmParams.vendor == NOT_SPECIFIED && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
+        validationFailed['vendor'] = _("You need to select the most closely matching OS vendor and Operating System");
 
     let source = vmParams.source ? vmParams.source.trim() : null;
 

@@ -525,12 +525,22 @@ out:
 static int
 session (char **env)
 {
-  char *argv[] = { "cockpit-bridge", NULL };
+  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge", NULL };
   gss_key_value_set_desc store;
   struct gss_key_value_element_struct element;
   OM_uint32 major, minor;
   krb5_context k5;
+  struct passwd *pwd;
   int res;
+
+  /* determine the user's shell and run the bridge through it, so that we catch
+   * disabled accounts like /bin/false or /bin/nologin shells */
+  pwd = getpwuid (geteuid ());
+  if (!pwd)
+    errx (EX, "failed to get passwd entry for user: %m");
+  argv[0] = pwd->pw_shell;
+  if (!argv[0])
+    errx (EX, "passwd entry for user has NULL shell");
 
   if (creds != GSS_C_NO_CREDENTIAL)
     {
@@ -556,7 +566,7 @@ session (char **env)
         }
     }
 
-  debug ("executing bridge: %s", argv[0]);
+  debug ("executing cockpit-bridge through user shell %s", pwd->pw_shell);
 
   if (env)
     execvpe (argv[0], argv, env);

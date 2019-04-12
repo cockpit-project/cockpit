@@ -1,4 +1,4 @@
-[![semaphore ci build status](https://semaphoreci.com/api/v1/cockpit/cockpit/branches/master/badge.svg)](https://semaphoreci.com/cockpit/cockpit) <br />
+[![semaphore ci build status](https://semaphoreci.com/api/v1/cockpit-project/cockpit/branches/master/badge.svg)](https://semaphoreci.com/cockpit-project/cockpit) <br />
 
 # Cockpit
 **A sysadmin login session in a web browser**

@@ -111,7 +111,7 @@
                 <span class="pficon pficon-warning-triangle-o"></span>
                 <span translate>Your login credentials do not give you access to use the docker registry from the command line.</span>
             </div>
-<code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -e unused -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
+<code ng-if="settings.registry.password">$ sudo docker login -p {{settings.registry.password}} -u unused <span ng-class="{ placeholder: !settings.registry.host_explicit }">{{settings.registry.host}}</span></code>
             <p ng-if="settings.registry.openshifthost_explicit">
                 <span translate>Log into OpenShift command line tools:</span>
                 <a tabindex="0" ng-if="settings.registry.password"

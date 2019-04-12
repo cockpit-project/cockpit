@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-29 09:20+0000\n"
+"POT-Creation-Date: 2019-04-12 12:39+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-03-22 02:29+0000\n"
+"PO-Revision-Date: 2019-04-06 06:08+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -141,10 +141,10 @@ msgstr ""
 "або віддайте таку команду:"
 
 #: pkg/storaged/content-views.jsx:291 pkg/storaged/content-views.jsx:509
-#: pkg/storaged/format-dialog.jsx:262 pkg/storaged/lvol-tabs.jsx:200
-#: pkg/storaged/lvol-tabs.jsx:259 pkg/storaged/mdraid-details.jsx:237
-#: pkg/storaged/mdraid-details.jsx:290 pkg/storaged/vdo-details.jsx:146
-#: pkg/storaged/vdo-details.jsx:175 pkg/storaged/vgroup-details.jsx:203
+#: pkg/storaged/lvol-tabs.jsx:200 pkg/storaged/lvol-tabs.jsx:259
+#: pkg/storaged/mdraid-details.jsx:237 pkg/storaged/mdraid-details.jsx:290
+#: pkg/storaged/vdo-details.jsx:146 pkg/storaged/vdo-details.jsx:175
+#: pkg/storaged/vgroup-details.jsx:203 pkg/storaged/format-dialog.jsx:262
 msgid "$0 is in active use"
 msgstr "$0 активно використовується"
 
@@ -243,6 +243,10 @@ msgstr "«Установа» потребує реєстрації."
 msgid "'Organization' required when using activation keys."
 msgstr ""
 "Слід вказати щось у полі «Установа», якщо використовуються ключі активації."
+
+#: pkg/networkmanager/firewall.jsx:467
+msgid "(Optional)"
+msgstr "(Необов’язково)"
 
 #: pkg/storaged/fsys-tab.jsx:163
 msgid "(default)"
@@ -710,12 +714,16 @@ msgstr "Додати новий кластер"
 msgid "Add New User"
 msgstr "Додати нового користувача"
 
+#: pkg/networkmanager/firewall.jsx:392
+msgid "Add Ports"
+msgstr "Додати порти"
+
 #: pkg/kubernetes/views/add-role-dialog.html:3
 msgid "Add Role"
 msgstr "Додати роль"
 
-#: pkg/networkmanager/firewall.jsx:244 pkg/networkmanager/firewall.jsx:328
-#: pkg/networkmanager/firewall.jsx:334
+#: pkg/networkmanager/firewall.jsx:392 pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:568
 msgid "Add Services"
 msgstr "Додавання служб"
 
@@ -926,7 +934,7 @@ msgstr "Усі запущено"
 msgid "All running virtual machines will be turned off."
 msgstr "Усі запущені віртуальні машини буде вимкнено."
 
-#: pkg/networkmanager/firewall.jsx:360
+#: pkg/networkmanager/firewall.jsx:594
 msgid "Allowed Services"
 msgstr "Дозволені служби"
 
@@ -1223,7 +1231,7 @@ msgstr "Порядок завантаження"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:210
 msgid "Boot order settings could not be saved"
-msgstr ""
+msgstr "Не вдалося зберегти параметри порядку завантаження"
 
 #: pkg/systemd/init.js:731
 msgid "Bound By"
@@ -1285,11 +1293,11 @@ msgstr "Процесор"
 
 #: pkg/systemd/hwinfo.jsx:113
 msgid "CPU Security"
-msgstr ""
+msgstr "Захист процесора"
 
 #: pkg/systemd/hwinfo.jsx:205
 msgid "CPU Security Toggles"
-msgstr ""
+msgstr "Перемикачі захисту процесора"
 
 #: pkg/systemd/host.js:1544
 msgctxt "page-title"
@@ -1387,7 +1395,7 @@ msgstr "Не вдалося завантажити образ"
 #: pkg/machines/components/storagePools/storagePoolDelete.jsx:128
 #: pkg/machines/components/vcpuModal.jsx:244
 #: pkg/machines/components/vm/bootOrderModal.jsx:329
-#: pkg/networkmanager/firewall.jsx:241
+#: pkg/networkmanager/firewall.jsx:475
 #: pkg/ovirt/components/ClusterTemplates.jsx:75
 #: pkg/ovirt/components/OVirtTab.jsx:66 pkg/ovirt/components/VdsmView.jsx:97
 #: pkg/ovirt/components/VdsmView.jsx:111 pkg/packagekit/updates.jsx:179
@@ -1601,7 +1609,7 @@ msgstr "Клієнтське програмне забезпечення"
 #: pkg/shell/stub.html:79 pkg/shell/stub.html:122 pkg/systemd/index.html:286
 #: pkg/systemd/services.html:365 pkg/systemd/services.html:383
 #: pkg/users/index.html:45 pkg/apps/utils.jsx:107 pkg/sosreport/index.js:45
-#: pkg/sosreport/index.js:110 pkg/storaged/dialog.jsx:383
+#: pkg/sosreport/index.js:126 pkg/storaged/dialog.jsx:383
 msgid "Close"
 msgstr "Закрити"
 
@@ -1754,6 +1762,10 @@ msgid_plural "Combined usage of $0 CPU cores"
 msgstr[0] "Комбіноване використання $0 ядра процесора"
 msgstr[1] "Комбіноване використання $0 ядер процесора"
 msgstr[2] "Комбіноване використання $0 ядер процесора"
+
+#: pkg/networkmanager/firewall.jsx:447
+msgid "Comma-separated ports, ranges, and aliases are accepted"
+msgstr "Відокремлені комами порти, діапазони і альтернативні назви прийнято"
 
 #: pkg/docker/index.html:269 pkg/docker/index.html:445
 #: pkg/docker/index.html:706 pkg/systemd/services.html:429
@@ -2171,9 +2183,17 @@ msgstr "Створити новий рахунок"
 msgid "Create New VM"
 msgstr "Створити віртуальну машину"
 
-#: pkg/storaged/content-views.jsx:438
+#: pkg/storaged/content-views.jsx:438 pkg/storaged/format-dialog.jsx:332
 msgid "Create Partition"
 msgstr "Створити розділ"
+
+#: pkg/storaged/content-views.jsx:556
+msgid "Create Partition Table"
+msgstr "Створити таблицю розділів"
+
+#: pkg/storaged/format-dialog.jsx:183
+msgid "Create Partition on $0"
+msgstr "Створити розділ на $0"
 
 #: pkg/storaged/mdraids-panel.jsx:38
 msgid "Create RAID Device"
@@ -2236,14 +2256,6 @@ msgstr "Створити"
 #: pkg/storaged/content-views.jsx:712
 msgid "Create new Logical Volume"
 msgstr "Створити логічний том"
-
-#: pkg/storaged/format-dialog.jsx:183
-msgid "Create Partition on $0"
-msgstr "Створити розділ на $0"
-
-#: pkg/storaged/content-views.jsx:556
-msgid "Create Partition Table"
-msgstr "Створити таблицю розділів"
 
 #: pkg/kubernetes/views/deploymentconfig-body.html:7
 #: pkg/kubernetes/views/node-body.html:3 pkg/kubernetes/views/pod-body.html:7
@@ -2316,7 +2328,7 @@ msgstr "Створюємо групу томів $target"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:460
 msgid "Creation of VM $0 failed"
-msgstr ""
+msgstr "Не вдалося створити ВМ $0"
 
 #: pkg/systemd/logs.html:57
 msgid "Critical and above"
@@ -2342,6 +2354,10 @@ msgstr "Нетиповий"
 msgid "Custom (Enter filesystem type)"
 msgstr "Нетипова (Вкажіть тип файлової системи)"
 
+#: pkg/networkmanager/firewall.jsx:441
+msgid "Custom Ports"
+msgstr "Нетипові порти"
+
 #: pkg/subscriptions/subscriptions-register.jsx:103
 msgid "Custom URL"
 msgstr "Нетипова адреса"
@@ -2350,7 +2366,7 @@ msgstr "Нетипова адреса"
 msgid "Custom encryption options"
 msgstr "Нетипові параметри шифрування"
 
-#: pkg/storaged/format-dialog.jsx:95 pkg/storaged/nfs-details.jsx:176
+#: pkg/storaged/nfs-details.jsx:176 pkg/storaged/format-dialog.jsx:95
 msgid "Custom mount options"
 msgstr "Нетипові параметри монтування"
 
@@ -2452,7 +2468,7 @@ msgstr "Затримка"
 msgid "Delete"
 msgstr "Вилучити"
 
-#: pkg/networkmanager/interfaces.js:2432 pkg/users/local.js:1177
+#: pkg/networkmanager/interfaces.js:2432 pkg/users/local.js:1179
 msgid "Delete $0"
 msgstr "Вилучити $0"
 
@@ -2623,7 +2639,7 @@ msgstr "Змінний"
 #: pkg/kubernetes/index.html:67 pkg/shell/index.html:249
 #: pkg/docker/containers-view.jsx:336 pkg/docker/containers-view.jsx:504
 #: pkg/docker/containers-view.jsx:514 pkg/docker/containers-view.jsx:642
-#: pkg/networkmanager/firewall.jsx:87 pkg/packagekit/updates.jsx:383
+#: pkg/networkmanager/firewall.jsx:89 pkg/packagekit/updates.jsx:383
 #: pkg/subscriptions/subscriptions-view.jsx:232 pkg/systemd/host.js:741
 msgid "Details"
 msgstr "Подробиці"
@@ -2666,7 +2682,7 @@ msgid "Disable"
 msgstr "Вимкнути"
 
 #: pkg/systemd/hwinfo.jsx:191
-msgid "Disable symmetric multithreading"
+msgid "Disable simultaneous multithreading"
 msgstr ""
 
 #: pkg/tuned/dialog.js:232
@@ -2699,7 +2715,7 @@ msgstr "Диск"
 
 #: pkg/machines/components/diskRemove.jsx:31
 msgid "Disk $0 fail to get detached from VM $1"
-msgstr ""
+msgstr "Не вдалося від'єднати диск $0 від віртуальної машини $1"
 
 #: pkg/dashboard/index.html:73 pkg/systemd/host.js:545
 msgid "Disk I/O"
@@ -3085,7 +3101,7 @@ msgstr "Помилки:"
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/systemd/services.html:377 pkg/apps/utils.jsx:99
 #: pkg/storaged/multipath.jsx:57 pkg/storaged/storage-controls.jsx:99
-#: pkg/storaged/storage-controls.jsx:192 pkg/users/local.js:1470
+#: pkg/storaged/storage-controls.jsx:192 pkg/users/local.js:1472
 msgid "Error"
 msgstr "Помилка"
 
@@ -3137,7 +3153,15 @@ msgstr "Ethtool"
 msgid "Everything"
 msgstr "Все"
 
-#: pkg/users/local.js:473 pkg/users/local.js:1415
+#: pkg/networkmanager/firewall.jsx:454
+msgid "Example: 22,ssh,8080,5900-5910"
+msgstr "Приклад: 22,ssh,8080,5900-5910"
+
+#: pkg/networkmanager/firewall.jsx:462
+msgid "Example: 88,2019,nfs,rsync"
+msgstr "Приклад: 88,2019,nfs,rsync"
+
+#: pkg/users/local.js:473 pkg/users/local.js:1417
 msgid "Excellent password"
 msgstr "Чудовий пароль"
 
@@ -3171,7 +3195,7 @@ msgstr "ПОМИЛКА"
 
 #: pkg/ovirt/provider.js:130
 msgid "FORCEOFF action failed: $0"
-msgstr ""
+msgstr "Помилка під час дії FORCEOFF: $0"
 
 #: pkg/ovirt/components/InstallationDialog.jsx:47
 msgid "FQDN"
@@ -3274,7 +3298,7 @@ msgstr "Тип файлової системи"
 msgid "Filesystems"
 msgstr "Файлові системи"
 
-#: pkg/networkmanager/firewall.jsx:194
+#: pkg/networkmanager/firewall.jsx:410
 msgid "Filter Services"
 msgstr "Фільтрувати служби"
 
@@ -3287,11 +3311,11 @@ msgid "Fingerprint"
 msgstr "Відбиток"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/index.html:96
-#: pkg/networkmanager/firewall.jsx:352 pkg/networkmanager/firewall.jsx:355
+#: pkg/networkmanager/firewall.jsx:586 pkg/networkmanager/firewall.jsx:589
 msgid "Firewall"
 msgstr "Брандмауер"
 
-#: pkg/networkmanager/firewall.jsx:317
+#: pkg/networkmanager/firewall.jsx:551
 msgid "Firewall is not available"
 msgstr "Брандмауер недоступний"
 
@@ -3960,7 +3984,7 @@ msgstr "Некоректний формат дати і часу"
 msgid "Invalid date format."
 msgstr "Некоректний формат дати."
 
-#: pkg/users/local.js:1235
+#: pkg/users/local.js:1237
 msgid "Invalid expiration date"
 msgstr "Некоректна дата строку завершення дії"
 
@@ -3980,7 +4004,7 @@ msgstr "Некоректний ключ"
 msgid "Invalid metric $0"
 msgstr "Некоректна метрика $0"
 
-#: pkg/users/local.js:1311
+#: pkg/users/local.js:1313
 msgid "Invalid number of days"
 msgstr "Некоректна кількість днів"
 
@@ -3992,6 +4016,10 @@ msgstr "Некоректне число."
 msgid "Invalid port"
 msgstr "Некоректний порт"
 
+#: pkg/networkmanager/firewall.jsx:285
+msgid "Invalid port number"
+msgstr "Некоректний номер порту"
+
 #: pkg/networkmanager/utils.js:41
 msgid "Invalid prefix $0"
 msgstr "Некоректний префікс $0"
@@ -3999,6 +4027,10 @@ msgstr "Некоректний префікс $0"
 #: pkg/networkmanager/utils.js:132
 msgid "Invalid prefix or netmask $0"
 msgstr "Некоректний префікс або маска мережі $0"
+
+#: pkg/networkmanager/firewall.jsx:312
+msgid "Invalid range"
+msgstr "Некоректний діапазон"
 
 #: pkg/systemd/host.js:1446 pkg/systemd/shutdown.js:141
 msgid "Invalid time format"
@@ -4314,7 +4346,7 @@ msgstr "Заблокувати"
 msgid "Lock Account"
 msgstr "Заблокувати обліковий запис"
 
-#: pkg/users/local.js:879 pkg/users/local.js:1216
+#: pkg/users/local.js:879 pkg/users/local.js:1218
 msgid "Lock account on $0"
 msgstr "Заблокувати обліковий запис $0"
 
@@ -4354,7 +4386,7 @@ msgstr "Вхід до реєстру:"
 msgid "Log messages"
 msgstr "Повідомлення журналу"
 
-#: pkg/users/local.js:959
+#: pkg/users/local.js:961
 msgid "Logged In"
 msgstr "Вхід"
 
@@ -4468,7 +4500,7 @@ msgstr "MTU має бути додатнім числом"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:105
 msgid "Mac"
-msgstr ""
+msgstr "Mac"
 
 #: pkg/machines/components/nicEdit.jsx:161
 msgid "Mac Address"
@@ -4656,7 +4688,7 @@ msgstr "Хвилини"
 
 #: pkg/systemd/hwinfo.jsx:62 pkg/systemd/hwinfo.jsx:67
 msgid "Mitigations"
-msgstr ""
+msgstr "Запобіжні заходи"
 
 #: pkg/networkmanager/index.html:292
 msgid "Mode"
@@ -4721,18 +4753,18 @@ msgstr "Змонтувати"
 msgid "Mount Location"
 msgstr "Місце монтування"
 
-#: pkg/storaged/format-dialog.jsx:85 pkg/storaged/fsys-tab.jsx:174
-#: pkg/storaged/nfs-details.jsx:172
+#: pkg/storaged/fsys-tab.jsx:174 pkg/storaged/nfs-details.jsx:172
+#: pkg/storaged/format-dialog.jsx:85
 msgid "Mount Options"
 msgstr "Параметри монтування"
 
-#: pkg/storaged/format-dialog.jsx:75 pkg/storaged/fsys-panel.jsx:109
-#: pkg/storaged/fsys-tab.jsx:160 pkg/storaged/nfs-details.jsx:318
-#: pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/fsys-panel.jsx:109 pkg/storaged/fsys-tab.jsx:160
+#: pkg/storaged/nfs-details.jsx:318 pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/format-dialog.jsx:75
 msgid "Mount Point"
 msgstr "Точка монтування"
 
-#: pkg/storaged/format-dialog.jsx:93 pkg/storaged/nfs-details.jsx:174
+#: pkg/storaged/nfs-details.jsx:174 pkg/storaged/format-dialog.jsx:93
 msgid "Mount at boot"
 msgstr "Змонтувати при завантаженні"
 
@@ -4752,7 +4784,7 @@ msgstr "Точка монтування не може бути порожньо�
 msgid "Mount point must start with \"/\"."
 msgstr "Запис точки монтування має починатися з «/»."
 
-#: pkg/storaged/format-dialog.jsx:94 pkg/storaged/nfs-details.jsx:175
+#: pkg/storaged/nfs-details.jsx:175 pkg/storaged/format-dialog.jsx:94
 msgid "Mount read only"
 msgstr "Змонтувати лише для читання"
 
@@ -4794,15 +4826,11 @@ msgstr "Не встановлено підтримки NFS"
 
 #: pkg/machines/components/vmnetworktab.jsx:67
 msgid "NIC $0 of VM $1 failed to change state"
-msgstr ""
+msgstr "NIC $0 ВМ $1, не вдалося змінити стан"
 
 #: pkg/networkmanager/interfaces.js:2005
 msgid "NSNA Ping"
 msgstr "Луна-імпульс NSNA"
-
-#: pkg/storaged/format-dialog.jsx:252
-msgid "NTFS - Compatible with most systems"
-msgstr "NTFS - Сумісна з більшістю систем"
 
 #: pkg/systemd/host.js:1510
 msgid "NTP Server"
@@ -4847,15 +4875,15 @@ msgstr "Сервер NTP"
 #: pkg/ovirt/components/ClusterTemplates.jsx:135
 #: pkg/ovirt/components/ClusterVms.jsx:181 pkg/packagekit/updates.jsx:380
 #: pkg/storaged/content-views.jsx:105 pkg/storaged/content-views.jsx:645
-#: pkg/storaged/format-dialog.jsx:289 pkg/storaged/fsys-panel.jsx:108
-#: pkg/storaged/fsys-tab.jsx:72 pkg/storaged/fsys-tab.jsx:153
-#: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:178
-#: pkg/storaged/lvol-tabs.jsx:33 pkg/storaged/lvol-tabs.jsx:346
-#: pkg/storaged/lvol-tabs.jsx:396 pkg/storaged/lvol-tabs.jsx:431
-#: pkg/storaged/mdraids-panel.jsx:40 pkg/storaged/part-tab.jsx:33
-#: pkg/storaged/vdos-panel.jsx:48 pkg/storaged/vgroup-details.jsx:181
-#: pkg/storaged/vgroups-panel.jsx:55 pkg/systemd/hwinfo.jsx:79
-#: pkg/systemd/init.js:281
+#: pkg/storaged/fsys-panel.jsx:108 pkg/storaged/fsys-tab.jsx:72
+#: pkg/storaged/fsys-tab.jsx:153 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/storaged/iscsi-panel.jsx:178 pkg/storaged/lvol-tabs.jsx:33
+#: pkg/storaged/lvol-tabs.jsx:346 pkg/storaged/lvol-tabs.jsx:396
+#: pkg/storaged/lvol-tabs.jsx:431 pkg/storaged/mdraids-panel.jsx:40
+#: pkg/storaged/part-tab.jsx:33 pkg/storaged/vdos-panel.jsx:48
+#: pkg/storaged/vgroup-details.jsx:181 pkg/storaged/vgroups-panel.jsx:55
+#: pkg/storaged/format-dialog.jsx:289 pkg/systemd/init.js:281
+#: pkg/systemd/hwinfo.jsx:79
 msgid "Name"
 msgstr "Назва"
 
@@ -4931,11 +4959,11 @@ msgstr "Мережа"
 
 #: pkg/machines/components/networks/network.jsx:117
 msgid "Network $0 failed to get activated"
-msgstr ""
+msgstr "Не вдалося активувати мережу $0"
 
 #: pkg/machines/components/networks/network.jsx:129
 msgid "Network $0 failed to get deactivated"
-msgstr ""
+msgstr "Не вдалося деактивувати мережу $0"
 
 #: pkg/machines/components/create-vm-dialog/createVmDialog.jsx:316
 msgid "Network Boot (PXE)"
@@ -4972,7 +5000,7 @@ msgid "NetworkManager is not running."
 msgstr "NetworkManager не запущено."
 
 #: pkg/networkmanager/index.html:23 pkg/networkmanager/index.html:393
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Networking"
 msgstr "Робота у мережі"
 
@@ -4990,7 +5018,7 @@ msgstr "Журнали роботи у мережі"
 msgid "Networks"
 msgstr "Мережі"
 
-#: pkg/users/local.js:961
+#: pkg/users/local.js:963
 msgid "Never"
 msgstr "Ніколи"
 
@@ -5124,7 +5152,7 @@ msgstr "Альтернативної назви не вказано"
 msgid "No applications installed or available"
 msgstr "Немає встановлених або доступних програм"
 
-#: pkg/sosreport/index.js:112
+#: pkg/sosreport/index.js:128
 msgid "No archive has been created."
 msgstr "Архів не було створено."
 
@@ -5266,7 +5294,7 @@ msgstr "У кластері немає вузлів"
 msgid "No oVirt connection"
 msgstr "Немає з'єднання oVirt"
 
-#: pkg/networkmanager/firewall.jsx:362
+#: pkg/networkmanager/firewall.jsx:596
 msgid "No open ports"
 msgstr "Немає відкрити портів"
 
@@ -5921,7 +5949,7 @@ msgstr "Будь ласка, введіть назву нового тому"
 msgid "Please enter new volume size"
 msgstr "Будь ласка, введіть розмір нового тому"
 
-#: pkg/networkmanager/firewall.jsx:318
+#: pkg/networkmanager/firewall.jsx:552
 msgid "Please install the $0 package"
 msgstr "Будь ласка, встановіть пакунок $0"
 
@@ -6009,7 +6037,7 @@ msgstr "Будь ласка, виберіть коректну кінцеву т
 msgid "Please select a valid policy option."
 msgstr "Будь ласка, виберіть коректний варіант правил."
 
-#: pkg/users/local.js:1230
+#: pkg/users/local.js:1232
 msgid "Please specify an expiration date"
 msgstr "Будь ласка, вкажіть кінцеву дату строку дії"
 
@@ -6124,6 +6152,10 @@ msgstr "Заповнити"
 msgid "Port"
 msgstr "Порт"
 
+#: pkg/networkmanager/firewall.jsx:289
+msgid "Port number and type do not match"
+msgstr "Номер порту і тип не є сумісними"
+
 #: pkg/lib/machine-info.js:71
 msgid "Portable"
 msgstr "Портативний"
@@ -6230,7 +6262,7 @@ msgstr "Процес"
 #: pkg/machines/components/vm/bootOrderModal.jsx:123
 #: pkg/machines/components/vm/bootOrderModal.jsx:129
 msgid "Product"
-msgstr ""
+msgstr "Продукт"
 
 #: pkg/subscriptions/subscriptions-view.jsx:34
 msgid "Product ID"
@@ -6447,7 +6479,7 @@ msgstr "Не вдалося виконати дію REBOOT"
 
 #: pkg/ovirt/provider.js:164
 msgid "REBOOT_VM action failed: %s0"
-msgstr ""
+msgstr "Помилка під час дії REBOOT_VM: %s0"
 
 #: pkg/lib/machine-info.js:86
 msgid "Rack Mount Chassis"
@@ -6460,6 +6492,10 @@ msgstr "Блоковий пристрій Rados"
 #: pkg/networkmanager/interfaces.js:3613
 msgid "Random"
 msgstr "Випадковий"
+
+#: pkg/networkmanager/firewall.jsx:320
+msgid "Range must be strictly ordered"
+msgstr "Діапазон має бути строго упорядковано"
 
 #: pkg/kdump/kdump-view.jsx:388
 msgid "Raw to a device"
@@ -6490,7 +6526,7 @@ msgstr "Читання і запис із декількох вузлів"
 
 #: pkg/systemd/hwinfo.jsx:193
 msgid "Read more..."
-msgstr ""
+msgstr "Докладніше…"
 
 #: pkg/kubernetes/scripts/volumes.js:212
 msgid "Read only from multiple nodes"
@@ -6564,6 +6600,10 @@ msgstr "Нещодавні"
 #: pkg/kubernetes/views/pv-body.html:6 pkg/kubernetes/views/pv-modify.html:56
 msgid "Reclaim Policy"
 msgstr "Правила повторного заявлення"
+
+#: pkg/storaged/format-dialog.jsx:247
+msgid "Recommended default"
+msgstr "Рекомендоване типове значення"
 
 #: pkg/kubernetes/index.html:108 pkg/kubernetes/registry.html:75
 #: pkg/shell/index.html:406 pkg/shell/simple.html:138 pkg/shell/stub.html:180
@@ -6854,7 +6894,7 @@ msgstr "Запитано"
 msgid "Requests"
 msgstr "Запити"
 
-#: pkg/users/local.js:1294
+#: pkg/users/local.js:1296
 msgid "Require password change every $0 days"
 msgstr "Вимагати зміну пароля кожні $0 днів"
 
@@ -7112,7 +7152,7 @@ msgstr "Не вдалося виконати дію START"
 
 #: pkg/ovirt/provider.js:203
 msgid "START_VM action failed: %s0"
-msgstr ""
+msgstr "Помилка під час дії START_VM: %s0"
 
 #: pkg/networkmanager/index.html:236
 msgid "STP Forward delay"
@@ -7151,7 +7191,7 @@ msgstr "Зберегти"
 
 #: pkg/systemd/hwinfo.jsx:219
 msgid "Save and reboot"
-msgstr ""
+msgstr "Зберегти і перезавантажити"
 
 #: pkg/storaged/vdos-panel.jsx:82
 msgid "Save space by compressing individual blocks with LZ4"
@@ -7308,7 +7348,7 @@ msgstr "Сервери"
 #: pkg/kubernetes/views/service-page.html:12
 #: pkg/kubernetes/views/service-panel.html:8
 #: pkg/kubernetes/views/topology-page.html:30 pkg/systemd/logs.html:65
-#: pkg/networkmanager/firewall.jsx:361 pkg/storaged/dialog.jsx:1037
+#: pkg/networkmanager/firewall.jsx:595 pkg/storaged/dialog.jsx:1037
 msgid "Service"
 msgstr "Служба"
 
@@ -7347,6 +7387,7 @@ msgstr "Назва служби"
 #: pkg/kubernetes/views/dashboard-page.html:134
 #: pkg/kubernetes/views/details-page.html:29 pkg/systemd/services.html:4
 #: pkg/systemd/services.html:332 pkg/kubernetes/scripts/details.js:213
+#: pkg/networkmanager/firewall.jsx:403
 msgid "Services"
 msgstr "Служби"
 
@@ -7522,11 +7563,11 @@ msgstr "З"
 #: pkg/machines/components/storagePools/storagePoolList.jsx:49
 #: pkg/machines/components/storagePools/storagePoolVolumesTab.jsx:66
 #: pkg/storaged/content-views.jsx:109 pkg/storaged/content-views.jsx:688
-#: pkg/storaged/format-dialog.jsx:274 pkg/storaged/fsys-panel.jsx:110
-#: pkg/storaged/lvol-tabs.jsx:210 pkg/storaged/lvol-tabs.jsx:269
-#: pkg/storaged/lvol-tabs.jsx:348 pkg/storaged/lvol-tabs.jsx:399
-#: pkg/storaged/lvol-tabs.jsx:434 pkg/storaged/nfs-details.jsx:321
-#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/part-tab.jsx:36
+#: pkg/storaged/fsys-panel.jsx:110 pkg/storaged/lvol-tabs.jsx:210
+#: pkg/storaged/lvol-tabs.jsx:269 pkg/storaged/lvol-tabs.jsx:348
+#: pkg/storaged/lvol-tabs.jsx:399 pkg/storaged/lvol-tabs.jsx:434
+#: pkg/storaged/nfs-details.jsx:321 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/part-tab.jsx:36 pkg/storaged/format-dialog.jsx:274
 msgid "Size"
 msgstr "Розмір"
 
@@ -7578,6 +7619,9 @@ msgid ""
 "mitigations have the side effect of reducing performance. Change these "
 "settings at your own risk."
 msgstr ""
+"Програмні заходи допомагають усунути проблеми із захистом процесора. Ці "
+"заходи мають побіжний ефект — зниження швидкодії. Змінюйте ці параметри, "
+"лише якщо повністю усвідомлюєте наслідки."
 
 #: pkg/docker/storage.jsx:165
 msgid "Solid-State Disk"
@@ -7806,11 +7850,11 @@ msgstr "Журнали зберігання"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:137
 msgid "Storage Pool $0 failed to get activated"
-msgstr ""
+msgstr "Не вдалося активувати буфер сховища $0"
 
 #: pkg/machines/components/storagePools/storagePool.jsx:149
 msgid "Storage Pool $0 failed to get deactivated"
-msgstr ""
+msgstr "Не вдалося деактивувати буфер сховища $0"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:61
 msgid "Storage Pool Name"
@@ -8010,7 +8054,7 @@ msgid "System is up to date"
 msgstr "Система не потребує оновлення"
 
 #: pkg/docker/index.html:327 pkg/docker/index.html:331
-#: pkg/networkmanager/firewall.jsx:361
+#: pkg/networkmanager/firewall.jsx:595
 msgid "TCP"
 msgstr "TCP"
 
@@ -8188,7 +8232,7 @@ msgstr ""
 "Роботу віртуальної машини призупинено засобами керування живленням гостьової "
 "системи."
 
-#: pkg/users/local.js:1336
+#: pkg/users/local.js:1338
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Обліковий запис «$0» має примусово змінити пароль під час наступного входу"
@@ -8339,7 +8383,7 @@ msgstr "На вузлі недостатньо простору на диску"
 msgid "The node doesn't have enough free memory"
 msgstr "На вузлі недостатньо вільної пам’яті"
 
-#: pkg/users/local.js:439 pkg/users/local.js:1393
+#: pkg/users/local.js:439 pkg/users/local.js:1395
 msgid "The passwords do not match"
 msgstr "Паролі не збігаються"
 
@@ -8409,7 +8453,7 @@ msgstr "Служби «{{ target }}» не існує."
 
 #: pkg/systemd/hwinfo.jsx:65
 msgid "The user $0 is not permitted to change cpu security mitigations"
-msgstr ""
+msgstr "Користувачу $0 заборонено змінювати заходи захисту процесора"
 
 #: pkg/kubernetes/views/user-page.html:29
 msgid "The user '{{ userName }}' does not exist."
@@ -8865,15 +8909,15 @@ msgstr "Tuned вимкнено"
 #: pkg/machines/components/vm/bootOrderModal.jsx:133
 #: pkg/machines/components/vm/bootOrderModal.jsx:140
 #: pkg/machines/components/vm/bootOrderModal.jsx:146
-#: pkg/machines/components/vmnetworktab.jsx:84
-#: pkg/storaged/format-dialog.jsx:286 pkg/storaged/part-tab.jsx:42
-#: pkg/storaged/unrecognized-tab.jsx:38 pkg/systemd/hwinfo.jsx:75
+#: pkg/machines/components/vmnetworktab.jsx:84 pkg/storaged/part-tab.jsx:42
+#: pkg/storaged/unrecognized-tab.jsx:38 pkg/storaged/format-dialog.jsx:286
+#: pkg/systemd/hwinfo.jsx:75
 msgid "Type"
 msgstr "Тип"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:147
 msgid "Type ID"
-msgstr ""
+msgstr "Ідентифікатор типу"
 
 #: pkg/lib/machine-change-auth.html:42
 msgid "Type a password"
@@ -8887,7 +8931,7 @@ msgstr "Введіть щось для фільтрування…"
 msgid "Type:"
 msgstr "Тип:"
 
-#: pkg/docker/index.html:332 pkg/networkmanager/firewall.jsx:361
+#: pkg/docker/index.html:332 pkg/networkmanager/firewall.jsx:595
 msgid "UDP"
 msgstr "UDP"
 
@@ -8971,7 +9015,7 @@ msgid "Unavailable"
 msgstr "Недоступний"
 
 #: pkg/docker/index.html:730 pkg/networkmanager/index.html:690
-#: pkg/shell/base_index.js:737 pkg/users/local.js:1479
+#: pkg/shell/base_index.js:737 pkg/users/local.js:1481
 msgid "Unexpected error"
 msgstr "Неочікувана помилка"
 
@@ -9023,6 +9067,10 @@ msgstr "Невідомі налаштування"
 #: pkg/storaged/iscsi-panel.jsx:84
 msgid "Unknown host name"
 msgstr "Невідома назва вузла"
+
+#: pkg/networkmanager/firewall.jsx:283
+msgid "Unknown service name"
+msgstr "Невідома назва служби"
 
 #: pkg/storaged/crypto-keyslots.jsx:562
 msgid "Unknown type"
@@ -9286,10 +9334,6 @@ msgstr "VDSM"
 msgid "VDSM Service Management"
 msgstr "Керування службою VDSM"
 
-#: pkg/storaged/format-dialog.jsx:251
-msgid "VFAT - Compatible with all systems and devices"
-msgstr "VFAT - Сумісна із усіма системами та пристроями"
-
 #: pkg/networkmanager/interfaces.js:2511 pkg/networkmanager/interfaces.js:2523
 #: pkg/networkmanager/interfaces.js:2898
 msgid "VLAN"
@@ -9305,43 +9349,43 @@ msgstr "Параметри VLAN"
 
 #: pkg/machines/hostvmslist.jsx:114
 msgid "VM $0 failed to Reboot"
-msgstr ""
+msgstr "Не вдалося перезавантажити віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:120
 msgid "VM $0 failed to force Reboot"
-msgstr ""
+msgstr "Не вдалося примусово перезавантажити віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:144
 msgid "VM $0 failed to force shutdown"
-msgstr ""
+msgstr "Не вдалося примусово вимкнути віртуальну машину $0"
 
 #: pkg/machines/components/deleteDialog.jsx:136
 msgid "VM $0 failed to get deleted"
-msgstr ""
+msgstr "Не вдалося вилучити віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:108 pkg/machines/libvirt-common.js:1290
 msgid "VM $0 failed to get installed"
-msgstr ""
+msgstr "Не вдалося встановити віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:132
 msgid "VM $0 failed to pause"
-msgstr ""
+msgstr "Не вдалося призупинити віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:138
 msgid "VM $0 failed to resume"
-msgstr ""
+msgstr "Не вдалося відновити роботу віртуальної машини $0"
 
 #: pkg/machines/hostvmslist.jsx:150
 msgid "VM $0 failed to send NMI"
-msgstr ""
+msgstr "Не вдалося надіслати NMI віртуальній машині $0"
 
 #: pkg/machines/hostvmslist.jsx:126
 msgid "VM $0 failed to shutdown"
-msgstr ""
+msgstr "Не вдалося вимкнути віртуальну машину $0"
 
 #: pkg/machines/hostvmslist.jsx:102
 msgid "VM $0 failed to start"
-msgstr ""
+msgstr "Не вдалося запустити віртуальну машину $0"
 
 #: pkg/ovirt/components/VmOverviewColumn.jsx:37
 msgid "VM icon"
@@ -9482,7 +9526,7 @@ msgstr "Томи:"
 
 #: pkg/machines/components/vm/bootOrderModal.jsx:142
 msgid "WWPN"
-msgstr ""
+msgstr "WWPN"
 
 #: pkg/networkmanager/interfaces.js:833
 msgid "Waiting"
@@ -9572,10 +9616,6 @@ msgstr "Запис"
 msgid "Wrong user name or password"
 msgstr "Помилкове ім’я користувача чи пароль"
 
-#: pkg/storaged/format-dialog.jsx:247
-msgid "XFS - Red Hat Enterprise Linux 7 default"
-msgstr "XFS - Типова для Red Hat Enterprise Linux 7"
-
 #: pkg/networkmanager/interfaces.js:1973
 msgid "XOR"
 msgstr "XOR"
@@ -9600,7 +9640,7 @@ msgstr ""
 "Зараз ваш комп’ютер безпосередньо з’єднано із цим сервером. Ви не можете "
 "його вилучити."
 
-#: pkg/networkmanager/firewall.jsx:66 pkg/networkmanager/firewall.jsx:327
+#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:561
 msgid "You are not authorized to modify the firewall."
 msgstr "Вас не уповноважено на внесення змін до брандмауера."
 
@@ -9786,10 +9826,6 @@ msgstr "ethernet"
 msgid "every day"
 msgstr "кожного дня"
 
-#: pkg/storaged/format-dialog.jsx:248
-msgid "ext4 - Red Hat Enterprise Linux 6 default"
-msgstr "ext4 - Типова для Red Hat Enterprise Linux 6"
-
 #: pkg/systemd/host.js:882
 msgid "failed to list ssh host keys: $0"
 msgstr "не вдалося побудувати список ключів SSH вузла: $0"
@@ -9800,7 +9836,7 @@ msgstr "вузол"
 
 #: pkg/machines/helpers.js:203
 msgid "host device"
-msgstr ""
+msgstr "пристрій основної системи"
 
 #: pkg/machines/helpers.js:215
 msgid "hostdev"
@@ -9808,7 +9844,7 @@ msgstr "пристрій осн. системи"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:78
 msgid "iSCSI Target"
-msgstr ""
+msgstr "Ціль iSCSI"
 
 #: pkg/storaged/iscsi-panel.jsx:261
 msgid "iSCSI Targets"
@@ -9816,7 +9852,7 @@ msgstr "Призначення iSCSI"
 
 #: pkg/machines/components/storagePools/createStoragePoolDialog.jsx:190
 msgid "iSCSI target IQN"
-msgstr ""
+msgstr "IQN цілі iSCSI"
 
 #: pkg/machines/helpers.js:189
 msgid "idle"
@@ -9975,7 +10011,7 @@ msgstr "найліпший"
 
 #: pkg/machines/helpers.js:202
 msgid "redirected device"
-msgstr ""
+msgstr "переспрямований пристрій"
 
 #: pkg/machines/helpers.js:188
 msgid "running"

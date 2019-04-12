@@ -37,7 +37,7 @@ const _ = cockpit.gettext;
 class StoragePage extends React.Component {
     constructor() {
         super();
-        this.state = { path: cockpit.location.path };
+        this.state = { inited: false, slow_init: false, path: cockpit.location.path };
         this.on_client_changed = () => { this.setState({}) };
         this.on_navigate = () => { this.setState({ path: cockpit.location.path }) };
     }
@@ -45,6 +45,8 @@ class StoragePage extends React.Component {
     componentDidMount() {
         this.props.client.addEventListener("changed", this.on_client_changed);
         cockpit.addEventListener("locationchanged", this.on_navigate);
+        client.init(() => { this.setState({ inited: true }) });
+        window.setTimeout(() => { if (!this.state.inited) this.setState({ slow_init: true }); }, 1000);
     }
 
     componentWillUnmount() {
@@ -54,7 +56,19 @@ class StoragePage extends React.Component {
 
     render() {
         const { client } = this.props;
-        const { path } = this.state;
+        const { inited, slow_init, path } = this.state;
+
+        if (!inited) {
+            if (slow_init) {
+                return (
+                    <div className="curtains-ct blank-slate-pf">
+                        <h1>{_("Loading...")}</h1>
+                    </div>
+                );
+            } else {
+                return null;
+            }
+        }
 
         if (client.features == false) {
             return (
@@ -87,10 +101,8 @@ class StoragePage extends React.Component {
 }
 
 function init() {
-    client.init(() => {
-        ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
-        document.body.style.display = "block";
-    });
+    ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
+    document.body.style.display = "block";
 }
 
 document.addEventListener("DOMContentLoaded", init);

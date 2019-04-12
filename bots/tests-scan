@@ -21,68 +21,61 @@
 BASELINE_PRIORITY = 5
 MAX_PRIORITY = 9
 
-BRANCHES = [ 'master', 'rhel-7.6', 'rhel-7.7', 'rhel-8.0', 'rhel-8-appstream' ]
-
-DEFAULT_VERIFY = {
-    'avocado/fedora': BRANCHES,
-    'container/kubernetes': [ 'master', 'rhel-7.6', 'rhel-7.7' ],
-    'container/bastion': BRANCHES,
-    'selenium/firefox': BRANCHES,
-    'selenium/chrome': BRANCHES,
-    'verify/centos-7': [ 'master' ],
-    'verify/continuous-atomic': [ ],
-    'verify/debian-stable': [ 'master' ],
-    'verify/debian-testing': [ 'master' ],
-    'verify/fedora-i386': [ ],
-    'verify/fedora-29': [ 'master' ],
-    'verify/fedora-30': [ 'master' ],
-    'verify/fedora-atomic': [ 'master' ],
-    'verify/fedora-testing': [ ],
-    'verify/ubuntu-1804': [ 'master' ],
-    'verify/ubuntu-stable': [ 'master' ],
-}
-
-# Non-public images used for testing
-REDHAT_VERIFY = {
-    "verify/rhel-7-6": [ 'rhel-7.6' ],
-    "verify/rhel-7-6-distropkg": [ 'master' ],
-    "verify/rhel-7-7": [ 'rhel-7.7', 'master' ],
-    "verify/rhel-8-0": [ 'master', 'rhel-8.0', 'rhel-8-appstream' ],
-    "verify/rhel-8-1": [ 'master', 'rhel-8.1', 'rhel-8-appstream' ],
-    "verify/rhel-atomic": [ 'master' ],
-    'selenium/edge': [ 'master' ],
-}
-
-# Test contexts for projects that use Cockpit's bots and/or images
-EXTERNAL_PROJECTS = {
-    'cockpit-project/starter-kit': [
-        'cockpit/centos-7',
-        'cockpit/fedora-29',
-    ],
-    'cockpit-project/cockpit-ostree': [
-        'cockpit/fedora-atomic',
-        'cockpit/continuous-atomic',
-    ],
-    'cockpit-project/cockpit-podman': [
-        'cockpit/fedora-29',
-        'cockpit/fedora-30',
-    ],
-    'weldr/welder-web': [
-        'cockpit/fedora-29/chrome',
-        'cockpit/fedora-29/firefox',
-    ],
-}
-
-# Test context for projects that use Cockpit's non-public images
-REDHAT_EXTERNAL_PROJECTS = {
-    'cockpit-project/cockpit-ostree': [
-        'cockpit/rhel-atomic',
-    ],
-    'weldr/welder-web': [
-        'cockpit/rhel-7-7/firefox',
-        'cockpit/rhel-8-1/chrome',
-        'cockpit/fedora-30/edge',
-    ],
+REPO_BRANCH_CONTEXT = {
+    'cockpit-project/cockpit': {
+        'master': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
+            'selenium/firefox', 'selenium/chrome', 'verify/centos-7', 'verify/debian-stable',
+            'verify/debian-testing', 'verify/fedora-29', 'verify/fedora-30', 'verify/fedora-atomic',
+            'verify/ubuntu-1804', 'verify/ubuntu-stable', 'verify/rhel-7-6-distropkg',
+            'verify/rhel-7-7', 'verify/rhel-8-0', 'verify/rhel-atomic', 'selenium/edge',
+            'verify/rhel-8-1',
+        ],
+        'rhel-7.6': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
+            'selenium/firefox', 'selenium/chrome', 'verify/rhel-7-6',
+        ],
+        'rhel-7.7': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
+            'selenium/firefox', 'selenium/chrome', 'verify/rhel-7-7',
+        ],
+        'rhel-8.0': ['avocado/fedora', 'container/bastion', 'selenium/firefox', 'selenium/chrome',
+            'verify/rhel-8-0',
+        ],
+        'rhel-8-appstream': ['avocado/fedora', 'container/bastion', 'selenium/firefox',
+            'selenium/chrome', 'verify/rhel-8-0', 'verify/rhel-8-1',
+        ],
+        'rhel-8.1': ['verify/rhel-8-1',
+        ],
+        # These can be triggered manually with bots/tests-trigger
+        '_manual': ['verify/continuous-atomic', 'verify/fedora-i386', 'verify/fedora-testing',
+        ],
+    },
+    'cockpit-project/starter-kit': {
+        'master': [
+            'cockpit/centos-7',
+            'cockpit/fedora-29',
+        ],
+    },
+    'cockpit-project/cockpit-ostree': {
+        'master': [
+            'cockpit/fedora-atomic',
+            'cockpit/continuous-atomic',
+            'cockpit/rhel-atomic',
+        ],
+    },
+    'cockpit-project/cockpit-podman': {
+        'master': [
+            'cockpit/fedora-29',
+            'cockpit/fedora-30',
+        ],
+    },
+    'weldr/welder-web': {
+        'master': [
+            'cockpit/fedora-29/chrome',
+            'cockpit/fedora-29/firefox',
+            'cockpit/rhel-7-7/firefox',
+            'cockpit/rhel-8-1/chrome',
+            'cockpit/fedora-30/edge',
+        ],
+    }
 }
 
 # Label: should a PR trigger external tests
@@ -139,23 +132,27 @@ def main():
 
     api = github.GitHub(repo=opts.repo)
 
-    try:
-        if opts.context:
-            policy = { c: [ "master" ] for c in opts.context }
-        elif opts.repo:
-            policy = {}
-            if opts.repo in EXTERNAL_PROJECTS:
-                policy.update({ c: [ "master" ] for c in EXTERNAL_PROJECTS[opts.repo] })
-            if opts.repo in REDHAT_EXTERNAL_PROJECTS:
-                policy.update({ c: [ "master" ] for c in REDHAT_EXTERNAL_PROJECTS[opts.repo] })
-            if not policy:
-                policy = default_policy()
-        else:
-            policy = default_policy()
-        results = scan_for_pull_tasks(api, policy, opts, None)
+    # HACK: The `repo` option is used throughout the code, for example repo from
+    # opts is needed in `tests_invoke`, `tests_human`, `queue_test` etc.
+    # Would be better to use api.repo everywhere
+    opts.repo = api.repo
 
-        # for the default (Cockpit) repo, also check external project PRs
-        if not opts.repo:
+    try:
+        policy = REPO_BRANCH_CONTEXT[opts.repo]
+        if opts.context:
+            policy = {}
+            for branch in REPO_BRANCH_CONTEXT[opts.repo]:
+                branch_context = []
+                for context in opts.context:
+                    if context in REPO_BRANCH_CONTEXT[opts.repo][branch]:
+                        branch_context.append(context)
+                if branch_context:
+                    policy[branch] = branch_context
+        results = scan_for_pull_tasks(api, policy, opts, opts.repo)
+
+        # When run from c-p/cockpit checkout without PR number or PR data we want to scan also all
+        # external projects. E.g. `bots/tests-scan` in c-p/c checkout will scan all projects
+        if opts.repo == "cockpit-project/cockpit" and not opts.pull_data and not opts.pull_number:
             results += scan_external_projects(opts)
     except RuntimeError as ex:
         logging.error("tests-scan: " + str(ex))
@@ -166,11 +163,6 @@ def main():
             sys.stdout.write(result + "\n")
 
     return 0
-
-def default_policy():
-    policy = DEFAULT_VERIFY
-    policy.update(REDHAT_VERIFY)
-    return policy
 
 @contextlib.contextmanager
 def distributed_queue(amqp_server):
@@ -216,10 +208,12 @@ def tests_human(priority, name, number, revision, ref, context, base, repo, bots
         bots_ref=bots_ref and (" [bots@%s]" % bots_ref) or "",
     )
 
+def is_internal_context(context):
+    return "rhel" in context or "edge" in context
+
 # Prepare a test invocation command
 def tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options):
-    if not options.amqp and not redhat_network() and (context in REDHAT_VERIFY or
-                                                      context in REDHAT_EXTERNAL_PROJECTS.get(repo, [])):
+    if not options.amqp and not redhat_network() and is_internal_context(context):
         return ''
 
     try:
@@ -236,21 +230,19 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
         cmd += " --rebase={base}"
         checkout += " --base={base}"
 
-    if repo or (options.amqp and options.repo):
-        if not repo:
-            repo = options.repo
-        checkout += " --repo={repo}"
-        cmd += " --remote=test"
-        if bots_ref:
-            # we are checking the external repo on a cockpit PR, so keep GITHUB_BASE for cockpit and just set
-            # TEST_PROJECT for correct statuses
-            cmd = "TEST_PROJECT={repo} " + cmd
-        else:
-            # we are checking the external repo on a PR of that external repo
-            cmd = "GITHUB_BASE={repo} " + cmd
+    checkout += " --repo={repo}"
 
     if bots_ref:
+        # we are checking the external repo on a cockpit PR, so keep GITHUB_BASE for cockpit and just set
+        # TEST_PROJECT for correct statuses
+        cmd = "TEST_PROJECT={repo} " + cmd
         checkout += " --bots-ref={bots_ref}"
+    else:
+        # we are checking the external repo on a PR of that external repo
+        cmd = "GITHUB_BASE={repo} " + cmd
+
+    if repo != "cockpit-project/cockpit":
+        cmd = cmd + " --remote=test"
 
     cmd += " {context} {ref}"
     if bots_ref:
@@ -288,7 +280,7 @@ def queue_test(priority, name, number, revision, ref, context, base, repo, bots_
         }
         # repo will be set if it's an external project on a cockpit PR
         # options.repo will be set if it's an external project's PR
-        if (context in REDHAT_VERIFY or context in REDHAT_EXTERNAL_PROJECTS.get(repo or options.repo, [])):
+        if is_internal_context(context):
             queue.basic_publish('', 'rhel', json.dumps(body), properties=pika.BasicProperties(priority=priority))
         else:
             queue.basic_publish('', 'public', json.dumps(body), properties=pika.BasicProperties(priority=priority))
@@ -367,30 +359,20 @@ def update_status(api, revision, context, last, changes):
         return False
     return True
 
-def cockpit_tasks(api, update, contexts, repo, pull_data, pull_number, sha, amqp):
+def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sha, amqp):
     results = []
-    branch_contexts = { }
-    for (context, branches) in contexts.items():
-        for branch in branches:
-            if branch not in branch_contexts:
-                branch_contexts[branch] = [ ]
-            branch_contexts[branch].append(context)
-
     pulls = []
-    if pull_number or pull_data:
-        # Avoid processing pull requests with the same number on external
-        # repositories: if repo is None, the api is querying the repo the pull
-        # request belongs to
-        if repo is None:
-            if pull_data:
-                pulls.append(json.loads(pull_data))
-            else:
-                pull = api.get("pulls/{0}".format(pull_number))
-                if pull:
-                    pulls.append(pull)
-                else:
-                    logging.error("Can't find pull request {0}".format(pull_number))
-                    return 1
+    contexts = set(itertools.chain(*branch_contexts.values()))
+
+    if pull_data:
+        pulls.append(json.loads(pull_data))
+    elif pull_number:
+        pull = api.get("pulls/{0}".format(pull_number))
+        if pull:
+            pulls.append(pull)
+        else:
+            logging.error("Can't find pull request {0}".format(pull_number))
+            return 1
     else:
         pulls = api.pulls()
 
@@ -426,7 +408,7 @@ def cockpit_tasks(api, update, contexts, repo, pull_data, pull_number, sha, amqp
 
             # Only create new status for requests that have none
             if not status:
-                if have or context not in branch_contexts.get(base, []):
+                if have or (base not in branch_contexts or context not in branch_contexts[base]):
                     continue
                 status = { }
 
@@ -441,10 +423,10 @@ def cockpit_tasks(api, update, contexts, repo, pull_data, pull_number, sha, amqp
             if not update or update_status(api, revision, context, status, changes):
                 results.append((priority, "pull-%d" % number, number, revision, "pull/%d/head" % number, context, base, repo, None))
 
-        # if a cockpit (default repo) PR changes bots/, also trigger all external tests against this cockpit PR
+        # if a cockpit repo PR changes bots/, also trigger all external tests against this cockpit PR
 
         def trigger_externals():
-            if repo:  # already a non-cockpit project
+            if repo != "cockpit-project/cockpit":  # already a non-cockpit project
                 return False
             if base != "master":  # bots/ is always taken from master branch
                 return False
@@ -464,9 +446,10 @@ def cockpit_tasks(api, update, contexts, repo, pull_data, pull_number, sha, amqp
             return False
 
         if trigger_externals():
-            for proj_repo, proj_contexts in itertools.chain(
-                    EXTERNAL_PROJECTS.items(), REDHAT_EXTERNAL_PROJECTS.items()):
-                for context in proj_contexts:
+            for proj_repo in REPO_BRANCH_CONTEXT:
+                if proj_repo == "cockpit-project/cockpit":
+                    continue
+                for context in REPO_BRANCH_CONTEXT[proj_repo]["master"]:
                     repo_context = context + "@" + proj_repo
 
                     status = statuses.get(repo_context, {})
@@ -502,9 +485,9 @@ def scan_for_pull_tasks(api, policy, opts, repo):
 
 def scan_external_projects(opts):
     tests = []
-    for repo, contexts in itertools.chain(EXTERNAL_PROJECTS.items(), REDHAT_EXTERNAL_PROJECTS.items()):
-        policy = { c: [ "master" ] for c in contexts }
-        tests += scan_for_pull_tasks(github.GitHub(repo=repo), policy, opts, repo)
+    for repo in REPO_BRANCH_CONTEXT:
+        if repo != "cockpit-project/cockpit":
+            tests += scan_for_pull_tasks(github.GitHub(repo=repo), REPO_BRANCH_CONTEXT[repo], opts, repo)
     return tests
 
 if __name__ == '__main__':

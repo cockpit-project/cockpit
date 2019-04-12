@@ -399,14 +399,9 @@ def branch(context, message, pathspec=".", issue=None, branch=None, push=True, *
     if push:
         push_branch(user, branch)
 
-    # Comment on the issue if present
-    if issue:
-        message = "{0} {1} done: {2}/commits/{3}".format(name, context or "", clean, branch)
-        try:
-            resource = "issues/{0}/comments".format(issue["number"])
-        except TypeError:
-            resource = "issues/{0}/comments".format(issue)
-        api.post(resource, { "body": message })
+    # Comment on the issue if present and we pushed the branch
+    if issue and push:
+        comment_done(issue, name, clean, branch, context)
 
     return "{0}:{1}".format(user, branch)
 
@@ -477,6 +472,10 @@ def comment(issue, comment):
     except TypeError:
         number = issue
     return api.post("issues/{0}/comments".format(number), { "body": comment })
+
+def comment_done(issue, name, clean, branch, context=None):
+    message = "{0} {1} done: {2}/commits/{3}".format(name, context or "", clean, branch)
+    comment(issue, message)
 
 def attach(filename):
     if "TEST_ATTACHMENTS" in os.environ:

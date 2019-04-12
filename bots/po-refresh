@@ -137,6 +137,10 @@ def run(context, verbose=False, **kwargs):
     if branch:
         task.pull(branch, **kwargs)
     elif local_branch:
+        if kwargs["issue"]:
+            clean = "https://github.com/{0}".format(task.find_our_fork(user))
+            task.comment_done(kwargs["issue"], "po-refresh", clean, local_branch, context)
+
         task.push_branch(user, local_branch)
         task.pull("{0}:{1}".format(user, local_branch), **kwargs)
 

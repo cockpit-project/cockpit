@@ -63,45 +63,21 @@
       Users or administrators should never need to start this program
       as it automatically started by
       <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
-      on bootup.
+      on bootup, through
+      <citerefentry><refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
     </para>
   </refsect1>
 
   <refsect1 id="cockpit-ws-transport">
     <title>TRANSPORT SECURITY</title>
     <para>
-      To specify the TLS certificate the web service should use, simply
-      drop a file with the extension <literal>.cert</literal> in the
-      <filename>/etc/cockpit/ws-certs.d</filename> directory. If there are
-      multiple files in this directory, then the highest priority one
-      is chosen after sorting.</para>
-    <para>The <literal>.cert</literal> file should contain at least two
-      OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
-      blocks for the server certificate and intermediate certificate authorities
-      and a last one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
-      The key may not be encrypted.</para>
-    <para>If there is no TLS certificate, a self-signed certificate is
-      automatically generated using <command>openssl</command> and stored in
-      the <filename>0-self-signed.cert</filename> file.</para>
-    <para>When enrolling into a FreeIPA domain, an SSL certificate is requested from
-      the IPA server and stored in <filename>10-ipa.cert</filename>.</para>
-
-    <para>To check which certificate <command>cockpit-ws</command> will use,
-      run the following command.</para>
-
-<programlisting>
-$ sudo remotectl certificate
-</programlisting>
-
-    <para>If using <literal>certmonger</literal> to manage certificates, following command can
-      be used to automatically prepare concatenated <literal>.cert</literal> file:</para>
-<programlisting>
-CERT_FILE=/etc/pki/tls/certs/$(hostname).pem
-KEY_FILE=/etc/pki/tls/private/$(hostname).key
-
-getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
-</programlisting>
-
+      <command>cockpit-ws</command> is normally run behind the <command>cockpit-tls</command>
+      TLS terminating proxy, and only deals with unencrypted HTTP by itself. But for backwards
+      compatibility it can also handle TLS connections by itself when being run directly.
+      For details how to configure certificates, please refer to the
+      <citerefentry><refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum></citerefentry>
+      documentation.
+    </para>
   </refsect1>
 
   <refsect1 id="cockpit-ws-timeout">
@@ -261,6 +237,10 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
   <refsect1 id="cockpit-ws-also">
     <title>SEE ALSO</title>
     <para>
+      <citerefentry>
+        <refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+      ,
       <citerefentry>
         <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
       </citerefentry>

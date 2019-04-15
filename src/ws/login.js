@@ -69,11 +69,6 @@
     if (!console)
         console = function() { };
 
-    /* Determine if we are nested or not, and switch styles */
-    if (window.location.pathname.indexOf("/cockpit/") === 0 ||
-        window.location.pathname.indexOf("/cockpit+") === 0)
-        document.documentElement.setAttribute("class", "inline");
-
     function id(name) {
         return document.getElementById(name);
     }
@@ -252,6 +247,11 @@
         translate();
 
         setup_path_globals(window.location.pathname);
+
+        /* Determine if we are nested or not, and switch styles */
+        if (window.location.pathname.indexOf("/" + url_root + "/cockpit/") === 0 ||
+            window.location.pathname.indexOf("/" + url_root + "/cockpit+") === 0)
+            document.documentElement.setAttribute("class", "inline");
 
         // Setup title
         var title = environment.page.title;

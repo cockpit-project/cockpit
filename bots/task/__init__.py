@@ -405,7 +405,7 @@ def branch(context, message, pathspec=".", issue=None, branch=None, push=True, *
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs):
+def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests=True, **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
@@ -444,13 +444,20 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
             pass
 
     if pull["number"]:
-        # Drop [no-test] from the title
-        pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+        # If we want to run tests automatically, drop [no-test] from title before force push
+        if run_tests:
+            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+
+        # Force push
         last_commit_m = execute("git", "show", "--no-patch", "--format=%B")
         last_commit_m += "Closes #" + str(pull["number"])
         execute("git", "commit", "--amend", "-m", last_commit_m)
         (user, branch) = branch.split(":")
         push_branch(user, branch, True)
+
+        # If we don't want to run tests automatically, drop [no-test] from title after force push
+        if not run_tests:
+            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
 
     return pull
 

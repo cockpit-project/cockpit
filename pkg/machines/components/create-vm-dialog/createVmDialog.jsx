@@ -83,6 +83,8 @@ class CreateVM extends React.Component {
         };
 
         this.onChangedValue = this.onChangedValue.bind(this);
+        this.onChangedEventValue = this.onChangedEventValue.bind(this);
+        this.onChangedEventChecked = this.onChangedEventChecked.bind(this);
     }
 
     onChangedEventValue(key, e) {
@@ -232,7 +234,7 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
                     placeholder={_("Path to ISO file on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')}
+                    onChange={e => this.onChangedValue('source', e)}
                     superUser="try" />
             );
             break;
@@ -241,7 +243,7 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
                     placeholder={_("Existing disk image on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')}
+                    onChange={e => this.onChangedValue('source', e)}
                     superuser="try" />
             );
             break;
@@ -262,7 +264,7 @@ class CreateVM extends React.Component {
                 <React.Fragment>
                     <Select.StatelessSelect id="network-select"
                                             selected={this.state.source}
-                                            onChange={this.onChangedValue.bind(this, 'source')}>
+                                            onChange={e => this.onChangedValue('source', e)}>
                         {getPXENetworkRows(this.props.nodeDevices, this.props.networks, this.state.connectionName)}
                     </Select.StatelessSelect>
 
@@ -282,7 +284,7 @@ class CreateVM extends React.Component {
                     minLength={1}
                     placeholder={_("Remote URL")}
                     value={this.state.source}
-                    onChange={this.onChangedEventValue.bind(this, 'source')} />
+                    onChange={e => this.onChangedEventValue('source', e)} />
             );
             break;
         }
@@ -323,7 +325,7 @@ class CreateVM extends React.Component {
                            minLength={1}
                            value={this.state.vmName || ''}
                            placeholder={_("Unique name")}
-                           onChange={this.onChangedEventValue.bind(this, 'vmName')} />
+                           onChange={e => this.onChangedEventValue('vmName', e)} />
                     { validationStateName == 'error' &&
                     <HelpBlock>
                         <p className="text-danger">{validationFailed.vmName}</p>
@@ -337,7 +339,7 @@ class CreateVM extends React.Component {
                 </label>
                 <Select.Select id="source-type"
                                initial={this.state.sourceType}
-                               onChange={this.onChangedValue.bind(this, 'sourceType')}>
+                               onChange={e => this.onChangedValue('sourceType', e)}>
                     <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
                                         key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
@@ -358,7 +360,7 @@ class CreateVM extends React.Component {
                 <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
                     <Select.Select id="vendor-select"
                                    initial={this.state.vendor}
-                                   onChange={this.onChangedValue.bind(this, 'vendor')}>
+                                   onChange={e => this.onChangedValue('vendor', e)}>
                         {vendorSelectEntries}
                     </Select.Select>
                     { validationFailed.vendor && this.state.vendor == NOT_SPECIFIED &&
@@ -372,7 +374,7 @@ class CreateVM extends React.Component {
                 </label>
                 <Select.StatelessSelect id="system-select"
                                         selected={this.state.os}
-                                        onChange={this.onChangedValue.bind(this, 'os')}>
+                                        onChange={e => this.onChangedValue('os', e)}>
                     {osEntries}
                 </Select.StatelessSelect>
 
@@ -382,23 +384,23 @@ class CreateVM extends React.Component {
                                  id={"memory-size"}
                                  value={this.state.memorySize}
                                  initialUnit={this.state.memorySizeUnit}
-                                 onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                                 onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')} />
+                                 onValueChange={e => this.onChangedEventValue('memorySize', e)}
+                                 onUnitChange={e => this.onChangedValue('memorySizeUnit', e)} />
 
                 {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
                 <MemorySelectRow label={_("Storage Size")}
                                  id={"storage-size"}
                                  value={this.state.storageSize}
                                  initialUnit={this.state.storageSizeUnit}
-                                 onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                                 onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')} />}
+                                 onValueChange={e => this.onChangedEventValue('storageSize', e)}
+                                 onUnitChange={e => this.onChangedValue('storageSizeUnit', e)} />}
 
                 <hr />
 
                 <label className="checkbox-inline">
                     <input id="start-vm" type="checkbox"
                            checked={this.state.startVm}
-                           onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
+                           onChange={e => this.onChangedEventChecked('startVm', e)} />
                     {_("Immediately Start VM")}
                 </label>
             </form>

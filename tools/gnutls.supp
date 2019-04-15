@@ -1,0 +1,29 @@
+{
+   "internal uninitialized value with cert printing"
+   Memcheck:Cond
+   fun:decode_complex_string.isra.0
+   fun:_gnutls_x509_dn_to_string
+}
+{
+   "internal uninitialized value with cert printing 2"
+   Memcheck:Cond
+   ...
+   fun:gnutls_x509_crt_print
+   fun:ws_init_peer_cert
+}
+{
+   "internal uninitialized value with setting key data"
+   Memcheck:Cond
+   ...
+   fun:gnutls_x509_crt_get_dn_by_oid
+   ...
+   fun:gnutls_certificate_set_x509_key_mem2
+}
+{
+   "internal uninitialized value with setting key file"
+   Memcheck:Cond
+   ...
+   fun:gnutls_x509_crt_get_dn_by_oid
+   ...
+   fun:gnutls_certificate_set_x509_key_file2
+}

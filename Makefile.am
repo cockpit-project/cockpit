@@ -290,6 +290,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/zlib.supp \
 	tools/libssh.supp \
 	tools/json-glib.supp \
+	tools/gnutls.supp \
 	$(NULL)
 
 if VALGRIND_MINADDR_HACK
@@ -453,6 +454,7 @@ include src/websocket/Makefile-websocket.am
 include tools/Makefile-tools.am
 include src/ssh/Makefile-ssh.am
 include src/ws/Makefile-ws.am
+include src/tls/Makefile-tls.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
 include containers/Makefile.am

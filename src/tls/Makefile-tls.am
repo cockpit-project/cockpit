@@ -1,0 +1,68 @@
+libexec_PROGRAMS += cockpit-tls
+
+cockpit_tls_SOURCES =					\
+	src/tls/utils.h					\
+	src/tls/wsinstance.h				\
+	src/tls/wsinstance.c				\
+	src/tls/connection.h				\
+	src/tls/connection.c				\
+	src/tls/server.h				\
+	src/tls/server.c				\
+	src/tls/main.c					\
+	$(NULL)
+
+cockpit_tls_CFLAGS = 					\
+	-I$(top_srcdir)/src/tls				\
+	$(COCKPIT_TLS_CFLAGS)				\
+	$(NULL)
+
+cockpit_tls_LDADD = 					\
+	libcockpit-common-nodeps.a			\
+	$(COCKPIT_TLS_LIBS)				\
+	$(NULL)
+
+# TESTS
+
+TEST_CFLAGS = $(COCKPIT_TLS_CFLAGS) $(COCKPIT_CFLAGS)
+TEST_LDADD = \
+	libcockpit-common.a				\
+	libcockpit-common-nodeps.a			\
+	$(COCKPIT_TLS_LIBS)				\
+	$(COCKPIT_LIBS)					\
+	$(JSON_GLIB_LIBS)				\
+	$(NULL)
+
+TLS_TESTS = \
+	test-tls-connection				\
+	test-tls-wsinstance				\
+	test-tls-server					\
+	$(NULL)
+
+test_tls_connection_SOURCES = \
+	src/tls/connection.c				\
+	src/tls/test-connection.c			\
+	$(NULL)
+
+test_tls_connection_CFLAGS = $(TEST_CFLAGS)
+test_tls_connection_LDADD = $(TEST_LDADD)
+
+test_tls_wsinstance_SOURCES = \
+	src/tls/wsinstance.c				\
+	src/tls/test-wsinstance.c			\
+	$(NULL)
+
+test_tls_wsinstance_CFLAGS = $(TEST_CFLAGS)
+test_tls_wsinstance_LDADD = $(TEST_LDADD)
+
+test_tls_server_SOURCES = \
+	src/tls/wsinstance.c				\
+	src/tls/connection.c				\
+	src/tls/server.c				\
+	src/tls/test-server.c				\
+	$(NULL)
+
+test_tls_server_CFLAGS = $(TEST_CFLAGS)
+test_tls_server_LDADD = $(TEST_LDADD)
+
+noinst_PROGRAMS += $(TLS_TESTS)
+TESTS += $(TLS_TESTS)

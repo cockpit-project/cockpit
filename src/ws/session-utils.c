@@ -227,6 +227,7 @@ open_session (pam_handle_t *pamh)
   int res;
   static struct passwd pwd_buf;
   static char pwd_string_buf[8192];
+  static char home_env_buf[8192];
   int i;
 
   name = NULL;
@@ -298,8 +299,13 @@ open_session (pam_handle_t *pamh)
 
       debug ("opening pam session for %s", name);
 
+      res = snprintf (home_env_buf, sizeof (home_env_buf), "HOME=%s", pwd->pw_dir);
+      /* this really can't fail, as the buffer for the entire pwd is not larger, but make double sure */
+      assert (res < sizeof (home_env_buf));
+
       pam_putenv (pamh, "XDG_SESSION_CLASS=user");
       pam_putenv (pamh, "XDG_SESSION_TYPE=web");
+      pam_putenv (pamh, home_env_buf);
 
       res = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (res != PAM_SUCCESS)

@@ -57,6 +57,14 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 
 class TestSystemInfo(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+
+        # Debian will not allow timesyncd to start if any other NTP packge is installed
+        # We only support timesyncd for NTP configuration, so make sure chrony
+        # is not installed in the debian test images
+        if self.machine.image == "debian-testing":
+            self.machine.execute("dpkg --remove chrony");
 
     @enableAxe
     def testBasic(self):

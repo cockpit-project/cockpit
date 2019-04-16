@@ -14,13 +14,13 @@ Cockpit uses Node.js during development. Node.js is not used at runtime.
 To make changes on Cockpit you'll want to install Node.js, NPM and
 various development dependencies like Webpack.
 
-On Debian or Ubuntu:
+On Debian or Ubuntu, install all the dependencies:
 
-    $ sudo apt-get install nodejs npm
+    $ sudo apt-get install nodejs npm && sudo apt build-dep cockpit -y
 
 On Fedora:
 
-    $ sudo dnf install nodejs npm
+    $ sudo dnf install nodejs npm && sudo dnf builddep cockpit -y
 
 And lastly get Webpack and the development dependencies:
 
@@ -44,15 +44,6 @@ The following should work in a fresh Git clone:
       sed 's/%{npm-version:.*}/0/' tools/cockpit.spec >$TEMPFILE && \
       sudo dnf builddep --spec $TEMPFILE && \
       rm $TEMPFILE
-
-In addition, for testing, the following dependencies are required:
-
-    $ sudo dnf install curl expect \
-        libvirt libvirt-client libvirt-daemon libvirt-python \
-        python python-libguestfs python-lxml libguestfs-xfs \
-        python3 libvirt-python3 \
-        libguestfs-tools qemu qemu-kvm rpm-build rsync xz \
-        chromium-headless
 
 ## Building
 

@@ -76,6 +76,7 @@ const StoragePoolTypeRow = ({ onValueChanged, dialogValues }) => {
         { type: 'dir', detail: _("Filesystem Directory") },
         { type: 'netfs', detail:_("Network File System") },
         { type: 'iscsi', detail: _("iSCSI Target") },
+        { type: 'iscsi-direct', detail: _("iSCSI direct Target") }
     ];
 
     /* TODO
@@ -130,15 +131,17 @@ const StoragePoolTargetRow = ({ onValueChanged, dialogValues }) => {
                         <p className="text-danger">{_("Target path should not be empty")}</p>
                     </HelpBlock> }
                 </FormGroup>
+                <hr />
             </React.Fragment>
         );
     }
+    return null;
 };
 
 const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
     const validationState = dialogValues.source.host.length == 0 && dialogValues.validationFailed.host ? 'error' : undefined;
 
-    if (['netfs', 'iscsi'].includes(dialogValues.type))
+    if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
             <React.Fragment>
                 <label className='control-label'>
@@ -162,15 +165,42 @@ const StoragePoolHostRow = ({ onValueChanged, dialogValues }) => {
     return null;
 };
 
+const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
+    const validationState = dialogValues.source.initiator.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
+
+    if (['iscsi-direct'].includes(dialogValues.type))
+        return (
+            <React.Fragment>
+                <label className='control-label'>
+                    {_("Initiator")}
+                </label>
+                <FormGroup validationState={validationState} controlId='initiator'>
+                    <input id='storage-pool-dialog-initiator'
+                           type='text'
+                           placeholder={_("iSCSI Initiator IQN")}
+                           value={dialogValues.source.initiator || ''}
+                           onChange={e => onValueChanged('source', { 'initiator': e.target.value })}
+                           className='form-control' />
+                    { validationState == 'error' &&
+                    <HelpBlock>
+                        <p className="text-danger">{_("Initiator IQN should not be empty")}</p>
+                    </HelpBlock> }
+                </FormGroup>
+                <hr />
+            </React.Fragment>
+        );
+    return null;
+};
+
 const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
     let validationState;
 
     if (dialogValues.type == 'netfs')
         validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
-    if (dialogValues.type == 'iscsi')
+    if (dialogValues.type == 'iscsi' || dialogValues.type == 'iscsi-direct')
         validationState = dialogValues.source.device.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;
 
-    if (['netfs', 'iscsi'].includes(dialogValues.type))
+    if (['netfs', 'iscsi', 'iscsi-direct'].includes(dialogValues.type))
         return (
             <React.Fragment>
                 <label className='control-label'>
@@ -225,7 +255,7 @@ class CreateStoragePoolModal extends React.Component {
             name: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             type: 'dir',
-            source: { 'host': '', 'dir': '', 'device': '' },
+            source: { 'host': '', 'dir': '', 'device': '', 'initiator': '' },
             target: '',
             autostart: true,
             validationFailed: {},
@@ -261,12 +291,20 @@ class CreateStoragePoolModal extends React.Component {
         let validationFailed = Object.assign({}, this.state.validationFailed);
 
         // Mandatory props for all pool types
-        ['name', 'target'].forEach(prop => {
+        ['name'].forEach(prop => {
             if (this.state[prop].length == 0) {
                 modalIsIncomplete = true;
                 validationFailed[prop] = true;
             }
         });
+
+        // Mandatory props for dir pool type
+        if (this.state.type == 'dir') {
+            if (this.state.target.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.target = true;
+            }
+        }
 
         // Mandatory props for netfs pool type
         if (this.state.type == 'netfs') {
@@ -277,6 +315,10 @@ class CreateStoragePoolModal extends React.Component {
             if (this.state.source.host.length == 0) {
                 modalIsIncomplete = true;
                 validationFailed.host = true;
+            }
+            if (this.state.target.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.target = true;
             }
         }
 
@@ -289,6 +331,26 @@ class CreateStoragePoolModal extends React.Component {
             if (this.state.source.host.length == 0) {
                 modalIsIncomplete = true;
                 validationFailed.host = true;
+            }
+            if (this.state.target.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.target = true;
+            }
+        }
+
+        // Mandatory props for iscsi-direct pool type
+        if (this.state.type == 'iscsi-direct') {
+            if (this.state.source.device.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.source = true;
+            }
+            if (this.state.source.host.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.host = true;
+            }
+            if (this.state.source.initiator.length == 0) {
+                modalIsIncomplete = true;
+                validationFailed.source = true;
             }
         }
 
@@ -319,10 +381,11 @@ class CreateStoragePoolModal extends React.Component {
                 <hr />
                 <StoragePoolTargetRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
-                <hr />
                 <StoragePoolHostRow dialogValues={this.state}
                                     onValueChanged={this.onValueChanged} />
                 <StoragePoolSourceRow dialogValues={this.state}
+                                      onValueChanged={this.onValueChanged} />
+                <StoragePoolInitiatorRow dialogValues={this.state}
                                       onValueChanged={this.onValueChanged} />
                 <StoragePoolAutostartRow dialogValues={this.state}
                                          onValueChanged={this.onValueChanged} />

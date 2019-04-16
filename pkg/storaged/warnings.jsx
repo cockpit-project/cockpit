@@ -17,14 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
-import React from "react";
-
-import { StorageButton } from "./storage-controls.jsx";
-import { fmt_size, get_parent } from "./utils.js";
-import { get_resize_info, lvol_shrink, lvol_grow } from "./lvol-tabs.jsx";
-
-const _ = cockpit.gettext;
+import { get_parent } from "./utils.js";
 
 export function find_warnings(client) {
     let path_warnings = { };
@@ -80,51 +73,17 @@ export function find_warnings(client) {
         let vdo = content_block ? client.vdo_overlay.find_by_backing_block(content_block) : null;
 
         if (fsys && fsys.Size && (lvol.Size - fsys.Size - crypto_overhead) > vgroup.ExtentSize && fsys.Resize) {
-            enter_warning(content_path, "unused-space");
+            enter_warning(path, { warning: "unused-space",
+                                  volume_size: lvol.Size - crypto_overhead,
+                                  content_size: fsys.Size });
         }
 
         if (vdo && (lvol.Size - vdo.physical_size - crypto_overhead) > vgroup.ExtentSize) {
-            enter_warning(content_path, "unused-space");
+            enter_warning(path, { warning: "unused-space",
+                                  volume_size: lvol.Size - crypto_overhead,
+                                  content_size: vdo.physical_size });
         }
     }
 
     return path_warnings;
-}
-
-export class WarningTab extends React.Component {
-    render() {
-        let { client, block } = this.props;
-        let crypto = block && client.blocks_crypto[block.CryptoBackingDevice];
-        let lvm2 = client.blocks_lvm2[crypto ? crypto.path : block.path];
-        let lvol = lvm2 && client.lvols[lvm2.LogicalVolume];
-        let block_fsys = client.blocks_fsys[block.path];
-        let vdo = client.vdo_overlay.find_by_backing_block(block);
-        let crypto_overhead = crypto ? crypto.MetadataSize : 0;
-
-        let { info, shrink_excuse, grow_excuse } = get_resize_info(client, client.blocks[lvm2.path], true);
-
-        function shrink_to_fit() {
-            lvol_shrink(client, lvol, info, true);
-        }
-
-        function grow_to_fit() {
-            lvol_grow(client, lvol, info, true);
-        }
-
-        return (
-            <div>
-                <strong>{_("This logical volume is not completely used by its content.")}</strong>
-                <br />
-                {cockpit.format(_("Volume size is $0. Content size is $1."),
-                                fmt_size(lvol.Size - crypto_overhead),
-                                fmt_size(block_fsys ? block_fsys.Size : vdo.physical_size))}
-                { "\n" }
-                <div className="pull-right">
-                    <StorageButton excuse={shrink_excuse} onClick={shrink_to_fit}>{_("Shrink Volume")}</StorageButton>
-                    {"\n"}
-                    <StorageButton excuse={grow_excuse} onClick={grow_to_fit}>{_("Grow Content")}</StorageButton>
-                </div>
-            </div>
-        );
-    }
 }

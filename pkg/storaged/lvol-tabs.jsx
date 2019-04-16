@@ -127,7 +127,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
     }
 }
 
-export function get_resize_info(client, block, to_fit) {
+function get_resize_info(client, block, to_fit) {
     let info, shrink_excuse, grow_excuse;
 
     if (block) {
@@ -189,7 +189,7 @@ export function get_resize_info(client, block, to_fit) {
     return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
 }
 
-export function lvol_grow(client, lvol, info, to_fit) {
+function lvol_grow(client, lvol, info, to_fit) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
     var pool = client.lvols[lvol.ThinPool];
@@ -249,7 +249,7 @@ export function lvol_grow(client, lvol, info, to_fit) {
         get_existing_passphrase(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
-export function lvol_shrink(client, lvol, info, to_fit) {
+function lvol_shrink(client, lvol, info, to_fit) {
     var block = client.lvols_block[lvol.path];
     var vgroup = client.vgroups[lvol.VolumeGroup];
 
@@ -339,6 +339,8 @@ export class BlockVolTab extends React.Component {
         var pool = client.lvols[lvol.ThinPool];
         var block = client.lvols_block[lvol.path];
         var vgroup = client.vgroups[lvol.VolumeGroup];
+        var unused_space_warning = self.props.warnings.find(w => w.warning == "unused-space");
+        var unused_space = !!unused_space_warning;
 
         function create_snapshot() {
             dialog_open({ Title: _("Create Snapshot"),
@@ -367,9 +369,9 @@ export class BlockVolTab extends React.Component {
             lvol_rename(lvol);
         }
 
-        var { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, false);
+        var { info, shrink_excuse, grow_excuse } = get_resize_info(client, block, unused_space);
 
-        if (!grow_excuse && !pool && vgroup.FreeSize == 0) {
+        if (!unused_space && !grow_excuse && !pool && vgroup.FreeSize == 0) {
             grow_excuse = (
                 <div>
                     {_("Not enough space to grow.")}
@@ -380,11 +382,11 @@ export class BlockVolTab extends React.Component {
         }
 
         function shrink() {
-            lvol_shrink(client, lvol, info, false);
+            lvol_shrink(client, lvol, info, unused_space);
         }
 
         function grow() {
-            lvol_grow(client, lvol, info, false);
+            lvol_grow(client, lvol, info, unused_space);
         }
 
         return (
@@ -395,16 +397,35 @@ export class BlockVolTab extends React.Component {
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename}>{this.props.lvol.Name}</StorageLink>
-
-                    <label className="control-label">{_("Size")}</label>
-                    <div>
-                        {utils.fmt_size(this.props.lvol.Size)}
-                        <div className="tab-row-actions">
-                            <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
-                            <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
+                    { !unused_space &&
+                    <React.Fragment>
+                        <label className="control-label">{_("Size")}</label>
+                        <div>
+                            {utils.fmt_size(this.props.lvol.Size)}
+                            <div className="tab-row-actions">
+                                <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink")}</StorageButton>
+                                <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow")}</StorageButton>
+                            </div>
                         </div>
+                    </React.Fragment>
+                    }
+                </div>
+                { unused_space &&
+                <div>
+                    <br />
+                    <strong>{_("This logical volume is not completely used by its content.")}</strong>
+                    <br />
+                    {cockpit.format(_("Volume size is $0. Content size is $1."),
+                                    utils.fmt_size(unused_space_warning.volume_size),
+                                    utils.fmt_size(unused_space_warning.content_size))}
+                    { "\n" }
+                    <div className="pull-right">
+                        <StorageButton excuse={shrink_excuse} onClick={shrink}>{_("Shrink Volume")}</StorageButton>
+                        {"\n"}
+                        <StorageButton excuse={grow_excuse} onClick={grow}>{_("Grow Content")}</StorageButton>
                     </div>
                 </div>
+                }
             </div>
         );
     }

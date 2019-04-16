@@ -38,8 +38,6 @@ import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
 
-import { WarningTab } from "./warning-tab.jsx";
-
 const _ = cockpit.gettext;
 
 var C_ = cockpit.gettext;
@@ -80,10 +78,17 @@ function create_tabs(client, target, is_partition) {
     var is_filesystem = (block && block.IdUsage == 'filesystem');
     var is_crypto = (block && block.IdUsage == 'crypto');
 
+    var warnings = client.path_warnings[target.path] || [ ];
+
     var tabs = [ ];
     var row_action = null;
 
-    function add_tab(name, renderer) {
+    function add_tab(name, renderer, associated_warnings) {
+        let tab_warnings = [ ];
+        if (associated_warnings)
+            tab_warnings = warnings.filter(w => associated_warnings.indexOf(w.warning) >= 0);
+        if (tab_warnings.length > 0)
+            name = <span><span className="pficon pficon-warning-triangle-o" /> {name}</span>;
         tabs.push(
             { name: name,
               renderer: renderer,
@@ -91,6 +96,7 @@ function create_tabs(client, target, is_partition) {
                   client: client,
                   block: block,
                   lvol: lvol,
+                  warnings: tab_warnings,
               }
             });
     }
@@ -127,7 +133,7 @@ function create_tabs(client, target, is_partition) {
             add_tab(_("Pool"), PoolVolTab);
             row_action = <StorageButton onClick={create_thin}>{_("Create Thin Volume")}</StorageButton>;
         } else {
-            add_tab(_("Volume"), BlockVolTab);
+            add_tab(_("Volume"), BlockVolTab, [ "unused-space" ]);
         }
     }
 
@@ -151,20 +157,6 @@ function create_tabs(client, target, is_partition) {
         add_tab(_("Swap"), SwapTab);
     } else if (block) {
         add_tab(_("Unrecognized Data"), UnrecognizedTab);
-    }
-
-    var warnings = client.path_warnings[target.path] || [ ];
-    if (warnings.length > 0) {
-        tabs.push(
-            { name: <span><span className="pficon pficon-warning-triangle-o" /> {_("Warning")}</span>,
-              renderer: WarningTab,
-              data: {
-                  client: client,
-                  block: block,
-                  lvol: lvol,
-                  warnings: warnings
-              }
-            });
     }
 
     var tab_actions = [ ];

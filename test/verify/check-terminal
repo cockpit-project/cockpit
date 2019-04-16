@@ -158,6 +158,17 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         # Wait for text to show up
         wait_line(n + 2, "foo")
 
+        # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
+        b.key_press('\rclear\recho $PATH > /tmp/path\r')
+        # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
+        wait_line(n + 1, "$")
+        path = m.execute("cat /tmp/path").strip()
+        if m.atomic_image:
+            self.assertIn("/usr/local/bin:/usr/bin", path)
+        else:
+            self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
+        self.assertNotIn(":/.local", path)  # would happen with empty $HOME
+
         def check_theme_select(name, style):
             b.select_from_dropdown("#theme-select", name)
             b.wait_attr(".xterm-viewport", "style", style)

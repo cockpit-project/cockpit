@@ -643,7 +643,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         class StoragePoolCreateDialog(object):
             def __init__(
                 self, test_obj, name, pool_type=None, target=None, source={},
-                autostart=None, xfail=False, xfail_error=None,
+                autostart=None, xfail=False, xfail_error=None, remove=True,
             ):
                 self.test_obj = test_obj
                 self.name = name
@@ -653,6 +653,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.autostart = autostart
                 self.xfail = xfail
                 self.xfail_error = xfail_error
+                self.remove = remove
 
             def execute(self):
                 self.open()
@@ -661,6 +662,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if not self.xfail:
                     self.verify_dialog()
                     self.verify_overview()
+                    if self.remove:
+                        self.cleanup()
 
             def open(self):
                 b.click("#create-storage-pool")
@@ -748,11 +751,15 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if "source_path" in self.source:
                     b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
+            def cleanup(self):
+                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
+
         StoragePoolCreateDialog(
             self,
             name="my_dir_pool_one",
             pool_type="dir",
             target="/tmp/my_dir_pool_one/",
+            remove=False,
         ).execute()
 
         # XFAIL: Try to create a pool with used name
@@ -764,6 +771,9 @@ class TestMachinesDBus(machineslib.TestMachines):
             xfail=True,
             xfail_error="pool 'my_dir_pool_one' already exists"
         ).execute()
+
+        # Manually remove the created pool
+        m.execute("virsh pool-destroy my_dir_pool_one && virsh pool-undefine my_dir_pool_one")
 
         # XFAIL: Try to create a pool with incomplete modal dialog
         StoragePoolCreateDialog(

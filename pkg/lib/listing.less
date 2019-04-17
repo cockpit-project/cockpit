@@ -244,6 +244,7 @@ tr.listing-ct-item.listing-ct-selected .badge {
 
 .listing-ct-head .listing-ct-actions {
     margin-top: -7px;
+    order: -1;
 }
 
 /* The last column of a listing is always right aligned */
@@ -268,6 +269,8 @@ div.listing-ct-head {
     border-style: solid;
     border-width: 1px 1px 0 1px;
     overflow: hidden;
+    display: flex;
+    flex-flow: row-reverse wrap;
 }
 
 div.listing-ct-head:last-child {
@@ -301,6 +304,7 @@ tbody.active .listing-ct-head {
     font-size: 13px;
     /* Counteract listing-ct-head padding */
     margin-top: -@listing-ct-padding;
+    margin: 0;
 }
 
 .listing-ct-head .nav-tabs {
@@ -310,6 +314,7 @@ tbody.active .listing-ct-head {
 .listing-ct-head .nav-tabs-pf {
     /* Counteract listing-ct-head padding */
     margin: -@listing-ct-padding 0 0 -@listing-ct-padding;
+    flex: auto;
 }
 
 /* To display info instead of tabs */

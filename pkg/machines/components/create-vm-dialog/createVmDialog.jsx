@@ -138,9 +138,10 @@ class CreateVM extends React.Component {
                                 // osinfo-query is nto yet aware of variants, https://gitlab.com/libosinfo/libosinfo/issues/24
                                 // but osinfo-detect is. Remove the variant suffix to eliminate this issue
                                 osName = osName.replace(/ Server$/, "");
+                                osName = osName.replace(/ Workstation$/, "");
                                 const osEntry = this.props.osInfoList.filter(osEntry => osEntry.name == osName);
 
-                                if (osEntry) {
+                                if (osEntry && osEntry[0]) {
                                     this.setState({
                                         vendor: osEntry[0].vendor,
                                         os: osEntry[0].shortId

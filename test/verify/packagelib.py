@@ -113,7 +113,10 @@ class PackageCase(MachineCase):
             for path, data in content.items():
                 dest = "/tmp/b/" + path
                 self.machine.execute("mkdir -p '{0}'".format(os.path.dirname(dest)))
-                self.machine.write(dest, data)
+                if isinstance(data, dict):
+                    self.machine.execute("cp '{0}' '{1}'".format(data["path"], dest))
+                else:
+                    self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
                  printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: all\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
                  {post}
@@ -143,7 +146,10 @@ class PackageCase(MachineCase):
         if content is not None:
             for path, data in content.items():
                 installcmds += 'mkdir -p $(dirname "$RPM_BUILD_ROOT/{0}")\n'.format(path)
-                installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
+                if isinstance(data, dict):
+                    installcmds += 'cp {1} "$RPM_BUILD_ROOT/{0}"'.format(path, data["path"])
+                else:
+                    installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
                 installedfiles += "{0}\n".format(path)
         spec = """
 Summary: dummy {0}

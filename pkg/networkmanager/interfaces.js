@@ -2090,11 +2090,16 @@ function choice_title(choices, choice, def) {
  * rollback_time too long:  The user has to wait a long time before
  *                          his/her mistake is corrected and might
  *                          consider Cockpit to be dead already.
+ *                          Also, the network connection machinery in
+ *                          the kernels and browsers must recover
+ *                          after no packages have been flowing for
+ *                          this much time.  Windows seems to have
+ *                          less patience than Linux in this regard.
  */
 
 var curtain_time = 1.5;
 var settle_time = 1.0;
-var rollback_time = 15.0;
+var rollback_time = 7.0;
 
 function with_checkpoint(model, modify, options) {
     var manager = model.get_manager();

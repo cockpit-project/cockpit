@@ -60,7 +60,6 @@ class TestActivePages(MachineCase):
         b.go("/system/terminal")
         b.enter_page("/system/terminal")
 
-        b.wait_present(".terminal")
         b.focus(".terminal")
 
         def line_sel(i):

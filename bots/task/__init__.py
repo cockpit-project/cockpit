@@ -138,7 +138,7 @@ def begin(publish, name, context, issue):
         number = issue["number"]
         identifier = "{0}-{1}-{2}".format(name, number, current)
         title = issue["title"]
-        wip = "WIP: {0}: {1}".format(hostname, title)
+        wip = "WIP: {0}: [no-test] {1}".format(hostname, title)
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
@@ -344,6 +344,7 @@ def execute(*args):
         env["GIT_ASKPASS"] = "/bin/true"
     output = subprocess.check_output(args, cwd=BASE, stderr=subprocess.STDOUT, env=env, universal_newlines=True)
     sys.stderr.write(censored(output))
+    return output
 
 def find_our_fork(user):
     repos = api.get("/users/{0}/repos".format(user))
@@ -357,11 +358,22 @@ def find_our_fork(user):
                 return full["full_name"]
     raise RuntimeError("%s doesn't have a fork of %s" % (user, api.repo))
 
-def branch(context, message, pathspec=".", issue=None, **kwargs):
-    current = time.strftime('%Y%m%d-%H%M%M')
+def push_branch(user, branch, force=False):
+    fork_repo = find_our_fork(user)
+
+    url = "https://github.com/{0}".format(fork_repo)
+    cmd = ["git", "push", url, "+HEAD:refs/heads/{0}".format(branch)]
+    if force:
+        cmd.insert(2, "-f")
+    execute(*cmd)
+
+def branch(context, message, pathspec=".", issue=None, branch=None, push=True, **kwargs):
     name = named(kwargs)
-    branch = "{0} {1} {2}".format(name, context or "", current).strip()
-    branch = branch.replace(" ", "-").replace("--", "-")
+    if not branch:
+        execute("git", "checkout", "--detach")
+        current = time.strftime('%Y%m%d-%H%M%M')
+        branch = "{0} {1} {2}".format(name, context or "", current).strip()
+        branch = branch.replace(" ", "-").replace("--", "-")
 
     # Tell git about our github token as a user name
     try:
@@ -372,12 +384,10 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     user = api.get("/user")['login']
     fork_repo = find_our_fork(user)
 
-    url = "https://github.com/{0}".format(fork_repo)
     clean = "https://github.com/{0}".format(fork_repo)
 
     if pathspec is not None:
         execute("git", "add", "--", pathspec)
-    execute("git", "checkout", "--detach")
 
     # If there's nothing to add at that pathspec return None
     try:
@@ -385,20 +395,17 @@ def branch(context, message, pathspec=".", issue=None, **kwargs):
     except subprocess.CalledProcessError:
         return None
 
-    execute("git", "push", url, "+HEAD:refs/heads/{0}".format(branch))
+    # No need to push if we want to add another commits into the same branch
+    if push:
+        push_branch(user, branch)
 
-    # Comment on the issue if present
-    if issue:
-        message = "{0} {1} done: {2}/commits/{3}".format(name, context or "", clean, branch)
-        try:
-            resource = "issues/{0}/comments".format(issue["number"])
-        except TypeError:
-            resource = "issues/{0}/comments".format(issue)
-        api.post(resource, { "body": message })
+    # Comment on the issue if present and we pushed the branch
+    if issue and push:
+        comment_done(issue, name, clean, branch, context)
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs):
+def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests=True, **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
@@ -413,7 +420,7 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
         except TypeError:
             data["issue"] = int(issue)
     else:
-        data["title"] = kwargs["title"]
+        data["title"] = "[no-test] " + kwargs["title"]
         if body:
             data["body"] = body
 
@@ -436,6 +443,22 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs)
         except TypeError:
             pass
 
+    if pull["number"]:
+        # If we want to run tests automatically, drop [no-test] from title before force push
+        if run_tests:
+            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+
+        # Force push
+        last_commit_m = execute("git", "show", "--no-patch", "--format=%B")
+        last_commit_m += "Closes #" + str(pull["number"])
+        execute("git", "commit", "--amend", "-m", last_commit_m)
+        (user, branch) = branch.split(":")
+        push_branch(user, branch, True)
+
+        # If we don't want to run tests automatically, drop [no-test] from title after force push
+        if not run_tests:
+            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
+
     return pull
 
 def label(issue, labels=['bot']):
@@ -445,12 +468,21 @@ def label(issue, labels=['bot']):
         resource = "issues/{0}/labels".format(issue)
     return api.post(resource, labels)
 
+def labels_of_pull(pull):
+    if "labels" not in pull:
+        pull["labels"] = api.get("issues/{0}/labels".format(pull["number"]))
+    return map(lambda label: label["name"], pull["labels"])
+
 def comment(issue, comment):
     try:
         number = issue["number"]
     except TypeError:
         number = issue
     return api.post("issues/{0}/comments".format(number), { "body": comment })
+
+def comment_done(issue, name, clean, branch, context=None):
+    message = "{0} {1} done: {2}/commits/{3}".format(name, context or "", clean, branch)
+    comment(issue, message)
 
 def attach(filename):
     if "TEST_ATTACHMENTS" in os.environ:

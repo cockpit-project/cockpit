@@ -135,6 +135,7 @@ const HostVmsListDecorated = ({ vms, config, systemInfo, ui, dispatch, host }) =
                          config={config}
                          systemInfo={systemInfo}
                          ui={ui}
+                         nodeDevices={[]}
                          storagePools={[]}
                          dispatch={dispatch}
                          networks={[]}

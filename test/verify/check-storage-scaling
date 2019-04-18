@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+class TestStorage(StorageCase):
+
+    def testScaling(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("modprobe scsi_debug num_tgts=200")
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "Show all 202 drives")
+        b.click("#drives td:contains(Show all 202 drives)")
+        b.wait_not_in_text("#drives", "Show all")
+        b.wait_js_cond('ph_select("#drives tr").length == 202')
+
+if __name__ == '__main__':
+    test_main()

@@ -199,7 +199,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
 
-        b.wait_present('#troubleshoot-dialog h4')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-available")
@@ -223,7 +222,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.go("/dashboard")
         b.enter_page("/dashboard")
         b.click('#dashboard-enable-edit')
-        b.wait_present("#dashboard-hosts .list-group-item[data-address='10.111.113.2']")
         b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
         b.wait_popup('host-edit-dialog')

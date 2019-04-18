@@ -141,7 +141,8 @@ class App extends React.Component {
                     networks={networks}
                     actions={createVmAction}
                     resourceHasError={this.state.resourceHasError}
-                    onAddErrorNotification={this.onAddErrorNotification} />
+                    onAddErrorNotification={this.onAddErrorNotification}
+                    nodeDevices={nodeDevices} />
                 }
                 {config.provider.name === 'LibvirtDBus' && path.length > 0 && path[0] == 'storages' &&
                 <StoragePoolList storagePools={storagePools}

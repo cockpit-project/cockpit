@@ -115,7 +115,6 @@ class VolumeTests(object):
             m = self.openshift
 
         self.login_and_go("/kubernetes")
-        b.wait_present(".dashboard-status:nth-child(2)")
         b.wait_in_text(".dashboard-status:nth-child(2)", "No volumes in use")
         b.wait_not_present(".pvc-notice a")
 
@@ -125,19 +124,15 @@ class VolumeTests(object):
         # By adding another volume claim more issues are found
         m.execute("kubectl create namespace another && kubectl create --namespace=another -f /tmp/mock-volume-tiny-app.json")
 
-        b.wait_present(".pvc-notice a")
         b.wait_in_text(".pvc-notice a", "2")
         b.wait_in_text(".pvc-notice a", "pending volume claims")
         b.click(".pvc-notice a")
         b.wait_present(".pvc-listing")
 
         b.wait_present("tbody[data-id='default/mock-volume-claim']")
-        b.wait_present("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger")
         b.click("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger", force=True)
 
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-body", "mock-volume-claim")
-        b.wait_present("modal-dialog .modal-body ul")
         b.wait_in_text("modal-dialog .modal-body ul", "mock-volume-")
         b.wait_not_in_text("modal-dialog .modal-body ul", "mock-volume-claim")
         b.click("modal-dialog button.btn-danger")
@@ -148,7 +143,6 @@ class VolumeTests(object):
         m.upload(["verify/files/mock-volume-tiny-app.json"], "/tmp")
         m.execute("kubectl create -f /tmp/mock-volume-tiny-app.json")
 
-        b.wait_present("tbody[data-id='default/mock-volume-claim']")
         b.wait_in_text("tbody[data-id='default/mock-volume-claim']", "5Gi")
         b.click("tbody[data-id='default/mock-volume-claim'] tr")
 
@@ -185,13 +179,10 @@ class VolumeTests(object):
             m = self.openshift
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#kubernetes-volumes")
         b.click("#kubernetes-volumes")
         b.wait_present(".pv-listing")
 
-        b.wait_present("#register-volume")
         b.click("#register-volume")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog #volume-type button ")
         b.click("#volume-type #volume-type-nfs")
         b.wait_in_text("modal-dialog #volume-type button", "NFS")
@@ -222,7 +213,6 @@ class VolumeTests(object):
         b.wait_present(".pv-listing tbody[data-id='pv1']")
 
         b.click("#register-volume")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog #volume-type button ")
         b.click("#volume-type #volume-type-hostPath")
         b.wait_in_text("modal-dialog #volume-type button", "Host Path")
@@ -246,7 +236,6 @@ class VolumeTests(object):
         b.wait_present(".content-filter")
         b.wait_in_text(".listing-ct-inline", "/tmp")
         b.wait_in_text(".listing-ct-inline", "This volume has not been claimed")
-        b.wait_present(".content-filter button.pficon-edit")
         b.click(".content-filter button.pficon-edit")
         b.wait_present("modal-dialog")
 
@@ -261,14 +250,12 @@ class VolumeTests(object):
         b.wait_not_present("modal-dialog")
 
         b.click("a.hidden-xs")
-        b.wait_present(".pv-listing tbody[data-id='fc-volume']")
         b.click(".pv-listing tbody[data-id='fc-volume'] th")
         b.wait_present(".content-filter")
         b.wait_present(".content-filter button.btn-delete")
         b.wait_not_present(".content-filter button.pficon-edit")
         b.click(".content-filter button.btn-delete")
         b.wait_present("modal-dialog")
-        b.wait_present("modal-dialog .modal-footer button.btn-danger")
         b.click("modal-dialog .modal-footer button.btn-danger")
         b.wait_present(".pv-listing")
         b.wait_not_present(".pv-listing tbody[data-id='fc-volume']")
@@ -308,7 +295,6 @@ class VolumeTests(object):
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret), "mock-volume-container")
         b.wait_in_text(".listing-ct-body div[data-id='{}']".format(secret),
                        "/var/run/secrets/kubernetes.io/serviceaccount")
-        b.wait_present(".listing-ct-body div[data-id='host-tmp']")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "Persistent Volume")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-claim")
         b.wait_in_text(".listing-ct-body div[data-id='host-tmp']", "mock-volume-container")
@@ -330,16 +316,12 @@ class KubernetesCommonTests(VolumeTests):
         # Check that container log output shows up
         b.click("#content .containers-listing tbody:first-of-type tr.listing-ct-item td.listing-ct-toggle")
         b.wait_in_text("#content .containers-listing tbody.open tr.listing-ct-item td:last-child", "running")
-        b.wait_present("tbody.open .listing-ct-panel")
         b.click("tbody.open .listing-ct-panel .listing-ct-head li a.logs")
-        b.wait_present("tbody.open .listing-ct-panel pre")
         b.wait_visible("tbody.open .listing-ct-panel pre")
         b.wait_in_text("tbody.open .listing-ct-panel pre", "HelloMessage.")
 
     def check_shell(self, b):
-        b.wait_present("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
         b.click("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
-        b.wait_present("tbody.open .listing-ct-panel div.terminal")
         b.wait_visible("tbody.open .listing-ct-panel div.terminal")
         b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "#")
         b.focus('tbody.open .listing-ct-panel .terminal')
@@ -352,7 +334,6 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_timeout(120)
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
@@ -373,7 +354,6 @@ class KubernetesCommonTests(VolumeTests):
         b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='services/default/mock']")
@@ -381,7 +361,6 @@ class KubernetesCommonTests(VolumeTests):
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='replicationcontrollers/default/mock']")
@@ -389,7 +368,6 @@ class KubernetesCommonTests(VolumeTests):
         b.click(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] .delete-pod")
         b.click(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] .delete-pod")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-body", "Deleting a Pod will")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
@@ -400,7 +378,6 @@ class KubernetesCommonTests(VolumeTests):
         b = self.browser
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
@@ -452,7 +429,6 @@ class KubernetesCommonTests(VolumeTests):
         # Adjust the service
         b.click("#services-enable-change")
         b.click("#service-list tr[data-name='mock']:first-of-type button")
-        b.wait_present("modal-dialog")
         b.set_val("modal-dialog input.adjust-replica", 2)
         b.click("modal-dialog .btn-primary")
         b.wait_not_present("modal-dialog .dialog-wait-ct")
@@ -481,7 +457,6 @@ class KubernetesCommonTests(VolumeTests):
 
         # Click on the service to expand into a panel
         b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
-        b.wait_present(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel")
         b.wait_visible(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel")
         b.wait_in_text(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel", "mock")
 
@@ -492,7 +467,6 @@ class KubernetesCommonTests(VolumeTests):
         b.click(".details-listing tbody[data-id='services/mynamespace1/mock'] tr.listing-ct-item")
         b.wait_in_text(".listing-ct-inline", "Service")
         b.wait_in_text(".listing-ct-inline", "Endpoints")
-        b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "mock")
         b.click("a.hidden-xs")
         b.wait_present("#content .details-listing")
@@ -538,7 +512,6 @@ class KubernetesCommonTests(VolumeTests):
         b = self.browser
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#node-list")
         b.wait_in_text("#node-list", "127.0.0.1")
 
         # localhost node should be up and healthy
@@ -548,11 +521,9 @@ class KubernetesCommonTests(VolumeTests):
 
         b.click("#node-list tbody tr:first-child")
 
-        b.wait_present(".listing-ct-inline")
         b.wait_in_text(".listing-ct-inline", "Node")
         b.wait_in_text(".listing-ct-inline", "Capacity")
         b.wait_in_text(".listing-ct-inline", "KubeletReady")
-        b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "127.0.0.1")
         b.click("a.hidden-xs")
 
@@ -566,19 +537,14 @@ class KubernetesCommonTests(VolumeTests):
             b.wait_present(".nodes-listing tbody[data-id='{}-mynode']".format(l))
 
         # Check inner page
-        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
         b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
-        b.wait_present(".content-filter h3")
         b.wait_text(".content-filter h3", "a-mynode")
         b.click("a.hidden-xs")
 
         # Delete from inner page
         b.wait_present(".nodes-listing")
-        b.wait_present(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
         b.click(".nodes-listing tbody[data-id='a-mynode'] tr.listing-ct-item")
-        b.wait_present(".content-filter button.btn-danger")
         b.click(".content-filter button.btn-danger")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "a-mynode")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog .dialog-wait-ct")
@@ -592,30 +558,26 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel")
         self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel"))
         b.wait_in_text("tbody[data-id='127.0.0.1'] tr.listing-ct-panel", "Ready")
-        b.wait_present(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
         b.click(".nodes-listing tbody[data-id='127.0.0.1'] tr.listing-ct-panel a.machine-jump")
 
         is_docker = m.execute("docker ps | grep 'cockpit/kubernetes' || true")
-        # When running as a container, localhost only has kubernetes
         if is_docker:
+            # When running as a container, localhost only has kubernetes
             b.wait_present(".dashboard-cards")
-            b.wait_present("a[href='#/nodes']")
             b.click("a[href='#/nodes']")
-        # Normally it goes to system
         else:
+            # Normally it goes to system
             b.enter_page("/system")
             b.switch_to_top()
             b.click("li.dashboard-link a[href='/kubernetes']")
             b.enter_page("/kubernetes")
 
         # Delete from panel
-        b.wait_present(".nodes-listing tbody[data-id='b-mynode']")
         b.click(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-item td.listing-ct-toggle")
         b.wait_present(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-panel")
         self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='b-mynode'] tr.listing-ct-panel"))
         b.wait_in_text("tbody[data-id='b-mynode'] tr.listing-ct-panel", "Unknown")
         b.click("tbody[data-id='b-mynode'] .listing-ct-actions button.btn-delete")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "b-mynode")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog .dialog-wait-ct")
@@ -624,21 +586,17 @@ class KubernetesCommonTests(VolumeTests):
 
         # Delete multiple
         b.wait_present(".nodes-listing")
-        b.wait_present(".content-filter button.fa-check")
         b.click(".content-filter button.fa-check")
         b.wait_present(".content-filter button.fa-check.active")
         b.wait_present(".content-filter button.btn-danger.disabled")
-        b.wait_present("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.wait_not_present(".content-filter button.btn-danger.disabled")
         b.wait_present(".content-filter button.btn-danger")
         b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.wait_present(".content-filter button.btn-danger.disabled")
         b.click("tbody[data-id='c-mynode'] td.listing-ct-toggle input[type=checkbox]")
-        b.wait_present("tbody[data-id='d-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.click("tbody[data-id='d-mynode'] td.listing-ct-toggle input[type=checkbox]")
         b.click(".content-filter button.btn-danger")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "c-mynode")
         b.wait_in_text("modal-dialog", "d-mynode")
         b.wait_not_in_text("modal-dialog", "127.0.0.1")
@@ -646,7 +604,6 @@ class KubernetesCommonTests(VolumeTests):
         b.wait_not_present("modal-dialog")
 
         b.click(".content-filter button.btn-danger")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog", "c-mynode")
         b.wait_in_text("modal-dialog", "d-mynode")
         b.click("modal-dialog .btn-danger")
@@ -663,7 +620,6 @@ class KubernetesCommonTests(VolumeTests):
         # The service has loaded and containers instantiated
         self.login_and_go("/kubernetes")
         m.execute("kubectl create -f /tmp/mock-k8s-tiny-app.json")
-        b.wait_present("#service-list tr[data-name='mock'] td.containers")
         b.wait_text("#service-list tr[data-name='mock'] td.containers", "1")
 
         # Switch to topology view
@@ -698,7 +654,6 @@ class KubernetesCommonTests(VolumeTests):
             })""", "true")
 
         b.wait_present("div.sidebar-pf-right")
-        b.wait_present("div.sidebar-pf-right kubernetes-object-describer")
         b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer", "127.0.0.1")
         b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer h3:first", "Node")
 
@@ -712,7 +667,6 @@ class OpenshiftCommonTests(VolumeTests):
         self.openshift.execute("oc expose service docker-registry --hostname=test.example.com")
 
         self.login_and_go("/kubernetes")
-        b.wait_present("#service-list")
         b.wait_in_text("#service-list", "registry")
 
         # Switch to detail view
@@ -731,7 +685,6 @@ class OpenshiftCommonTests(VolumeTests):
 
         # Switch to images view
         b.click("a[href='#/images']")
-        b.wait_present("tbody[data-id='marmalade/busybee']")
         b.wait_in_text("tbody[data-id='marmalade/busybee'] tr", "0.x")
 
         # Switch to topology view
@@ -761,7 +714,6 @@ class OpenshiftCommonTests(VolumeTests):
         b.click(".details-listing tbody[data-id='routes/default/mock'] td.listing-ct-toggle")
         b.wait_visible(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.click(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
-        b.wait_present("modal-dialog")
         b.wait_in_text("modal-dialog .modal-header", "Delete Route")
         b.wait_in_text("modal-dialog .modal-body", "Route 'mock'")
         b.click(".modal-footer button.btn-danger")
@@ -787,17 +739,14 @@ class OpenshiftCommonTests(VolumeTests):
         m.execute("echo '10.111.112.101  f1.cockpit.lan' >> /etc/hosts")
 
         self.login_and_go("/kubernetes")
-        b.wait_present("a[href='#/nodes']")
         b.click("a[href='#/nodes']")
 
-        b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan']")
         b.wait_in_text(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-item", "Ready")
 
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-item td.listing-ct-toggle")
         b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel")
         self.assertTrue(b.is_visible(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel"))
         b.wait_in_text(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel", "10.111.112.101")
-        b.wait_present(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
         b.click(".nodes-listing tbody[data-id='f1.cockpit.lan'] tr.listing-ct-panel a.machine-jump")
 
         b.switch_to_top()
@@ -811,7 +760,6 @@ class OpenshiftCommonTests(VolumeTests):
         # We can accept the key
         b.click("#troubleshoot-dialog .btn-primary")
         b.wait_in_text("#troubleshoot-dialog", 'Log in to')
-        b.wait_present("#troubleshoot-dialog .modal-footer .btn-default")
         b.click("#troubleshoot-dialog .modal-footer .btn-default")
         b.wait_in_text(".curtains-ct", "Login failed")
 
@@ -823,7 +771,6 @@ class OpenshiftCommonTests(VolumeTests):
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text("#troubleshoot-dialog", 'Log in to')
-        b.wait_present("#login-type button")
         b.click("#login-type button")
         b.click("#login-type li[value=password] a")
         b.wait_in_text("#login-type button span", "Type a password")
@@ -838,7 +785,6 @@ class OpenshiftCommonTests(VolumeTests):
 
         b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', "root@10.111.112.101")
-        b.wait_present('#system_information_os_text')
         b.wait_visible('#system_information_os_text')
         b.wait_text_not("#system_information_os_text", "")
         b.logout()
@@ -894,7 +840,6 @@ class RegistryTests(object):
         # Filter the dashboard to marmalide project
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
-        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
         b.click(".dashboard-images .namespace-filter a[value='marmalade']")
         b.wait_not_in_text(".card-pf-wide.dashboard-images", "pizzazz/")
         b.wait_in_text(".card-pf-wide.dashboard-images", "marmalade/busybee")
@@ -903,13 +848,11 @@ class RegistryTests(object):
         b.click("a[href='#/images/marmalade/busybee']")
         b.wait_in_text(".content-filter h3", "marmalade/busybee")
         b.click("tbody[data-id='marmalade/busybee:0.x'] tr td.listing-ct-toggle")
-        b.wait_present("tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags")
         b.wait_in_text(
             "tbody[data-id='marmalade/busybee:0.x'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:0.x")
 
         # Look at the image layers
         b.click(".listing-ct-head li:last-child a")
-        b.wait_present(".listing-ct-body .registry-image-layers")
         b.wait_visible(".listing-ct-body .registry-image-layers")
         b.wait_in_text(".listing-ct-body .registry-image-layers", "KiB")
 
@@ -945,7 +888,6 @@ class RegistryTests(object):
 
         # Go to the images view and create a new imagestream
         b.click("#content a[href='#/images/marmalade']")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#imagestream-modify-name")
@@ -969,9 +911,7 @@ class RegistryTests(object):
         b.wait_visible("tbody[data-id='default/zero']")
 
         # Go to the images view and check annotations
-        b.wait_present("tbody[data-id='default/busybox']")
         b.click("tbody[data-id='default/busybox'] th")
-        b.wait_present(".content-filter h3")
         b.wait_in_text(".content-filter h3", "default/busybox")
         b.wait_in_text("#content", "Annotations")
         b.wait_in_text("registry-imagestream-meta", "openshift.io/image.dockerRepositoryCheck")
@@ -980,7 +920,6 @@ class RegistryTests(object):
         b.go("#/images/marmalade/busybee:0.x")
         b.wait_in_text(".content-filter h3", "marmalade/busybee:0.x")
         b.click(".pficon-delete")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
 
@@ -989,13 +928,10 @@ class RegistryTests(object):
         b.wait_not_in_text("#content", "0.x")
 
         # Delete via the main UI
-        b.wait_present("tbody[data-id='marmalade/busybee:latest']")
         b.click("tbody[data-id='marmalade/busybee:latest'] tr.listing-ct-item td.listing-ct-toggle")
-        b.wait_present("tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags")
         b.wait_in_text(
             "tbody[data-id='marmalade/busybee:latest'] .listing-ct-panel dl.registry-image-tags", "marmalade/busybee:latest")
         b.click("tbody[data-id='marmalade/busybee:latest'] .listing-ct-head .pficon-delete")
-        b.wait_present("modal-dialog")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
 
@@ -1005,7 +941,6 @@ class RegistryTests(object):
         # Show the image on the right screen
         b.go("#/images/marmalade/juggs")
         b.wait_in_text(".content-filter h3", "marmalade/juggs")
-        b.wait_present("tbody[data-id='marmalade/juggs:2.9']")
         b.click("tbody[data-id='marmalade/juggs:2.9'] tr.listing-ct-item td.listing-ct-toggle")
 
         # Various labels should show up in this image
@@ -1016,21 +951,16 @@ class RegistryTests(object):
 
         # And some key labels shouldn't show up on the metadata
         b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-head li:last-child a")
-        b.wait_present("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta")
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta", "build-date=2016-03-04")
 
         # Check panel navigations
         b.go("#/images")
-        b.wait_present("tbody[data-id='marmalade/juggs']")
         b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
         b.wait_present("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('2.11')")
         b.click("tbody[data-id='marmalade/juggs'] tr td.listing-ct-toggle")
         b.wait_visible("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel")
-        b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags')")
         b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags') a")
         b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct")
-        b.wait_present(
-            "tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest']")
         b.wait_in_text(
             "tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct tbody[data-id='marmalade/juggs:latest'] tr th", "latest")
         b.click(
@@ -1040,16 +970,13 @@ class RegistryTests(object):
         b.wait_text(".content-filter h3 span", "marmalade/juggs:latest")
 
         b.go("#/images")
-        b.wait_present("tbody[data-id='marmalade/juggs']")
         b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
-        b.wait_present("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('2.11')")
         b.click("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('2.11')")
         b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs:2.11"')
         b.wait_present("#content div.listing-ct-inline")
         b.wait_in_text(".content-filter h3", "marmalade/juggs:2.11")
 
         b.go("#/images")
-        b.wait_present("tbody[data-id='marmalade/juggs'] tr")
         b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
         b.click("tbody[data-id='marmalade/juggs'] tr")
         b.wait_js_cond('window.location.hash == "#/images/marmalade/juggs"')
@@ -1061,7 +988,6 @@ class RegistryTests(object):
 
         self.login_and_go(self.registry_root)
         b.wait_present(".dashboard-images")
-        b.wait_present("#content a[href='#/images/marmalade']")
         b.click("#content a[href='#/images/marmalade']")
         b.wait_visible("a:contains('New image stream')")
 
@@ -1120,7 +1046,6 @@ class RegistryTests(object):
         b.wait_visible("#add_user_to_group")
         b.click("#add_user_to_group button")
         b.wait_visible("#add_user_to_group .dropdown-menu")
-        b.wait_present(".dropdown-menu a[value='scruffy']")
         b.wait_visible(".dropdown-menu a[value='scruffy']")
         b.click(".dropdown-menu a[value='scruffy']")
         b.click(".btn-primary")
@@ -1138,7 +1063,6 @@ class RegistryTests(object):
         b.wait_visible("#add_user_to_group")
         b.click("#add_user_to_group button")
         b.wait_visible("#add_user_to_group .dropdown-menu")
-        b.wait_present(".dropdown-menu a[value='scruffy']")
         b.wait_visible(".dropdown-menu a[value='scruffy']")
         b.click(".dropdown-menu a[value='scruffy']")
         b.click(".btn-primary")
@@ -1186,7 +1110,6 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         #wait for it
-        b.wait_present("tbody[data-id='testprojectuser']")
 
         #goto user page
         b.click("tbody[data-id='testprojectuser'] tr:first-child td:nth-of-type(2)")
@@ -1216,7 +1139,6 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         #delete project member X
-        b.wait_present("tbody[data-id='testprojectuserproj'] tr td:last-child a i.pficon-close")
         b.click("tbody[data-id='testprojectuserproj'] tr td:last-child a i.pficon-close")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")
@@ -1239,7 +1161,6 @@ class RegistryTests(object):
 
         #add another role to project member
         b.wait_present("tbody[data-id='testprojectuserproj']")
-        b.wait_present("tbody[data-id='testprojectuserproj'] tr .btn-group")
         b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group")
         b.click("tbody[data-id='testprojectuserproj'] tr .btn-group button")
         b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group .dropdown-menu")
@@ -1294,7 +1215,6 @@ class RegistryTests(object):
 
         # try to add user with invalid name from testprojectuserproj page
         b.go("#/projects/testprojectuserproj")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_name")
@@ -1315,7 +1235,6 @@ class RegistryTests(object):
         self.assertNotIn('foo ^ bar', o.execute("oc get rolebinding -n testprojectuserproj"))
 
         # service accounts should be accepted
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_name")
@@ -1380,7 +1299,6 @@ class RegistryTests(object):
         b.wait_in_text(".content-filter h3", "testprojectpolicyproj")
 
         #add user with role
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_group")
@@ -1394,7 +1312,6 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         b.wait_present(".inner-project-listing")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_group")
@@ -1405,7 +1322,6 @@ class RegistryTests(object):
         b.wait_not_present("modal-dialog")
 
         b.wait_present(".inner-project-listing")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_group")
@@ -1420,7 +1336,6 @@ class RegistryTests(object):
 
         # Add a non-existent user
         b.wait_present(".inner-project-listing")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_group")
@@ -1433,7 +1348,6 @@ class RegistryTests(object):
 
         # Add a non-existent user, negative case
         b.wait_present(".inner-project-listing")
-        b.wait_present("a i.pficon-add-circle-o")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
         b.wait_visible("#add_member_group")
@@ -1456,7 +1370,6 @@ class RegistryTests(object):
         self.login_and_go(self.registry_root)
 
         # Make sure the default view is not visible to non cluster admins
-        b.wait_present(".dashboard-images")
         b.wait_visible(".dashboard-images:nth-child(1)")
         b.wait_not_in_text(".card-pf-wide.dashboard-images", "default/busybox")
 
@@ -1536,7 +1449,6 @@ class RegistryTests(object):
         # Go and modify the project
         b.go("#/projects")
         b.wait_present("tbody[data-id='llama']")
-        b.wait_present("tbody[data-id='llama'] tr.listing-ct-item")
         b.click("tbody[data-id='llama'] tr.listing-ct-item td:nth-of-type(2)")
         b.wait_in_text(".content-filter h3", "Display llama (llama)")
         b.wait_in_text("#content", "Description goes here")
@@ -1594,7 +1506,6 @@ class RegistryTests(object):
         b.wait_visible(".dashboard-images .namespace-filter")
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
-        b.wait_present(".dashboard-images .namespace-filter a[value='pizzazz']")
         b.click(".dashboard-images .namespace-filter a[value='pizzazz']")
         b.wait_visible('#docker-pull-commands')
         b.wait_not_visible('#docker-push-commands')
@@ -1602,7 +1513,6 @@ class RegistryTests(object):
         # push user should see docker push and pull commands on marmalade overview page
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
-        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
         b.click(".dashboard-images .namespace-filter a[value='marmalade']")
         b.wait_visible('#docker-push-commands')
 
@@ -1627,7 +1537,6 @@ class RegistryTests(object):
         b.wait_visible(".dashboard-images .namespace-filter")
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
-        b.wait_present(".dashboard-images .namespace-filter a[value='marmalade']")
         b.click(".dashboard-images .namespace-filter a[value='marmalade']")
         b.wait_visible('#docker-pull-commands')
         b.wait_not_visible('#docker-push-commands')
@@ -1648,11 +1557,9 @@ class RegistryTests(object):
         b.wait_present("modal-dialog")
         b.wait_val("#imagestream-modify-project-text", "marmalade")
         b.set_val("#imagestream-modify-name", "alltags")
-        b.wait_present("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")
         b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate .dropdown-menu a[value='pull']")
-        b.wait_present("#imagestream-modify-pull")
         b.wait_visible("#imagestream-modify-pull")
         b.set_val("#imagestream-modify-pull", "localhost:5555/juggs")
         b.click("modal-dialog div.modal-footer button.btn-primary")
@@ -1660,7 +1567,6 @@ class RegistryTests(object):
 
         # new stream with both "latest" and "2.11" tags should now appear
         b.wait_present("tr.imagestream-item th:contains('marmalade/alltags')")
-        b.wait_present('tbody[data-id="marmalade/alltags"]')
         b.wait_in_text('tbody[data-id="marmalade/alltags"] tr', "latest")
         b.wait_in_text('tbody[data-id="marmalade/alltags"] tr', "2.11")
 
@@ -1676,11 +1582,9 @@ class RegistryTests(object):
         b.wait_val("#imagestream-modify-project-text", "marmalade")
         b.wait_js_cond("document.activeElement == document.getElementById('imagestream-modify-name')")
         b.set_val("#imagestream-modify-name", "sometags")
-        b.wait_present("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")
         b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate .dropdown-menu a[value='tags']")
-        b.wait_present("#imagestream-modify-tags")
         b.wait_visible("#imagestream-modify-tags")
         b.set_val("#imagestream-modify-pull", "localhost:5555/juggs")
         # fields.tags is not an <input> element, type manually

@@ -135,7 +135,6 @@ class TestStorage(StorageCase):
         def wait_degraded_state(is_degraded):
             degraded_selector = ".alert span:contains('The RAID Array is in a degraded state')"
             if is_degraded:
-                b.wait_present(degraded_selector)
                 b.wait_visible(degraded_selector)
             else:
                 b.wait_not_present(degraded_selector)
@@ -189,8 +188,8 @@ class TestStorage(StorageCase):
             # (https://github.com/storaged-project/storaged/issues/98)
             part_prefix = dev + "p"
 
-        # Create partition table
-        b.click('button:contains(Create partition table)')
+        # Create Partition Table
+        b.click('button:contains(Create Partition Table)')
         self.dialog({"type": "gpt"})
         self.content_row_wait_in_col(1, 1, "Free Space")
 

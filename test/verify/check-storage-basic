@@ -41,6 +41,7 @@ class TestStorage(StorageCase):
         self.browser.wait_attr(btn, "disabled", None)
 
         b.wait_in_text("#drives", "VirtIO")
+        b.wait_not_in_text("#drives", "Show all")
 
         # Add a disk, partition it, format it, and finally remove it.
         disk1 = m.add_disk("10M", serial="MYSERIAL")

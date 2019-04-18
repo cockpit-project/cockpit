@@ -1,33 +1,51 @@
 {
     "version": "@VERSION@",
     "requires": {
-	"cockpit": "134.x"
+        "cockpit": "134.x"
     },
-
     "locales": {
-        "en-us": "English",
-        "ca-es": "Catalan",
-        "da-dk": "Dansk",
+        "ca-es": "català",
+        "cs-cz": "čeština",
         "de-de": "Deutsch",
-        "es-es": "Español",
-        "fr-fr": "Français",
-        "ja-ja": "日本語",
-        "pl-pl": "Polski",
-        "pt-br": "Portugueses",
-        "tr-tr": "Türkçe",
+        "en-us": "English",
+        "es-es": "español",
+        "fi-fi": "suomi",
+        "fr-fr": "français",
+        "it-it": "italiano",
+        "ja-jp": "日本語",
+        "pl-pl": "polski",
+        "pt-br": "português (Brasil)",
+        "ru-ru": "русский",
+        "sv-se": "svenska",
         "uk-ua": "Українська",
-        "zh-cn": "中文"
+        "zh-cn": "中文（中国）",
+        "zh-tw": "中文（台灣）"
     },
-
     "bridges": [
         {
-            "match": { "superuser": null },
-            "spawn": [ "@PKEXEC@", "--disable-internal-agent", "cockpit-bridge", "--privileged" ]
+            "match": {
+                "superuser": null
+            },
+            "spawn": [
+                "@PKEXEC@",
+                "--disable-internal-agent",
+                "cockpit-bridge",
+                "--privileged"
+            ]
         },
         {
-            "match": { "superuser": null },
-            "environ": [ "SUDO_ASKPASS=@libexecdir@/cockpit-askpass" ],
-            "spawn": [ "@SUDO@", "-A", "cockpit-bridge", "--privileged" ]
+            "match": {
+                "superuser": null
+            },
+            "environ": [
+                "SUDO_ASKPASS=@libexecdir@/cockpit-askpass"
+            ],
+            "spawn": [
+                "@SUDO@",
+                "-A",
+                "cockpit-bridge",
+                "--privileged"
+            ]
         }
     ]
 }

@@ -303,7 +303,7 @@ class AccountItem extends React.Component {
     render() {
         return React.createElement('div', { className: "cockpit-account", onClick: this.click },
                                    React.createElement('div', { className: "cockpit-account-pic pficon pficon-user" }),
-                                   React.createElement('div', { className: "cockpit-account-real-name" }, this.props.gecos),
+                                   React.createElement('div', { className: "cockpit-account-real-name" }, this.props.gecos.split(',')[0]),
                                    React.createElement('div', { className: "cockpit-account-user-name" }, this.props.name)
         );
     }
@@ -944,7 +944,9 @@ PageAccount.prototype = {
             var name = $("#account-real-name");
 
             var title_name = this.account["gecos"];
-            if (!title_name)
+            if (title_name)
+                title_name = title_name.split(',')[0];
+            else
                 title_name = this.account["name"];
 
             $('#account-logout').attr('disabled', !this.logged);

@@ -21,6 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 import "./cockpit-components-file-autocomplete.css";
+import { debounce } from 'throttle-debounce';
 
 const _ = cockpit.gettext;
 
@@ -31,12 +32,13 @@ export class FileAutoComplete extends React.Component {
         this.updateFiles(value);
         this.state = {
             value: value,
-            directory: '/',
+            directory: '',
             directoryFiles: null,
             displayFiles: [],
             open: false,
             error: null,
         };
+        this.allowFilesUpdate = true;
         this.onChange = this.onChange.bind(this);
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onChangeCallback = this.onChangeCallback.bind(this);
@@ -47,6 +49,19 @@ export class FileAutoComplete extends React.Component {
         this.filterFiles = this.filterFiles.bind(this);
         this.showAllOptions = this.showAllOptions.bind(this);
         this.selectItem = this.selectItem.bind(this);
+        this.debouncedChange = debounce(300, (value) => {
+            let cb = () => {
+                this.pendingCallback = false;
+                let stateUpdate = this.filterFiles(value);
+                this.setState(stateUpdate, () => this.onChangeCallback(value, { error: stateUpdate.error }));
+            };
+            if (!this.updateIfDirectoryChanged(value, cb))
+                cb();
+        });
+    }
+
+    componentWillUnmount() {
+        this.allowFilesUpdate = false;
     }
 
     getDirectoryForValue(value) {
@@ -87,9 +102,6 @@ export class FileAutoComplete extends React.Component {
         if (this.state.selecting)
             return;
 
-        if (this.timer)
-            window.clearTimeout(this.timer);
-
         this.setState({
             open: false,
         });
@@ -101,20 +113,10 @@ export class FileAutoComplete extends React.Component {
         if (value && value.indexOf("/") !== 0)
             value = "/" + value;
 
-        if (this.timer)
-            window.clearTimeout(this.timer);
-
-        if (this.state.value !== value)
-            this.timer = window.setTimeout(() => {
-                this.timer = null;
-
-                if (!this.updateIfDirectoryChanged(value)) {
-                    var stateUpdate = this.filterFiles(value);
-                    this.setState(stateUpdate);
-                    this.onChangeCallback(value, { error: stateUpdate.error });
-                }
-            }, 250);
-
+        if (this.state.value !== value) {
+            this.pendingCallback = true;
+            this.debouncedChange(value);
+        }
         this.setState({ value });
     }
 
@@ -149,22 +151,26 @@ export class FileAutoComplete extends React.Component {
         });
     }
 
-    updateIfDirectoryChanged(value) {
+    updateIfDirectoryChanged(value, cb) {
         const directory = this.getDirectoryForValue(value);
         const changed = directory !== this.state.directory;
         if (changed && this.state.directoryFiles !== null) {
-            this.setState({
-                displayFiles: [],
-                directoryFiles: null,
-                directory: directory,
-                open: false,
-            });
+            this.setState(() => {
+                return {
+                    displayFiles: [],
+                    directoryFiles: null,
+                    directory: directory,
+                    open: false,
+                };
+            }, cb);
             this.updateFiles(directory);
         }
         return changed;
     }
 
     finishUpdate(results, error) {
+        if (!this.allowFilesUpdate)
+            return;
         results = results.sort((a, b) => a.path.localeCompare(b.path, { sensitivity: 'base' }));
 
         this.onChangeCallback(this.state.value, {
@@ -262,6 +268,9 @@ export class FileAutoComplete extends React.Component {
             controlClasses += "spinner spinner-xs spinner-inline";
         else
             controlClasses += "caret";
+
+        if (this.pendingCallback)
+            classes += " pending-callback";
 
         var listItems;
 

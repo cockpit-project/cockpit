@@ -180,7 +180,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
 
     var title;
     if (create_partition)
-        title = cockpit.format(_("Create partition on $0"), utils.block_name(block));
+        title = cockpit.format(_("Create Partition on $0"), utils.block_name(block));
     else
         title = cockpit.format(_("Format $0"), utils.block_name(block));
 
@@ -244,12 +244,12 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     }
 
     var filesystem_options = [ ];
-    add_fsys("xfs", { value: "xfs", title: _("XFS - Red Hat Enterprise Linux 7 default") });
-    add_fsys("ext4", { value: "ext4", title: _("ext4 - Red Hat Enterprise Linux 6 default") });
+    add_fsys("xfs", { value: "xfs", title: "XFS - " + _("Recommended default") });
+    add_fsys("ext4", { value: "ext4", title: "EXT4" });
     add_fsys("xfs", { value: "luks+xfs", title: _("Encrypted XFS (LUKS)") });
     add_fsys("ext4", { value: "luks+ext4", title: _("Encrypted EXT4 (LUKS)") });
-    add_fsys("vfat", { value: "vfat", title: _("VFAT - Compatible with all systems and devices") });
-    add_fsys("ntfs", { value: "ntfs", title: _("NTFS - Compatible with most systems") });
+    add_fsys("vfat", { value: "vfat", title: "VFAT" });
+    add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
     add_fsys(true, { value: "dos-extended",
                      title: _("Extended Partition"),
                      disabled: !(create_partition && enable_dos_extended) });
@@ -329,7 +329,7 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                           dlg.set_nested_values("crypto_options", { ro: false });
                   },
                   Action: {
-                      Title: create_partition ? _("Create partition") : _("Format"),
+                      Title: create_partition ? _("Create Partition") : _("Format"),
                       Danger: (create_partition
                           ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {

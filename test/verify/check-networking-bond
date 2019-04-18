@@ -73,7 +73,6 @@ class TestNetworking(NetworkCase):
 
         b.reload()
         b.enter_page("/network")
-        b.wait_present("#network-interface-name")
         b.wait_text("#network-interface-name", "tbond")
         b.wait_text("#network-interface-hw", "Bond")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
@@ -119,7 +118,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
@@ -144,7 +142,6 @@ class TestNetworking(NetworkCase):
         b.set_val("#network-bond-settings-interface-name-input", "tbond")
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Rename while it is active
 
@@ -177,7 +174,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that it has the interface enslaved and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
@@ -202,7 +198,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that it has the main connection enslaved and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
@@ -241,7 +236,6 @@ class TestNetworking(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface, True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-bond-settings-dialog")
-        b.wait_present("#networking-interfaces tr[data-interface='tbond']")
 
         # Check that it has the main connection enslaved and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")

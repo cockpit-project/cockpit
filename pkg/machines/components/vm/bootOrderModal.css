@@ -1,0 +1,73 @@
+.boot-order .list-group {
+    --machines-boot-list-offset: 15rem;
+    max-height: calc(100vh - var(--machines-boot-list-offset));
+}
+
+.boot-order-list-view {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.boot-order .pficon-pending {
+    margin-left: 0.5rem;
+}
+
+/* Overriding Patternfly's ListView */
+.boot-order .list-view-pf-body {
+    align-items: baseline;
+    min-height: 26px;
+}
+
+.boot-order .list-group-item {
+    padding: 1rem 1.5rem;
+}
+
+.boot-order .list-view-pf-main-info,
+.boot-order .list-view-pf-checkbox,
+.boot-order .list-view-pf-actions {
+    align-self: baseline;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.boot-order .list-view-pf-checkbox {
+    position: relative;
+    top: 3px;
+}
+
+.boot-order .list-view-pf-description {
+    flex: 1 0 30%;
+    flex-basis: 30%;
+}
+
+.boot-order .list-view-pf-additional-info {
+    flex-basis: 70%;
+}
+
+.boot-order .list-group-item:not(.is-checked) .list-view-pf-actions {
+    display: none;
+}
+
+.boot-order .ct-form-layout + .ct-form-layout {
+    margin-left: 1rem;
+}
+
+@media screen and (min-width: 769px) {
+    /* Standard dialog is too narrow */
+    .boot-order > .modal-dialog {
+        min-width: 70rem;
+    }
+
+    /* Adjust the spacing offset */
+    .boot-order .list-group {
+        --machines-boot-list-offset: 22rem;
+    }
+
+    /* Add spacer when list-view actions are not visible */
+    .boot-order .list-group-item:not(.is-checked) .list-view-pf-main-info {
+        /* Size of action arrows (26px x 2 - 1px) + padding-left (20px) */
+        margin-right: 71px;
+    }
+}

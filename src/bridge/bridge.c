@@ -701,8 +701,6 @@ main (int argc,
 
   g_setenv ("LANG", "en_US.UTF-8", FALSE);
   g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
-  g_setenv ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);
-  g_setenv ("GIO_USE_VFS", "local", TRUE);
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, NULL);

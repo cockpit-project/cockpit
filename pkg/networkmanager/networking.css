@@ -177,25 +177,108 @@ h1 .btn-onoff-ct {
 /* set min-height to the same as max-height, so that the list doesn't shrink
  * when filtering */
 #add-services-dialog .dialog-list-ct {
-    min-height: 230px;
+    height: 100vh;
+    /* Constrain the list to a maximum size of the viewport height - UI chrome */
+    max-height: calc(100vh - 30rem);
+    min-height: 13em;
 }
 
-#add-services-dialog .form-table-ct {
-    margin-bottom: 0.5em;
+@media screen and (min-width: 640px) {
+    /* Add a bit more padding in desktop mode */
+    #add-services-dialog .dialog-list-ct {
+        max-height: calc(100vh - 40rem);
+    }
 }
 
 #add-services-dialog .list-group-item {
+    cursor: default;
+}
+
+#add-services-dialog .list-view-pf-main-info {
+    padding: 1rem 0;
+}
+
+#add-services-dialog .list-view-pf-checkbox {
+    margin: 1rem 1rem 1rem 0;
+}
+
+#add-services-dialog .list-view-pf-view {
+    margin: 0;
+}
+
+#add-services-dialog .list-view-pf-description {
+    flex: auto;
+}
+
+#add-services-dialog .list-group-item-heading {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+#add-services-dialog .list-group-item-text {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#add-services-dialog .service-ports {
+    opacity: 0.75;
+}
+
+#add-services-dialog .service-ports:first-of-type {
+    margin-right: 1em;
+}
+
+#add-services-dialog .spinner-lg {
+    /* (Max-height of dialog-list-ct (above) - spinner size + grid gap) / 2 */
+    margin: calc(((100vh - 40rem) - 30px + 0.5rem) / 2) auto;
+}
+
+#add-services-dialog .toggle-body > .ct-form-layout {
+    margin-left: 1rem;
+}
+
+#add-services-dialog .toggle-body > .ct-form-layout + label {
+    margin-top: 1rem;
+}
+
+#add-services-dialog .toggle-body > .ct-form-layout > .control-label {
+    padding-left: 0;
+}
+
+.form-control.error {
+    border-color: #cc0000;
+}
+
+.form-control.error:hover {
+    border-color: #990000;
+}
+
+.form-control.error:focus {
+    border-color: #990000;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ff3333;
+}
+
+#add-services-dialog .has-error {
+    animation: 300ms error-slide-down ease-in-out;
+    color: #c00;
     padding: 0;
 }
 
-#add-services-dialog .list-group-item label {
-    padding: 10px 15px;
-    margin: 0;
-    width: 100%;
-    cursor: pointer;
+#add-services-dialog .has-error:empty {
+    display: none;
 }
 
-#add-services-dialog .list-group-item input[type="checkbox"] {
-    margin: 0;
-    vertical-align: middle;
+@keyframes error-slide-down {
+    0% {
+        line-height: 0;
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+    }
+    100% {
+        line-height: inherit;
+        height: auto;
+        opacity: 1;
+    }
 }

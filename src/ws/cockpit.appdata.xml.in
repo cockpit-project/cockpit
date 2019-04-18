@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
 <component type="web-application">
-  <id>cockpit.desktop</id>
+  <id>org.cockpit_project.cockpit</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-2.0+</project_license>
   <name>Cockpit</name>
@@ -27,6 +27,9 @@
       Once Cockpit is installed, enable it with "systemctl enable --now cockpit.socket".
     </_p>
   </description>
+  <categories>
+    <category>System</category>
+  </categories>
   <translation type="gettext">cockpit</translation>
   <icon type="local" width="128" height="128">/usr/share/pixmaps/cockpit.png</icon>
   <launchable type="url">https://localhost:9090</launchable>
@@ -46,5 +49,5 @@
   </screenshots>
   <url type="homepage">https://cockpit-project.org/</url>
   <url type="help">https://cockpit-project.org/running.html</url>
-  <update_contact>anilsson_at_redhat.com</update_contact>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
 </component>

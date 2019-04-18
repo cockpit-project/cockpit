@@ -330,7 +330,7 @@ class UpdateItem extends React.Component {
                     <td className="listing-ct-toggle">
                         <i className="fa fa-fw" />
                     </td>
-                    <th>{pkgsTruncated}</th>
+                    <th scope="row">{pkgsTruncated}</th>
                     <td className="version"><span className="truncating">{info.version}</span></td>
                     <td className="type">{type}</td>
                     <td className="changelog">{descriptionFirstLine}</td>
@@ -377,10 +377,10 @@ function UpdatesList(props) {
             <thead>
                 <tr>
                     <th />
-                    <th>{_("Name")}</th>
-                    <th>{_("Version")}</th>
-                    <th>{_("Severity")}</th>
-                    <th>{_("Details")}</th>
+                    <th scope="col">{_("Name")}</th>
+                    <th scope="col">{_("Version")}</th>
+                    <th scope="col">{_("Severity")}</th>
+                    <th scope="col">{_("Details")}</th>
                 </tr>
             </thead>
             { updates.map(id => <UpdateItem key={id} pkgNames={packageNames[id].sort()} info={props.updates[id]} />) }

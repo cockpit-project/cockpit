@@ -123,10 +123,12 @@ upload-translations:
 	$(ZANATA_CLI) push --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
 		--push-type trans -s "$(builddir)/po" -t "$(srcdir)/po"
 
+clean-po:
+	rm $(srcdir)/po/*.po
+
 download-po:
 	$(ZANATA_CLI) pull --includes=cockpit.pot --project-config "$(srcdir)/po/zanata.xml" \
-		--min-doc-percent 1 -s "$(builddir)/po" -t "$(srcdir)/po"
-	sh -c 'cd $(srcdir)/po; ls *.po' | sed 's/\.po//g' | sort > $(srcdir)/po/LINGUAS
+		--min-doc-percent 50 -s "$(builddir)/po" -t "$(srcdir)/po"
 
 CLEANFILES += \
 	$(MO_FILES) \

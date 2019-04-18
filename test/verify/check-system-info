@@ -57,6 +57,14 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 
 class TestSystemInfo(MachineCase):
+    def setUp(self):
+        MachineCase.setUp(self)
+
+        # Debian will not allow timesyncd to start if any other NTP packge is installed
+        # We only support timesyncd for NTP configuration, so make sure chrony
+        # is not installed in the debian test images
+        if self.machine.image == "debian-testing":
+            self.machine.execute("dpkg --remove chrony");
 
     @enableAxe
     def testBasic(self):
@@ -80,11 +88,9 @@ class TestSystemInfo(MachineCase):
 
         self.login_and_go("/system")
 
-        b.wait_present('#system_information_os_text')
         b.wait_visible('#system_information_os_text')
 
         mid = m.execute("cat /etc/machine-id")
-        b.wait_present('#system_machine_id')
         b.wait_text('#system_machine_id', mid)
 
         self.check_axe()
@@ -112,13 +118,10 @@ class TestSystemInfo(MachineCase):
             old_default = m.execute("ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key | cut -d' ' -f2")
             old_alt = None
 
-        b.wait_present("#system-ssh-keys-link")
         b.click("#system-ssh-keys-link")
         b.wait_popup("system_information_ssh_keys")
-        b.wait_present("#system_information_ssh_keys .spinner")
         b.wait_not_visible("#system_information_ssh_keys .spinner")
         b.wait_visible("#system_information_ssh_keys .content")
-        b.wait_present("#system_information_ssh_keys .list-group")
         b.wait_in_text("#system_information_ssh_keys .list-group", "ED25519")
         b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
         b.wait_in_text("#system_information_ssh_keys .list-group", "ECDSA")
@@ -142,10 +145,8 @@ class TestSystemInfo(MachineCase):
 
         b.click("#system-ssh-keys-link")
         b.wait_popup("system_information_ssh_keys")
-        b.wait_present("#system_information_ssh_keys .spinner")
         b.wait_not_visible("#system_information_ssh_keys .spinner")
         b.wait_visible("#system_information_ssh_keys .content")
-        b.wait_present("#system_information_ssh_keys .list-group")
         b.wait_not_in_text("#system_information_ssh_keys .list-group", "ED25519")
         b.wait_in_text("#system_information_ssh_keys .list-group", "RSA")
         b.wait_not_in_text("#system_information_ssh_keys .list-group", "ECDSA")
@@ -169,7 +170,6 @@ class TestSystemInfo(MachineCase):
         b.wait_popdown("system_information_change_hostname")
 
         if m.atomic_image:
-            b.wait_present('#system-ostree-version-link')
             b.wait_visible('#system-ostree-version-link')
             b.wait_text('#system-ostree-version-link', "cockpit-base.1")
         else:
@@ -195,7 +195,6 @@ class TestSystemInfo(MachineCase):
         m.execute("rm /usr/lib/os-release || true")
 
         self.login_and_go("/system")
-        b.wait_present('#system_machine_id')
         b.wait_text('#system_machine_id', mid)
 
         self.allow_journal_messages("error loading contents of os-release: .*")
@@ -276,7 +275,7 @@ class TestSystemInfo(MachineCase):
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
     @skipImage("No NTP servers config", "centos-7", "continuous-atomic",
-               "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-atomic")
+               "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-1", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -291,9 +290,15 @@ class TestSystemInfo(MachineCase):
         # org.freedesktop.timedate1 instead of timedatex.
         m.execute("systemctl disable timedatex; systemctl stop timedatex; systemctl unmask systemd-timedated")
 
-        wait(can_ntp)
-
         self.login_and_go("/system")
+
+        # HACK: This check needs to stay here, since it solves the following race condition;
+        # Previously the test was opening the dialog before the proxy was initialized, resulting in showing only
+        # the manual select entry in the dialog.
+        # Keeping the can_ntp call here, will make sure that the dialog will get updated, since
+        # can_ntp call will start the timedated service, and the dialog will
+        # receive the changed signal to update the enabled select entries.
+        wait(can_ntp)
 
         # Wait until everything is ready to go...
         b.wait_text_not("#system_information_systime_button", "")
@@ -306,10 +311,8 @@ class TestSystemInfo(MachineCase):
         b.click("#change_systime li[value=ntp_time_custom] a")
         b.wait_in_text("#change_systime button", "Automatically using specific NTP servers")
         b.wait_visible("#systime-ntp-servers")
-        b.wait_present("#systime-ntp-servers form:nth-child(1) input")
         b.set_val("#systime-ntp-servers form:nth-child(1) input", "0.pool.ntp.org")
         b.click('#systime-ntp-servers form:nth-child(1) button[data-action="add"]')
-        b.wait_present("#systime-ntp-servers form:nth-child(2) input")
         b.set_val("#systime-ntp-servers form:nth-child(2) input", "1.pool.ntp.org")
         b.click("#systime-apply-button")
         b.wait_popdown("system_information_change_systime")
@@ -323,7 +326,6 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_systime_button")
         b.wait_popup("system_information_change_systime")
         b.wait_visible("#systime-ntp-servers")
-        b.wait_present("#systime-ntp-servers form:nth-child(1)")
         b.wait_val("#systime-ntp-servers form:nth-child(1) input", "2.pool.ntp.org")
         b.click("#change_systime button")
         b.click("#change_systime li[value=ntp_time] a")
@@ -368,14 +370,12 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         self.login_and_go("/system")
-        b.wait_present('#system_information_hardware_text')
         b.wait_visible('#system_information_hardware_text')
         b.wait_in_text('#system_information_hardware_text', "QEMU")
         b.click('#system_information_hardware_text')
         b.enter_page("/system/hwinfo")
 
         # system info
-        b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
         # QEMU VM type
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(1) tr:nth-of-type(1) td', "Other")
@@ -387,7 +387,6 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
         # PCI
-        b.wait_present('#hwinfo .listing-ct caption')
         b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
         b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
 
@@ -422,13 +421,11 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system/hwinfo")
 
         # CPU should still be shown, but not the DMI fields
-        b.wait_present('#hwinfo .info-table-ct')
         b.wait_in_text('#hwinfo .info-table-ct', "CPU")
         self.assertNotIn('Type', b.text('#hwinfo .info-table-ct'))
         self.assertNotIn('BIOS', b.text('#hwinfo .info-table-ct'))
 
         # PCI should be shown
-        b.wait_present('#hwinfo .listing-ct caption')
         b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
         b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
 
@@ -456,7 +453,6 @@ class TestSystemInfo(MachineCase):
                 b.wait_present('#hwinfo th:contains(CPU)')
                 b.wait_not_present('#hwinfo th:contains(CPU Security)')
             else:
-                b.wait_present('#hwinfo a:contains(Mitigations)')
                 b.click('#hwinfo a:contains(Mitigations)')
 
             if expect_smt_state:
@@ -474,19 +470,57 @@ class TestSystemInfo(MachineCase):
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
         spoof_threads(2, True, 'Off', None)
 
+        # Enable nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
-        b.wait_present('#hwinfo a:contains(Mitigations)')
         b.click('#hwinfo a:contains(Mitigations)')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch')
         b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
         b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
         self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
 
+        # Ensure that future kernel upgrades also retain the option; various
+        # Fedora and RHEL version are in different stages of the BLS
+        # transition, so there are three cases:
+        # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
+        # - BLS, options go directly into entries (RHEL 8.0)
+        # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
+        if not m.atomic_image:
+            m.execute(r"""set -e
+. /etc/os-release
+touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --install 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null # Fedora/RHEL >= 8
+    fi
+fi
+grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
+  grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
+  ( grub2-editenv list | grep -q kernelopts.*nosmt &&
+    grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
+""")
+            # clean up so that next reboot works
+            m.execute(r"""set -e
+. /etc/os-release
+rm /boot/vmlinuz-42.0.0
+if type update-grub >/dev/null 2>&1; then
+    update-grub  # Debian/Ubuntu
+else
+    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
+        new-kernel-pkg --package kernel --remove 42.0.0  # RHEL/CentOS 7
+    else
+        kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0  # Fedora/RHEL >= 8
+    fi
+fi
+""")
+
+        # Disable nosmt option
         self.login_and_go('/system/hwinfo')
-        b.wait_present('#hwinfo a:contains(Mitigations)')
         b.click('#hwinfo a:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
         b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
@@ -496,22 +530,19 @@ class TestSystemInfo(MachineCase):
         m.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
 
-        b.logout()
+        # Behaviour for non-admins
         self.login_and_go('/system/hwinfo', authorized=False)
         b.wait_present('#hwinfo th:contains(CPU)')
-        b.wait_present('#hwinfo span:contains(Mitigations)')
         b.mouse('#hwinfo span:contains(Mitigations)', 'mouseover')
-        b.wait_present('#tip-cpu-security')
         b.wait_text('#tip-cpu-security .tooltip-inner', 'The user admin is not permitted to change cpu security mitigations')
 
+        # Behaviour if grub update tools are missing
         b.logout()
         m.execute('mv /etc/default/grub /etc/default/grub.bak || true')
         m.write('/tmp/grubby', '#!/bin/sh\necho 0')
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
         self.login_and_go('/system/hwinfo')
-        b.wait_present('#hwinfo a:contains(Mitigations)')
         b.click('#hwinfo a:contains(Mitigations)')
-        b.wait_present('#cpu-mitigations-dialog #nosmt-switch')
         b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
         b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
@@ -537,7 +568,6 @@ class TestPcp(packagelib.PackageCase):
         # the atomics don't have pcp and can't install additional software
         if m.atomic_image:
             self.login_and_go("/system")
-            b.wait_present("#server-pmlogger-switch")
             b.wait_not_visible("#server-pmlogger-switch")
             b.wait_not_visible("#system-information-enable-pcp-link")
             return
@@ -556,7 +586,6 @@ class TestPcp(packagelib.PackageCase):
 
         # the offer to install it should be visible
         self.login_and_go("/system")
-        b.wait_present("#server-pmlogger-switch")
         b.wait_not_visible("#server-pmlogger-switch")
         b.wait_visible("#system-information-enable-pcp-link")
         if m.image in ["rhel-7-6-distropkg"]:

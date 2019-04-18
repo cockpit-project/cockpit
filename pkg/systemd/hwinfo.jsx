@@ -188,7 +188,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
         let rows = [];
         if (this.state.nosmt !== undefined)
             rows.push((
-                <ListView.Item key="nosmt" heading={ <span>{ _("Disable symmetric multithreading") } (nosmt)<small>
+                <ListView.Item key="nosmt" heading={ <span>{ _("Disable simultaneous multithreading") } (nosmt)<small>
                     <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
                         <i className="fa fa-external-link" aria-hidden="true" /> { _("Read more...") }
                     </a>

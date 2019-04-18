@@ -27,8 +27,10 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	$(srcdir)/Makefile \
-	node_modules \
 	cockpit-cache-*.tar.xz \
+	$(NULL)
+
+MAINTAINERCLEANFILES = \
 	$(NULL)
 
 EXTRA_DIST = \
@@ -176,7 +178,7 @@ V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/stamp=%)";
 
 WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) BUILDDIR=$(abs_builddir) \
-	       timeout 5m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
+	       timeout 15m $(srcdir)/tools/missing $(srcdir)/tools/webpack-make
 
 WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
@@ -188,7 +190,7 @@ WEBPACK_STAMPS = $(WEBPACK_PACKAGES:%=dist/%/stamp)
 WEBPACK_MANIFEST_IN = $(WEBPACK_PACKAGES:%=pkg/%/manifest.json.in)
 
 noinst_SCRIPTS += $(WEBPACK_STAMPS) $(WEBPACK_INSTALL)
-CLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
+MAINTAINERCLEANFILES += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_OUTPUTS)
 EXTRA_DIST += $(WEBPACK_STAMPS) $(WEBPACK_DEPS) $(WEBPACK_MANIFEST_IN) webpack.config.js
 
 PRINT_COPY_MSG_0 = echo "  COPY    " $@ &&
@@ -216,8 +218,13 @@ dist/%/manifest.json: pkg/%/manifest.json
 
 -include $(WEBPACK_DEPS)
 
-distclean-local::
-	rm -rf dist/
+# the rules above copy a lot of stuff into builddir; clean it up so that distcleancheck works
+clean-local::
+	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
+
+maintainer-clean-local::
+	rm -rf dist/ node_modules/
+
 install-data-local:: $(WEBPACK_INSTALL)
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)
 	tar -cf - $^ | tar -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
@@ -325,7 +332,7 @@ dist/fonts/%.woff:
 
 EXTRA_DIST += $(OPENSANS_FONTS)
 
-CLEANFILES += $(OPENSANS_FONTS)
+MAINTAINERCLEANFILES += $(OPENSANS_FONTS)
 
 if ENABLE_DOC
 

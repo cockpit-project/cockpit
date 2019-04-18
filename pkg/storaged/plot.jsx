@@ -138,8 +138,9 @@ class StoragePlot extends React.Component {
         }
 
         function post_hook(flot) {
-            var axes = flot.getAxes();
-            self.setState({ unit: cockpit.format_bytes_per_sec(axes.yaxis.max, 1024, true)[1] });
+            var unit = cockpit.format_bytes_per_sec(flot.getAxes().yaxis.max, 1024, true)[1];
+            if (unit != self.state.unit)
+                self.setState({ unit: unit });
         }
 
         function hover(event, dev) {
@@ -160,38 +161,54 @@ class StoragePlot extends React.Component {
                 self.plot = null;
             }
 
-            if (self.plot) {
-                if (element.offsetWidth != self.last_offsetWidth || element.offsetHeight != self.last_offsetHeight) {
-                    self.last_offsetWidth = element.offsetWidth;
-                    self.last_offsetHeight = element.offsetHeight;
-                    self.plot.resize();
-                }
-                return;
+            if (!self.plot) {
+                var plot_options = plot.plot_simple_template();
+                $.extend(plot_options.yaxis, { ticks: plot.memory_ticks,
+                                               tickFormatter: plot.format_bytes_per_sec_tick_no_unit
+                });
+                $.extend(plot_options.grid, { hoverable: true,
+                                              autoHighlight: false
+                });
+                plot_options.setup_hook = setup_hook;
+                plot_options.post_hook = post_hook;
+                self.plot = new plot.Plot($(element), 300);
+                self.plot_element = element;
+                self.plot.set_options(plot_options);
+                self.plot.start_walking();
+
+                if (self.props.onPlotCreated)
+                    self.props.onPlotCreated(self.plot);
             }
 
-            var plot_options = plot.plot_simple_template();
-            $.extend(plot_options.yaxis, { ticks: plot.memory_ticks,
-                                           tickFormatter: plot.format_bytes_per_sec_tick_no_unit
-            });
-            $.extend(plot_options.grid, { hoverable: true,
-                                          autoHighlight: false
-            });
-            plot_options.setup_hook = setup_hook;
-            plot_options.post_hook = post_hook;
-            self.plot = new plot.Plot($(element), 300);
-            self.plot_element = element;
-            self.plot.set_options(plot_options);
-            self.series = self.plot.add_metrics_stacked_instances_series(self.props.data, { });
-            self.plot.start_walking();
-            $(self.series).on('hover', hover);
+            if (element.offsetWidth != self.last_offsetWidth || element.offsetHeight != self.last_offsetHeight) {
+                self.last_offsetWidth = element.offsetWidth;
+                self.last_offsetHeight = element.offsetHeight;
+                self.plot.resize();
+            }
 
-            if (self.props.onPlotCreated)
-                self.props.onPlotCreated(self.plot);
-        }
-
-        if (self.series) {
-            for (var i = 0; i < self.props.devs.length; i++)
-                self.series.add_instance(self.props.devs[i]);
+            if (self.props.devs === null) {
+                // Show a single sum series
+                if (self.stacked_instances_series) {
+                    self.stacked_instances_series.clear_instances();
+                    self.stacked_instances_series.remove();
+                    self.stacked_instances_series = null;
+                }
+                if (!self.sum_series) {
+                    self.sum_series = self.plot.add_metrics_sum_series(self.props.data, { });
+                }
+            } else {
+                // Show a stacked instance series
+                if (self.sum_series) {
+                    self.sum_series.remove();
+                    self.sum_series = null;
+                }
+                if (!self.stacked_instances_series) {
+                    self.stacked_instances_series = self.plot.add_metrics_stacked_instances_series(self.props.data, { });
+                    $(self.stacked_instances_series).on('hover', hover);
+                }
+                for (var i = 0; i < self.props.devs.length; i++)
+                    self.stacked_instances_series.add_instance(self.props.devs[i]);
+            }
         }
 
         return (
@@ -214,29 +231,57 @@ export class StoragePlots extends React.Component {
     }
 
     render() {
-        var read_plot_data = {
-            direct: "disk.dev.read_bytes",
-            internal: "block.device.read",
-            units: "bytes",
-            derive: "rate",
-            threshold: 1000
-        };
-
-        var write_plot_data = {
-            direct: "disk.dev.write_bytes",
-            internal: "block.device.written",
-            units: "bytes",
-            derive: "rate",
-            threshold: 1000
-        };
-
         var client = this.props.client;
-        var devs = [ ];
-        for (var p in client.drives) {
-            var block = client.drives_block[p];
-            var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
-            if (dev)
-                devs.push(dev);
+
+        var read_plot_data, write_plot_data;
+        var devs;
+
+        if (Object.keys(client.drives).length < 20) {
+            // Show a graph for each drive
+
+            read_plot_data = {
+                direct: "disk.dev.read_bytes",
+                internal: "block.device.read",
+                units: "bytes",
+                derive: "rate",
+                threshold: 1000
+            };
+
+            write_plot_data = {
+                direct: "disk.dev.write_bytes",
+                internal: "block.device.written",
+                units: "bytes",
+                derive: "rate",
+                threshold: 1000
+            };
+
+            devs = [ ];
+            for (var p in client.drives) {
+                var block = client.drives_block[p];
+                var dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
+                if (dev)
+                    devs.push(dev);
+            }
+        } else {
+            // Just a single graph for total I/O
+
+            read_plot_data = {
+                direct: [ "disk.all.read_bytes" ],
+                internal: [ "disk.all.read" ],
+                units: "bytes",
+                derive: "rate",
+                threshold: 1000
+            };
+
+            write_plot_data = {
+                direct: [ "disk.all.write_bytes" ],
+                internal: [ "disk.all.written" ],
+                units: "bytes",
+                derive: "rate",
+                threshold: 1000
+            };
+
+            devs = null;
         }
 
         // We need to tell the zoom controls about our plots as they

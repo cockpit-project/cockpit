@@ -109,7 +109,6 @@ class TestMultiOS(MachineCase):
             browser.set_val('#login-password-input', "foobar")
             browser.click('#login-button')
             browser.expect_load()
-            browser.wait_present('#content')
             browser.wait_visible('#content')
             if page:
                 stock_enter_page(browser, page, host=host)
@@ -170,7 +169,6 @@ class TestMultiOS(MachineCase):
         stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index']")
         stock_b.wait_present("iframe.container-frame[name='10.111.113.1/system/index'][data-loaded]")
         stock_b.switch_to_frame('10.111.113.1/system/index')
-        stock_b.wait_present("#system_information_hardware_text")
         stock_b.wait_text_not("#system_information_hardware_text", "")
 
         # Shows a curtains when accessing to default page from old system
@@ -238,13 +236,11 @@ class TestMultiOSDirect(MachineCase):
         b.wait_not_visible(".curtains")
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")
         b.switch_to_frame("cockpit1:localhost/system")
-        b.wait_present("body")
         b.wait_visible("body")
         b.wait_in_text('#system_information_hostname_button', "stock")
         b.switch_to_top()
 
         # Branding uses default because there is no os information
-        b.wait_present("#index-brand")
         b.wait_not_present("#index-brand.hide-before")
 
         b.wait_js_cond('window.location.pathname.indexOf("shell/index.html") > -1')

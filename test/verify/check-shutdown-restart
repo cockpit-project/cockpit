@@ -166,7 +166,6 @@ class TestShutdownRestart(MachineCase):
         old = b.val("#shutdown-dialog input.shutdown-hours")
         b.set_val("#shutdown-dialog input.shutdown-hours", "blah")
         b.click("#shutdown-dialog .btn-danger")
-        b.wait_present("#shutdown-dialog .dialog-error")
         b.wait_text("#shutdown-dialog .dialog-error", "Invalid time format")
 
         # Now set a correct time and power off

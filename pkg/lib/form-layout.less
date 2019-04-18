@@ -31,6 +31,9 @@
 // elsewhere, you can force it to stretch. This is mainly useful when
 // using <div role="group"> to group elements.
 //
+// `ct-form-layout-full`: Force a widget to be the full width of the form,
+// invading the label space.
+//
 // role="group": When there are two related elements, such as a text
 // input and a dropdown, you can group them together using this HTML
 // attribute. It's similar in purpose to a <fieldset>, but works for
@@ -74,12 +77,12 @@
 
   // Put all control elements to the right of the labels,
   // stretching to the rightmost column
-  > :not(.control-label):not(hr):not(.ct-form-layout-split) {
+  > :not(.control-label):not(hr):not(.ct-form-layout-split):not(.ct-form-layout-full) {
     grid-column: ~"2 / -1";
   }
 
   // Auto-stretch elements to the grid (except when relaxed)
-  > :not(.ct-form-layout-relax) {
+  > :not(.ct-form-layout-relax):not(.spinner) {
     width: auto;
   }
 
@@ -126,6 +129,8 @@
     > [data-field],
     > .form-group,
     > .btn-group,
+    > label.checkbox,
+    > label.radio,
     > .checkbox-inline,
     > .radio-inline {
       // Vertically align elements with text
@@ -142,7 +147,7 @@
 
   // Some elements need special width considerations
   // as PatternFly normally fixes the width
-  > :not(.ct-form-layout-relax) {
+  > :not(.ct-form-layout-relax):not(.spinner) {
     width: auto !important;
   }
 
@@ -198,6 +203,8 @@
   }
 
   // Vertically align checkboxes and radios properly using flex
+  label.checkbox,
+  label.radio,
   .checkbox > label,
   .radio > label,
   .checkbox-inline,
@@ -240,6 +247,31 @@
   // Relax split elements to only take up one column
   > .ct-form-layout-split {
     grid-column: ~"auto / auto";
+  }
+
+  // Stretch to full width
+  > .ct-form-layout-full {
+    grid-column: ~"1 / -1";
+  }
+
+  // Move warnings, errors, info, etc. up a bit to associate with previous field
+  .bump-up() {
+    position: relative;
+    top: -0.5rem;
+  }
+
+  > .has-success,
+  > .has-warning,
+  > .has-error {
+    &:not(.form-group) {
+      .bump-up();
+    }
+
+
+  }
+
+  > .help-block {
+    .bump-up();
   }
 }
 

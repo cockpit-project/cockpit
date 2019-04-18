@@ -41,6 +41,7 @@ import {
 } from './pxe-helpers.js';
 
 import {
+    autodetectOS,
     NOT_SPECIFIED,
     OTHER_OS_SHORT_ID,
     DIVIDER_FAMILY,
@@ -82,6 +83,8 @@ class CreateVM extends React.Component {
         };
 
         this.onChangedValue = this.onChangedValue.bind(this);
+        this.onChangedEventValue = this.onChangedEventValue.bind(this);
+        this.onChangedEventChecked = this.onChangedEventChecked.bind(this);
     }
 
     onChangedEventValue(key, e) {
@@ -122,6 +125,34 @@ class CreateVM extends React.Component {
             break;
         case 'source':
             this.setState({ [key]: value });
+
+            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.vendor == NOT_SPECIFIED && value != '' && value != undefined) {
+                // Clears the previously set timer.
+                clearTimeout(this.typingTimeout);
+
+                const onOsAutodetect = (os) => {
+                    autodetectOS(os)
+                            .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
+                            .then(res => {
+                                let osName = res.match(/OS ['"](.*)['"]/)[1];
+                                // osinfo-query is nto yet aware of variants, https://gitlab.com/libosinfo/libosinfo/issues/24
+                                // but osinfo-detect is. Remove the variant suffix to eliminate this issue
+                                osName = osName.replace(/ Server$/, "");
+                                osName = osName.replace(/ Workstation$/, "");
+                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.name == osName);
+
+                                if (osEntry && osEntry[0]) {
+                                    this.setState({
+                                        vendor: osEntry[0].vendor,
+                                        os: osEntry[0].shortId
+                                    });
+                                    notifyValuesChanged('vendor', osEntry[0].vendor);
+                                    notifyValuesChanged('os', osEntry[0].shortId);
+                                }
+                            });
+                };
+                this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
+            }
             break;
         case 'sourceType':
             this.setState({ [key]: value });
@@ -204,7 +235,7 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
                     placeholder={_("Path to ISO file on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')}
+                    onChange={e => this.onChangedValue('source', e)}
                     superUser="try" />
             );
             break;
@@ -213,7 +244,7 @@ class CreateVM extends React.Component {
             installationSource = (
                 <FileAutoComplete id={installationSourceId}
                     placeholder={_("Existing disk image on host's file system")}
-                    onChange={this.onChangedValue.bind(this, 'source')}
+                    onChange={e => this.onChangedValue('source', e)}
                     superuser="try" />
             );
             break;
@@ -234,7 +265,7 @@ class CreateVM extends React.Component {
                 <React.Fragment>
                     <Select.StatelessSelect id="network-select"
                                             selected={this.state.source}
-                                            onChange={this.onChangedValue.bind(this, 'source')}>
+                                            onChange={e => this.onChangedValue('source', e)}>
                         {getPXENetworkRows(this.props.nodeDevices, this.props.networks, this.state.connectionName)}
                     </Select.StatelessSelect>
 
@@ -254,7 +285,7 @@ class CreateVM extends React.Component {
                     minLength={1}
                     placeholder={_("Remote URL")}
                     value={this.state.source}
-                    onChange={this.onChangedEventValue.bind(this, 'source')} />
+                    onChange={e => this.onChangedEventValue('source', e)} />
             );
             break;
         }
@@ -262,6 +293,7 @@ class CreateVM extends React.Component {
         const validationFailed = this.props.vmParams.validate && validateParams(this.props.vmParams);
         const validationStateName = validationFailed.vmName ? 'error' : undefined;
         const validationStateSource = validationFailed.source ? 'error' : undefined;
+        const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
 
         const installationSourceVal = (
             <FormGroup validationState={validationStateSource} controlId='source'>
@@ -294,7 +326,7 @@ class CreateVM extends React.Component {
                            minLength={1}
                            value={this.state.vmName || ''}
                            placeholder={_("Unique name")}
-                           onChange={this.onChangedEventValue.bind(this, 'vmName')} />
+                           onChange={e => this.onChangedEventValue('vmName', e)} />
                     { validationStateName == 'error' &&
                     <HelpBlock>
                         <p className="text-danger">{validationFailed.vmName}</p>
@@ -308,7 +340,7 @@ class CreateVM extends React.Component {
                 </label>
                 <Select.Select id="source-type"
                                initial={this.state.sourceType}
-                               onChange={this.onChangedValue.bind(this, 'sourceType')}>
+                               onChange={e => this.onChangedValue('sourceType', e)}>
                     <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
                                         key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
                     <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
@@ -326,18 +358,24 @@ class CreateVM extends React.Component {
                 <label className="control-label" htmlFor="vendor-select">
                     {_("OS Vendor")}
                 </label>
-                <Select.Select id="vendor-select"
-                               initial={this.state.vendor}
-                               onChange={this.onChangedValue.bind(this, 'vendor')}>
-                    {vendorSelectEntries}
-                </Select.Select>
+                <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
+                    <Select.Select id="vendor-select"
+                                   initial={this.state.vendor}
+                                   onChange={e => this.onChangedValue('vendor', e)}>
+                        {vendorSelectEntries}
+                    </Select.Select>
+                    { validationFailed.vendor && this.state.vendor == NOT_SPECIFIED &&
+                    <HelpBlock>
+                        <p className="text-danger">{validationFailed.vendor}</p>
+                    </HelpBlock> }
+                </FormGroup>
 
                 <label className="control-label" htmlFor="vendor-select">
                     {_("Operating System")}
                 </label>
                 <Select.StatelessSelect id="system-select"
                                         selected={this.state.os}
-                                        onChange={this.onChangedValue.bind(this, 'os')}>
+                                        onChange={e => this.onChangedValue('os', e)}>
                     {osEntries}
                 </Select.StatelessSelect>
 
@@ -347,23 +385,23 @@ class CreateVM extends React.Component {
                                  id={"memory-size"}
                                  value={this.state.memorySize}
                                  initialUnit={this.state.memorySizeUnit}
-                                 onValueChange={this.onChangedEventValue.bind(this, 'memorySize')}
-                                 onUnitChange={this.onChangedValue.bind(this, 'memorySizeUnit')} />
+                                 onValueChange={e => this.onChangedEventValue('memorySize', e)}
+                                 onUnitChange={e => this.onChangedValue('memorySizeUnit', e)} />
 
                 {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
                 <MemorySelectRow label={_("Storage Size")}
                                  id={"storage-size"}
                                  value={this.state.storageSize}
                                  initialUnit={this.state.storageSizeUnit}
-                                 onValueChange={this.onChangedEventValue.bind(this, 'storageSize')}
-                                 onUnitChange={this.onChangedValue.bind(this, 'storageSizeUnit')} />}
+                                 onValueChange={e => this.onChangedEventValue('storageSize', e)}
+                                 onUnitChange={e => this.onChangedValue('storageSizeUnit', e)} />}
 
                 <hr />
 
                 <label className="checkbox-inline">
                     <input id="start-vm" type="checkbox"
                            checked={this.state.startVm}
-                           onChange={this.onChangedEventChecked.bind(this, 'startVm')} />
+                           onChange={e => this.onChangedEventChecked('startVm', e)} />
                     {_("Immediately Start VM")}
                 </label>
             </form>
@@ -386,6 +424,12 @@ function validateParams(vmParams) {
     if (isEmpty(vmParams.vmName.trim())) {
         validationFailed['vmName'] = _("Name should not be empty");
     }
+
+    // If we select installation media from URL force the user to select
+    // OS, since virt-install will not detect the OS, in case we don't choose
+    // to start the guest immediately.
+    if (vmParams.vendor == NOT_SPECIFIED && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
+        validationFailed['vendor'] = _("You need to select the most closely matching OS vendor and Operating System");
 
     let source = vmParams.source ? vmParams.source.trim() : null;
 
@@ -478,7 +522,8 @@ class CreateVmModal extends React.Component {
                 vendorMap={vendors.vendorMap}
                 valuesChanged={this.onValueChanged}
                 loggedUser={loggedUser}
-                providerName={this.props.providerName} />
+                providerName={this.props.providerName}
+                osInfoList={this.props.osInfoList} />
         );
 
         return (

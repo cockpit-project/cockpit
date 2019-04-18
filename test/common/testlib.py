@@ -204,33 +204,42 @@ class Browser:
         self.call_js_func('ph_go', hash)
 
     def mouse(self, selector, type, x=0, y=0, btn=0, force=False):
+        self.wait_present(selector)
         self.call_js_func('ph_mouse', selector, type, x, y, btn, force)
 
     def click(self, selector, force=False):
         self.mouse(selector, "click", 0, 0, 0, force)
 
     def val(self, selector):
+        self.wait_present(selector)
         return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
+        self.wait_present(selector)
         return self.call_js_func('ph_text', selector)
 
     def attr(self, selector, attr):
+        self.wait_present(selector)
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def set_checked(self, selector, val):
+        self.wait_present(selector)
         self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector):
+        self.wait_present(selector)
         self.call_js_func('ph_focus', selector)
 
     def blur(self, selector):
+        self.wait_present(selector)
         self.call_js_func('ph_blur', selector)
 
     def key_press(self, keys, modifiers=0):
@@ -250,7 +259,6 @@ class Browser:
     def select_from_dropdown(self, selector, value, substring=False):
         # This is a backwards compat helper method; new code should use .set_val()
 
-        self.wait_present(selector)
         self.wait_visible(selector)
 
         # translate text value into <option value=".."> ID
@@ -260,6 +268,7 @@ class Browser:
         self.set_val(selector, value_id)
 
     def set_input_text(self, selector, val, append=False):
+        self.wait_present(selector)
         self.focus(selector)
         if not append:
             self.key_press("a", 2) # Ctrl + a
@@ -276,7 +285,6 @@ class Browser:
         spinner_selector = "{0} .spinner".format(selector)
         file_item_selector_template = "{0} ul li a:contains({1})"
 
-        self.wait_present(selector)
         self.wait_visible(selector)
 
         for path_part in filter(None, location.split('/')):
@@ -329,49 +337,60 @@ class Browser:
         return self.call_js_func('ph_is_present', selector)
 
     def wait_present(self, selector):
-        return self.wait_js_func('ph_is_present', selector)
+        self.wait_js_func('ph_is_present', selector)
 
     def wait_not_present(self, selector):
-        return self.wait_js_func('!ph_is_present', selector)
+        self.wait_js_func('!ph_is_present', selector)
 
     def is_visible(self, selector):
         return self.call_js_func('ph_is_visible', selector)
 
     def wait_visible(self, selector):
-        return self.wait_js_func('ph_is_visible', selector)
+        self.wait_present(selector)
+        self.wait_js_func('ph_is_visible', selector)
 
     def wait_val(self, selector, val):
-        return self.wait_js_func('ph_has_val', selector, val)
+        self.wait_present(selector)
+        self.wait_js_func('ph_has_val', selector, val)
 
     def wait_not_val(self, selector, val):
-        return self.wait_js_func('!ph_has_val', selector, val)
+        self.wait_present(selector)
+        self.wait_js_func('!ph_has_val', selector, val)
 
     def wait_attr(self, selector, attr, val):
-        return self.wait_js_func('ph_has_attr', selector, attr, val)
+        self.wait_present(selector)
+        self.wait_js_func('ph_has_attr', selector, attr, val)
 
     def wait_attr_contains(self, selector, attr, val):
-        return self.wait_js_func('ph_attr_contains', selector, attr, val)
+        self.wait_present(selector)
+        self.wait_js_func('ph_attr_contains', selector, attr, val)
 
     def wait_attr_not_contains(self, selector, attr, val):
-        return self.wait_js_func('!ph_attr_contains', selector, attr, val)
+        self.wait_present(selector)
+        self.wait_js_func('!ph_attr_contains', selector, attr, val)
 
     def wait_not_attr(self, selector, attr, val):
-        return self.wait_js_func('!ph_has_attr', selector, attr, val)
+        self.wait_present(selector)
+        self.wait_js_func('!ph_has_attr', selector, attr, val)
 
     def wait_not_visible(self, selector):
-        return self.wait_js_func('!ph_is_visible', selector)
+        self.wait_js_func('!ph_is_visible', selector)
 
     def wait_in_text(self, selector, text):
-        return self.wait_js_func('ph_in_text', selector, text)
+        self.wait_present(selector)
+        self.wait_js_func('ph_in_text', selector, text)
 
     def wait_not_in_text(self, selector, text):
-        return self.wait_js_func('!ph_in_text', selector, text)
+        self.wait_present(selector)
+        self.wait_js_func('!ph_in_text', selector, text)
 
     def wait_text(self, selector, text):
-        return self.wait_js_func('ph_text_is', selector, text)
+        self.wait_present(selector)
+        self.wait_js_func('ph_text_is', selector, text)
 
     def wait_text_not(self, selector, text):
-        return self.wait_js_func('!ph_text_is', selector, text)
+        self.wait_present(selector)
+        self.wait_js_func('!ph_text_is', selector, text)
 
     def wait_popup(self, id):
         """Wait for a popup to open.
@@ -799,8 +818,6 @@ class MachineCase(unittest.TestCase):
         "(audit: )?type=1404 audit.*",
         # happens on Atomic (https://bugzilla.redhat.com/show_bug.cgi?id=1298157)
         "(audit: )?type=1400 audit.*: avc:  granted .*",
-        # HACK: affects *all* tests, impractical for a naughty (https://bugzilla.redhat.com/show_bug.cgi?id=1461893)
-        "type=1401 audit(.*): op=security_compute_av reason=bounds .* tclass=process.*",
 
         # https://bugzilla.redhat.com/show_bug.cgi?id=1242656
         "(audit: )?type=1400 .*denied.*comm=\"cockpit-ws\".*name=\"unix\".*dev=\"proc\".*",
@@ -903,31 +920,12 @@ class MachineCase(unittest.TestCase):
         if self.image in ['fedora-29', 'fedora-30', 'fedora-testing', 'fedora-i386', 'fedora-atomic']:
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1629588
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for .* comm="agetty" name="motd".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662441
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="find" path="/proc.*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { mount } for .* comm="find" .*pcp_pmlogger_t.*')
             # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662866
             self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { execute } for .* comm="which" .*pcp_pmlogger_t.*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979
-            # The bug is closed and for old release but should be here as reference for the solutions
-            # It suggests configure auditd to dontaudit these messages since selinux can't offer whitelisting this directory for qemu process
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')
 
         if self.image in ['fedora-30']:
             # Fedora 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
-
-        if self.image in ['rhel-8-0']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1653872
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { setsched } for .* comm="rngd".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1679468
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { signull } for .* comm="systemd-journal".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1406979 (see above)
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { search } for  .* comm="qemu-.* dev="proc" .*')
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { read } for  .* comm="qemu-.* dev="proc" .*')
 
         # these images don't have tuned; keep in sync with bots/images/scripts/debian.setup
         if self.image in ["debian-stable"]:

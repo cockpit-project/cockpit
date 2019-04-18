@@ -319,7 +319,6 @@ class TestKeys(MachineCase):
             new_key_tbody = "tbody:contains('root@')"
         else:
             new_key_tbody = "tbody[data-name='/tmp/new.rsa']"
-        b.wait_present(new_key_tbody)
         b.click(new_key_tbody)
         b.click(new_key_tbody + " tr.listing-ct-head")
 
@@ -375,6 +374,7 @@ class TestKeys(MachineCase):
 
             b.wait_present(new_key_tbody + "[data-loaded=1]")
             b.wait_not_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
+
 
 
 if __name__ == '__main__':

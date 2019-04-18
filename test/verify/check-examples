@@ -20,7 +20,6 @@ class TestPinger(MachineCase):
         b = self.browser
 
         self.login_and_go("/pinger/ping")
-        b.wait_present("#address")
         b.set_val("#address", "127.0.0.1")
         b.click("button#ping")
         b.wait_in_text("#result", "success")

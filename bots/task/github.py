@@ -116,7 +116,7 @@ def get_origin_repo():
     url = res.decode('utf-8').strip()
     m = re.fullmatch("(git@github.com:|https://github.com/)(.*?)(\\.git)?", url)
     if m:
-        return m.group(2)
+        return m.group(2).rstrip("/")
     raise RuntimeError("Not a GitHub repo: %s" % url)
 
 class GitHub(object):

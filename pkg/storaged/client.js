@@ -27,7 +27,7 @@ import inotify_py from "raw-loader!inotify.py";
 import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
 import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 
-import { find_warnings } from "./warning-tab.jsx";
+import { find_warnings } from "./warnings.jsx";
 
 /* STORAGED CLIENT
  */

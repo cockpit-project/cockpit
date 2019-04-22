@@ -174,7 +174,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         return;
     }
 
-    const osElem = domainElem.getElementsByTagName("os")[0];
+    const osElem = domainElem.getElementsByTagNameNS("", "os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const cpuElem = domainElem.getElementsByTagName("cpu")[0];

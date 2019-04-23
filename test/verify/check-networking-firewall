@@ -76,6 +76,8 @@ class TestFirewall(MachineCase):
         b.click(".breadcrumb li:first a")
         b.enter_page("/network")
 
+        self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*")
+
     def testFirewallPage(self):
         b = self.browser
         m = self.machine

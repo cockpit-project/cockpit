@@ -44,9 +44,10 @@ html.index-page body {
     position: static;
 }
 
-#dashboard-add {
-    height: 28px;
-    width: 28px;
+#dashboard-hosts {
+    /* Dashboard list is narrow enough in extreme mobile mode to not overflow */
+    /* This is a work-around to enable tooltips to escape panel bounds. */
+    overflow: visible;
 }
 
 #dashboard-hosts .list-group-item {
@@ -71,7 +72,7 @@ html.index-page body {
     border-top-color: transparent;
 }
 
-#dashboard-hosts button {
+#dashboard-hosts .list-group button {
     height: 28px;
     width: 28px;
     padding: 8px;

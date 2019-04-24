@@ -9,7 +9,7 @@ from testlib_avocado.machineslib import MachinesLib
 class MachinesBasicTestSuite(MachinesLib):
     """
     :avocado: enable
-    :avocado: tags=machines_m
+    :avocado: tags=machines
     """
 
     def testNoVm(self):

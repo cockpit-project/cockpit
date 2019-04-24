@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from avocado import skipIf
 from testlib_avocado.timeoutlib import wait
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
@@ -8,7 +9,7 @@ from testlib_avocado.machineslib import MachinesLib
 class MachinesBasicTestSuite(MachinesLib):
     """
     :avocado: enable
-    :avocado: tags=machines
+    :avocado: tags=machines_m
     """
 
     def testNoVm(self):
@@ -98,7 +99,6 @@ class MachinesBasicTestSuite(MachinesLib):
         self.wait_css('#vm-{}-disks-vda-bus'.format(name))
 
         self.click(self.wait_css("#vm-{}-delete".format(name), cond=clickable))
-        # self.click(self.wait_css('#vm-{}-delete-modal-dialog  td:nth-child(1) input'.format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog li:nth-of-type(1) input".format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog button.btn-danger".format(name), cond=clickable))
         self.wait_css("#vm-{}-row".format(name), cond=invisible)
@@ -117,25 +117,30 @@ class MachinesBasicTestSuite(MachinesLib):
             self.wait_css('#vm-{}-state'.format(name)).text)
 
     def testCreate20VMs(self):
+        iso_source = '/home/{}.iso'.format('test' + str(time.time()).split('.')[0])
+        self.machine.execute('sudo touch {}'.format(iso_source))
+
         for i in range(20):
-            self.create_vm_by_ui(name='test{}'.format(i))
+            self.create_vm_by_ui(
+                connection='user', name='test{}'.format(i), source=iso_source, mem_unit='M', storage_unit='M')
             self.vm_stop_list.append('test{}'.format(i))
             self.wait_css('#vm-test{}-row'.format(i))
 
     def testCreateVMWithISO(self):
         name = 'test_iso'
-        iso = '/var/lib/libvirt/images/{}.iso'.format(name)
+        iso = '/home/{}.iso'.format(name + str(time.time()).split('.')[0])
 
         self.machine.execute('sudo touch {}'.format(iso))
 
-        self.create_vm_by_ui(name=name, source=iso)
+        self.create_vm_by_ui(connection='user', name=name, source=iso)
         self.vm_stop_list.append(name)
 
-    @skipIf(os.environ.get('URLSOURCE') is None)
+    @skipIf(os.environ.get('URLSOURCE') is None, "Users should define an environment for url installation resource")
     def testCreateVMWithUrl(self):
         name = 'test_url'
 
-        self.create_vm_by_ui(name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
+        self.create_vm_by_ui(
+            connection='user', name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
 
         self.wait_css('#vm-{}-row'.format(name))
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')

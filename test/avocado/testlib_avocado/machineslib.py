@@ -1,6 +1,7 @@
 import os
 from time import sleep
 from .timeoutlib import wait
+from selenium.webdriver.support.select import Select
 from .seleniumlib import SeleniumTest, clickable, text_in, invisible
 
 
@@ -174,7 +175,11 @@ class MachinesLib(SeleniumTest):
 
         if self.vm_stop_list:
             for vm in self.vm_stop_list:
-                self.destroy_vm(vm)  
+                # for user session
+                vmstate = self.machine.execute("virsh domstate {}".format(vm)).split('\n')[0]
+                if vmstate == 'running':
+                    self.machine.execute('virsh destroy {}'.format(vm))
+                self.machine.execute('virsh undefine {}'.format(vm))
 
         # clean the disk,if they are existing
         for key, value in self.storage_pool.items():
@@ -212,61 +217,84 @@ class MachinesLib(SeleniumTest):
         self.wait_css('body > div:nth-child(2)')
 
         if connection == 'user':
-            self.click(self.wait_css('#connection > button', cond=clickable))
-            self.click(self.wait_css('#connection > ul > li:nth-child(2) > a', cond=clickable))
+            # self.click(self.wait_css('#connection > button', cond=clickable))
+            # self.click(self.wait_css('#connection > ul > li:nth-child(2) > a', cond=clickable))
+            Select(self.wait_css('#connection')).select_by_visible_text('QEMU/KVM User connection')
 
         self.send_keys(self.wait_css('#vm-name'), name)
         
-        if source_type == 'url':
-            self.click(self.wait_css('#source-type > button', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#source-type')
-            self.click(self.wait_css('#source-type > ul > li:nth-child(2) > a', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown"]#source-type')
+        # if source_type == 'url':
+        #     self.click(self.wait_css('#source-type > button', cond=clickable))
+        #     self.wait_css('[class="btn-group bootstrap-select dropdown open"]#source-type')
+        #     self.click(self.wait_css('#source-type > ul > li:nth-child(2) > a', cond=clickable))
+        #     self.wait_css('[class="btn-group bootstrap-select dropdown"]#source-type')
+        #
+        #     self.send_keys(self.wait_css('#source-url'), source)
+        # else:
+        #     # This is for the installation source
+        #     # Because it is not effective when i create the vm
+        #     # if i only send keys to this element without waiting to scan by this element
+        #     # There will be a error saying that the installation source can't be blank
+        #     self.click(self.wait_css('#source-file > div > span', cond=clickable))
+        #     self.wait_css('#source-file [class="input-group open"]')
+        #     self.click(self.wait_css('#source-file > div > ul > li:nth-child(1) > a', cond=clickable))
+        #     self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
+        #     self.wait_css('#source-file [class="alert alert-warning"]', cond=invisible)
 
-            self.send_keys(self.wait_css('#source-url'), source)
-        else:
-            # This is for the installation source
-            # Because it is not effective when i create the vm if i only sendkeys to this element without waiting to scaning by this element
-            # There will be a error saying that the installation source can't be blank
+        Select(self.wait_css('#source-type')).select_by_value(source_type)
+        # If this option is pxe, do nothing for next element
+        if source_type == 'file':
             self.click(self.wait_css('#source-file > div > span', cond=clickable))
             self.wait_css('#source-file [class="input-group open"]')
             self.click(self.wait_css('#source-file > div > ul > li:nth-child(1) > a', cond=clickable))
             self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
-            self.wait_css('#source-file [class="form-control-feedback caret"]')
             self.wait_css('#source-file [class="alert alert-warning"]', cond=invisible)
+        elif source_type == 'url':
+            self.send_keys(self.wait_css('#source-url'), source)
+        elif source_type == 'disk_image':
+            self.click(self.wait_css('#source-disk > div > span', cond=clickable))
+            self.wait_css('#source-disk [class="input-group open"]')
+            self.click(self.wait_css('#source-disk > div > ul > li:nth-child(1) > a', cond=clickable))
+            self.send_keys(self.wait_css('#source-disk > div > input'), source, ctrla=True)
+            self.wait_css('#source-disk [class="alert alert-warning"]', cond=invisible)
         
         if os_vender != 'unspecified':
-            self.click(self.wait_css('#vendor-select > button', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#vendor-select')
-            self.click(self.wait_css('[data-value="{}"] > a'.format(os_vender), cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown"]#vendor-select')
+            # self.click(self.wait_css('#vendor-select > button', cond=clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown open"]#vendor-select')
+            # self.click(self.wait_css('[data-value="{}"] > a'.format(os_vender), cond=clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown"]#vendor-select')
+            Select(self.wait_css('#vendor-select')).select_by_visible_text(os_vender)
 
         if os_vender != 'unspecified' and os != 'other':
-            self.click(self.wait_css('#system-select > button', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#system-select')
-            self.click(self.wait_css('[data-value="{}"] > a'.format(os), cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown"]#system-select')
+            # self.click(self.wait_css('#system-select > button', cond=clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown open"]#system-select')
+            # self.click(self.wait_css('[data-value="{}"] > a'.format(os), cond=clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown"]#system-select')
+            Select(self.wait_css('#system-select')).select_by_visible_text(os)
 
-        self.send_keys(self.wait_css('#memory-size'), mem, ctrla=True)
+        self.send_keys(self.wait_css('#memory-size'), mem, clear=False, ctrla=True)
 
         if mem_unit == 'M':
-            self.click(self.wait_css('#memory-size-unit-select > button', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#memory-size-unit-select')
-            self.click(self.wait_css('#memory-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown"]#memory-size-unit-select')
+            # self.click(self.wait_css('#memory-size-unit-select > button', cond=clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown open"]#memory-size-unit-select')
+            # self.click(self.wait_css('#memory-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
+            # self.wait_css('[class="btn-group bootstrap-select dropdown"]#memory-size-unit-select')
+            Select(self.wait_css('#memory-size-unit-select')).select_by_visible_text('MiB')
 
-        self.send_keys(self.wait_css('#storage-size'), storage, ctrla=True)
-
-        if storage_unit == 'M':
-            self.click(self.wait_css('#storage-size-unit-select > button', cond=clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#storage-size-unit-select')
-            self.click(self.wait_css('#storage-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
-            self.wait_css('[class="btn-group bootstrap-select dropdown"]#storage-size-unit-select')
+        if source_type != 'disk_image':
+            self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
+            if storage_unit == 'M':
+                # self.click(self.wait_css('#storage-size-unit-select > button', cond=clickable))
+                # self.wait_css('[class="btn-group bootstrap-select dropdown open"]#storage-size-unit-select')
+                # self.click(self.wait_css('#storage-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
+                # self.wait_css('[class="btn-group bootstrap-select dropdown"]#storage-size-unit-select')
+                Select(self.wait_css('#storage-size-unit-select')).select_by_visible_text('MiB')
 
         if immediately_start:
             self.check_box(self.wait_css('#start-vm'))
 
         self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
-        
+
+        self.wait_dialog_disappear()
         self.wait_css('body > div:nth-child(2)', cond=invisible)
         self.wait_css('#vm-{}-row'.format(name))

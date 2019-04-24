@@ -134,12 +134,7 @@ class CreateVM extends React.Component {
                     autodetectOS(os)
                             .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
                             .then(res => {
-                                let osName = res.match(/OS ['"](.*)['"]/)[1];
-                                // osinfo-query is nto yet aware of variants, https://gitlab.com/libosinfo/libosinfo/issues/24
-                                // but osinfo-detect is. Remove the variant suffix to eliminate this issue
-                                osName = osName.replace(/ Server$/, "");
-                                osName = osName.replace(/ Workstation$/, "");
-                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.name == osName);
+                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
 
                                 if (osEntry && osEntry[0]) {
                                     this.setState({

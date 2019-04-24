@@ -2,7 +2,7 @@ import os
 import re
 from avocado import skipIf
 from testlib_avocado.timeoutlib import wait
-from testlib_avocado.seleniumlib import clickable, invisible, text_in, visible
+from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
 
 class MachinesBasicTestSuite(MachinesLib):
@@ -98,6 +98,7 @@ class MachinesBasicTestSuite(MachinesLib):
         self.wait_css('#vm-{}-disks-vda-bus'.format(name))
 
         self.click(self.wait_css("#vm-{}-delete".format(name), cond=clickable))
+        # self.click(self.wait_css('#vm-{}-delete-modal-dialog  td:nth-child(1) input'.format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog li:nth-of-type(1) input".format(name), cond=clickable))
         self.click(self.wait_css("#vm-{}-delete-modal-dialog button.btn-danger".format(name), cond=clickable))
         self.wait_css("#vm-{}-row".format(name), cond=invisible)
@@ -114,3 +115,31 @@ class MachinesBasicTestSuite(MachinesLib):
         self.assertEqual(
             self.machine.execute('sudo virsh domstate {}'.format(name)).replace("\n",""),
             self.wait_css('#vm-{}-state'.format(name)).text)
+
+    def testCreate20VMs(self):
+        for i in range(20):
+            self.create_vm_by_ui(name='test{}'.format(i))
+            self.vm_stop_list.append('test{}'.format(i))
+            self.wait_css('#vm-test{}-row'.format(i))
+
+    def testCreateVMWithISO(self):
+        name = 'test_iso'
+        iso = '/var/lib/libvirt/images/{}.iso'.format(name)
+
+        self.machine.execute('sudo touch {}'.format(iso))
+
+        self.create_vm_by_ui(name=name, source=iso)
+        self.vm_stop_list.append(name)
+
+    @skipIf(os.environ.get('URLSOURCE') is None)
+    def testCreateVMWithUrl(self):
+        name = 'test_url'
+
+        self.create_vm_by_ui(name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
+
+        self.wait_css('#vm-{}-row'.format(name))
+        self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')
+        self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
+        self.wait_css('div.toolbar-pf-results canvas')
+
+        self.vm_stop_list.append(name)

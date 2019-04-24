@@ -1,6 +1,6 @@
+import time
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
-import time
 
 
 class MachinesDisksTestSuite(MachinesLib):
@@ -75,7 +75,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool > ul > li:nth-child(3) > a'.format(name), cond=clickable))
+        self.click(self.wait_css('li[data-value="{}"] > a'.format(pool_name[1]), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
@@ -120,7 +120,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool > ul > li:nth-child(3) > a'.format(name), cond=clickable))
+        self.click(self.wait_css('li[data-value="{}"] > a'.format(pool_name[1]), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > button'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-existing-permanent'.format(name), cond=clickable))
@@ -146,8 +146,10 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
-        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk')
-        self.storage_pool['detachdisk'] = 'disk'
+        self.click(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name), cond=clickable))
+        self.click(self.wait_css('li[data-value="default"] > a', cond=clickable))
+        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk_vm_on')
+        self.storage_pool['detachdisk_vm_on'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))
@@ -166,8 +168,10 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
-        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk')
-        self.storage_pool['detachdisk'] = 'disk'
+        self.click(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name), cond=clickable))
+        self.click(self.wait_css('li[data-value="default"] > a', cond=clickable))
+        self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk_vm_off')
+        self.storage_pool['detachdisk_vm_off'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))

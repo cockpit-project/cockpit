@@ -1,7 +1,8 @@
 import os
 from time import sleep
 from .timeoutlib import wait
-from .seleniumlib import SeleniumTest, clickable, text_in
+from .seleniumlib import SeleniumTest, clickable, text_in, invisible
+
 
 SPICE_XML = """
     <video>
@@ -160,6 +161,7 @@ class MachinesLib(SeleniumTest):
 
         self.virshvm = None
         self.storage_pool = {}
+        self.vm_stop_list = []
 
         self.login()
         self.click(self.wait_link('Virtual Machines', cond=clickable))
@@ -170,8 +172,12 @@ class MachinesLib(SeleniumTest):
         if self.virshvm:
             self.destroy_vm(self.virshvm)
 
+        if self.vm_stop_list:
+            for vm in self.vm_stop_list:
+                self.destroy_vm(vm)  
+
         # clean the disk,if they are existing
-        for key,value in self.storage_pool.items():
+        for key, value in self.storage_pool.items():
             while len(value) != 0 and value != 'disk':
                 self.machine.execute('sudo virsh vol-delete {disk} {pool}'.format(disk=value.pop(), pool=key))
         while len(self.storage_pool) != 0:
@@ -182,11 +188,6 @@ class MachinesLib(SeleniumTest):
                 self.machine.execute('sudo virsh pool-destroy {}'.format(item[0]))
                 self.machine.execute('sudo rm -rf /home/{}'.format(item[0]))
 
-        # clean the user for none root
-        if self.machine.execute('sudo cat /etc/passwd | grep auto', raising=False) != "":
-            self.machine.execute('sudo killall -u auto')
-            self.machine.execute('sudo userdel -rf auto')
-
     def wait_dialog_disappear(self):
         # loop for the dialog disappear and it will break after trying with 40 times
         count = 0
@@ -194,3 +195,78 @@ class MachinesLib(SeleniumTest):
             if count == self.default_try:
                 break
             count += 1
+
+    def create_vm_by_ui(self,
+                        connection='system',
+                        name='default',
+                        source_type='file',
+                        source='/var/lib/libvirt/images/staticvm.qcow2',
+                        os_vender='unspecified',
+                        os='other',
+                        mem=1,
+                        mem_unit='G',
+                        storage=10,
+                        storage_unit='G',
+                        immediately_start=False):
+        self.click(self.wait_css('#create-new-vm', cond=clickable))
+        self.wait_css('body > div:nth-child(2)')
+
+        if connection == 'user':
+            self.click(self.wait_css('#connection > button', cond=clickable))
+            self.click(self.wait_css('#connection > ul > li:nth-child(2) > a', cond=clickable))
+
+        self.send_keys(self.wait_css('#vm-name'), name)
+        
+        if source_type == 'url':
+            self.click(self.wait_css('#source-type > button', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#source-type')
+            self.click(self.wait_css('#source-type > ul > li:nth-child(2) > a', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown"]#source-type')
+
+            self.send_keys(self.wait_css('#source-url'), source)
+        else:
+            # This is for the installation source
+            # Because it is not effective when i create the vm if i only sendkeys to this element without waiting to scaning by this element
+            # There will be a error saying that the installation source can't be blank
+            self.click(self.wait_css('#source-file > div > span', cond=clickable))
+            self.wait_css('#source-file [class="input-group open"]')
+            self.click(self.wait_css('#source-file > div > ul > li:nth-child(1) > a', cond=clickable))
+            self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
+            self.wait_css('#source-file [class="form-control-feedback caret"]')
+            self.wait_css('#source-file [class="alert alert-warning"]', cond=invisible)
+        
+        if os_vender != 'unspecified':
+            self.click(self.wait_css('#vendor-select > button', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#vendor-select')
+            self.click(self.wait_css('[data-value="{}"] > a'.format(os_vender), cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown"]#vendor-select')
+
+        if os_vender != 'unspecified' and os != 'other':
+            self.click(self.wait_css('#system-select > button', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#system-select')
+            self.click(self.wait_css('[data-value="{}"] > a'.format(os), cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown"]#system-select')
+
+        self.send_keys(self.wait_css('#memory-size'), mem, ctrla=True)
+
+        if mem_unit == 'M':
+            self.click(self.wait_css('#memory-size-unit-select > button', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#memory-size-unit-select')
+            self.click(self.wait_css('#memory-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown"]#memory-size-unit-select')
+
+        self.send_keys(self.wait_css('#storage-size'), storage, ctrla=True)
+
+        if storage_unit == 'M':
+            self.click(self.wait_css('#storage-size-unit-select > button', cond=clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown open"]#storage-size-unit-select')
+            self.click(self.wait_css('#storage-size-unit-select > ul > li:nth-child(1) > a', cond = clickable))
+            self.wait_css('[class="btn-group bootstrap-select dropdown"]#storage-size-unit-select')
+
+        if immediately_start:
+            self.check_box(self.wait_css('#start-vm'))
+
+        self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
+        
+        self.wait_css('body > div:nth-child(2)', cond=invisible)
+        self.wait_css('#vm-{}-row'.format(name))

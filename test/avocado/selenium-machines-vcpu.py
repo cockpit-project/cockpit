@@ -1,6 +1,4 @@
 from selenium.webdriver.support.select import Select
-from time import sleep
-from avocado import skipIf
 from testlib_avocado.seleniumlib import clickable, invisible, visible, text_in
 from testlib_avocado.machineslib import MachinesLib
 from testlib_avocado.timeoutlib import wait

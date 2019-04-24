@@ -75,9 +75,9 @@ class TestNetworking(NetworkCase):
         # We test slow rollbacks by slowing down DHCP requests.
         #
         # We need at least 60 seconds of network disconnection to let
-        # the health check fail reliably.  A rollback is started 15
+        # the health check fail reliably.  A rollback is started 7
         # seconds after disconnection, so we need to delay the DHCP
-        # request by at least 45 seconds.  However, NetworkManager has
+        # request by at least 53 seconds.  However, NetworkManager has
         # a default DHCP timeout of 45 seconds, so we need to increase
         # that.
         #

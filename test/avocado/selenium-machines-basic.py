@@ -6,6 +6,7 @@ from testlib_avocado.timeoutlib import wait
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
 
+
 class MachinesBasicTestSuite(MachinesLib):
     """
     :avocado: enable
@@ -122,7 +123,7 @@ class MachinesBasicTestSuite(MachinesLib):
 
         for i in range(20):
             self.create_vm_by_ui(
-                connection='user', name='test{}'.format(i), source=iso_source, mem_unit='M', storage_unit='M')
+                connection='session', name='test{}'.format(i), source=iso_source, mem_unit='M', storage_unit='M')
             self.vm_stop_list.append('test{}'.format(i))
             self.wait_css('#vm-test{}-row'.format(i))
 
@@ -132,7 +133,7 @@ class MachinesBasicTestSuite(MachinesLib):
 
         self.machine.execute('sudo touch {}'.format(iso))
 
-        self.create_vm_by_ui(connection='user', name=name, source=iso)
+        self.create_vm_by_ui(connection='session', name=name, source=iso)
         self.vm_stop_list.append(name)
 
     @skipIf(os.environ.get('URLSOURCE') is None, "Users should define an environment for url installation resource")
@@ -140,7 +141,7 @@ class MachinesBasicTestSuite(MachinesLib):
         name = 'test_url'
 
         self.create_vm_by_ui(
-            connection='user', name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
+            connection='session', name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
 
         self.wait_css('#vm-{}-row'.format(name))
         self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')

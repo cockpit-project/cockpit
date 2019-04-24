@@ -216,13 +216,13 @@ class MachinesLib(SeleniumTest):
         self.click(self.wait_css('#create-new-vm', cond=clickable))
         self.wait_css('body > div:nth-child(2)')
 
-        if connection == 'user':
+        if connection == 'session':
             # self.click(self.wait_css('#connection > button', cond=clickable))
             # self.click(self.wait_css('#connection > ul > li:nth-child(2) > a', cond=clickable))
             Select(self.wait_css('#connection')).select_by_visible_text('QEMU/KVM User connection')
 
         self.send_keys(self.wait_css('#vm-name'), name)
-        
+
         # if source_type == 'url':
         #     self.click(self.wait_css('#source-type > button', cond=clickable))
         #     self.wait_css('[class="btn-group bootstrap-select dropdown open"]#source-type')
@@ -257,7 +257,7 @@ class MachinesLib(SeleniumTest):
             self.click(self.wait_css('#source-disk > div > ul > li:nth-child(1) > a', cond=clickable))
             self.send_keys(self.wait_css('#source-disk > div > input'), source, ctrla=True)
             self.wait_css('#source-disk [class="alert alert-warning"]', cond=invisible)
-        
+
         if os_vender != 'unspecified':
             # self.click(self.wait_css('#vendor-select > button', cond=clickable))
             # self.wait_css('[class="btn-group bootstrap-select dropdown open"]#vendor-select')
@@ -298,3 +298,46 @@ class MachinesLib(SeleniumTest):
         self.wait_dialog_disappear()
         self.wait_css('body > div:nth-child(2)', cond=invisible)
         self.wait_css('#vm-{}-row'.format(name))
+
+    def create_storage_by_ui(self,
+                             connection='system',
+                             name='storage',
+                             type='dir',
+                             target_path='',
+                             host='',
+                             source_path='',
+                             start_up=True):
+        self.click(self.wait_text('Storage Pools', cond=clickable))
+        self.wait_css('#storage-pools-listing')
+        self.click(self.wait_css('#create-storage-pool', cond=clickable))
+
+        if connection == 'session':
+            Select(self.wait_css('#storage-pool-dialog-connection')).select_by_value('session')
+
+        self.send_keys(self.wait_css('#storage-pool-dialog-name'), name)
+
+        if type != 'dir':
+            Select(self.wait_css('#storage-pool-dialog-type')).select_by_value(type)
+
+        self.click(self.wait_css('#storage-pool-dialog-target .form-control-feedback.caret', cond=clickable))
+        self.wait_css('#storage-pool-dialog-target [class="input-group open"]')
+        self.click(self.wait_css('#storage-pool-dialog-target ul li:nth-child(2) a', cond=clickable))
+        self.send_keys(self.wait_css('#storage-pool-dialog-target > div > input'), target_path, ctrla=True)
+
+        if type != 'dir':
+            self.send_keys(self.wait_css('#storage-pool-dialog-host'), host)
+            self.send_keys(self.wait_css('#storage-pool-dialog-source'), source_path)
+
+        self.check_box(self.wait_css('#storage-pool-dialog-autostart', cond=clickable), start_up)
+
+        self.click(self.wait_css('#create-storage-pool-dialog button.btn.btn-primary', cond=clickable))
+
+        self.wait_dialog_disappear()
+        pool_name = 'pool-{}-{}'.format(name, connection)
+        self.wait_css('#' + pool_name + '-name')
+
+        return pool_name
+
+
+
+

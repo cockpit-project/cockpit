@@ -22,6 +22,7 @@ import argparse
 import os
 import subprocess
 import sys
+from task import github
 
 sys.dont_write_bytecode = True
 
@@ -44,6 +45,8 @@ def main():
     if not opts.revision:
         opts.revision = "FETCH_HEAD"
 
+    api = github.GitHub(repo=opts.repo)
+
     def execute(*args):
         if opts.verbose:
             sys.stderr.write("+ " + " ".join(args) + "\n")
@@ -63,17 +66,17 @@ def main():
         bots_ref = "origin/master"
 
     # Testing external project, firstly we needs to add remote
-    if opts.repo != "cockpit-project/cockpit":
+    if api.repo != "cockpit-project/cockpit":
         if "test\n" in subprocess.check_output([ "git", "remote" ], universal_newlines=True):
             execute("git", "remote", "remove", "test")
-        execute("git", "remote", "add", "test", "https://github.com/" + opts.repo)
+        execute("git", "remote", "add", "test", "https://github.com/" + api.repo)
 
     # if the pr was updated while the command was in the queue, the revision
     # won't be tied to the ref anymore, and it won't exist locally, so exit
     # silently
     output = None
     try:
-        args = ["git", "fetch", "test" if opts.repo != "cockpit-project/cockpit" else "origin", opts.ref]
+        args = ["git", "fetch", "test" if api.repo != "cockpit-project/cockpit" else "origin", opts.ref]
         if opts.verbose:
             sys.stderr.write("+ {0}\n".format(" ".join(args)))
         output = subprocess.check_output(args, cwd=BASE, universal_newlines=True)
@@ -88,7 +91,7 @@ def main():
             sys.stderr.write("> " + output + "\n")
 
     # If the bots directory doesn't exist in this branch or repo, check it out from master
-    if opts.repo != "cockpit-project/cockpit" or (opts.base and opts.base != "master"):
+    if api.repo != "cockpit-project/cockpit" or (opts.base and opts.base != "master"):
         sys.stderr.write("Checking out bots directory from Cockpit %s ...\n" % (opts.bots_ref or bots_ref))
         execute("git", "checkout", "--force", bots_ref, "--", "bots/")
 

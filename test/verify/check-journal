@@ -293,8 +293,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ])
 
         # Check selecting of services
-        if m.image == "rhel-7-6-distropkg": # Introduced in #8347
+        if m.image == "rhel-7-6-distropkg": # Introduced in #8347 and #11675
             return
+
+        b.go("#/?start=previous-boot&tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "BEFORE BOOT", ""],
+                        "Load earlier entries"
+                        ])
 
         b.go("#/?start=boot&prio=6")
 

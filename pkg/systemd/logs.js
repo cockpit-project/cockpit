@@ -266,9 +266,17 @@ $(function() {
             reverse: true
         };
 
+        var last = null;
+        var count = 0;
+        var oldest = null;
+        var stopped = false;
+
         var all = false;
         if (start == 'boot') {
             options["boot"] = null;
+        } else if (start == 'previous-boot') {
+            options["boot"] = "-1";
+            last = 1; // Do not try to get newer logs
         } else if (start == 'last-24h') {
             options["since"] = "-1days";
         } else if (start == 'last-week') {
@@ -287,11 +295,6 @@ $(function() {
             clear_service_list();
             load_service_filters(tags_match, options);
         }
-
-        var last = null;
-        var count = 0;
-        var oldest = null;
-        var stopped = false;
 
         procs.push(journal.journalctl(match, options)
                 .fail(query_error)

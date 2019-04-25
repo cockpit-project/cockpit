@@ -283,6 +283,81 @@ h1 .onoff-ct {
     }
 }
 
+#add-zone-dialog .add-zone-zones {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: last baseline;
+    /* Compensate for bottom fieldset padding */
+    margin-bottom: -1rem;
+}
+
+#add-zone-dialog .add-zone-zones legend {
+    all: unset;
+    color: #72767b; /* pf-black-600 */
+    display: block;
+    font: inherit;
+    line-height: 26px;
+    /* Align with label padding */
+    padding-left: 0.5rem;
+}
+
+#add-zone-dialog .add-zone-zones > fieldset {
+    /* Compensate for label padding */
+    margin-left: -0.5rem;
+    /* Pad to the side & bottom, so zone groups have space between each other */
+    /* In an ideal world, we'd add `gap` in the parent, */
+    /* but only Firefox supports `gap` for `flex` thus far. */
+    padding: 0 2rem 1rem 0;
+}
+
+#add-zone-dialog .add-zone-zones label {
+    margin: 0;
+    flex-flow: column;
+    padding: 0 0.5rem;
+    text-transform: capitalize;
+}
+
+/* Move firewalld zones higher in z-index (so lines can go behind) */
+.add-zone-zones-firewalld input {
+    position: relative;
+    z-index: 2;
+}
+
+/* Add lines behind the radio buttons */
+.add-zone-zones-firewalld > label::after {
+    border-bottom: 1px solid #d1d1d1; /* pf-black-300 */
+    content: "";
+    position: absolute;
+    top: 1em;
+    right: 0;
+    left: 0;
+}
+
+/* Start line at the midpoint for the first radio */
+.add-zone-zones-firewalld > label:first-of-type::after {
+    left: 50%;
+}
+
+/* End line at the midpoint for the last radio */
+.add-zone-zones-firewalld > label:last-of-type::after {
+    right: 50%;
+}
+
 form.horizontal fieldset {
-  flex-direction: row;
+    flex-direction: row;
+}
+
+.add-zone-interfaces {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+    grid-gap: 0 0.5rem;
+    padding-bottom: 0.5rem;
+    /* 70px seems to be minimum UI padding width */
+    /* This is needed for iPhone SE sizes, but does not affect other sizes */
+    /* Needs !important to override specificity of "100%" */
+    max-width: calc(100vw - 70px) !important;
+}
+
+.add-zone-interfaces > label.radio {
+    margin: 0;
 }

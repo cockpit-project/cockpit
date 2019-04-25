@@ -709,6 +709,8 @@ Requires: libvirt-client
 Requires: libvirt-dbus >= 1.2.0
 # Optional components
 Recommends: virt-install
+Recommends: libosinfo
+Recommends: python3-gobject-base
 %endif
 
 %description -n cockpit-machines

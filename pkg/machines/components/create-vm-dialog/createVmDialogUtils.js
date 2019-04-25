@@ -21,7 +21,8 @@ import {
     getTodayYearShifted,
 } from "../../helpers.js";
 
-import cockpit from 'cockpit';
+import * as python from "python.js";
+import autoDetectOSScript from 'raw-loader!./autoDetectOS.py';
 
 export const OTHER_OS = "Other OS";
 export const OTHER_OS_SHORT_ID = "other-os";
@@ -38,20 +39,17 @@ const ACCEPT_RELEASE_DATES_AFTER = getTodayYearShifted(-3);
 const ACCEPT_EOL_DATES_AFTER = getTodayYearShifted(-1);
 
 /*
- * Uses libosinfo to autodetect an OS and distro from a URL - This currently works only for rpm based distros
+ * Uses libosinfo to autodetect an OS based on its media/treeinfo.
+ * treeinfo detection currently works only for rpm based distros.
  * @param {string} url - A URL pointing to the media or the tree.
  */
 export function autodetectOS(url) {
-    let urlType = 'tree';
-
-    if (url.endsWith('.iso'))
-        urlType = 'media';
-
     // HACK: osinfo-detect uses GIO to read the tree info file over http. cockpit-bridge used to unset GIO env variables
     // which blocked us from using GIO calls over cockpit-bridge.
     // Overwrite the env vars here, until commit https://github.com/cockpit-project/cockpit/commit/86c1fcb46291c83d6c6903e60fe4bee82598d3a9
     // exists in all supported distros.
-    return cockpit.spawn(['osinfo-detect', '--type', urlType, url], { environ: ['GIO_USE_VFS=gvfs', 'LC_ALL=en_US.UTF-8'], err: 'message' });
+    return python.spawn(autoDetectOSScript, url, { environ: ['GIO_USE_VFS=gvfs', 'LC_ALL=en_US.UTF-8'], err: 'message' })
+            .then(out => out.trim());
 }
 
 export function getOSStringRepresentation(os) {

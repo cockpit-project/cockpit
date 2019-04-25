@@ -76,6 +76,11 @@ class PackageCase(MachineCase):
             # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
+        elif self.image in ["ubuntu-stable"]:
+            # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
+            # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
+            # network stack; add a bogus default route to coerce it into being "online".
+            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
 
         self.updateInfo = {}
 

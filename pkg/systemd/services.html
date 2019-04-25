@@ -26,7 +26,7 @@
                 <th scope="col" class="service-unit-last">{{Last_Trigger_Time}}</th>
               {{/is_timer}}
               <th scope="col" class="service-unit-status {{#HasFailed}}service-unit-failed{{/HasFailed}}">{{Current_State}}</th>
-              <th scope="col" class="service-unit-data">{{Automatic_Startup}}</th>
+              <th scope="col" class="service-unit-data" id="service-automatic-startup-label">{{Automatic_Startup}}</th>
             </tr>
           </thead>
         {{/table_head}}
@@ -62,19 +62,13 @@
       <div class="filter-group">
         <button id="create-timer" data-toggle="#timer-dialog" data-target="#timer-dialog" class="btn btn-primary" translate>Create Timer</button>
         <input type="search" id="services-text-filter" class="form-control" aria-label="Filter" placeholder="Filter by name or description..." translate="placeholder"/>
-        <div class="dropdown" id="services-dropdown">
-          <button class="btn btn-default dropdown-toggle" type="button" id="service-type" data-toggle="dropdown">
-            <span id="current-service-type" class="pull-left" data-num=0 translatable="yes">All</span>
-            <span class="caret pull-right"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="service-type">
-            <li role="presentation"><a tabindex="0" role="menuitem" data-num=0 translatable="yes">All</a></li>
-            <li role="presentation" class="divider"></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-num=1 translatable="yes">Enabled</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-num=2 translatable="yes">Disabled</a></li>
-            <li role="presentation"><a tabindex="0" role="menuitem" data-num=3 translatable="yes">Static</a></li>
-          </ul>
-        </div>
+
+        <select class="ct-select" id="services-dropdown" aria-labelledby="service-automatic-startup-label">
+          <option value="0" data-value="All" translatable="yes" selected>All</option>
+          <option value="1" data-value="Enabled" translatable="yes">Enabled</option>
+          <option value="2" data-value="Disabled" translatable="yes">Disabled</option>
+          <option value="3" data-value="Static" translatable="yes">Static</option>
+        </select>
       </div>
     </div>
 

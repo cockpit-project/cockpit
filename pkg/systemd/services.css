@@ -30,6 +30,10 @@ table.systemd-unit-relationship-table td:first-child {
   justify-content: space-between;
 }
 
+#create-timer {
+  margin-right: 1.5rem;
+}
+
 @media screen and (max-width: 960px) {
     #services .content-header-extra {
         flex-direction: column-reverse;
@@ -62,8 +66,14 @@ table.systemd-unit-relationship-table td:first-child {
   border: initial;
 }
 
+#services .filter-group {
+  align-items: baseline;
+  display: flex;
+}
+
 #services-dropdown {
-  display: inline;
+  margin-left: 0.5rem;
+  width: 12em;
 }
 
 #service-type {
@@ -118,4 +128,5 @@ table.systemd-unit-relationship-table td:first-child {
 
 #services .nav-tabs {
     border-bottom: none;
+    flex: auto;
 }

@@ -280,9 +280,14 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries",
                         ])
 
+        n = ""
+        # In older version there was bug which showed messages two times
+        # Fixed in #11672
+        if m.image == "rhel-7-6-distropkg":
+            n = "2"
         b.click('#journal-load-earlier')
         wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", "2"],
+                        ["check-journal", "AFTER BOOT", n],
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])

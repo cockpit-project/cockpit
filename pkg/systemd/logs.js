@@ -290,7 +290,8 @@ $(function() {
 
         var last = null;
         var count = 0;
-        var stopped = null;
+        var oldest = null;
+        var stopped = false;
 
         procs.push(journal.journalctl(match, options)
                 .fail(query_error)
@@ -302,9 +303,10 @@ $(function() {
                     }
                     count += entries.length;
                     append_entries(entries);
+                    oldest = entries[entries.length - 1]["__CURSOR"];
                     if (count >= query_count) {
-                        stopped = entries[entries.length - 1]["__CURSOR"];
-                        didnt_reach_start(stopped);
+                        stopped = true;
+                        didnt_reach_start(oldest);
                         this.stop();
                     }
                 })
@@ -323,7 +325,7 @@ $(function() {
                                 }));
                     }
                     if (!all || stopped)
-                        didnt_reach_start();
+                        didnt_reach_start(oldest);
                 }));
 
         outer.stop = function stop() {

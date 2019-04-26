@@ -9,7 +9,7 @@ unset LANG
 export LC_ALL=C.utf8
 
 # keep this in sync with avocado/selenium image mapping in bots/tests-invoke
-if [ "$IMAGE" = fedora-29 ]; then
+if [ "$IMAGE" = fedora-30 ]; then
     AVOCADO=1
 fi
 
@@ -118,17 +118,14 @@ dnf $DNF_OPTS -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES $ABRT
 
 if [ -n "$AVOCADO" ]; then
 
-    # enable python3 avocado support repository (avocado upstream)
-    curl -f -o /etc/yum.repos.d/avocado.repo https://avocado-project.org/data/repos/avocado-fedora.repo
+    # enable python3 avocado support repository
+    dnf module install -y avocado:69lts
 
     dnf $DNF_OPTS -y install \
-        python2-avocado \
-        python2-avocado-plugins-output-html \
-        python2-libvirt \
         fontconfig \
         npm \
-        python2-selenium \
         chromium-headless \
+        python3-libvirt \
         python3-avocado \
         python3-avocado-plugins-output-html \
         python3-selenium

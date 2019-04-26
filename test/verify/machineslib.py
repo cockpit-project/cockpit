@@ -959,7 +959,8 @@ class TestMachines(NetworkCase):
         b.wait_present("div.terminal canvas.xterm-text-layer")
 
         # disconnecting the serial console closes the pty channel
-        self.allow_journal_messages("connection unexpectedly closed by peer")
+        self.allow_journal_messages("connection unexpectedly closed by peer",
+                                    ".*Connection reset by peer")
         self.allow_browser_errors("Disconnection timed out.")
 
     def testCreate(self):

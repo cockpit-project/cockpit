@@ -311,6 +311,10 @@ WantedBy=default.target
             with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
                 m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
 
+        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # so disable them for this test, we don't test PCP here
+        m.execute("systemctl disable --now pmie pmlogger || true")
+
         m.execute("timedatectl set-timezone UTC")
         m.execute("timedatectl set-ntp off")
         wait(lambda: "false" in m.execute(

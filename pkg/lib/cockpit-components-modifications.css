@@ -1,0 +1,32 @@
+.modifications-table {
+    border: solid 1px var(--color-light-gray);
+}
+
+.modifications-table .listing-ct-empty {
+    border-top: inherit;
+}
+
+.modification-row:not(:last-child){
+    border-bottom: 1px solid var(--color-gray-1);
+}
+
+.modification-row:last-child{
+    border-bottom: 1px solid var(--color-light-gray);
+}
+
+.modification-row td {
+    padding: 5px 10px;
+}
+
+.modifications-caption {
+    display: flex;
+    justify-content: space-between;
+}
+
+.modifications-caption a.modifications-export {
+    margin-top: 10px;
+}
+
+.automation-script-modal pre {
+    max-height: 20em;
+}

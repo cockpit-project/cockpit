@@ -33,6 +33,9 @@ var status = {
     enabled: undefined,
     enforcing: false,
     configEnforcing: false, // configured mode at boot time
+    shell: "",
+    modifications: null,
+    permitted: true,
 };
 
 /* initializes the selinux status updating, returns initial status
@@ -42,6 +45,9 @@ var status = {
  *                      cannot be changed without a reboot
  *   - enforcing:       boolean (current selinux mode of the system, false if permissive or selinux disabled)
  *   - configEnforcing: boolean (mode the system is configured to boot in, may differ from current mode)
+ *   - shell:           Output of `semanage export`
+ *   - modifications:   List of all local modifications in selinux policy
+ *   - permitted:       Set to false if user is not allowed to see local modifications
  * errorMessage:    optional, if getting the status failed, here will be additional info
  *
  * Since we're screenscraping we need to run this in LC_ALL=C mode
@@ -96,6 +102,67 @@ export function init(statusChangedCallback) {
         );
     };
 
+    function parseBoolean(result, item) {
+        // Example:
+        // authlogin_nsswitch_use_ldap (on , on) Allow authlogin to nsswitch use ldap
+        // Split by first ')', as the name cannot contain ')'
+        if (item)
+            result.push(item.split(")", 2)[1].trim());
+        return result;
+    }
+
+    function getModifications() {
+        // List of items we know how to parse
+        let manageditems_callbacks = [["boolean", parseBoolean]];
+        let manageditems = manageditems_callbacks.map(item => item[0]);
+
+        // Building a query to get information from semanage
+        // Use `semanage export` to show shell script (and parse types we yet don't parse explicitly)
+        // Use `semanage <type> --list -C` to get better readable and parsable local changes
+        // Use `echo '~~~~~'` as separator, so we don't need to execute multiple commands
+        let script = "semanage export";
+        manageditems.forEach(item => { script += " && echo '~~~~~' && semanage " + item + " --list -C --noheading" });
+        cockpit.script(script, [], { err: 'message', environ: [ "LC_MESSAGES=C" ], superuser: "try" })
+                .then(output => {
+                    output = output.split("~~~~~");
+                    status.shell = output[0];
+                    status.modifications = [];
+
+                    for (let i = 1; i < output.length; i++)
+                        status.modifications.push(...(output[i].trim().split("\n")
+                                .reduce(manageditems_callbacks[i - 1][1], [])));
+
+                    // As long as we don't parse all items, we need to get some from general export
+                    // Once we can parse all types, this can be dropped
+                    status.modifications.push(...(output[0].split("\n").reduce(function (result, mod) {
+                        mod = mod.trim();
+                        if (mod === "")
+                            return result;
+
+                        let items = mod.split(" ");
+
+                        // Skip enumeration of types, e.g. 'boolean -D'
+                        if (items.length === 2 && items[1] == "-D")
+                            return result;
+
+                        if (manageditems.indexOf(items[0]) < 0)
+                            result.push(mod);
+                        return result;
+                    }, [])));
+
+                    statusChangedCallback(status, undefined);
+                })
+                .catch(e => {
+                    if (e.message.indexOf("ValueError:") >= 0) {
+                        status.permitted = false;
+                        status.modifications = [];
+                        statusChangedCallback(status, undefined);
+                    } else {
+                        statusChangedCallback(status, e.message);
+                    }
+                });
+    }
+
     var polling = null;
 
     function setupPolling() {
@@ -105,6 +172,7 @@ export function init(statusChangedCallback) {
         } else if (polling === null) {
             polling = window.setInterval(refreshInfo, pollingInterval);
             refreshInfo();
+            getModifications();
         }
     }
 

@@ -23,6 +23,7 @@ import React from "react";
 
 import * as cockpitListing from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Modifications } from "cockpit-components-modifications.jsx";
 
 const _ = cockpit.gettext;
 
@@ -361,6 +362,7 @@ export class SETroubleshootPage extends React.Component {
         var self = this;
         var entries;
         var troubleshooting;
+        var modifications;
         var title = _("SELinux Access Control Errors");
         var emptyCaption = _("No SELinux alerts.");
         if (!this.props.connected) {
@@ -452,6 +454,15 @@ export class SETroubleshootPage extends React.Component {
             </cockpitListing.Listing>
         );
 
+        modifications = (
+            <Modifications
+                title={ _("System Modifications") }
+                permitted={ this.props.selinuxStatus.permitted }
+                shell={ this.props.selinuxStatus.shell }
+                entries={ this.props.selinuxStatus.modifications }
+            />
+        );
+
         var errorMessage;
         if (this.props.error) {
             errorMessage = (
@@ -475,6 +486,7 @@ export class SETroubleshootPage extends React.Component {
                 />
                 {errorMessage}
                 {troubleshooting}
+                {modifications}
             </div>
         );
     }

@@ -58,6 +58,10 @@ class TestJournal(MachineCase):
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
 
+        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # so disable them for this test, we don't test PCP here
+        m.execute("systemctl disable --now pmie pmlogger || true")
+
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {

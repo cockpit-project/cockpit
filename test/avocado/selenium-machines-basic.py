@@ -125,7 +125,6 @@ class MachinesBasicTestSuite(MachinesLib):
             self.create_vm_by_ui(
                 connection='session', name='test{}'.format(i), source=iso_source, mem_unit='M', storage_unit='M')
             self.vm_stop_list.append('test{}'.format(i))
-            self.wait_css('#vm-test{}-row'.format(i))
 
     def testCreateVMWithISO(self):
         name = 'test_iso'
@@ -133,7 +132,7 @@ class MachinesBasicTestSuite(MachinesLib):
 
         self.machine.execute('sudo touch {}'.format(iso))
 
-        self.create_vm_by_ui(connection='session', name=name, source=iso)
+        self.create_vm_by_ui(connection='session', name=name, source=iso, mem_unit='M', storage_unit='M')
         self.vm_stop_list.append(name)
 
     @skipIf(os.environ.get('URLSOURCE') is None, "Users should define an environment for url installation resource")

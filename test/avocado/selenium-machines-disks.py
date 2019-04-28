@@ -1,6 +1,8 @@
 import time
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
 from testlib_avocado.machineslib import MachinesLib
+from selenium.webdriver.support.select import Select
+
 
 
 class MachinesDisksTestSuite(MachinesLib):
@@ -12,12 +14,12 @@ class MachinesDisksTestSuite(MachinesLib):
     def prepare_disk(self):
         pool_a = 'apool{}'.format(str(time.time()).split('.')[0])
         pool_m = 'mypool{}'.format(str(time.time()).split('.')[0])
-        self.log.info(pool_a,type(pool_a))
-        self.log.info(pool_m,type(pool_m))
         self.machine.execute('sudo mkdir /home/{}'.format(pool_a))
-        self.machine.execute('sudo virsh pool-create-as {} --type dir --target /home/{}'.format(pool_a,pool_a))
+        self.machine.execute('sudo sudo setfacl -m u:qemu:rx /home/{}'.format(pool_a))
+        self.machine.execute('sudo virsh pool-create-as {} --type dir --target /home/{}'.format(pool_a, pool_a))
         self.machine.execute('sudo mkdir /home/{}'.format(pool_m))
-        self.machine.execute('sudo virsh pool-create-as {} --type dir --target /home/{}'.format(pool_m,pool_m))
+        self.machine.execute('sudo sudo setfacl -m u:qemu:rx /home/{}'.format(pool_m))
+        self.machine.execute('sudo virsh pool-create-as {} --type dir --target /home/{}'.format(pool_m, pool_m))
 
         self.storage_pool[pool_a] = []
         self.storage_pool[pool_m] = []
@@ -39,7 +41,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.wait_css('#vm-{}-disks-hda-device'.format(name), cond=text_in, text_='disk')
         self.wait_css('#vm-{}-disks-hda-bus'.format(name), cond=text_in, text_='ide')
-        self.wait_css('#vm-{}-disks-hda-source .machines-disks-source-value'.format(name), 
+        self.wait_css('#vm-{}-disks-hda-source .machines-disks-source-value'.format(name),
                        cond=text_in, text_='{}'.format(args.get('image')))
         self.wait_css('#vm-{}-disks-hda-used'.format(name), cond=text_in, text_='0.02')
         self.wait_css('#vm-{}-disks-hda-capacity'.format(name), cond=text_in, text_='0.04')
@@ -51,33 +53,33 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value(pool_name[0])
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'qcow2disk')
-        self.storage_pool[pool_name[0]].append('qcow2disk')
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
+        self.storage_pool[pool_name[0]].append('qcow2disk')
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value(pool_name[1])
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'raw2disk')
-        self.storage_pool[pool_name[0]].append('raw2disk')
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > ul > li:nth-child(2) > a'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat'.format(name))).select_by_value('raw')
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
+        self.storage_pool[pool_name[1]].append('raw2disk')
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vdb-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool'.format(name))).select_by_value(pool_name[0])
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vdc-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
-        self.click(self.wait_css('li[data-value="{}"] > a'.format(pool_name[1]), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool'.format(name))).select_by_value(pool_name[1])
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume'.format(name))).select_by_value('mypooldisk2')
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vdd-device'.format(name))
@@ -95,34 +97,34 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value(pool_name[1])
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'qcow2disk')
-        self.storage_pool[pool_name[0]].append('qcow2disk')
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-new-permanent'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
+        self.storage_pool[pool_name[1]].append('qcow2disk')
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value(pool_name[0])
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'raw2disk')
-        self.storage_pool[pool_name[0]].append('raw2disk')
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat > ul > li:nth-child(2) > a'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-diskfileformat'.format(name))).select_by_value('raw')
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
+        self.storage_pool[pool_name[0]].append('raw2disk')
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vdb-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool'.format(name))).select_by_value(pool_name[0])
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
         self.wait_dialog_disappear()
         self.wait_css('#vm-{}-disks-vdc-device'.format(name))
 
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-useexisting'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool button'.format(name), cond=clickable))
-        self.click(self.wait_css('li[data-value="{}"] > a'.format(pool_name[1]), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > button'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume > ul > li:nth-child(2) > a'.format(name), cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-pool'.format(name))).select_by_value(pool_name[1])
+        Select(self.wait_css('#vm-{}-disks-adddisk-existing-select-volume'.format(name))).select_by_value('mypooldisk2')
         self.check_box(self.wait_css('#vm-{}-disks-adddisk-existing-permanent'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name, cond=clickable)))
         self.wait_dialog_disappear()
@@ -146,11 +148,10 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name), cond=clickable))
-        self.click(self.wait_css('li[data-value="default"] > a', cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value('default')
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk_vm_on')
-        self.storage_pool['detachdisk_vm_on'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))
+        self.storage_pool['detachdisk_vm_on'] = 'disk'
         self.wait_css('#vm-{}-disks-vda-device'.format(name))
         self.click(self.wait_css('#vm-{}-disks-vda-detach'.format(name), cond=clickable))
         self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
@@ -168,8 +169,7 @@ class MachinesDisksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-disks'.format(name), cond=clickable))
         self.click(self.wait_css('#vm-{}-disks-adddisk'.format(name), cond=clickable))
-        self.click(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name), cond=clickable))
-        self.click(self.wait_css('li[data-value="default"] > a', cond=clickable))
+        Select(self.wait_css('#vm-{}-disks-adddisk-new-select-pool'.format(name))).select_by_value('default')
         self.send_keys(self.wait_css('#vm-{}-disks-adddisk-new-name'.format(name)), 'detachdisk_vm_off')
         self.storage_pool['detachdisk_vm_off'] = 'disk'
         self.click(self.wait_css('#vm-{}-disks-adddisk-dialog-add'.format(name), cond=clickable))

@@ -44,8 +44,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         cmd_total = int(
             self.machine.execute('virsh pool-list --all | wc -l')) - 3 + int(
             self.machine.execute('sudo virsh pool-list --all | wc -l')) - 3
-        self.assertEqual(cmd_total, page_active + page_inactive,
-                         "cmd's result is not the same with page's")
+        self.assertEqual(cmd_total, page_active + page_inactive)
         self.assertEqual(active, page_active)
         self.assertEqual(inactive, page_inactive)
         self.click(self.wait_css('#app > div > ol > li > a'))
@@ -57,8 +56,7 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         path = '/home/test{}'.format(str(time.time()).split('.')[0])
         self.machine.execute('sudo mkdir -p {}'.format(path))
 
-        pool_name = self.create_storage_by_ui(connection='session', name=name,
-                                              target_path=path)
+        pool_name = self.create_storage_by_ui(name=name, target_path=path)
 
         info = self.wait_css(
             'tr[data-row-id="' + pool_name + '"] > td:nth-child(4)').text.split(
@@ -66,14 +64,19 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         allocation_from_page = '%.2f' % float(info[0].strip())
         capacity_from_page = '%.2f' % float(info[1].split(' ')[1])
 
-        allocation_from_cmd = '%.2f' % float(
-            self.machine.execute(
-                'virsh pool-info {} | grep Allocation'.format(name)).split(' ')[
-                -2])
-        capacity_from_cmd = '%.2f' % float(
-            self.machine.execute(
-                'virsh pool-info {} | grep Capacity'.format(name)).split(' ')[
-                -2])
+        allocation_from_cmd = self.machine.execute(
+                'sudo virsh pool-info {} | grep Allocation'.format(name)).split(' ')
+        capacity_from_cmd = self.machine.execute(
+                'sudo virsh pool-info {} | grep Capacity'.format(name)).split(' ')
+
+        if allocation_from_cmd[-1].strip() == 'MiB':
+            allocation_from_cmd = '%.2f' % (float(allocation_from_cmd[-2]) / 1024)
+        else:
+            allocation_from_cmd = '%.2f' % float(allocation_from_cmd[-2])
+        if capacity_from_cmd[-1].strip() == 'MiB':
+            capacity_from_cmd = '%.2f' % (float(capacity_from_cmd[-2]) / 1024)
+        else:
+            capacity_from_cmd = '%.2f' % float(capacity_from_cmd[-2])
 
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)
@@ -95,14 +98,19 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         allocation_from_page = '%.2f' % float(info[0].strip())
         capacity_from_page = '%.2f' % float(info[1].split(' ')[1])
 
-        allocation_from_cmd = '%.2f' % float(
-            self.machine.execute(
-                'sudo virsh pool-info {} | grep Allocation'.format(name)).split(
-                ' ')[-2])
-        capacity_from_cmd = '%.2f' % float(
-            self.machine.execute(
-                'sudo virsh pool-info {} | grep Capacity'.format(name)).split(
-                ' ')[-2])
+        allocation_from_cmd = self.machine.execute(
+                'sudo virsh pool-info {} | grep Allocation'.format(name)).split(' ')
+        capacity_from_cmd = self.machine.execute(
+                'sudo virsh pool-info {} | grep Capacity'.format(name)).split(' ')
+
+        if allocation_from_cmd[-1].strip() == 'MiB':
+            allocation_from_cmd = '%.2f' % (float(allocation_from_cmd[-2]) / 1024)
+        else:
+            allocation_from_cmd = '%.2f' % float(allocation_from_cmd[-2])
+        if capacity_from_cmd[-1].strip() == 'MiB':
+            capacity_from_cmd = '%.2f' % (float(capacity_from_cmd[-2]) / 1024)
+        else:
+            capacity_from_cmd = '%.2f' % float(capacity_from_cmd[-2])
 
         self.assertEqual(allocation_from_page, allocation_from_cmd)
         self.assertEqual(capacity_from_page, capacity_from_cmd)

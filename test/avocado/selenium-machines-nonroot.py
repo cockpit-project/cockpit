@@ -14,16 +14,14 @@ class MachinesNonrootTestSuite(MachinesLib):
         log_file = vm_args.get('logfile')
 
         if log_file and name and 'vnc' in vm_args.get('graphics'):
-            self.machine.execute('sudo sh -c "echo > {}"'.format(log_file))
             self.click(self.wait_css('#console-send-shortcut', cond=clickable))
             self.click(self.wait_css('.vnc-console a[role="menuitem"]', cond=clickable))
-            wait(lambda: "Sent SIGTERM to all processes" in self.machine.execute("sudo cat {}".format(log_file)),
+            wait(lambda: self.machine.execute("sudo cat {} | grep 'Sent SIGTERM to all processes' | wc -l".format(log_file)).strip() == '1',
                  delay=3)
             self.wait_vm_complete_start(vm_args)
 
-            self.machine.execute('sudo sh -c "echo > {}"'.format(log_file))
             self.click(self.wait_css('#vm-{}-reboot'.format(name), cond=clickable))
-            wait(lambda: "Sent SIGTERM to all processes" in self.machine.execute("sudo cat {}".format(log_file)),
+            wait(lambda: self.machine.execute("sudo cat {} | grep 'Sent SIGTERM to all processes' | wc -l".format(log_file)).strip() == '1',
                  delay=3)
             self.wait_vm_complete_start(vm_args)
 

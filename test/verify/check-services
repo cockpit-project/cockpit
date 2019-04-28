@@ -150,7 +150,6 @@ Unit=test.service
         b.click('#services-filter :nth-child(2)')
         b.wait_present(svc_sel('test.service'))
         b.click(svc_sel("test.service"))
-        b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
         b.wait_action_btn(unit_primary_action_btn, "Start")
         b.wait_action_btn(unit_action_btn, "Restart")
@@ -182,7 +181,6 @@ Unit=test.service
         b.wait_in_text("#services", "test-fail.service")
         b.wait_visible(svc_sel("test-fail.service"))
         b.click(svc_sel("test-fail.service"))
-        b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
         b.wait_action_btn(unit_primary_action_btn, "Start")
         b.click_action_btn(unit_primary_action_btn)
@@ -255,7 +253,6 @@ Unit=test.service
         b.wait_visible("#empty-search")
 
         # Check resetting filter
-        b.wait_visible("#clear-all-filters")
         b.click("#clear-all-filters")
         wait_service_present("test.service")
         wait_service_present("test-fail.service")
@@ -611,7 +608,6 @@ WantedBy=multi-user.target
         b.click('#services-filter :nth-child(2)')
         b.wait_present(svc_sel('condtest.service'))
         b.click(svc_sel("condtest.service"))
-        b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
         b.wait_action_btn(unit_primary_action_btn, "Start")
         b.click_action_btn(unit_primary_action_btn)
@@ -621,7 +617,6 @@ WantedBy=multi-user.target
         # If the condition succeeds the message disappears
         m.execute("touch /var/tmp/empty/non-empty")
 
-        b.wait_visible('#service-valid')
         b.wait_in_text('#service-valid', "inactive")
         b.wait_action_btn(unit_primary_action_btn, "Start")
         b.click_action_btn(unit_primary_action_btn)

@@ -72,7 +72,6 @@ class TestStorage(StorageCase):
         # Set initiator IQN
         #
         orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-        b.wait_visible('#edit-iscsi')
         b.click('#edit-iscsi')
         self.dialog(expect={"name": orig_iqn},
                     values={"name": initiator_iqn})
@@ -81,7 +80,6 @@ class TestStorage(StorageCase):
 
         # Access the target
 
-        b.wait_visible('#add-iscsi-portal')
         b.click('#add-iscsi-portal')
 
         self.dialog_wait_open()

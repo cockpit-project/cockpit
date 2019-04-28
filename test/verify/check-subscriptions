@@ -126,7 +126,6 @@ class TestSubscriptions(MachineCase):
 
         # wait until we can open the registration dialog
         register_button_sel = "button.btn-primary:contains('Register')"
-        b.wait_visible(register_button_sel)
         b.click(register_button_sel)
 
         b.wait_visible("#subscription-register-url")
@@ -136,14 +135,12 @@ class TestSubscriptions(MachineCase):
             b.click("#subscription-register-url button")
             b.wait_visible("#subscription-register-url .dropdown-menu")
             custom_url_selector = "#subscription-register-url a:contains('Custom')"
-            b.wait_visible(custom_url_selector)
             b.click(custom_url_selector)
             b.wait_not_present("#subscription-register-url.open")
         else:
             b.set_val("#subscription-register-url", "custom")
 
         # enter server and incorrect login data
-        b.wait_visible("#subscription-register-url-custom")
         b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
         b.set_input_text("#subscription-register-username", "doc")
         b.set_input_text("#subscription-register-password", "wrongpass")
@@ -209,12 +206,10 @@ class TestSubscriptions(MachineCase):
 
         # unregister
         unregister_button_sel = "button.btn-primary:contains('Unregister')"
-        b.wait_visible(unregister_button_sel)
         b.click(unregister_button_sel)
 
         # wait until we can register again and open the dialog
         # wait until we can open the registration dialog
-        b.wait_visible(register_button_sel)
         b.click(register_button_sel)
 
         b.wait_visible("#subscription-register-url")
@@ -224,14 +219,12 @@ class TestSubscriptions(MachineCase):
             b.click("#subscription-register-url button")
             b.wait_visible("#subscription-register-url .dropdown-menu")
             custom_url_selector = "#subscription-register-url a:contains('Custom')"
-            b.wait_visible(custom_url_selector)
             b.click(custom_url_selector)
             b.wait_not_present("#subscription-register-url.open")
         else:
             b.set_val("#subscription-register-url", "custom")
 
         # enter server data
-        b.wait_visible("#subscription-register-url-custom")
         b.set_input_text("#subscription-register-url-custom", "10.111.113.5:8443/candlepin")
 
         # make sure we have an activation key on the target machine

@@ -40,7 +40,6 @@ class TestAccounts(MachineCase):
 
         # Set a real name
         b.go("#/anton")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
         b.set_val('#account-real-name', "Anton Arbitrary")
@@ -74,7 +73,6 @@ class TestAccounts(MachineCase):
 
         # Check root user
         b.go("#/root")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "root")
         # some operations are not allowed for root user
         b.wait_present("#account-delete.disabled")
@@ -101,7 +99,6 @@ class TestAccounts(MachineCase):
         # wrong password confirmation
         b.set_val('#accounts-create-pw2', good_password + 'b')
         b.click('#accounts-create-create')
-        b.wait_visible("#accounts-create-dialog .dialog-error")
         b.wait_in_text("#accounts-create-dialog .dialog-error.help-block", "The passwords do not match")
 
         # correct password confirmation
@@ -145,7 +142,6 @@ class TestAccounts(MachineCase):
 
         # Unlock it and make it an admin
         b.go("#/jussi")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
         b.wait_present('#account-locked:not([disabled])')
         b.set_checked('#account-locked', False)
@@ -163,7 +159,6 @@ class TestAccounts(MachineCase):
 
         # Change the password of this account
         b.go("#/jussi")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "jussi")
         b.wait_present('#account-set-password:not([disabled])')
         b.click('#account-set-password')
@@ -305,7 +300,6 @@ class TestAccounts(MachineCase):
 
         self.login_and_go("/users")
         b.go("#/scruffy")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "scruffy")
 
         # Try to expire the account
@@ -377,7 +371,6 @@ class TestAccounts(MachineCase):
         self.allow_authorize_journal_messages()
         self.login_and_go("/users", user="scruffy")
         b.go("#/scruffy")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "scruffy")
         b.wait_text("#account-expiration-button", "Never lock account")
         b.wait_present("#account-expiration-button.disabled")
@@ -388,7 +381,6 @@ class TestAccounts(MachineCase):
         b.logout()
         self.login_and_go("/users")
         b.go("#/scruffy")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "scruffy")
         b.click("#password-reset-button")
         b.wait_popup("password-reset")

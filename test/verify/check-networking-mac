@@ -41,7 +41,6 @@ class TestNetworking(NetworkCase):
         mac = m.execute("cat /sys/class/net/%s/address" % iface).strip()
 
         b.click("#networking-interfaces tr[data-interface='%s']" % iface)
-        b.wait_visible("#network-interface")
         b.wait_text("#network-interface-mac", mac.upper())
 
         if self.networkmanager_version >= [1, 4, 0]:

@@ -190,7 +190,6 @@ class TestUpdates(PackageCase):
         self.assertFalse(b.is_present("#update-log"))
         # expand it
         b.click(".expander-title span")
-        b.wait_visible("#update-log")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
@@ -399,7 +398,6 @@ class TestUpdates(PackageCase):
         # do the reboot; this will disconnect the web UI
         b.click("#app .container-fluid button.btn-primary")
         b.switch_to_top()
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         # ensure that rebooting actually worked

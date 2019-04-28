@@ -123,12 +123,10 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
 
         # Right click and pick copy
         b.mouse(sel, "contextmenu", btn=2)
-        b.wait_visible('.contextMenu')
         b.click('.contextMenu .contextMenuOption:first-child')
 
         # Right click and pick paste
         b.mouse(sel, "contextmenu", btn=2)
-        b.wait_visible('.contextMenu')
         b.click('.contextMenu .contextMenuOption:nth-child(2)')
 
         # Wait for text to show up

@@ -45,7 +45,6 @@ class TestFirewall(MachineCase):
         m.execute("systemctl stop firewalld")
 
         self.login_and_go("/network")
-        b.wait_visible("#networking-firewall")
         b.wait_in_text("#networking-firewall-switch label.active", "Off")
 
         # to toggle the switch, click on the non-active label, where the slider is

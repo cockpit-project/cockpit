@@ -46,7 +46,6 @@ class TestNetworking(NetworkCase):
 
         # Disconnect
         b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
-        b.wait_visible("#confirm-breaking-change-popup")
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
         if m.image not in ["debian-testing", "debian-stable", "ubuntu-1804", "ubuntu-stable"]:
@@ -58,7 +57,6 @@ class TestNetworking(NetworkCase):
             b.set_val('#network-ip-settings-dialog input[placeholder="Address"]', "1.2.3.4")
             b.set_val('#network-ip-settings-dialog input[placeholder*="Netmask"]', "24")
             b.click("#network-ip-settings-dialog button:contains('Apply')")
-            b.wait_visible("#confirm-breaking-change-popup")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
     @skipImage("Main interface settings are read-only", "debian-stable",
@@ -124,7 +122,6 @@ class TestNetworking(NetworkCase):
         # Disconnect and trigger a slow rollback
         b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
         with b.wait_timeout(120):
-            b.wait_visible("#confirm-breaking-change-popup")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
 if __name__ == '__main__':

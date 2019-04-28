@@ -161,7 +161,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -221,7 +220,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         b.wait_not_present("vm-subVmTest1-disks-vdb-target")
@@ -285,7 +283,6 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Shut off domain and check changes are applied
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
         b.wait_in_text("#vm-subVmTest1-network-1-model", "e1000e")
@@ -507,7 +504,6 @@ class TestMachinesDBus(machineslib.TestMachines):
         # disks later
         b.click("tbody tr th") # click on the row header
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 

@@ -195,7 +195,6 @@ class TestOVirtMachines(MachineCase):
 
         # force shutdown and wait till VM list is empty
         b.click("#vm-VM-off-caret")
-        b.wait_visible("#vm-VM-forceOff")
         b.click("#vm-VM-forceOff")
         b.wait_in_text("thead tr td", "No VM is running")
 
@@ -211,7 +210,6 @@ class TestOVirtMachines(MachineCase):
             b.wait_in_text("tr.listing-ct-item > td:nth-child(12)", "shut off") # state
 
         b.click("button.dropdown-toggle") # caret for 'Run|Run Here'
-        b.wait_visible("a:contains('Run Here')")
         b.click("a:contains('Run Here')") # start the VM on this host
         with b.wait_timeout(180):
             b.wait_in_text("tr.listing-ct-item > td:nth-child(10)", "host") # Host of name 'host'
@@ -320,7 +318,6 @@ class TestOVirtMachines(MachineCase):
         b.wait_in_text("#vm-VM-state", "running")
 
         b.click("#vm-VM-off-caret")
-        b.wait_visible("#vm-VM-forceOff")
         b.click("#vm-VM-forceOff")
         b.wait_in_text("thead tr td", "No VM is running")
 
@@ -349,7 +346,6 @@ class TestOVirtMachines(MachineCase):
         b.wait_not_present("#cockpit_modal_dialog")
 
         # Check changes
-        b.wait_visible("#cluster-VM-cpus")
         b.wait_in_text("#cluster-VM-cpus", "4")
 
 

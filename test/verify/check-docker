@@ -58,12 +58,10 @@ class TestDocker(MachineCase):
         with b.wait_timeout(20):
             try:
                 self.confirm()
-                b.wait_visible("#containers")
                 b.wait_not_in_text("#containers-containers", container_name)
             except Error:
                 # we may have to confirm again for forced deletion
                 self.confirm()
-                b.wait_visible("#containers")
                 b.wait_not_in_text("#containers-containers", container_name)
 
     def wait_for_message(self, message):
@@ -84,7 +82,6 @@ class TestDocker(MachineCase):
         message = "HelloMessage."
 
         # show all containers to interact with stopped ones
-        b.wait_visible("#containers-containers")
         b.wait_in_text("#containers-containers-filter", "Images and running containers")
         b.set_val("#containers-containers-filter", "all")
         b.wait_in_text("#containers-containers-filter", "Everything")
@@ -133,14 +130,12 @@ class TestDocker(MachineCase):
         b.click("#link-containers")
         b.wait_visible("#select-linked-containers:parent")
         b.click("#select-linked-containers form:last-child .link-container button")
-        b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias1")
         b.click("#select-linked-containers form:last-child  button.fa-plus")
         # new line should be the second group
         b.wait_present("#select-linked-containers .form-group:eq(1)")
         b.click("#select-linked-containers form:last-child .link-container button")
-        b.wait_visible("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.click("#select-linked-containers form:last-child .link-container a[value='PROBE1']")
         b.set_val("#select-linked-containers form:last-child  input[name='alias']", "alias2")
         b.click("#containers-run-image-run")
@@ -148,9 +143,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Wait for PROBE2 to Exit
-        b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.wait_visible("#container-details")
         b.wait_in_text("#container-details-state", "Exited")
 
         # Check links
@@ -163,7 +156,6 @@ class TestDocker(MachineCase):
         b.wait_visible("#containers-containers")
         b.wait_in_text('#containers-containers', "PROBE2")
         b.click('#containers-containers tbody tr:contains("PROBE2") td.listing-ct-toggle')
-        b.wait_visible('#containers-containers tbody tr:contains("PROBE2") + tr button.btn-delete')
         b.click('#containers-containers tbody tr:contains("PROBE2") + tr button.btn-delete')
         with b.wait_timeout(20):
             try:
@@ -182,7 +174,6 @@ class TestDocker(MachineCase):
         b.wait_in_text("#container-details-state", "Exited")
 
         # Make sure after restart we only have one
-        b.wait_visible("#container-details-start")
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".console-ct pre", 1)
@@ -191,9 +182,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#container-details-state", "Exited")
 
         # Delete the container from the image-details page
-        b.wait_visible("#container-details")
         b.click("#container-details .content-filter a")
-        b.wait_visible('#containers-images tr:contains("busybox:latest")')
         b.click('#containers-images tr:contains("busybox:latest")')
         b.wait_visible("#image-details")
         b.wait_present(".image-details-used")
@@ -216,9 +205,7 @@ class TestDocker(MachineCase):
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Deleting an image without depending containers has no container list
-        b.wait_visible('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
         b.click('#containers-images tr:contains("busybox:latest") td.listing-ct-toggle')
-        b.wait_visible('#containers-images tr:contains("busybox:latest") + tr .btn-delete')
         b.click('#containers-images tr:contains("busybox:latest") + tr .btn-delete')
         b.wait_popup('delete-image-confirmation-dialog')
         self.assertFalse(b.is_visible('#delete-image-confirmation-dialog-containers'))
@@ -244,7 +231,6 @@ class TestDocker(MachineCase):
 
         # Delete image itself without deleting depending containers
         b.click('#containers-images tr:contains("busybox:latest")')
-        b.wait_visible('#image-details-delete')
         b.click('#image-details-delete')
         b.wait_popup('delete-image-confirmation-dialog')
         b.wait_visible('#delete-image-confirmation-dialog-containers')
@@ -285,7 +271,6 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         m.execute("rm -rf /var/tmp/container-probe")
 
         # Wait for it to appear
-        b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", image_name)
 
         nport = port + 1
@@ -318,9 +303,7 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-containers", "PROBE2")
 
         # Check output of the probe
-        b.wait_visible('#containers-containers tr:contains("PROBE2")')
         b.click('#containers-containers tr:contains("PROBE2")')
-        b.wait_visible("#container-details")
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (port, port))
         b.wait_in_text("#container-details-ports", ":%d -> %d/tcp" % (nport, nport))
         b.wait_in_text("#container-details-volumes", "/mnt:/blah")
@@ -351,7 +334,6 @@ CMD ["/listen-on-port.sh", "%(port)d", "%(message)s"]
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Select to view all running containers
-        b.wait_visible("#containers-containers-filter")
         b.set_val("#containers-containers-filter", "all")
 
         # Create an updated image, add environment variable
@@ -366,7 +348,6 @@ CMD ["/bin/sh"]
         m.execute("rm -rf /var/tmp/container-probe")
 
         # Wait for it to appear
-        b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", image_name)
 
         # Run it and add another environment variable via the ui
@@ -395,7 +376,6 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-containers", "PROBE4")
 
         # Check output of the probe
-        b.wait_visible('#containers-containers tr:contains("PROBE4")')
         b.click('#containers-containers tr:contains("PROBE4")')
         b.wait_visible("#container-details")
 
@@ -443,7 +423,6 @@ CMD ["/bin/sh"]
         self.login_and_go("/docker", authorized=False)
 
         # We can not become root, so we can't access docker.
-        b.wait_visible("#curtain")
         b.wait_text("#curtain h1", "Not authorized to access Docker on this system")
         b.wait_visible("#curtain button[data-action='docker-connect']")
 
@@ -454,7 +433,6 @@ CMD ["/bin/sh"]
         self.allow_restart_journal_messages()
 
         # Now we can become root and start docker
-        b.wait_visible("#curtain")
         b.wait_text("#curtain h1", "Docker is not installed or activated on the system")
         b.click("#curtain button[data-action='docker-start']")
         with b.wait_timeout(120):
@@ -524,7 +502,6 @@ CMD ["/bin/sh"]
         m.execute("systemctl start docker || systemctl start docker-latest")
 
         self.login_and_go("/docker")
-        b.wait_visible("#containers-images")
         b.wait_in_text("#containers-images", "busybox:latest")
 
         # Run one container without restarting
@@ -544,9 +521,7 @@ CMD ["/bin/sh"]
         b.wait_in_text("#containers-containers", "RESOURCE")
 
         # Check output of PROBE1
-        b.wait_visible('#containers-containers tr:contains("RESOURCE")')
         b.click('#containers-containers tr:contains("RESOURCE")')
-        b.wait_visible("#container-details")
         b.wait_in_text("#container-details-memory-row", "/ 236 MiB")
         b.wait_in_text("#container-details-cpu-row", "512 shares")
 
@@ -597,17 +572,14 @@ CMD ["/bin/sh"]
         self.login_and_go("/docker")
 
         sel = "#containers-containers .listing-ct-item .listing-ct-toggle"
-        b.wait_visible(sel)
         b.click(sel)
 
         # wait for the Problems tab then click it
         sel = '#containers-containers .listing-ct-panel .listing-ct-head ul li a:contains("Problems")'
-        b.wait_visible(sel)
         b.click(sel)
 
         # open link to logs
         sel = "#containers-containers .listing-ct-panel .listing-ct-body a.list-group-item"
-        b.wait_visible(sel)
         b.wait_in_text(sel, "sleep")
         b.click(sel + ':contains("sleep")')
 
@@ -704,7 +676,6 @@ class TestAtomicScan(MachineCase):
         # Collapse the tab and click through to the image
         b.click(row_selector + ' td.listing-ct-toggle')
         b.click(row_selector + ' th')
-        b.wait_visible("#image-details")
         b.wait_in_text("#image-details", "Security")
         b.wait_in_text("#image-details", "Verify and Correct File Permissions with RPM")
 

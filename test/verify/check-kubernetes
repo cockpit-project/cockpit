@@ -57,7 +57,6 @@ class TestConnection(kubelib.KubernetesCase):
 
         # Connect without starting a kube server
         self.login_and_go("/kubernetes")
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct", "Couldn't connect to server")
         b.wait_in_text(".curtains-ct", "Couldn't find running API server")
         self.assertIn("Reconnect", b.text("#kubernetes-reconnect"))

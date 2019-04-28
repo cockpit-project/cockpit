@@ -360,7 +360,6 @@ OnCalendar=daily
 
         # Log out and check that login page is translated now
         b.logout()
-        b.wait_visible('#password-group')
         b.wait_text('#password-group > label', 'Senha')
 
     def testFrameReload(self):
@@ -417,7 +416,6 @@ OnCalendar=daily
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         time.sleep(1)
         b.key_press([" ", "\b"])
-        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='directory']", "dir1/")
         # no other items; b.text() removes newlines
@@ -430,7 +428,6 @@ OnCalendar=daily
         b.focus(".file-autocomplete-ct input")
         time.sleep(1)
         b.key_press([" ", "\b"])
-        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         # this should still be unique
         b.wait_text(".file-autocomplete-ct .dropdown-menu a[data-type='file']", "file1.txt")
         # no other items
@@ -447,7 +444,6 @@ OnCalendar=daily
         b.key_press("/")
         time.sleep(1)
         b.key_press(" ")
-        b.wait_visible(".file-autocomplete-ct .dropdown-menu")
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
 
     @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")

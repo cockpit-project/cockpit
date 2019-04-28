@@ -348,7 +348,6 @@ LABEL io.projectatomic.nulecule.atomicappversion="0.1.11" \
         m.execute("chown -R admin:admin /home/admin/.kube")
         self.login_and_go("/kubernetes")
 
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct", "Couldn't connect to server")
         b.wait_in_text(".curtains-ct", "Unauthorized")
         b.wait_present(".curtains-ct #kubernetes-reconnect")

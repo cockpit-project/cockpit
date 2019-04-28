@@ -161,7 +161,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.set_val("#login-custom-user", "user")
         self.assertEqual(b.text("#login-type button span"), "Using available credentials")
         b.wait_not_present("#login-type li[value=password] a")
-        b.wait_visible("#login-available")
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "id_rsa")
 
@@ -222,7 +221,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.go("/dashboard")
         b.enter_page("/dashboard")
         b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.2'] button.pficon-edit")
         b.wait_popup('host-edit-dialog')
         b.wait_visible('#host-edit-user')

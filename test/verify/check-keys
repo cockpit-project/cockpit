@@ -52,7 +52,6 @@ class TestKeys(MachineCase):
             b.wait_text('#content-user-name', user_name)
 
             b.click('#navbar-dropdown')
-            b.wait_visible('#go-account')
             b.click('#go-account')
             b.enter_page("/users")
             b.wait_text("#account-user-name", user)
@@ -93,7 +92,6 @@ class TestKeys(MachineCase):
 
         # Try see admin
         b.go("#/admin")
-        b.wait_visible("#account")
         b.wait_text("#account-user-name", "admin")
 
         # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
@@ -304,7 +302,6 @@ class TestKeys(MachineCase):
         b.wait_visible("tr.load-custom-key")
         b.wait_visible("tr.load-custom-key button")
         b.wait_visible("#ssh-file-container")
-        b.wait_visible("#ssh-file-container input")
         b.set_val("#ssh-file-container input", "/bad")
         b.click("tr.load-custom-key button")
         b.wait_text("tr.load-custom-key div.dialog-error", "Not a valid private key")
@@ -354,7 +351,6 @@ class TestKeys(MachineCase):
             b.click("#credential-keys a")
             b.wait_visible("tr.load-custom-key")
             b.wait_visible("tr.load-custom-key button")
-            b.wait_visible("#ssh-file-container input")
             b.set_val("#ssh-file-container input", "/bad")
             b.click("tr.load-custom-key button")
 

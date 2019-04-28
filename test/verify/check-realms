@@ -207,7 +207,6 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.wait_visible("#realms-op-info-domain")
             b.wait_text("#realms-op-info-domain", "cockpit.lan")
             b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
             b.wait_text("#realms-op-info-server-sw", "ipa")
@@ -220,7 +219,6 @@ class TestRealms(MachineCase):
             b.wait_visible("button.realms-op-leave")
             b.click(".realms-op-leave")
         else:
-            b.wait_visible(".realms-op-leave-only-row")
             b.wait_in_text(".realms-op-leave-only-row", "cockpit.lan")
             b.click(".realms-op-apply")
 
@@ -309,7 +307,6 @@ class TestRealms(MachineCase):
         if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.click("#system-info-domain a")
             b.wait_popup("realms-op")
-            b.wait_visible("#realms-op-info-domain")
             b.wait_text("#realms-op-info-domain", "cockpit.lan")
             b.wait_text("#realms-op-info-login-format", "username")  # no @domain
             b.wait_text("#realms-op-info-server-sw", "ipa")
@@ -336,7 +333,6 @@ class TestRealms(MachineCase):
         b.click("a:contains('No Delay')")
         b.click("#shutdown-dialog .btn-danger")
         b.switch_to_top()
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         m.wait_reboot()
 
@@ -517,7 +513,6 @@ class TestKerberos(MachineCase):
         self.assertNotIn("admin", m.execute("ps -xa | grep sshd"))
         b.switch_to_top()
         b.go("/@x0.cockpit.lan/system/terminal")
-        b.wait_visible("#machine-troubleshoot")
         b.click("#machine-troubleshoot")
         b.wait_popup('troubleshoot-dialog')
 
@@ -535,7 +530,6 @@ class TestKerberos(MachineCase):
         b.click("#login-type li[value=stored] a")
         b.wait_in_text("#login-type button span", "Using available credentials")
         b.wait_not_visible("#login-diff-password")
-        b.wait_visible("#login-available")
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_in_text("#login-available", "Kerberos Ticket")
         b.wait_not_present("#login-available .empty")

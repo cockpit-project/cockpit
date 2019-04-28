@@ -318,7 +318,6 @@ class TestMachines(NetworkCase):
 
         # Send Non-Maskable Interrupt (no change in VM state is expected)
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-sendNMI")
         b.click("#vm-subVmTest1-sendNMI")
         b.wait_not_visible("#vm-subVmTest1-sendNMI")
 
@@ -327,7 +326,6 @@ class TestMachines(NetworkCase):
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -361,12 +359,10 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th", "subVmTest2")
         b.click("#virtual-machines-listing .listing-ct tbody:nth-of-type(2) th") # click on the row header
         b.click("#vm-subVmTest2-off-caret")
-        b.wait_visible("#vm-subVmTest2-forceOff")
         b.click("#vm-subVmTest2-forceOff")
         b.wait_in_text("#vm-subVmTest2-state", "shut off")
 
         # test VM error messages
-        b.wait_visible("#vm-subVmTest2-run")
         b.click("#vm-subVmTest2-run")
         b.click("#vm-subVmTest2-run") # make use of slow processing - the button is still present; will cause error
         # triangle by status
@@ -556,7 +552,6 @@ class TestMachines(NetworkCase):
         m.execute("virsh detach-disk subVmTest1 vdc")
         print("Restarting vm-subVmTest1, might take a while")
         b.click("#vm-subVmTest1-reboot-caret")
-        b.wait_visible("#vm-subVmTest1-forceReboot")
         b.click("#vm-subVmTest1-forceReboot")
 
         b.wait_not_present("#vm-subVmTest1-disks-vdc-device")
@@ -691,7 +686,6 @@ class TestMachines(NetworkCase):
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
@@ -768,12 +762,10 @@ class TestMachines(NetworkCase):
 
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # Check changes
-        b.wait_visible("#vm-subVmTest1-vcpus-count")
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
         # Check after boot
@@ -782,7 +774,6 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         # Check VCPU count
-        b.wait_visible("#vm-subVmTest1-vcpus-count")
         b.wait_in_text("#vm-subVmTest1-vcpus-count", "3")
 
         # Open dialog window
@@ -803,7 +794,6 @@ class TestMachines(NetworkCase):
 
         # Shut off VM
         b.click("#vm-subVmTest1-off-caret")
-        b.wait_visible("#vm-subVmTest1-forceOff")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 

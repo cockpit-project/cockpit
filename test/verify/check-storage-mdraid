@@ -82,7 +82,6 @@ class TestStorage(StorageCase):
                     if not ex.msg.startswith('timeout'):
                         raise
                     self.browser.wait_present(".modal-dialog")
-                    self.browser.wait_visible(".modal-dialog")
                     self.browser.wait_in_text(".modal-dialog", "Error stopping RAID array /dev/md127")
                     self.browser.click(".modal-dialog div.modal-footer button.btn-default")
                     self.browser.wait_not_present(".modal-dialog")

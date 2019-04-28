@@ -58,7 +58,6 @@ class TestConnection(MachineCase):
         # take cockpit-ws down on the server page
         m.stop_cockpit()
         b.switch_to_top()
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.start_cockpit()
@@ -108,7 +107,6 @@ class TestConnection(MachineCase):
             # damage cockpit-session permissions (Fedora-ish and Debian-ish path), expect generic error message
             m.execute("chmod g-x /usr/libexec/cockpit-session 2>/dev/null || chmod g-x /usr/lib/cockpit/cockpit-session")
             b.open("/system")
-            b.wait_visible('#login-fatal-message')
             b.wait_in_text('#login-fatal-message', "Internal error in login process")
             m.execute("chmod g+x /usr/libexec/cockpit-session 2>/dev/null || chmod g+x /usr/lib/cockpit/cockpit-session")
 

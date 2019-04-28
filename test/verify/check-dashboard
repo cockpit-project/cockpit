@@ -175,12 +175,10 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.enter_page("/dashboard")
 
         b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
 
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
 
         b.wait_popup('host-edit-dialog')
-        b.wait_visible('#host-edit-user')
         b.set_val('#host-edit-user', 'bad-user')
 
         b.click('#host-edit-apply')
@@ -189,10 +187,8 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
         b.wait_present("#dashboard-hosts .failed[data-address='10.111.113.3']")
 
         b.click('#dashboard-enable-edit')
-        b.wait_visible("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
         b.click("#dashboard-hosts .list-group-item[data-address='10.111.113.3'] button.pficon-edit")
         b.wait_popup('host-edit-dialog')
-        b.wait_visible('#host-edit-user')
         b.set_val('#host-edit-user', '')
         b.click('#host-edit-apply')
         b.wait_popdown('host-edit-dialog')
@@ -388,7 +384,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
 
         b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
         b.click('#dashboard-enable-edit')
-        b.wait_visible('#dashboard-hosts a:first-child button.pficon-edit')
 
         b.click('#dashboard-hosts a:first-child button.pficon-edit')
         b.wait_not_visible('#dashboard-hosts a:first-child button.pficon-edit')
@@ -428,7 +423,6 @@ class TestDashboardEditLimits(MachineCase, DashBoardHelpers):
             b.click('#dashboard-add')
             b.wait_popup('dashboard_setup_server_dialog')
             if limit:
-                b.wait_visible("#dashboard_setup_server_dialog .dashboard-machine-warning")
                 b.wait_in_text("#dashboard_setup_server_dialog .dashboard-machine-warning",
                                "{0} machines".format(limit))
             else:

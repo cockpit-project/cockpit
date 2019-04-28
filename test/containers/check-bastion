@@ -58,9 +58,7 @@ class TestBastion(MachineCase):
 
     def approve_key(self, b):
         b.wait_visible("#conversation-input")
-        b.wait_visible("#conversation-message")
         b.wait_in_text("#conversation-message", "authenticity of host")
-        b.wait_visible("#login-button")
         b.click("#login-button")
 
     def testKeyLogin(self):

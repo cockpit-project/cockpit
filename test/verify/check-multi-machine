@@ -302,7 +302,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Hostkey does not match")
 
         # Clear host key.
@@ -316,7 +315,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Host is unknown")
 
         m.execute("echo '\n[SSH-Login]\nallowUnknown = true' >> /etc/cockpit/cockpit.conf")
@@ -342,7 +340,6 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#user-group")
         b.wait_visible("#option-group")
         b.wait_not_visible("#server-group")
-        b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Hostkey is unknown")
 
         b.wait_visible("#login")
@@ -405,7 +402,6 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#server-group")
         b.click('#login-button')
         b.wait_visible("#server-group")
-        b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Unable to connect")
 
         # remote login via "Connect to:" login page field; should connect to unknown hosts
@@ -523,7 +519,6 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
 
         # Test subnav
-        b.wait_visible('a[href="/@10.111.113.2/users"]')
         b.click('a[href="/@10.111.113.2/users"]')
         b.enter_page("/users", host="10.111.113.2")
         b.wait_present("#accounts-list")
@@ -601,7 +596,6 @@ class TestMultiMachine(MachineCase):
         # Go to the path, remove the image
         b.go(m2_path)
         b.enter_page("/playground/test", "10.111.113.2")
-        b.wait_visible("img[src='hammer.gif']")
         b.click("img[src='hammer.gif']")
         b.switch_to_top()
 
@@ -799,7 +793,6 @@ class TestMultiMachine(MachineCase):
         b.click("#login-type li[value=stored] a")
         b.wait_in_text("#login-type button span", "Using available credentials")
         b.wait_not_visible("#login-diff-password")
-        b.wait_visible("#login-available")
         b.wait_in_text("#login-available", "Login Password")
         b.wait_not_in_text("#login-available", "Kerberos Ticket")
         b.wait_not_present("#login-available .empty")
@@ -861,7 +854,6 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
         b.wait_visible("#login-diff-password")
         b.click("#login-type button")
-        b.wait_visible("#login-type ul li[value='stored'] a")
         b.click("#login-type ul li[value='stored'] a")
         b.wait_not_visible("#login-diff-password")
         b.set_val("#login-custom-user", "root")
@@ -893,7 +885,6 @@ class TestMultiMachine(MachineCase):
         b.click("#login-type li[value=stored] a")
         b.wait_in_text("#login-type button span", "Using available credentials")
         b.wait_not_visible("#login-diff-password")
-        b.wait_visible("#login-available")
 
         b.wait_not_in_text("#login-available", "Login Password")
         b.wait_not_in_text("#login-available", "Kerberos Ticket")

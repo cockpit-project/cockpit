@@ -65,7 +65,6 @@ class TestTuned(MachineCase):
         b.wait_text('#system-info-performance a.action-trigger.disabled', recommended_profile)
         check_status_tooltip('The user admin is not permitted to change profiles')
         b.relogin('/system', authorized=True)
-        b.wait_visible('#system-info-performance a.action-trigger')
 
         # Switch the profile
 

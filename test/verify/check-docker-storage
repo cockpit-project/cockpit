@@ -159,7 +159,6 @@ class TestDockerStorage(MachineCase):
         print("Initially", self.total_size())
 
         m.add_disk("100M", serial="DISK1")
-        b.wait_visible("#storage-drives")
         b.wait_in_text("#storage-drives", "DISK1")
 
         b.click("#storage-drives tr:contains(DISK1)")

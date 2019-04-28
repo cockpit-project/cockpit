@@ -317,12 +317,10 @@ class KubernetesCommonTests(VolumeTests):
         b.click("#content .containers-listing tbody:first-of-type tr.listing-ct-item td.listing-ct-toggle")
         b.wait_in_text("#content .containers-listing tbody.open tr.listing-ct-item td:last-child", "running")
         b.click("tbody.open .listing-ct-panel .listing-ct-head li a.logs")
-        b.wait_visible("tbody.open .listing-ct-panel pre")
         b.wait_in_text("tbody.open .listing-ct-panel pre", "HelloMessage.")
 
     def check_shell(self, b):
         b.click("tbody.open .listing-ct-panel .listing-ct-head li a.shell")
-        b.wait_visible("tbody.open .listing-ct-panel div.terminal")
         b.wait_in_text("tbody.open .listing-ct-panel div.terminal", "#")
         b.focus('tbody.open .listing-ct-panel .terminal')
         b.key_press("whoami\r")
@@ -352,14 +350,12 @@ class KubernetesCommonTests(VolumeTests):
         self.assertEqual(b.text(".details-listing tbody[data-id='pods/default/" + podl[0] + "'] th"), podl[0])
 
         b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='services/default/mock'] .delete-entity")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
         b.wait_not_present(".details-listing tbody[data-id='services/default/mock']")
 
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.click(".details-listing tbody[data-id='replicationcontrollers/default/mock'] .delete-entity")
         b.click("modal-dialog .btn-danger")
         b.wait_not_present("modal-dialog")
@@ -458,7 +454,6 @@ class KubernetesCommonTests(VolumeTests):
 
         # Click on the service to expand into a panel
         b.click(".details-listing tbody[data-id='services/default/mock'] td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel")
         b.wait_in_text(".details-listing tbody[data-id='services/default/mock'] tr.listing-ct-panel", "mock")
 
         # Other services should still be present
@@ -713,7 +708,6 @@ class OpenshiftCommonTests(VolumeTests):
         self.assertEqual(b.is_present(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] th"), True)
 
         b.click(".details-listing tbody[data-id='routes/default/mock'] td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.click(".details-listing tbody[data-id='routes/default/mock'] .route-delete")
         b.wait_in_text("modal-dialog .modal-header", "Delete Route")
         b.wait_in_text("modal-dialog .modal-body", "Route 'mock'")
@@ -722,7 +716,6 @@ class OpenshiftCommonTests(VolumeTests):
         b.wait_not_present(".details-listing tbody[data-id='routes/default/mock']")
 
         b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend']  td.listing-ct-toggle")
-        b.wait_visible(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
         b.click(".details-listing tbody[data-id='deploymentconfigs/default/frontend'] .deployment-delete")
         b.wait_present("modal-dialog")
         b.click(".modal-footer button.btn-danger")
@@ -768,7 +761,6 @@ class OpenshiftCommonTests(VolumeTests):
         b.reload()
         b.wait_visible("#machine-troubleshoot")
         b.wait_in_text(".curtains-ct", "Login failed")
-        b.wait_visible('#machine-troubleshoot')
         b.click('#machine-troubleshoot')
         b.wait_popup('troubleshoot-dialog')
         b.wait_in_text("#troubleshoot-dialog", 'Log in to')
@@ -854,7 +846,6 @@ class RegistryTests(object):
 
         # Look at the image layers
         b.click(".listing-ct-head li:last-child a")
-        b.wait_visible(".listing-ct-body .registry-image-layers")
         b.wait_in_text(".listing-ct-body .registry-image-layers", "KiB")
 
         # Add postgres into the stream
@@ -862,11 +853,9 @@ class RegistryTests(object):
         self.assertNotIn("postgres", output)
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")
         b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate a[value='pull']")
-        b.wait_visible("#imagestream-modify-pull")
         b.set_val("#imagestream-modify-pull", "postgres")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -877,7 +866,6 @@ class RegistryTests(object):
         # Remove postgres from the stream
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#imagestream-modify-populate")
         b.click("#imagestream-modify-populate button")
         b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate a[value='none']")
@@ -891,7 +879,6 @@ class RegistryTests(object):
         b.click("#content a[href='#/images/marmalade']")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#imagestream-modify-name")
         b.set_val("#imagestream-modify-name", "zero")
         b.wait_val("#imagestream-modify-project-text", "marmalade")
         b.click("#imagestream-modify-project button")
@@ -959,7 +946,6 @@ class RegistryTests(object):
         b.wait_in_text("tbody[data-id='marmalade/juggs'] tr", "and 1 other")
         b.wait_present("tbody[data-id='marmalade/juggs'] tr td a.registry-image-tag:contains('2.11')")
         b.click("tbody[data-id='marmalade/juggs'] tr td.listing-ct-toggle")
-        b.wait_visible("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel")
         b.click("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel ul li:contains('Tags') a")
         b.wait_present("tbody[data-id='marmalade/juggs'] tr.listing-ct-panel td table.listing-ct")
         b.wait_in_text(
@@ -1044,10 +1030,8 @@ class RegistryTests(object):
         #add member
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_user_to_group")
         b.click("#add_user_to_group button")
         b.wait_visible("#add_user_to_group .dropdown-menu")
-        b.wait_visible(".dropdown-menu a[value='scruffy']")
         b.click(".dropdown-menu a[value='scruffy']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1061,10 +1045,8 @@ class RegistryTests(object):
 
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_user_to_group")
         b.click("#add_user_to_group button")
         b.wait_visible("#add_user_to_group .dropdown-menu")
-        b.wait_visible(".dropdown-menu a[value='scruffy']")
         b.click(".dropdown-menu a[value='scruffy']")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1091,7 +1073,6 @@ class RegistryTests(object):
         b.click("#add-project")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")
-        b.wait_visible("#project-new-name")
         b.set_val("#project-new-name", "testprojectuserproj")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1119,7 +1100,6 @@ class RegistryTests(object):
         #modify user
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#identities")
         b.set_val("#identities", "anypassword:abc1234")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1128,11 +1108,9 @@ class RegistryTests(object):
         #add project member
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_parent_for_user")
         b.click("#add_parent_for_user button")
         b.wait_visible("#add_parent_for_user .dropdown-menu")
         b.click(".dropdown-menu a[value='testprojectuserproj']")
-        b.wait_visible("#add_role_for_user")
         b.click("#add_role_for_user button")
         b.wait_visible("#add_role_for_user .dropdown-menu")
         b.click("#add_role_for_user a[value='Admin']")
@@ -1149,11 +1127,9 @@ class RegistryTests(object):
         #add project member again
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_parent_for_user")
         b.click("#add_parent_for_user button")
         b.wait_visible("#add_parent_for_user .dropdown-menu")
         b.click(".dropdown-menu a[value='testprojectuserproj']")
-        b.wait_visible("#add_role_for_user")
         b.click("#add_role_for_user button")
         b.wait_visible("#add_role_for_user .dropdown-menu")
         b.click("#add_role_for_user a[value='Admin']")
@@ -1162,7 +1138,6 @@ class RegistryTests(object):
 
         #add another role to project member
         b.wait_present("tbody[data-id='testprojectuserproj']")
-        b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group")
         b.click("tbody[data-id='testprojectuserproj'] tr .btn-group button")
         b.wait_visible("tbody[data-id='testprojectuserproj'] tr .btn-group .dropdown-menu")
         b.click("tbody[data-id='testprojectuserproj'] tr .dropdown-menu a[value='Push']")
@@ -1191,9 +1166,7 @@ class RegistryTests(object):
             username = "testprojectuser" + role.lower()
             b.click("a i.pficon-add-circle-o")
             b.wait_present("modal-dialog")
-            b.wait_visible("#add_member_name")
             b.set_val("#add_member_name", username)
-            b.wait_visible("#add_role")
             b.click("#add_role button")
             b.wait_visible("#add_role .dropdown-menu")
             b.click("#add_role a[value='%s']" % role)
@@ -1218,9 +1191,7 @@ class RegistryTests(object):
         b.go("#/projects/testprojectuserproj")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_member_name")
         b.set_val("#add_member_name", "foo ^ bar")
-        b.wait_visible("#add_role")
         b.click("#add_role button")
         b.wait_visible("#add_role .dropdown-menu")
         b.click("#add_role a[value='Admin']")
@@ -1238,9 +1209,7 @@ class RegistryTests(object):
         # service accounts should be accepted
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_member_name")
         b.set_val("#add_member_name", "system:janitor:default")
-        b.wait_visible("#add_role")
         b.click("#add_role button")
         b.wait_visible("#add_role .dropdown-menu")
         b.click("#add_role a[value='Admin']")
@@ -1286,7 +1255,6 @@ class RegistryTests(object):
         b.click("#add-project")
         b.wait_present("modal-dialog")
         b.wait_visible(".modal-body")
-        b.wait_visible("#project-new-name")
         b.set_val("#project-new-name", "testprojectpolicyproj")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1302,7 +1270,6 @@ class RegistryTests(object):
         #add user with role
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_member_group")
         b.click("#add_member_group button")
         b.wait_visible("#add_member_group .dropdown-menu")
         b.click("#add_member_group a[value='scruffy']")
@@ -1325,7 +1292,6 @@ class RegistryTests(object):
         b.wait_present(".inner-project-listing")
         b.click("a i.pficon-add-circle-o")
         b.wait_present("modal-dialog")
-        b.wait_visible("#add_member_group")
         b.click("#add_member_group button")
         b.wait_visible("#add_member_group .dropdown-menu")
         b.click("#add_member_group a[value='scruffy']")
@@ -1385,7 +1351,6 @@ class RegistryTests(object):
             ".listing-ct-body", "Project access policy only allows specific members to access images. Grant access to specific members below.")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#project-access-policy")
         b.wait_in_text("#project-access-policy button", "Private: Allow only specific users or groups to pull images")
         b.click("#project-access-policy button")
         b.wait_visible("#project-access-policy .dropdown-menu")
@@ -1407,7 +1372,6 @@ class RegistryTests(object):
         b.wait_in_text(".content-filter h3", "marmalade")
         b.click(".content-filter .pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#project-access-policy")
         b.wait_in_text("#project-access-policy button", "Shared: Allow any authenticated user to pull images")
         b.click("#project-access-policy button")
         b.wait_visible("#project-access-policy .dropdown-menu")
@@ -1431,10 +1395,8 @@ class RegistryTests(object):
         b.wait_not_in_text(".dashboard-images:first-child", "llama")
 
         # Create a new project
-        b.wait_visible("a.new-project-link")
         b.click("a.new-project-link")
         b.wait_present("modal-dialog")
-        b.wait_visible("#project-new-name")
         b.set_val("#project-new-name", "invalid...!")
         b.click(".btn-primary")
         b.wait_visible(".dialog-error")
@@ -1455,9 +1417,7 @@ class RegistryTests(object):
         b.wait_in_text("#content", "Description goes here")
         b.click(".pficon-edit")
         b.wait_present("modal-dialog")
-        b.wait_visible("#project-new-display")
         b.set_val("#project-new-display", "What the llama say")
-        b.wait_visible("#project-new-description")
         b.set_val("#project-new-description", "Blearrrrrrrrgh")
         b.click(".btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1504,7 +1464,6 @@ class RegistryTests(object):
         b.wait_visible('#docker-pull-commands')
 
         # push user should not see docker push command on pizzazz overview page (only a viewer there)
-        b.wait_visible(".dashboard-images .namespace-filter")
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
         b.click(".dashboard-images .namespace-filter a[value='pizzazz']")
@@ -1535,7 +1494,6 @@ class RegistryTests(object):
         b.wait_visible('#docker-pull-commands')
 
         # pull user should only see docker pull command, but not push on project specific overview page
-        b.wait_visible(".dashboard-images .namespace-filter")
         b.click(".dashboard-images .namespace-filter button")
         b.wait_visible(".dashboard-images .namespace-filter .dropdown-menu")
         b.click(".dashboard-images .namespace-filter a[value='marmalade']")
@@ -1559,9 +1517,7 @@ class RegistryTests(object):
         b.wait_val("#imagestream-modify-project-text", "marmalade")
         b.set_val("#imagestream-modify-name", "alltags")
         b.click("#imagestream-modify-populate button")
-        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate .dropdown-menu a[value='pull']")
-        b.wait_visible("#imagestream-modify-pull")
         b.set_val("#imagestream-modify-pull", "localhost:5555/juggs")
         b.click("modal-dialog div.modal-footer button.btn-primary")
         b.wait_not_present("modal-dialog")
@@ -1584,7 +1540,6 @@ class RegistryTests(object):
         b.wait_js_cond("document.activeElement == document.getElementById('imagestream-modify-name')")
         b.set_val("#imagestream-modify-name", "sometags")
         b.click("#imagestream-modify-populate button")
-        b.wait_visible("#imagestream-modify-populate .dropdown-menu")
         b.click("#imagestream-modify-populate .dropdown-menu a[value='tags']")
         b.wait_visible("#imagestream-modify-tags")
         b.set_val("#imagestream-modify-pull", "localhost:5555/juggs")

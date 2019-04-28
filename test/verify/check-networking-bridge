@@ -59,7 +59,6 @@ class TestNetworking(NetworkCase):
 
         # Delete the bridge
         b.click("#networking-interfaces tr[data-interface='tbridge'] td:first-child")
-        b.wait_visible("#network-interface")
         b.click("#network-interface button:contains('Delete')")
         b.wait_visible("#networking")
         b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")

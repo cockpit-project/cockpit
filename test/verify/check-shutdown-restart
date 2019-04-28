@@ -78,7 +78,6 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-dialog .btn-danger")
         b.switch_to_top()
 
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.wait_reboot()
@@ -103,7 +102,6 @@ class TestShutdownRestart(MachineCase):
         b.click("#shutdown-dialog .btn-danger")
         b.switch_to_top()
 
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.wait_reboot()
@@ -174,7 +172,6 @@ class TestShutdownRestart(MachineCase):
         b.switch_to_top()
 
         # we don't need to wait for the dialog to close here, just the disconnect
-        b.wait_visible(".curtains-ct")
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
         m.wait_poweroff()

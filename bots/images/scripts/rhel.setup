@@ -98,9 +98,6 @@ EOF
     fi
 
     if [ "${IMAGE#rhel-7*}" != "$IMAGE" ]; then
-        # needed for atomic-openshift-clients
-        yum-config-manager --enable rhel-7-server-ose-3.9-rpms
-
         # the following don't necessarily need to work
         yum-config-manager --disable rhel-sjis-for-rhel-7-server-rpms || true
         yum-config-manager --disable rhel-7-server-htb-rpms || true
@@ -122,7 +119,6 @@ docker \
 glib-networking \
 json-glib \
 kexec-tools \
-atomic-openshift-clients \
 libssh \
 libvirt-client \
 NetworkManager-team \
@@ -172,11 +168,10 @@ boom-boot \
 
 if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/redhat-logos/}"
-    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
-    COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "$IMAGE" == "centos-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
+    COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     # needed for composer testing
@@ -186,7 +181,6 @@ if [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then
     TEST_PACKAGES="${TEST_PACKAGES/yum-utils/dnf-utils}"
     TEST_PACKAGES="${TEST_PACKAGES} dnf-automatic"
     # Atomic/docker are not on RHEL 8
-    COCKPIT_DEPS="${COCKPIT_DEPS/atomic-openshift-clients /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
     COCKPIT_DEPS="${COCKPIT_DEPS} podman"

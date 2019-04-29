@@ -23,7 +23,7 @@ const _ = cockpit.gettext;
         createChannel(user) {
             return cockpit.channel({
                 "payload": "stream",
-                "spawn": [user.shell || "/bin/bash", "-i"],
+                "spawn": [user.shell || "/bin/bash"],
                 "environ": [
                     "TERM=xterm-256color",
                 ],

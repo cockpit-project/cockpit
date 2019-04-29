@@ -360,7 +360,10 @@ LIBVIRT_DBUS_PROVIDER = {
                 }
             }
 
-            return dispatch => Promise.all(storageVolPromises)
+            // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+            // https://github.com/cockpit-project/cockpit/issues/10956
+            // eslint-disable-next-line cockpit/no-cockpit-all
+            return dispatch => cockpit.all(storageVolPromises)
                     .then(() => {
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
                     });
@@ -435,7 +438,10 @@ LIBVIRT_DBUS_PROVIDER = {
     }) {
         return dispatch => {
             call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListNodeDevices', [0], TIMEOUT)
-                    .then(objPaths => Promise.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
+                    // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                    // https://github.com/cockpit-project/cockpit/issues/10956
+                    // eslint-disable-next-line cockpit/no-cockpit-all
+                    .then(objPaths => cockpit.all(objPaths[0].map(path => dispatch(getNodeDevice({ connectionName, id:path })))))
                     .fail(ex => console.warn('GET_ALL_NODE_DEVICES action failed:', JSON.stringify(ex)));
         };
     },

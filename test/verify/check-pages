@@ -98,7 +98,7 @@ OnCalendar=daily
         b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        if m.image == "rhel-7-6-distropkg":
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.wait_present("#services-list-enabled")
         else:
             b.wait_present("#services-list")
@@ -156,7 +156,7 @@ OnCalendar=daily
         # Systemd timer localization
         b.go("/system/services")
         b.enter_page("/system/services")
-        if m.image == "rhel-7-6-distropkg":
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
             b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')
@@ -308,7 +308,7 @@ OnCalendar=daily
         # Systemd timer localization
         b.go('/system/services')
         b.enter_page('/system/services')
-        if m.image == "rhel-7-6-distropkg":
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
             b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')

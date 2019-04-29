@@ -275,7 +275,7 @@ class TestSystemInfo(MachineCase):
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
     @skipImage("No NTP servers config", "centos-7", "continuous-atomic",
-               "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-1", "rhel-atomic")
+               "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-atomic")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -393,7 +393,7 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system")
 
         # now pretend this is a system without DMI; fixed in PR #11005
-        if self.machine.image == 'rhel-7-6-distropkg':
+        if self.machine.image in ['rhel-7-6-distropkg', 'rhel-8-0-distropkg']:
             return
 
         b.logout()
@@ -419,7 +419,7 @@ class TestSystemInfo(MachineCase):
 
         self.machine.execute("umount /sys/class/dmi")
 
-    @skipImage("Added in pull 11368", "rhel-7-6-distropkg")
+    @skipImage("Added in pull 11368", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testCPUSecurityMitigations(self):
         b = self.browser
         m = self.machine
@@ -591,7 +591,7 @@ class TestPcp(packagelib.PackageCase):
         # Turn stored metrics on
         self.assertIn("active", b.attr("#server-pmlogger-switch label:nth-child(2)", "class"))
         b.click("#server-pmlogger-switch label:first-child")
-        if m.image == "rhel-7-6-distropkg": # PR #11224
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # PR #11224
             return
         b.wait_attr_contains("#server-pmlogger-switch label:first-child", "class", "disabled")
         m.execute("touch /tmp/pmlogger.start")

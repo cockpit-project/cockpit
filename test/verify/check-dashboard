@@ -216,7 +216,7 @@ class TestBasicDashboard(MachineCase, DashBoardHelpers):
 
         b.enter_page("/system", "10.111.113.3")
         b.wait_text_not("#system_information_systime_button", "")
-        if m.image == "rhel-7-6-distropkg":
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             sel = "#link-network"
         else:
             sel = "#link-network a"

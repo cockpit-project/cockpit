@@ -271,7 +271,7 @@ $(function() {
             var pattern = $('#services-filter li.active').attr('data-pattern');
             var current_text_filter = $('#services-text-filter').val()
                     .toLowerCase();
-            var current_type_filter = parseInt($('#current-service-type').attr("data-num"));
+            var current_type_filter = parseInt($('#services-dropdown').val());
 
             function cmp_path(a, b) { return units_by_path[a].Id.localeCompare(units_by_path[b].Id) }
             var sorted_keys = Object.keys(units_by_path).sort(cmp_path);
@@ -336,8 +336,7 @@ $(function() {
 
         function clear_filters() {
             $("#services-text-filter").val("");
-            $('#current-service-type').attr("data-num", 0);
-            $('#current-service-type').text(_("All"));
+            $('#services-dropdown').val(0);
             render();
         }
 
@@ -500,12 +499,7 @@ $(function() {
             render();
         });
 
-        $('#services-dropdown .dropdown-menu li').on('click', function() {
-            var selected = $(this).children(":first");
-            $("#current-service-type").text(selected.text());
-            $("#current-service-type").attr("data-num", selected.attr("data-num"));
-            render();
-        });
+        $('#services-dropdown').on('change', render);
 
         update_all();
     }

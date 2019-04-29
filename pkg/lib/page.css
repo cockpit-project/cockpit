@@ -19,6 +19,16 @@ a {
   z-index: auto;
 }
 
+.btn-group, .btn-group-vertical {
+    /* Fix button groups from wrapping in narrow widths */
+    display: inline-flex;
+}
+
+.btn-group-vertical {
+    /* Vertical btn-groups should be vertical */
+    flex-direction: column;
+}
+
 a.disabled {
     cursor: not-allowed !important;
     text-decoration: none;

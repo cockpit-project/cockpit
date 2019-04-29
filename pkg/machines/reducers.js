@@ -23,6 +23,7 @@ import {
     ADD_UI_VM,
     DELETE_UI_VM,
     DELETE_UNLISTED_VMS,
+    SET_NODE_MAX_MEMORY,
     SET_PROVIDER,
     SET_LOGGED_IN_USER,
     UNDEFINE_NETWORK,
@@ -66,6 +67,11 @@ function config(state, action) {
     case 'SET_HYPERVISOR_MAX_VCPU': {
         const newState = Object.assign({}, state);
         newState.hypervisorMaxVCPU = Object.assign({}, newState.hypervisorMaxVCPU, { [action.payload.connectionName]: action.payload.count });
+        return newState;
+    }
+    case SET_NODE_MAX_MEMORY: {
+        const newState = Object.assign({}, state);
+        newState.nodeMaxMemory = action.payload.memory;
         return newState;
     }
     default:

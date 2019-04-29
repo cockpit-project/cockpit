@@ -30,6 +30,7 @@ import {
     deleteUnlistedVMs,
     updateStorageVolumes,
     setHypervisorMaxVCPU,
+    setNodeMaxMemory,
 } from './actions/store-actions.js';
 
 import {
@@ -39,6 +40,7 @@ import {
     getAllStoragePools,
     getAllVms,
     getHypervisorMaxVCPU,
+    getNodeMaxMemory,
     getStoragePool,
     getStorageVolumes,
     getVm,
@@ -219,12 +221,26 @@ LIBVIRT_PROVIDER = {
             return dispatch => {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
+                dispatch(getNodeMaxMemory(connectionName));
                 doGetAllVms(dispatch, connectionName);
                 dispatch(getAllStoragePools(connectionName));
             };
         }
 
         return unknownConnectionName(getAllVms, libvirtServiceName);
+    },
+
+    GET_NODE_MAX_MEMORY({ connectionName }) {
+        if (connectionName) {
+            return dispatch => spawnVirshNoHandler({ connectionName, args: ['nodememstats'] })
+                    .then(nodememstats => {
+                        let stats = parseNodeMemStats(nodememstats);
+                        dispatch(setNodeMaxMemory({ memory: stats.total }));
+                    })
+                    .catch(ex => console.warn("NodeGetMemoryStats failed: %s", ex));
+        }
+
+        return unknownConnectionName(setNodeMaxMemory);
     },
 
     /**
@@ -520,6 +536,11 @@ function parseDomstatsForDisks(domstatsLines) {
         }
     }
     return disksStats;
+}
+
+function parseNodeMemStats(nodememstats) {
+    const lines = parseLines(nodememstats);
+    return { 'total': getValueFromLine(lines, 'total  :').split(' ')[0] };
 }
 
 function parseStoragePoolInfo(poolInfo) {

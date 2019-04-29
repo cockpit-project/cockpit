@@ -76,6 +76,11 @@ class PackageCase(MachineCase):
             # PackageKit tries to resolve some DNS names, but our test VM is offline; temporarily disable the name server to fail quickly
             self.machine.execute("mv /etc/resolv.conf /etc/resolv.conf.test")
             self.addCleanup(self.machine.execute, "mv /etc/resolv.conf.test /etc/resolv.conf")
+        elif self.image in ["ubuntu-stable"]:
+            # PackageKit refuses to operate when being offline (as on our test images); it's hard to fake
+            # NetworkManager's "is online" state, so disable it and let PackageKit fall back to the "unix"
+            # network stack; add a bogus default route to coerce it into being "online".
+            self.machine.execute("systemctl disable --now NetworkManager; ip route add default via 172.27.0.1 dev eth0")
 
         self.updateInfo = {}
 
@@ -113,7 +118,10 @@ class PackageCase(MachineCase):
             for path, data in content.items():
                 dest = "/tmp/b/" + path
                 self.machine.execute("mkdir -p '{0}'".format(os.path.dirname(dest)))
-                self.machine.write(dest, data)
+                if isinstance(data, dict):
+                    self.machine.execute("cp '{0}' '{1}'".format(data["path"], dest))
+                else:
+                    self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
                  printf "Package: {name}\nVersion: {ver}\nPriority: optional\nSection: test\nMaintainer: foo\nDepends: {deps}\nArchitecture: all\nDescription: dummy {name}\n" > /tmp/b/DEBIAN/control
                  {post}
@@ -143,7 +151,10 @@ class PackageCase(MachineCase):
         if content is not None:
             for path, data in content.items():
                 installcmds += 'mkdir -p $(dirname "$RPM_BUILD_ROOT/{0}")\n'.format(path)
-                installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
+                if isinstance(data, dict):
+                    installcmds += 'cp {1} "$RPM_BUILD_ROOT/{0}"'.format(path, data["path"])
+                else:
+                    installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
                 installedfiles += "{0}\n".format(path)
         spec = """
 Summary: dummy {0}

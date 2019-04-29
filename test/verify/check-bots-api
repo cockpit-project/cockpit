@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import os
 import shutil
 import subprocess
@@ -111,6 +112,19 @@ class TestImageCustomize(unittest.TestCase):
             with self.assertRaises(subprocess.CalledProcessError):
                 subprocess.check_call(["bots/image-customize", "--verbose",
                                        "--run-command", "false", img])
+
+    def testResize(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--resize", "20G", img])
+
+        output = subprocess.check_output(["qemu-img", "info", "--output=json", img], encoding="utf-8")
+        info = json.loads(output)
+        self.assertEqual(int(info['virtual-size']) // 1024 // 1024 // 1024, 20)
 
 
 @unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")

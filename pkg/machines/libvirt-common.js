@@ -2,8 +2,10 @@ import cockpit from 'cockpit';
 import * as service from '../lib/service.js';
 import createVmScript from 'raw-loader!./scripts/create_machine.sh';
 import installVmScript from 'raw-loader!./scripts/install_machine.sh';
-import getOSListScript from 'raw-loader!./scripts/get_os_list.sh';
 import getLibvirtServiceNameScript from 'raw-loader!./scripts/get_libvirt_service_name.sh';
+
+import * as python from "python.js";
+import getOSListScript from 'raw-loader!./getOSList.py';
 
 import {
     setLoggedInUser,
@@ -174,7 +176,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         return;
     }
 
-    const osElem = domainElem.getElementsByTagName("os")[0];
+    const osElem = domainElem.getElementsByTagNameNS("", "os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const cpuElem = domainElem.getElementsByTagName("cpu")[0];
@@ -760,7 +762,7 @@ export function parseNodeDeviceDumpxml(nodeDevice) {
 }
 
 export function parseOsInfoList(dispatch, osList) {
-    const osColumnsNames = ['shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
+    const osColumnsNames = ['id', 'shortId', 'name', 'version', 'family', 'vendor', 'releaseDate', 'eolDate', 'codename'];
     let parsedList = [];
 
     osList.split('\n').forEach(line => {
@@ -1232,7 +1234,7 @@ export function GET_LOGGED_IN_USER() {
 
 export function GET_OS_INFO_LIST () {
     logDebug(`${this.name}.GET_OS_INFO_LIST():`);
-    return dispatch => cockpit.script(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
+    return dispatch => python.spawn(getOSListScript, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
             .then(osList => {
                 parseOsInfoList(dispatch, osList);
             })

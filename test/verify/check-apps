@@ -30,6 +30,7 @@ class TestApps(PackageCase):
     def setUp(self):
         PackageCase.setUp(self)
         self.appstream_collection = set()
+        self.machine.upload([ "verify/files/test.png" ], "/var/tmp/")
 
     def createAppStreamPackage(self, name, version, revision):
         self.createPackage(name, version, revision, content={
@@ -37,11 +38,13 @@ class TestApps(PackageCase):
 <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{0}</id>
+  <icon type="local">/usr/share/pixmaps/test.png</icon>
   <name>{0}</name>
   <summary>An application for testing</summary>
-            <launchable type="cockpit-manifest">{0}</launchable>
+  <launchable type="cockpit-manifest">{0}</launchable>
 </component>
-""".format(name)})
+""".format(name),
+            "/usr/share/pixmaps/test.png":  { "path": "/var/tmp/test.png" }})
         self.appstream_collection.add(name)
 
     def enableAppStreamRepo(self):
@@ -51,6 +54,7 @@ class TestApps(PackageCase):
   <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
     <id>org.cockpit-project.{0}</id>
+    <icon type="cached">test.png</icon>
     <name>{0}</name>
     <summary>An application for testing</summary>
     <launchable type="cockpit-manifest">{0}</launchable>
@@ -67,7 +71,8 @@ class TestApps(PackageCase):
 <components origin="test">
 {0}
 </components>
-            """.format(body)})
+            """.format(body),
+            "/usr/share/app-info/icons/test/64x64/test.png": { "path": "/var/tmp/test.png" }})
         self.enableRepo()
         self.machine.execute("systemctl stop packagekit && pkcon refresh force")
         # ignore the corresponding journal entry
@@ -92,6 +97,7 @@ class TestApps(PackageCase):
 
         b.click(".app-list tr:contains('An application for testing')")
         b.wait_present('.app-links a[href="https://app-1.com"]')
+        b.wait_present('.app img[src^="/cockpit/channel/"]')
         b.click(".breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
@@ -99,10 +105,12 @@ class TestApps(PackageCase):
 
         b.click(".app-list tr:contains('app-1') button:contains('Install')")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Remove')")
+        b.wait_present(".app-list tr:contains('app-1') img[src^='/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
         b.click(".app-list tr:contains('app-1') button:contains('Remove')")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
+        b.wait_present(".app-list tr:contains('app-1') img[src^='/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
     def testL10N(self):

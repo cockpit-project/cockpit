@@ -266,9 +266,17 @@ $(function() {
             reverse: true
         };
 
+        var last = null;
+        var count = 0;
+        var oldest = null;
+        var stopped = false;
+
         var all = false;
         if (start == 'boot') {
             options["boot"] = null;
+        } else if (start == 'previous-boot') {
+            options["boot"] = "-1";
+            last = 1; // Do not try to get newer logs
         } else if (start == 'last-24h') {
             options["since"] = "-1days";
         } else if (start == 'last-week') {
@@ -288,10 +296,6 @@ $(function() {
             load_service_filters(tags_match, options);
         }
 
-        var last = null;
-        var count = 0;
-        var stopped = null;
-
         procs.push(journal.journalctl(match, options)
                 .fail(query_error)
                 .stream(function(entries) {
@@ -302,9 +306,10 @@ $(function() {
                     }
                     count += entries.length;
                     append_entries(entries);
+                    oldest = entries[entries.length - 1]["__CURSOR"];
                     if (count >= query_count) {
-                        stopped = entries[entries.length - 1]["__CURSOR"];
-                        didnt_reach_start(stopped);
+                        stopped = true;
+                        didnt_reach_start(oldest);
                         this.stop();
                     }
                 })
@@ -323,7 +328,7 @@ $(function() {
                                 }));
                     }
                     if (!all || stopped)
-                        didnt_reach_start();
+                        didnt_reach_start(oldest);
                 }));
 
         outer.stop = function stop() {

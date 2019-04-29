@@ -79,6 +79,8 @@ class TestStorage(StorageCase):
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
+            # HACK - https://github.com/storaged-project/udisks/pull/631
+            m.execute("udevadm trigger")
             if grow_needs_unmount:
                 self.content_tab_action(fsys_row, fsys_tab, "Mount")
                 self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
@@ -98,6 +100,8 @@ class TestStorage(StorageCase):
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
+            # HACK - https://github.com/storaged-project/udisks/pull/631
+            m.execute("udevadm trigger")
             if shrink_needs_unmount:
                 self.content_tab_action(fsys_row, fsys_tab, "Mount")
                 self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
@@ -125,7 +129,7 @@ class TestStorage(StorageCase):
     def testResizeLuks(self):
         # Only newer versions of UDisks support resizing encrypted block devices
         if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-1", "fedora-29",
-                                  "fedora-30", "fedora-testing", "fedora-i386", "debian-testing", "centos-7"]:
+                                  "fedora-30", "fedora-testing", "fedora-i386", "debian-testing", "ubuntu-stable", "centos-7"]:
             self.checkResize("luks+ext4",
                              can_shrink=True, shrink_needs_unmount=True,
                              can_grow=True, grow_needs_unmount=False,
@@ -150,6 +154,17 @@ class TestStorage(StorageCase):
             m.execute("udevadm trigger")
             time.sleep(2)
         raise Error('element did not disappear')
+
+    def shrink_extfs(self, fs_dev, size):
+        # fsadm can automatically unmount and check the fs when doing
+        # a resize, but in that case it will try to remount it
+        # afterwards.  This remounting will mostly fail because
+        # UDisks2 has removed the mount point directory in the mean
+        # time.  But sometimes it will succeed.  So we take control
+        # and unmount the fs explicitly.  But then we also need to
+        # check it explicitly.
+        #
+        self.machine.execute("umount '%s' && fsadm -y check '%s' && fsadm -y resize '%s' '%s'" % (fs_dev, fs_dev, fs_dev, size))
 
     def testGrowShrinkHelp(self):
         m = self.machine
@@ -182,26 +197,27 @@ class TestStorage(StorageCase):
         self.content_tab_action(1, 2, "Mount")
         self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
 
+        vol_tab = self.content_tab_expand(1, 1)
+
         # Grow the logical volume and let Cockpit grow the filesystem
 
         m.execute("lvresize TEST/vol -L+100M")
-        warning_tab = self.content_tab_expand(1, 3)
-
-        self.content_tab_action(1, 3, "Grow Content")
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        b.wait_present(vol_tab + " button:contains(Grow Content)")
+        self.content_tab_action(1, 1, "Grow Content")
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow Content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
         self.assertGreater(size, 250000)
 
         # Shrink the filesystem and let Cockpit shrink the logical volume
 
         fs_dev = m.execute("lsblk -pnl /dev/TEST/vol -o NAME | tail -1").strip()
-        m.execute("fsadm -y resize '%s' 200M" % fs_dev)
+        self.shrink_extfs(fs_dev, "200M")
+
         self.content_tab_action(1, 2, "Mount")
         self.content_tab_wait_in_info(1, 2, "Mounted At", mountpoint)
-        warning_tab = self.content_tab_expand(1, 3)
-
-        self.content_tab_action(1, 3, "Shrink Volume")
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        b.wait_present(vol_tab + " button:contains(Shrink Volume)")
+        self.content_tab_action(1, 1, "Shrink Volume")
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink Volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
@@ -238,10 +254,11 @@ class TestStorage(StorageCase):
         self.content_tab_action(2, 1, "Mount")
         self.content_tab_wait_in_info(2, 1, "Mounted At", mountpoint)
 
+        vol_tab = self.content_tab_expand(1, 1)
+
         # Grow the logical volume and let Cockpit grow the LUKS container and the filesystem
 
         m.execute("lvresize TEST/vol -L+100M")
-        warning_tab = self.content_tab_expand(2, 2)
 
         def confirm_with_passphrase():
             self.dialog_wait_open()
@@ -250,25 +267,26 @@ class TestStorage(StorageCase):
             self.dialog_apply()
             self.dialog_wait_close()
 
-        self.content_tab_action(2, 2, "Grow Content")
+        b.wait_present(vol_tab + " button:contains(Grow Content)")
+        self.content_tab_action(1, 1, "Grow Content")
         if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow Content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
         self.assertGreater(size, 250000)
 
         # Shrink the filesystem and let Cockpit shrink the LUKS container and logical volume
 
         fs_dev = m.execute("lsblk -pnl /dev/TEST/vol -o NAME | tail -1").strip()
-        m.execute("fsadm -y resize '%s' 200M" % fs_dev)
+        self.shrink_extfs(fs_dev, "200M")
         self.content_tab_action(2, 1, "Mount")
         self.content_tab_wait_in_info(2, 1, "Mounted At", mountpoint)
-        warning_tab = self.content_tab_expand(2, 2)
 
-        self.content_tab_action(2, 2, "Shrink Volume")
+        b.wait_present(vol_tab + " button:contains(Shrink Volume)")
+        self.content_tab_action(1, 1, "Shrink Volume")
         if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink Volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
@@ -276,27 +294,27 @@ class TestStorage(StorageCase):
 
         m.execute("lvresize TEST/vol -L+100M")
         m.execute("echo vainu-reku-toma-rolle-kaja | cryptsetup resize %s" % fs_dev)
-        warning_tab = self.content_tab_expand(2, 2)
 
-        self.content_tab_action(2, 2, "Grow Content")
+        b.wait_present(vol_tab + " button:contains(Grow Content)")
+        self.content_tab_action(1, 1, "Grow Content")
         if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow Content)")
         size = int(m.execute("df -k --output=size %s | tail -1" % mountpoint).strip())
         self.assertGreater(size, 250000)
 
         # Shrink the filesystem and the LUKS container and let Cockpit shrink the logical volume
 
-        m.execute("fsadm -y resize '%s' 198M" % fs_dev)
+        self.shrink_extfs(fs_dev, "198M")
         m.execute("echo vainu-reku-toma-rolle-kaja | cryptsetup resize '%s' 200M" % fs_dev)
         self.content_tab_action(2, 1, "Mount")
         self.content_tab_wait_in_info(2, 1, "Mounted At", mountpoint)
-        warning_tab = self.content_tab_expand(2, 2)
 
-        self.content_tab_action(2, 2, "Shrink Volume")
+        b.wait_present(vol_tab + " button:contains(Shrink Volume)")
+        self.content_tab_action(1, 1, "Shrink Volume")
         if self.machine.image in ["rhel-8-0", "rhel-8-1"]:
             confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(warning_tab)
+        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink Volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 

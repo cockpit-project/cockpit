@@ -58,6 +58,10 @@ class TestJournal(MachineCase):
         self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
 
+        # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
+        # so disable them for this test, we don't test PCP here
+        m.execute("systemctl disable --now pmie pmlogger || true")
+
         def inject_extras():
             b.eval_js("""
             ph_get_log_lines = function () {
@@ -276,16 +280,27 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         "Load earlier entries",
                         ])
 
+        n = ""
+        # In older version there was bug which showed messages two times
+        # Fixed in #11672
+        if m.image == "rhel-7-6-distropkg":
+            n = "2"
         b.click('#journal-load-earlier')
         wait_log_lines([expected_date,
-                        ["check-journal", "AFTER BOOT", "2"],
+                        ["check-journal", "AFTER BOOT", n],
                         ["", "Reboot", ""],
                         ["check-journal", "BEFORE BOOT", ""]
                         ])
 
         # Check selecting of services
-        if m.image == "rhel-7-6-distropkg": # Introduced in #8347
+        if m.image == "rhel-7-6-distropkg": # Introduced in #8347 and #11675
             return
+
+        b.go("#/?start=previous-boot&tag=check-journal")
+        wait_log_lines([expected_date,
+                        ["check-journal", "BEFORE BOOT", ""],
+                        "Load earlier entries"
+                        ])
 
         b.go("#/?start=boot&prio=6")
 

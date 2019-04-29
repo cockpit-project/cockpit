@@ -45,6 +45,7 @@ import {
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
     GET_NETWORK,
+    GET_NODE_MAX_MEMORY,
     GET_NODE_DEVICE,
     GET_STORAGE_POOL,
     GET_STORAGE_VOLUMES,
@@ -176,6 +177,10 @@ export function getNetwork({ connectionName, id, name }) {
 
 export function getNodeDevice({ connectionName, id }) {
     return virt(GET_NODE_DEVICE, { connectionName, id });
+}
+
+export function getNodeMaxMemory(connectionName) {
+    return virt(GET_NODE_MAX_MEMORY, { connectionName });
 }
 
 export function getStoragePool({ connectionName, id, name }) {

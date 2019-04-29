@@ -81,6 +81,7 @@ class TestStorage(StorageCase):
             self.dialog_wait_close()
             # HACK - https://github.com/storaged-project/udisks/pull/631
             m.execute("udevadm trigger")
+            self.content_tab_wait_in_info(1, 1, "Size", "400 MiB")
             if grow_needs_unmount:
                 self.content_tab_action(fsys_row, fsys_tab, "Mount")
                 self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)
@@ -102,6 +103,7 @@ class TestStorage(StorageCase):
             self.dialog_wait_close()
             # HACK - https://github.com/storaged-project/udisks/pull/631
             m.execute("udevadm trigger")
+            self.content_tab_wait_in_info(1, 1, "Size", "200 MiB")
             if shrink_needs_unmount:
                 self.content_tab_action(fsys_row, fsys_tab, "Mount")
                 self.content_tab_wait_in_info(fsys_row, fsys_tab, "Mounted At", mountpoint)

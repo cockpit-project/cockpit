@@ -830,8 +830,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 source={"host": "127.0.0.1", "source_path": target_iqn}
             ).execute()
 
-            # iscsi-direct pool type is available since libvirt 4.7 which is not available yet in RHEL
-            if m.image not in ["rhel-8.0", "rhel-8.1"]:
+            # iscsi-direct pool type is available since libvirt 4.7
+            if m.image not in ["rhel-8-0", "rhel-8-1"]:
                 StoragePoolCreateDialog(
                     self,
                     name="my_iscsi_direct_pool",

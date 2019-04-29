@@ -22,7 +22,10 @@
 # have cockpit.socket enabled. The web server and browser run in an unshared
 # network namespace, and thus are totally isolated from everything else.
 #
-# Example: cockpit-desktop /cockpit/@localhost/system/index.html
+# Examples:
+#   cockpit-desktop /cockpit/@localhost/system/index.html
+#   cockpit-desktop network/firewall
+#   cockpit-desktop users
 set -eu
 
 # minimalistic WebKit browser
@@ -131,7 +134,21 @@ if [ -z "${1:-}" ]; then
     exit 1
 fi
 
-URL_PATH="$1"
+# Expand the commandline argument into a url
+case "$1" in
+    /*)
+        URL_PATH="$1"
+        ;;
+    */)
+        URL_PATH="/cockpit/@localhost/$1index.html"
+        ;;
+    */*)
+        URL_PATH="/cockpit/@localhost/$1.html"
+        ;;
+    *)
+        URL_PATH="/cockpit/@localhost/$1/index.html"
+        ;;
+esac
 
 detect_browser
 

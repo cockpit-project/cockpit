@@ -93,6 +93,8 @@ function checked(callback) {
         // only consider primary mouse button
         if (!event || event.button !== 0)
             return;
+        // don't let the click "fall through" to the dialog's form
+        event.preventDefault();
         var promise = callback();
         if (promise)
             promise.fail(function (error) {
@@ -100,7 +102,6 @@ function checked(callback) {
                               Body: error.toString()
                 });
             });
-        event.stopPropagation();
     };
 }
 

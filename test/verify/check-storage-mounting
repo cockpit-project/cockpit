@@ -60,7 +60,7 @@ class TestStorage(StorageCase):
 
         # Format it
 
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "ext4")
         self.dialog_set_val("name", "FILESYSTEM")
@@ -142,7 +142,7 @@ class TestStorage(StorageCase):
             self.content_tab_action(1, 1, "Unmount")
             b.wait_not_present(self.content_tab_info_label(1, 1, "Mounted At"))
 
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "empty"})
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
 
@@ -163,7 +163,7 @@ class TestStorage(StorageCase):
 
         # Open format dialog and play with the checkboxes
 
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "luks+ext4")
         self.dialog_set_val("mounting", "custom")

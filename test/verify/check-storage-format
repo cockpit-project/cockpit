@@ -45,7 +45,7 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("DISK1")')
         b.wait_present('#storage-detail')
 
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("type", "xfs")
         self.dialog_apply()
@@ -68,7 +68,7 @@ class TestStorage(StorageCase):
         b.wait_present('#storage-detail')
 
         def check_type(type, label_limit):
-            self.content_tab_action(1, 1, "Format")
+            self.content_head_action(1, "Format")
             self.dialog_wait_open()
             self.dialog_set_val("type", type)
             self.dialog_set_val("name", "X" * (label_limit + 1))
@@ -80,7 +80,7 @@ class TestStorage(StorageCase):
             self.content_row_wait_in_col(1, 1, type + " File System")
 
         def check_unsupported_type(type):
-            self.content_tab_action(1, 1, "Format")
+            self.content_head_action(1, "Format")
             self.dialog_wait_open()
             b.wait_not_present('#dialog li[value=%s]' % type)
             self.dialog_cancel()

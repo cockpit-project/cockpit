@@ -49,7 +49,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_tab_wait_in_info(2, 1, "Mounted At", "/mnt")
 
-        self.content_tab_action(2, 1, "Format")
+        self.content_head_action(2, "Format")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
         self.dialog_cancel()

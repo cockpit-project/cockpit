@@ -17,8 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from "react";
-
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
@@ -27,8 +25,6 @@ import {
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage
 } from "./dialog.jsx";
-
-import { StorageButton } from "./storage-controls.jsx";
 
 const _ = cockpit.gettext;
 
@@ -404,24 +400,4 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                       }
                   }
     });
-}
-
-export class FormatButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.onClick = this.onClick.bind(this);
-    }
-
-    onClick() {
-        format_dialog(this.props.client, this.props.block.path);
-    }
-
-    render() {
-        return (
-            <StorageButton onClick={this.onClick}
-                           excuse={this.props.block.ReadOnly ? _("Device is read-only") : null}>
-                {_("Format")}
-            </StorageButton>
-        );
-    }
 }

@@ -51,7 +51,7 @@ class TestStorage(StorageCase):
         self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
-        self.content_tab_action(1, 2, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         b.wait_attr("select option[value='dos-extended']", "disabled", "")
         self.dialog_cancel()

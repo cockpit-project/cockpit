@@ -23,7 +23,7 @@ import { array_find, encode_filename, decode_filename } from "./utils.js";
 
 import React from "react";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
-import { FormatButton, crypto_options_dialog_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
+import { crypto_options_dialog_fields, crypto_options_dialog_options } from "./format-dialog.jsx";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 
@@ -120,9 +120,6 @@ export class CryptoTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     { !self.props.client.is_old_udisks2
                         ? <React.Fragment>

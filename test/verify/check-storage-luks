@@ -167,7 +167,7 @@ class TestStorage(StorageCase):
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
 
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "luks+ext4",
                      "name": "ENCRYPTED",
                      "passphrase": "vainu-reku-toma-rolle-kaja",
@@ -245,7 +245,7 @@ class TestStorage(StorageCase):
         b.click('tr:contains("MYDISK")')
         b.wait_visible("#storage-detail")
         # create volume and passphrase
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "luks+ext4",
                      "name": "ENCRYPTED",
                      "passphrase": "vainu-reku-toma-rolle-kaja",

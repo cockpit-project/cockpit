@@ -74,7 +74,7 @@ class TestStorage(StorageCase):
         # Make a filesystem on it
 
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mounting": "custom",

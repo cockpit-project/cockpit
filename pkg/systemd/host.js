@@ -306,6 +306,10 @@ PageServer.prototype = {
         var $ntp_status = $('#system_information_systime_ntp_status');
 
         function update_ntp_status() {
+            // flag for tests that timedated proxy got activated
+            if (self.server_time.timedate.CanNTP !== undefined)
+                $('#system_information_systime_button').attr("data-timedated-initialized", true);
+
             if (!self.server_time.timedate.NTP) {
                 $ntp_status.hide();
                 $ntp_status.attr("data-original-title", null);

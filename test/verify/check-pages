@@ -118,13 +118,13 @@ OnCalendar=daily
 
         # This should be visible now
         b.switch_to_frame("cockpit1:localhost/playground/test")
-        b.wait_text("#hidden", "visible")
+        b.wait_visible("#hidden")
 
         # This should now say invisible
         b.switch_to_top()
         b.go("/@localhost/system/services")
         b.switch_to_frame("cockpit1:localhost/playground/test")
-        b.wait_text("#hidden", "hidden")
+        b.wait_not_visible("#hidden")
 
         b.switch_to_top()
 

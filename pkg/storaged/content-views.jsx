@@ -621,7 +621,7 @@ function append_logical_volume(client, rows, level, lvol) {
 function vgroup_rows(client, vgroup) {
     var rows = [ ];
     (client.vgroups_lvols[vgroup.path] || [ ]).forEach(function (lvol) {
-        if (lvol.ThinPool == "/")
+        if (lvol.ThinPool == "/" && lvol.Origin == "/")
             append_logical_volume(client, rows, 0, lvol);
     });
     return rows;

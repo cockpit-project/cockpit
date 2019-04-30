@@ -210,7 +210,7 @@ class MachinesLib(SeleniumTest):
                         storage_unit='G',
                         immediately_start=False):
         self.click(self.wait_css('#create-new-vm', cond=clickable))
-        self.wait_css('body > div:nth-child(2)')
+        self.wait_css('#create-vm-dialog')
 
         if connection == 'session':
             Select(self.wait_css('#connection')).select_by_visible_text('QEMU/KVM User connection')

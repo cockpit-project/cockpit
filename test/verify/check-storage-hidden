@@ -59,7 +59,8 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol")
 
         self.content_head_action(1, "Format")
-        self.dialog({"type": "luks+ext4",
+        self.dialog({"type": "ext4",
+                     "crypto.on": True,
                      "name": "FS",
                      "passphrase": "einszweidrei",
                      "passphrase2": "einszweidrei",

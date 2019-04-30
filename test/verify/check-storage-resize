@@ -29,12 +29,12 @@ from testlib import *
 @skipImage("UDisks doesn't have support for LVM", "debian-stable")
 class TestStorage(StorageCase):
 
-    def checkResize(self, fsys, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,
+    def checkResize(self, fsys, crypto, can_shrink, can_grow, shrink_needs_unmount=None, grow_needs_unmount=None,
                     need_passphrase=False):
         m = self.machine
         b = self.browser
 
-        if fsys.startswith("luks+"):
+        if crypto:
             fsys_row = 2
             fsys_tab = 1
         else:
@@ -57,7 +57,8 @@ class TestStorage(StorageCase):
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", fsys)
-        if fsys.startswith("luks+"):
+        if crypto:
+            self.dialog_set_val("crypto.on", crypto)
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
@@ -113,18 +114,18 @@ class TestStorage(StorageCase):
             self.wait_content_tab_action_disabled(1, 1, "Shrink")
 
     def testResizeExt4(self):
-        self.checkResize("ext4",
+        self.checkResize("ext4", False,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=False)
 
     def testResizeXfs(self):
-        self.checkResize("xfs",
+        self.checkResize("xfs", False,
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
     @skipImage("No NTFS support installed", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testResizeNtfs(self):
-        self.checkResize("ntfs",
+        self.checkResize("ntfs", None,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)
 
@@ -132,12 +133,12 @@ class TestStorage(StorageCase):
         # Only newer versions of UDisks support resizing encrypted block devices
         if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "fedora-29",
                                   "fedora-30", "fedora-testing", "fedora-i386", "debian-testing", "ubuntu-stable", "centos-7"]:
-            self.checkResize("luks+ext4",
+            self.checkResize("ext4", True,
                              can_shrink=True, shrink_needs_unmount=True,
                              can_grow=True, grow_needs_unmount=False,
                              need_passphrase=(self.machine.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]))
         else:
-            self.checkResize("luks+ext4",
+            self.checkResize("ext4", True,
                              can_shrink=False,
                              can_grow=False)
 
@@ -245,7 +246,8 @@ class TestStorage(StorageCase):
         self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
-        self.dialog_set_val("type", "luks+ext4")
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("crypto.on", True)
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()

@@ -106,25 +106,30 @@ export function mounting_dialog_options(vals) {
     return unparse_options(opts);
 }
 
-export function crypto_options_dialog_fields(options, visible) {
+export function crypto_options_dialog_fields(options, visible, include_store_passphrase) {
     var split_options = parse_options(options);
     var opt_auto = !extract_option(split_options, "noauto");
     var opt_ro = extract_option(split_options, "readonly");
     var extra_options = unparse_options(split_options);
 
+    var fields = [
+        { title: _("Unlock at boot"), tag: "auto" },
+        { title: _("Unlock read only"), tag: "ro" },
+        { title: _("Custom encryption options"), tag: "extra", type: "checkboxWithInput" },
+    ];
+
+    if (include_store_passphrase)
+        fields = [ { title: _("Store passphrase"), tag: "store_passphrase" } ].concat(fields);
+
     return [
-        CheckBoxes("crypto_options", _("Encryption Options"),
+        CheckBoxes("crypto_options", "",
                    { visible: visible,
                      value: {
                          auto: opt_auto,
                          ro: opt_ro,
                          extra: extra_options === "" ? false : extra_options
                      },
-                     fields: [
-                         { title: _("Unlock at boot"), tag: "auto" },
-                         { title: _("Unlock read only"), tag: "ro" },
-                         { title: _("Custom encryption options"), tag: "extra", type: "checkboxWithInput" },
-                     ]
+                     fields: fields
                    },
         ),
     ];
@@ -180,12 +185,12 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     else
         title = cockpit.format(_("Format $0"), utils.block_name(block));
 
-    function is_encrypted(vals) {
-        return vals.type == "luks+xfs" || vals.type == "luks+ext4";
-    }
-
     function is_filesystem(vals) {
         return vals.type != "empty" && vals.type != "dos-extended";
+    }
+
+    function is_encrypted(vals) {
+        return vals.crypto.on;
     }
 
     /* Older UDisks2 implementation don't have good
@@ -242,8 +247,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
     var filesystem_options = [ ];
     add_fsys("xfs", { value: "xfs", title: "XFS - " + _("Recommended default") });
     add_fsys("ext4", { value: "ext4", title: "EXT4" });
-    add_fsys("xfs", { value: "luks+xfs", title: _("Encrypted XFS (LUKS)") });
-    add_fsys("ext4", { value: "luks+ext4", title: _("Encrypted EXT4 (LUKS)") });
     add_fsys("vfat", { value: "vfat", title: "VFAT" });
     add_fsys("ntfs", { value: "ntfs", title: "NTFS" });
     add_fsys(true, { value: "empty", title: _("No Filesystem") });
@@ -284,29 +287,28 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                 { validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
                                   visible: is_filesystem
                                 }),
-                      PassInput("passphrase", _("Passphrase"),
-                                { validate: function (phrase) {
-                                    if (phrase === "")
-                                        return _("Passphrase cannot be empty");
-                                },
-                                  visible: is_encrypted
-                                }),
-                      PassInput("passphrase2", _("Confirm passphrase"),
-                                { validate: function (phrase2, vals) {
-                                    if (phrase2 != vals.passphrase)
-                                        return _("Passphrases do not match");
-                                },
-                                  visible: is_encrypted
-                                }),
-                      CheckBoxes("store_passphrase", "",
-                                 {
-                                     fields: [
-                                         { tag: "val", title: _("Store passphrase") }
-                                     ],
-                                     visible: is_encrypted_and_not_old_udisks2
-                                 })
-                  ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2))
-                          .concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
+                      CheckBoxes("crypto", "",
+                                 { fields: [
+                                     { tag: "on", title: _("Encrypt data") }
+                                 ]
+                                 }),
+                      [
+                          PassInput("passphrase", _("Passphrase"),
+                                    { validate: function (phrase) {
+                                        if (phrase === "")
+                                            return _("Passphrase cannot be empty");
+                                    },
+                                      visible: is_encrypted
+                                    }),
+                          PassInput("passphrase2", _("Confirm"),
+                                    { validate: function (phrase2, vals) {
+                                        if (phrase2 != vals.passphrase)
+                                            return _("Passphrases do not match");
+                                    },
+                                      visible: is_encrypted
+                                    })
+                      ].concat(crypto_options_dialog_fields(crypto_options, is_encrypted_and_not_old_udisks2, true))
+                  ].concat(mounting_dialog_fields(false, "", mount_options, is_filesystem_and_not_old_udisks2)),
                   update: function (dlg, vals, trigger) {
                       if (trigger == "crypto_options" && vals.crypto_options.auto == false)
                           dlg.set_nested_values("mount_options", { auto: false });
@@ -349,16 +351,14 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                                       "track-parents": { t: 'b', v: true }
                                   }]);
 
-                          var crypto_options = crypto_options_dialog_options(vals);
                           if (is_encrypted(vals)) {
-                              vals.type = vals.type.replace("luks+", "");
                               options["encrypt.passphrase"] = { t: 's', v: vals.passphrase };
 
                               var item = {
-                                  options: { t: 'ay', v: utils.encode_filename(crypto_options) },
+                                  options: { t: 'ay', v: utils.encode_filename(crypto_options_dialog_options(vals)) },
                                   "track-parents": { t: 'b', v: true }
                               };
-                              if (vals.store_passphrase && vals.store_passphrase.val) {
+                              if (vals.crypto_options && vals.crypto_options.store_passphrase) {
                                   item["passphrase-contents"] =
                                   { t: 'ay', v: utils.encode_filename(vals.passphrase) };
                               } else {

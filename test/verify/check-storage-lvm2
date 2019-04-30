@@ -273,13 +273,31 @@ class TestStorage(StorageCase):
         b.click('tr:contains("TEST")')
         b.wait_visible("#storage-detail")
 
+        # Create a thinpool and a thin volume in it
+
         m.execute("lvcreate TEST --thinpool pool -L 20m")
         m.execute("lvcreate -T TEST/pool -n thin -V 100m")
         self.content_row_wait_in_col(2, 2, "/dev/TEST/thin")
 
-        self.content_tab_action(2, 1, "Create Snapshot")
-        self.dialog({"name": "mysnapshot"})
+        # Create a logical volume and take a snapshot of it.  We will
+        # later check that the snapshot isn't shown.
 
+        m.execute("lvcreate TEST -n lvol0 -L 20m")
+        m.execute("lvcreate -s -n snap0 -L 20m TEST/lvol0")
+
+        # Take a snapshot of the thin volume and check that it appears
+
+        self.content_tab_action(3, 1, "Create Snapshot")
+        self.dialog({"name": "mysnapshot"})
+        self.content_row_wait_in_col(3, 2, "mysnapshot")
+
+        # Now check that the traditional snapshot is not shown.  We do
+        # this here to be sure that Cockpit is fully caught up and has
+        # actually ignored it instead of just not having gotten around
+        # to showing it.
+
+        self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol0")
+        b.wait_not_in_text("#storage-detail", "snap0")
 
 if __name__ == '__main__':
     test_main()

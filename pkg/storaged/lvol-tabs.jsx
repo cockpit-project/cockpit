@@ -347,14 +347,6 @@ export class BlockVolTab extends React.Component {
                           Fields: [
                               TextInput("name", _("Name"),
                                         { validate: utils.validate_lvm2_name }),
-                              SizeSlider("size", _("Size"),
-                                         { value: lvol.Size * 0.2,
-                                           max: lvol.Size,
-                                           round: vgroup.ExtentSize,
-                                           visible: function () {
-                                               return lvol.ThinPool == "/";
-                                           }
-                                         })
                           ],
                           Action: {
                               Title: _("Create"),
@@ -392,7 +384,7 @@ export class BlockVolTab extends React.Component {
         return (
             <div>
                 <div className="tab-actions">
-                    <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton>
+                    { pool && <StorageButton onClick={create_snapshot}>{_("Create Snapshot")}</StorageButton> }
                 </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Name")}</label>

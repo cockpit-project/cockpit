@@ -280,10 +280,6 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
-        def can_ntp():
-            return 'true' in m.execute(
-                'busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 CanNTP')
-
         conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
 
         # Use systemd-timedated as the provider of
@@ -292,16 +288,8 @@ class TestSystemInfo(MachineCase):
 
         self.login_and_go("/system")
 
-        # HACK: This check needs to stay here, since it solves the following race condition;
-        # Previously the test was opening the dialog before the proxy was initialized, resulting in showing only
-        # the manual select entry in the dialog.
-        # Keeping the can_ntp call here, will make sure that the dialog will get updated, since
-        # can_ntp call will start the timedated service, and the dialog will
-        # receive the changed signal to update the enabled select entries.
-        wait(can_ntp)
-
         # Wait until everything is ready to go...
-        b.wait_text_not("#system_information_systime_button", "")
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
 
         # Add two NTP servers.  We can't expect the servers to be used, so
         # we only test that they get added.

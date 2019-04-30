@@ -151,6 +151,27 @@ table.systemd-unit-relationship-table td:first-child {
   #services > .content-header-extra + .container-fluid {
     margin-top: 1rem;
   }
+
+  #services-list .service-unit-id {
+    min-width: 16em;
+    width: 16em;
+  }
+
+  #services-list .service-unit-description {
+    max-width: 50vw;
+  }
+
+  .service-unit-next,
+  .service-unit-last,
+  .service-unit-status,
+  .service-unit-data {
+    white-space: nowrap;
+  }
+
+  .service-unit-description {
+    /* Ask the browser to make the cell as wide as possible */
+    width: 100%;
+  }
 }
 
 #services-text-filter {
@@ -190,10 +211,6 @@ table.systemd-unit-relationship-table td:first-child {
   box-shadow: none;
 }
 
-#services-list table {
-  table-layout: fixed;
-}
-
 #services-list thead {
   color: #72767b; /* pf-black-600 */
   background-color: #fff;
@@ -210,8 +227,4 @@ table.systemd-unit-relationship-table td:first-child {
 #services-list tbody th {
   /* make tbody th padding the same as td */
   padding: 8px;
-}
-
-.service-unit-description {
-  width: 40%;
 }

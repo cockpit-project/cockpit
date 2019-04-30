@@ -159,7 +159,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.wait_css('#vm-{}-off'.format(name), cond=invisible)
         self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
         self.wait_css('#vm-{}-run'.format(name), cond=invisible)
-        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
+        self.wait_css('#vm-{}-disks-vda-device'.format(name), cond=invisible)
 
         self.assertEqual(int(self.machine.execute('sudo virsh domblklist {} | wc -l'.format(name))), 4)
 
@@ -178,6 +178,6 @@ class MachinesDisksTestSuite(MachinesLib):
         self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
         self.click(self.wait_css('#vm-{}-run'.format(name), cond=clickable))
         self.wait_css('#vm-{}-run'.format(name), cond=invisible)
-        self.wait_css('vm-{}-disks-vda-device'.format(name), cond=invisible)
+        self.wait_css('#vm-{}-disks-vda-device'.format(name), cond=invisible)
 
         self.assertEqual(int(self.machine.execute('sudo virsh domblklist {} | wc -l'.format(name))), 4)

@@ -831,7 +831,7 @@ class TestMachinesDBus(machineslib.TestMachines):
             ).execute()
 
             # iscsi-direct pool type is available since libvirt 4.7
-            if m.image not in ["rhel-8-0", "rhel-8-1"]:
+            if m.image not in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
                 StoragePoolCreateDialog(
                     self,
                     name="my_iscsi_direct_pool",

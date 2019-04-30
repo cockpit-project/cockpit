@@ -67,7 +67,7 @@ class TestRealms(MachineCase):
     def setUp(self):
         super().setUp()
         # classes converted to IDs in PR #11022
-        if self.machine.image == "rhel-7-6-distropkg":
+        if self.machine.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             self.op_address = ".realms-op-address"
             self.op_admin = ".realms-op-admin"
             self.op_admin_password = ".realms-op-admin-password"
@@ -105,7 +105,7 @@ class TestRealms(MachineCase):
         b.wait_popup("realms-op")
         with b.wait_timeout(180):
             b.set_val(self.op_address, "cockpit.lan")
-            if m.image != "rhel-7-6-distropkg":
+            if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
                 # changed in PR #11022
                 b.wait_text(".realms-op-address-error", "Contacted domain")
             b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
@@ -119,7 +119,7 @@ class TestRealms(MachineCase):
             wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
-        if m.image != "rhel-7-6-distropkg":
+        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             # fixed in Cockpit 186
             b.wait_present("#system_information_hostname_button[disabled]")
             b.mouse("#system_information_hostname_button", "mouseover")
@@ -206,7 +206,7 @@ class TestRealms(MachineCase):
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
-        if m.image != "rhel-7-6-distropkg":
+        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.wait_visible("#realms-op-info-domain")
             b.wait_text("#realms-op-info-domain", "cockpit.lan")
             b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
@@ -253,7 +253,7 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "NOPE")
-        if m.image != "rhel-7-6-distropkg":
+        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             # changed in PR #11022
             b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
             b.wait_not_visible(".realms-op-address-spinner")
@@ -306,7 +306,7 @@ class TestRealms(MachineCase):
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
 
         # Show domain information (PR #11096)
-        if m.image != "rhel-7-6-distropkg":
+        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             b.click("#system-info-domain a")
             b.wait_popup("realms-op")
             b.wait_visible("#realms-op-info-domain")
@@ -369,7 +369,7 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
-        if m.image != "rhel-7-6-distropkg":
+        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
             # changed in PR #11022
             b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
         else:
@@ -494,13 +494,13 @@ class TestKerberos(MachineCase):
         b.focus(".terminal")
 
         def line_sel(i):
-            if m.image == "rhel-7-6-distropkg":
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
                 return '.terminal div:nth-child(%d)' % i
             else:
                 return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_prompt(b, line):
-            if m.image == "rhel-7-6-distropkg":
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
                 b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(line))
             else:
                 b.wait_js_func("(function (sel) { return ph_text(sel).trim() != 'Blank line'})", line_sel(line))

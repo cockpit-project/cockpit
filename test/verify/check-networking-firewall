@@ -79,6 +79,7 @@ class TestFirewall(MachineCase):
         self.allow_journal_messages(".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
                                     ".*org.fedoraproject.FirewallD1: couldn't introspect /org/fedoraproject/FirewallD1/config: GDBus.Error:org.freedesktop.DBus.Error.NoReply: Message recipient disconnected from message bus without replying.*")
 
+    @skipImage("Button got fixed in PR #10975", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testFirewallPage(self):
         b = self.browser
         m = self.machine
@@ -119,9 +120,8 @@ class TestFirewall(MachineCase):
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
         # Test that service without name is shown properly
-        if m.image != "rhel-7-6-distropkg": # Fixed in #11318
-            m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
-            b.wait_present("tr[data-row-id='empty']")
+        m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
+        b.wait_present("tr[data-row-id='empty']")
 
         # switch service off again
         b.click(".btn-onoff-ct label.active span")
@@ -131,7 +131,8 @@ class TestFirewall(MachineCase):
         # "Add Services" button should be hidden again
         b.wait_not_present("caption button.btn-primary")
 
-    @skipImage("Filtering got fixed, and IDs changed to data-id in 184", "rhel-7-6-distropkg")
+    @skipImage("Filtering got fixed, IDs changed to data-id, and conversion to ListView in 191",
+               "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddServices(self):
         b = self.browser
         m = self.machine
@@ -192,7 +193,7 @@ class TestFirewall(MachineCase):
             b.click("caption button.btn-primary")
             b.wait_present("#cockpit_modal_dialog .list-view-pf input[data-id='empty']")
 
-    @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg")
+    @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddCustomServices(self):
         b = self.browser
 

@@ -93,8 +93,10 @@
     <br/>
     <div class="panel panel-default" id="networking-firewall" hidden>
       <div class="panel-heading">
-        <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
-        <div class="pull-right">
+        <h2 class="panel-title">
+          <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
+        </h2>
+        <div class="panel-actions">
           <div class="btn-group btn-onoff-ct" id="networking-firewall-switch" data-toggle="buttons">
               <label class="btn active">
                 <input type="radio" name="firewall" />
@@ -113,8 +115,8 @@
     <div class="panel panel-default"
          id="networking-interfaces">
       <div class="panel-heading">
-        <span translatable="yes">Interfaces</span>
-        <div class="pull-right">
+        <h2 class="panel-title" translatable="yes">Interfaces</h2>
+        <div class="panel-actions">
           <button translatable="yes" id="networking-add-bond" class="btn btn-default network-privileged">Add Bond</button>
           <button translatable="yes" id="networking-add-team" class="btn btn-default network-privileged">Add Team</button>
           <button translatable="yes" id="networking-add-bridge" class="btn btn-default network-privileged">Add Bridge</button>
@@ -137,7 +139,7 @@
     <div class="panel panel-default"
          id="networking-unmanaged-interfaces">
       <div class="panel-heading">
-        <span translatable="yes">Unmanaged Interfaces</span>
+        <h2 class="panel-title" translatable="yes">Unmanaged Interfaces</h2>
       </div>
       <table class="table">
         <thead>
@@ -154,7 +156,7 @@
     </div>
     <div class="panel panel-default cockpit-log-panel" role="table"
      aria-labelledby="networking-log-header">
-      <div class="panel-heading" translatable="yes" id="networking-log-header">Networking Logs</div>
+      <div class="panel-heading"><h2 class="panel-title" translatable="yes" id="networking-log-header">Networking Logs</h2></div>
       <div class="panel-body" id="networking-log" role="rowgroup"></div>
     </div>
   </div>
@@ -434,10 +436,10 @@
     <br/>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <span id="network-interface-name"></span>
+        <h2 class="panel-title" id="network-interface-name"></h2>
         <span id="network-interface-hw"></span>
         <span id="network-interface-mac"></span>
-        <div class="pull-right">
+        <div class="panel-actions">
           <button class="btn btn-danger network-privileged" id="network-interface-delete" translatable="yes">Delete</button>
           <div class="btn-onoff-ct" id="network-interface-delete-switch">
           </div>

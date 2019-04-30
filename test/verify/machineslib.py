@@ -517,7 +517,7 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-disks-hda-device", "disk")
         b.wait_in_text("#vm-subVmTest1-disks-hdb-device", "disk")
 
-        b.wait_in_text("#vm-subVmTest1-disks-hdb-source", "/var/lib/libvirt/images/subVmTest1-2.img")
+        b.wait_in_text("#vm-subVmTest1-disks-hdb-source-file", "/var/lib/libvirt/images/subVmTest1-2.img")
 
         # Test domstats
         self.wait_for_disk_stats("subVmTest1", "hda")
@@ -538,7 +538,7 @@ class TestMachines(NetworkCase):
 
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "/var/lib/libvirt/images/image3.img")
+        b.wait_in_text("#vm-subVmTest1-disks-vdc-source-file", "/var/lib/libvirt/images/image3.img")
 
         self.wait_for_disk_stats("subVmTest1", "vdc")
         if b.is_present("#vm-subVmTest1-disks-vdc-used"):
@@ -599,7 +599,10 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-disks-vda-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vda-device", "disk")
         # should be gone after shut down
-        b.wait_in_text("#vm-subVmTest1-disks-vda-source", "mydiskofpoolone_temporary")
+        if self.provider == "libvirt-dbus":
+            b.wait_in_text('#vm-subVmTest1-disks-vda-source-volume', "mydiskofpoolone_temporary")
+        else:
+            b.wait_in_text('#vm-subVmTest1-disks-vda-source-file', "mydiskofpoolone_temporary")
 
         b.click("#vm-subVmTest1-disks-adddisk")
         b.click("#vm-subVmTest1-disks-adddisk-new-permanent")
@@ -610,8 +613,13 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
         b.wait_in_text("#vm-subVmTest1-disks-vdb-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdb-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdb-source",
-                       "mydiskofpoolone_permanent") # should survive the shut down
+        # should survive the shut down
+        if self.provider == "libvirt-dbus":
+            b.wait_in_text("#vm-subVmTest1-disks-vdb-source-volume",
+                           "mydiskofpoolone_permanent")
+        else:
+            b.wait_in_text("#vm-subVmTest1-disks-vdb-source-file",
+                           "mydiskofpoolone_permanent")
 
         b.click("#vm-subVmTest1-disks-adddisk") # radio button label in the modal dialog
         b.click("label:contains(Use Existing)") # radio button label in the modal dialog
@@ -632,7 +640,12 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdc-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdc-source", "mydiskofpooltwo_permanent")
+        if self.provider == "libvirt-dbus":
+            b.wait_in_text("#vm-subVmTest1-disks-vdc-source-volume",
+                           "mydiskofpooltwo_permanent")
+        else:
+            b.wait_in_text("#vm-subVmTest1-disks-vdc-source-file",
+                           "mydiskofpooltwo_permanent")
 
         detect_format_cmd = "virsh dumpxml subVmTest1 | xmllint --xpath '/domain/devices/disk[@type=\"{0}\"]/driver[@type=\"qcow2\"]' -"
         if self.provider == "libvirt-dbus":
@@ -664,7 +677,10 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-device", "disk")
-        b.wait_in_text("#vm-subVmTest1-disks-vdd-source", "defaultVol")
+        if self.provider == "libvirt-dbus":
+            b.wait_in_text("#vm-subVmTest1-disks-vdd-source-volume", "defaultVol")
+        else:
+            b.wait_in_text("#vm-subVmTest1-disks-vdd-source-file", "defaultVol")
 
         # shut off
         b.click("#vm-subVmTest1-off-caret")
@@ -723,8 +739,7 @@ class TestMachines(NetworkCase):
 
         b.click("#vm-subVmTest1-vcpus-count") # open VCPU modal detail window
 
-        b.wait_present(".vcpu-detail-modal-table")
-        b.is_present(".machines-vcpu-caution")
+        b.wait_present(".modal-body")
 
         # Test basic vCPU properties
         b.wait_val("#machines-vcpu-count-field", "1")
@@ -742,7 +757,7 @@ class TestMachines(NetworkCase):
 
         # Save
         b.click("#machines-vcpu-modal-dialog-apply")
-        b.wait_not_present("#machines-vcpu-modal-dialog")
+        b.wait_not_present(".modal-body")
 
         # Shut off VM for applying changes after save
         b.click("#vm-subVmTest1-off-caret")
@@ -765,7 +780,7 @@ class TestMachines(NetworkCase):
 
         # Open dialog window
         b.click("#vm-subVmTest1-vcpus-count")
-        b.wait_present(".vcpu-detail-modal-table")
+        b.wait_present(".modal-body")
 
         # Check basic values
         b.wait_val("#machines-vcpu-count-field", "3")
@@ -788,8 +803,7 @@ class TestMachines(NetworkCase):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
 
-        b.wait_present(".vcpu-detail-modal-table")
-        b.wait_not_present(".machines-vcpu-caution")
+        b.wait_present(".modal-body")
 
         b.set_input_text("#machines-vcpu-count-field", "2")
 
@@ -813,7 +827,7 @@ class TestMachines(NetworkCase):
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
 
-        b.wait_present(".vcpu-detail-modal-table")
+        b.wait_present(".modal-body")
 
         # Set new socket value
         b.wait_val("#coresSelect", "2")
@@ -902,7 +916,11 @@ class TestMachines(NetworkCase):
             b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
             b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
 
-            b.wait_present("#vm-subVmTest1-disks-vda-source")
+            if self.provider == "libvirt-dbus":
+                b.wait_present("#vm-subVmTest1-disks-vda-source-volume")
+                b.wait_present("#vm-subVmTest1-disks-vda-source-pool")
+            else:
+                b.wait_present("#vm-subVmTest1-disks-vda-source-file")
 
         secondDiskVolName = "mydisk"
         poolName = "images"
@@ -1631,7 +1649,7 @@ class TestMachines(NetworkCase):
             # Test disk got imported/created
             if dialog.sourceType == 'disk_image':
                 b.wait_present("#vm-{0}-disks-vda-device".format(name))
-                b.wait_in_text("#vm-{0}-disks-vda-source td.machines-disks-source-value".format(name), dialog.location)
+                b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
             elif dialog.storage_size > 0:
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")

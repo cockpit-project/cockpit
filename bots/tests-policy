@@ -169,7 +169,7 @@ def guessFlake(output, context, verbose=False):
             data = urllib.request.urlopen(url, data=jsonl.encode('utf-8')).read()
         except (ConnectionResetError, urllib.error.URLError, socket.gaierror) as ex:
             sys.stderr.write("{0}: {1}\n".format(url, ex))
-            data = "{ }"
+            data = b"{ }"
         try:
             response = json.loads(data.decode('utf-8'))
         except ValueError as ex:

@@ -20,35 +20,34 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import InfoRecord from './infoRecord.jsx';
-
 const _ = cockpit.gettext;
 
 const DiskSourceCell = ({ diskSource, idPrefix }) => {
-    const addOptional = (chunks, value, descr) => {
+    const addOptional = (chunks, value, type, descr) => {
         if (value) {
-            chunks.push(<InfoRecord descrClass='machines-disks-source-descr' descr={descr}
-                                    valueClass='machines-disks-source-value' value={value}
-                                    key={descr} />);
+            chunks.push(
+                <div className='ct-form-layout' key={descr}>
+                    <label htmlFor={`${idPrefix}-source-${type}`} className='control-label'>
+                        {descr}
+                    </label>
+                    <div id={`${idPrefix}-source-${type}`}>
+                        {value}
+                    </div>
+                </div>
+            );
         }
     };
 
     const chunks = [];
-    addOptional(chunks, diskSource.file, _("File"));
-    addOptional(chunks, diskSource.dev, _("Device"));
-    addOptional(chunks, diskSource.protocol, _("Protocol"));
-    addOptional(chunks, diskSource.pool, _("Pool"));
-    addOptional(chunks, diskSource.volume, _("Volume"));
-    addOptional(chunks, diskSource.host.name, _("Host"));
-    addOptional(chunks, diskSource.host.port, _("Port"));
+    addOptional(chunks, diskSource.file, "file", _("File"));
+    addOptional(chunks, diskSource.dev, "device", _("Device"));
+    addOptional(chunks, diskSource.protocol, "protocol", _("Protocol"));
+    addOptional(chunks, diskSource.pool, "pool", _("Pool"));
+    addOptional(chunks, diskSource.volume, "volume", _("Volume"));
+    addOptional(chunks, diskSource.host.name, "host", _("Host"));
+    addOptional(chunks, diskSource.host.port, "port", _("Port"));
 
-    return (
-        <table className='machines-disks-source' id={`${idPrefix}-source`}>
-            <tbody>
-                {chunks}
-            </tbody>
-        </table>
-    );
+    return chunks;
 };
 
 DiskSourceCell.propTypes = {

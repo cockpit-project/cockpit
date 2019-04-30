@@ -643,7 +643,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         class StoragePoolCreateDialog(object):
             def __init__(
                 self, test_obj, name, pool_type=None, target=None, source={},
-                autostart=None, xfail=False, xfail_error=None,
+                autostart=None, xfail=False, xfail_error=None, remove=True,
             ):
                 self.test_obj = test_obj
                 self.name = name
@@ -653,6 +653,7 @@ class TestMachinesDBus(machineslib.TestMachines):
                 self.autostart = autostart
                 self.xfail = xfail
                 self.xfail_error = xfail_error
+                self.remove = remove
 
             def execute(self):
                 self.open()
@@ -661,6 +662,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 if not self.xfail:
                     self.verify_dialog()
                     self.verify_overview()
+                    if self.remove:
+                        self.cleanup()
 
             def open(self):
                 b.click("#create-storage-pool")
@@ -681,6 +684,9 @@ class TestMachinesDBus(machineslib.TestMachines):
 
                 if 'host' in self.source:
                     b.set_input_text("#storage-pool-dialog-host", self.source['host'])
+
+                if 'initiator' in self.source:
+                    b.set_input_text('#storage-pool-dialog-initiator', self.source['initiator'])
 
                 if (self.autostart):
                     b.click("storage-pool-dialog-autostart")
@@ -720,7 +726,8 @@ class TestMachinesDBus(machineslib.TestMachines):
                 xmllint_element = "{0} | xmllint --xpath 'string(//pool/{{prop}})' - 2>&1 || true".format(pool_xml)
 
                 self.test_obj.assertEqual(self.name, m.execute(xmllint_element.format(prop='name')).strip())
-                self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')).strip() + '/')
+                if (self.target):
+                    self.test_obj.assertEqual(self.target, m.execute(xmllint_element.format(prop='target/path')).strip() + '/')
                 self.test_obj.assertEqual(self.pool_type, m.execute(xmllint_element.format(prop='@type')).strip())
 
                 host = m.execute(xmllint_element.format(prop='source/host/@name')).strip()
@@ -736,23 +743,34 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     self.test_obj.assertEqual("", host.rstrip())
 
+                initiator = m.execute(xmllint_element.format(prop='source/initiator/iqn/@name')).strip()
+                if "initiator" in self.source:
+                    self.test_obj.assertEqual(self.source["initiator"], initiator)
+                else:
+                    self.test_obj.assertEqual("", initiator.rstrip())
+
             def verify_overview(self):
                 # Check basic pool properties
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()
                 b.click("tbody tr[data-row-id=pool-{0}-{1}] th".format(self.name, connectionName)) # click on the row header
 
-                b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
+                if self.target:
+                    b.wait_in_text("#pool-{0}-{1}-target-path".format(self.name, connectionName), self.target[:-1])
                 b.wait_in_text("#pool-{0}-{1}-type".format(self.name, connectionName), self.pool_type)
                 if "host" in self.source:
                     b.wait_in_text("#pool-{0}-{1}-host".format(self.name, connectionName), self.source["host"])
                 if "source_path" in self.source:
                     b.wait_in_text("#pool-{0}-{1}-source-path".format(self.name, connectionName), self.source["source_path"])
 
+            def cleanup(self):
+                m.execute("virsh pool-destroy {0} && virsh pool-undefine {0}".format(self.name))
+
         StoragePoolCreateDialog(
             self,
             name="my_dir_pool_one",
             pool_type="dir",
             target="/tmp/my_dir_pool_one/",
+            remove=False,
         ).execute()
 
         # XFAIL: Try to create a pool with used name
@@ -764,6 +782,9 @@ class TestMachinesDBus(machineslib.TestMachines):
             xfail=True,
             xfail_error="pool 'my_dir_pool_one' already exists"
         ).execute()
+
+        # Manually remove the created pool
+        m.execute("virsh pool-destroy my_dir_pool_one && virsh pool-undefine my_dir_pool_one")
 
         # XFAIL: Try to create a pool with incomplete modal dialog
         StoragePoolCreateDialog(
@@ -808,6 +829,17 @@ class TestMachinesDBus(machineslib.TestMachines):
                 target="/dev/disk/by-path/",
                 source={"host": "127.0.0.1", "source_path": target_iqn}
             ).execute()
+
+            # iscsi-direct pool type is available since libvirt 4.7 which is not available yet in RHEL
+            if m.image not in ["rhel-8.0", "rhel-8.1"]:
+                StoragePoolCreateDialog(
+                    self,
+                    name="my_iscsi_direct_pool",
+                    pool_type="iscsi-direct",
+                    source={"host": "127.0.0.1",
+                            "source_path": target_iqn,
+                            "initiator": orig_iqn}
+                ).execute()
 
 
 if __name__ == '__main__':

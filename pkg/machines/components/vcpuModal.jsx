@@ -8,6 +8,8 @@ import * as SelectComponent from 'cockpit-components-select.jsx';
 import InfoRecord from './infoRecord.jsx';
 import { setVCPUSettings } from "../actions/provider-actions.js";
 
+import './vcpuModal.css';
+
 const _ = cockpit.gettext;
 
 const dividers = (num) => {
@@ -30,8 +32,8 @@ const clamp = (value, max, min) => {
     return value < min || isNaN(value) ? min : (value > max ? max : value);
 };
 
-const Select = function ({ id, items, onChange, value }) {
-    return (<SelectComponent.Select id={id} initial={value} onChange={onChange}>
+const Select = function ({ extraClass, id, items, onChange, value }) {
+    return (<SelectComponent.Select extraClass={extraClass} id={id} initial={value} onChange={onChange}>
         {items.map((t) => (
             <SelectComponent.SelectEntry key={t} data={t}>{t}</SelectComponent.SelectEntry>
         ))}
@@ -184,47 +186,33 @@ export class VCPUModal extends React.Component {
         }
 
         const defaultBody = (
-            <div className="modal-body">
-                <table className="vcpu-detail-modal-table">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <table className='form-table-ct'>
-                                    <tbody>
-                                        <InfoRecord
-                                            descr={_("vCPU Count")}
-                                            tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
-                                            value={<input id="machines-vcpu-count-field" type="number" className="form-control" value={this.state.count} onChange={this.onCountSelect} />}
-                                        />
-                                        <InfoRecord
-                                            descr={_("vCPU Maximum")}
-                                            tooltip={cockpit.format(
-                                                _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
-                                                parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName])
-                                            )}
-                                            value={<input id="machines-vcpu-max-field" type="number" className="form-control" onChange={this.onMaxChange} value={this.state.max} />}
-                                        />
-                                    </tbody>
-                                </table>
-                            </td>
-                            <td>
-                                <table className='form-table-ct vcpu-detail-modal-right'>
-                                    <tbody>
-                                        <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
-                                            <Select id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                        } />
-                                        <InfoRecord descr={_("Cores per socket")} value={
-                                            <Select id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                        } />
-                                        <InfoRecord descr={_("Threads per core")} value={
-                                            <Select id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
-                                        } />
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className="vcpu-modal-grid">
+                <div className="ct-form-layout">
+                    <InfoRecord
+                        descr={_("vCPU Count")}
+                        tooltip={_("Fewer than the maximum number of virtual CPUs should be enabled.")}
+                        value={<input id="machines-vcpu-count-field" type="number" className="form-control ct-form-layout-stretch" value={this.state.count} onChange={this.onCountSelect} />}
+                    />
+                    <InfoRecord
+                        descr={_("vCPU Maximum")}
+                        tooltip={cockpit.format(
+                            _("Maximum number of virtual CPUs allocated for the guest OS, which must be between 1 and $0"),
+                            parseInt(this.props.config.hypervisorMaxVCPU[vm.connectionName])
+                        )}
+                        value={<input id="machines-vcpu-max-field" type="number" className="form-control ct-form-layout-stretch" onChange={this.onMaxChange} value={this.state.max} />}
+                    />
+                </div>
+                <div className="ct-form-layout">
+                    <InfoRecord descr={_("Sockets")} tooltip={_("Preferred number of sockets to expose to the guest.")} value={
+                        <Select extraClass='ct-form-layout-stretch' id='socketsSelect' value={this.state.sockets.toString()} onChange={this.onSocketChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    } />
+                    <InfoRecord descr={_("Cores per socket")} value={
+                        <Select extraClass="ct-form-layout-stretch" id='coresSelect' value={this.state.cores.toString()} onChange={this.onCoresChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    } />
+                    <InfoRecord descr={_("Threads per core")} value={
+                        <Select extraClass="ct-form-layout-stretch" id='threadsSelect' value={this.state.threads.toString()} onChange={this.onThreadsChange} items={dividers(this.state.max).map((t) => t.toString())} />
+                    } />
+                </div>
             </div>
         );
 

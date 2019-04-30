@@ -88,6 +88,14 @@ export function getPoolXML({ name, type, source, target }) {
         hostElem.setAttribute('name', source.host);
         sourceElem.appendChild(hostElem);
     }
+    if (source.initiator) {
+        let initiatorElem = doc.createElement('initiator');
+        let iqnElem = doc.createElement('iqn');
+
+        iqnElem.setAttribute('name', source.initiator);
+        initiatorElem.appendChild(iqnElem);
+        sourceElem.appendChild(initiatorElem);
+    }
     if (source.host || source.dir)
         poolElem.appendChild(sourceElem);
 

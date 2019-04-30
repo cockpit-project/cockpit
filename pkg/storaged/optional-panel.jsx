@@ -90,23 +90,23 @@ export class OptionalPanel extends React.Component {
             heading_right = <StorageButton kind="primary" onClick={install}>{install_title}</StorageButton>;
         } else {
             heading_right = (
-                <span>
+                <React.Fragment>
                     { this.state.just_installed
                         ? <span className={this.state.just_installed}>{_("Support is installed.")}</span>
                         : null
                     }
                     { actions }
-                </span>
+                </React.Fragment>
             );
         }
 
         return (
             <div className={"panel panel-default " + className} id={id}>
                 <div className="panel-heading">
-                    <span className="pull-right">
+                    <h2 className="panel-title">{title}</h2>
+                    <div className="panel-actions">
                         { heading_right }
-                    </span>
-                    <span>{title}</span>
+                    </div>
                 </div>
                 { feature_enabled
                     ? this.props.children

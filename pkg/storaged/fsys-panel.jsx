@@ -100,7 +100,7 @@ export class FilesystemsPanel extends React.Component {
         return (
             <div id="mounts" className="panel panel-default storage-mounts">
                 <div className="panel-heading">
-                    <span>{_("Filesystems")}</span>
+                    <h2 className="panel-title">{_("Filesystems")}</h2>
                 </div>
                 <table className="table table-hover">
                     <thead>

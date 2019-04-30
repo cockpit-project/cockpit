@@ -134,7 +134,7 @@ class MachinesDisksTestSuite(MachinesLib):
         self.wait_css('#vm-{}-off'.format(name), cond=invisible)
 
         # It seems that infoRecord component was adjusted to not use table,
-        # so disable these two assert, i will modify them in the future
+        # so disable these two assert, modify them in the future
         # self.assertEqual(
         #     self.wait_css('#vm-staticvm-disks-vda-source > tbody > tr:nth-child(2) > td:nth-child(2)').text,
         #     'qcow2disk')

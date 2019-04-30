@@ -416,6 +416,8 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-user-input", "admin")
 
         # Connect to machine2
+        b.click(login_options)
+        b.wait_visible("#server-group")
         b.set_val("#server-field", "10.111.113.2")
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')

@@ -165,7 +165,8 @@ class TestStorage(StorageCase):
 
         self.content_head_action(1, "Format")
         self.dialog_wait_open()
-        self.dialog_set_val("type", "luks+ext4")
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("crypto.on", True)
         self.dialog_set_val("mounting", "custom")
 
         def wait_checked(field):

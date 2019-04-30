@@ -49,15 +49,16 @@ class TestStorage(StorageCase):
         self.content_row_action(1, "Create Partition")
         self.dialog_wait_open()
         self.dialog_set_val("size", 17)
-        self.dialog_set_val("type", "luks+ext4")
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("crypto.on", True)
         self.dialog_set_val("name", "ENCRYPTED")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         if not self.storaged_is_old_udisks:
-            self.dialog_set_val("store_passphrase.val", True)
+            self.dialog_set_val("crypto_options.store_passphrase", True)
+            self.dialog_set_val("crypto_options.extra", "crypto,options")
             self.dialog_set_val("mounting", "custom")
             self.dialog_set_val("mount_point", mount_point_secret)
-            self.dialog_set_val("crypto_options.extra", "crypto,options")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 1, "Encrypted data")
@@ -168,7 +169,8 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
 
         self.content_head_action(1, "Format")
-        self.dialog({"type": "luks+ext4",
+        self.dialog({"type": "ext4",
+                     "crypto.on": True,
                      "name": "ENCRYPTED",
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
@@ -246,7 +248,8 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         # create volume and passphrase
         self.content_head_action(1, "Format")
-        self.dialog({"type": "luks+ext4",
+        self.dialog({"type": "ext4",
+                     "crypto.on": True,
                      "name": "ENCRYPTED",
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
@@ -352,6 +355,26 @@ class TestStorage(StorageCase):
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
         self.content_row_wait_in_col(2, 1, "ext4 File System")
 
+
+    def testNoFsys(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks, but without filesystem
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('tr:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_head_action(1, "Format")
+        self.dialog({"type": "empty",
+                     "crypto.on": True,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 1, "Encrypted data")
+        self.content_row_wait_in_col(2, 1, "Unrecognized Data")
 
 if __name__ == '__main__':
     test_main()

@@ -338,9 +338,9 @@ WantedBy=default.target
         # checks for invalid input messages
         b.wait_text("#servicename-error", "Only alphabets, numbers, : , _ , . , @ , - are allowed.")
         b.wait_text("#description-error", "This field cannot be empty.")
-        b.wait_text("#command-error", "")
         b.wait_text("#min-error", "Minute needs to be a number between 0-59")
         b.wait_text("#hr-error", "Hour needs to be a number between 0-23")
+        b.wait_not_visible("#command-error")
         b.click("#drop-repeat button")
         b.click("#drop-repeat .dropdown-menu li[value=10080] a")
         b.click("[data-content='add'][data-index=0]")

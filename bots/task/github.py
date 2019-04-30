@@ -111,8 +111,15 @@ class GitHubError(RuntimeError):
                 '  Reason: {2}\n'
                 '  Response: {3}'.format(self.url, self.status, self.reason, self.data))
 
+def get_repo():
+    res = subprocess.check_output(['git', 'config', '--default=', 'cockpit.bots.github-repo'])
+    return res.decode('utf-8').strip() or None
+
 def get_origin_repo():
-    res = subprocess.check_output([ "git", "remote", "get-url", "origin" ])
+    try:
+        res = subprocess.check_output([ "git", "remote", "get-url", "origin" ])
+    except subprocess.CalledProcessError as e:
+        return None
     url = res.decode('utf-8').strip()
     m = re.fullmatch("(git@github.com:|https://github.com/)(.*?)(\\.git)?", url)
     if m:
@@ -121,11 +128,10 @@ def get_origin_repo():
 
 class GitHub(object):
     def __init__(self, base=None, cacher=None, repo=None):
-        if base is None:
-            self.repo = repo or os.environ.get("GITHUB_BASE", None) or get_origin_repo()
-            netloc = os.environ.get("GITHUB_API", "https://api.github.com")
-            base = "{0}/repos/{1}/".format(netloc, self.repo)
-        self.url = urllib.parse.urlparse(base)
+        self._repo = repo
+        self._base = base
+        self._url = None
+
         self.conn = None
         self.token = None
         self.debug = False
@@ -149,6 +155,30 @@ class GitHub(object):
         # Create a log for debugging our GitHub access
         self.log = Logger(self.cache.directory)
         self.log.write("")
+
+    @property
+    def repo(self):
+        if not self._repo:
+            self._repo = os.environ.get("GITHUB_BASE", None) or get_repo() or get_origin_repo()
+            if not self._repo:
+                raise RuntimeError('Could not determine the github repository:\n'
+                                   '  - some commands accept a --repo argument\n'
+                                   '  - you can set the GITHUB_BASE environment variable\n'
+                                   '  - you can set git config cockpit.bots.github-repo\n'
+                                   '  - otherwise, the "origin" remote from the current checkout is used')
+
+        return self._repo
+
+    @property
+    def url(self):
+        if not self._url:
+            if not self._base:
+                netloc = os.environ.get("GITHUB_API", "https://api.github.com")
+                self._base = "{0}/repos/{1}/".format(netloc, self.repo)
+
+            self._url = urllib.parse.urlparse(self._base)
+
+        return self._url
 
     def qualify(self, resource):
         return urllib.parse.urljoin(self.url.path, resource)

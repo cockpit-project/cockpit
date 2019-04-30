@@ -27,7 +27,7 @@ REPO_BRANCH_CONTEXT = {
             'selenium/firefox', 'selenium/chrome', 'verify/centos-7', 'verify/debian-stable',
             'verify/debian-testing', 'verify/fedora-29', 'verify/fedora-30', 'verify/fedora-atomic',
             'verify/ubuntu-1804', 'verify/ubuntu-stable', 'verify/rhel-7-6-distropkg',
-            'verify/rhel-7-7', 'verify/rhel-8-0', 'verify/rhel-atomic', 'selenium/edge',
+            'verify/rhel-7-7', 'verify/rhel-8-0-distropkg', 'verify/rhel-atomic', 'selenium/edge',
             'verify/rhel-8-1',
         ],
         'rhel-7.6': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
@@ -40,13 +40,12 @@ REPO_BRANCH_CONTEXT = {
             'verify/rhel-8-0',
         ],
         'rhel-8-appstream': ['avocado/fedora', 'container/bastion', 'selenium/firefox',
-            'selenium/chrome', 'verify/rhel-8-0', 'verify/rhel-8-1',
+            'selenium/chrome', 'verify/rhel-8-0-distropkg', 'verify/rhel-8-1',
         ],
         'rhel-8.1': ['verify/rhel-8-1',
         ],
         # These can be triggered manually with bots/tests-trigger
         '_manual': ['verify/continuous-atomic', 'verify/fedora-i386', 'verify/fedora-testing',
-            'verify/rhel-8-0-distropkg'
         ],
     },
     'cockpit-project/starter-kit': {

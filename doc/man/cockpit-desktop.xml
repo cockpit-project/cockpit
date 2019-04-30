@@ -78,10 +78,9 @@
     <para>
       The <literal>BROWSER </literal> environment variable specifies
       the browser command (and possibly options) that will be used to open the
-      requested Cockpit page. If not set, <command>cockpit-desktop</command> uses
-      <citerefentry>
-        <refentrytitle>xdg-open</refentrytitle><manvolnum>1</manvolnum>
-      </citerefentry>.
+      requested Cockpit page. If not set, <command>cockpit-desktop</command> attempts to use
+      an internal minimalistic WebKit browser, and failing that, will attempt to detect some
+      reasonable alternatives.
     </para>
   </refsect1>
 

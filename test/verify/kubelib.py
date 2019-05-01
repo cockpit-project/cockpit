@@ -655,7 +655,7 @@ class KubernetesCommonTests(VolumeTests):
             })""", "true")
 
         b.wait_present("div.sidebar-pf-right")
-        b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer", "127.0.0.1")
+        b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer > div", "127.0.0.1")
         b.wait_in_text("div.sidebar-pf-right kubernetes-object-describer h3:first", "Node")
 
 
@@ -915,7 +915,7 @@ class RegistryTests(object):
         b.click("tbody[data-id='default/busybox'] th")
         b.wait_in_text(".content-filter h3", "default/busybox")
         b.wait_in_text("#content", "Annotations")
-        b.wait_in_text("registry-imagestream-meta", "openshift.io/image.dockerRepositoryCheck")
+        b.wait_in_text("registry-imagestream-meta dl", "openshift.io/image.dockerRepositoryCheck")
 
         # Delete the tagged image from its own screen
         b.go("#/images/marmalade/busybee:0.x")
@@ -946,13 +946,13 @@ class RegistryTests(object):
 
         # Various labels should show up in this image
         b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-panel", "Juggs Image")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body",
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body dl.dl-horizontal",
                        "This is a test description of an image. It can be as long as a paragraph, featuring a nice brogrammer sales pitch.")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body", "http://hipsum.co")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-body dl.dl-horizontal", "http://hipsum.co")
 
         # And some key labels shouldn't show up on the metadata
         b.click("tbody[data-id='marmalade/juggs:2.9'] .listing-ct-head li:last-child a")
-        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta", "build-date=2016-03-04")
+        b.wait_in_text("tbody[data-id='marmalade/juggs:2.9'] registry-image-meta dl", "build-date=2016-03-04")
 
         # Check panel navigations
         b.go("#/images")

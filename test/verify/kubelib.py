@@ -389,6 +389,7 @@ class KubernetesCommonTests(VolumeTests):
         b.upload_file("#deploy-app-manifest-file", os.path.join(base_dir, "files/mock-k8s-tiny-app.json"))
         b.wait_val("#deploy-app-namespace", "")
         b.set_val("#deploy-app-namespace", "mynamespace1")
+        b.click("#deploy-app-namespace-group > span button")
         b.wait_in_text("#deploy-app-namespace-group ul", "default")
         b.click("modal-dialog .btn-primary")
         b.wait_not_present("modal-dialog .dialog-wait-ct")

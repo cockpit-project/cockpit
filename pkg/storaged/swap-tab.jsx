@@ -22,7 +22,6 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import { StorageButton } from "./storage-controls.jsx";
-import { FormatButton } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -77,7 +76,6 @@ export class SwapTab extends React.Component {
                         ? <StorageButton onClick={stop}>{_("Stop")}</StorageButton>
                         : <StorageButton onClick={start}>{_("Start")}</StorageButton>
                     }
-                    <FormatButton client={this.props.client} block={this.props.block} />
                 </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Used")}</label>

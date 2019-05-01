@@ -146,9 +146,6 @@ export class FilesystemTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatDialog.FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Name")}</label>
                     <StorageLink onClick={rename_dialog}>

@@ -52,7 +52,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
-        self.content_tab_action(1, 2, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
         self.dialog_set_val("name", "FSYS")
@@ -187,7 +187,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
-        self.content_tab_action(1, 2, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", "ext4")
@@ -242,7 +242,7 @@ class TestStorage(StorageCase):
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
-        self.content_tab_action(1, 2, "Format")
+        self.content_head_action(1, "Format")
         self.dialog_wait_open()
         self.dialog_set_val("name", "FSYS")
         self.dialog_set_val("type", "luks+ext4")

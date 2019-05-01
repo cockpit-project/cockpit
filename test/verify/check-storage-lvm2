@@ -147,7 +147,7 @@ class TestStorage(StorageCase):
         self.dialog({"size": 30})
 
         # format and mount it
-        self.content_tab_action(1, 2, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mounting": "custom",
                      "mount_point": mount_point_one})
@@ -207,7 +207,7 @@ class TestStorage(StorageCase):
         b.wait_present('#detail-sidebar tr:nth-child(2) button.disabled')
 
         # use almost all of the pool by erasing the thin volume
-        self.content_tab_action(2, 2, "Format")
+        self.content_head_action(2, "Format")
         self.dialog({"erase": "zero",
                      "type": "ext4",
                      "mounting": "custom",

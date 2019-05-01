@@ -314,6 +314,10 @@ function create_tabs(client, target, is_partition) {
         add_action(_("Delete"), delete_, excuse);
     }
 
+    if (block) {
+        add_action(_("Format"), () => format_dialog(client, block.path));
+    }
+
     return {
         renderers: tabs,
         actions: <React.Fragment>{tab_actions}</React.Fragment>,

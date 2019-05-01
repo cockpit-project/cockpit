@@ -111,7 +111,7 @@ class TestStorage(StorageCase):
         b.click('#drives tr:contains("LIO-ORG test")')
         b.wait_present('#storage-detail')
         self.content_row_wait_in_col(1, 1, "Unrecognized Data")
-        self.content_tab_action(1, 1, "Format")
+        self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mounting": "custom",

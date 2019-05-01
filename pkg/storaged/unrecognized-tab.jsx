@@ -20,17 +20,12 @@
 import React from "react";
 import cockpit from "cockpit";
 
-import { FormatButton } from "./format-dialog.jsx";
-
 const _ = cockpit.gettext;
 
 export class UnrecognizedTab extends React.Component {
     render() {
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Usage")}</label>
                     <div>{this.props.block.IdUsage || "-"}</div>

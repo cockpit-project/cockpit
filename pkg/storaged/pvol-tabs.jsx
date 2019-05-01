@@ -22,8 +22,6 @@ import React from "react";
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
-import { FormatButton } from "./format-dialog.jsx";
-
 const _ = cockpit.gettext;
 
 export class PVolTab extends React.Component {
@@ -33,9 +31,6 @@ export class PVolTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("Volume Group")}</label>
                     <div>{vgroup
@@ -60,9 +55,6 @@ export class MDRaidMemberTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("RAID Device")}</label>
                     <div>{mdraid
@@ -84,9 +76,6 @@ export class VDOBackingTab extends React.Component {
 
         return (
             <div>
-                <div className="tab-actions">
-                    <FormatButton client={this.props.client} block={this.props.block} />
-                </div>
                 <div className="ct-form-layout">
                     <label className="control-label">{_("VDO Device")}</label>
                     <div>{vdo

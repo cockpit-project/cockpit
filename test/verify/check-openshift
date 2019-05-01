@@ -97,7 +97,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         b.wait_in_text("#kubernetes-cluster button", "10-111-112-101:8443")
         b.wait_in_text("#kubernetes-user button", "system:admin/10-111-112-101:8443")
-        b.wait_in_text("modal-dialog", "Client Certificate")
+        b.wait_in_text("modal-dialog .modal-body", "Client Certificate")
 
         b.click("#kubernetes-user button")
         b.click("#kubernetes-user ul li:last-child a")
@@ -126,7 +126,7 @@ class TestOpenshift(MachineCase, OpenshiftCommonTests):
 
         b.wait_in_text("#kubernetes-cluster button", "10-111-112-101:8443")
         b.wait_in_text("#kubernetes-user button", "new-user/10-111-112-101:8443")
-        b.wait_not_in_text("modal-dialog", "Client Certificate")
+        b.wait_not_in_text("modal-dialog .modal-body", "Client Certificate")
         self.assertFalse(b.val("#kubernetes-token") == "")
 
         b.logout()

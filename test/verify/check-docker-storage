@@ -234,8 +234,11 @@ class TestDockerStorage(MachineCase):
         b.click(".modal-dialog:contains(Reset Storage Pool) .btn-danger")
         b.wait_not_present(".modal-dialog:contains(Reset Storage Pool)")
 
-        b.wait_in_text("#storage-drives", "DISK1")
-        b.wait_in_text("#storage-drives", "DISK2")
+        if not can_manage(m):
+            b.wait_visible("#storage-unsupported")
+        else:
+            b.wait_in_text("#storage-drives", "DISK1")
+            b.wait_in_text("#storage-drives", "DISK2")
 
         m.execute("docker info | grep 'Storage Driver: overlay2'")
 

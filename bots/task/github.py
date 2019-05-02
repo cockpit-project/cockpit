@@ -118,7 +118,7 @@ def get_repo():
 def get_origin_repo():
     try:
         res = subprocess.check_output([ "git", "remote", "get-url", "origin" ])
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return None
     url = res.decode('utf-8').strip()
     m = re.fullmatch("(git@github.com:|https://github.com/)(.*?)(\\.git)?", url)

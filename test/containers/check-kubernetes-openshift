@@ -154,7 +154,6 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
 
         b.wait_visible("#inputUsername")
         b.wait_visible("#inputPassword")
-        b.wait_in_text("title", "OpenShift Origin")
 
         b.set_val("#inputUsername", "kuser")
         b.set_val("#inputPassword", "fubar")
@@ -164,7 +163,6 @@ class TestOpenshift(OCCase, kubelib.OpenshiftCommonTests):
         b.expect_load_frame("cockpit1:localhost/kubernetes")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
-        b.wait_in_text("title", "Openshift Cockpit")
         b.wait_in_text("#index-brand", "Openshift")
         b.enter_page("/kubernetes")
         b.wait_present("#node-list")
@@ -204,7 +202,6 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
 
         b.wait_visible("#inputUsername")
         b.wait_visible("#inputPassword")
-        b.wait_in_text("title", "OpenShift Origin")
 
         b.set_val("#inputUsername", "kuser")
         b.set_val("#inputPassword", "fubar")
@@ -214,7 +211,6 @@ class TestRegistry(OCCase, kubelib.RegistryTests):
         b.expect_load_frame("cockpit1:localhost/registry")
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'kuser')
-        b.wait_in_text("title", "Image Registry")
         b.wait_in_text("#index-brand", "Atomic Registry")
         b.enter_page("/registry")
         b.wait_present(".dashboard-commands")

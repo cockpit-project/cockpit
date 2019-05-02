@@ -448,7 +448,7 @@ class TestSystemInfo(MachineCase):
                 b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', expect_smt_state)
 
             if cmdline:
-                m.execute('umount /proc/cmdline')
+                m.execute('while ! umount /proc/cmdline; do sleep 1; done')
                 m.execute('rm /run/cmdline')
 
         # We expect our test VMs to not set nosmt

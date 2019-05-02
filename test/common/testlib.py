@@ -842,6 +842,7 @@ class MachineCase(unittest.TestCase):
                                     '.*: GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: .*',
                                     '.*g_dbus_connection_call_finish_internal.*G_IS_DBUS_CONNECTION.*',
                                     '.*Message recipient disconnected from message bus without replying.*',
+                                    '.*Unable to shutdown socket: Transport endpoint is not connected.*',
 
                                     # If restarts or reloads happen really fast, the code in python.js
                                     # that figures out which python to use crashes with SIGPIPE,

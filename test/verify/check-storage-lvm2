@@ -70,7 +70,7 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(1, 2, "one")
 
         # and remove it
-        m.execute("lvremove -f TEST1/one")
+        m.execute("until lvremove -f TEST1/one; do sleep 5; done")
         b.wait_not_in_text("#detail-content", "one")
 
         # remove a disk from the volume group
@@ -97,7 +97,7 @@ class TestStorage(StorageCase):
         self.content_row_wait_in_col(2, 2, "/dev/TEST1/thin")
         m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
         self.content_tab_wait_in_info(1, 1, "Data Used", "50%")
-        m.execute("lvremove -f TEST1/thin")
+        m.execute("until lvremove -f TEST1/thin; do sleep 5; done")
         self.content_tab_wait_in_info(1, 1, "Data Used", "0%")
 
         # remove the volume group

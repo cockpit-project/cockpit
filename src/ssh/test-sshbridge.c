@@ -62,6 +62,7 @@ typedef struct {
     const char *ssh_command;
     const char *mock_sshd_arg;
     const char *client_password;
+    const char *hostname;
     const char *username;
     const char *knownhosts_file;
     const char *knownhosts_home;
@@ -134,6 +135,7 @@ setup_mock_sshd (TestCase *tc,
 
   const gchar *argv[] = {
       BUILDDIR "/mock-sshd",
+      "--bind", fixture->hostname ?: "127.0.0.1",
       "--user", g_get_user_name (),
       "--password", PASSWORD,
       fixture->mock_sshd_arg,
@@ -251,9 +253,9 @@ setup (TestCase *tc,
   setup_mock_sshd (tc, data);
 
   if (tc->ssh_port)
-    host = g_strdup_printf ("127.0.0.1:%d", tc->ssh_port);
+    host = g_strdup_printf ("%s:%d", fixture->hostname ?: "127.0.0.1", tc->ssh_port);
   else
-    host = g_strdup ("127.0.0.1");
+    host = g_strdup (fixture->hostname ?: "127.0.0.1");
   argv[1] = host;
 
   /* run our tests with temp home dir, to avoid influence from the real ~/.ssh */
@@ -274,7 +276,8 @@ setup (TestCase *tc,
       g_assert (tc->home_knownhosts_file != NULL);
       g_assert_cmpint (mkdir (tc->home_ssh_dir, 0700), ==, 0);
 
-      content = g_strdup_printf ("[127.0.0.1]:%d %s\n",
+      content = g_strdup_printf ("[%s]:%d %s\n",
+                                 fixture->hostname ?: "127.0.0.1",
                                  (int)tc->ssh_port,
                                  fixture->knownhosts_home);
 
@@ -726,9 +729,11 @@ do_hostkey_conversation (TestCase *tc,
 
 static void
 check_host_key_values (TestCase *tc,
-                       JsonObject *init)
+                       JsonObject *init,
+                       const char *hostname)
 {
-  gchar *knownhosts = g_strdup_printf ("[127.0.0.1]:%d %s",
+  gchar *knownhosts = g_strdup_printf ("[%s]:%d %s",
+                                       hostname ?: "127.0.0.1",
                                        (int)tc->ssh_port,
                                        MOCK_RSA_KEY);
 
@@ -754,9 +759,15 @@ test_problem (TestCase *tc,
   json_object_unref (init);
 }
 
+static const TestFixture fixture_unknown_localhost = {
+  .knownhosts_file = "/dev/null",
+  .host_key_authorize = INVALID_KEY,
+  .ssh_command = BUILDDIR "/mock-echo"
+};
 
 static const TestFixture fixture_unknown_host = {
   .knownhosts_file = "/dev/null",
+  .hostname = "127.0.0.99",
   .host_key_authorize = INVALID_KEY,
   .problem = "unknown-host"
 };
@@ -779,6 +790,7 @@ static const TestFixture fixture_knownhost_sssd_unknown = {
   .knownhosts_sssd = MOCK_RSA_KEY,
   .knownhosts_sssd_host = "somehost",
   .knownhosts_file = "/dev/null",
+  .hostname = "127.0.0.99",
   .host_key_authorize = INVALID_KEY,
   .problem = "unknown-host"
 };
@@ -841,7 +853,8 @@ test_knownhost_data_prompt (TestCase *tc,
 {
   const TestFixture *fix = data;
   JsonObject *init = NULL;
-  gchar *knownhosts = g_strdup_printf ("x-host-key [127.0.0.1]:%d %s",
+  gchar *knownhosts = g_strdup_printf ("x-host-key [%s]:%d %s",
+                                       fix->hostname ?: "127.0.0.1",
                                        (int)tc->ssh_port,
                                        MOCK_RSA_KEY);
 
@@ -871,7 +884,7 @@ test_hostkey_unknown (TestCase *tc,
   do_hostkey_conversation (tc, "", FALSE);
 
   init = wait_until_transport_init (tc->transport, "unknown-hostkey");
-  check_host_key_values (tc, init);
+  check_host_key_values (tc, init, fix->hostname);
   json_object_unref (init);
 }
 
@@ -906,7 +919,7 @@ test_hostkey_conversation_bad (TestCase *tc,
   do_auth_response (tc->transport, "x-host-key", INVALID_KEY);
   do_hostkey_conversation (tc, "other-value", TRUE);
   init = wait_until_transport_init (tc->transport, "unknown-hostkey");
-  check_host_key_values (tc, init);
+  check_host_key_values (tc, init, fix->hostname);
   json_object_unref (init);
 }
 
@@ -923,7 +936,7 @@ test_hostkey_conversation_invalid (TestCase *tc,
   do_auth_response (tc->transport, "x-host-key", INVALID_KEY);
   do_hostkey_conversation (tc, "other-value", FALSE);
   init = wait_until_transport_init (tc->transport, "unknown-hostkey");
-  check_host_key_values (tc, init);
+  check_host_key_values (tc, init, fix->hostname);
   json_object_unref (init);
 }
 
@@ -1385,6 +1398,8 @@ main (int argc,
 
   g_test_add ("/ssh-bridge/unknown-host", TestCase, &fixture_unknown_host,
               setup, test_problem, teardown);
+  g_test_add ("/ssh-bridge/unknown-localhost", TestCase, &fixture_unknown_localhost,
+              setup, test_hostkey_unknown, teardown);
   g_test_add ("/ssh-bridge/knownhost-challenge-preconnect", TestCase,
               &fixture_knownhost_challenge_preconnect,
               setup, test_knownhost_data_prompt, teardown);

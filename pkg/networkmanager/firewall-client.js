@@ -147,7 +147,14 @@ function fetchServiceInfos(services) {
      * that's just confusing and doesn't work with ES6 style functions.
      */
     return promises.then(function () {
-        return Array.prototype.slice.call(arguments);
+        /* FetchServiceInfos was called with on an empty array if arguments is
+         * [[]]. To prevent an array with 'undefined' as only element from
+         * returning, explicitly return an empty array.
+         */
+        let result = Array.prototype.slice.call(arguments);
+        if (result.length === 1 && result[0].length === 0)
+            return [];
+        return result;
     });
 }
 

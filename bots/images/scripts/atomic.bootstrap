@@ -65,7 +65,7 @@ fi
 # will grow the partitions etc as appropriate, and atomic.setup will
 # explicitly grow the docker pool.
 
-vsize=$(qemu-img info "$out" --output=json | python -c 'import json, sys; print json.load(sys.stdin)["virtual-size"]')
+vsize=$(qemu-img info "$out" --output=json | python3 -c 'import json, sys; print(json.load(sys.stdin)["virtual-size"])')
 
 if [ "$vsize" -lt 12884901888 ]; then
     qemu-img resize "$out" 12884901888

@@ -1,7 +1,9 @@
 import os
 from time import sleep
 from .timeoutlib import wait
-from .seleniumlib import SeleniumTest, clickable, text_in
+from selenium.webdriver.support.select import Select
+from .seleniumlib import SeleniumTest, clickable, text_in, invisible
+
 
 SPICE_XML = """
     <video>
@@ -146,18 +148,22 @@ class MachinesLib(SeleniumTest):
         else:
             sleep(10)
 
-    def destroy_vm(self, name):
-        if name not in self.machine.execute("sudo virsh list --all"):
+    def destroy_vm(self, name, connection='system'):
+        if name not in self.machine.execute("{}virsh list --all".format('' if connection == 'session' else 'sudo ')):
             return
 
-        vmstate = self.machine.execute("sudo virsh domstate {}".format(name)).split('\n')[0]
+        vmstate = self.machine.execute("{}virsh domstate {}".format('' if connection == 'session' else 'sudo ', name)).split('\n')[0]
         if vmstate == 'running':
-            self.machine.execute('sudo virsh destroy {}'.format(name))
-        self.machine.execute('sudo virsh undefine {}'.format(name))
+            self.machine.execute('{}virsh destroy {}'.format('' if connection == 'session' else 'sudo ', name))
+        self.machine.execute('{}virsh undefine {}'.format('' if connection == 'session' else 'sudo ', name))
 
     def setUp(self):
         super().setUp()
+
         self.virshvm = None
+        self.storage_pool = {}
+        self.vm_stop_list = []
+
         self.login()
         self.click(self.wait_link('Virtual Machines', cond=clickable))
         self.wait_frame("machines")
@@ -166,3 +172,124 @@ class MachinesLib(SeleniumTest):
         super().tearDown()
         if self.virshvm:
             self.destroy_vm(self.virshvm)
+
+        if self.vm_stop_list:
+            for vm in self.vm_stop_list:
+                self.destroy_vm(vm, connection='session')
+
+        # clean the disk,if they are existing
+        for key, value in self.storage_pool.items():
+            while len(value) != 0 and value != 'disk':
+                self.machine.execute('sudo virsh vol-delete {disk} {pool}'.format(disk=value.pop(), pool=key))
+        while len(self.storage_pool) != 0:
+            item = self.storage_pool.popitem()
+            if item[1] == 'disk':
+                self.machine.execute('sudo virsh vol-delete {} default'.format(item[0]))
+            else:
+                self.machine.execute('sudo virsh pool-destroy {}'.format(item[0]))
+                self.machine.execute('sudo rm -rf /home/{}'.format(item[0]))
+
+    def wait_dialog_disappear(self):
+        # loop for the dialog disappear and it will break after trying with 40 times
+        count = 0
+        while self.wait_css('#app').get_attribute('aria-hidden'):
+            if count == self.default_try:
+                break
+            count += 1
+
+    def create_vm_by_ui(self,
+                        connection='system',
+                        name='default',
+                        source_type='file',
+                        source='/var/lib/libvirt/images/staticvm.qcow2',
+                        os_vender='unspecified',
+                        os='other',
+                        mem=1,
+                        mem_unit='G',
+                        storage=10,
+                        storage_unit='G',
+                        immediately_start=False):
+        self.click(self.wait_css('#create-new-vm', cond=clickable))
+        self.wait_css('#create-vm-dialog')
+
+        if connection == 'session':
+            Select(self.wait_css('#connection')).select_by_visible_text('QEMU/KVM User connection')
+
+        self.send_keys(self.wait_css('#vm-name'), name)
+
+        Select(self.wait_css('#source-type')).select_by_value(source_type)
+
+        # If this option is pxe, do the same thing for the file, it will be add
+        # in next cases
+        if source_type == 'file' or source_type == 'pxe':
+            self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
+            # If there is no sleep, the input will not get the keys with a error
+            # All positions with sleep(1) have this problem
+            sleep(1)
+        elif source_type == 'url':
+            self.send_keys(self.wait_css('#source-url'), source)
+        elif source_type == 'disk_image':
+            self.send_keys(self.wait_css('#source-disk > div > input'), source, ctrla=True)
+            sleep(1)
+
+        if os_vender != 'unspecified':
+            Select(self.wait_css('#vendor-select')).select_by_visible_text(os_vender)
+
+        if os_vender != 'unspecified' and os != 'other':
+            Select(self.wait_css('#system-select')).select_by_visible_text(os)
+
+        if mem_unit == 'M':
+            Select(self.wait_css('#memory-size-unit-select')).select_by_visible_text('MiB')
+
+        self.send_keys(self.wait_css('#memory-size'), mem, clear=False, ctrla=True)
+
+        if source_type != 'disk_image':
+            if storage_unit == 'M':
+                Select(self.wait_css('#storage-size-unit-select')).select_by_visible_text('MiB')
+            self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
+
+        if immediately_start:
+            self.check_box(self.wait_css('#start-vm'))
+
+        self.click(self.wait_css('#create-vm-dialog .modal-footer .btn.btn-primary', cond=clickable))
+
+        self.wait_dialog_disappear()
+        self.wait_css('#create-vm-dialog', cond=invisible)
+        self.wait_css('#vm-{}-row'.format(name))
+
+    def create_storage_by_ui(self,
+                             connection='system',
+                             name='storage',
+                             type='dir',
+                             target_path='',
+                             host='',
+                             source_path='',
+                             start_up=True):
+        self.click(self.wait_text('Storage Pools', cond=clickable))
+        self.wait_css('#storage-pools-listing')
+        self.click(self.wait_css('#create-storage-pool', cond=clickable))
+
+        if connection == 'session':
+            Select(self.wait_css('#storage-pool-dialog-connection')).select_by_value('session')
+
+        self.send_keys(self.wait_css('#storage-pool-dialog-name'), name)
+
+        if type != 'dir':
+            Select(self.wait_css('#storage-pool-dialog-type')).select_by_value(type)
+
+        self.send_keys(self.wait_css('#storage-pool-dialog-target > div > input'), target_path, ctrla=True)
+        sleep(1)
+
+        if type != 'dir':
+            self.send_keys(self.wait_css('#storage-pool-dialog-host'), host)
+            self.send_keys(self.wait_css('#storage-pool-dialog-source'), source_path)
+
+        self.check_box(self.wait_css('#storage-pool-dialog-autostart', cond=clickable), start_up)
+
+        self.click(self.wait_css('#create-storage-pool-dialog button.btn.btn-primary', cond=clickable))
+
+        self.wait_dialog_disappear()
+        pool_name = 'pool-{}-{}'.format(name, connection)
+        self.wait_css('#' + pool_name + '-name')
+
+        return pool_name

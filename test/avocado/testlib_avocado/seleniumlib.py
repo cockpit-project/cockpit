@@ -243,7 +243,7 @@ This function is only for internal purposes:
 
     def check_box(self, element, checked=True):
         try:
-            if element.get_attribute('checked') != checked:
+            if element.is_selected() != checked:
                 element.click()
         except WebDriverException as e:
             self.take_screenshot(fatal=False)
@@ -337,10 +337,10 @@ parameters:
             self.get_debug_logs()
             raise SeleniumDriverFailure('Unable to return to main web context ({})'.format(e))
 
-    def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True, add_ssh_key=True):
+    def login(self, tmpuser=user, tmppasswd=passwd, wait_hostapp=True, add_ssh_key=True, authorized=True):
         self.send_keys(self.wait_id('login-user-input'), tmpuser)
         self.send_keys(self.wait_id('login-password-input'), tmppasswd)
-        self.check_box(self.wait_id('authorized-input'))
+        self.check_box(self.wait_id('authorized-input'), authorized)
         self.click(self.wait_id("login-button", cond=clickable))
         if wait_hostapp:
             self.wait_id("host-apps")

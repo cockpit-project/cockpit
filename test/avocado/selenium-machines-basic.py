@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from avocado import skipIf
 from testlib_avocado.timeoutlib import wait
 from testlib_avocado.seleniumlib import clickable, invisible, text_in
@@ -107,3 +108,44 @@ class MachinesBasicTestSuite(MachinesLib):
         self.assertNotIn(name, self.machine.execute("sudo virsh list --all"))
         self.assertNotIn(imgdel, self.machine.execute("sudo virsh vol-list {}".format(args.get('poolName'))))
         self.assertIn(args.get('image'), self.machine.execute("sudo virsh vol-list {}".format(args.get('poolName'))))
+
+    def testVmStatus(self):
+        name = 'staticvm'
+        self.create_vm(name)
+
+        self.assertEqual(
+            self.machine.execute('sudo virsh domstate {}'.format(name)).rstrip(),
+            self.wait_css('#vm-{}-state'.format(name)).text)
+
+    @skipIf(os.environ.get('HUB') == '10.111.112.10', "It may cause some problem when use 'run-test'")
+    def testCreate20VMs(self):
+        iso_source = '/home/{}.iso'.format('test' + str(time.time()).split('.')[0])
+        self.machine.execute('sudo touch {}'.format(iso_source))
+
+        for i in range(20):
+            self.create_vm_by_ui(
+                connection='session', name='test{}'.format(i), source=iso_source, mem_unit='M', storage=1, storage_unit='M')
+            self.vm_stop_list.append('test{}'.format(i))
+
+    def testCreateVMWithISO(self):
+        name = 'test_iso'
+        iso = '/home/{}.iso'.format(name + str(time.time()).split('.')[0])
+
+        self.machine.execute('sudo touch {}'.format(iso))
+
+        self.create_vm_by_ui(connection='session', name=name, source=iso, mem_unit='M', storage_unit='M')
+        self.vm_stop_list.append(name)
+
+    @skipIf(os.environ.get('URLSOURCE') is None, "The environment variable which is URLSOURCE is needed")
+    def testCreateVMWithUrl(self):
+        name = 'test_url'
+
+        self.create_vm_by_ui(
+            connection='session', name=name, source_type='url', source=os.environ.get('URLSOURCE'), immediately_start=True)
+
+        self.wait_css('#vm-{}-row'.format(name))
+        self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='creating VM installation')
+        self.wait_css('#vm-{}-state'.format(name), cond=text_in, text_='running')
+        self.wait_css('div.toolbar-pf-results canvas')
+
+        self.vm_stop_list.append(name)

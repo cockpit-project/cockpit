@@ -285,15 +285,22 @@ class TestMachines(NetworkCase):
         emulated_machine = b.text("#vm-subVmTest1-emulatedmachine")
         self.assertTrue(len(emulated_machine) > 0) # emulated machine varies across test machines
 
+        def get_usage(selector):
+            i = 0
+            content = b.text(selector)
+            while content[i].isdigit() or content[i] == ".":
+                i += 1
+            return float(content[:i])
+
         # switch to and check Usage
         b.click("#vm-subVmTest1-usage")
         b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", "256 MiB")
         b.wait_present("#chart-donut-0 .donut-title-big-pf")
-        b.wait(lambda: float(b.text("#chart-donut-0 .donut-title-big-pf")) > 0.0)
+        b.wait(lambda: get_usage("#chart-donut-0") > 0.0)
         b.wait_in_text("tbody.open .listing-ct-body td:nth-child(2) .usage-donut-caption", "1 vCPU")
         # CPU usage cannot be nonzero with blank image, so just ensure it's a percentage
         b.wait_present("#chart-donut-1 .donut-title-big-pf")
-        self.assertLessEqual(float(b.text("#chart-donut-1 .donut-title-big-pf")), 100.0)
+        self.assertLessEqual(get_usage("#chart-donut-1"), 100.0)
 
         # suspend/resume
         m.execute("virsh suspend subVmTest1")
@@ -325,8 +332,8 @@ class TestMachines(NetworkCase):
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
 
         # continue shut off validation - usage should drop to zero
-        b.wait_in_text("#chart-donut-0 .donut-title-big-pf", "0.00")
-        b.wait_in_text("#chart-donut-1 .donut-title-big-pf", "0.0")
+        b.wait(lambda: get_usage("#chart-donut-0") == 0.0)
+        b.wait(lambda: get_usage("#chart-donut-1") == 0.0)
 
         # start another one, should appear automatically
         self.startVm("subVmTest2")

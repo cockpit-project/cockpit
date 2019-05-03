@@ -919,12 +919,6 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
-        if self.image in ['fedora-29', 'fedora-30', 'fedora-testing', 'fedora-i386', 'fedora-atomic']:
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1563143
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { getattr } for .* comm="which" path="/usr/sbin/setfiles".*')
-            # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1662866
-            self.allowed_messages.append('audit: type=1400 audit(.*): avc:  denied  { execute } for .* comm="which" .*pcp_pmlogger_t.*')
-
         if self.image in ['fedora-30']:
             # Fedora 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")

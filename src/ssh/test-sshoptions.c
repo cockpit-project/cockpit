@@ -85,18 +85,6 @@ test_ssh_options (void)
   g_assert_false (options->connect_to_unknown_hosts);
   g_free (options);
   g_strfreev (env);
-
-  env = g_environ_setenv (NULL, "COCKPIT_REMOTE_PEER", "127.0.0.1", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->connect_to_unknown_hosts);
-  g_free (options);
-  g_strfreev (env);
-
-  env = g_environ_setenv (NULL, "COCKPIT_REMOTE_PEER", "::1", TRUE);
-  options = cockpit_ssh_options_from_env (env);
-  g_assert_true (options->connect_to_unknown_hosts);
-  g_free (options);
-  g_strfreev (env);
 }
 
 static void

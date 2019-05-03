@@ -569,6 +569,16 @@ session_has_known_host_in_file (const gchar *file,
   return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
 }
 
+static gboolean
+is_localhost (const char *host)
+{
+  return g_strcmp0 (host, "127.0.0.1") == 0 ||
+         g_strcmp0 (host, "::1") == 0 ||
+         g_strcmp0 (host, "localhost") == 0 ||
+         g_strcmp0 (host, "localhost4") == 0 ||
+         g_strcmp0 (host, "localhost6") == 0;
+}
+
 /**
  * set_knownhosts_file:
  *
@@ -670,8 +680,9 @@ set_knownhosts_file (CockpitSshData *data,
         }
     }
 
-  g_debug ("%s: using known hosts file %s", data->logname, data->ssh_options->knownhosts_file);
-  if (!data->ssh_options->connect_to_unknown_hosts && !host_known)
+  g_debug ("%s: using known hosts file %s; host known: %i; connect to unknown hosts: %i",
+           data->logname, data->ssh_options->knownhosts_file, host_known, data->ssh_options->connect_to_unknown_hosts);
+  if (!data->ssh_options->connect_to_unknown_hosts && !host_known && !is_localhost (host))
       {
           g_message ("%s: refusing to connect to unknown host: %s:%d",
                      data->logname, host, port);

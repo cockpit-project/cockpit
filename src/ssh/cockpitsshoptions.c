@@ -76,17 +76,13 @@ set_environment_bool (gchar **env,
 static gboolean
 get_connect_to_unknown_hosts (gchar **env)
 {
-  const gchar *remote_peer = g_environ_getenv (env, "COCKPIT_REMOTE_PEER");
-
   /* Fallback to deprecated allowUnknown option; use cockpit_conf_string() to
    * test for existence as _bool() cannot tell apart "unset" from "set to false". */
   if (!cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts") &&
       cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "allowUnknown", FALSE))
     return TRUE;
 
-  if (g_strcmp0 (remote_peer, "127.0.0.1") == 0 ||
-      g_strcmp0 (remote_peer, "::1") == 0 ||
-      cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts", FALSE))
+  if (cockpit_conf_bool (COCKPIT_CONF_SSH_SECTION, "connectToUnknownHosts", FALSE))
     return TRUE;
 
   if (!has_environment_val (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS"))

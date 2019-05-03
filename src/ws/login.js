@@ -469,6 +469,9 @@
                 "Authorization": "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Authorize": authorized,
             };
+            // allow unknown remote hosts with interactive logins with "Connect to:"
+            if (machine)
+                headers["X-SSH-Connect-Unknown-Hosts"] = "yes";
 
             send_login_request("GET", headers, false);
         }

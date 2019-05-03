@@ -1094,6 +1094,12 @@ cockpit_session_launch (CockpitAuth *self,
                               cockpit_creds_get_rhost (creds),
                               TRUE);
     }
+  if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
+    {
+      env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
+                              "1",
+                              TRUE);
+    }
 
   argv[0] = command;
   argv[1] = host ? host : "localhost";

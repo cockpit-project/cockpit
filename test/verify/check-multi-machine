@@ -408,8 +408,10 @@ class TestMultiMachine(MachineCase):
         b.wait_visible("#login-error-message")
         b.wait_in_text("#login-error-message", "Unable to connect")
 
+        # remote login via "Connect to:" login page field; should connect to unknown hosts
+        m.execute("sed -i '/allowUnknown/d' /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
-        b.open("{0}=10.111.113.2".format(root))
+        b.open(root)
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
 
@@ -418,27 +420,32 @@ class TestMultiMachine(MachineCase):
         b.set_val("#login-password-input", "alt-password")
         b.click('#login-button')
         b.wait_in_text("#server-name", "10.111.113.2")
-        b.wait_visible("#conversation-group")
-        b.wait_not_visible("#password-group")
-        b.wait_not_visible("#user-group")
-        b.wait_not_visible("#option-group")
-        b.wait_not_visible("#server-group")
-        b.wait_in_text("#conversation-prompt", "Fingerprint")
-        b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
-        b.click('#login-button')
-        b.expect_load()
-        b.enter_page("/system")
-        b.wait_in_text('#system_information_hostname_button', "machine2")
-        b.switch_to_top()
-        b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
-
-        if not m2.atomic_image:
-            b.click("a[href='/dashboard']")
-            b.enter_page("/dashboard")
-            b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
-            b.wait_not_present("a[data-address='10.111.113.2']")
+        # fixed in PR #11736: accept unknown hosts
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            b.wait_visible("#login-error-message")
+            b.wait_in_text("#login-error-message", "Host is unknown")
         else:
-            b.wait_not_present("a[href='/dashboard']")
+            b.wait_visible("#conversation-group")
+            b.wait_not_visible("#password-group")
+            b.wait_not_visible("#user-group")
+            b.wait_not_visible("#option-group")
+            b.wait_not_visible("#server-group")
+            b.wait_in_text("#conversation-prompt", "Fingerprint")
+            b.wait_in_text("#conversation-message", "Do you want to proceed this time?")
+            b.click('#login-button')
+            b.expect_load()
+            b.enter_page("/system")
+            b.wait_in_text('#system_information_hostname_button', "machine2")
+            b.switch_to_top()
+            b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
+
+            if not m2.atomic_image:
+                b.click("a[href='/dashboard']")
+                b.enter_page("/dashboard")
+                b.wait_in_text("a[data-address='localhost']", m2_dashboard_name)
+                b.wait_not_present("a[data-address='10.111.113.2']")
+            else:
+                b.wait_not_present("a[href='/dashboard']")
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()

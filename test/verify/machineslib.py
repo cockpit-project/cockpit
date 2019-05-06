@@ -821,6 +821,10 @@ class TestMachines(NetworkCase):
         b.click("#vm-subVmTest1-run")
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
+        # Wait for the VCPUs link to get new values before opening the dialog
+        b.wait_visible("#vm-subVmTest1-vcpus-count")
+        b.wait_in_text("#vm-subVmTest1-vcpus-count", "2")
+
         # Open dialog
         b.click("#vm-subVmTest1-vcpus-count")
 

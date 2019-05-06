@@ -947,6 +947,18 @@ class TestMachines(NetworkCase):
 
         self.assertNotIn(name, m.execute("virsh list --all"))
 
+        # Try to delete a paused VM
+        name = "paused-test-vm"
+        img = "/var/lib/libvirt/images/{0}.img".format(name)
+        self.startVm(name)
+
+        b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
+        self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
+        b.wait_in_text("#vm-{0}-state".format(name), "paused")
+        b.click("#vm-{0}-delete".format(name))
+        self.browser.reload()
+        b.wait_not_present("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
+
     def testSerialConsole(self):
         b = self.browser
         name = "vmWithSerialConsole"

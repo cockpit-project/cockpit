@@ -125,7 +125,7 @@ export class DeleteDialog extends React.Component {
                     if ((d.type == 'file' && d.source.file) || d.type == 'volume')
                         disks.push(Object.assign(d, { checked: !d.readonly }));
                 });
-        this.setState({ showModal: true, disks: disks, destroy: vm.state === 'running' });
+        this.setState({ showModal: true, disks: disks, destroy: vm.state != 'shut off' });
     }
 
     delete() {

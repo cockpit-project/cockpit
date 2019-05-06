@@ -65,9 +65,7 @@ const DeviceInfo = ({ descr, value }) => {
     return (
         <div className='ct-form-layout'>
             <label className='control-label' htmlFor={value}>
-                <output>
-                    {descr}
-                </output>
+                {descr}
             </label>
             <span id={value}>
                 {value}

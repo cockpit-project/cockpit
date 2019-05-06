@@ -516,10 +516,17 @@ LIBVIRT_DBUS_PROVIDER = {
         return dispatch => {
             call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.Network'], TIMEOUT)
                     .then(resultProps => {
-                        props.active = resultProps[0].Active.v.v;
-                        props.persistent = resultProps[0].Persistent.v.v;
-                        props.autostart = resultProps[0].Autostart.v.v;
-                        props.name = resultProps[0].Name.v.v;
+                        /* Sometimes not all properties are returned; for example when some network got deleted while part
+                         * of the properties got fetched from libvirt. Make sure that there is check before reading the attributes.
+                         */
+                        if ("Active" in resultProps[0])
+                            props.active = resultProps[0].Active.v.v;
+                        if ("Persistent" in resultProps[0])
+                            props.persistent = resultProps[0].Persistent.v.v;
+                        if ("Autostart" in resultProps[0])
+                            props.autostart = resultProps[0].Autostart.v.v;
+                        if ("Name" in resultProps[0])
+                            props.name = resultProps[0].Name.v.v;
                         props.id = objPath;
                         props.connectionName = connectionName;
 
@@ -585,9 +592,15 @@ LIBVIRT_DBUS_PROVIDER = {
                         return call(connectionName, objPath, 'org.freedesktop.DBus.Properties', 'GetAll', ['org.libvirt.StoragePool'], TIMEOUT);
                     })
                     .then((resultProps) => {
-                        props.active = resultProps[0].Active.v.v;
-                        props.persistent = resultProps[0].Persistent.v.v;
-                        props.autostart = resultProps[0].Autostart.v.v;
+                        /* Sometimes not all properties are returned; for example when some storage got deleted while part
+                         * of the properties got fetched from libvirt. Make sure that there is check before reading the attributes.
+                         */
+                        if ("Active" in resultProps[0])
+                            props.active = resultProps[0].Active.v.v;
+                        if ("Persistent" in resultProps[0])
+                            props.persistent = resultProps[0].Persistent.v.v;
+                        if ("Autostart" in resultProps[0])
+                            props.autostart = resultProps[0].Autostart.v.v;
 
                         return call(connectionName, objPath, 'org.libvirt.StoragePool', 'GetInfo', [], TIMEOUT);
                     })

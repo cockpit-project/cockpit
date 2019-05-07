@@ -65,11 +65,11 @@ export function setup() {
                 });
     }
 
-    function renderKeyOnOff(id, state, enabled, tbody) {
+    function renderKeyOnOff(id, state, disabled, tbody) {
         ReactDOM.render(
             React.createElement(OnOffSwitch, {
                 state: state,
-                enabled: enabled,
+                disabled: disabled,
                 onChange: enable => onToggleKey(id, enable, tbody) }),
             document.querySelector('table.credential-listing tbody[data-id="' + id + '"] .listing-ct-actions'));
     }
@@ -101,7 +101,7 @@ export function setup() {
                     });
         }
 
-        renderKeyOnOff(id, enable, true, tbody);
+        renderKeyOnOff(id, enable, false, tbody);
     }
 
     $("#credentials-dialog")
@@ -320,7 +320,7 @@ export function setup() {
                             row.attr("data-name", key.name)
                                     .attr("data-loaded", key.loaded ? "1" : "0");
 
-                            renderKeyOnOff(id, key.loaded || row.hasClass("unlock"), !!key.name, row);
+                            renderKeyOnOff(id, key.loaded || row.hasClass("unlock"), !key.name, row);
                         } else if (id !== "adding") {
                             row.remove();
                         }

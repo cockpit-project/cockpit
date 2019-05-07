@@ -21,6 +21,7 @@
 import parent
 import time
 from testlib import *
+from netlib import NetworkCase
 
 
 def wait_unit_state(machine, unit, state):
@@ -36,7 +37,7 @@ def wait_unit_state(machine, unit, state):
 
 
 @skipImage("enabling firewall got fixed in PR #10511", "rhel-7-6-distropkg")
-class TestFirewall(MachineCase):
+class TestFirewall(NetworkCase):
 
     def testNetworkingPage(self):
         b = self.browser
@@ -48,30 +49,25 @@ class TestFirewall(MachineCase):
             m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
         m.execute("systemctl stop firewalld")
 
-        switch_sel = "#networking-firewall-switch label:not(.active) span"
-
         self.login_and_go("/network")
-        b.wait_in_text("#networking-firewall-switch label.active", "Off")
-
-        b.click(switch_sel)
-        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
-        b.wait_in_text("#networking-firewall-switch label.active", "On")
+        self.wait_onoff("#networking-firewall-switch", False)
+        self.toggle_onoff("#networking-firewall-switch")
+        self.wait_onoff("#networking-firewall-switch", True)
         wait_unit_state(m, "firewalld", "active")
         active_rules = m.execute("firewall-cmd --list-services").split()
         b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
 
-        b.click(switch_sel)
-        b.wait_present("#networking-firewall-switch label.active:not(.disabled)")
-        b.wait_in_text("#networking-firewall-switch label.active", "Off")
+        self.toggle_onoff("#networking-firewall-switch")
+        self.wait_onoff("#networking-firewall-switch", False)
         wait_unit_state(m, "firewalld", "inactive")
         b.wait_in_text("#networking-firewall-summary", "0 Active Rules")
 
         # toggle the service from CLI, page should react
         m.execute("systemctl start firewalld")
-        b.wait_in_text("#networking-firewall-switch label.active", "On")
+        self.wait_onoff("#networking-firewall-switch", True)
         b.wait_in_text("#networking-firewall-summary", "{} Active Rule".format(len(active_rules)))
         m.execute("systemctl stop firewalld")
-        b.wait_in_text("#networking-firewall-switch label.active", "Off")
+        self.wait_onoff("#networking-firewall-switch", False)
         b.wait_in_text("#networking-firewall-summary", "0 Active Rules")
 
         b.click("#networking-firewall-link")
@@ -99,11 +95,9 @@ class TestFirewall(MachineCase):
         # "Add Services" button should not be present
         b.wait_not_present("caption button.btn-primary")
 
-        # to toggle the switch, click on the non-active label, where the slider is
-        b.wait_in_text(".btn-onoff-ct label.active", "Off")
-        b.click(".btn-onoff-ct label.active span")
-        b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
-        b.wait_in_text(".btn-onoff-ct label.active", "On")
+        self.wait_onoff("h1", False)
+        self.toggle_onoff("h1")
+        self.wait_onoff("h1", True)
         wait_unit_state(m, "firewalld", "active")
 
         # Wait until the default zone is listed
@@ -140,9 +134,8 @@ class TestFirewall(MachineCase):
         b.wait_present("tr[data-row-id='empty']")
 
         # switch service off again
-        b.click(".btn-onoff-ct label.active span")
-        b.wait_present(".btn-onoff-ct label.active:not(.disabled)")
-        b.wait_in_text(".btn-onoff-ct label.active", "Off")
+        self.toggle_onoff("h1")
+        self.wait_onoff("h1", False)
         wait_unit_state(m, "firewalld", "inactive")
         # "Add Services" button should be hidden again
         b.wait_not_present("caption button.btn-primary")

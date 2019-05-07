@@ -160,14 +160,24 @@ class TestSelinux(MachineCase):
         # wait for the page to be present
         b.wait_in_text("body", "SELinux Policy")
 
+        def assertEnforce(active):
+            # changed in PR #11769
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+                b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
+            else:
+                b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
+
         # SELinux should be enabled and enforcing at the beginning
-        on_off_selector_active = "div.btn-onoff-ct label.active"
-        b.wait_in_text(on_off_selector_active, "On")
+        assertEnforce(True)
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button
-        b.click("div.btn-onoff-ct label.active span")
-        b.wait_in_text(on_off_selector_active, "Off")
+        # changed in PR #11769
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            b.click("div.btn-onoff-ct label.active span")
+        else:
+            b.click(".onoff-ct input")
+        assertEnforce(False)
         m.execute("getenforce | grep -q 'Permissive'")
 
         # when in permissive mode, expect a warning
@@ -175,7 +185,7 @@ class TestSelinux(MachineCase):
 
         # switch back using cli, ui should react
         m.execute("setenforce 1")
-        b.wait_in_text(on_off_selector_active, "On")
+        assertEnforce(True)
 
         # warning should disappear
         b.wait_not_in_text("div.selinux-policy-ct", "Setting deviates")
@@ -192,7 +202,7 @@ class TestSelinux(MachineCase):
         b.switch_to_top()
         b.go("/selinux/setroubleshoot")
         b.enter_page("/selinux/setroubleshoot")
-        b.wait_in_text(on_off_selector_active, "Off")
+        assertEnforce(False)
         b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
 
 

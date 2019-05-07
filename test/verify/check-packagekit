@@ -803,7 +803,8 @@ class TestAutoUpdates(PackageCase):
 
         def wait_pending():
             # the controls get disabled while applying the config changes is in progress; wait for both transitions
-            b.wait_present("#automatic .disabled")
+            b.wait_present("#automatic input:disabled")
+            b.wait_not_present("#automatic input:disabled")
             b.wait_not_present("#automatic .disabled")
 
         def assertTimerDnf(hour, dow):
@@ -853,14 +854,14 @@ class TestAutoUpdates(PackageCase):
 
         # automatic updates are supported, but off
         b.wait_present("#automatic h2")
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .onoff-ct input:not(:checked)")
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
         # enable
-        b.click("#automatic div.btn-onoff-ct label.active span")
+        b.click("#automatic .onoff-ct input")
         wait_pending()
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
+        b.wait_present("#automatic .onoff-ct input:checked")
         assertTimer("06")
         assertType("all")
         b.wait_in_text("#auto-update-type", "Apply all updates")
@@ -903,9 +904,9 @@ class TestAutoUpdates(PackageCase):
         assertTimer("21")
 
         # disable
-        b.click("#automatic div.btn-onoff-ct label.active span")
+        b.click("#automatic .onoff-ct input")
         wait_pending()
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .onoff-ct input:not(:checked)")
         self.assertFalse(b.is_present("#auto-update-type"))
         assertTimer(None)
 
@@ -926,12 +927,12 @@ class TestAutoUpdates(PackageCase):
             self.assertFalse(b.is_present("#auto-update-type"))
             return
 
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "Off")
+        b.wait_present("#automatic .onoff-ct input:not(:checked)")
         self.assertFalse(b.is_present("#auto-update-type"))
 
         # enable
-        b.click("#automatic div.btn-onoff-ct label.active span")
-        b.wait_in_text("#automatic div.btn-onoff-ct label.active", "On")
+        b.click("#automatic .onoff-ct input")
+        b.wait_present("#automatic .onoff-ct input:checked")
         b.wait_present("#auto-update-type")
 
         if self.backend == 'dnf':
@@ -980,7 +981,7 @@ class TestAutoUpdates(PackageCase):
         b.login_and_go("/updates")
         b.wait_present("#available")
         if self.backend == 'dnf':
-            b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'Off')
+            b.wait_present("#automatic .onoff-ct input:not(:checked)")
         else:
             # on-demand installation isn't supported, switch to enable it isn't visible
             self.assertFalse(b.is_present("#automatic"))
@@ -1031,7 +1032,7 @@ WantedBy=basic.target
         b.login_and_go('/updates')
 
         # click through install dialog
-        b.click('#automatic div.btn-onoff-ct > .btn.active > span')
+        b.click("#automatic .onoff-ct input")
         b.wait_popup('dialog')
         b.wait_visible('#dialog button.apply')
         b.wait_not_attr('#dialog button.apply', 'disabled', '')
@@ -1039,7 +1040,7 @@ WantedBy=basic.target
 
         # as dnf-automatic isn't actually installed DnfImpl.setConfig will fail,
         # but we can check that the backend is now enabled
-        b.wait_in_text('#automatic div.btn-onoff-ct > .btn.active > span', 'On')
+        b.wait_present("#automatic .onoff-ct input:checked")
 
 
 if __name__ == '__main__':

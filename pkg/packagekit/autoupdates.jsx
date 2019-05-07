@@ -345,7 +345,7 @@ export default class AutoUpdates extends React.Component {
             <div className="header-buttons pk-updates--header pk-updates--header--auto" id="automatic">
                 <h2 className="pk-updates--header--heading">{_("Automatic Updates")}</h2>
                 <div className="pk-updates--header--actions">
-                    <OnOffSwitch state={onOffState} enabled={!this.state.pending}
+                    <OnOffSwitch state={onOffState} disabled={this.state.pending}
                                  onChange={e => {
                                      if (!this.state.backend.installed) {
                                          install_dialog(this.state.backend.packageName)

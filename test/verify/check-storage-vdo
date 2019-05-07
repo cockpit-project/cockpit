@@ -68,8 +68,8 @@ class TestStorage(StorageCase):
         b.wait_in_text(detail(3), "used of 5 GiB")
         b.wait_in_text(detail(4), "used of 5 GiB")
         b.wait_text(detail(5), "256 MiB")
-        b.wait_present(detail(6) + " .active:contains(On)")
-        b.wait_present(detail(7) + " .active:contains(On)")
+        b.wait_present(detail(6) + " input:checked")
+        b.wait_present(detail(7) + " input:checked")
 
         # Make a filesystem on it
 

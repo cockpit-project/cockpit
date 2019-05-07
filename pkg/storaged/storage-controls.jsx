@@ -204,7 +204,7 @@ export class StorageOnOff extends React.Component {
                                 <OnOffSwitch state={this.state.promise
                                     ? this.state.promise_goal_state
                                     : this.props.state}
-                                                 enabled={!excuse && !this.state.promise}
+                                                 disabled={!!(excuse || this.state.promise)}
                                                  onChange={onChange} />
                             )} />
         );

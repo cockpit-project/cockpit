@@ -56,6 +56,9 @@
                 <para>By default cockpit will not accept crossdomain websocket connections. Use this
                   setting to allow access from alternate domains. Origins should include scheme, host
                   and port, if necessary.</para>
+                <para>By default, https origins are always accepted, http origins only for http
+                  (unencrypted) connections. However, if you set <option>Origins</option> explicitly,
+                  you also must specify all allowed protocols.</para>
 
           <informalexample>
 <programlisting language="js">

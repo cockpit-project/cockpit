@@ -858,19 +858,24 @@ static const TestFixture fixture_allowed_origin_rfc6455 = {
 };
 
 static const TestFixture fixture_allowed_origin_proto_header = {
-  .origin = "https://127.0.0.1",
-  .forward = "https",
+  .origin = "foo://127.0.0.1",
+  .forward = "foo",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
 };
 
-static const TestFixture fixture_bad_origin_proto_no_header = {
+static const TestFixture fixture_allowed_origin_https_to_http = {
   .origin = "https://127.0.0.1",
+  .config = NULL
+};
+
+static const TestFixture fixture_bad_origin_proto_no_header = {
+  .origin = "foo://127.0.0.1",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
 };
 
 static const TestFixture fixture_bad_origin_proto_no_config = {
-  .origin = "https://127.0.0.1",
-  .forward = "https",
+  .origin = "foo://127.0.0.1",
+  .forward = "foo",
   .config = NULL
 };
 
@@ -1514,6 +1519,9 @@ main (int argc,
               test_bad_origin, teardown_for_socket);
   g_test_add ("/web-service/allowed-origin/protocol-header", TestCase,
               &fixture_allowed_origin_proto_header, setup_for_socket,
+              test_handshake_and_auth, teardown_for_socket);
+  g_test_add ("/web-service/allowed-origin/https-to-http", TestCase,
+              &fixture_allowed_origin_https_to_http, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
 
   g_test_add ("/web-service/close-error", TestCase,

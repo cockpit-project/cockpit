@@ -1305,8 +1305,7 @@ cockpit_web_service_create_socket (const gchar **protocols,
   const gchar *protocol = NULL;
   const gchar **origins;
   gchar *allocated = NULL;
-  gchar *origin = NULL;
-  gchar *defaults[2];
+  gchar *defaults[3] = { NULL, NULL, NULL };
   gboolean secure;
   gchar *url;
 
@@ -1338,9 +1337,11 @@ cockpit_web_service_create_socket (const gchar **protocols,
   origins = cockpit_conf_strv ("WebService", "Origins", ' ');
   if (origins == NULL)
     {
-      origin = g_strdup_printf ("%s://%s", secure ? "https" : "http", host);
-      defaults[0] = origin;
-      defaults[1] = NULL;
+      /* always allow https, might be coming from a reverse proxy */
+      defaults[0] = g_strconcat ("https://", host, NULL);
+      /* disallow http for TLS connections */
+      if (!secure)
+          defaults[1] = g_strdup_printf ("%s://%s", protocol, host);
       origins = (const gchar **)defaults;
     }
 
@@ -1348,7 +1349,8 @@ cockpit_web_service_create_socket (const gchar **protocols,
                                                  io_stream, headers, input_buffer);
   g_free (allocated);
   g_free (url);
-  g_free (origin);
+  g_free (defaults[0]);
+  g_free (defaults[1]);
 
   return connection;
 }

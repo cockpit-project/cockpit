@@ -30,6 +30,8 @@ const _ = cockpit.gettext;
  * captionOn  optional string, default 'On'
  * onChange   triggered when the switch is flipped, parameter: new state
  * enabled    whether the component is enabled or not, defaults to true
+ * id         optional string, ID of the top-level HTML tag (only necessary
+ *            when embedding this into a non-React page)
  */
 export class OnOffSwitch extends React.Component {
     handleOnOffClick(newState, e) {
@@ -55,7 +57,7 @@ export class OnOffSwitch extends React.Component {
         }
         var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
         return (
-            <div className="btn-group btn-onoff-ct">
+            <div id={this.props.id} className="btn-group btn-onoff-ct">
                 <label className={ onClasses.join(" ") }>
                     <input type="radio" />
                     <span onClick={clickHandler}>{this.props.captionOn}</span>

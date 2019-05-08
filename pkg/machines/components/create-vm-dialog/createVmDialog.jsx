@@ -590,7 +590,7 @@ export class CreateVmAction extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <Button className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
+                <Button disabled={this.props.systemInfo.osInfoList == null} className="pull-right" id="create-new-vm" bsStyle='default' onClick={this.open} >
                     {_("Create VM")}
                 </Button>
                 { this.state.showModal &&

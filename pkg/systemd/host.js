@@ -19,6 +19,10 @@
 import { mustache } from "mustache";
 import $ from "jquery";
 
+import React from "react";
+import ReactDOM from "react-dom";
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
 import "polyfills.js";
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
@@ -375,15 +379,7 @@ PageServer.prototype = {
         var pmlogger_exists = false;
         var packagekit_exists = false;
 
-        function disable_logger_switch() {
-            $("#server-pmlogger-switch label").addClass("disabled");
-        }
-
-        function enable_logger_switch() {
-            $("#server-pmlogger-switch label").removeClass("disabled");
-        }
-
-        function update_pmlogger_row() {
+        function update_pmlogger_row(force_disable) {
             var logger_switch = $("#server-pmlogger-switch");
             var enable_pcp = $('#system-information-enable-pcp-link');
             if (!pmlogger_exists) {
@@ -392,14 +388,17 @@ PageServer.prototype = {
                 logger_switch.prev().hide();
             } else if (!pmlogger_promise) {
                 enable_pcp.hide();
-                logger_switch.onoff('value', pmlogger_service.state === "running");
                 logger_switch.show();
                 logger_switch.prev().show();
             }
-            if (pmlogger_service.state === "starting")
-                disable_logger_switch();
-            else
-                enable_logger_switch();
+
+            ReactDOM.render(
+                React.createElement(OnOffSwitch, {
+                    state: pmlogger_service.state === "running",
+                    enabled: pmlogger_service.state !== "starting" && !force_disable,
+                    onChange: onPmLoggerSwitchChange }),
+                document.getElementById('server-pmlogger-switch')
+            );
         }
 
         function pmlogger_service_changed() {
@@ -417,7 +416,7 @@ PageServer.prototype = {
                         .fail(function() {
                             pmlogger_exists = false;
                         })
-                        .always(update_pmlogger_row);
+                        .always(() => update_pmlogger_row());
             } else {
                 update_pmlogger_row();
             }
@@ -428,12 +427,13 @@ PageServer.prototype = {
             update_pmlogger_row();
         });
 
-        $("#server-pmlogger-switch").on("change", function(ev) {
+        function onPmLoggerSwitchChange(enable) {
             if (!pmlogger_exists)
                 return;
 
-            disable_logger_switch();
-            if ($(this).onoff('value')) {
+            update_pmlogger_row(true);
+
+            if (enable) {
                 pmlogger_promise = Promise.all([
                     pmcd_service.enable(),
                     pmcd_service.start(),
@@ -453,7 +453,7 @@ PageServer.prototype = {
                 pmlogger_promise = null;
                 pmlogger_service_changed();
             });
-        });
+        }
 
         $(pmlogger_service).on('changed', pmlogger_service_changed);
         pmlogger_service_changed();

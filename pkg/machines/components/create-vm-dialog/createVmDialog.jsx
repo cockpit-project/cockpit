@@ -151,14 +151,17 @@ class CreateVM extends React.Component {
             break;
         case 'sourceType':
             this.setState({ [key]: value });
-            if (value != PXE_SOURCE) {
-                notifyValuesChanged('source', null);
-            } else {
+            if (value == PXE_SOURCE) {
                 let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices,
                                                                   this.props.networks,
                                                                   this.props.vmParams.connectionName);
 
                 notifyValuesChanged('source', initialPXESource);
+            } else if (this.state.sourceType == PXE_SOURCE && value != PXE_SOURCE) {
+                // Reset the source when the previous selection was PXE;
+                // all the other choices are string set by the user
+                notifyValuesChanged('source', '');
+                this.setState({ 'source': '' });
             }
             break;
         case 'memorySize':

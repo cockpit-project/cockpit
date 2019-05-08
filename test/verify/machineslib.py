@@ -1290,6 +1290,25 @@ class TestMachines(NetworkCase):
                                              os_name=config.NOVELL_NETWARE_6,
                                              start_vm=False))
 
+            # When switching from PXE mode to anything else make sure that the source input is empty
+            checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size='1',
+                                                                sourceType='pxe',
+                                                                location="Host Device {0}: macvtap".format(iface),
+                                                                sourceTypeSecondChoice='url',
+                                                                os_vendor=config.NOVELL_VENDOR,
+                                                                os_name=config.NOVELL_NETWARE_6, start_vm=False),
+                                          {"Source": "Installation Source should not be empty"})
+
+        # When switching between no pxe installation modes with the source already set
+        # make sure that the source is intact
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         sourceTypeSecondChoice='disk_image',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=256, memory_size_unit='MiB',
+                                         os_vendor=config.OPENBSD_VENDOR,
+                                         os_name=config.OPENBSD_5_4,
+                                         start_vm=False))
+
         # TODO: add use cases with start_vm=True and check that vm started
         # - for install when creating vm
         # - for create vm and then install
@@ -1354,7 +1373,8 @@ class TestMachines(NetworkCase):
     class VmDialog:
         vmId = 0
 
-        def __init__(self, test_obj, name=None, sourceType='file', location='',
+        def __init__(self, test_obj, name=None,
+                     sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=1, memory_size_unit='GiB',
                      storage_size=None, storage_size_unit='GiB',
                      os_vendor=None,
@@ -1378,6 +1398,7 @@ class TestMachines(NetworkCase):
             self.assertTrue = test_obj.assertTrue
 
             self.sourceType = sourceType
+            self.sourceTypeSecondChoice = sourceTypeSecondChoice
             self.location = location
             self.memory_size = memory_size
             self.memory_size_unit = memory_size_unit
@@ -1445,19 +1466,22 @@ class TestMachines(NetworkCase):
                 return self
 
         def fill(self):
+            def getSourceTypeLabel(sourceType):
+                if sourceType == 'file':
+                    expected_source_type = 'Local Install Media'
+                elif sourceType == 'disk_image':
+                    expected_source_type = 'Existing Disk Image'
+                elif sourceType == 'pxe':
+                    expected_source_type = 'Network Boot (PXE)'
+                else:
+                    expected_source_type = 'URL'
+
+                return expected_source_type
+
             b = self.browser
             b.set_input_text("#vm-name", self.name)
 
-            if self.sourceType == 'file':
-                expected_source_type = 'Local Install Media'
-            elif self.sourceType == 'disk_image':
-                expected_source_type = 'Existing Disk Image'
-            elif self.sourceType == 'pxe':
-                expected_source_type = 'Network Boot (PXE)'
-            else:
-                expected_source_type = 'URL'
-
-            b.select_from_dropdown("#source-type", expected_source_type)
+            b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceType))
             if self.sourceType == 'file':
                 b.set_file_autocomplete_val("#source-file", self.location)
             elif self.sourceType == 'disk_image':
@@ -1466,6 +1490,9 @@ class TestMachines(NetworkCase):
                 b.select_from_dropdown("#network-select", self.location)
             else:
                 b.set_input_text("#source-url", self.location)
+
+            if self.sourceTypeSecondChoice:
+                b.select_from_dropdown("#source-type", getSourceTypeLabel(self.sourceTypeSecondChoice))
 
             b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
             b.select_from_dropdown("#system-select", self.os_name, substring=True)
@@ -1659,7 +1686,7 @@ class TestMachines(NetworkCase):
             b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
 
             # Test disk got imported/created
-            if dialog.sourceType == 'disk_image':
+            if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
                 b.wait_present("#vm-{0}-disks-vda-device".format(name))
                 b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
             elif dialog.storage_size > 0:

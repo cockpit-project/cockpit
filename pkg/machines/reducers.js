@@ -225,7 +225,7 @@ function systemInfo(state, action) {
             activeState: 'unknown',
             unitState: 'unknown',
         },
-        osInfoList: [],
+        osInfoList: null,
         loggedUser: null,
     };
 

@@ -61,382 +61,6 @@ const LOCAL_INSTALL_MEDIA_SOURCE = 'file';
 const EXISTING_DISK_IMAGE_SOURCE = 'disk_image';
 const PXE_SOURCE = 'pxe';
 
-/* Create a virtual machine
- * props:
- *  - valuesChanged callback for changed values with the signature (key, value)
- */
-class CreateVM extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            vmName: props.vmParams.vmName,
-            vendor: props.vmParams.vendor,
-            os: props.vmParams.os,
-            source: props.vmParams.source,
-            memorySize: convertToUnit(props.vmParams.memorySize, units.MiB, units.GiB), // tied to Unit
-            memorySizeUnit: units.GiB.name,
-            storageSize: props.vmParams.storageSize, // tied to Unit
-            storageSizeUnit: units.GiB.name,
-            sourceType: props.vmParams.sourceType,
-            startVm: props.vmParams.startVm,
-            connectionName: props.vmParams.connectionName,
-        };
-
-        this.onChangedValue = this.onChangedValue.bind(this);
-        this.onChangedEventValue = this.onChangedEventValue.bind(this);
-        this.onChangedEventChecked = this.onChangedEventChecked.bind(this);
-    }
-
-    onChangedEventValue(key, e) {
-        if (e && e.target && typeof e.target.value !== 'undefined') {
-            this.onChangedValue(key, e.target.value);
-        }
-    }
-
-    onChangedEventChecked(key, e) {
-        if (e && e.target && typeof e.target.checked === "boolean") {
-            this.onChangedValue(key, e.target.checked);
-        }
-    }
-
-    onChangedValue(key, value, valueParams) {
-        const notifyValuesChanged = (key, value) => {
-            if (this.props.valuesChanged) {
-                this.props.valuesChanged(key, value);
-            }
-        };
-
-        switch (key) {
-        case 'vmName': {
-            this.setState({ [key]: value });
-            break;
-        }
-        case 'vendor': {
-            const os = this.props.vendorMap[value][0].shortId;
-            this.setState({
-                [key]: value,
-                os,
-            });
-            notifyValuesChanged('os', os);
-            break;
-        }
-        case 'os':
-            this.setState({ [key]: value });
-            break;
-        case 'source':
-            this.setState({ [key]: value });
-
-            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.vendor == NOT_SPECIFIED && value != '' && value != undefined) {
-                // Clears the previously set timer.
-                clearTimeout(this.typingTimeout);
-
-                const onOsAutodetect = (os) => {
-                    autodetectOS(os)
-                            .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
-                            .then(res => {
-                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
-
-                                if (osEntry && osEntry[0]) {
-                                    this.setState({
-                                        vendor: osEntry[0].vendor,
-                                        os: osEntry[0].shortId
-                                    });
-                                    notifyValuesChanged('vendor', osEntry[0].vendor);
-                                    notifyValuesChanged('os', osEntry[0].shortId);
-                                }
-                            });
-                };
-                this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
-            }
-            break;
-        case 'sourceType':
-            this.setState({ [key]: value });
-            if (value == PXE_SOURCE) {
-                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices,
-                                                                  this.props.networks,
-                                                                  this.props.vmParams.connectionName);
-
-                notifyValuesChanged('source', initialPXESource);
-            } else if (this.state.sourceType == PXE_SOURCE && value != PXE_SOURCE) {
-                // Reset the source when the previous selection was PXE;
-                // all the other choices are string set by the user
-                notifyValuesChanged('source', '');
-                this.setState({ 'source': '' });
-            }
-            break;
-        case 'memorySize':
-            value = Math.min(
-                value,
-                Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
-            );
-            this.setState({ [key]: value });
-            value = convertToUnit(value, this.state.memorySizeUnit, units.MiB);
-            break;
-        case 'storageSize':
-            this.setState({ [key]: value });
-            value = convertToUnit(value, this.state.storageSizeUnit, units.GiB);
-            break;
-        case 'memorySizeUnit':
-            this.setState({ [key]: value });
-            value = convertToUnit(this.state.memorySize, value, units.MiB);
-            key = 'memorySize';
-            break;
-        case 'storageSizeUnit':
-            this.setState({ [key]: value });
-            value = convertToUnit(this.state.storageSize, value, units.GiB);
-            key = 'storageSize';
-            break;
-        case 'startVm': {
-            this.setState({ [key]: value });
-            break;
-        }
-        case 'connectionName':
-            this.setState({ [key]: value });
-            break;
-        default:
-            break;
-        }
-
-        notifyValuesChanged(key, value);
-    }
-
-    render() {
-        const vendorSelectEntries = [];
-
-        if (this.props.familyMap[DIVIDER_FAMILY]) {
-            vendorSelectEntries.push((
-                <Select.SelectEntry data={NOT_SPECIFIED} key={NOT_SPECIFIED}>{_(NOT_SPECIFIED)}</Select.SelectEntry>));
-            vendorSelectEntries.push((<Select.SelectDivider key='divider' />));
-        }
-
-        this.props.familyList.forEach(({ family, vendors }) => {
-            if (family === DIVIDER_FAMILY) {
-                return;
-            }
-
-            vendorSelectEntries.push(
-                <optgroup key={family} label={family}>
-                    { vendors.map(vendor => <Select.SelectEntry data={vendor} key={vendor}>{vendor}</Select.SelectEntry>) }
-                </optgroup>);
-        });
-
-        const osEntries = (
-            this.props.vendorMap[this.state.vendor]
-                    .map(os => (
-                        <Select.SelectEntry data={os.shortId} key={os.shortId}>
-                            {getOSStringRepresentation(os)}
-                        </Select.SelectEntry>))
-        );
-
-        let installationSource;
-        let installationSourceId;
-        let installationSourceWarning;
-        switch (this.state.sourceType) {
-        case LOCAL_INSTALL_MEDIA_SOURCE:
-            installationSourceId = "source-file";
-            installationSource = (
-                <FileAutoComplete id={installationSourceId}
-                    placeholder={_("Path to ISO file on host's file system")}
-                    onChange={e => this.onChangedValue('source', e)}
-                    superUser="try" />
-            );
-            break;
-        case EXISTING_DISK_IMAGE_SOURCE:
-            installationSourceId = "source-disk";
-            installationSource = (
-                <FileAutoComplete id={installationSourceId}
-                    placeholder={_("Existing disk image on host's file system")}
-                    onChange={e => this.onChangedValue('source', e)}
-                    superuser="try" />
-            );
-            break;
-        case PXE_SOURCE:
-            installationSourceId = "network";
-            if (this.state.source.includes('type=direct')) {
-                installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
-            } else if (this.state.source.includes('network=')) {
-                let netObj = getVirtualNetworkByName(this.state.source.split('network=')[1],
-                                                     this.props.networks,
-                                                     this.state.connectionName);
-
-                if (!getVirtualNetworkPXESupport(netObj))
-                    installationSourceWarning = _("Network Selection does not support PXE.");
-            }
-
-            installationSource = (
-                <React.Fragment>
-                    <Select.StatelessSelect id="network-select"
-                                            selected={this.state.source}
-                                            onChange={e => this.onChangedValue('source', e)}>
-                        {getPXENetworkRows(this.props.nodeDevices, this.props.networks, this.state.connectionName)}
-                    </Select.StatelessSelect>
-
-                    {installationSourceWarning &&
-                    <HelpBlock>
-                        <p className="text-warning">{installationSourceWarning}</p>
-                    </HelpBlock> }
-                </React.Fragment>
-            );
-            break;
-        case URL_SOURCE:
-        default:
-            installationSourceId = "source-url";
-            installationSource = (
-                <input id={installationSourceId} className="form-control"
-                    type="text"
-                    minLength={1}
-                    placeholder={_("Remote URL")}
-                    value={this.state.source}
-                    onChange={e => this.onChangedEventValue('source', e)} />
-            );
-            break;
-        }
-
-        const validationFailed = this.props.vmParams.validate && validateParams(this.props.vmParams);
-        const validationStateName = validationFailed.vmName ? 'error' : undefined;
-        const validationStateSource = validationFailed.source ? 'error' : undefined;
-        const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
-
-        const installationSourceVal = (
-            <FormGroup validationState={validationStateSource} controlId='source'>
-                {installationSource}
-                { validationStateSource == 'error' &&
-                <HelpBlock>
-                    <p className="text-danger">{validationFailed.source}</p>
-                </HelpBlock> }
-            </FormGroup>
-        );
-
-        return (
-            <form className="ct-form-layout">
-                <label className="control-label" htmlFor="connection">
-                    {_("Connection")}
-                </label>
-                <MachinesConnectionSelector id='connection'
-                    dialogValues={this.state}
-                    onValueChanged={this.onChangedValue}
-                    loggedUser={this.props.loggedUser} />
-
-                <hr />
-
-                <label className="control-label" htmlFor="vm-name">
-                    {_("Name")}
-                </label>
-                <FormGroup validationState={validationStateName} controlId='name'>
-                    <input id='vm-name' className='form-control'
-                           type='text'
-                           minLength={1}
-                           value={this.state.vmName || ''}
-                           placeholder={_("Unique name")}
-                           onChange={e => this.onChangedEventValue('vmName', e)} />
-                    { validationStateName == 'error' &&
-                    <HelpBlock>
-                        <p className="text-danger">{validationFailed.vmName}</p>
-                    </HelpBlock> }
-                </FormGroup>
-
-                <hr />
-
-                <label className="control-label" htmlFor="source-type">
-                    {_("Installation Source Type")}
-                </label>
-                <Select.Select id="source-type"
-                               initial={this.state.sourceType}
-                               onChange={e => this.onChangedValue('sourceType', e)}>
-                    <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
-                                        key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
-                    <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
-                    { this.props.providerName == 'LibvirtDBus' &&
-                    <Select.SelectEntry data={PXE_SOURCE} key={PXE_SOURCE}>{_("Network Boot (PXE)")}</Select.SelectEntry> }
-                    <Select.SelectEntry data={EXISTING_DISK_IMAGE_SOURCE} key={EXISTING_DISK_IMAGE_SOURCE}>{_("Existing Disk Image")}</Select.SelectEntry>
-                </Select.Select>
-
-                <label className="control-label" htmlFor={installationSourceId}>
-                    {_("Installation Source")}
-                </label>
-                {installationSourceVal}
-
-                <hr />
-                <label className="control-label" htmlFor="vendor-select">
-                    {_("OS Vendor")}
-                </label>
-                <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
-                    <Select.Select id="vendor-select"
-                                   initial={this.state.vendor}
-                                   onChange={e => this.onChangedValue('vendor', e)}>
-                        {vendorSelectEntries}
-                    </Select.Select>
-                    { validationFailed.vendor && this.state.vendor == NOT_SPECIFIED &&
-                    <HelpBlock>
-                        <p className="text-danger">{validationFailed.vendor}</p>
-                    </HelpBlock> }
-                </FormGroup>
-
-                <label className="control-label" htmlFor="vendor-select">
-                    {_("Operating System")}
-                </label>
-                <Select.StatelessSelect id="system-select"
-                                        selected={this.state.os}
-                                        onChange={e => this.onChangedValue('os', e)}>
-                    {osEntries}
-                </Select.StatelessSelect>
-
-                <hr />
-
-                <label htmlFor='memory-size' className='control-label'>
-                    {_("Memory")}
-                </label>
-                <FormGroup bsClass='ct-validation-wrapper' controlId='memory'>
-                    <MemorySelectRow id='memory-size'
-                                     value={this.state.memorySize}
-                                     maxValue={this.props.nodeMaxMemory && convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit)}
-                                     initialUnit={this.state.memorySizeUnit}
-                                     onValueChange={e => this.onChangedEventValue('memorySize', e)}
-                                     onUnitChange={e => this.onChangedValue('memorySizeUnit', e)} />
-                    {this.props.nodeMaxMemory &&
-                    <HelpBlock>
-                        {cockpit.format(
-                            _("Up to $0 $1 available on the host"),
-                            Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit)),
-                            this.state.memorySizeUnit,
-                        )}
-                    </HelpBlock>}
-                </FormGroup>
-
-                {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
-                <React.Fragment>
-                    <label htmlFor='storage-size' className='control-label'>
-                        {_("Storage Size")}
-                    </label>
-                    <MemorySelectRow id={"storage-size"}
-                                     value={this.state.storageSize}
-                                     initialUnit={this.state.storageSizeUnit}
-                                     onValueChange={e => this.onChangedEventValue('storageSize', e)}
-                                     onUnitChange={e => this.onChangedValue('storageSizeUnit', e)} />
-                </React.Fragment>}
-
-                <hr />
-
-                <label className="checkbox-inline">
-                    <input id="start-vm" type="checkbox"
-                           checked={this.state.startVm}
-                           onChange={e => this.onChangedEventChecked('startVm', e)} />
-                    {_("Immediately Start VM")}
-                </label>
-            </form>
-        );
-    }
-}
-
-CreateVM.propTypes = {
-    valuesChanged: PropTypes.func.isRequired,
-    vmParams: PropTypes.object.isRequired,
-    vendorMap: PropTypes.object.isRequired,
-    familyMap: PropTypes.object.isRequired,
-    familyList: PropTypes.array.isRequired,
-    loggedUser: PropTypes.object.isRequired,
-};
-
 function validateParams(vmParams) {
     let validationFailed = {};
 
@@ -478,42 +102,363 @@ function validateParams(vmParams) {
     return validationFailed;
 }
 
+const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
+    const validationStateName = validationFailed.vmName ? 'error' : undefined;
+
+    return (
+        <React.Fragment>
+            <label className="control-label" htmlFor="vm-name">
+                {_("Name")}
+            </label>
+            <FormGroup validationState={validationStateName} controlId='name'>
+                <input id='vm-name' className='form-control'
+                    type='text'
+                    minLength={1}
+                    value={vmName || ''}
+                    placeholder={_("Unique name")}
+                    onChange={e => onValueChanged('vmName', e.target.value)} />
+                { validationStateName == 'error' &&
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.vmName}</p>
+                </HelpBlock> }
+            </FormGroup>
+        </React.Fragment>
+    );
+};
+
+const SourceRow = ({ source, sourceType, networks, nodeDevices, connectionName, providerName, onValueChanged, validationFailed }) => {
+    let installationSource;
+    let installationSourceId;
+    let installationSourceWarning;
+    const validationStateSource = validationFailed.source ? 'error' : undefined;
+
+    switch (sourceType) {
+    case LOCAL_INSTALL_MEDIA_SOURCE:
+        installationSourceId = "source-file";
+        installationSource = (
+            <FileAutoComplete id={installationSourceId}
+                placeholder={_("Path to ISO file on host's file system")}
+                onChange={value => onValueChanged('source', value)}
+                superUser="try" />
+        );
+        break;
+    case EXISTING_DISK_IMAGE_SOURCE:
+        installationSourceId = "source-disk";
+        installationSource = (
+            <FileAutoComplete id={installationSourceId}
+                placeholder={_("Existing disk image on host's file system")}
+                onChange={value => onValueChanged('source', value)}
+                superuser="try" />
+        );
+        break;
+    case PXE_SOURCE:
+        installationSourceId = "network";
+        if (source.includes('type=direct')) {
+            installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
+        } else if (source.includes('network=')) {
+            let netObj = getVirtualNetworkByName(source.split('network=')[1],
+                                                 networks,
+                                                 connectionName);
+
+            if (!getVirtualNetworkPXESupport(netObj))
+                installationSourceWarning = _("Network Selection does not support PXE.");
+        }
+
+        installationSource = (
+            <React.Fragment>
+                <Select.StatelessSelect id="network-select"
+                    selected={source}
+                    onChange={value => onValueChanged('source', value)}>
+                    {getPXENetworkRows(nodeDevices, networks, connectionName)}
+                </Select.StatelessSelect>
+
+                {installationSourceWarning &&
+                <HelpBlock>
+                    <p className="text-warning">{installationSourceWarning}</p>
+                </HelpBlock> }
+            </React.Fragment>
+        );
+        break;
+    case URL_SOURCE:
+    default:
+        installationSourceId = "source-url";
+        installationSource = (
+            <input id={installationSourceId} className="form-control"
+                type="text"
+                minLength={1}
+                placeholder={_("Remote URL")}
+                value={source}
+                onChange={e => onValueChanged('source', e.target.value)} />
+        );
+        break;
+    }
+
+    return (
+        <React.Fragment>
+            <label className="control-label" htmlFor="source-type">
+                {_("Installation Source Type")}
+            </label>
+            <Select.Select id="source-type"
+                initial={sourceType}
+                onChange={value => onValueChanged('sourceType', value)}>
+                <Select.SelectEntry data={LOCAL_INSTALL_MEDIA_SOURCE}
+                    key={LOCAL_INSTALL_MEDIA_SOURCE}>{_("Local Install Media")}</Select.SelectEntry>
+                <Select.SelectEntry data={URL_SOURCE} key={URL_SOURCE}>{_("URL")}</Select.SelectEntry>
+                { providerName == 'LibvirtDBus' &&
+                <Select.SelectEntry data={PXE_SOURCE} key={PXE_SOURCE}>{_("Network Boot (PXE)")}</Select.SelectEntry> }
+                <Select.SelectEntry data={EXISTING_DISK_IMAGE_SOURCE} key={EXISTING_DISK_IMAGE_SOURCE}>{_("Existing Disk Image")}</Select.SelectEntry>
+            </Select.Select>
+
+            <label className="control-label" htmlFor={installationSourceId}>
+                {_("Installation Source")}
+            </label>
+            <FormGroup validationState={validationStateSource} controlId='source'>
+                {installationSource}
+                { validationStateSource == 'error' &&
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.source}</p>
+                </HelpBlock> }
+            </FormGroup>
+        </React.Fragment>
+    );
+};
+
+const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFailed }) => {
+    const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
+    const familyList = vendors.familyList;
+    const familyMap = vendors.familyMap;
+    const vendorMap = vendors.vendorMap;
+    const vendorSelectEntries = [];
+
+    if (familyMap[DIVIDER_FAMILY]) {
+        vendorSelectEntries.push((
+            <Select.SelectEntry data={NOT_SPECIFIED} key={NOT_SPECIFIED}>{_(NOT_SPECIFIED)}</Select.SelectEntry>));
+        vendorSelectEntries.push((<Select.SelectDivider key='divider' />));
+    }
+
+    familyList.forEach(({ family, vendors }) => {
+        if (family === DIVIDER_FAMILY) {
+            return;
+        }
+
+        vendorSelectEntries.push(
+            <optgroup key={family} label={family}>
+                { vendors.map(vendor => <Select.SelectEntry data={vendor} key={vendor}>{vendor}</Select.SelectEntry>) }
+            </optgroup>);
+    });
+
+    const osEntries = (
+        vendorMap[vendor]
+                .map(os => (
+                    <Select.SelectEntry data={os.shortId} key={os.shortId}>
+                        {getOSStringRepresentation(os)}
+                    </Select.SelectEntry>))
+    );
+
+    return (
+        <React.Fragment>
+            <label className="control-label" htmlFor="vendor-select">
+                {_("OS Vendor")}
+            </label>
+            <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
+                <Select.Select id="vendor-select"
+                    initial={vendor}
+                    onChange={value => onValueChanged('vendor', value)}>
+                    {vendorSelectEntries}
+                </Select.Select>
+                { validationFailed.vendor && vendor == NOT_SPECIFIED &&
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.vendor}</p>
+                </HelpBlock> }
+            </FormGroup>
+
+            <label className="control-label" htmlFor="vendor-select">
+                {_("Operating System")}
+            </label>
+            <Select.StatelessSelect id="system-select"
+                selected={os}
+                onChange={value => onValueChanged('os', value)}>
+                {osEntries}
+            </Select.StatelessSelect>
+        </React.Fragment>
+    );
+};
+
+const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged }) => {
+    return (
+        <React.Fragment>
+            <label htmlFor='memory-size' className='control-label'>
+                {_("Memory")}
+            </label>
+            <FormGroup bsClass='ct-validation-wrapper' controlId='memory'>
+                <MemorySelectRow id='memory-size'
+                    value={memorySize}
+                    maxValue={nodeMaxMemory && convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)}
+                    initialUnit={memorySizeUnit}
+                    onValueChange={e => onValueChanged('memorySize', e.target.value)}
+                    onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
+                {nodeMaxMemory &&
+                <HelpBlock>
+                    {cockpit.format(
+                        _("Up to $0 $1 available on the host"),
+                        Math.round(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
+                        memorySizeUnit,
+                    )}
+                </HelpBlock>}
+            </FormGroup>
+        </React.Fragment>
+    );
+};
+
+const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged }) => {
+    return (
+        <React.Fragment>
+            <label htmlFor='storage-size' className='control-label'>
+                {_("Storage Size")}
+            </label>
+            <MemorySelectRow id={"storage-size"}
+                value={storageSize}
+                initialUnit={storageSizeUnit}
+                onValueChange={e => onValueChanged('storageSize', e.target.value)}
+                onUnitChange={value => onValueChanged('storageSizeUnit', value)} />
+        </React.Fragment>
+    );
+};
+
 class CreateVmModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            'inProgress': false,
-            'validate': false,
-            'vmName': '',
-            'connectionName': LIBVIRT_SYSTEM_CONNECTION,
-            "sourceType": LOCAL_INSTALL_MEDIA_SOURCE,
-            'source': '',
-            'vendor': NOT_SPECIFIED,
-            "os": OTHER_OS_SHORT_ID,
-            'memorySize': 1024, // MiB
-            'storageSize': 10, // GiB
-            'startVm': false,
+            inProgress: false,
+            validate: false,
+            vmName: '',
+            connectionName: LIBVIRT_SYSTEM_CONNECTION,
+            sourceType: LOCAL_INSTALL_MEDIA_SOURCE,
+            source: '',
+            vendor: NOT_SPECIFIED,
+            vendors: prepareVendors(props.osInfoList),
+            os: OTHER_OS_SHORT_ID,
+            memorySize: convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
+            memorySizeUnit: units.GiB.name,
+            storageSize: 10, // GiB
+            storageSizeUnit: units.GiB.name,
+            startVm: false,
         };
-        this.onValueChanged = this.onValueChanged.bind(this);
         this.onCreateClicked = this.onCreateClicked.bind(this);
+        this.onValueChanged = this.onValueChanged.bind(this);
     }
 
     onValueChanged(key, value) {
-        const stateDelta = { [key]: value };
-        this.setState(stateDelta);
+        switch (key) {
+        case 'vmName': {
+            this.setState({ [key]: value });
+            break;
+        }
+        case 'vendor': {
+            const os = this.state.vendors.vendorMap[value][0].shortId;
+            this.setState({
+                [key]: value,
+                os,
+            });
+            break;
+        }
+        case 'os':
+            this.setState({ [key]: value });
+            break;
+        case 'source':
+            this.setState({ [key]: value });
+
+            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.vendor == NOT_SPECIFIED && value != '' && value != undefined) {
+                // Clears the previously set timer.
+                clearTimeout(this.typingTimeout);
+
+                const onOsAutodetect = (os) => {
+                    autodetectOS(os)
+                            .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
+                            .then(res => {
+                                const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
+
+                                if (osEntry && osEntry[0]) {
+                                    this.setState({
+                                        vendor: osEntry[0].vendor,
+                                        os: osEntry[0].shortId
+                                    });
+                                }
+                            });
+                };
+                this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
+            }
+            break;
+        case 'sourceType':
+            this.setState({ [key]: value });
+            if (value == PXE_SOURCE) {
+                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices,
+                                                                  this.props.networks,
+                                                                  this.state.connectionName);
+                this.setState({ source: initialPXESource });
+            } else if (this.state.sourceType == PXE_SOURCE && value != PXE_SOURCE) {
+                // Reset the source when the previous selection was PXE;
+                // all the other choices are string set by the user
+                this.setState({ source: '' });
+            }
+            break;
+        case 'memorySize':
+            value = Math.min(
+                value,
+                Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
+            );
+            this.setState({ [key]: value });
+            break;
+        case 'storageSize':
+            this.setState({ [key]: value });
+            value = convertToUnit(value, this.state.storageSizeUnit, units.GiB);
+            break;
+        case 'memorySizeUnit':
+            this.setState({ [key]: value });
+            key = 'memorySize';
+            value = convertToUnit(this.state.memorySize, this.state.memorySizeUnit, value);
+            this.setState({ [key]: value });
+            break;
+        case 'storageSizeUnit':
+            this.setState({ [key]: value });
+            key = 'storageSize';
+            value = convertToUnit(this.state.storageSize, this.state.storageSizeUnit, value);
+            this.setState({ [key]: value });
+            break;
+        case 'startVm': {
+            this.setState({ [key]: value });
+            break;
+        }
+        case 'connectionName':
+            this.setState({ [key]: value });
+            break;
+        default:
+            break;
+        }
     }
 
     onCreateClicked() {
         const { dispatch } = this.props;
-        const vmParams = this.state;
 
-        if (Object.getOwnPropertyNames(validateParams(vmParams)).length > 0) {
+        if (Object.getOwnPropertyNames(validateParams(this.state)).length > 0) {
             this.setState({ inProgress: false, validate: true });
         } else {
             // leave dialog open to show immediate errors from the backend
             // close the dialog after VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit
             // then show errors in the notification area
             this.setState({ inProgress: true });
+
+            const vmParams = {
+                connectionName: this.state.connectionName,
+                vmName: this.state.vmName,
+                source: this.state.source,
+                sourceType: this.state.sourceType,
+                os: this.state.os,
+                memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
+                storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
+                startVm: this.state.startVm,
+            };
+
             return timeoutedPromise(
                 dispatch(createVm(vmParams)),
                 VMS_CONFIG.LeaveCreateVmDialogVisibleAfterSubmit,
@@ -529,21 +474,72 @@ class CreateVmModal extends React.Component {
     }
 
     render() {
-        const { osInfoList, loggedUser } = this.props;
-        const vendors = prepareVendors(osInfoList);
-        const vmParams = this.state;
+        const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName } = this.props;
+        const validationFailed = this.state.validate && validateParams(this.state);
         const dialogBody = (
-            <CreateVM vmParams={vmParams}
-                familyList={vendors.familyList}
-                familyMap={vendors.familyMap}
-                networks={this.props.networks}
-                nodeDevices={this.props.nodeDevices}
-                nodeMaxMemory={this.props.nodeMaxMemory}
-                vendorMap={vendors.vendorMap}
-                valuesChanged={this.onValueChanged}
-                loggedUser={loggedUser}
-                providerName={this.props.providerName}
-                osInfoList={this.props.osInfoList} />
+            <form className="ct-form-layout">
+                <label className="control-label" htmlFor="connection">
+                    {_("Connection")}
+                </label>
+                <MachinesConnectionSelector id='connection'
+                    dialogValues={this.state}
+                    onValueChanged={this.onValueChanged}
+                    loggedUser={loggedUser} />
+
+                <hr />
+
+                <NameRow
+                    vmName={this.state.vmName}
+                    onValueChanged={this.onValueChanged}
+                    validationFailed={validationFailed} />
+
+                <hr />
+
+                <SourceRow
+                    connectionName={this.state.connectionName}
+                    networks={networks}
+                    nodeDevices={nodeDevices}
+                    providerName={providerName}
+                    source={this.state.source}
+                    sourceType={this.state.sourceType}
+                    onValueChanged={this.onValueChanged}
+                    validationFailed={validationFailed} />
+
+                <hr />
+
+                <OSRow
+                    vendor={this.state.vendor}
+                    vendors={this.state.vendors}
+                    os={this.state.os}
+                    osInfoList={osInfoList}
+                    onValueChanged={this.onValueChanged}
+                    validationFailed={validationFailed} />
+
+                <hr />
+
+                <MemoryRow
+                    memorySize={this.state.memorySize}
+                    memorySizeUnit={this.state.memorySizeUnit}
+                    nodeMaxMemory={nodeMaxMemory}
+                    onValueChanged={this.onValueChanged}
+                />
+
+                {this.state.sourceType != EXISTING_DISK_IMAGE_SOURCE &&
+                <StorageRow
+                    storageSize={this.state.storageSize}
+                    storageSizeUnit={this.state.storageSizeUnit}
+                    onValueChanged={this.onValueChanged}
+                />}
+
+                <hr />
+
+                <label className="checkbox-inline">
+                    <input id="start-vm" type="checkbox"
+                        checked={this.state.startVm}
+                        onChange={e => this.onValueChanged('startVm', e.target.checked)} />
+                    {_("Immediately Start VM")}
+                </label>
+            </form>
         );
 
         return (
@@ -610,3 +606,13 @@ export class CreateVmAction extends React.Component {
         );
     }
 }
+
+CreateVmAction.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    networks: PropTypes.array.isRequired,
+    nodeDevices: PropTypes.array.isRequired,
+    nodeMaxMemory: PropTypes.number,
+    onAddErrorNotification: PropTypes.func.isRequired,
+    providerName: PropTypes.string.isRequired,
+    systemInfo: PropTypes.object.isRequired,
+};

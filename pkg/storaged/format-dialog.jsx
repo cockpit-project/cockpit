@@ -250,7 +250,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                      title: _("Extended Partition"),
                      disabled: !(create_partition && enable_dos_extended) });
     add_fsys(true, { value: "empty", title: _("No Filesystem") });
-    add_fsys(true, { value: "custom", title: _("Custom (Enter filesystem type)") });
 
     var usage = utils.get_active_usage(client, create_partition ? null : path);
 
@@ -285,11 +284,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                       TextInput("name", _("Name"),
                                 { validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
                                   visible: is_filesystem
-                                }),
-                      TextInput("custom", _("Filesystem type"),
-                                { visible: function (vals) {
-                                    return vals.type == "custom";
-                                }
                                 }),
                       PassInput("passphrase", _("Passphrase"),
                                 { validate: function (phrase) {
@@ -329,9 +323,6 @@ export function format_dialog(client, path, start, size, enable_dos_extended) {
                       Danger: (create_partition
                           ? null : _("Formatting a storage device will erase all data on it.")),
                       action: function (vals) {
-                          if (vals.type == "custom")
-                              vals.type = vals.custom;
-
                           var options = { 'no-block': { t: 'b', v: true },
                                           'dry-run-first': { t: 'b', v: true },
                                           'tear-down': { t: 'b', v: true }

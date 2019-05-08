@@ -276,8 +276,7 @@ firewall.removeService = (zone, service) => {
                                                'org.fedoraproject.FirewallD1.config',
                                                'getZoneByName', [zone]))
             .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
-                                              'removeService', [service]))
-            .catch(error => console.warn(error));
+                                              'removeService', [service]));
 };
 
 /*
@@ -303,8 +302,7 @@ firewall.enableService = (zones, service) => {
                                            'getZoneByName', [z])
                 .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
                                                   'addService', [service]))
-                .then(() => getZones())
-                .catch(error => console.warn(error))));
+                .then(() => getZones())));
 };
 
 /*
@@ -321,8 +319,7 @@ firewall.addService = (zone, service) => {
                                                'org.fedoraproject.FirewallD1.config',
                                                'getZoneByName', [zone]))
             .then(path => firewalld_dbus.call(path[0], 'org.fedoraproject.FirewallD1.config.zone',
-                                              'addService', [service]))
-            .catch(error => console.warn(error));
+                                              'addService', [service]));
 };
 
 /*
@@ -335,14 +332,26 @@ firewall.addServices = (zones, services) => {
     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
     // https://github.com/cockpit-project/cockpit/issues/10956
     // eslint-disable-next-line cockpit/no-cockpit-all
-    return cockpit.all(zones.map(z => services.map(s => firewall.addService(z, s))));
+    return cockpit.all(zones.map(z => services.map(s => firewall.addService(z, s))))
+            .then(function() {
+                let result = Array.prototype.slice.call(arguments);
+                if (result.length === 1 && result[0].length === 0)
+                    return [];
+                return result;
+            });
 };
 
 firewall.removeServiceFromZones = (zones, service) => {
     // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
     // https://github.com/cockpit-project/cockpit/issues/10956
     // eslint-disable-next-line cockpit/no-cockpit-all
-    return cockpit.all(zones.map(z => firewall.removeService(z, service)));
+    return cockpit.all(zones.map(z => firewall.removeService(z, service)))
+            .then(function() {
+                let result = Array.prototype.slice.call(arguments);
+                if (result.length === 1 && result[0].length === 0)
+                    return [];
+                return result;
+            });
 };
 
 export default firewall;

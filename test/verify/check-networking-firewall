@@ -225,6 +225,7 @@ class TestFirewall(MachineCase):
             for zone in zones:
                 b.click("#remove-services-dialog input[value={}]".format(zone))
             b.click("#remove-services-dialog button.btn-primary")
+            b.wait_not_present("#remove-services-dialog")
             b.wait_not_present("tr[data-row-id='{}']".format(service))
 
         # remove all services
@@ -243,13 +244,18 @@ class TestFirewall(MachineCase):
             for service in services:
                 removeService(service)
 
-        for service in services:
-            b.wait_not_present("tr[data-row-id='{}']".format(service))
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
         if m.image in ["rhel-8-0", "rhel-8-1", "rhel-8-0-distropkg"]:
             self.assertEqual(m.execute("firewall-cmd --zone=libvirt --list-services").strip(), "")
-            for service in libvirt_services:
-                b.wait_not_present("tr[data-row-id='{}']".format(service))
+
+        # test error handling
+        m.execute("firewall-cmd --add-service=pop3")
+        b.wait_present("tr[data-row-id='pop3']")
+        b.click("tr[data-row-id='pop3'] .btn.pficon-delete")
+        # remove service while the dialog is open
+        m.execute("firewall-cmd --remove-service=pop3")
+        b.click("#remove-services-dialog button.btn-primary")
+        b.wait_in_text("#remove-services-dialog div.alert", "org.fedoraproject.FirewallD1.Exception: NOT_ENABLED: 'pop3' not in 'public'")
 
     @skipImage("Custom ports were introduced in #11420", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testAddCustomServices(self):
@@ -337,6 +343,17 @@ class TestFirewall(MachineCase):
         check_error("Invalid range")
         set_field("#tcp-ports", "80-90-100", "")
         check_error("Invalid range")
+        b.click("#add-services-dialog button.btn-cancel")
+
+        # test error handling
+        # attempt to create custom service which already exists
+        m.execute("firewall-cmd --permanent --new-service=custom--19834")
+        m.execute("firewall-cmd --permanent --service=custom--19834 --add-port=19834/udp")
+        open_dialog()
+        set_field("#udp-ports", "19834", "19834")
+        b.click("#add-services-dialog button.btn-primary")
+        b.wait_in_text("#add-services-dialog div.alert", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+
 
     @skipImage("Zones were introduced in #11745", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
     def testMultipleZones(self):

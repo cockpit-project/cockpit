@@ -484,7 +484,7 @@ class CreateVmModal extends React.Component {
                     {_("Connection")}
                 </label>
                 <MachinesConnectionSelector id='connection'
-                    dialogValues={this.state}
+                    connectionName={this.state.connectionName}
                     onValueChanged={this.onValueChanged}
                     loggedUser={loggedUser} />
 

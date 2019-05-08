@@ -25,7 +25,7 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-export const MachinesConnectionSelector = ({ onValueChanged, dialogValues, loggedUser, id }) => {
+export const MachinesConnectionSelector = ({ onValueChanged, connectionName, loggedUser, id }) => {
     let connectionUris = [
         <Select.SelectEntry data={LIBVIRT_SYSTEM_CONNECTION}
                             key={LIBVIRT_SYSTEM_CONNECTION}>{_("QEMU/KVM System connection")}
@@ -42,7 +42,7 @@ export const MachinesConnectionSelector = ({ onValueChanged, dialogValues, logge
 
     return (
         <Select.Select id={id}
-                       initial={dialogValues.connectionName}
+                       initial={connectionName}
                        onChange={value => onValueChanged('connectionName', value)}>
             {connectionUris}
         </Select.Select>

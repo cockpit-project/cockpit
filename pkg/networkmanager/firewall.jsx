@@ -31,6 +31,7 @@ import {
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 import "page.css";
 import "table.css";
@@ -177,6 +178,8 @@ class AddServicesModal extends React.Component {
             custom_udp_value: "",
             /* If only one zone is active, automatically add services to that zone */
             zones: firewall.activeZones.size === 1 ? [firewall.defaultZone] : [],
+            dialogError: null,
+            dialogErrorDetail: null,
         };
         this.save = this.save.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
@@ -199,13 +202,20 @@ class AddServicesModal extends React.Component {
     }
 
     save() {
+        let p;
         if (this.state.custom) {
-            firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts())
+            p = firewall.createService(this.state.custom_id, this.state.custom_name, this.createPorts())
                     .then(firewall.enableService(this.state.zones, this.state.custom_id));
         } else {
-            firewall.addServices(this.state.zones, [...this.state.selected]);
+            p = firewall.addServices(this.state.zones, [...this.state.selected]);
         }
-        this.props.close();
+        p.then(() => this.props.close())
+                .catch(error => {
+                    this.setState({
+                        dialogError: _("Failed to add service"),
+                        dialogErrorDetail: error.name + ": " + error.message,
+                    });
+                });
     }
 
     onToggleService(event) {
@@ -429,7 +439,7 @@ class AddServicesModal extends React.Component {
                     <Modal.Title> {addText} </Modal.Title>
                 </Modal.Header>
                 <div id="cockpit_modal_dialog">
-                    <Modal.Body id="add-services-dialog">
+                    <Modal.Body id="add-services-dialog-body">
                         { firewall.activeZones.size > 1 &&
                             <React.Fragment>
                                 <form className="ct-form-layout horizontal">
@@ -518,6 +528,9 @@ class AddServicesModal extends React.Component {
                     </Modal.Body>
                 </div>
                 <Modal.Footer>
+                    {
+                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                    }
                     <Button bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
@@ -538,14 +551,22 @@ class RemoveServicesModal extends React.Component {
                 .filter(z => firewall.zones[z].services.indexOf(this.props.service) !== -1);
         this.state = {
             zones: this.zonesWithService.length === 1 ? this.zonesWithService : [],
+            dialogError: undefined,
+            dialogErrorDetail: undefined,
         };
         this.save = this.save.bind(this);
         this.onToggleZone = this.onToggleZone.bind(this);
     }
 
     save() {
-        firewall.removeServiceFromZones(this.state.zones, this.props.service);
-        this.props.close();
+        firewall.removeServiceFromZones(this.state.zones, this.props.service)
+                .then(() => this.props.close())
+                .catch(error => {
+                    this.setState({
+                        dialogError: _("Failed to remove service"),
+                        dialogErrorDetail: error.name + ": " + error.message,
+                    });
+                });
     }
 
     onToggleZone(event) {
@@ -575,6 +596,9 @@ class RemoveServicesModal extends React.Component {
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
+                    {
+                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                    }
                     <Button bsStyle="default" className="btn-cancel" onClick={this.props.close}>
                         { _("Cancel") }
                     </Button>

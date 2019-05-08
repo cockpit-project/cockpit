@@ -275,6 +275,9 @@ function is_visible(field, values) {
 
 const Body = ({ body, fields, values, errors, onChange }) => {
     function make_row(field, index) {
+        if (field.length !== undefined)
+            return make_rows(field, index);
+
         function change(val) {
             values[field.tag] = val;
             onChange(field.tag);
@@ -288,20 +291,31 @@ const Body = ({ body, fields, values, errors, onChange }) => {
             );
     }
 
+    function make_rows(fields, index) {
+        let rows = fields.map(make_row).filter(r => r);
+        if (rows.length === 0)
+            return null;
+        else if (index === undefined) // top-level
+            return <form className="ct-form-layout">{ rows }</form>;
+        else // nested
+            return <div key={index} className="ct-form-layout ct-form-box">{ rows }</div>;
+    }
+
     return (
         <div className="modal-body">
             { body || null }
-            { fields.length > 0
-                ? <form className="ct-form-layout">
-                    { fields.map(make_row) }
-                </form> : null
-            }
+            { make_rows(fields) }
         </div>
     );
 };
 
+function flatten(arr1) {
+    return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flatten(val)) : acc.concat(val), []);
+}
+
 export const dialog_open = (def) => {
-    let fields = def.Fields || [ ];
+    let nested_fields = def.Fields || [ ];
+    let fields = flatten(nested_fields);
     let values = { };
 
     fields.forEach(f => { values[f.tag] = f.initial_value });
@@ -322,7 +336,7 @@ export const dialog_open = (def) => {
             id: "dialog",
             title: def.Title,
             body: <Body body={def.Body}
-                        fields={fields}
+                        fields={nested_fields}
                         values={values}
                         errors={errors}
                         onChange={trigger => update(null, trigger)} />

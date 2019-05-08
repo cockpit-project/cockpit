@@ -71,7 +71,11 @@ class TestNetworking(NetworkCase):
         # reload.
         b.wait_text_not("#network-interface-mac", "")
         b.wait_present(".panel-heading:contains('tteam') .btn.active:contains('On')")
-        b.click(".panel-heading:contains('tteam') .btn:contains('Off')")
+        # PR #11773 moves to our React component, which has opposite click sensitivity
+        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            b.click(".panel-heading:contains('tteam') .btn:contains('Off')")
+        else:
+            b.click(".panel-heading:contains('tteam') .btn:contains('On') span")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         b.reload()
         b.enter_page("/network")

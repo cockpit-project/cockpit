@@ -126,7 +126,7 @@ const NameRow = ({ vmName, onValueChanged, validationFailed }) => {
     );
 };
 
-const SourceRow = ({ source, sourceType, networks, nodeDevices, connectionName, providerName, onValueChanged, validationFailed }) => {
+const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, onValueChanged, validationFailed }) => {
     let installationSource;
     let installationSourceId;
     let installationSourceWarning;
@@ -157,10 +157,9 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, connectionName, 
             installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
         } else if (source.includes('network=')) {
             let netObj = getVirtualNetworkByName(source.split('network=')[1],
-                                                 networks,
-                                                 connectionName);
+                                                 networks);
 
-            if (!getVirtualNetworkPXESupport(netObj))
+            if (!netObj || !getVirtualNetworkPXESupport(netObj))
                 installationSourceWarning = _("Network Selection does not support PXE.");
         }
 
@@ -169,7 +168,7 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, connectionName, 
                 <Select.StatelessSelect id="network-select"
                     selected={source}
                     onChange={value => onValueChanged('source', value)}>
-                    {getPXENetworkRows(nodeDevices, networks, connectionName)}
+                    {getPXENetworkRows(nodeDevices, networks)}
                 </Select.StatelessSelect>
 
                 {installationSourceWarning &&
@@ -392,9 +391,8 @@ class CreateVmModal extends React.Component {
         case 'sourceType':
             this.setState({ [key]: value });
             if (value == PXE_SOURCE) {
-                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices,
-                                                                  this.props.networks,
-                                                                  this.state.connectionName);
+                let initialPXESource = getPXEInitialNetworkSource(this.props.nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName),
+                                                                  this.props.networks.filter(network => network.connectionName == this.state.connectionName));
                 this.setState({ source: initialPXESource });
             } else if (this.state.sourceType == PXE_SOURCE && value != PXE_SOURCE) {
                 // Reset the source when the previous selection was PXE;
@@ -431,6 +429,10 @@ class CreateVmModal extends React.Component {
         }
         case 'connectionName':
             this.setState({ [key]: value });
+            if (this.state.sourceType == PXE_SOURCE) {
+                // If the installation source mode is PXE refresh the list of available networks
+                this.onValueChanged('sourceType', PXE_SOURCE);
+            }
             break;
         default:
             break;
@@ -496,9 +498,8 @@ class CreateVmModal extends React.Component {
                 <hr />
 
                 <SourceRow
-                    connectionName={this.state.connectionName}
-                    networks={networks}
-                    nodeDevices={nodeDevices}
+                    networks={networks.filter(network => network.connectionName == this.state.connectionName)}
+                    nodeDevices={nodeDevices.filter(nodeDevice => nodeDevice.connectionName == this.state.connectionName)}
                     providerName={providerName}
                     source={this.state.source}
                     sourceType={this.state.sourceType}

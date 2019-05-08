@@ -1024,6 +1024,14 @@ class TestMachines(NetworkCase):
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
 
+        def checkSourceNetworkAbsentTest(dialog):
+            dialog.open() \
+                .fill() \
+                .checkSourceNetworkAbsent() \
+                .cancel(True)
+            runner.assertScriptFinished() \
+                .checkEnvIsEmpty()
+
         def checkDialogFormValidationTest(dialog, errors):
             dialog.open() \
                 .fill() \
@@ -1223,6 +1231,13 @@ class TestMachines(NetworkCase):
             self.browser.reload()
             self.browser.enter_page('/machines')
             self.browser.wait_in_text("body", "Virtual Machines")
+
+            # check that the pxe-nat network is not available on session connection
+            checkSourceNetworkAbsentTest(TestMachines.VmDialog(self, name='pxe-guest',
+                                                               sourceType='pxe',
+                                                               location="Virtual Network pxe-nat: NAT",
+                                                               storage_size=0, storage_size_unit='MiB',
+                                                               connection="session"))
 
             # First create the PXE VM but do not start it. We 'll need to tweak a bit the XML
             # to have serial console at bios and also redirect serial console to a file
@@ -1464,6 +1479,10 @@ class TestMachines(NetworkCase):
             except Error:
                 # os not found which is ok
                 return self
+
+        def checkSourceNetworkAbsent(self):
+            self.browser.wait_not_present("#network-select option[data-value*='{0}']".format(self.location))
+            return self
 
         def fill(self):
             def getSourceTypeLabel(sourceType):

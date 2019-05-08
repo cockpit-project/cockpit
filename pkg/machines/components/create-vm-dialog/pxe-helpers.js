@@ -57,29 +57,21 @@ function getLibvirtNetworkBridges(virtualNetworks) {
 }
 
 /**
- * Filters an array of node devices returning only devices of specific connection and capability.
+ * Filters an array of node devices returning only devices of specific capability.
  * @param {array} nodeDevices - An array of object containing NodeDevices.
- * @param {string} connectionName - The libvirt connection name.
  * @param {string} type - The capability type, ex 'net'.
  */
-function getNodeDevicesOfType(nodeDevices, connectionName, type) {
-    return nodeDevices.filter(nodeDevice => {
-        return (nodeDevice.connectionName == connectionName &&
-                nodeDevice.capability.type == type);
-    });
+function getNodeDevicesOfType(nodeDevices, type) {
+    return nodeDevices.filter(nodeDevice => nodeDevice.capability.type == type);
 }
 
 /**
  * Return the Virtual Network matching a name from a Virtual Networks list.
  * @param {string} virtualNetworkName.
  * @param {array} virtualNetworks - An array of object containing Virtual Networks.
- * @param {string} connectionName - The libvirt connection name.
  */
-export function getVirtualNetworkByName(virtualNetworkName, virtualNetworks, connectionName) {
-    return virtualNetworks.filter(virtualNetwork =>
-        virtualNetwork.connectionName == connectionName &&
-        virtualNetwork.name == virtualNetworkName
-    )[0];
+export function getVirtualNetworkByName(virtualNetworkName, virtualNetworks) {
+    return virtualNetworks.filter(virtualNetwork => virtualNetwork.name == virtualNetworkName)[0];
 }
 
 /**
@@ -133,14 +125,13 @@ export function getVirtualNetworkPXESupport(virtualNetwork) {
  * Returns the first available Network Resource to be used for showing to PXE Network Sources list.
  * @param {array} nodeDevices - An array of object containing NodeDevices.
  * @param {array} virtualNetworks - An array of object containing Virtual Networks.
- * @param {string} connectionName - The libvirt connection name.
  */
-export function getPXEInitialNetworkSource(nodeDevices, virtualNetworks, connectionName) {
+export function getPXEInitialNetworkSource(nodeDevices, virtualNetworks) {
     if (virtualNetworks.length > 0)
         return cockpit.format('network=$0', virtualNetworks[0].name);
 
     let netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
-        getNodeDevicesOfType(nodeDevices, connectionName, 'net'),
+        getNodeDevicesOfType(nodeDevices, 'net'),
         virtualNetworks
     );
 
@@ -152,14 +143,13 @@ export function getPXEInitialNetworkSource(nodeDevices, virtualNetworks, connect
  * Returns the Select Entries rows for the PXE Network Sources.
  * @param {array} nodeDevices - An array of object containing NodeDevices.
  * @param {array} virtualNetworks - An array of object containing Virtual Networks.
- * @param {string} connectionName - The libvirt connection name.
  */
-export function getPXENetworkRows(nodeDevices, virtualNetworks, connectionName) {
+export function getPXENetworkRows(nodeDevices, virtualNetworks) {
     /* Do not show to the user the libvirt virbrX-nic devices since these are
      * supposed to be managed through virtual networks
      */
     let netNodeDevices = filterVirtualBridgesFromNetNodeDevices(
-        getNodeDevicesOfType(nodeDevices, connectionName, 'net'),
+        getNodeDevicesOfType(nodeDevices, 'net'),
         virtualNetworks
     );
 

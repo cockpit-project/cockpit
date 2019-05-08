@@ -1530,8 +1530,8 @@ class TestMachines(NetworkCase):
             if self.storage_size is None:
                 b.wait_not_present("#storage-size")
             else:
-                b.set_input_text("#storage-size", str(self.storage_size))
                 b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
+                b.set_input_text("#storage-size", str(self.storage_size))
 
             b.wait_visible("#start-vm")
             if self.start_vm:

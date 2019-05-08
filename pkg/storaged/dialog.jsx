@@ -277,10 +277,6 @@ const Body = ({ body, fields, values, errors, onChange }) => {
     function make_row(field, index) {
         function change(val) {
             values[field.tag] = val;
-            fields.forEach(f => {
-                if (f.tag && f.options && f.options.update)
-                    values[f.tag] = f.options.update(values, field.tag);
-            });
             onChange(field.tag);
         }
 

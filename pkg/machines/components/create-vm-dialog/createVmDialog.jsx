@@ -153,9 +153,9 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, on
         break;
     case PXE_SOURCE:
         installationSourceId = "network";
-        if (source.includes('type=direct')) {
+        if (source && source.includes('type=direct')) {
             installationSourceWarning = _("In most configurations, macvtap does not work for host to guest network communication.");
-        } else if (source.includes('network=')) {
+        } else if (source && source.includes('network=')) {
             let netObj = getVirtualNetworkByName(source.split('network=')[1],
                                                  networks);
 
@@ -166,7 +166,7 @@ const SourceRow = ({ source, sourceType, networks, nodeDevices, providerName, on
         installationSource = (
             <React.Fragment>
                 <Select.StatelessSelect id="network-select"
-                    selected={source}
+                    selected={source || 'no-resource'}
                     onChange={value => onValueChanged('source', value)}>
                     {getPXENetworkRows(nodeDevices, networks)}
                 </Select.StatelessSelect>

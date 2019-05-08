@@ -174,5 +174,12 @@ export function getPXENetworkRows(nodeDevices, virtualNetworks) {
         );
     });
 
+    if (virtualNetworkRows.length == 0 && netNodeDevicesRows.length == 0)
+        return ([
+            <Select.SelectEntry disabled data='no-resource' key='no-resource'>
+                {_("No networks available")}
+            </Select.SelectEntry>
+        ]);
+
     return [virtualNetworkRows, netNodeDevicesRows];
 }

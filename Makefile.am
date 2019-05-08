@@ -295,6 +295,10 @@ VALGRIND_SUPPRESSIONS = \
 	tools/json-glib.supp \
 	$(NULL)
 
+if VALGRIND_MINADDR_HACK
+VALGRIND_ARGS += --aspace-minaddr=0x100000000
+endif
+
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 	$(AM_V_GEN) cat $^ > $@
 

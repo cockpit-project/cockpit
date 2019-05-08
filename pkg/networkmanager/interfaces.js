@@ -18,6 +18,9 @@
  */
 
 import $ from 'jquery';
+import React from "react";
+import ReactDOM from "react-dom";
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import cockpit from 'cockpit';
 
 import firewall from './firewall-client.js';
@@ -2218,15 +2221,6 @@ PageNetworkInterface.prototype = {
 
         $('#network-interface-delete').syn_click(self.model, $.proxy(this, "delete_connections"));
 
-        this.device_onoff = $("#network-interface-delete-switch").onoff()
-                .on("change", function() {
-                    var val = $(this).onoff("value");
-                    if (val)
-                        self.connect();
-                    else
-                        self.disconnect();
-                });
-
         function highlight_netdev_row(event, id) {
             $('#network-interface-slaves tr').removeClass('highlight-ct');
             if (id) {
@@ -2303,6 +2297,25 @@ PageNetworkInterface.prototype = {
             }
         }
 
+        function renderFirewallState(pending) {
+            ReactDOM.render(
+                React.createElement(OnOffSwitch, {
+                    id: 'networking-firewall-switch',
+                    state: firewall.enabled,
+                    enabled: !pending,
+                    onChange: onFirewallSwitchChange }),
+                document.querySelector('#networking-firewall .panel-actions')
+            );
+        }
+
+        function onFirewallSwitchChange(enable) {
+            renderFirewallState(true);
+            if (enable)
+                firewall.enable().then(() => renderFirewallState());
+            else
+                firewall.disable().then(() => renderFirewallState());
+        }
+
         firewall.addEventListener('changed', function () {
             if (!firewall.installed) {
                 $('#networking-firewall').hide();
@@ -2310,7 +2323,7 @@ PageNetworkInterface.prototype = {
             }
 
             $('#networking-firewall').show();
-            $('#networking-firewall-switch').onoff('value', firewall.enabled);
+            renderFirewallState();
 
             var n = firewall.enabledServices.size;
 
@@ -2318,21 +2331,6 @@ PageNetworkInterface.prototype = {
             var summary = cockpit.format(cockpit.ngettext('$0 Active Rule', '$0 Active Rules', n), n.toString());
 
             $('#networking-firewall-summary').text(summary);
-        });
-
-        $('#networking-firewall-switch').on('change', function () {
-            var self = $(this);
-
-            self.onoff('disabled');
-
-            function enableSwitch() {
-                self.onoff('disabled', false);
-            }
-
-            if ($(this).onoff('value'))
-                firewall.enable().then(enableSwitch);
-            else
-                firewall.disable().then(enableSwitch);
         });
 
         $(window).on('resize', function () {
@@ -2571,9 +2569,14 @@ PageNetworkInterface.prototype = {
         /* Disable the On/Off button for interfaces that we don't know about at all,
            and for devices that NM declares to be unavailable. Neither can be activated.
          */
-        this.device_onoff.onoff("disabled", !!(!iface || (dev && dev.State == 20)));
-        this.device_onoff.onoff("value", !!(dev && dev.ActiveConnection));
-        this.device_onoff.toggle(managed);
+        var onoff = null;
+        if (managed) {
+            onoff = React.createElement(OnOffSwitch, {
+                state: !!(dev && dev.ActiveConnection),
+                enabled: !(!iface || (dev && dev.State == 20)),
+                onChange: enable => enable ? self.connect() : self.disconnect() });
+        }
+        ReactDOM.render(onoff, document.getElementById('network-interface-delete-switch'));
 
         var is_deletable = (iface && !dev) || (dev && (dev.DeviceType == 'bond' ||
                                                        dev.DeviceType == 'team' ||

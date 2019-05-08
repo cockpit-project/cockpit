@@ -97,16 +97,6 @@
           <a tabindex="0" id="networking-firewall-link" translatable="yes">Firewall</a>
         </h2>
         <div class="panel-actions">
-          <div class="btn-group btn-onoff-ct" id="networking-firewall-switch" data-toggle="buttons">
-              <label class="btn active">
-                <input type="radio" name="firewall" />
-                <span translatable="yes">On</span>
-              </label>
-              <label class="btn">
-                <input type="radio" name="firewall" />
-                <span translatable="yes">Off</span>
-              </label>
-          </div>
         </div>
       </div>
       <div id="networking-firewall-summary" class="panel-body">
@@ -441,8 +431,8 @@
         <span id="network-interface-mac"></span>
         <div class="panel-actions">
           <button class="btn btn-danger network-privileged" id="network-interface-delete" translatable="yes">Delete</button>
-          <div class="btn-onoff-ct" id="network-interface-delete-switch">
-          </div>
+          <span id="network-interface-delete-switch">
+          </span>
         </div>
       </div>
       <div class="panel-body">

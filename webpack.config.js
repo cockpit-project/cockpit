@@ -454,6 +454,14 @@ module.exports = {
                         angular: true
                     }
                 }]
+            },
+            {
+                test: /\.(eot|woff|woff2|svg|ttf)([\?]?.*)$/,
+                loader: 'file-loader',
+            },
+            {
+                test: /\.(jpg)$/i,
+                loader: 'url-loader',
             }
         ],
     }

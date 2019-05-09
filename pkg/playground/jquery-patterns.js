@@ -85,22 +85,6 @@ $(function() {
         console.log("value: ", target.attr("value"));
     });
 
-    /* Switches */
-
-    $("#my-switch")
-            .onoff("value", true)
-            .on("change", function(ev) {
-                console.log("switch: " + $(this).onoff('value'));
-            });
-
-    $("#my-switch2")
-            .onoff()
-            .on("change", function(ev) {
-                console.log("switch 2: " + $(this).onoff('value'));
-            });
-
-    $("#my-switch3").onoff("disabled", true);
-
     /* Listing clicks */
 
     $("body")

@@ -60,20 +60,15 @@ class TestNetworking(NetworkCase):
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
         b.wait_visible("#network-interface")
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface1)
-        b.wait_present("#network-interface-slaves tr[data-interface='%s'] .btn.active:contains('On')" % iface1)
+        self.wait_onoff("#network-interface-slaves tr[data-interface='%s']" % iface1, True)
         b.wait_present("#network-interface-slaves tr[data-interface='%s']" % iface2)
-        b.wait_present("#network-interface-slaves tr[data-interface='%s'] .btn.active:contains('On')" % iface2)
+        self.wait_onoff("#network-interface-slaves tr[data-interface='%s']" % iface2, True)
 
         # Deactivate the bond and make sure it is still there after a
         # reload.
         b.wait_text_not("#network-interface-mac", "")
-        b.wait_present(".panel-heading:contains('tbond') .btn.active:contains('On')")
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('tbond') .btn:contains('Off')")
-        else:
-            b.click(".panel-heading:contains('tbond') .btn:contains('On') span")
-
+        self.wait_onoff(".panel-heading:contains('tbond')", True)
+        self.toggle_onoff(".panel-heading:contains('tbond')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         self.assertNotIn("disabled",
                          b.attr(".panel-heading:contains('tbond') .btn:contains('On')", "class"))
@@ -153,7 +148,7 @@ class TestNetworking(NetworkCase):
         # Rename while it is active
 
         b.click("#networking-interfaces tr[data-interface='tbond'] td:first-child")
-        b.click("#network-interface .panel-heading .btn:contains('On')")
+        self.wait_onoff("#network-interface .panel-heading", True)
         b.wait_in_text("tr:contains('Status')", "Configuring")
 
         b.click("tr:contains('Bond') a")

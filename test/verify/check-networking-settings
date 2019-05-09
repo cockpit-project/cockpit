@@ -65,11 +65,7 @@ class TestNetworking(NetworkCase):
 
         # The interface will be activated. Deactivate it.
         b.wait_in_text("tr:contains('Status')", "1.2.3.4/24")
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
-        else:
-            b.click(".panel-heading:contains('%s') .btn:contains('On') span" % iface)
+        self.toggle_onoff(".panel-heading:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Delete the connection settings again and wait for the ghost
@@ -78,11 +74,7 @@ class TestNetworking(NetworkCase):
         b.wait_in_text("tr:contains('IPv4')", "Automatic")
 
         # Activate with ghost settings
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('%s') .btn:contains('On')" % iface)
-        else:
-            b.click(".panel-heading:contains('%s') .btn:contains('Off') span" % iface)
+        self.toggle_onoff(".panel-heading:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "10.111.")
 
         # Check again that we now have connection settings

@@ -48,11 +48,7 @@ class TestFirewall(MachineCase):
             m.execute("firewall-cmd --permanent --zone=public --add-interface=eth1")
         m.execute("systemctl stop firewalld")
 
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-8-0-distropkg"]:
-            switch_sel = "#networking-firewall-switch label:not(.active)"
-        else:
-            switch_sel = "#networking-firewall-switch label.active span"
+        switch_sel = "#networking-firewall-switch label:not(.active) span"
 
         self.login_and_go("/network")
         b.wait_in_text("#networking-firewall-switch label.active", "Off")

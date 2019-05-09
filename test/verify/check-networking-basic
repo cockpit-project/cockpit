@@ -62,12 +62,8 @@ class TestNetworking(NetworkCase):
 
         # Disconnect
         #
-        b.wait_present(".panel-heading:contains('%s') .btn.active:contains('On')" % iface)
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
-        else:
-            b.click(".panel-heading:contains('%s') .btn:contains('On') span" % iface)
+        self.wait_onoff(".panel-heading:contains('%s')" % iface, True)
+        self.toggle_onoff(".panel-heading:contains('%s')" % iface)
         b.wait_in_text("tr:contains('Status')", "Inactive")
 
         # Switch it back to "auto" from the command line and bring it
@@ -83,10 +79,10 @@ class TestNetworking(NetworkCase):
         #
         b.click("tr:contains('IPv4') a")
         b.wait_popup("network-ip-settings-dialog")
-        b.wait_text("#network-ip-settings-dialog [data-field='dns'] .btn.active", "On")
-        b.click("#network-ip-settings-dialog [data-field='dns'] .btn:contains('Off')")
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", True)
+        self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
         # The "DNS Search Domains" setting should follow suit
-        b.wait_text("#network-ip-settings-dialog [data-field='dns_search'] .btn.active", "Off")
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", False)
         b.click("#network-ip-settings-dialog button:contains('Apply')")
         b.wait_popdown("network-ip-settings-dialog")
 

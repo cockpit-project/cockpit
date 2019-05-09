@@ -116,3 +116,13 @@ class NetworkCase(MachineCase):
         m.execute("mv /usr/sbin/dhclient /usr/sbin/dhclient.real")
         m.write("/usr/sbin/dhclient", '#! /bin/sh\nsleep %s\nexec /usr/sbin/dhclient.real "$@"' % delay)
         m.execute("chmod a+x /usr/sbin/dhclient")
+
+    def wait_onoff(self, sel, val):
+        self.browser.wait_present(sel + " label.active:contains('%s')" % ("On" if val else "Off"))
+
+    def toggle_onoff(self, sel):
+        # Since PR #11773 the click target of a OnOff button has changed
+        if self.machine.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            self.browser.click(sel + " label:not(.active)")
+        else:
+            self.browser.click(sel + " label:not(.active) span")

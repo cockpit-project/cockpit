@@ -31,13 +31,10 @@ class TestStorage(StorageCase):
         self.allow_authorize_journal_messages()
         self.login_and_go("/storage", authorized=False)
 
-        btn = "#create-mdraid"
-        self.browser.wait_present(btn)
-        self.browser.wait_attr(btn, "disabled", "")
+        b.wait_present("#devices [data-toggle=dropdown].disabled")
 
         b.relogin('/storage', authorized=True)
-        self.browser.wait_present(btn)
-        self.browser.wait_attr(btn, "disabled", None)
+        self.browser.wait_present("#devices [data-toggle=dropdown]:not(.disabled)")
 
         b.wait_in_text("#drives", "VirtIO")
         b.wait_not_in_text("#drives", "Show all")

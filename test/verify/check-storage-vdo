@@ -32,31 +32,32 @@ class TestStorage(StorageCase):
         self.login_and_go("/storage")
 
         if m.execute("which vdo || true") == "":
-            b.wait_not_present("#vdos")
+            b.click("#devices [data-toggle=dropdown]")
+            b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
 
         # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1616247
         m.execute("depmod")
 
-        b.wait_visible("#vdos")
+        b.wait_visible("#devices")
 
         # Make a logical volume for use as the backing device.
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
-        b.wait_in_text("#vgroups", "vdo_vgroup")
+        b.wait_in_text("#devices", "vdo_vgroup")
 
         # Create VDO
 
-        b.click("#create-vdo")
+        self.devices_dropdown("Create VDO Device")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vdo0")
         self.dialog_set_val("space", {"/dev/vdo_vgroup/lvol": True})
         self.dialog_apply()
         self.dialog_wait_close()
 
-        b.wait_in_text("#vdos", "vdo0")
-        b.click("#vdos tr:contains(vdo0)")
+        b.wait_in_text("#devices", "vdo0")
+        b.click("#devices tr:contains(vdo0)")
         b.wait_visible("#storage-detail")
 
         def detail(index):
@@ -117,7 +118,7 @@ class TestStorage(StorageCase):
         b.click('.panel-heading:contains("VDO") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
-        b.wait_not_in_text("#vdos", "vdo0")
+        b.wait_not_in_text("#devices", "vdo0")
 
     def testBrokenVdo(self):
         m = self.machine
@@ -126,10 +127,11 @@ class TestStorage(StorageCase):
         self.login_and_go("/storage")
 
         if m.execute("which vdo || true") == "":
-            b.wait_not_present("#vdos")
+            b.click("#devices [data-toggle=dropdown]")
+            b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
 
-        b.wait_visible("#vdos")
+        b.wait_visible("#devices")
 
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
@@ -168,12 +170,12 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#vdos", "vdo0")
-        b.click("#vdos tr:contains(vdo0)")
+        b.wait_in_text("#devices", "vdo0")
+        b.click("#devices tr:contains(vdo0)")
 
         b.click("#storage-detail .pf-m-danger button:contains('Remove device')")
         b.wait_visible("#storage")
-        b.wait_not_in_text("#vdos", "vdo0")
+        b.wait_not_in_text("#devices", "vdo0")
 
     def testBrokenVdoConfig(self):
         m = self.machine
@@ -182,10 +184,11 @@ config: !Configuration
         self.login_and_go("/storage")
 
         if m.execute("which vdo || true") == "":
-            b.wait_not_present("#vdos")
+            b.click("#devices [data-toggle=dropdown]")
+            b.wait_not_present("#devices .dropdown a:contains('VDO')")
             return
 
-        b.wait_visible("#vdos")
+        b.wait_visible("#devices")
 
         # Install a valid configuration file
         m.write("/etc/vdoconf.yml", """
@@ -221,7 +224,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#vdos", "vdo0")
+        b.wait_in_text("#devices", "vdo0")
 
         # Install a broken configuration file
         m.write("/etc/vdoconf.yml", """
@@ -231,7 +234,7 @@ config: !Configuration
       blah: 12
 """)
 
-        b.wait_not_in_text("#vdos", "vdo0")
+        b.wait_not_in_text("#devices", "vdo0")
 
         # Install a valid configuration file again
         m.write("/etc/vdoconf.yml", """
@@ -267,7 +270,7 @@ config: !Configuration
   version: 538380551
 """)
 
-        b.wait_in_text("#vdos", "vdo1")
+        b.wait_in_text("#devices", "vdo1")
 
 
 class TestStoragePackages(StorageCase, PackageCase):
@@ -286,16 +289,14 @@ class TestStoragePackages(StorageCase, PackageCase):
         m.execute("pkcon refresh")
 
         self.login_and_go("/storage")
-        b.click("button:contains('Install VDO support')")
 
+        self.devices_dropdown("Create VDO Device")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "vdo will be installed")
+        b.wait_in_text("#dialog", "The vdo package must be installed")
         b.wait_in_text("#dialog", "Total size:")
         self.dialog_apply()
-        self.dialog_wait_close()
-
-        b.wait_present("#vdos button .fa-plus")
-
+        # A new dialog opens immediately
+        b.wait_in_text("#dialog", "Create VDO Device")
 
 if __name__ == '__main__':
     test_main()

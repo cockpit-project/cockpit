@@ -47,7 +47,8 @@ class TestStorage(StorageCase):
 
         # Create a volume group out of two disks
         m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
-        b.wait_in_text("#vgroups", "TEST1")
+        b.wait_in_text("#devices", "TEST1")
+        b.wait_in_text("#devices", "/dev/TEST1/")
         b.click('tr:contains("TEST1")')
         b.wait_visible("#storage-detail")
         b.wait_in_text("#detail-sidebar", "DISK1")
@@ -103,22 +104,21 @@ class TestStorage(StorageCase):
         b.go("#/")
         b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
-        b.wait_not_in_text("#vgroups", "TEST1")
+        b.wait_not_in_text("#devices", "TEST1")
 
         # create volume group in the UI
-        b.wait_visible('#create-volume-group')
 
-        self.dialog_with_retry(trigger=lambda: b.click('#create-volume-group'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Volume Group"),
                                expect=lambda: (self.dialog_is_present('disks', "DISK1") and
                                                self.dialog_is_present('disks', "DISK2") and
                                                self.dialog_check({"name": "vgroup0"})),
                                values={"disks": {"DISK1": True,
                                                  "DISK2": True}})
 
-        b.wait_in_text("#vgroups", "vgroup0")
+        b.wait_in_text("#devices", "vgroup0")
 
         # Check that the next name is "vgroup1"
-        b.click('#create-volume-group')
+        self.devices_dropdown("Create Volume Group")
         self.dialog_wait_open()
         self.dialog_wait_val("name", "vgroup1")
         self.dialog_cancel()
@@ -237,13 +237,12 @@ class TestStorage(StorageCase):
         m.execute('parted -s /dev/sdb mktable gpt')
 
         # Create a volume group out of DISK1
-        b.wait_visible('#create-volume-group')
-        self.dialog_with_retry(trigger=lambda: b.click('#create-volume-group'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create Volume Group'),
                                expect=lambda: self.dialog_is_present(
                                    'disks', "unpartitioned space on QEMU QEMU HARDDISK (DISK1)"),
                                values={"disks": {"DISK1": True}})
 
-        b.wait_in_text("#vgroups", "vgroup0")
+        b.wait_in_text("#devices", "vgroup0")
         b.click('tr:contains("vgroup0")')
         b.wait_present('#storage-detail')
 
@@ -268,7 +267,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK1")
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        b.wait_in_text("#vgroups", "TEST")
+        b.wait_in_text("#devices", "TEST")
         b.click('tr:contains("TEST")')
         b.wait_visible("#storage-detail")
 

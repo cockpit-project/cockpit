@@ -473,6 +473,15 @@
    fun:g_socket_client_connect_to_uri_async
 }
 {
+  leak_socket_client_connect_attempt_glib_issue_1774
+  Memcheck:Leak
+  match-leak-kinds: definite
+  fun:calloc
+  fun:g_malloc0
+  fun:connection_attempt_new
+  fun:g_socket_client_enumerator_callback
+}
+{
    leak_signal_handlers_disconnect_matched
    Memcheck:Leak
    match-leak-kinds: definite

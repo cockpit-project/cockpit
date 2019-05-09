@@ -19,11 +19,15 @@
 
 import React from "react";
 
-// TODO - generalize this to arbitrary number of arguments (when needed)
-export function fmt_to_fragments(fmt, arg) {
-    var index = fmt.indexOf("$0");
-    if (index >= 0)
-        return <>{fmt.slice(0, index)}{arg}{fmt.slice(index + 2)}</>;
-    else
-        return fmt;
+export function fmt_to_fragments(fmt) {
+    const args = Array.prototype.slice.call(arguments, 1);
+
+    function replace(part) {
+        if (part[0] == "$") {
+            return args[parseInt(part.slice(1))];
+        } else
+            return part;
+    }
+
+    return React.createElement.apply(null, [React.Fragment, { }].concat(fmt.split(/(\$[0-9]+)/g).map(replace)));
 }

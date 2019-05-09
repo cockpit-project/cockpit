@@ -101,7 +101,7 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK3")
         b.wait_in_text("#drives", "DISK4")
 
-        b.click("#create-mdraid")
+        self.devices_dropdown('Create RAID Device')
         self.dialog_wait_open()
         self.dialog_wait_val("level", "raid5")
         self.dialog_apply()
@@ -117,9 +117,9 @@ class TestStorage(StorageCase):
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#mdraids", "ARR")
+        b.wait_in_text("#devices", "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
@@ -234,7 +234,7 @@ class TestStorage(StorageCase):
         self.confirm()
         with b.wait_timeout(120):
             b.wait_visible("#storage")
-            b.wait_not_in_text("#mdraids", "ARR")
+            b.wait_not_in_text("#devices", "ARR")
 
     def testNotRemovingDisks(self):
         m = self.machine
@@ -253,16 +253,16 @@ class TestStorage(StorageCase):
         b.wait_in_text("#drives", "DISK2")
         b.wait_in_text("#drives", "DISK3")
 
-        b.click("#create-mdraid")
+        self.devices_dropdown('Create RAID Device')
         self.dialog_wait_open()
         self.dialog_set_val("level", "raid5")
         self.dialog_set_val("disks", {"DISK1": True, "DISK2": True})
         self.dialog_set_val("name", "ARR")
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text("#mdraids", "ARR")
+        b.wait_in_text("#devices", "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",

@@ -40,15 +40,15 @@ class TestStorage(StorageCase):
         # Create a volume group with a logical volume with a encrypted
         # filesystem.
 
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         self.dialog_set_val('name', "TEST")
         self.dialog_set_val('disks', {"DISK1": True})
         self.dialog_apply()
         self.dialog_wait_close()
-        b.wait_in_text('#vgroups', "TEST")
+        b.wait_in_text('#devices', "TEST")
 
-        b.click('#vgroups tr:contains("TEST")')
+        b.click('#devices tr:contains("TEST")')
         b.wait_present('#storage-detail')
         b.click("button:contains(Create new Logical Volume)")
         self.dialog({'purpose': "block",
@@ -110,15 +110,15 @@ class TestStorage(StorageCase):
 
         # Now do the same with a MDRAID
 
-        self.dialog_with_retry(trigger=lambda: b.click('#create-mdraid'),
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID Device'),
                                expect=lambda: (self.dialog_is_present('disks', "DISK1") and
                                                self.dialog_is_present('disks', "DISK2")),
                                values={"name": "ARR",
                                        "disks": {"DISK1": True,
                                                  "DISK2": True}})
-        b.wait_in_text('#mdraids', "ARR")
+        b.wait_in_text('#devices', "ARR")
 
-        b.click('#mdraids tr:contains("ARR")')
+        b.click('#devices tr:contains("ARR")')
         b.wait_present('#storage-detail')
         self.content_head_action(1, "Format")
         self.dialog({"type": "ext4",

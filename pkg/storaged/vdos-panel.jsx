@@ -20,168 +20,151 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
+import { OverviewSidePanelRow } from "./overview.jsx";
 import {
     fmt_size, decode_filename,
     get_available_spaces, prepare_available_spaces,
     get_config
 } from "./utils.js";
-import { StorageButton } from "./storage-controls.jsx";
 import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBoxes } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export class VDOsPanel extends React.Component {
-    render() {
-        var client = this.props.client;
+export function vdo_feature(client) {
+    return {
+        is_enabled: () => client.features.vdo,
+        package: get_config("vdo_package", false),
+        enable: () => {
+            client.features.vdo = true;
+            client.vdo_overlay.start();
+            return Promise.resolve();
+        },
 
-        function create_vdo() {
-            var name;
-            for (var i = 0; i < 1000; i++) {
-                name = "vdo" + i.toFixed();
-                if (!client.vdo_overlay.by_name[name])
-                    break;
-            }
-
-            dialog_open({
-                Title: _("Create VDO Device"),
-                Fields: [
-                    TextInput("name", _("Name"),
-                              {
-                                  value: name,
-                                  validate: function (name) {
-                                      if (name == "")
-                                          return _("Name can not be empty.");
-                                  }
-                              }),
-                    SelectSpace("space", _("Disk"),
-                                {
-                                    empty_warning: _("No disks are available."),
-                                    validate: function (spc) {
-                                        if (!spc)
-                                            return _("A disk is needed.");
-                                    },
-                                    spaces: get_available_spaces(client)
-                                }),
-                    SizeSlider("lsize", _("Logical Size"),
-                               {
-                                   max: 3 * 1024 * 1024 * 1024 * 1024,
-                                   round: 512,
-                                   value: 1024 * 1024 * 1024 * 1024,
-                                   allow_infinite: true
-                               }),
-                    SizeSlider("index_mem", _("Index Memory"),
-                               {
-                                   max: 2 * 1024 * 1024 * 1024,
-                                   round: function (val) {
-                                       var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
-                                       return Math.round(val / round) * round;
-                                   },
-                                   value: 256 * 1024 * 1024,
-                                   allow_infinite: true,
-                               }),
-                    CheckBoxes("options", _("Options"),
-                               {
-                                   fields: [
-                                       {
-                                           tag: "compression", title: _("Compression"),
-                                           tooltip: _("Save space by compressing individual blocks with LZ4")
-                                       },
-                                       {
-                                           tag: "deduplication", title: _("Deduplication"),
-                                           tooltip: _("Save space by storing identical data blocks just once")
-                                       },
-                                       {
-                                           tag: "emulate_512", title: _("Use 512 Byte emulation"),
-                                           tooltip: _("For legacy applications only. Reduces performance.")
-                                       }
-                                   ],
-                                   value: {
-                                       compression: true,
-                                       deduplication: true,
-                                       emulate_512: false
-                                   }
-                               })
-                ],
-                update: (dlg, vals, trigger) => {
-                    if (trigger == "space") {
-                        dlg.set_values({ lsize: vals.space.size });
-                        dlg.set_options("lsize", { max: 3 * vals.space.size });
-                    }
-                },
-                Action: {
-                    Title: _("Create"),
-                    action: function (vals) {
-                        return prepare_available_spaces(client, [vals.space]).then(paths => {
-                            const block = client.blocks[paths[0]];
-                            return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
-                                                 {
-                                                     superuser: true,
-                                                     err: "message"
-                                                 })
-                                    .then(function () {
-                                        return client.vdo_overlay.create({
-                                            name: vals.name,
-                                            block: block,
-                                            logical_size: vals.lsize,
-                                            index_mem: vals.index_mem,
-                                            compression: vals.options.compression,
-                                            deduplication: vals.options.deduplication,
-                                            emulate_512: vals.emulate_512
-                                        });
-                                    });
-                        });
-                    }
-                }
-            });
+        dialog_options: {
+            title: _("Install VDO Support"),
+            text: _("The $0 package must be installed to create VDO devices.")
         }
+    };
+}
 
-        function cmp_vdo(a, b) {
-            return a.name.localeCompare(b.Name);
-        }
+const VDORow = ({ client, vdo }) => {
+    const block = client.slashdevs_block[vdo.dev];
+    return (
+        <OverviewSidePanelRow client={client}
+                              kind="array"
+                              name={vdo.name}
+                              devname={vdo.dev}
+                              detail={fmt_size(vdo.logical_size) + " " + _("VDO Device")}
+                              go={() => cockpit.location.go(["vdo", vdo.name])}
+                              job_path={block && block.path} />
+    );
+};
 
-        function make_vdo(vdo) {
-            var block = client.slashdevs_block[vdo.dev];
-            return (
-                <OverviewSidePanelRow client={client}
-                                      kind="array"
-                                      name={vdo.name}
-                                      devname={vdo.dev}
-                                      detail={fmt_size(vdo.logical_size)}
-                                      go={() => cockpit.location.go(["vdo", vdo.name])}
-                                      job_path={block && block.path}
-                                      key={vdo.dev} />
-            );
-        }
-
-        var vdos = client.vdo_overlay.volumes.sort(cmp_vdo).map(make_vdo);
-
-        var actions = (
-            <StorageButton kind="primary" onClick={create_vdo} id="create-vdo">
-                <span className="fa fa-plus" />
-            </StorageButton>
-        );
-
-        var vdo_feature = {
-            is_enabled: () => client.features.vdo,
-            package: get_config("vdo_package", false),
-            enable: () => {
-                client.features.vdo = true;
-                client.vdo_overlay.start();
-            }
-        };
-
-        return (
-            <OverviewSidePanel id="vdos"
-                               title={_("VDO Devices")}
-                               empty_text={_("No storage set up as VDO")}
-                               actions={actions}
-                               client={client}
-                               feature={vdo_feature}
-                               install_title={_("Install VDO support")}
-                               not_installed_text={_("VDO support not installed")}>
-                { vdos }
-            </OverviewSidePanel>
-        );
+export function vdo_rows(client) {
+    function cmp_vdo(a, b) {
+        return a.name.localeCompare(b.Name);
     }
+    return client.vdo_overlay.volumes.sort(cmp_vdo)
+            .map(vdo => <VDORow key={vdo.name} client={client} vdo={vdo} />);
+}
+
+export function create_vdo(client) {
+    var name;
+    for (var i = 0; i < 1000; i++) {
+        name = "vdo" + i.toFixed();
+        if (!client.vdo_overlay.by_name[name])
+            break;
+    }
+
+    dialog_open({
+        Title: _("Create VDO Device"),
+        Fields: [
+            TextInput("name", _("Name"),
+                      {
+                          value: name,
+                          validate: function (name) {
+                              if (name == "")
+                                  return _("Name can not be empty.");
+                          }
+                      }),
+            SelectSpace("space", _("Disk"),
+                        {
+                            empty_warning: _("No disks are available."),
+                            validate: function (spc) {
+                                if (!spc)
+                                    return _("A disk is needed.");
+                            },
+                            spaces: get_available_spaces(client)
+                        }),
+            SizeSlider("lsize", _("Logical Size"),
+                       {
+                           max: 3 * 1024 * 1024 * 1024 * 1024,
+                           round: 512,
+                           value: 1024 * 1024 * 1024 * 1024,
+                           allow_infinite: true
+                       }),
+            SizeSlider("index_mem", _("Index Memory"),
+                       {
+                           max: 2 * 1024 * 1024 * 1024,
+                           round: function (val) {
+                               var round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
+                               return Math.round(val / round) * round;
+                           },
+                           value: 256 * 1024 * 1024,
+                           allow_infinite: true,
+                       }),
+            CheckBoxes("options", _("Options"),
+                       {
+                           fields: [
+                               {
+                                   tag: "compression", title: _("Compression"),
+                                   tooltip: _("Save space by compressing individual blocks with LZ4")
+                               },
+                               {
+                                   tag: "deduplication", title: _("Deduplication"),
+                                   tooltip: _("Save space by storing identical data blocks just once")
+                               },
+                               {
+                                   tag: "emulate_512", title: _("Use 512 Byte emulation"),
+                                   tooltip: _("For legacy applications only. Reduces performance.")
+                               }
+                           ],
+                           value: {
+                               compression: true,
+                               deduplication: true,
+                               emulate_512: false
+                           }
+                       })
+        ],
+        update: (dlg, vals, trigger) => {
+            if (trigger == "space") {
+                dlg.set_values({ lsize: vals.space.size });
+                dlg.set_options("lsize", { max: 3 * vals.space.size });
+            }
+        },
+        Action: {
+            Title: _("Create"),
+            action: function (vals) {
+                return prepare_available_spaces(client, [vals.space]).then(function (paths) {
+                    var block = client.blocks[paths[0]];
+                    return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
+                                         {
+                                             superuser: true,
+                                             err: "message"
+                                         })
+                            .then(function () {
+                                return client.vdo_overlay.create({
+                                    name: vals.name,
+                                    block: block,
+                                    logical_size: vals.lsize,
+                                    index_mem: vals.index_mem,
+                                    compression: vals.options.compression,
+                                    deduplication: vals.options.deduplication,
+                                    emulate_512: vals.emulate_512
+                                });
+                            });
+                });
+            }
+        }
+    });
 }

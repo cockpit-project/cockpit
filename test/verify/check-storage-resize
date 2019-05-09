@@ -45,8 +45,8 @@ class TestStorage(StorageCase):
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("lvcreate TEST -n vol -L 200m")
-        b.wait_in_text("#vgroups", "TEST")
-        b.click('#vgroups tr:contains("TEST")')
+        b.wait_in_text("#devices", "TEST")
+        b.click('#devices tr:contains("TEST")')
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
@@ -180,8 +180,8 @@ class TestStorage(StorageCase):
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("lvcreate TEST -n vol -L 200m")
-        b.wait_in_text("#vgroups", "TEST")
-        b.click('#vgroups tr:contains("TEST")')
+        b.wait_in_text("#devices", "TEST")
+        b.click('#devices tr:contains("TEST")')
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 
@@ -235,8 +235,8 @@ class TestStorage(StorageCase):
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         m.execute("lvcreate TEST -n vol -L 200m")
-        b.wait_in_text("#vgroups", "TEST")
-        b.click('#vgroups tr:contains("TEST")')
+        b.wait_in_text("#devices", "TEST")
+        b.click('#devices tr:contains("TEST")')
         b.wait_visible("#storage-detail")
         self.content_row_wait_in_col(1, 2, "/dev/TEST/vol")
 

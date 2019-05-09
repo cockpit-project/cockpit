@@ -58,7 +58,8 @@ class StorageControl extends React.Component {
 
         if (excuse) {
             return (
-                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> } placement="top">
+                <OverlayTrigger overlay={ <Tooltip id="tip-storage">{excuse}</Tooltip> }
+                                placement={this.props.excuse_placement || "top"}>
                     { this.props.content(excuse) }
                 </OverlayTrigger>
             );
@@ -247,5 +248,33 @@ export class StorageUsageBar extends React.Component {
                 variant={fraction > this.props.critical ? ProgressVariant.danger : ProgressVariant.info}
                 measureLocation={ProgressMeasureLocation.outside} />
         );
+    }
+}
+
+export class StorageMenuItem extends React.Component {
+    render() {
+        return <li><a onClick={this.props.onClick}>{this.props.children}</a></li>;
+    }
+}
+
+export class StorageBarMenu extends React.Component {
+    render() {
+        const { children, label } = this.props;
+
+        function toggle(excuse) {
+            const classes = "btn btn-primary" + (excuse ? " disabled" : "");
+            return (
+                <button className={classes} type="button" data-toggle="dropdown" aria-label={label}>
+                    <span className="fa fa-bars" />
+                </button>);
+        }
+
+        return (
+            <div className="dropdown">
+                <StorageControl content={toggle} excuse_placement="bottom" />
+                <ul className="dropdown-menu dropdown-menu-right" role="menu">
+                    {children}
+                </ul>
+            </div>);
     }
 }

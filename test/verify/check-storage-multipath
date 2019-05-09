@@ -87,7 +87,7 @@ class TestStorage(StorageCase):
 
         # Check that neither is offered as a free block device
         b.go("#/")
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         check_free_block_devices([])
         self.dialog_cancel()
@@ -105,7 +105,7 @@ class TestStorage(StorageCase):
 
         # Check that (exactly) the primary device is offered as free
         b.go("#/")
-        b.click('#create-volume-group')
+        self.devices_dropdown('Create Volume Group')
         self.dialog_wait_open()
         check_free_block_devices(["/dev/mapper/mpatha"])
         self.dialog_cancel()

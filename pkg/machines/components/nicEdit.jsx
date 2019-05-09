@@ -24,7 +24,7 @@ import {
     Button
 } from 'patternfly-react';
 
-import { ModalError } from './notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 import {
     changeNetworkSettings,

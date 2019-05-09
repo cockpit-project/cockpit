@@ -28,7 +28,7 @@ import {
     Modal
 } from 'patternfly-react';
 
-import { ModalError } from './../notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import {
     findHostNodeDevice,
     getSortedBootOrderDevices,

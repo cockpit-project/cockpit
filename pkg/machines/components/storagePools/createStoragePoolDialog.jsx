@@ -23,7 +23,7 @@ import { Button, FormGroup, HelpBlock, Modal } from 'patternfly-react';
 
 import { LIBVIRT_SYSTEM_CONNECTION } from '../../helpers.js';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
-import { ModalError } from '../notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { FileAutoComplete } from 'cockpit-components-file-autocomplete.jsx';
 import * as Select from 'cockpit-components-select.jsx';
 import { createStoragePool } from '../../actions/provider-actions.js';

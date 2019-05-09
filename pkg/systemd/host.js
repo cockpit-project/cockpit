@@ -21,7 +21,7 @@ import $ from "jquery";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
 
 import "polyfills.js";
 import cockpit from "cockpit";
@@ -393,9 +393,10 @@ PageServer.prototype = {
             }
 
             ReactDOM.render(
-                React.createElement(OnOffSwitch, {
-                    state: pmlogger_service.state === "running",
-                    disabled: pmlogger_service.state == "starting" || force_disable,
+                React.createElement(Switch, {
+                    id: 'serverpmlogger-switch',
+                    isChecked: pmlogger_service.state === "running",
+                    isDisabled: pmlogger_service.state == "starting" || force_disable,
                     onChange: onPmLoggerSwitchChange }),
                 document.getElementById('server-pmlogger-switch')
             );

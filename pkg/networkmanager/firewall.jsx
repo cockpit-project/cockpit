@@ -28,10 +28,10 @@ import {
     OverlayTrigger,
     Tooltip
 } from "patternfly-react";
+import { Switch } from "@patternfly/react-core";
 
 import firewall from "./firewall-client.js";
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 import "page.css";
@@ -921,9 +921,9 @@ export class Firewall extends React.Component {
                 </ol>
                 <h1>
                     {_("Firewall")}
-                    <OnOffSwitch state={enabled}
-                                 disabled={!!this.state.pendingTarget}
-                                 onChange={this.onSwitchChanged} />
+                    <Switch id='firewall-onoff-switch' isChecked={enabled}
+                        isDisabled={!!this.state.pendingTarget}
+                        onChange={this.onSwitchChanged} />
                 </h1>
                 <div id="zones-listing">
                     { enabled && <Listing title={_("Active zones")}

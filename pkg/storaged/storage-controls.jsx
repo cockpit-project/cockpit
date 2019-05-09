@@ -19,11 +19,10 @@
 
 import React from "react";
 import { OverlayTrigger, Tooltip } from "patternfly-react";
+import { Switch } from "@patternfly/react-core";
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
-
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
 
 import { dialog_open } from "./dialog.jsx";
 import { fmt_to_fragments } from "./utilsx.jsx";
@@ -201,10 +200,10 @@ export class StorageOnOff extends React.Component {
         return (
             <StorageControl excuse={this.props.excuse}
                             content={(excuse) => (
-                                <OnOffSwitch state={this.state.promise
+                                <Switch isChecked={this.state.promise
                                     ? this.state.promise_goal_state
                                     : this.props.state}
-                                                 disabled={!!(excuse || this.state.promise)}
+                                                 isDisabled={!!(excuse || this.state.promise)}
                                                  onChange={onChange} />
                             )} />
         );

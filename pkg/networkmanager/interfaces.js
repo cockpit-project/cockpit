@@ -20,7 +20,7 @@
 import $ from 'jquery';
 import React from "react";
 import ReactDOM from "react-dom";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
 import cockpit from 'cockpit';
 
 import firewall from './firewall-client.js';
@@ -2308,10 +2308,10 @@ PageNetworkInterface.prototype = {
 
         function renderFirewallState(pending) {
             ReactDOM.render(
-                React.createElement(OnOffSwitch, {
+                React.createElement(Switch, {
                     id: 'networking-firewall-switch',
-                    state: firewall.enabled,
-                    disabled: pending,
+                    isChecked: firewall.enabled,
+                    isDisabled: pending,
                     onChange: onFirewallSwitchChange }),
                 document.querySelector('#networking-firewall .panel-actions')
             );
@@ -2583,9 +2583,10 @@ PageNetworkInterface.prototype = {
          */
         var onoff = null;
         if (managed) {
-            onoff = React.createElement(OnOffSwitch, {
-                state: !!(dev && dev.ActiveConnection),
-                disabled: !iface || (dev && dev.State == 20),
+            onoff = React.createElement(Switch, {
+                id:'interfaces-switch',
+                isChecked: !!(dev && dev.ActiveConnection),
+                isDisabled: !iface || (dev && dev.State == 20),
                 onChange: enable => enable ? self.connect() : self.disconnect() });
         }
         ReactDOM.render(onoff, document.getElementById('network-interface-delete-switch'));
@@ -3142,9 +3143,10 @@ function switchbox(val, callback) {
     var enabled = true;
     function render () {
         ReactDOM.render(
-            React.createElement(OnOffSwitch, {
-                state: val,
-                enabled: enabled,
+            React.createElement(Switch, {
+                id: 'interfaces-switch',
+                isChecked: val,
+                isDisabled: !enabled,
                 onChange: callback
             }),
             onoff[0]);

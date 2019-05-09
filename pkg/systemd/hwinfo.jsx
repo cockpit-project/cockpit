@@ -25,7 +25,7 @@ import ReactDOM from 'react-dom';
 
 import { Listing, ListingRow } from "cockpit-components-listing.jsx";
 import { Alert, Button, ListView, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
 
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
@@ -194,7 +194,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                     </a>
                 </small></span> }
                                actions={ <div id="nosmt-switch">
-                                   <OnOffSwitch disabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } state={ this.state.nosmt } />
+                                   <Switch id='hwinfo-switch' isDisabled={this.state.rebooting} onChange={ value => this.setState({ nosmt: value }) } isChecked={ this.state.nosmt } />
                                </div> } >
                 </ListView.Item>
             ));

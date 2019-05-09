@@ -23,7 +23,7 @@ import $ from "jquery";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+import { Switch } from "@patternfly/react-core";
 
 import "listing.less";
 import "patterns";
@@ -67,9 +67,9 @@ export function setup() {
 
     function renderKeyOnOff(id, state, disabled, tbody) {
         ReactDOM.render(
-            React.createElement(OnOffSwitch, {
-                state: state,
-                disabled: disabled,
+            React.createElement(Switch, {
+                isChecked: state,
+                isDisabled: disabled,
                 onChange: enable => onToggleKey(id, enable, tbody) }),
             document.querySelector('table.credential-listing tbody[data-id="' + id + '"] .listing-ct-actions'));
     }

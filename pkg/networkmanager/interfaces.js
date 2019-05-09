@@ -3126,11 +3126,22 @@ function PageNetworkInterface(model) {
 }
 
 function switchbox(val, callback) {
-    var onoff = $('<div class="btn-onoff-ct">').onoff();
-    onoff.onoff("value", val);
-    onoff.on("change", function () {
-        callback(onoff.onoff("value"));
-    });
+    var onoff = $('<span>');
+    var enabled = true;
+    function render () {
+        ReactDOM.render(
+            React.createElement(OnOffSwitch, {
+                state: val,
+                enabled: enabled,
+                onChange: callback
+            }),
+            onoff[0]);
+    }
+    onoff.enable = function (val) {
+        enabled = val;
+        render();
+    };
+    render();
     return onoff;
 }
 
@@ -3213,7 +3224,7 @@ PageNetworkIpSettings.prototype = {
                     self.update();
                 }));
             btn.enable = function enable(val) {
-                onoff.onoff("disabled", !val);
+                onoff.enable(val);
             };
             return btn;
         }

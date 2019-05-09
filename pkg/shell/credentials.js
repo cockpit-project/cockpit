@@ -21,6 +21,10 @@ import * as sshFile from "./ssh-file-autocomplete.jsx";
 import * as credentials from "credentials";
 import $ from "jquery";
 
+import React from "react";
+import ReactDOM from "react-dom";
+import { OnOffSwitch } from "cockpit-components-onoff.jsx";
+
 import "listing.less";
 import "patterns";
 
@@ -59,6 +63,45 @@ export function setup() {
                         show_pending(val);
                     }
                 });
+    }
+
+    function renderKeyOnOff(id, state, enabled, tbody) {
+        ReactDOM.render(
+            React.createElement(OnOffSwitch, {
+                state: state,
+                enabled: enabled,
+                onChange: enable => onToggleKey(id, enable, tbody) }),
+            document.querySelector('table.credential-listing tbody[data-id="' + id + '"] .listing-ct-actions'));
+    }
+
+    function onToggleKey(id, enable, tbody) {
+        var key = keys.items[id];
+        if (!key || !key.name)
+            return;
+
+        hide_add_key();
+        tbody.find(".alert").hide();
+
+        /* Key needs to be loaded, show load UI */
+        if (enable && !key.loaded) {
+            tbody.addClass("open").addClass("unlock");
+
+            /* Key needs to be unloaded, do that directly */
+        } else if (!enable && key.loaded) {
+            keys.unload(key)
+                    .done(function(ex) {
+                        tbody.removeClass("open");
+                    })
+                    .fail(function(ex) {
+                        console.log(ex);
+                        tbody.addClass("open").removeClass("unlock");
+                        tbody.find(".alert").show()
+                                .find(".credential-alert")
+                                .text(ex.message);
+                    });
+        }
+
+        renderKeyOnOff(id, enable, true, tbody);
     }
 
     $("#credentials-dialog")
@@ -114,38 +157,6 @@ export function setup() {
                 $(ev.target).parents("tbody")
                         .find(".listing-ct-item")
                         .removeClass("highlight-ct");
-            })
-
-    /* Load and unload keys */
-            .on("change", ".btn-group", function(ev) {
-                var body = $(this).parents("tbody");
-                var id = body.attr("data-id");
-                var key = keys.items[id];
-                if (!key || !key.name)
-                    return;
-
-                hide_add_key();
-                var value = $(this).onoff("value");
-                body.find(".alert").hide();
-
-                /* Key needs to be loaded, show load UI */
-                if (value && !key.loaded) {
-                    body.addClass("open").addClass("unlock");
-
-                    /* Key needs to be unloaded, do that directly */
-                } else if (!value && key.loaded) {
-                    keys.unload(key)
-                            .done(function(ex) {
-                                body.removeClass("open");
-                            })
-                            .fail(function(ex) {
-                                console.log(ex);
-                                body.addClass("open").removeClass("unlock");
-                                body.find(".alert").show()
-                                        .find(".credential-alert")
-                                        .text(ex.message);
-                            });
-                }
             })
 
     /* Load key */
@@ -285,8 +296,7 @@ export function setup() {
                         if (!(id in rows)) {
                             row = rows[id] = body.clone();
                             row.attr("data-id", id)
-                                    .removeAttr("hidden")
-                                    .onoff();
+                                    .removeAttr("hidden");
                             table.append(row);
                         }
                     }
@@ -308,10 +318,9 @@ export function setup() {
                             text(row, ".credential-comment", key.comment);
                             text(row, ".credential-data", key.data);
                             row.attr("data-name", key.name)
-                                    .attr("data-loaded", key.loaded ? "1" : "0")
-                                    .find(".btn-onoff-ct")
-                                    .onoff("value", key.loaded || row.hasClass("unlock"))
-                                    .onoff("disabled", !key.name);
+                                    .attr("data-loaded", key.loaded ? "1" : "0");
+
+                            renderKeyOnOff(id, key.loaded || row.hasClass("unlock"), !!key.name, row);
                         } else if (id !== "adding") {
                             row.remove();
                         }

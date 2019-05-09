@@ -350,6 +350,8 @@ rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib
 rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth %{buildroot}/%{_libexecdir}/cockpit-kube-launch %{buildroot}/%{_libexecdir}/cockpit-stub
 # files from -machines
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
+# files from -storaged
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -676,7 +678,7 @@ BuildArch: noarch
 The Cockpit component for managing storage.  This package uses udisks.
 
 %files -n cockpit-storaged -f storaged.list
-
+%{_datadir}/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 
 %package -n cockpit-tests
 Summary: Tests for Cockpit

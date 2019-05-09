@@ -27,7 +27,7 @@ import { NetworkList } from "./components/networks/networkList.jsx";
 import LibvirtSlate from "./components/libvirtSlate.jsx";
 import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx";
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
-import { InlineNotification } from './components/notification/inlineNotification.jsx';
+import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 
 class App extends React.Component {
     constructor(props) {

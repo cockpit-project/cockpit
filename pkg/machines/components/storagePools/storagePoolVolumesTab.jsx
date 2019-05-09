@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { ExpandableNotification } from '../notification/inlineNotification.jsx';
+import { ExpandableNotification } from 'cockpit-components-inline-notification.jsx';
 import { StorageVolumeDelete } from './storageVolumeDelete.jsx';
 import { Listing, ListingRow } from 'cockpit-components-listing.jsx';
 import { storagePoolId, convertToUnit, units } from '../../helpers.js';

@@ -20,11 +20,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { mouseClick } from '../../helpers.js';
 import { Alert } from 'patternfly-react';
-import './inlineNotification.css';
+import './cockpit-components-inline-notification.css';
 
 const _ = cockpit.gettext;
+
+function mouseClick(fun) {
+    return function (event) {
+        if (!event || event.button !== 0)
+            return;
+        event.preventDefault();
+        return fun(event);
+    };
+}
 
 export class InlineNotification extends React.Component {
     constructor(props) {
@@ -52,7 +60,7 @@ export class InlineNotification extends React.Component {
                 detailButtonText = _("show less");
             }
 
-            detailButton = (<a href='#' className='alert-link machines-more-button'
+            detailButton = (<a href='#' className='alert-link more-button'
                 onClick={mouseClick(this.toggleDetail)}>{detailButtonText}</a>);
         }
 

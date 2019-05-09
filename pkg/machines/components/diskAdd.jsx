@@ -21,7 +21,7 @@ import { Button, Modal } from 'patternfly-react';
 import cockpit from 'cockpit';
 
 import * as Select from "cockpit-components-select.jsx";
-import { ModalError } from './notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.js';
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
 

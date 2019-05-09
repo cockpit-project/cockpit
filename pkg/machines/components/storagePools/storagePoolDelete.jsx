@@ -21,7 +21,7 @@ import PropTypes from 'prop-types';
 import { Button, Modal } from 'patternfly-react';
 
 import { storagePoolId } from '../../helpers.js';
-import { ModalError } from '../notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { storagePoolDeactivate, storagePoolUndefine, storageVolumeDelete } from '../../libvirt-dbus.js';
 import cockpit from 'cockpit';
 

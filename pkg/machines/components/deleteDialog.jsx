@@ -23,7 +23,7 @@ import { Modal, Button } from 'patternfly-react';
 
 import { vmId } from '../helpers.js';
 import { deleteVm } from '../actions/provider-actions.js';
-import { ModalError } from './notification/inlineNotification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './deleteDialog.css';
 

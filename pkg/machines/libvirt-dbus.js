@@ -44,9 +44,6 @@ import {
 import {
     deleteUnlistedVMs,
     updateLibvirtVersion,
-    removeNetwork,
-    removeStoragePool,
-    removeVm,
     updateOrAddNetwork,
     updateOrAddNodeDevice,
     updateOrAddVm,
@@ -1018,7 +1015,14 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 break;
 
             case domainEvent["Undefined"]:
-                dispatch(removeVm({ connectionName, id: objPath }));
+            case domainEvent["Stopped"]:
+                // If the resource is not active it will be removed from the list
+                // otherwise it will become transient
+                // If the resource is transient it will be removed from the list
+                // otherwise it will become inactive
+                // Re-fetch the whole resource list instead of manually removing
+                // it to avoid race conditions
+                dispatch(getAllVms(connectionName));
                 break;
 
             case domainEvent["Started"]:
@@ -1039,16 +1043,6 @@ function startEventMonitorDomains(connectionName, dispatch) {
                     id: objPath,
                     state: 'running'
                 }));
-                break;
-
-            case domainEvent["Stopped"]:
-                dispatch(getVm({
-                    connectionName,
-                    id: objPath,
-                    updateOnly: true,
-                }));
-                // transient VMs don't have a separate Undefined event, so remove them on stop
-                dispatch(removeVm({ connectionName, id: objPath, transientOnly: true }));
                 break;
 
             default:
@@ -1114,10 +1108,14 @@ function startEventMonitorNetworks(connectionName, dispatch) {
                 dispatch(getNetwork({ connectionName, id:objPath }));
                 break;
             case Enum.VIR_NETWORK_EVENT_STOPPED:
-                dispatch(getNetwork({ connectionName, id:objPath, updateOnly: true }));
-                break;
             case Enum.VIR_NETWORK_EVENT_UNDEFINED:
-                dispatch(removeNetwork({ connectionName, id:objPath }));
+                // If the resource is transient it will be removed from the list
+                // otherwise it will become inactive
+                // If the resource is inactive it will be removed from the list
+                // otherwise it will become transient
+                // Re-fetch the whole resource list instead of manually removing
+                // it to avoid race conditions
+                dispatch(getAllNetworks({ connectionName }));
                 break;
             default:
                 logDebug(`handle Network on ${connectionName}: ignoring event ${signal}`);
@@ -1154,10 +1152,14 @@ function startEventMonitorStoragePools(connectionName, dispatch) {
                 dispatch(getStoragePool({ connectionName, id:objPath }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_STOPPED:
-                dispatch(getStoragePool({ connectionName, id:objPath, updateOnly: true }));
-                break;
             case Enum.VIR_STORAGE_POOL_EVENT_UNDEFINED:
-                dispatch(removeStoragePool({ connectionName, id:objPath }));
+                // If the resource is transient it will be removed from the list
+                // otherwise it will become inactive
+                // If the resource is inactive it will be removed from the list
+                // otherwise it will become transient
+                // Re-fetch the whole resource list instead of manually removing
+                // it to avoid race conditions
+                dispatch(getAllStoragePools({ connectionName }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_DELETED:
             default:

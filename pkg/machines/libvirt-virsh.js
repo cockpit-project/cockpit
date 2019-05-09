@@ -25,7 +25,6 @@ import cockpit from 'cockpit';
 import {
     updateVm,
     updateOrAddVm,
-    removeVm,
     updateOrAddStoragePool,
     deleteUnlistedVMs,
     updateStorageVolumes,
@@ -636,20 +635,13 @@ function handleEvent(dispatch, connectionName, line) {
         let type = info.split(' ')[0];
         switch (type) {
         case 'Undefined':
-            dispatch(removeVm({ connectionName, name }));
+        case 'Stopped':
+            dispatch(getAllVms(connectionName));
             break;
 
         case 'Defined':
         case 'Started':
             dispatch(getVm({ connectionName, name }));
-            break;
-
-        case 'Stopped':
-            // there might be changes between live and permanent domain definition, so full reload
-            dispatch(getVm({ connectionName, name, updateOnly: true }));
-
-            // transient VMs don't have a separate Undefined event, so remove them on stop
-            dispatch(removeVm({ connectionName, name, transientOnly: true }));
             break;
 
         case 'Suspended':

@@ -430,6 +430,24 @@ class TestMachines(NetworkCase):
         b.wait_not_present(".toast-notifications-list-pf div:nth-child(2) strong")
         b.wait_in_text(".toast-notifications-list-pf div:nth-child(1) strong", "VM subVmTest2 failed to start")
 
+        #  Bring default network up again
+        m.execute("virsh net-start default")
+
+        # Check that transient resources behave as expected
+        self.startVm("transient-vm-test")
+        b.wait_present("tbody tr[data-row-id=vm-transient-vm-test] th")
+        b.click("tbody tr[data-row-id=vm-transient-vm-test] th")
+        # make VM transient by undefining it
+        m.execute("virsh dumpxml transient-vm-test > /tmp/domain.xml && virsh undefine transient-vm-test")
+        # make sure that the running transient domain still appears on this list
+        b.wait_present("tbody tr[data-row-id=vm-transient-vm-test] th")
+        # stopping the domain should remove it from the list
+        m.execute("virsh destroy transient-vm-test")
+        b.wait_not_present("tbody tr[data-row-id=vm-transient-vm-test] th")
+        # defining the domain should show it in the list
+        m.execute("virsh define /tmp/domain.xml")
+        b.wait_present("tbody tr[data-row-id=vm-transient-vm-test] th")
+
     def wait_for_disk_stats(self, name, target):
         b = self.browser
         try:

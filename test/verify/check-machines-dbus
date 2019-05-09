@@ -576,6 +576,14 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-range".format(connectionName))
         b.wait_not_present("#network-test_network3-{0}-ipv6-dhcp-host-0".format(connectionName))
 
+        # Check that transient networks behave as expected
+        m.execute("virsh net-dumpxml default > /tmp/xml && virsh net-undefine default")
+        b.wait_present("tbody tr[data-row-id=network-default-system] th")
+        m.execute("virsh net-destroy default")
+        b.wait_not_present("tbody tr[data-row-id=network-default-system] th")
+        m.execute("virsh net-define /tmp/xml")
+        b.wait_present("tbody tr[data-row-id=network-default-system] th")
+
     def testPause(self):
         b = self.browser
         m = self.machine
@@ -751,6 +759,15 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         m.execute("virsh detach-disk --config --target vdd subVmTest1".format(diskXML))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
+
+        # Check that transient pools behave as expected
+        # Libvirt does not allow us to undefine an active storage pool - in order to make a pool transient we need to create it without defining it
+        m.execute("virsh pool-dumpxml myPoolOne > /tmp/pool.xml && virsh pool-destroy myPoolOne && virsh pool-undefine myPoolOne && virsh pool-create /tmp/pool.xml")
+        b.wait_present("tbody tr[data-row-id=pool-myPoolOne-system] th")
+        m.execute("virsh pool-destroy myPoolOne")
+        b.wait_not_present("tbody tr[data-row-id=pool-myPoolOne-system] th")
+        m.execute("virsh pool-define /tmp/pool.xml")
+        b.wait_present("tbody tr[data-row-id=pool-myPoolOne-system] th")
 
     def testStoragePoolsCreate(self):
         b = self.browser

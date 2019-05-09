@@ -104,22 +104,24 @@ export function setProvider(provider) {
     };
 }
 
-export function removeNetwork({ connectionName, id }) {
+export function removeNetwork({ connectionName, id, transientOnly }) {
     return {
         type: REMOVE_NETWORK,
         payload: {
             connectionName,
             id,
+            transientOnly,
         }
     };
 }
 
-export function removeStoragePool({ connectionName, id }) {
+export function removeStoragePool({ connectionName, id, transientOnly }) {
     return {
         type: REMOVE_STORAGE_POOL,
         payload: {
             connectionName,
             id,
+            transientOnly,
         }
     };
 }

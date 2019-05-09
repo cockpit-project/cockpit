@@ -102,10 +102,11 @@ function networks(state, action) {
 
     switch (action.type) {
     case REMOVE_NETWORK: {
-        const { connectionName, id } = action.payload;
+        const { connectionName, id, transientOnly } = action.payload;
 
         return state
-                .filter(network => (connectionName !== network.connectionName || id != network.id));
+                .filter(network => (connectionName !== network.connectionName || id != network.id ||
+                                    network.active || (transientOnly && network.persistent)));
     }
     case UPDATE_ADD_NETWORK: {
         const { network, updateOnly } = action.payload;
@@ -200,11 +201,11 @@ function vms(state, action) {
         if (action.id)
             return state
                     .filter(vm => (action.connectionName !== vm.connectionName || action.id != vm.id ||
-                        (action.transientOnly && vm.persistent)));
+                        vm.state != 'shut off' || (action.transientOnly && vm.persistent)));
         else
             return state
                     .filter(vm => (action.connectionName !== vm.connectionName || action.name != vm.name ||
-                        (action.transientOnly && vm.persistent)));
+                        vm.state != 'shut off' || (action.transientOnly && vm.persistent)));
     }
     case DELETE_UNLISTED_VMS: {
         if (action.vmIDs)
@@ -268,10 +269,11 @@ function storagePools(state, action) {
 
     switch (action.type) {
     case REMOVE_STORAGE_POOL: {
-        const { connectionName, id } = action.payload;
+        const { connectionName, id, transientOnly } = action.payload;
 
         return state
-                .filter(storagePool => (connectionName !== storagePool.connectionName || id != storagePool.id));
+                .filter(storagePool => (connectionName !== storagePool.connectionName || id != storagePool.id ||
+                                        storagePool.active || (transientOnly && storagePool.persistent)));
     }
     case UPDATE_ADD_STORAGE_POOL: {
         const { storagePool, updateOnly, } = action.payload;

@@ -231,7 +231,7 @@ class TestKeys(MachineCase):
         # Load the id_dsa key
         b.wait_present("tbody[data-name=id_dsa]")
         assert b.is_visible("tbody[data-name=id_dsa] .btn.active:contains('Off')")
-        b.click("tbody[data-name=id_dsa] .btn:contains('On')")
+        b.click("tbody[data-name=id_dsa] .btn:contains('On') span")
         assert b.is_present("tbody[data-name=id_dsa] .credential-unlock")
         b.set_val("tbody[data-name=id_dsa] .credential-password", "badbad")
         b.click("tbody[data-name=id_dsa] .credential-unlock .btn")
@@ -250,7 +250,7 @@ class TestKeys(MachineCase):
             self.assertIn(old_dsa, keys)
 
         # Unload the RSA key
-        b.click("tbody[data-name=id_rsa] .btn:contains('Off')")
+        b.click("tbody[data-name=id_rsa] .btn:contains('Off') span")
         b.wait_present("tbody[data-name=id_rsa][data-loaded=0]")
 
         # Only DSA keys now loaded
@@ -343,7 +343,7 @@ class TestKeys(MachineCase):
             b.wait_present(new_key_tbody + " li.active:contains('Details')")
 
             # Turn key off, it goes away
-            b.click(new_key_tbody + " .btn:contains('Off')")
+            b.click(new_key_tbody + " .btn:contains('Off') span")
             b.wait_not_present(new_key_tbody)
 
             # Key now has password that needs to be entered to add

@@ -45,11 +45,10 @@ class TestNetworking(NetworkCase):
         b.wait_visible("#network-interface")
 
         # Disconnect
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
-        else:
-            b.click(".panel-heading:contains('%s') .btn:contains('On') span" % iface)
+        self.wait_onoff(".panel-heading:contains('%s')" % iface, True)
+        self.toggle_onoff(".panel-heading:contains('%s')" % iface)
+
+        # Wait for dialog to appear and dismiss it
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 
         if m.image not in ["debian-testing", "debian-stable", "ubuntu-1804", "ubuntu-stable"]:
@@ -124,11 +123,8 @@ class TestNetworking(NetworkCase):
         self.slow_down_dhclient(dhcp_delay)
 
         # Disconnect and trigger a slow rollback
-        # PR #11773 moves to our React component, which has opposite click sensitivity
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
-            b.click(".panel-heading:contains('%s') .btn:contains('Off')" % iface)
-        else:
-            b.click(".panel-heading:contains('%s') .btn:contains('On') span" % iface)
+        self.wait_onoff(".panel-heading:contains('%s')" % iface, True)
+        self.toggle_onoff(".panel-heading:contains('%s')" % iface)
         with b.wait_timeout(120):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
 

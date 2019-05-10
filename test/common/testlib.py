@@ -921,7 +921,7 @@ class MachineCase(unittest.TestCase):
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
             messages += machine.audit_messages("14", cursor=cursor) # 14xx is selinux
 
-        if self.image in ['fedora-30']:
+        if self.image in ['fedora-30', 'fedora-testing']:
             # Fedora 30 switched to dbus-broker
             self.allowed_messages.append("dbus-daemon didn't send us a dbus address; not installed?.*")
 

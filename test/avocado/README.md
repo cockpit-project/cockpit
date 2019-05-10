@@ -14,16 +14,15 @@ Currently, these tests run on Fedora 29. Other images don't have selenium and
 avocado installed.
 
 ``` bash
-$ bots/image-download fedora-29 # Download a distribution image where cockpit is going to run
-$ bots/image-prepare fedora-29 # Install code to test
+$ bots/image-prepare fedora-30 # Install code to test
 ```
 
 Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) changing the parameters accordingly for selenium vs pure avocado tests.
 
-- For **pure avocado** tests: ``TEST_OS=fedora-29 test/avocado/run-tests``
+- For **pure avocado** tests: ``TEST_OS=fedora-30 test/avocado/run-tests``
 - For **selenium** tests:
   - ``bots/image-download selenium # Download a VM image with pre-installed selenium``
-  - ``TEST_OS=fedora-29 test/avocado/run-tests --selenium-tests --browser firefox -v``
+  - ``TEST_OS=fedora-30 test/avocado/run-tests --selenium-tests --browser firefox -v``
  
 Although this is the default way to run avocado tests the run-tests script is configurable and can be changed to run tests against different machines. This can be usefull for developing or debugging tests. Check bellow the HACKING section for more details.
 

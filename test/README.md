@@ -76,7 +76,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-7-7"
                   "ubuntu-1804"
                   "ubuntu-stable"
-               "fedora-29" is the default (bots/machine/machine_core/constants.py)
+               "fedora-30" is the default (bots/machine/machine_core/constants.py)
 
     TEST_DATA  Where to find and store test machine images.  The
                default is the same directory that this README file is in.

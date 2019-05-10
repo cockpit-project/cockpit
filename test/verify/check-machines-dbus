@@ -260,13 +260,16 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_1 --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_2 --capacity 1G --format qcow2")
+        m.execute("virsh vol-create-as myPoolOne mydiskofpoolone_3 --capacity 1M --format qcow2")
         wait(lambda: "mydiskofpoolone_1" in m.execute("virsh vol-list myPoolOne"))
         wait(lambda: "mydiskofpoolone_2" in m.execute("virsh vol-list myPoolOne"))
+        wait(lambda: "mydiskofpoolone_3" in m.execute("virsh vol-list myPoolOne"))
 
-        self.startVm("subVmTest1")
+        args = self.startVm("subVmTest1")
 
         m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
         m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vde --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_3 --target vdf --targetbus virtio --persistent")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -291,6 +294,15 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
         b.click("#vm-subVmTest1-disks-vde-detach")
         b.wait_not_present("vm-subVmTest1-disks-vde-target")
+
+        # Test detaching disk of a paused domain
+        m.execute("virsh start subVmTest1")
+        # Make sure that the VM booted normally before attempting to suspend it
+        if args["logfile"] is not None:
+            wait(lambda: "Linux version" in m.execute("cat {0}".format(args["logfile"])), delay=3)
+        m.execute("virsh suspend subVmTest1")
+        b.wait_in_text("#vm-subVmTest1-state", "paused")
+        b.wait_attr("#vm-subVmTest1-disks-vdf-detach", "disabled", "")
 
     def testNetworkSettings(self):
         b = self.browser

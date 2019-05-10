@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import cockpit from 'cockpit';
+import { Tooltip, OverlayTrigger } from 'patternfly-react';
 
 import { detachDisk, getVm } from '../actions/provider-actions.js';
 
@@ -37,8 +38,28 @@ const onDetachDisk = (dispatch, vm, target, onAddErrorNotification) => {
 };
 
 const RemoveDiskAction = ({ dispatch, vm, target, idPrefixRow, onAddErrorNotification }) => {
+    const getRemoveButton = (disabled) => {
+        return (
+            <button id={`${idPrefixRow}-detach`}
+                    disabled={disabled}
+                    className="btn btn-default btn-control-ct fa fa-minus"
+                    onClick={onDetachDisk(dispatch, vm, target, onAddErrorNotification)} />
+        );
+    };
+
+    if (vm.state == 'shut off' || vm.state == 'running')
+        return getRemoveButton(false);
+
     return (
-        <button id={`${idPrefixRow}-detach`} className="btn btn-default btn-control-ct fa fa-minus" onClick={onDetachDisk(dispatch, vm, target, onAddErrorNotification)} />
+        <OverlayTrigger
+            overlay={
+                <Tooltip id="tip-inforec">
+                    {cockpit.format(_("Disks cannot be removed from $0 VMs"), vm.state)}
+                </Tooltip>
+            }
+            placement="top">
+            {getRemoveButton(true)}
+        </OverlayTrigger>
     );
 };
 

@@ -10,8 +10,8 @@ Contributing
 
 Here are some commands to use while hacking on the containers. Replace
 'xxx' with the name of the container. That is the name of the directory.
-When running docker the 'sudo' command will be used to get necessary
-privileges.
+If podman is installed, it will be used to build/run the containers, otherwise
+it falls back to `sudo docker`.
 
 Build the given container:
 
@@ -24,7 +24,7 @@ Run the given built container and log in interactively as a shell:
 ### Developing UI running a docker container
 
 An alternative development environment when developing the Cockpit UI is to
-mount local code into the cockpit Docker container. In this example we run the
+mount local code into the cockpit container. In this example we run the
 cockpit/kubernetes container to connect to a remote kubernetes server. Replace
 OPENSHIFTHOSTNAME with the IP or HOSTNAME of your OpenShift server.
 

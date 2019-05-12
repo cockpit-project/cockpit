@@ -87,7 +87,7 @@ def tap_output(machine):
         print("# TESTS PASSED duration: %ds" %  json_info['time'])
 
 
-def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
+def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}, timeout=3600):
     """ Execute avocado on the machine with the passed environment variables and run
         the specified tests. For example:
         run_avocado(machine,
@@ -106,7 +106,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}):
 
     # HACK override env for LC_ALL to utf, python3 avocado fails with LANG set to C
     try:
-        machine.execute(script=" ".join(cmd_parts), timeout=3600, environment=env)
+        machine.execute(script=" ".join(cmd_parts), timeout=timeout, environment=env)
     except subprocess.CalledProcessError:
         if print_failed:
             # try to get the list of failed tests
@@ -228,8 +228,11 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         machine.wait_boot()
         machine.set_address("10.111.113.1/20")
         machine.start_cockpit()
+        test_timeout = 3600
         if selenium and 'edge' in browser:
             machine.dhcp_server(range=['10.111.112.10', '10.111.112.10'])
+            # win-10 image is achingly slow
+            test_timeout = 7200
 
         machine.execute("adduser test")
         machine.execute("echo superhardpasswordtest5554 | passwd --stdin test")
@@ -247,7 +250,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
         # Now actually run the tests
         selenium_address = "10.111.112.10" if selenium else ""
         env = {"HUB": selenium_address, "GUEST": "10.111.113.1", "BROWSER": browser}
-        success = run_avocado_tests(machine, avocado_tests, env=env)
+        success = run_avocado_tests(machine, avocado_tests, env=env, timeout=test_timeout)
 
         if not success:
             copy_avocado_logs(machine, "FAILED")

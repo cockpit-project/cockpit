@@ -56,6 +56,7 @@ struct _CockpitWebServer {
   gint request_timeout;
   gint request_max;
   gboolean redirect_tls;
+  gboolean for_tls_proxy;
 
   GSocketService *socket_service;
   GMainContext *main_context;
@@ -88,6 +89,7 @@ enum
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_SOCKET_ACTIVATED,
   PROP_REDIRECT_TLS,
+  PROP_FOR_TLS_PROXY,
   PROP_URL_ROOT,
 };
 
@@ -183,6 +185,10 @@ cockpit_web_server_get_property (GObject *object,
       g_value_set_boolean (value, server->redirect_tls);
       break;
 
+    case PROP_FOR_TLS_PROXY:
+      g_value_set_boolean (value, server->for_tls_proxy);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -245,6 +251,10 @@ cockpit_web_server_set_property (GObject *object,
 
     case PROP_REDIRECT_TLS:
       server->redirect_tls = g_value_get_boolean (value);
+      break;
+
+    case PROP_FOR_TLS_PROXY:
+      server->for_tls_proxy = g_value_get_boolean (value);
       break;
 
     default:
@@ -432,6 +442,13 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                    g_param_spec_boolean ("redirect-tls", NULL, NULL, TRUE,
                                                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, PROP_FOR_TLS_PROXY,
+                                   g_param_spec_boolean ("for-tls-proxy", NULL, NULL, TRUE,
+                                                         G_PARAM_READABLE |
+                                                         G_PARAM_WRITABLE |
+                                                         G_PARAM_CONSTRUCT_ONLY |
+                                                         G_PARAM_STATIC_STRINGS));
+
   sig_handle_stream = g_signal_new ("handle-stream",
                                     G_OBJECT_CLASS_TYPE (klass),
                                     G_SIGNAL_RUN_LAST,
@@ -462,12 +479,13 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                       COCKPIT_TYPE_WEB_RESPONSE);
 }
 
-CockpitWebServer *
-cockpit_web_server_new (const gchar *address,
-                        gint port,
-                        GTlsCertificate *certificate,
-                        GCancellable *cancellable,
-                        GError **error)
+static CockpitWebServer *
+cockpit_web_server_new_internal (const gchar *address,
+                                 gint port,
+                                 GTlsCertificate *certificate,
+                                 gboolean for_tls_proxy,
+                                 GCancellable *cancellable,
+                                 GError **error)
 {
   GInitable *initable;
   initable = g_initable_new (COCKPIT_TYPE_WEB_SERVER,
@@ -476,11 +494,32 @@ cockpit_web_server_new (const gchar *address,
                              "port", port,
                              "address", address,
                              "certificate", certificate,
+                             "for-tls-proxy", for_tls_proxy,
                              NULL);
   if (initable != NULL)
     return COCKPIT_WEB_SERVER (initable);
   else
     return NULL;
+}
+
+CockpitWebServer *
+cockpit_web_server_new (const gchar *address,
+                        gint port,
+                        GTlsCertificate *certificate,
+                        GCancellable *cancellable,
+                        GError **error)
+{
+  return cockpit_web_server_new_internal (address, port, certificate, FALSE, cancellable, error);
+}
+
+CockpitWebServer *
+cockpit_web_server_new_for_tls_proxy (const gchar *address,
+                                      gint port,
+                                      GTlsCertificate *certificate,
+                                      GCancellable *cancellable,
+                                      GError **error)
+{
+  return cockpit_web_server_new_internal (address, port, certificate, TRUE, cancellable, error);
 }
 
 void
@@ -520,6 +559,14 @@ cockpit_web_server_get_redirect_tls (CockpitWebServer *self)
   g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), FALSE);
 
   return self->redirect_tls;
+}
+
+gboolean
+cockpit_web_server_get_for_tls_proxy (CockpitWebServer *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), FALSE);
+
+  return self->for_tls_proxy;
 }
 
 GHashTable *

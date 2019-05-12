@@ -191,7 +191,8 @@ cockpit_channel_socket_open (CockpitWebService *service,
                              const gchar *path,
                              GIOStream *io_stream,
                              GHashTable *headers,
-                             GByteArray *input_buffer)
+                             GByteArray *input_buffer,
+                             gboolean for_tls_proxy)
 {
   CockpitChannelSocket *self = NULL;
   WebSocketDataType data_type;
@@ -225,7 +226,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
   self->data_type = data_type;
 
   self->socket = cockpit_web_service_create_socket ((const gchar **)protocols, original_path,
-                                                     io_stream, headers, input_buffer);
+                                                     io_stream, headers, input_buffer, for_tls_proxy);
   self->socket_open = g_signal_connect (self->socket, "open", G_CALLBACK (on_socket_open), self);
   self->socket_message = g_signal_connect (self->socket, "message", G_CALLBACK (on_socket_message), self);
   self->socket_close = g_signal_connect (self->socket, "close", G_CALLBACK (on_socket_close), self);

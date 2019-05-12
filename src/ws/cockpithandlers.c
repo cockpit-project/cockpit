@@ -66,11 +66,12 @@ static void
 handle_noauth_socket (GIOStream *io_stream,
                       const gchar *path,
                       GHashTable *headers,
-                      GByteArray *input_buffer)
+                      GByteArray *input_buffer,
+                      gboolean for_tls_proxy)
 {
   WebSocketConnection *connection;
 
-  connection = cockpit_web_service_create_socket (NULL, path, io_stream, headers, input_buffer);
+  connection = cockpit_web_service_create_socket (NULL, path, io_stream, headers, input_buffer, for_tls_proxy);
 
   g_signal_connect (connection, "open", G_CALLBACK (on_web_socket_noauth), NULL);
 
@@ -113,12 +114,12 @@ cockpit_handler_socket (CockpitWebServer *server,
     service = cockpit_auth_check_cookie (ws->auth, path, headers);
   if (service)
     {
-      cockpit_web_service_socket (service, path, io_stream, headers, input);
+      cockpit_web_service_socket (service, path, io_stream, headers, input, cockpit_web_server_get_for_tls_proxy (server));
       g_object_unref (service);
     }
   else
     {
-      handle_noauth_socket (io_stream, path, headers, input);
+      handle_noauth_socket (io_stream, path, headers, input, cockpit_web_server_get_for_tls_proxy (server));
     }
 
   return TRUE;
@@ -210,7 +211,8 @@ cockpit_handler_external (CockpitWebServer *server,
       upgrade = g_hash_table_lookup (headers, "Upgrade");
       if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
         {
-          cockpit_channel_socket_open (service, open, original_path, path, io_stream, headers, input);
+          cockpit_channel_socket_open (service, open, original_path, path, io_stream, headers, input,
+                                       cockpit_web_server_get_for_tls_proxy (server));
         }
       else
         {

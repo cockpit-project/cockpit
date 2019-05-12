@@ -31,7 +31,8 @@ void                 cockpit_channel_socket_open     (CockpitWebService *service
                                                       const gchar *path,
                                                       GIOStream *io_stream,
                                                       GHashTable *headers,
-                                                      GByteArray *input_buffer);
+                                                      GByteArray *input_buffer,
+                                                      gboolean for_tls_proxy);
 
 G_END_DECLS
 

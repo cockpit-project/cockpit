@@ -47,7 +47,8 @@ void                 cockpit_web_service_socket      (CockpitWebService *self,
                                                       const gchar *path,
                                                       GIOStream *io_stream,
                                                       GHashTable *headers,
-                                                      GByteArray *input_buffer);
+                                                      GByteArray *input_buffer,
+                                                      gboolean for_tls_proxy);
 
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 
@@ -57,7 +58,8 @@ WebSocketConnection *   cockpit_web_service_create_socket    (const gchar **prot
                                                               const gchar *path,
                                                               GIOStream *io_stream,
                                                               GHashTable *headers,
-                                                              GByteArray *input_buffer);
+                                                              GByteArray *input_buffer,
+                                                              gboolean for_tls_proxy);
 
 gchar *                 cockpit_web_service_unique_channel   (CockpitWebService *self);
 

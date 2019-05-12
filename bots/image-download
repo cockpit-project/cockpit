@@ -192,6 +192,7 @@ def download(dest, force, state, quiet, stores):
 
 # Calculate a place to put images where links are not committed in git
 def state_target(path):
+    os.makedirs(DATA, mode=0o775, exist_ok=True)
     return os.path.join(DATA, path)
 
 # Calculate a place to put images where links are committed in git

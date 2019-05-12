@@ -39,6 +39,7 @@ typedef struct {
     const gchar *cert_file;
     gboolean local_only;
     gboolean inet_only;
+    gboolean for_tls_proxy;
 } TestFixture;
 
 #define SKIP_NO_HOSTPORT if (!tc->hostport) { cockpit_test_skip ("No non-loopback network interface available"); return; }
@@ -73,7 +74,10 @@ setup (TestCase *tc,
   else
     address = NULL;
 
-  tc->web_server = cockpit_web_server_new (address, 0, cert, NULL, &error);
+  if (fixture && fixture->for_tls_proxy)
+      tc->web_server = cockpit_web_server_new_for_tls_proxy (address, 0, NULL, NULL, &error);
+  else
+      tc->web_server = cockpit_web_server_new (address, 0, cert, NULL, &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
 
@@ -457,6 +461,8 @@ test_webserver_redirect_notls (TestCase *tc,
   gchar *resp;
 
   SKIP_NO_HOSTPORT;
+
+  g_assert (!cockpit_web_server_get_for_tls_proxy (tc->web_server));
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
@@ -856,6 +862,28 @@ test_bad_address (TestCase *tc,
   g_object_unref (server);
 }
 
+static const TestFixture fixture_for_tls_proxy = {
+    .cert_file = SRCDIR "/src/ws/mock_cert",
+    .for_tls_proxy = TRUE
+};
+
+static void
+test_webserver_for_tls_proxy (TestCase *tc,
+                              gconstpointer data)
+{
+  gchar *resp;
+
+  SKIP_NO_HOSTPORT;
+
+  g_assert (cockpit_web_server_get_for_tls_proxy (tc->web_server));
+
+  /* should not redirect even with a certificate present */
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+}
+
 static const TestFixture fixture_inet_address = {
     .inet_only = TRUE
 };
@@ -919,6 +947,9 @@ main (int argc,
               setup, test_address, teardown);
   g_test_add ("/web-server/bad-address", TestCase, NULL,
               NULL, test_bad_address, NULL);
+
+  g_test_add ("/web-server/for-tls-proxy", TestCase, &fixture_for_tls_proxy,
+              setup, test_webserver_for_tls_proxy, teardown);
 
   return g_test_run ();
 }

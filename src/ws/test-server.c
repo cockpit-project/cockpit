@@ -390,7 +390,7 @@ on_handle_stream_socket (CockpitWebServer *server,
       g_signal_handler_disconnect (transport, handler);
     }
 
-  cockpit_web_service_socket (service, path, io_stream, headers, input);
+  cockpit_web_service_socket (service, path, io_stream, headers, input, FALSE /* for_tls_proxy */);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);
@@ -506,7 +506,7 @@ on_handle_stream_external (CockpitWebServer *server,
           upgrade = g_hash_table_lookup (headers, "Upgrade");
           if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
             {
-              cockpit_channel_socket_open (service, open, path, path, io_stream, headers, input);
+              cockpit_channel_socket_open (service, open, path, path, io_stream, headers, input, FALSE /* for_tls_proxy */);
               handled = TRUE;
             }
           else

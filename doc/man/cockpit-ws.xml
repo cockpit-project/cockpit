@@ -42,6 +42,7 @@
       <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
       <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
       <arg><option>--no-tls</option></arg>
+      <arg><option>--for-tls-proxy</option></arg>
       <arg><option>--local-ssh</option></arg>
       <arg><option>--local-session</option> <replaceable>BRIDGE</replaceable></arg>
     </cmdsynopsis>
@@ -155,6 +156,23 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
         <listitem>
           <para>
             Don't use TLS.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--for-tls-proxy</option></term>
+        <listitem>
+          <para>
+            Tell <command>cockpit-ws</command> that it is running behind a local reverse proxy that
+            does the TLS termination. Then Cockpit accepts only https:// origins, instead of http:
+            ones by default. However, if <literal>Origins</literal> is set in the
+            <citerefentry>
+              <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+            </citerefentry>
+            configuration file, it will override this default.
+          </para>
+          <para>
+            This option implies <option>--no-tls</option>.
           </para>
         </listitem>
       </varlistentry>

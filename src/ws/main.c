@@ -44,6 +44,7 @@
 static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
 static gboolean  opt_no_tls       = FALSE;
+static gboolean  opt_for_tls_proxy    = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
 static gchar     *opt_local_session = NULL;
 static gboolean  opt_version      = FALSE;
@@ -52,6 +53,9 @@ static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", "ADDRESS"},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
+  {"for-tls-proxy", 0, 0, G_OPTION_ARG_NONE, &opt_for_tls_proxy,
+      "Act behind a https-terminating proxy: accept only https:// origins by default; implies --no-tls",
+      NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {"local-session", 0, 0, G_OPTION_ARG_STRING, &opt_local_session,
       "Launch a bridge in the local session (path to cockpit-bridge or '-' for stdin/out); implies --no-tls",
@@ -155,6 +159,9 @@ main (int argc,
       goto out;
     }
 
+  if (opt_for_tls_proxy)
+    opt_no_tls = TRUE;
+
   /*
    * This process talks on stdin/stdout. However lots of stuff wants to write
    * to stdout, such as g_debug, and uses fd 1 to do that. Reroute fd 1 so that
@@ -195,11 +202,22 @@ main (int argc,
   login_po_html = g_strdup (DATADIR "/cockpit/static/login.po.html");
   data.login_po_html = (const gchar *)login_po_html;
 
-  server = cockpit_web_server_new (opt_address,
-                                   opt_port,
-                                   certificate,
-                                   NULL,
-                                   error);
+  if (opt_for_tls_proxy)
+    {
+      server = cockpit_web_server_new_for_tls_proxy (opt_address,
+                                                     opt_port,
+                                                     certificate,
+                                                     NULL,
+                                                     error);
+    }
+  else
+    {
+      server = cockpit_web_server_new (opt_address,
+                                       opt_port,
+                                       certificate,
+                                       NULL,
+                                       error);
+    }
   if (server == NULL)
     {
       g_prefix_error (error, "Error starting web server: ");

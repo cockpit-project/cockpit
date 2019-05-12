@@ -81,6 +81,7 @@ typedef struct {
   const char *config;
   const char *forward;
   const char *bridge;
+  gboolean for_tls_proxy;
 } TestFixture;
 
 static gboolean
@@ -432,7 +433,7 @@ start_web_service_and_create_client (TestCase *test,
     g_main_context_iteration (NULL, TRUE);
 
   /* Note, we are forcing the websocket to parse its own headers */
-  cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL);
+  cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL, fixture ? fixture->for_tls_proxy : FALSE);
 
   g_signal_handler_disconnect (test->mock_bridge, handler);
 }
@@ -863,6 +864,11 @@ static const TestFixture fixture_allowed_origin_proto_header = {
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
 };
 
+static const TestFixture fixture_allowed_origin_tls_proxy = {
+  .origin = "https://127.0.0.1",
+  .for_tls_proxy = TRUE,
+};
+
 static const TestFixture fixture_bad_origin_proto_no_header = {
   .origin = "https://127.0.0.1",
   .config = SRCDIR "/src/ws/mock-config/cockpit/cockpit-alt.conf"
@@ -872,6 +878,11 @@ static const TestFixture fixture_bad_origin_proto_no_config = {
   .origin = "https://127.0.0.1",
   .forward = "https",
   .config = NULL
+};
+
+static const TestFixture fixture_bad_origin_tls_proxy = {
+  .origin = "http://127.0.0.1",
+  .for_tls_proxy = TRUE,
 };
 
 static void
@@ -1107,7 +1118,7 @@ test_idling (TestCase *test,
   g_signal_connect (service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
   g_assert (cockpit_web_service_get_idling (service));
 
-  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL);
+  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL, FALSE);
   g_assert (!cockpit_web_service_get_idling (service));
 
   while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
@@ -1157,7 +1168,7 @@ test_dispose (TestCase *test,
   g_object_unref (transport);
   g_object_unref (pipe);
 
-  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL);
+  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL, FALSE);
 
   while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
     g_main_context_iteration (NULL, TRUE);
@@ -1515,6 +1526,12 @@ main (int argc,
   g_test_add ("/web-service/allowed-origin/protocol-header", TestCase,
               &fixture_allowed_origin_proto_header, setup_for_socket,
               test_handshake_and_auth, teardown_for_socket);
+  g_test_add ("/web-service/allowed-origin/tls-proxy", TestCase,
+              &fixture_allowed_origin_tls_proxy, setup_for_socket,
+              test_handshake_and_auth, teardown_for_socket);
+  g_test_add ("/web-service/bad-origin/tls-proxy", TestCase,
+              &fixture_bad_origin_tls_proxy, setup_for_socket,
+              test_bad_origin, teardown_for_socket);
 
   g_test_add ("/web-service/close-error", TestCase,
               NULL, setup_for_socket,

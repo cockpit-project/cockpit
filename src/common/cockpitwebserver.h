@@ -41,6 +41,12 @@ CockpitWebServer * cockpit_web_server_new           (const gchar *address,
                                                      GCancellable *cancellable,
                                                      GError **error);
 
+CockpitWebServer * cockpit_web_server_new_for_tls_proxy (const gchar *address,
+                                                         gint port,
+                                                         GTlsCertificate *certificate,
+                                                         GCancellable *cancellable,
+                                                         GError **error);
+
 void               cockpit_web_server_start         (CockpitWebServer *self);
 
 gboolean           cockpit_web_server_add_socket    (CockpitWebServer *self,
@@ -63,6 +69,8 @@ void               cockpit_web_server_set_redirect_tls     (CockpitWebServer *se
                                                             gboolean          redirect_tls);
 
 gboolean           cockpit_web_server_get_redirect_tls     (CockpitWebServer *self);
+
+gboolean           cockpit_web_server_get_for_tls_proxy    (CockpitWebServer *self);
 
 G_END_DECLS
 

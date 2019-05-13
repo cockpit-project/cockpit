@@ -178,6 +178,10 @@ def download(dest, force, state, quiet, stores):
             cmd.append("-C")
             cmd.append("-")
 
+    # Always create the destination file (because --state)
+    else:
+        open(temp, 'a').close()
+
     curl = subprocess.Popen(cmd)
     ret = curl.wait()
     if ret != 0:

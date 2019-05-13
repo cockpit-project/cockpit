@@ -203,15 +203,12 @@ class Browser:
         #    hash = "/@" + host + hash
         self.call_js_func('ph_go', hash)
 
-    def mouse(self, selector, type, x=0, y=0, btn=0, force=False):
-        if force:
-            self.wait_present(selector)
-        else:
-            self.wait_visible(selector)
-        self.call_js_func('ph_mouse', selector, type, x, y, btn, force)
+    def mouse(self, selector, type, x=0, y=0, btn=0, ctrlKey=False, shiftKey=False, altKey=False, metaKey=False):
+        self.wait_visible(selector)
+        self.call_js_func('ph_mouse', selector, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
-    def click(self, selector, force=False):
-        self.mouse(selector, "click", 0, 0, 0, force)
+    def click(self, selector):
+        self.mouse(selector, "click", 0, 0, 0)
 
     def val(self, selector):
         self.wait_visible(selector)

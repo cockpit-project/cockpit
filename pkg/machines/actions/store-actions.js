@@ -24,9 +24,9 @@ import {
     SET_NODE_MAX_MEMORY,
     SET_LOGGED_IN_USER,
     SET_PROVIDER,
-    UNDEFINE_NETWORK,
-    UNDEFINE_STORAGE_POOL,
-    UNDEFINE_VM,
+    REMOVE_NETWORK,
+    REMOVE_STORAGE_POOL,
+    REMOVE_VM,
     UPDATE_ADD_NETWORK,
     UPDATE_ADD_NODE_DEVICE,
     UPDATE_ADD_STORAGE_POOL,
@@ -104,9 +104,9 @@ export function setProvider(provider) {
     };
 }
 
-export function undefineNetwork({ connectionName, id }) {
+export function removeNetwork({ connectionName, id }) {
     return {
-        type: UNDEFINE_NETWORK,
+        type: REMOVE_NETWORK,
         payload: {
             connectionName,
             id,
@@ -114,9 +114,9 @@ export function undefineNetwork({ connectionName, id }) {
     };
 }
 
-export function undefineStoragePool({ connectionName, id }) {
+export function removeStoragePool({ connectionName, id }) {
     return {
-        type: UNDEFINE_STORAGE_POOL,
+        type: REMOVE_STORAGE_POOL,
         payload: {
             connectionName,
             id,
@@ -124,9 +124,9 @@ export function undefineStoragePool({ connectionName, id }) {
     };
 }
 
-export function undefineVm({ connectionName, name, id, transientOnly }) {
+export function removeVm({ connectionName, name, id, transientOnly }) {
     return {
-        type: UNDEFINE_VM,
+        type: REMOVE_VM,
         name,
         id,
         connectionName,

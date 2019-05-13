@@ -26,9 +26,9 @@ import {
     SET_NODE_MAX_MEMORY,
     SET_PROVIDER,
     SET_LOGGED_IN_USER,
-    UNDEFINE_NETWORK,
-    UNDEFINE_STORAGE_POOL,
-    UNDEFINE_VM,
+    REMOVE_NETWORK,
+    REMOVE_STORAGE_POOL,
+    REMOVE_VM,
     UPDATE_ADD_NETWORK,
     UPDATE_ADD_NODE_DEVICE,
     UPDATE_ADD_VM,
@@ -101,7 +101,7 @@ function networks(state, action) {
     state = state || [];
 
     switch (action.type) {
-    case UNDEFINE_NETWORK: {
+    case REMOVE_NETWORK: {
         const { connectionName, id } = action.payload;
 
         return state
@@ -196,7 +196,7 @@ function vms(state, action) {
         // replace whole object
         return replaceResource({ state, updatedResource: updatedVm, index: indexedVm.index });
     }
-    case UNDEFINE_VM: {
+    case REMOVE_VM: {
         if (action.id)
             return state
                     .filter(vm => (action.connectionName !== vm.connectionName || action.id != vm.id ||
@@ -267,7 +267,7 @@ function storagePools(state, action) {
     }
 
     switch (action.type) {
-    case UNDEFINE_STORAGE_POOL: {
+    case REMOVE_STORAGE_POOL: {
         const { connectionName, id } = action.payload;
 
         return state

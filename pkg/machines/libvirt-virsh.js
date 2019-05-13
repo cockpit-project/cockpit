@@ -25,7 +25,7 @@ import cockpit from 'cockpit';
 import {
     updateVm,
     updateOrAddVm,
-    undefineVm,
+    removeVm,
     updateOrAddStoragePool,
     deleteUnlistedVMs,
     updateStorageVolumes,
@@ -636,7 +636,7 @@ function handleEvent(dispatch, connectionName, line) {
         let type = info.split(' ')[0];
         switch (type) {
         case 'Undefined':
-            dispatch(undefineVm({ connectionName, name }));
+            dispatch(removeVm({ connectionName, name }));
             break;
 
         case 'Defined':
@@ -649,7 +649,7 @@ function handleEvent(dispatch, connectionName, line) {
             dispatch(getVm({ connectionName, name, updateOnly: true }));
 
             // transient VMs don't have a separate Undefined event, so remove them on stop
-            dispatch(undefineVm({ connectionName, name, transientOnly: true }));
+            dispatch(removeVm({ connectionName, name, transientOnly: true }));
             break;
 
         case 'Suspended':

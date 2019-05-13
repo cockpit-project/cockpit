@@ -43,10 +43,10 @@ import {
 
 import {
     deleteUnlistedVMs,
-    undefineNetwork,
-    undefineStoragePool,
-    undefineVm,
     updateLibvirtVersion,
+    removeNetwork,
+    removeStoragePool,
+    removeVm,
     updateOrAddNetwork,
     updateOrAddNodeDevice,
     updateOrAddVm,
@@ -1018,7 +1018,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                 break;
 
             case domainEvent["Undefined"]:
-                dispatch(undefineVm({ connectionName, id: objPath }));
+                dispatch(removeVm({ connectionName, id: objPath }));
                 break;
 
             case domainEvent["Started"]:
@@ -1048,7 +1048,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
                     updateOnly: true,
                 }));
                 // transient VMs don't have a separate Undefined event, so remove them on stop
-                dispatch(undefineVm({ connectionName, id: objPath, transientOnly: true }));
+                dispatch(removeVm({ connectionName, id: objPath, transientOnly: true }));
                 break;
 
             default:
@@ -1117,7 +1117,7 @@ function startEventMonitorNetworks(connectionName, dispatch) {
                 dispatch(getNetwork({ connectionName, id:objPath, updateOnly: true }));
                 break;
             case Enum.VIR_NETWORK_EVENT_UNDEFINED:
-                dispatch(undefineNetwork({ connectionName, id:objPath }));
+                dispatch(removeNetwork({ connectionName, id:objPath }));
                 break;
             default:
                 logDebug(`handle Network on ${connectionName}: ignoring event ${signal}`);
@@ -1157,7 +1157,7 @@ function startEventMonitorStoragePools(connectionName, dispatch) {
                 dispatch(getStoragePool({ connectionName, id:objPath, updateOnly: true }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_UNDEFINED:
-                dispatch(undefineStoragePool({ connectionName, id:objPath }));
+                dispatch(removeStoragePool({ connectionName, id:objPath }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_DELETED:
             default:

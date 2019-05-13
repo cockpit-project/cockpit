@@ -488,7 +488,7 @@ class AddServicesModal extends React.Component {
                                 {_("Custom Ports")}
                             </label>
                             { !this.state.custom ||
-                                <fieldset className="ct-form-layout">
+                                <React.Fragment>
                                     <label className="control-label" htmlFor="hint" hidden>Hint</label>
                                     <p id="hint">
                                         {_("Comma-separated ports, ranges, and aliases are accepted")}
@@ -512,7 +512,7 @@ class AddServicesModal extends React.Component {
                                     <label className="control-label" htmlFor="service-name">Name</label>
                                     <input id="service-name" className="form-control" type="text" onChange={this.setName}
                                            placeholder={_("(Optional)")} value={this.state.custom_name} />
-                                </fieldset>
+                                </React.Fragment>
                             }
                         </form>
                     </Modal.Body>

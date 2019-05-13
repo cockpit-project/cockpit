@@ -35,11 +35,8 @@ class TestActivePages(MachineCase):
         def showPagesAssertCount(count):
             # check the pages and make sure there is only one page loaded
             b.switch_to_top()
-            b.click("#navbar-dropdown")
-            # we won't wait for the entry to be visible, since that requires a special key combination
-            # since it's a developer feature and not immediately obvious to everyone
-            # that's also why we force this click event
-            b.click("#active-pages", force=True)
+            b.mouse("#navbar-dropdown", "click", altKey=True)
+            b.click("#active-pages")
             b.wait_present("#active-pages-dialog")
             b.call_js_func("ph_count_check", "#active-pages-dialog tbody", count)
 

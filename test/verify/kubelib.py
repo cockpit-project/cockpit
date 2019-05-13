@@ -130,7 +130,7 @@ class VolumeTests(object):
         b.wait_present(".pvc-listing")
 
         b.wait_present("tbody[data-id='default/mock-volume-claim']")
-        b.click("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger", force=True)
+        b.click("tbody[data-id='default/mock-volume-claim'] td:last-child button.btn-danger")
 
         b.wait_in_text("modal-dialog .modal-body", "mock-volume-claim")
         b.wait_in_text("modal-dialog .modal-body ul", "mock-volume-")

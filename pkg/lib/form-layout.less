@@ -48,6 +48,10 @@
 // Most of the time, you can ignore all the optional classes (and
 // attribute and hr element) and simply wrap your labels & controls in
 // a <form class="ct-form-layout"> and layout magic happens.
+//
+// `ct-form-box`:
+// Box for encapsulating a block of sub-options. Creates a gray box
+// around elements
 
 .ct-form-layout {
   // Locally redefine padding to Bootstrap values for this LESS block
@@ -272,6 +276,16 @@
 
   > .help-block {
     .bump-up();
+  }
+
+  .ct-form-box {
+    background: #f5f5f5; /* pf-black-150 */
+    border-width: 1px;
+    border-style: solid;
+    border-color: #bbbbbb; /* pf-black-400 */
+    padding: 0.5rem;
+    padding-top: 1rem;
+    width: 100%;
   }
 }
 

@@ -76,6 +76,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     let defaultNetworkSource = dialogValues.networkSource;
     let availableNetworkSources = [];
     let networkSourcesContent;
+    let networkSourceEnabled = true;
 
     if (connectionName !== 'session')
         availableNetworkTypes = [
@@ -93,23 +94,27 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     // Bring to the first position in dropdown list the initial selection which reflects the current nic type
     availableNetworkTypes.sort(function(x, y) { return x.name == defaultNetworkType ? -1 : y.name == defaultNetworkType ? 1 : 0 });
 
-    if (dialogValues.networkType == 'network')
+    if (dialogValues.networkType == 'network') {
         availableNetworkSources = networks.map(network => network.name);
-    if (availableNetworkSources.length > 0) {
-        networkSourcesContent = availableNetworkSources
-                .map(networkSource => {
-                    return (
-                        <Select.SelectEntry data={networkSource} key={networkSource}>
-                            {networkSource}
-                        </Select.SelectEntry>
-                    );
-                });
-    } else {
-        networkSourcesContent = (
-            <Select.SelectEntry data='empty' key='empty-list'>
-                {_("No virtual networks")}
-            </Select.SelectEntry>
-        );
+
+        if (availableNetworkSources.length > 0) {
+            networkSourcesContent = availableNetworkSources
+                    .map(networkSource => {
+                        return (
+                            <Select.SelectEntry data={networkSource} key={networkSource}>
+                                {networkSource}
+                            </Select.SelectEntry>
+                        );
+                    });
+        } else {
+            defaultNetworkSource = _("No Virtual Networks");
+            networkSourcesContent = (
+                <Select.SelectEntry data='empty-list' key='empty-list'>
+                    {defaultNetworkSource}
+                </Select.SelectEntry>
+            );
+            networkSourceEnabled = false;
+        }
     }
 
     return (
@@ -137,6 +142,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                     </label>
                     <Select.Select id={`${idPrefix}-select-source`}
                                    onChange={value => onValueChanged('networkSource', value)}
+                                   enabled={networkSourceEnabled}
                                    initial={defaultNetworkSource}
                                    extraClass='form-control ct-form-layout-split'>
                         {networkSourcesContent}
@@ -170,6 +176,7 @@ export class EditNICAction extends React.Component {
             networkType: props.network.type,
             networkSource: props.network.source[props.network.type],
             networkModel: props.network.model,
+            saveDisabled: false,
         };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
@@ -183,12 +190,20 @@ export class EditNICAction extends React.Component {
 
         this.setState(stateDelta);
 
-        if (key == 'networkType' && value == 'network') {
-            const availableNetworkSources = this.props.networks.map(network => network.name);
-            if (availableNetworkSources.length > 0)
-                this.setState({ 'networkSource': availableNetworkSources[0] });
-            else
-                this.setState({ 'networkSource': undefined });
+        if (key == 'networkType') {
+            let saveDisabled = false;
+
+            if (value == 'network') {
+                const availableNetworkSources = this.props.networks.map(network => network.name);
+
+                if (availableNetworkSources.length > 0) {
+                    this.setState({ 'networkSource': availableNetworkSources[0] });
+                } else {
+                    this.setState({ 'networkSource': undefined });
+                    saveDisabled = true;
+                }
+            }
+            this.setState({ 'saveDisabled': saveDisabled });
         }
     }
 
@@ -281,7 +296,7 @@ export class EditNICAction extends React.Component {
                         <Button id={`${idPrefix}-edit-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.close}>
                             {_("Cancel")}
                         </Button>
-                        <Button id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
+                        <Button disabled={this.state.saveDisabled} id={`${idPrefix}-edit-dialog-save`} bsStyle='primary' onClick={this.save}>
                             {_("Save")}
                         </Button>
                     </Modal.Footer>

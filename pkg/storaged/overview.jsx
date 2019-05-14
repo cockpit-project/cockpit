@@ -89,29 +89,26 @@ export class OverviewSidePanelRow extends React.Component {
             return this.props.go();
         };
 
-        let job_spinner = (client.path_jobs[job_path]
-            ? <span className="spinner spinner-sm" />
-            : null);
-
-        let warning_triangle = (client.path_warnings[job_path]
-            ? <span className="pficon pficon-warning-triangle-o" />
-            : null);
+        let decoration = null;
+        if (this.props.actions)
+            decoration = <div className="sidepanel-row-decoration">{this.props.actions}</div>;
+        else if (client.path_jobs[job_path])
+            decoration = <div className="sidepanel-row-decoration spinner spinner-sm" />;
+        else if (client.path_warnings[job_path])
+            decoration = <div className="sidepanel-row-decoration pficon pficon-warning-triangle-o" />;
 
         return (
             <tr data-testkey={this.props.testkey}
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
-                <td className="storage-icon">
-                    { this.props.kind !== false
-                        ? <img src={"images/storage-" + (this.props.kind || "disk") + ".png"} />
-                        : null
-                    }
-                </td>
-                <td className="row storage-disk-info">
-                    <h3 className="storage-disk-name">{this.props.name}</h3>
-                    <div className="storage-disk-size">{this.props.detail}</div>
-                </td>
-                <td className="storage-icon storage-disk-extended">
-                    { this.props.actions || job_spinner || warning_triangle }
+                <td className={"sidepanel-row " + (this.props.highlight ? "highlight-ct" : "")}>
+                    <div className="sidepanel-row-body">
+                        <div className="sidepanel-row-name">{this.props.name}</div>
+                        <div className="sidepanel-row-info">
+                            <div className="sidepanel-row-detail">{this.props.detail}</div>
+                            <div className="sidepanel-row-devname">{this.props.devname}</div>
+                        </div>
+                    </div>
+                    {decoration}
                 </td>
             </tr>
         );

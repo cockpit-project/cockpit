@@ -224,6 +224,7 @@ class TestFirewall(MachineCase):
             b.click("tr[data-row-id='{}'] .btn.pficon-delete".format(service))
             for zone in zones:
                 b.click("#remove-services-dialog input[value={}]".format(zone))
+            b.wait_present("#remove-services-dialog button.btn-primary:not([disabled])")
             b.click("#remove-services-dialog button.btn-primary")
             b.wait_not_present("#remove-services-dialog")
             b.wait_not_present("tr[data-row-id='{}']".format(service))

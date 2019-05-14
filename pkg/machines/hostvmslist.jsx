@@ -91,12 +91,14 @@ class HostVmsList extends React.Component {
                                     <DummyVm vm={vm} key={`${vmId(vm.name)}`} />
                                 );
                             }
+                            const connectionName = vm.connectionName;
+
                             return (
                                 <Vm vm={vm} config={config}
                                     resourceHasError={this.props.resourceHasError}
                                     onAddErrorNotification={this.props.onAddErrorNotification}
                                     hostDevices={this.deviceProxies}
-                                    storagePools={storagePools}
+                                    storagePools={storagePools.filter(pool => pool && pool.connectionName == connectionName)}
                                     onStart={() => dispatch(startVm(vm)).catch(ex => {
                                         this.props.onAddErrorNotification({
                                             text: cockpit.format(_("VM $0 failed to start"), vm.name),
@@ -154,8 +156,8 @@ class HostVmsList extends React.Component {
                                     onUsageStartPolling={() => dispatch(usageStartPolling(vm))}
                                     onUsageStopPolling={() => dispatch(usageStopPolling(vm))}
                                     dispatch={dispatch}
-                                    networks={networks}
-                                    nodeDevices={nodeDevices}
+                                    networks={networks.filter(network => network && network.connectionName == connectionName)}
+                                    nodeDevices={nodeDevices.filter(device => device && device.connectionName == connectionName)}
                                     key={`${vmId(vm.name)}`}
                                 />);
                         })}

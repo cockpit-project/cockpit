@@ -323,7 +323,7 @@ class SSHConnection(object):
                             proc.stdout.close()
                         else:
                             if self.verbose:
-                                os.write(sys.stdout.fileno(), data)
+                                os.write(sys.__stdout__.fileno(), data)
                             output += data.decode('utf-8', 'replace')
                     elif fd == stderr_fd:
                         data = os.read(fd, 1024)
@@ -331,7 +331,7 @@ class SSHConnection(object):
                             rset.remove(stderr_fd)
                             proc.stderr.close()
                         elif not quiet or self.verbose:
-                            os.write(sys.stderr.fileno(), data)
+                            os.write(sys.__stderr__.fileno(), data)
                 for fd in ret[1]:
                     if fd == stdin_fd:
                         if input:

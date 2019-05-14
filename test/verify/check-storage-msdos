@@ -53,14 +53,14 @@ class TestStorage(StorageCase):
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
         self.content_head_action(1, "Format")
         self.dialog_wait_open()
-        b.wait_attr("select option[value='dos-extended']", "disabled", "")
+        b.wait_not_present("select option[value='dos-extended']")
         self.dialog_cancel()
         self.dialog_wait_close()
 
         # Create a extended partition to fill the rest of the disk
         self.content_row_action(2, "Create Partition")
         self.dialog_wait_open()
-        b.wait_attr("option[value='dos-extended']", "disabled", None)
+        b.wait_present("option[value='dos-extended']")
         self.dialog_set_val("type", "dos-extended")
         self.dialog_wait_not_present("name")
         self.dialog_wait_not_present("mounting")
@@ -75,7 +75,7 @@ class TestStorage(StorageCase):
         # not offered.
         self.content_row_action(3, "Create Partition")
         self.dialog_wait_open()
-        b.wait_attr("select option[value='dos-extended']", "disabled", "")
+        b.wait_not_present("select option[value='dos-extended']")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(3, 1, "xfs File System")

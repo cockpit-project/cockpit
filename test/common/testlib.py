@@ -873,6 +873,7 @@ class MachineCase(unittest.TestCase):
                                     ".*couldn't create polkit session subject: No session for pid.*",
                                     "We are no longer a registered authentication agent.",
                                     ".*: failed to retrieve resource: terminated",
+                                    ".*: external channel failed: terminated",
                                     'audit:.*denied.*comm="systemd-user-se".*nologin.*',
 
                                     'localhost: dropping message while waiting for child to exit',

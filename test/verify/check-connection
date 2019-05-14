@@ -27,6 +27,12 @@ from testlib import *
 
 class TestConnection(MachineCase):
 
+    def setUp(self):
+        super().setUp()
+        self.ws_executable = "/usr/libexec/cockpit-ws"
+        if "debian" in self.machine.image or "ubuntu" in self.machine.image:
+            self.ws_executable = "/usr/lib/cockpit/cockpit-ws"
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -291,11 +297,7 @@ class TestConnection(MachineCase):
         self.assertTrue(m.execute("ls /test/cockpit/ws-certs.d/*"))
         self.assertFalse(m.execute("ls /etc/cockpit/ws-certs.d/* || true"))
 
-        executable = "/usr/libexec/cockpit-ws"
-        if "debian" in m.image or "ubuntu" in m.image:
-            executable = "/usr/lib/cockpit/cockpit-ws"
-
-        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(executable))
+        m.execute("XDG_CONFIG_DIRS=/test XDG_DATA_DIRS=/test {} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &".format(self.ws_executable))
 
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))
@@ -367,13 +369,9 @@ class TestConnection(MachineCase):
     def testLocalSession(self):
         m = self.machine
 
-        if "debian" in m.image or "ubuntu" in m.image:
-            cockpit_ws = "/usr/lib/cockpit/cockpit-ws"
-        else:
-            cockpit_ws = "/usr/libexec/cockpit-ws"
-
         # start ws with --local-session, let it spawn bridge; ensure that this works without /etc/cockpit/
-        m.spawn("su - -c 'G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local-session=cockpit-bridge' admin" % cockpit_ws,
+        m.spawn("su - -c 'G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 "
+                "--local-session=cockpit-bridge' admin" % self.ws_executable,
                 "cockpit-ws-local")
         m.wait_for_cockpit_running('127.0.0.90', 9999)
         # System frame should work directly, no login page
@@ -388,7 +386,7 @@ class TestConnection(MachineCase):
         script = '''#!/bin/bash -eu
 coproc env G_MESSAGES_DEBUG=all cockpit-bridge
 G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local-session=- <&${COPROC[0]} >&${COPROC[1]}
-''' % cockpit_ws
+''' % self.ws_executable
         m.execute(["tee", "/tmp/local.sh"], input=script)
         m.execute("chmod a+x /tmp/local.sh")
         m.spawn("su - -c /tmp/local.sh admin", "local.sh")

@@ -252,7 +252,7 @@ LIBVIRT_PROVIDER = {
             return dispatch => spawnVirshNoHandler({ connectionName, args: ['nodememstats'] })
                     .then(nodememstats => {
                         let stats = parseNodeMemStats(nodememstats);
-                        dispatch(setNodeMaxMemory({ memory: stats.total }));
+                        dispatch(setNodeMaxMemory({ memory: Number(stats.total) }));
                     })
                     .catch(ex => console.warn("NodeGetMemoryStats failed: %s", ex));
         }

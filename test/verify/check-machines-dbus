@@ -202,8 +202,8 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         self.startVm("subVmTest1")
 
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdb --targetbus virtio")
-        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vdc --targetbus virtio --persistent")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_1 --target vdd --targetbus virtio")
+        m.execute("virsh attach-disk --domain subVmTest1 --source /mnt/vm_one/mydiskofpoolone_2 --target vde --targetbus virtio --persistent")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -214,20 +214,20 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.click("#vm-subVmTest1-disks-vdb-detach")
-        b.wait_not_present("vm-subVmTest1-disks-vdb-target")
+        b.click("#vm-subVmTest1-disks-vdd-detach")
+        b.wait_not_present("vm-subVmTest1-disks-vdd-target")
 
         # Test that detaching disk of a running domain will affect the
         # inactive configuration as well
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
         b.wait_in_text("#vm-subVmTest1-state", "shut off")
-        b.wait_not_present("vm-subVmTest1-disks-vdb-target")
+        b.wait_not_present("vm-subVmTest1-disks-vdd-target")
 
         # Test detaching permanent disk of a stopped domain
         b.click("#vm-subVmTest1-disks") # open the "Disks" subtab
-        b.click("#vm-subVmTest1-disks-vdc-detach")
-        b.wait_not_present("vm-subVmTest1-disks-vdc-target")
+        b.click("#vm-subVmTest1-disks-vde-detach")
+        b.wait_not_present("vm-subVmTest1-disks-vde-target")
 
     def testNetworkSettings(self):
         b = self.browser

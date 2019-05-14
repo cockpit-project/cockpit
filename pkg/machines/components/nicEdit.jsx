@@ -96,7 +96,6 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
     if (dialogValues.networkType == 'network')
         availableNetworkSources = networks.map(network => network.name);
     if (availableNetworkSources.length > 0) {
-        defaultNetworkSource = defaultNetworkSource == undefined ? availableNetworkSources[0] : defaultNetworkSource;
         networkSourcesContent = availableNetworkSources
                 .map(networkSource => {
                     return (
@@ -111,13 +110,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                 {_("No virtual networks")}
             </Select.SelectEntry>
         );
-        defaultNetworkSource = 'empty';
     }
-
-    const onNetworkTypeChanged = (value) => {
-        onValueChanged('networkType', value);
-        onValueChanged('networkSource', defaultNetworkSource);
-    };
 
     return (
         <React.Fragment>
@@ -125,7 +118,7 @@ const NetworkTypeAndSourceRow = ({ idPrefix, onValueChanged, dialogValues, netwo
                 {_("Interface Type")}
             </label>
             <Select.Select id={`${idPrefix}-select-type`}
-                           onChange={value => onNetworkTypeChanged(value)}
+                           onChange={value => onValueChanged('networkType', value)}
                            initial={defaultNetworkType}
                            extraClass='form-control ct-form-layout-split'>
                 {availableNetworkTypes
@@ -189,6 +182,14 @@ export class EditNICAction extends React.Component {
         const stateDelta = { [key]: value };
 
         this.setState(stateDelta);
+
+        if (key == 'networkType' && value == 'network') {
+            const availableNetworkSources = this.props.networks.map(network => network.name);
+            if (availableNetworkSources.length > 0)
+                this.setState({ 'networkSource': availableNetworkSources[0] });
+            else
+                this.setState({ 'networkSource': undefined });
+        }
     }
 
     dialogErrorSet(text, detail) {

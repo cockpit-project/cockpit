@@ -236,7 +236,10 @@ class TestMachinesDBus(machineslib.TestMachines):
         self.startVm("subVmTest1")
 
         # Create dummy network
-        m.execute("echo \"{0}\" > /tmp/xml && virsh net-create /tmp/xml".format(TEST_NETWORK_XML))
+        m.execute("echo \"{0}\" > /tmp/xml && virsh net-define /tmp/xml && virsh net-start test_network".format(TEST_NETWORK_XML))
+
+        # Create a second bridge to LAN NIC, virbr0 does not make sense but let's use it for test purposes
+        m.execute("virsh attach-interface --persistent subVmTest1 bridge virbr0")
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -291,6 +294,37 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_not_present("#vm-subVmTest1-network-1-type-tooltip")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
         b.wait_not_present("#vm-subVmTest1-network-1-source-tooltip")
+
+        # Remove the network interface
+        m.execute("virsh detach-interface --persistent --type network --domain subVmTest1")
+
+        # We don't get events for shut off VMs so reload the page
+        b.reload()
+        b.enter_page('/machines')
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text(".cards-pf #card-pf-networks .card-pf-title-link", "Networks")
+        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "2")
+        b.wait_in_text("tbody tr th", "subVmTest1")
+        b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
+        b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
+
+        # Change network type and source from the bridge NIC
+        b.wait_in_text("#vm-subVmTest1-network-1-type", "bridge")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "virbr0")
+
+        # Open the modal dialog
+        b.click("#vm-subVmTest1-network-1-edit-dialog")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-select-type", "Bridge to LAN")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-type", "Virtual network")
+        b.select_from_dropdown("#vm-subVmTest1-network-1-select-source", "test_network")
+
+        # Save the network settings
+        b.click("#vm-subVmTest1-network-1-edit-dialog-save")
+        b.wait_not_present("#vm-subVmTest1-network-1-edit-dialog-modal-window")
+
+        b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
+        b.wait_in_text("#vm-subVmTest1-network-1-source", "test_network")
 
     def testNetworkAutostart(self):
         b = self.browser

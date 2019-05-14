@@ -22,7 +22,7 @@ import React from "react";
 
 import { OverviewSidePanel, OverviewSidePanelRow } from "./overview.jsx";
 import {
-    fmt_size, mdraid_name,
+    fmt_size, mdraid_name, block_name,
     get_available_spaces, prepare_available_spaces
 } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
@@ -103,11 +103,13 @@ export class MDRaidsPanel extends React.Component {
 
         function make_mdraid(path) {
             var mdraid = client.mdraids[path];
+            var block = client.mdraids_block[path];
 
             return (
                 <OverviewSidePanelRow client={client}
                                       kind="array"
                                       name={mdraid_name(mdraid)}
+                                      devname={block && block_name(block)}
                                       detail={fmt_size(mdraid.Size)}
                                       go={() => cockpit.location.go([ "mdraid", mdraid.UUID ])}
                                       job_path={path}

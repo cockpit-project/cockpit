@@ -137,6 +137,7 @@ export class VDOsPanel extends React.Component {
                 <OverviewSidePanelRow client={client}
                                       kind="array"
                                       name={vdo.name}
+                                      devname={vdo.dev}
                                       detail={fmt_size(vdo.logical_size)}
                                       go={() => cockpit.location.go([ "vdo", vdo.name ])}
                                       job_path={block && block.path}

@@ -76,12 +76,17 @@ class TestKdump(MachineCase):
 
         b.wait_visible("#app")
 
-        onOffSelectorActive = "div.btn-onoff-ct label.active"
+        def assertActive(active):
+            # changed in PR #11769
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+                b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
+            else:
+                b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
 
         if m.image in ["rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1"]:
             # some OSes have kdump enabled by default (crashkernel=auto)
             b.wait_in_text("#app", "Service is running")
-            b.wait_in_text(onOffSelectorActive, "On")
+            assertActive(True)
         else:
             # right now we have no memory reserved
             if m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
@@ -93,7 +98,7 @@ class TestKdump(MachineCase):
                 b.mouse("#app span.popover-ct-kdump", "mouseout")
             # service should indicate an error and the button should be off
             b.wait_in_text("#app", "Service has an error")
-            b.wait_in_text(onOffSelectorActive, "Off")
+            assertActive(False)
 
         # there shouldn't be any crash reports in the target directory
         self.assertEqual(m.execute("""find "/var/crash" -maxdepth 1 -mindepth 1 -type d -exec echo {} \;"""), "")
@@ -140,7 +145,7 @@ class TestKdump(MachineCase):
         b.wait_in_text("#app", "256 MiB")
         # service should start up properly and the button should be on
         b.wait_in_text("#app", "Service is running")
-        b.wait_in_text(onOffSelectorActive, "On")
+        assertActive(True)
         b.wait_in_text("#app", "Service is running")
 
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
@@ -168,7 +173,7 @@ class TestKdump(MachineCase):
         # service has to restart after changing the config, wait for it to be running
         # otherwise the button to test will be disabled
         b.wait_in_text("#app", "Service is running")
-        b.wait_in_text(onOffSelectorActive, "On")
+        assertActive(True)
 
         # crash the kernel and make sure it wrote a report into the right directory
         b.click("button.btn-default")

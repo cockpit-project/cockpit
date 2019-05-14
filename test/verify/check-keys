@@ -158,6 +158,21 @@ class TestKeys(MachineCase):
         def list_keys():
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
+        def assertKeyState(selector, enabled):
+            # changed in PR #11769
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+                b.wait_present("%s .btn.active:contains('%s')" % (selector, enabled and "On" or "Off"))
+            else:
+                b.wait_present("%s input%s" % (selector, enabled and ":checked" or ":not(:checked)"))
+
+        def toggleKeyState(selector, on_area=False):
+            # changed in PR #11769
+            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+                # old On/Off button only accepts half of the widget area
+                b.click(selector + " .btn:contains('%s') span" % (on_area and "On" or "Off"))
+            else:
+                b.click(selector + " .onoff-ct input")
+
         # Operating systems where auto loading doesn't work
         auto_load = "atomic" not in m.image
 
@@ -203,7 +218,7 @@ class TestKeys(MachineCase):
 
         # Automatically loaded
         if auto_load:
-            assert b.is_present("tbody[data-name=id_rsa] .btn.active:contains('On')")
+            assertKeyState("tbody[data-name=id_rsa]", True)
         b.click("tbody[data-name=id_rsa] tr.listing-ct-item")
         assert b.is_visible("tbody[data-name=id_rsa] .listing-ct-body")
         assert b.is_visible("tbody[data-name=id_rsa] ul")
@@ -229,14 +244,13 @@ class TestKeys(MachineCase):
         assert not b.is_visible("tbody[data-name=id_rsa] .listing-ct-body")
 
         # Load the id_dsa key
-        b.wait_present("tbody[data-name=id_dsa]")
-        assert b.is_visible("tbody[data-name=id_dsa] .btn.active:contains('Off')")
-        b.click("tbody[data-name=id_dsa] .btn:contains('On') span")
+        assertKeyState("tbody[data-name=id_dsa]", False)
+        toggleKeyState("tbody[data-name=id_dsa]", True)
         assert b.is_present("tbody[data-name=id_dsa] .credential-unlock")
         b.set_val("tbody[data-name=id_dsa] .credential-password", "badbad")
         b.click("tbody[data-name=id_dsa] .credential-unlock .btn")
         b.wait_present("tbody[data-name=id_dsa][data-loaded=1]")
-        assert b.is_present("tbody[data-name=id_dsa] .btn.active:contains('On')")
+        assertKeyState("tbody[data-name=id_dsa]", True)
 
         # Both keys are now loaded
         keys = list_keys()
@@ -250,7 +264,7 @@ class TestKeys(MachineCase):
             self.assertIn(old_dsa, keys)
 
         # Unload the RSA key
-        b.click("tbody[data-name=id_rsa] .btn:contains('Off') span")
+        toggleKeyState("tbody[data-name=id_rsa]")
         b.wait_present("tbody[data-name=id_rsa][data-loaded=0]")
 
         # Only DSA keys now loaded
@@ -332,7 +346,7 @@ class TestKeys(MachineCase):
         # keys are marked as "agent_only", thereby limiting functionality
         if openssh_version >= [7, 8]:
             # "agent_only" keys cannot be turned off, or have their passwords changed
-            assert b.is_visible(new_key_tbody + " .btn.active.disabled:contains('On')")
+            assertKeyState(new_key_tbody, True)
         else:
             # Change password of key
             b.click(new_key_tbody + " li:contains('Password') a")
@@ -343,7 +357,7 @@ class TestKeys(MachineCase):
             b.wait_present(new_key_tbody + " li.active:contains('Details')")
 
             # Turn key off, it goes away
-            b.click(new_key_tbody + " .btn:contains('Off') span")
+            toggleKeyState(new_key_tbody)
             b.wait_not_present(new_key_tbody)
 
             # Key now has password that needs to be entered to add

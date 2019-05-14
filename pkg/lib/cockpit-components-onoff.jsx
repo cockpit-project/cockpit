@@ -17,61 +17,23 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from "cockpit";
 import React from "react";
 
-import "./cockpit-components-onoff.css";
-
-const _ = cockpit.gettext;
+import "./cockpit-components-onoff.less";
 
 /* Component to show an on/off switch
  * state      boolean value (off or on)
- * captionOff optional string, default 'Off'
- * captionOn  optional string, default 'On'
  * onChange   triggered when the switch is flipped, parameter: new state
  * enabled    whether the component is enabled or not, defaults to true
  * id         optional string, ID of the top-level HTML tag (only necessary
  *            when embedding this into a non-React page)
+ * text       optional string that appears to the right of the button
  */
-export class OnOffSwitch extends React.Component {
-    handleOnOffClick(newState, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        // only notify if the component is enabled
-        if (this.props.onChange && this.props.enabled)
-            this.props.onChange(newState);
-        e.stopPropagation();
-    }
-
-    render() {
-        var onClasses = ["btn"];
-        var offClasses = ["btn"];
-        if (this.props.state)
-            onClasses.push("active");
-        else
-            offClasses.push("active");
-        if (!this.props.enabled) {
-            onClasses.push("disabled");
-            offClasses.push("disabled");
-        }
-        var clickHandler = this.handleOnOffClick.bind(this, !this.props.state);
-        return (
-            <div id={this.props.id} className="btn-group btn-onoff-ct">
-                <label className={ onClasses.join(" ") }>
-                    <input type="radio" />
-                    <span onClick={clickHandler}>{this.props.captionOn}</span>
-                </label>
-                <label className={ offClasses.join(" ") }>
-                    <input type="radio" />
-                    <span onClick={clickHandler}>{this.props.captionOff}</span>
-                </label>
-            </div>
-        );
-    }
-}
-OnOffSwitch.defaultProps = {
-    captionOff: _("Off"),
-    captionOn: _("On"),
-    enabled: true,
-};
+export const OnOffSwitch = ({ state, onChange, text, disabled, id }) => (
+    <label id={id} className="onoff-ct">
+        <input type="checkbox" disabled={disabled} checked={state}
+            onChange={ ev => onChange ? onChange(ev.target.checked) : null } />
+        <span className="switch-toggle" />
+        { text ? <span className={ state ? "switch-on" : "switch-off" }>{text}</span> : null }
+    </label>
+);

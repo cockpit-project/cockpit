@@ -723,7 +723,7 @@ export class Firewall extends React.Component {
                 <h1>
                     {_("Firewall")}
                     <OnOffSwitch state={enabled}
-                                 enabled={this.state.pendingTarget === null}
+                                 disabled={!!this.state.pendingTarget}
                                  onChange={this.onSwitchChanged} />
                 </h1>
                 <div id="zones-listing">

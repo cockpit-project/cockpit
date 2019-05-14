@@ -492,8 +492,8 @@ export class KdumpPage extends React.Component {
                 <form className="ct-form-layout">
                     <label className="control-label">{_("kdump status")}</label>
                     <div role="group">
-                        <OnOffSwitch state={serviceRunning} onChange={this.props.onSetServiceState}
-                            enabled={(!this.props.stateChanging).toString()} />
+                        <OnOffSwitch state={!!serviceRunning} onChange={this.props.onSetServiceState}
+                            disabled={this.props.stateChanging} />
                         {serviceWaiting}
                         {kdumpServiceDetails}
                     </div>

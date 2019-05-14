@@ -395,7 +395,7 @@ PageServer.prototype = {
             ReactDOM.render(
                 React.createElement(OnOffSwitch, {
                     state: pmlogger_service.state === "running",
-                    enabled: pmlogger_service.state !== "starting" && !force_disable,
+                    disabled: pmlogger_service.state == "starting" || force_disable,
                     onChange: onPmLoggerSwitchChange }),
                 document.getElementById('server-pmlogger-switch')
             );

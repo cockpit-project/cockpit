@@ -438,9 +438,10 @@ class TestSystemInfo(MachineCase):
             else:
                 b.click('#hwinfo a:contains(Mitigations)')
 
-            if expect_smt_state:
+            if expect_smt_state is not None:
                 b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-                b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', expect_smt_state)
+                b.wait_present('#cpu-mitigations-dialog #nosmt-switch input' +
+                               (expect_smt_state and ":checked" or ":not(:checked)"))
 
             if cmdline:
                 m.execute('while ! umount /proc/cmdline; do sleep 1; done')
@@ -448,17 +449,17 @@ class TestSystemInfo(MachineCase):
 
         # We expect our test VMs to not set nosmt
         spoof_threads(1, False)
-        spoof_threads(2, True, 'On', 'param1 param2 nosmt param3=value3')
-        spoof_threads(2, True, 'On', 'param1 param2 nosmt=force param3=value3')
+        spoof_threads(2, True, True, 'param1 param2 nosmt param3=value3')
+        spoof_threads(2, True, True, 'param1 param2 nosmt=force param3=value3')
         spoof_threads(2, False, cmdline='param1 nosmt=someunknown param3=value3')
-        spoof_threads(2, True, 'Off', None)
+        spoof_threads(2, True, False, None)
 
         # Enable nosmt option
         b.reload()
         b.enter_page('/system/hwinfo')
         b.click('#hwinfo a:contains(Mitigations)')
-        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
-        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
         self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -506,9 +507,9 @@ fi
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo a:contains(Mitigations)')
         b.wait_present('#cpu-mitigations-dialog span:contains(nosmt)')
-        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
-        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
-        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'Off')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         m.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
@@ -526,8 +527,8 @@ fi
         m.execute('[ ! -f /usr/sbin/grubby ] || mount --bind /tmp/grubby /usr/sbin/grubby')
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo a:contains(Mitigations)')
-        b.click('#cpu-mitigations-dialog #nosmt-switch .btn-onoff-ct label.active span')
-        b.wait_in_text('#cpu-mitigations-dialog #nosmt-switch .btn.active', 'On')
+        b.click('#cpu-mitigations-dialog #nosmt-switch input')
+        b.wait_present('#cpu-mitigations-dialog #nosmt-switch input:checked')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
         b.wait_present('#cpu-mitigations-dialog .alert:contains(No supported grub update mechanism found)')
 
@@ -586,12 +587,12 @@ class TestPcp(packagelib.PackageCase):
             return
 
         # Turn stored metrics on
-        b.wait_in_text("#server-pmlogger-switch label.active", "Off")
-        b.click("#server-pmlogger-switch label.active span")
-        b.wait_attr_contains("#server-pmlogger-switch label.active", "class", "disabled")
+        b.wait_present("#server-pmlogger-switch input:not(:checked)")
+        b.click("#server-pmlogger-switch input")
+        b.wait_present("#server-pmlogger-switch input:disabled")
         m.execute("touch /tmp/pmlogger.start")
-        b.wait_attr_not_contains("#server-pmlogger-switch label.active", "class", "disabled")
-        b.wait_in_text("#server-pmlogger-switch label.active", "On")
+        b.wait_present("#server-pmlogger-switch input:not(:disabled)")
+        b.wait_present("#server-pmlogger-switch input:checked")
 
 
 if __name__ == '__main__':

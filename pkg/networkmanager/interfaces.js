@@ -2302,7 +2302,7 @@ PageNetworkInterface.prototype = {
                 React.createElement(OnOffSwitch, {
                     id: 'networking-firewall-switch',
                     state: firewall.enabled,
-                    enabled: !pending,
+                    disabled: pending,
                     onChange: onFirewallSwitchChange }),
                 document.querySelector('#networking-firewall .panel-actions')
             );
@@ -2573,7 +2573,7 @@ PageNetworkInterface.prototype = {
         if (managed) {
             onoff = React.createElement(OnOffSwitch, {
                 state: !!(dev && dev.ActiveConnection),
-                enabled: !(!iface || (dev && dev.State == 20)),
+                disabled: !iface || (dev && dev.State == 20),
                 onChange: enable => enable ? self.connect() : self.disconnect() });
         }
         ReactDOM.render(onoff, document.getElementById('network-interface-delete-switch'));

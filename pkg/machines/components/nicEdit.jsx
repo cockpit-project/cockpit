@@ -239,14 +239,13 @@ export class EditNICAction extends React.Component {
 
     render() {
         const { idPrefix, vm, network, networks } = this.props;
-        const networksFiltered = networks.filter(network => network.connectionName == vm.connectionName);
         const defaultBody = (
             <form className='ct-form-layout'>
                 <NetworkTypeAndSourceRow idPrefix={idPrefix}
                                          dialogValues={this.state}
                                          onValueChanged={this.onValueChanged}
                                          network={network}
-                                         networks={networksFiltered}
+                                         networks={networks}
                                          connectionName={vm.connectionName}
                                          isRunning={vm.state == 'running'} />
                 <hr />

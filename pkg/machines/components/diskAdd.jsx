@@ -267,7 +267,7 @@ export class AddDiskAction extends React.Component {
          * TODO: Add support for other Storage Pool types.
          */
         const filteredStoragePools = storagePools
-                .filter(pool => pool.connectionName == vm.connectionName && pool.active && pool.type == 'dir')
+                .filter(pool => pool.active && pool.type == 'dir')
                 .reduce((result, filter) => {
                     result[filter.name] = filter.volumes;
                     return result;

@@ -272,11 +272,11 @@ class Machine(ssh_connection.SSHConnection):
         cmd = "dnsmasq --domain=cockpit.lan --interface=\"$(grep -l '{mac}' /sys/class/net/*/address | cut -d / -f 5)\" --bind-dynamic"
         self.execute(cmd.format(mac=mac))
 
-    def wait_for_cockpit_running(self, address="localhost", port=9090, seconds=30):
+    def wait_for_cockpit_running(self, address="localhost", port=9090, seconds=30, tls=False):
         WAIT_COCKPIT_RUNNING = """#!/bin/sh
-        until curl -s --connect-timeout 2 --max-time 3 http://%s:%s >/dev/null; do
+        until curl --insecure --silent --connect-timeout 2 --max-time 3 %s://%s:%s >/dev/null; do
             sleep 0.5;
         done;
-        """ % (address, port)
+        """ % (tls and "https" or "http", address, port)
         with timeout.Timeout(seconds=seconds, error_message="Timeout while waiting for cockpit to start"):
             self.execute(script=WAIT_COCKPIT_RUNNING)

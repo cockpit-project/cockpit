@@ -1229,6 +1229,15 @@ class TestMachines(NetworkCase):
                                          storage_volume="vmTmpDestination.qcow2",
                                          start_vm=True,))
 
+        # Check "No Storage" option (only define VM)
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=50, memory_size_unit='MiB',
+                                         os_vendor=config.NOVELL_VENDOR,
+                                         os_name=config.NOVELL_NETWARE_6,
+                                         storage_pool="No Storage",
+                                         start_vm=True,))
+
         if self.provider == "libvirt-dbus":
             # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
@@ -1549,7 +1558,7 @@ class TestMachines(NetworkCase):
                 b.wait_visible("#storage-pool-select")
                 b.select_from_dropdown("#storage-pool-select", self.storage_pool)
 
-                if self.storage_pool == 'Create New Volume':
+                if self.storage_pool == 'Create New Volume' or self.storage_pool == 'No Storage':
                     b.wait_not_present("#storage-volume-select")
                 else:
                     b.wait_visible("#storage-volume-select")
@@ -1744,11 +1753,14 @@ class TestMachines(NetworkCase):
             if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
                 b.wait_present("#vm-{0}-disks-vda-device".format(name))
                 b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
-            elif dialog.storage_size > 0:
+            # New volume was created or existing volume was already chosen as destination
+            elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["No Storage", "Create New Volume"]:
                 if b.is_present("#vm-{0}-disks-vda-device".format(name)):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
                 else:
                     b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
+            elif dialog.storage_pool == 'No Storage' and dialog.sourceType == 'file':
+                b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
             else:
                 b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
 

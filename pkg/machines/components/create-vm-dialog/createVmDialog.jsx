@@ -327,7 +327,7 @@ const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged, storagePoolN
     let volumeEntries;
     let isVolumeUsed = {};
     // Existing storage pool is chosen
-    if (storagePoolName !== "NewVolume") {
+    if (storagePoolName !== "NewVolume" && storagePoolName !== "NoStorage") {
         const storagePool = storagePools.find(pool => pool.name === storagePoolName);
 
         isVolumeUsed = getStorageVolumesUsage(vms, storagePool);
@@ -345,6 +345,7 @@ const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged, storagePoolN
                            initial={storagePoolName}
                            onChange={e => onValueChanged('storagePool', e)}>
                 <Select.SelectEntry data="NewVolume" key="NewVolume">{"Create New Volume"}</Select.SelectEntry>
+                <Select.SelectEntry data="NoStorage" key="NoStorage">{"No Storage"}</Select.SelectEntry>
                 <Select.SelectDivider />
                 <optgroup key="Storage Pools" label="Storage Pools">
                     { storagePools.map(pool => <Select.SelectEntry data={pool.name} key={pool.name}>{pool.name}</Select.SelectEntry>)}
@@ -352,6 +353,7 @@ const StorageRow = ({ storageSize, storageSizeUnit, onValueChanged, storagePoolN
             </Select.Select>
 
             { storagePoolName !== "NewVolume" &&
+            storagePoolName !== "NoStorage" &&
             <React.Fragment>
                 <label className="control-label" htmlFor="storage-volume-select">
                     {_("Volume")}

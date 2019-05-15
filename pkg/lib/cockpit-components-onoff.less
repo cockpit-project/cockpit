@@ -106,7 +106,14 @@ label.onoff-ct {
 
   /* Focus ring */
   :focus ~ .switch-toggle::before {
-    border: 1px dotted rgba(0, 0, 0, 0.75);
+    /* Approximate Chrome's focus ring, for non-Firefox browsers */
+    border: 2px solid rgba(0, 98, 220, 0.4);
+
+    @-moz-document url-prefix() {
+      /* Approximate Firefox's focus ring, for Firefox only */
+      border: 1px dotted rgba(0, 0, 0, 0.75);
+    }
+
     border-radius: calc(var(--switch-width) - 10px);
     position: absolute;
     content: '';

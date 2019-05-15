@@ -55,6 +55,7 @@ class Cockpit():
         #        state = self.get_state()
         self.label = ("avocado")
         self.browser = Browser("localhost", self.label)
+        self.atcleanup(self.browser.cdp.kill)
         self.journal_start = re.sub('.*cursor: ', '',
                                     subprocess.check_output("journalctl --show-cursor -n0 -o cat || true", shell=True).decode("utf-8"))
 

@@ -178,6 +178,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
 
     const osElem = domainElem.getElementsByTagNameNS("", "os")[0];
     const currentMemoryElem = domainElem.getElementsByTagName("currentMemory")[0];
+    const memoryElem = domainElem.getElementsByTagName("memory")[0];
     const vcpuElem = domainElem.getElementsByTagName("vcpu")[0];
     const cpuElem = domainElem.getElementsByTagName("cpu")[0];
     const vcpuCurrentAttr = vcpuElem.attributes.getNamedItem('current');
@@ -195,6 +196,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
 
     const currentMemoryUnit = currentMemoryElem.getAttribute("unit");
     const currentMemory = convertToUnit(currentMemoryElem.childNodes[0].nodeValue, currentMemoryUnit, units.KiB);
+    const memoryUnit = memoryElem.getAttribute("unit");
+    const memory = convertToUnit(memoryElem.childNodes[0].nodeValue, memoryUnit, units.KiB);
 
     const vcpus = parseDumpxmlForVCPU(vcpuElem, vcpuCurrentAttr);
 
@@ -225,6 +228,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         osBoot,
         arch,
         currentMemory,
+        memory,
         vcpus,
         disks,
         emulatedMachine,
@@ -1078,7 +1082,21 @@ export function updateBootOrder(domXml, devices) {
     }
 
     const tmp = document.createElement("div");
+    tmp.appendChild(domainElem);
 
+    return tmp.innerHTML;
+}
+
+/*
+ * This function is used to define only offline attribute of memory.
+ */
+export function updateMaxMemory(domXml, maxMemory) {
+    const domainElem = getDomainElem(domXml);
+
+    let memElem = domainElem.getElementsByTagName("memory")[0];
+    memElem.textContent = `${maxMemory}`;
+
+    let tmp = document.createElement("div");
     tmp.appendChild(domainElem);
 
     return tmp.innerHTML;

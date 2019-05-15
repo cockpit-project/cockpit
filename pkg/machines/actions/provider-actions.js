@@ -57,6 +57,8 @@ import {
     RESUME_VM,
     SENDNMI_VM,
     SET_VCPU_SETTINGS,
+    SET_MEMORY,
+    SET_MAX_MEMORY,
     SHUTDOWN_VM,
     START_LIBVIRT,
     START_VM,
@@ -235,6 +237,23 @@ export function setVCPUSettings(vm, max, count, sockets, threads, cores) {
         threads,
         cores,
         isRunning: vm.state == 'running'
+    });
+}
+
+export function setMemory(vm, memory) {
+    return virt(SET_MEMORY, {
+        id: vm.id,
+        connectionName: vm.connectionName,
+        memory,
+        isRunning: vm.state == 'running'
+    });
+}
+
+export function setMaxMemory(vm, maxMemory) {
+    return virt(SET_MAX_MEMORY, {
+        id: vm.id,
+        connectionName: vm.connectionName,
+        maxMemory
     });
 }
 

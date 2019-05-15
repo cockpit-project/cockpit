@@ -22,6 +22,7 @@ import cockpit from 'cockpit';
 
 import VmOverviewTab, { commonTitles } from './vmOverviewTab.jsx';
 import { VCPUModal } from './vcpuModal.jsx';
+import MemoryModal from './vm/memoryModal.jsx';
 import {
     getBootOrderDevices,
     getSortedBootOrderDevices,
@@ -62,8 +63,10 @@ class VmOverviewTabLibvirt extends React.Component {
             runningVmUpdated: false,
             showVcpuModal: false,
             showBootOrderModal: false,
+            showMemoryModal: false
         };
         this.openVcpu = this.openVcpu.bind(this);
+        this.openMemory = this.openMemory.bind(this);
         this.openBootOrder = this.openBootOrder.bind(this);
         this.close = this.close.bind(this);
         this.onAutostartChanged = this.onAutostartChanged.bind(this);
@@ -80,7 +83,7 @@ class VmOverviewTabLibvirt extends React.Component {
     }
 
     close() {
-        this.setState({ showVcpuModal: false, showBootOrderModal: false });
+        this.setState({ showVcpuModal: false, showMemoryModal: false, showBootOrderModal: false });
     }
 
     openVcpu() {
@@ -89,6 +92,10 @@ class VmOverviewTabLibvirt extends React.Component {
 
     openBootOrder() {
         this.setState({ showBootOrderModal: true });
+    }
+
+    openMemory() {
+        this.setState({ showMemoryModal: true });
     }
 
     render() {
@@ -109,6 +116,8 @@ class VmOverviewTabLibvirt extends React.Component {
 
         let autostart = rephraseUI('autostart', vm.autostart);
         let bootOrder = getBootOrder(vm);
+        let memoryLink = cockpit.format_bytes(vm.currentMemory * 1024);
+
         if (config.provider.name === "LibvirtDBus") {
             autostart = (
                 <label className='checkbox-inline'>
@@ -128,13 +137,19 @@ class VmOverviewTabLibvirt extends React.Component {
                     { vm.state === "running" && runningVmChanged() && <WarningInactive iconId="boot-order-tooltip" tooltipId="tip-boot-order" /> }
                 </div>
             );
+
+            memoryLink = (
+                <a id={`${idPrefix}-memory-count`} onClick={this.openMemory}>
+                    {memoryLink}
+                </a>
+            );
         }
-        const memoryLink = (<a tabIndex="0" id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>);
+        const vcpuLink = (<a id={`${vmId(vm.name)}-vcpus-count`} onClick={this.openVcpu}>{vm.vcpus.count}</a>);
 
         let items = [
-            { title: commonTitles.MEMORY, value: cockpit.format_bytes((vm.currentMemory ? vm.currentMemory : 0) * 1024), idPostfix: 'memory' },
+            { title: commonTitles.MEMORY, value: memoryLink, idPostfix: 'memory' },
             { title: _("Emulated Machine"), value: vm.emulatedMachine, idPostfix: 'emulatedmachine' },
-            { title: commonTitles.CPUS, value: memoryLink, idPostfix: 'vcpus' },
+            { title: commonTitles.CPUS, value: vcpuLink, idPostfix: 'vcpus' },
             { title: _("Boot Order"), value: bootOrder, idPostfix: 'bootorder' },
             { title: _("CPU Type"), value: vm.cpu.model, idPostfix: 'cputype' },
             { title: _("Autostart"), value: autostart, idPostfix: 'autostart' },
@@ -146,6 +161,7 @@ class VmOverviewTabLibvirt extends React.Component {
                     extraItems={config.provider.vmOverviewExtra && config.provider.vmOverviewExtra(vm, config.providerState)} />
                 { this.state.showVcpuModal && <VCPUModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
                 { this.state.showBootOrderModal && <BootOrderModal close={this.close} vm={vm} dispatch={dispatch} nodeDevices={nodeDevices} /> }
+                { this.state.showMemoryModal && <MemoryModal close={this.close} vm={vm} dispatch={dispatch} config={config} /> }
             </div>
         );
     }

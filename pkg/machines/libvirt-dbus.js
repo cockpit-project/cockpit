@@ -91,6 +91,7 @@ import {
     serialConsoleCommand,
     unknownConnectionName,
     updateBootOrder,
+    updateMaxMemory,
     updateVCPUSettings,
     CONSOLE_VM,
     CHECK_LIBVIRT_STATUS,
@@ -778,6 +779,31 @@ LIBVIRT_DBUS_PROVIDER = {
                 });
     },
 
+    SET_MEMORY({
+        id: objPath,
+        connectionName,
+        memory, // in KiB
+        isRunning
+    }) {
+        let flags = Enum.VIR_DOMAIN_AFFECT_CONFIG;
+        if (isRunning)
+            flags |= Enum.VIR_DOMAIN_AFFECT_LIVE;
+
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'SetMemory', [memory, flags], TIMEOUT);
+    },
+
+    SET_MAX_MEMORY({
+        id: objPath,
+        connectionName,
+        maxMemory // in KiB
+    }) {
+        return call(connectionName, objPath, 'org.libvirt.Domain', 'GetXMLDesc', [0], TIMEOUT)
+                .then(domXml => {
+                    let updatedXML = updateMaxMemory(domXml[0], maxMemory);
+                    return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'DomainDefineXML', [updatedXML], TIMEOUT);
+                });
+    },
+
     SHUTDOWN_VM({
         connectionName,
         id: objPath
@@ -1063,6 +1089,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
             logDebug(`signal on ${path}: ${iface}.${signal}(${JSON.stringify(args)})`);
 
             switch (signal) {
+            case 'BalloonChange':
             case 'ControlError':
             case 'DeviceAdded':
             case 'DeviceRemoved':

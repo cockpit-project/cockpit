@@ -26,7 +26,7 @@ if [ "$SOURCE_TYPE" = "disk_image" ]; then
     DISK_OPTIONS="$SOURCE,device=disk"
 else
     COMPARISON=$(awk 'BEGIN{ print "'$STORAGE_SIZE'"<=0 }')
-    if [ "$COMPARISON" -eq 1 ]; then
+    if [ "$STORAGE_POOL" = "NoStorage" ] || [ "$COMPARISON" -eq 1 ]; then
         # default to no disk if size 0
         DISK_OPTIONS="none"
     elif [ "$STORAGE_POOL" != "NewVolume" ]; then

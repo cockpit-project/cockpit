@@ -890,7 +890,7 @@ class TestMachines(NetworkCase):
         name = "subVmTest1"
         img2 = "/var/lib/libvirt/images/{0}-2.img".format(name)
 
-        self.startVm(name, graphics='vnc')
+        args = self.startVm(name, graphics='vnc')
 
         self.login_and_go("/machines")
         b.wait_in_text("body", "Virtual Machines")
@@ -953,6 +953,11 @@ class TestMachines(NetworkCase):
         self.startVm(name)
 
         b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
+
+        # Make sure that the VM booted normally before attempting to suspend it
+        if args["logfile"] is not None:
+            wait(lambda: "Linux version" in self.machine.execute("cat {0}".format(args["logfile"])), delay=3)
+
         self.machine.execute("virsh -c qemu:///system suspend {0}".format(name))
         b.wait_in_text("#vm-{0}-state".format(name), "paused")
         b.click("#vm-{0}-delete".format(name))

@@ -809,6 +809,29 @@ process will be sent a SIGTERM signal.
 Additionally, a "options" control message may be sent in this channel
 to change the "batch", "latency", and "window" options.
 
+Payload: packet
+---------------
+
+Raw data is sent back and forth to as messages to a socket. The message
+boundaries correspond exactly to the messages sent over the socket.
+
+If the channel is not binary, then non-UTF-8 data is forced into UTF-8
+with a replacement character.
+
+Additional "open" command options should be specified with a channel of
+this payload type:
+
+ * "unix": Open a channel with the given unix socket.
+ * "max-size": The maximum possible size of a message. Default is 64K
+   Supports up to 128K. Messages larger than this will be truncated.
+
+If an "done" is sent to the bridge on this channel, then the socket
+input is shutdown. The channel will send an "done" when the output of the socket
+or pipe is done.
+
+Additionally, a "options" control message may be sent in this channel
+to change the "max-size" options.
+
 Payload: fswatch1
 -----------------
 

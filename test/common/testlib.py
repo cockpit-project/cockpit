@@ -455,7 +455,7 @@ class Browser:
                 if reconnect and ex.msg.startswith('timeout'):
                     reconnect = False
                     if self.is_present("#machine-reconnect"):
-                        self.click("#machine-reconnect", True)
+                        self.click("#machine-reconnect")
                         self.wait_not_visible(".curtains-ct")
                         continue
                 raise
@@ -474,7 +474,7 @@ class Browser:
         # We don't need to open the menu, it's enough to simulate a
         # click on the invisible button.
         if entry:
-            self.click(sel + ' a:contains("%s")' % entry, True)
+            self.click(sel + ' a:contains("%s")' % entry)
         else:
             self.click(sel + ' button:first-child')
 

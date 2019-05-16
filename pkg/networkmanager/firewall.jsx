@@ -433,6 +433,7 @@ class AddServicesModal extends React.Component {
         }
 
         var addText = this.state.custom ? _("Add Ports") : _("Add Services");
+        var zonesText = this.state.custom ? _("Add ports to the following zones:") : _("Add services to following zones:");
         return (
             <Modal id="add-services-dialog" show onHide={this.props.close}>
                 <Modal.Header>
@@ -443,7 +444,7 @@ class AddServicesModal extends React.Component {
                         { firewall.activeZones.size > 1 &&
                             <React.Fragment>
                                 <form className="ct-form-layout horizontal">
-                                    <label htmlFor="zone-input">{ _("Add services to following zones:") }</label>
+                                    <label htmlFor="zone-input">{zonesText}</label>
                                     <fieldset id="zone-input">
                                         { Array.from(firewall.activeZones).sort((a, b) => a.localeCompare(b))
                                                 .map(z =>

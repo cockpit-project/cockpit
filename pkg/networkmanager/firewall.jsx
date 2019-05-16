@@ -449,7 +449,7 @@ class AddServicesModal extends React.Component {
                                         { Array.from(firewall.activeZones).sort((a, b) => a.localeCompare(b))
                                                 .map(z =>
                                                     <label className="radio" key={z}>
-                                                        <input type="checkbox" value={z} onChange={this.onToggleZone} />{ z }{ z === firewall.defaultZone && " " + _("(default)") }
+                                                        <input type="checkbox" value={z} onChange={this.onToggleZone} />{ firewall.zones[z].name || z }{ z === firewall.defaultZone && " " + _("(default)") }
                                                     </label>) }
                                     </fieldset>
                                 </form>

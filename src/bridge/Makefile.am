@@ -28,6 +28,8 @@ libcockpit_stub_a_SOURCES = \
 	src/bridge/cockpitinteracttransport.h \
 	src/bridge/cockpitpackages.c \
 	src/bridge/cockpitpackages.h \
+	src/bridge/cockpitpacketchannel.c \
+	src/bridge/cockpitpacketchannel.h \
 	src/bridge/cockpitpaths.c \
 	src/bridge/cockpitpaths.h \
 	src/bridge/cockpitpeer.c \
@@ -154,6 +156,7 @@ BRIDGE_CHECKS = \
 	test-paths \
 	test-rules \
 	test-pipe-channel \
+	test-packet-channel \
 	test-packages \
 	test-peer \
 	test-dbus-meta \
@@ -227,6 +230,12 @@ test_stream_LDADD = $(libcockpit_bridge_LIBS)
 test_process_SOURCES = src/bridge/test-process.c
 test_process_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_process_LDADD = $(libcockpit_bridge_LIBS)
+
+test_packet_channel_SOURCES = \
+	src/bridge/test-packet-channel.c \
+	src/common/mock-transport.c src/common/mock-transport.h
+test_packet_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+test_packet_channel_LDADD = $(libcockpit_bridge_LIBS)
 
 test_pipe_channel_SOURCES = \
 	src/bridge/test-pipe-channel.c \

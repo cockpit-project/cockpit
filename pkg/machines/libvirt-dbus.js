@@ -46,6 +46,7 @@ import {
     undefineNetwork,
     undefineStoragePool,
     undefineVm,
+    updateLibvirtVersion,
     updateOrAddNetwork,
     updateOrAddNodeDevice,
     updateOrAddVm,
@@ -490,6 +491,7 @@ LIBVIRT_DBUS_PROVIDER = {
                 dispatch(getAllNodeDevices(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 dispatch(getNodeMaxMemory(connectionName));
+                dispatch(getLibvirtVersion(connectionName));
             };
         }
 
@@ -1207,6 +1209,11 @@ function dbus_client(connectionName) {
     }
 
     return clientLibvirt[connectionName];
+}
+
+export function getLibvirtVersion(connectionName) {
+    return (dispatch) => call(connectionName, "/org/libvirt/QEMU", "org.freedesktop.DBus.Properties", "Get", ["org.libvirt.Connect", "LibVersion"], TIMEOUT)
+            .then(version => dispatch(updateLibvirtVersion({ libvirtVersion: version[0].v })));
 }
 
 /**

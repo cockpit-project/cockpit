@@ -30,9 +30,9 @@ const _ = cockpit.gettext;
 
 export class StoragePoolList extends React.Component {
     render() {
-        const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification } = this.props;
+        const { storagePools, dispatch, loggedUser, vms, resourceHasError, onAddErrorNotification, libvirtVersion } = this.props;
         const sortFunction = (storagePoolA, storagePoolB) => storagePoolA.name.localeCompare(storagePoolB.name);
-        const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} />);
+        const actions = (<CreateStoragePoolAction dispatch={dispatch} loggedUser={loggedUser} libvirtVersion={libvirtVersion} />);
 
         return (
             <React.Fragment>
@@ -74,4 +74,5 @@ StoragePoolList.propTypes = {
     vms: PropTypes.array.isRequired,
     onAddErrorNotification: PropTypes.func.isRequired,
     resourceHasError: PropTypes.object.isRequired,
+    libvirtVersion: PropTypes.number,
 };

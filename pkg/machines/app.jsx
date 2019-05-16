@@ -150,6 +150,7 @@ class App extends React.Component {
                     dispatch={dispatch}
                     vms={vms}
                     loggedUser={systemInfo.loggedUser}
+                    libvirtVersion={systemInfo.libvirtVersion}
                     resourceHasError={this.state.resourceHasError}
                     onAddErrorNotification={this.onAddErrorNotification} />
                 }

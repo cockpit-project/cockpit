@@ -32,6 +32,7 @@ import {
     UPDATE_ADD_STORAGE_POOL,
     UPDATE_ADD_VM,
     UPDATE_LIBVIRT_STATE,
+    UPDATE_LIBVIRT_VERSION,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -137,6 +138,13 @@ export function updateLibvirtState(state) {
     return {
         type: UPDATE_LIBVIRT_STATE,
         state,
+    };
+}
+
+export function updateLibvirtVersion({ libvirtVersion }) {
+    return {
+        type: UPDATE_LIBVIRT_VERSION,
+        libvirtVersion,
     };
 }
 

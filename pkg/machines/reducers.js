@@ -34,6 +34,7 @@ import {
     UPDATE_ADD_VM,
     UPDATE_ADD_STORAGE_POOL,
     UPDATE_LIBVIRT_STATE,
+    UPDATE_LIBVIRT_VERSION,
     UPDATE_OS_INFO_LIST,
     UPDATE_STORAGE_VOLUMES,
     UPDATE_UI_VM,
@@ -238,6 +239,9 @@ function systemInfo(state, action) {
     }
     case UPDATE_LIBVIRT_STATE: {
         return Object.assign({}, state, { libvirtService:  Object.assign({}, state.libvirtService, action.state) });
+    }
+    case UPDATE_LIBVIRT_VERSION: {
+        return Object.assign({}, state, { libvirtVersion:  action.libvirtVersion });
     }
     case SET_LOGGED_IN_USER: {
         return Object.assign({}, state, { loggedUser: action.payload.loggedUser });

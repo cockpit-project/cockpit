@@ -31,6 +31,7 @@ import {
     getAllNodeDevices,
     getAllStoragePools,
     getAllVms,
+    getApiData,
     getHypervisorMaxVCPU,
     getNetwork,
     getNodeDevice,
@@ -466,30 +467,37 @@ LIBVIRT_DBUS_PROVIDER = {
         };
     },
 
-    /*
-     * Initiate read of all VMs
-     *
-     * @returns {Function}
-     */
-    GET_ALL_VMS({
-        connectionName,
-        libvirtServiceName
-    }) {
+    GET_ALL_VMS({ connectionName }) {
+        return dispatch => {
+            call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListDomains', [0], TIMEOUT)
+                    .then(objPaths => {
+                        dispatch(deleteUnlistedVMs(connectionName, [], objPaths[0]));
+
+                        // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
+                        // https://github.com/cockpit-project/cockpit/issues/10956
+                        // eslint-disable-next-line cockpit/no-cockpit-all
+                        return cockpit.all(objPaths[0].map((path) => dispatch(getVm({ connectionName, id:path }))));
+                    })
+                    .fail(ex => console.warn('GET_ALL_VMS action failed:', JSON.stringify(ex)));
+        };
+    },
+
+    GET_API_DATA({ connectionName, libvirtServiceName }) {
         if (connectionName) {
             return dispatch => {
                 dispatch(checkLibvirtStatus(libvirtServiceName));
                 dbus_client(connectionName);
                 startEventMonitor(dispatch, connectionName, libvirtServiceName);
+                dispatch(getAllVms(connectionName));
                 dispatch(getAllStoragePools(connectionName));
                 dispatch(getAllNetworks(connectionName));
                 dispatch(getAllNodeDevices(connectionName));
                 dispatch(getHypervisorMaxVCPU(connectionName));
                 dispatch(getNodeMaxMemory(connectionName));
-                doGetAllVms(dispatch, connectionName);
             };
         }
 
-        return unknownConnectionName(getAllVms, libvirtServiceName);
+        return unknownConnectionName(getApiData, libvirtServiceName);
     },
 
     GET_HYPERVISOR_MAX_VCPU({ connectionName }) {
@@ -928,26 +936,6 @@ function calculateDiskStats(info) {
 }
 
 /**
- * Update all VMs found by ListDomains method for specific D-Bus connection.
- * @param  {Function} dispatch.
- * @param  {String} connectionName D-Bus connection type; one of session/system.
- */
-function doGetAllVms(dispatch, connectionName) {
-    call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'ListDomains', [0], TIMEOUT)
-            .done(objPaths => {
-                logDebug(`GET_ALL_VMS: object paths: ${JSON.stringify(objPaths)}`);
-
-                dispatch(deleteUnlistedVMs(connectionName, [], objPaths[0]));
-
-                // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
-                // https://github.com/cockpit-project/cockpit/issues/10956
-                // eslint-disable-next-line cockpit/no-cockpit-all
-                return cockpit.all(objPaths[0].map((path) => dispatch(getVm({ connectionName, id:path }))));
-            })
-            .fail(ex => console.warn("ListDomains failed:", JSON.stringify(ex)));
-}
-
-/**
  * Dispatch an action to initialize usage polling for Domain statistics.
  * @param  {String} name           Domain name.
  * @param  {String} connectionName D-Bus connection type; one of session/system.
@@ -1124,7 +1112,7 @@ function startEventMonitorLibvirtd(connectionName, dispatch, libvirtServiceName)
                 if (args[0] === "org.freedesktop.systemd1.Unit" && args[1].ActiveState.v === "deactivating") {
                     dispatch(checkLibvirtStatus(libvirtServiceName));
                     dispatch(deleteUnlistedVMs(connectionName, []));
-                    dispatch(delayPolling(getAllVms(connectionName, libvirtServiceName)));
+                    dispatch(delayPolling(getApiData(connectionName, libvirtServiceName)));
                 }
             }
         );

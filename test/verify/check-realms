@@ -375,6 +375,8 @@ class TestRealms(MachineCase):
         b.click(".realms-op-apply")
         b.wait_text(".realms-op-message", "Joining this domain is not supported")
 
+        self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*")
+
 
 JOIN_SCRIPT = """
 set -ex

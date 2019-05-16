@@ -1558,7 +1558,7 @@ class TestMachines(NetworkCase):
             init_state = "creating VM installation" if self.start_vm else "creating VM"
             second_state = "running" if self.start_vm else "shut off"
 
-            TestMachines.CreateVmRunner.assertVmStates(self, self.name, None, init_state, second_state)
+            TestMachines.CreateVmRunner.assertVmStates(self, self.name, init_state, second_state)
             b.wait_not_present("#create-vm-dialog")
             return self
 
@@ -1655,29 +1655,23 @@ class TestMachines(NetworkCase):
             self.machine.execute("rm -f {0}".format(TestMachines.TestCreateConfig.VALID_DISK_IMAGE_PATH))
 
         @staticmethod
-        def assertVmStates(test_obj, name, before, wanted, after):
+        def assertVmStates(test_obj, name, before, after):
             b = test_obj.browser
             selector = "#vm-{0}-state".format(name)
 
-            def waitForWanted(accepted, wanted):
-                b.wait_present(selector)
+            b.wait_in_text(selector, before)
+
+            # Make sure that the initial state goes away and then try to check what the new state is
+            # because we might end up checking the text for the new state the momment it dissapears
+            def waitStateWentAway(selector, state):
                 try:
-                    text = b.text(selector)
-                except Error:  # if selector disappears
-                    return False
-
-                if (accepted and accepted in text) or text == 'in transition':
-                    return False
-                elif wanted in text:
+                    b.wait_text_not(selector, state)
                     return True
-                else:
-                    raise Exception("invalid vm state")
+                except Error:
+                    return False
 
-            with b.wait_timeout(4):
-                b.wait_present(selector)
-                b.wait(lambda: waitForWanted(before, wanted))
-
-            b.wait(lambda: waitForWanted(wanted, after))
+            wait(lambda: waitStateWentAway(selector, before), delay=3)
+            b.wait_in_text(selector, after)
 
         def tryCreate(self, dialog):
             b = self.browser

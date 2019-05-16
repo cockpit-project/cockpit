@@ -30,12 +30,6 @@ def info_field(name, image_name):
 
 class TestStorage(StorageCase):
 
-    def tearDown(self):
-        # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
-        print(self.machine.execute("parted -s /dev/md127 print || true"))
-        print(self.machine.execute("lsblk || true"))
-        MachineCase.tearDown(self)
-
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
@@ -66,6 +60,7 @@ class TestStorage(StorageCase):
 
     def raid_default_action(self, action):
         def do_click():
+            self.machine.execute("udevadm settle")
             self.browser.wait_present('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
             self.browser.click('.panel-heading:contains("RAID Device") button:contains(%s)' % action)
 
@@ -154,6 +149,7 @@ class TestStorage(StorageCase):
         self.raid_remove_disk("DISK1")
         b.wait_not_in_text('#detail-sidebar', "DISK1")
 
+        m.execute("udevadm settle")
         self.raid_add_disk("DISK1")
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In Sync",
                           "QEMU QEMU HARDDISK (DISK2)": "In Sync",

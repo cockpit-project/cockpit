@@ -41,6 +41,7 @@ import {
     GET_ALL_NODE_DEVICES,
     GET_ALL_STORAGE_POOLS,
     GET_ALL_VMS,
+    GET_API_DATA,
     GET_HYPERVISOR_MAX_VCPU,
     GET_LOGGED_IN_USER,
     GET_OS_INFO_LIST,
@@ -152,13 +153,17 @@ export function getAllStoragePools(connectionName) {
     return virt(GET_ALL_STORAGE_POOLS, { connectionName });
 }
 
+export function getAllVms(connectionName) {
+    return virt(GET_ALL_VMS, { connectionName });
+}
+
 /**
  *
  * @param connectionName optional - if `undefined` then for all connections
  * @param libvirtServiceName
  */
-export function getAllVms(connectionName, libvirtServiceName) {
-    return virt(GET_ALL_VMS, { connectionName, libvirtServiceName });
+export function getApiData(connectionName, libvirtServiceName) {
+    return virt(GET_API_DATA, { connectionName, libvirtServiceName });
 }
 
 export function getHypervisorMaxVCPU(connectionName) {

@@ -15,7 +15,7 @@ import {
 
 import {
     checkLibvirtStatus,
-    getAllVms,
+    getApiData,
     getHypervisorMaxVCPU,
     getLoggedInUser,
     getOsInfoList
@@ -1273,7 +1273,7 @@ export function INIT_DATA_RETRIEVAL () {
                     const name = match ? match[0] : null;
                     dispatch(updateLibvirtState({ name }));
                     if (name) {
-                        dispatch(getAllVms(null, name));
+                        dispatch(getApiData(null, name));
                     } else {
                         console.error("initialize failed: getting libvirt service name failed");
                     }

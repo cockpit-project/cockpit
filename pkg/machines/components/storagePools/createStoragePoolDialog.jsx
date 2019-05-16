@@ -71,13 +71,15 @@ const StoragePoolNameRow = ({ onValueChanged, dialogValues }) => {
     );
 };
 
-const StoragePoolTypeRow = ({ onValueChanged, dialogValues }) => {
-    const poolTypes = [
+const StoragePoolTypeRow = ({ onValueChanged, dialogValues, libvirtVersion }) => {
+    let poolTypes = [
         { type: 'dir', detail: _("Filesystem Directory") },
         { type: 'netfs', detail:_("Network File System") },
         { type: 'iscsi', detail: _("iSCSI Target") },
-        { type: 'iscsi-direct', detail: _("iSCSI direct Target") }
     ];
+    // iscsi-direct exists since 4.7.0
+    if (libvirtVersion && libvirtVersion >= 4007000)
+        poolTypes.push({ type: 'iscsi-direct', detail: _("iSCSI direct Target") });
 
     /* TODO
         { type: 'disk', detail _("Physical Disk Device") },
@@ -381,6 +383,7 @@ class CreateStoragePoolModal extends React.Component {
                                     onValueChanged={this.onValueChanged} />
                 <hr />
                 <StoragePoolTypeRow dialogValues={this.state}
+                                    libvirtVersion={this.props.libvirtVersion}
                                     onValueChanged={this.onValueChanged} />
                 <hr />
                 <StoragePoolTargetRow dialogValues={this.state}
@@ -422,6 +425,7 @@ class CreateStoragePoolModal extends React.Component {
 CreateStoragePoolModal.propTypes = {
     close: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
+    libvirtVersion: PropTypes.number,
     loggedUser: PropTypes.object.isRequired,
 };
 
@@ -451,6 +455,7 @@ export class CreateStoragePoolAction extends React.Component {
                 <CreateStoragePoolModal
                     close={this.close}
                     dispatch={this.props.dispatch}
+                    libvirtVersion={this.props.libvirtVersion}
                     loggedUser={this.props.loggedUser} /> }
             </div>
         );
@@ -458,5 +463,6 @@ export class CreateStoragePoolAction extends React.Component {
 }
 CreateStoragePoolAction.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    libvirtVersion: PropTypes.number,
     loggedUser: PropTypes.object.isRequired,
 };

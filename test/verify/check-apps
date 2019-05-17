@@ -79,7 +79,7 @@ class TestApps(PackageCase):
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
         self.machine.execute("pkcon -y install appstream-data-test")
 
-    def testBasic(self):
+    def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
 
@@ -88,8 +88,11 @@ class TestApps(PackageCase):
 
         m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
 
+        if urlroot != "":
+            m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
+
         m.start_cockpit()
-        b.login_and_go("/apps")
+        b.login_and_go("/apps", urlroot=urlroot)
         b.wait_present(".app-list-empty")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
@@ -97,7 +100,7 @@ class TestApps(PackageCase):
 
         b.click(".app-list tr:contains('An application for testing')")
         b.wait_present('.app-links a[href="https://app-1.com"]')
-        b.wait_present('.app img[src^="/cockpit/channel/"]')
+        b.wait_present('.app img[src^="%s/cockpit/channel/"]' % urlroot)
         b.click(".breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
@@ -105,13 +108,16 @@ class TestApps(PackageCase):
 
         b.click(".app-list tr:contains('app-1') button:contains('Install')")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Remove')")
-        b.wait_present(".app-list tr:contains('app-1') img[src^='/cockpit/channel/']")
+        b.wait_present(".app-list tr:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
         m.execute("test -f /stamp-app-1-1.0-1")
 
         b.click(".app-list tr:contains('app-1') button:contains('Remove')")
         b.wait_present(".app-list tr:contains('app-1') button:contains('Install')")
-        b.wait_present(".app-list tr:contains('app-1') img[src^='/cockpit/channel/']")
+        b.wait_present(".app-list tr:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
         m.execute("! test -f /stamp-app-1-1.0-1")
+
+    def testWithUrlRoot(self):
+        self.testBasic(urlroot="/webcon")
 
     def testL10N(self):
         b = self.browser

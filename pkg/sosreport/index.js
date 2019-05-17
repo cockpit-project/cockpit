@@ -120,7 +120,8 @@ function sos_create() {
                         "content-type": "application/x-xz, application/octet-stream"
                     }
                 }));
-                sos_archive_url = "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query;
+                var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
+                sos_archive_url = prefix + '?' + query;
                 $("#sos-progress, #sos-error").hide();
                 $("#sos-alert, #sos-download").show();
                 $("#sos-cancel").text(_("Close"));

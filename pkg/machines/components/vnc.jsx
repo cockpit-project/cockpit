@@ -50,6 +50,7 @@ class Vnc extends React.Component {
         }
 
         cockpit.transport.wait(() => {
+            const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
             const query = JSON.stringify({
                 payload: "stream",
                 protocol: "binary",
@@ -58,7 +59,7 @@ class Vnc extends React.Component {
                 port: parseInt(consoleDetail.tlsPort || consoleDetail.port, 10),
             });
             this.setState({
-                path: `cockpit/channel/${cockpit.transport.csrf_token}?${window.btoa(query)}`,
+                path: `${prefix.slice(1)}?${window.btoa(query)}`,
             });
         });
     }

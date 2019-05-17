@@ -188,8 +188,9 @@ function download(ev) {
     start = Date.now();
     total = 0;
 
+    var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
     var query = window.btoa(JSON.stringify(options));
-    window.open("/cockpit/channel/" + cockpit.transport.csrf_token + "?" + query);
+    window.open(prefix + "?" + query);
 }
 
 function stop() {

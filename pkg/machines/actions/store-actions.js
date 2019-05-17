@@ -154,10 +154,10 @@ export function updateOrAddNodeDevice(props) {
     };
 }
 
-export function updateOrAddStoragePool(props) {
+export function updateOrAddStoragePool(props, updateOnly) {
     return {
         type: UPDATE_ADD_STORAGE_POOL,
-        payload: { storagePool: props },
+        payload: { storagePool: props, updateOnly },
     };
 }
 

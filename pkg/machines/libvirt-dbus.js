@@ -511,6 +511,7 @@ LIBVIRT_DBUS_PROVIDER = {
     GET_NETWORK({
         id: objPath,
         connectionName,
+        updateOnly,
     }) {
         let props = {};
 
@@ -535,7 +536,7 @@ LIBVIRT_DBUS_PROVIDER = {
                     })
                     .then(xml => {
                         const network = parseNetDumpxml(xml);
-                        dispatch(updateOrAddNetwork(Object.assign({}, props, network)));
+                        dispatch(updateOrAddNetwork(Object.assign({}, props, network), updateOnly));
                     })
                     .catch(ex => console.warn('GET_NETWORK action failed failed for path', objPath, ex));
         };
@@ -1135,8 +1136,10 @@ function startEventMonitorNetworks(connectionName, dispatch) {
             switch (eventType) {
             case Enum.VIR_NETWORK_EVENT_DEFINED:
             case Enum.VIR_NETWORK_EVENT_STARTED:
-            case Enum.VIR_NETWORK_EVENT_STOPPED:
                 dispatch(getNetwork({ connectionName, id:objPath }));
+                break;
+            case Enum.VIR_NETWORK_EVENT_STOPPED:
+                dispatch(getNetwork({ connectionName, id:objPath, updateOnly: true }));
                 break;
             case Enum.VIR_NETWORK_EVENT_UNDEFINED:
                 dispatch(undefineNetwork({ connectionName, id:objPath }));

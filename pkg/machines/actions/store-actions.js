@@ -140,10 +140,10 @@ export function updateLibvirtState(state) {
     };
 }
 
-export function updateOrAddNetwork(props) {
+export function updateOrAddNetwork(props, updateOnly) {
     return {
         type: UPDATE_ADD_NETWORK,
-        payload: { network: props },
+        payload: { network: props, updateOnly },
     };
 }
 

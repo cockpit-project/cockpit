@@ -107,11 +107,11 @@ function networks(state, action) {
                 .filter(network => (connectionName !== network.connectionName || id != network.id));
     }
     case UPDATE_ADD_NETWORK: {
-        const { network } = action.payload;
+        const { network, updateOnly } = action.payload;
         const connectionName = network.connectionName;
         const index = network.id ? getFirstIndexOfResource(state, 'id', network.id, connectionName)
             : getFirstIndexOfResource(state, 'name', network.name, connectionName);
-        if (index < 0) { // add
+        if (index < 0 && !updateOnly) { // add
             return [...state, network];
         }
 

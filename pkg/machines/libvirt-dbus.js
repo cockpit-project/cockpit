@@ -582,6 +582,7 @@ LIBVIRT_DBUS_PROVIDER = {
     GET_STORAGE_POOL({
         id: objPath,
         connectionName,
+        updateOnly,
     }) {
         let dumpxmlParams;
         let props = {};
@@ -611,7 +612,7 @@ LIBVIRT_DBUS_PROVIDER = {
                         props.allocation = poolInfo[0][2];
                         props.available = poolInfo[0][3];
 
-                        dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, props)));
+                        dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, props), updateOnly));
                         if (props.active)
                             dispatch(getStorageVolumes({ connectionName, poolName: dumpxmlParams.name }));
                     })
@@ -1175,9 +1176,11 @@ function startEventMonitorStoragePools(connectionName, dispatch) {
             switch (eventType) {
             case Enum.VIR_STORAGE_POOL_EVENT_DEFINED:
             case Enum.VIR_STORAGE_POOL_EVENT_STARTED:
-            case Enum.VIR_STORAGE_POOL_EVENT_STOPPED:
             case Enum.VIR_STORAGE_POOL_EVENT_CREATED:
                 dispatch(getStoragePool({ connectionName, id:objPath }));
+                break;
+            case Enum.VIR_STORAGE_POOL_EVENT_STOPPED:
+                dispatch(getStoragePool({ connectionName, id:objPath, updateOnly: true }));
                 break;
             case Enum.VIR_STORAGE_POOL_EVENT_UNDEFINED:
                 dispatch(undefineStoragePool({ connectionName, id:objPath }));

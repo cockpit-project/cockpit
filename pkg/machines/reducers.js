@@ -270,10 +270,10 @@ function storagePools(state, action) {
                 .filter(storagePool => (connectionName !== storagePool.connectionName || id != storagePool.id));
     }
     case UPDATE_ADD_STORAGE_POOL: {
-        const { storagePool } = action.payload;
+        const { storagePool, updateOnly, } = action.payload;
         const connectionName = storagePool.connectionName;
         const index = getFirstIndexOfResource(state, 'id', storagePool.id, connectionName);
-        if (index < 0) {
+        if (index < 0 && !updateOnly) {
             return [...state, storagePool];
         }
         const updatedStoragePool = Object.assign({}, state[index], storagePool);

@@ -67,7 +67,7 @@ def main():
     tests_disabled = "no-test" in labels or "[no-test]" in pull["title"]
     # add no-test label to prevent tests bring triggered
     if not tests_disabled:
-        label(pull, { "labels": list(labels) + ["no-test"] })
+        label(pull, { "labels": labels + ["no-test"] })
 
     git("push", "--force-with-lease=" + opts.branch + ":" + remote, opts.remote, opts.branch + ":" + opts.branch)
 

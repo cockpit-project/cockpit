@@ -31,7 +31,7 @@ from testlib import *
 @skipImage("No sosreport", "continuous-atomic")
 class TestSOS(MachineCase):
 
-    def testBasic(self):
+    def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
 
@@ -42,7 +42,10 @@ only-plugins=release,date,host
 threads=2
 """)
 
-        self.login_and_go("/sosreport")
+        if urlroot != "":
+            m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
+
+        self.login_and_go("/sosreport", urlroot=urlroot)
 
         b.click('[data-target="#sos"]')
         b.wait_visible("#sos")
@@ -65,6 +68,10 @@ threads=2
             tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
 
         self.allow_journal_messages('.*comm="sosreport".*')
+
+    @skipImage("Fixed in PR #11853", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+    def testWithUrlRoot(self):
+        self.testBasic(urlroot="/webcon")
 
     @skipImage("Not supported", "continuous-atomic", "fedora-atomic", "rhel-atomic")
     def testAppStream(self):

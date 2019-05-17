@@ -49,8 +49,9 @@ export function icon_url(path_or_url) {
         queryobj.external = { "content-type": "image/svg+xml" };
     }
 
+    var prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
     var query = window.btoa(JSON.stringify(queryobj));
-    return "/cockpit/channel/" + cockpit.transport.csrf_token + '?' + query;
+    return prefix + '?' + query;
 }
 
 export const ProgressBar = ({ title, data }) => {

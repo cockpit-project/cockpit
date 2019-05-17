@@ -883,12 +883,15 @@ class TestMachines(NetworkCase):
         self.assertEqual(b.attr("#dynamically-generated-file", "href"),
                          u"data:application/x-virt-viewer,%5Bvirt-viewer%5D%0Atype%3Dspice%0Ahost%3D127.0.0.1%0Aport%3D5900%0Adelete-this-file%3D1%0Afullscreen%3D0%0A")
 
-    def testInlineConsole(self):
+    def testInlineConsole(self, urlroot=""):
         b = self.browser
 
         self.startVm("subVmTest1", graphics='vnc')
 
-        self.login_and_go("/machines")
+        if urlroot != "":
+            self.machine.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
+
+        self.login_and_go("/machines", urlroot=urlroot)
         b.wait_in_text("body", "Virtual Machines")
         b.wait_in_text("tbody tr[data-row-id=vm-subVmTest1] th", "subVmTest1")
 
@@ -899,6 +902,9 @@ class TestMachines(NetworkCase):
 
         # since VNC is defined for this VM, the view for "In-Browser Viewer" is rendered by default
         b.wait_present(".toolbar-pf-results canvas")
+
+    def testInlineConsoleWithUrlRoot(self, urlroot=""):
+        self.testInlineConsole(urlroot="/webcon")
 
     def testDelete(self):
         b = self.browser

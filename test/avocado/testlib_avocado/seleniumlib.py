@@ -106,7 +106,7 @@ class SeleniumTest(Test):
 
             connect_browser()
         self.driver.set_window_size(1400, 1200)
-        self.driver.set_page_load_timeout(90)
+        self.driver.set_page_load_timeout(120)
         # self.default_try is number of repeats for finding element
         self.default_try = 40
         # stored search function for each element to be able to refresh element in case of detached from DOM

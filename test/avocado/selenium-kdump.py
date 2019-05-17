@@ -56,7 +56,6 @@ class TestKdump(SeleniumTest):
         self.base_element = self.wait_id("app", jscheck=True)
 
     def tearDown(self):
-        pass
         self.requirements_cleanup()
         super().tearDown()
 

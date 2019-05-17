@@ -485,8 +485,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.click("#activate-network-test_network2-{0}".format(connectionName))
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "active")
         # check virsh state
-        active = m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip()
-        self.assertEqual(active, "yes")
+        wait(lambda: "yes" == m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip(), tries=5)
 
         # deactivate network
         b.wait_present("#deactivate-network-test_network2-{0}".format(connectionName))
@@ -494,8 +493,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         b.wait_in_text("#network-test_network2-{0}-state".format(connectionName), "inactive")
         b.wait_present("#activate-network-test_network2-{0}".format(connectionName))
         # check virsh state
-        active = m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip()
-        self.assertEqual(active, "no")
+        wait(lambda: "no" == m.execute("virsh net-info test_network2 | grep 'Active:' | awk '{print $2}'").strip(), tries=5)
 
     def testNetworks(self):
         b = self.browser

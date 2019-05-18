@@ -807,7 +807,14 @@ class TestMachinesDBus(machineslib.TestMachines):
                     b.set_file_autocomplete_val("#storage-pool-dialog-target", self.target)
 
                 if 'source_path' in self.source:
-                    b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
+                    if self.pool_type != 'disk':
+                        b.set_input_text("#storage-pool-dialog-source", self.source['source_path'])
+                    else:
+                        b.set_file_autocomplete_val("#storage-pool-dialog-source", self.source['source_path'])
+
+
+                if 'format' in self.source:
+                    b.select_from_dropdown("#storage-pool-dialog-source-format", self.source['format'])
 
                 if 'host' in self.source:
                     b.set_input_text("#storage-pool-dialog-host", self.source['host'])
@@ -934,6 +941,20 @@ class TestMachinesDBus(machineslib.TestMachines):
             pool_type="netfs",
             target="/tmp/my_dir_pool_two/",
             source={"host": "127.0.0.1", "source_path": "/mnt/exports"}
+        ).execute()
+
+        # Prepare a ramdisk with gpt partition table to test the disk storage pool type
+        ramdisk_prepare_cmd = ["mknod -m 660 /dev/ram0 b 1 1",
+                "chown root.disk /dev/ram0",
+                "parted /dev/ram0 mklabel gpt"]
+        m.execute(" && ".join(ramdisk_prepare_cmd))
+
+        StoragePoolCreateDialog(
+            self,
+            name="my_disk_pool",
+            pool_type="disk",
+            target="/media/",
+            source={"source_path": "/dev/ram0", "format": "gpt"},
         ).execute()
 
         # Debian and ubuntu images don't have open-iscsi already installed

@@ -96,7 +96,13 @@ export function getPoolXML({ name, type, source, target }) {
         initiatorElem.appendChild(iqnElem);
         sourceElem.appendChild(initiatorElem);
     }
-    if (source.host || source.dir)
+    if (source.format) {
+        let formatElem = doc.createElement('format');
+
+        formatElem.setAttribute('type', source.format);
+        sourceElem.appendChild(formatElem);
+    }
+    if (source.host || source.dir || source.device || source.initiator || source.format)
         poolElem.appendChild(sourceElem);
 
     doc.appendChild(poolElem);

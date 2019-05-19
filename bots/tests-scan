@@ -319,21 +319,20 @@ def prioritize(status, title, labels, priority, context, number):
 
     # Ignore context when the PR has [no-test] in the title or as label, unless
     # the context was directly triggered
-    if (('no-test' in list(labels) or '[no-test]' in title) and
+    if (('no-test' in labels or '[no-test]' in title) and
         status.get("description", "") != github.NOT_TESTED_DIRECT):
         logging.info("Skipping '{0}' on #{1} because it is no-test".format(context, number))
         priority = 0
         update = None
 
     if priority > 0:
-        values = list(labels)
-        if "priority" in values:
+        if "priority" in labels:
             priority += 2
-        if "blocked" in values:
+        if "blocked" in labels:
             priority -= 1
 
         # Pull requests where the title starts with WIP get penalized
-        if title.startswith("WIP") or "needswork" in values:
+        if title.startswith("WIP") or "needswork" in labels:
             priority -= 1
 
         # Is testing already in progress?
@@ -443,7 +442,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
                 return False
             if base != "master":  # bots/ is always taken from master branch
                 return False
-            if LABEL_TEST_EXTERNAL in labels_of_pull(pull):  # already checked before?
+            if LABEL_TEST_EXTERNAL in labels:  # already checked before?
                 return True
 
             if not have:

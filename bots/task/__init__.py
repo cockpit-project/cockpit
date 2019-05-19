@@ -471,7 +471,7 @@ def label(issue, labels=['bot']):
 def labels_of_pull(pull):
     if "labels" not in pull:
         pull["labels"] = api.get("issues/{0}/labels".format(pull["number"]))
-    return map(lambda label: label["name"], pull["labels"])
+    return list(map(lambda label: label["name"], pull["labels"]))
 
 def comment(issue, comment):
     try:

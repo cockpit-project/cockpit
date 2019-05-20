@@ -202,8 +202,10 @@ class VirtNetwork:
 
     def _lock(self, start, step=1, force=False):
         resources = os.path.join(tempfile.gettempdir(), ".cockpit-test-resources")
-        if not os.path.exists(resources):
+        try:
             os.mkdir(resources, 0o755)
+        except FileExistsError:
+            pass
         for port in range(start, start + (100 * step), step):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

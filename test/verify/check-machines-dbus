@@ -889,6 +889,15 @@ class TestMachinesDBus(machineslib.TestMachines):
                 else:
                     self.test_obj.assertEqual("", initiator.rstrip())
 
+                sourceFormat = m.execute(xmllint_element.format(prop='source/format/@type')).strip()
+                if "format" in self.source:
+                    self.test_obj.assertEqual(self.source["format"], sourceFormat)
+                else:
+                    if self.pool_type == 'netfs':
+                        self.test_obj.assertEqual("auto", sourceFormat)
+                    else:
+                        self.test_obj.assertEqual("", sourceFormat.rstrip())
+
             def verify_overview(self):
                 # Check basic pool properties
                 connectionName = m.execute("virsh uri | head -1 | cut -d/ -f4").strip()

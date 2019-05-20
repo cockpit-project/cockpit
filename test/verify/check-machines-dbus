@@ -812,6 +812,12 @@ class TestMachinesDBus(machineslib.TestMachines):
                 b.click(".modal-footer button:contains(Create)")
 
                 if (not self.xfail):
+                    # For the pool types that take some seconds to get created check that the spinner appears.
+                    # Other pool types have the spinner as well, but let's not check this in the tests to avoid race conditions,
+                    # where the spinner disappears very fast
+                    if self.pool_type  in ["netfs", "iscsi", "iscsi-direct"]:
+                        b.wait_present(".modal-footer div.spinner")
+                        b.wait_present(".modal-footer button:contains(Create):disabled")
                     b.wait_not_present("#create-storage-pool-dialog")
                 else:
                     # Check incomplete dialog

@@ -251,6 +251,7 @@ class CreateStoragePoolModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            createInProgress: false,
             dialogError: undefined,
             name: '',
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
@@ -356,14 +357,17 @@ class CreateStoragePoolModal extends React.Component {
 
         this.setState({ validationFailed });
 
-        if (!modalIsIncomplete)
+        if (!modalIsIncomplete) {
+            this.setState({ createInProgress: true });
             dispatch(createStoragePool(this.state))
                     .fail(exc => {
+                        this.setState({ createInProgress: false });
                         this.dialogErrorSet(_("Storage Pool failed to be created"), exc.message);
                     })
                     .then(() => {
                         this.props.close();
                     });
+        }
     }
 
     render() {
@@ -403,10 +407,11 @@ class CreateStoragePoolModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    {this.state.createInProgress && <div className="spinner spinner-sm pull-left" />}
                     <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.onCreateClicked}>
+                    <Button bsStyle='primary' disabled={this.state.createInProgress} onClick={this.onCreateClicked}>
                         {_("Create")}
                     </Button>
                 </Modal.Footer>

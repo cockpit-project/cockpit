@@ -950,7 +950,7 @@ class TestMachines(NetworkCase):
 
         # Try to delete a paused VM
         name = "paused-test-vm"
-        self.startVm(name)
+        args = self.startVm(name)
 
         b.click("tbody tr[data-row-id=vm-{0}] th".format(name)) # click on the row header
 

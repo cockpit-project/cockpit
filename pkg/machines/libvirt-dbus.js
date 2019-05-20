@@ -315,13 +315,17 @@ LIBVIRT_DBUS_PROVIDER = {
 
         return (dispatch) => call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolDefineXML', [poolXmlDesc, 0], TIMEOUT)
                 .then(poolPath => {
-                    storagePoolPath = poolPath;
-                    return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
+                    storagePoolPath = poolPath[0];
+                    return call(connectionName, storagePoolPath, 'org.libvirt.StoragePool', 'Create', [Enum.VIR_STORAGE_POOL_CREATE_NORMAL], TIMEOUT);
                 })
                 .then(() => {
                     const args = ['org.libvirt.StoragePool', 'Autostart', cockpit.variant('b', autostart)];
 
-                    return call(connectionName, storagePoolPath[0], 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
+                    return call(connectionName, storagePoolPath, 'org.freedesktop.DBus.Properties', 'Set', args, TIMEOUT);
+                }, exc => {
+                    if (storagePoolPath)
+                        storagePoolUndefine(connectionName, storagePoolPath);
+                    return cockpit.reject(exc);
                 });
     },
 

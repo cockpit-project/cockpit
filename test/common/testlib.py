@@ -266,6 +266,7 @@ class Browser:
         self.wait_present(text_selector)
         value_id = self.attr(text_selector, "value")
         self.set_val(selector, value_id)
+        self.wait_val(selector, value_id)
 
     def set_input_text(self, selector, val, append=False, value_check=True):
         self.focus(selector)

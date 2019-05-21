@@ -368,7 +368,7 @@ class PullTask(object):
             cmd = [ "timeout", "90m", os.path.join(test, "containers", "run-tests"),
                     "--container", value]
         elif prefix == "cockpit":
-            cmd = [ "timeout", "90m", os.path.join(test, "run") ]
+            cmd = [ "timeout", "120m", os.path.join(test, "run") ]
         else:
             ret = "Unknown context"
 

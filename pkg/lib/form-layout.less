@@ -20,7 +20,8 @@
 //
 // `ct-form-layout-split`: The grid can be split on a `form-control`
 // level by adding a this class. If you want two elements next to each
-// other, both should have this class.
+// other, both should have this class. Widths are equal by default.
+// See ct-form-layout-minmax & ct-form-layout-maxmin for alternate sizing.
 //
 // `ct-form-layout-relax`: Form elements normally stretch to take up the
 // full space. You can relax their width by adding this class to the
@@ -42,16 +43,23 @@
 // adds semantic meaning to the element for screen readers, and we key
 // the CSS off of the role.
 //
+// `ct-form-box`: Visual styling for encapsulating a block of sub-options.
+// Creates a gray box around elements.
+//
 // <hr>: While this is an element, it has a special meaning and is used
 // to add some vertical spacing to a form.
 //
-// Most of the time, you can ignore all the optional classes (and
+//
+// Alternate grid sizing:
+// You can override division of space for controls by adding a class
+// at grid level (.ct-form-layout) to adjust size for "split" widgets:
+// `ct-form-layout-maxmin: First widget is wide; second is small.
+// `ct-form-layout-minmax`: First widget is small; second is wide.
+//
+//
+// Most of the time, you can simply ignore all the optional classes (and
 // attribute and hr element) and simply wrap your labels & controls in
 // a <form class="ct-form-layout"> and layout magic happens.
-//
-// `ct-form-box`:
-// Box for encapsulating a block of sub-options. Creates a gray box
-// around elements
 
 .ct-form-layout {
   // Locally redefine padding to Bootstrap values for this LESS block
@@ -142,6 +150,8 @@
       margin-bottom: @padding-small-vertical - @padding-base-vertical;
       // Ensure widgets are a at least a minimum widget size
       min-height: @widget-height;
+      // Align to top of grid cell, these items should be widget height (26px)
+      align-self: start;
     }
   }
 
@@ -294,7 +304,6 @@
   padding-left: 0.5rem;
 }
 
-
 // Force a form element to stretch. Add as a class to `form-control`.
 .ct-form-layout-stretch {
   justify-content: stretch !important;
@@ -320,6 +329,20 @@
   .modal {
     --ct-form-layout-columns: 1;
   }
+}
+
+// Alternate layout, for a split, used at ct-form-layout grid-level:
+// First form widget is as small as possible;
+// Second takes up the rest of the space
+.ct-form-layout-minmax {
+  grid-template-columns: max-content min-content max-content 1fr;
+}
+
+// Alternate layout, for a split, used at ct-form-layout grid-level:
+// First form widget takes up as much space as it can;
+// Second form widget is as small as possible
+.ct-form-layout-maxmin {
+  grid-template-columns: max-content 1fr max-content min-content;
 }
 
 @media (max-width: @screen-xs) {

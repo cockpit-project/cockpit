@@ -58,8 +58,8 @@ function getFilteredVolumes(vmStoragePool, disks) {
     return filteredVolumesSorted;
 }
 
-const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStoragePools, vmDisks }) => {
-    const vmStoragePool = vmStoragePools[dialogValues.storagePoolName];
+const SelectExistingVolume = ({ idPrefix, storagePoolName, existingVolumeName, onValueChanged, vmStoragePools, vmDisks }) => {
+    const vmStoragePool = vmStoragePools[storagePoolName];
     const filteredVolumes = getFilteredVolumes(vmStoragePool, vmDisks);
 
     let initiallySelected;
@@ -72,7 +72,7 @@ const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStorag
                 </Select.SelectEntry>
             );
         });
-        initiallySelected = dialogValues.existingVolumeName;
+        initiallySelected = existingVolumeName;
     } else {
         content = (
             <Select.SelectEntry data="empty" key="empty-list">
@@ -98,7 +98,7 @@ const SelectExistingVolume = ({ idPrefix, dialogValues, onValueChanged, vmStorag
     );
 };
 
-const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm }) => {
+const PermanentChange = ({ idPrefix, onValueChanged, permanent, provider, vm }) => {
     // By default for a running VM, the disk is attached until shut down only. Enable permanent change of the domain.xml
     if (!provider.isRunning(vm.state)) {
         return null;
@@ -110,7 +110,7 @@ const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm 
             <label className='checkbox-inline'>
                 <input id={`${idPrefix}-permanent`}
                        type="checkbox"
-                       checked={dialogValues.permanent}
+                       checked={permanent}
                        onChange={e => onValueChanged('permanent', e.target.checked)} />
                 {_("Always attach")}
             </label>
@@ -118,7 +118,7 @@ const PermanentChange = ({ idPrefix, onValueChanged, dialogValues, provider, vm 
     );
 };
 
-const VolumeName = ({ idPrefix, dialogValues, onValueChanged }) => {
+const VolumeName = ({ idPrefix, volumeName, onValueChanged }) => {
     return (
         <React.Fragment>
             <label className='control-label' htmlFor={`${idPrefix}-name`}>
@@ -129,13 +129,13 @@ const VolumeName = ({ idPrefix, dialogValues, onValueChanged }) => {
                    type="text"
                    minLength={1}
                    placeholder={_("New Volume Name")}
-                   value={dialogValues.volumeName || ""}
+                   value={volumeName || ""}
                    onChange={e => onValueChanged('volumeName', e.target.value)} />
         </React.Fragment>
     );
 };
 
-const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
+const VolumeDetails = ({ idPrefix, size, unit, diskFileFormat, onValueChanged }) => {
     return (
         <React.Fragment>
             <label className='control-label' htmlFor={`${idPrefix}-size`}>
@@ -145,14 +145,14 @@ const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
                 <input id={`${idPrefix}-size`}
                        className="form-control add-disk-size"
                        type="number"
-                       value={toFixedPrecision(dialogValues.size)}
+                       value={toFixedPrecision(size)}
                        onKeyPress={digitFilter}
                        step={1}
                        min={0}
                        onChange={e => onValueChanged('size', e.target.value)} />
 
                 <Select.Select id={`${idPrefix}-unit`}
-                               initial={dialogValues.unit}
+                               initial={unit}
                                onChange={value => onValueChanged('unit', value)}>
                     <Select.SelectEntry data={units.MiB.name} key={units.MiB.name}>
                         {_("MiB")}
@@ -167,7 +167,7 @@ const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
             </label>
             <Select.Select id={`${idPrefix}-diskfileformat`}
                            onChange={value => onValueChanged('diskFileFormat', value)}
-                           initial={dialogValues.diskFileFormat}
+                           initial={diskFileFormat}
                            extraClass='form-control ct-form-layout-split'>
                 <Select.SelectEntry data='qcow2' key='qcow2'>
                     {_("qcow2")}
@@ -180,7 +180,7 @@ const VolumeDetails = ({ idPrefix, onValueChanged, dialogValues }) => {
     );
 };
 
-const PoolRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => {
+const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) => {
     return (
         <React.Fragment>
             <label className='control-label' htmlFor={`${idPrefix}-select-pool`}>
@@ -189,7 +189,7 @@ const PoolRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => 
             <Select.Select id={`${idPrefix}-select-pool`}
                            enabled={Object.keys(vmStoragePools).length > 0}
                            onChange={value => onValueChanged('storagePoolName', value)}
-                           initial={dialogValues.storagePoolName || _("No Storage Pools available")}
+                           initial={storagePoolName || _("No Storage Pools available")}
                            extraClass="form-control">
                 {Object.keys(vmStoragePools).length > 0 ? Object.getOwnPropertyNames(vmStoragePools)
                         .sort((a, b) => a.localeCompare(b))
@@ -213,16 +213,26 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
         <React.Fragment>
             <hr />
             <PoolRow idPrefix={idPrefix}
-                     dialogValues={dialogValues}
+                     storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
             {Object.keys(vmStoragePools).length > 0 &&
             <React.Fragment>
                 <hr />
-                <VolumeName idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
-                <VolumeDetails idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
+                <VolumeName idPrefix={idPrefix}
+                            volumeName={dialogValues.volumeName}
+                            onValueChanged={onValueChanged} />
+                <VolumeDetails idPrefix={idPrefix}
+                               size={dialogValues.size}
+                               unit={dialogValues.unit}
+                               diskFileFormat={dialogValues.diskFileFormat}
+                               onValueChanged={onValueChanged} />
                 <hr />
-                <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+                <PermanentChange idPrefix={idPrefix}
+                                 permanent={dialogValues.permanent}
+                                 onValueChanged={onValueChanged}
+                                 provider={provider}
+                                 vm={vm} />
             </React.Fragment>}
         </React.Fragment>
     );
@@ -233,15 +243,24 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
         <React.Fragment>
             <hr />
             <PoolRow idPrefix={idPrefix}
-                     dialogValues={dialogValues}
+                     storagePoolName={dialogValues.storagePoolName}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
             <hr />
             {Object.keys(vmStoragePools).length > 0 &&
             <React.Fragment>
-                <SelectExistingVolume idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} vmStoragePools={vmStoragePools} vmDisks={vm.disks} />
+                <SelectExistingVolume idPrefix={idPrefix}
+                                      storagePoolName={dialogValues.storagePoolName}
+                                      existingVolumeName={dialogValues.existingVolumeName}
+                                      onValueChanged={onValueChanged}
+                                      vmStoragePools={vmStoragePools}
+                                      vmDisks={vm.disks} />
                 <hr />
-                <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+                <PermanentChange idPrefix={idPrefix}
+                                 permanent={dialogValues.PermanentChange}
+                                 onValueChanged={onValueChanged}
+                                 provider={provider}
+                                 vm={vm} />
             </React.Fragment>}
         </React.Fragment>
     );

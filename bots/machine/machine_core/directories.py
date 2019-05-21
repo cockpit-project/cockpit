@@ -20,7 +20,7 @@
 import os
 import subprocess
 
-from .constants import BOTS_DIR, GIT_DIR
+from .constants import BOTS_DIR, BASE_DIR, GIT_DIR
 
 def get_git_config(variable):
     if not os.path.exists(GIT_DIR):
@@ -45,3 +45,12 @@ def get_images_data_dir():
             _images_data_dir = os.path.join(os.environ.get("TEST_DATA", BOTS_DIR), "images")
 
     return _images_data_dir
+
+_temp_dir = None
+def get_temp_dir():
+    global _temp_dir
+
+    if _temp_dir is None:
+        _temp_dir = os.path.join(os.environ.get("TEST_DATA", BASE_DIR), "tmp")
+
+    return _temp_dir

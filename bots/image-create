@@ -33,7 +33,6 @@ import tempfile
 
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
-TEMP = os.path.join(os.environ.get("TEST_DATA", BASE), "tmp")
 
 from machine import testvm
 
@@ -57,17 +56,18 @@ if args.image in ["candlepin", "continuous-atomic", "fedora-atomic", "ipa", "rhe
 
 class MachineBuilder:
     def __init__(self, machine):
+        tempdir = testvm.get_temp_dir()
         self.machine = machine
 
         try:
-            os.makedirs(TEMP, 0o750)
+            os.makedirs(tempdir, 0o750)
         except OSError as ex:
             if ex.errno != errno.EEXIST:
                 raise
 
         # Use a tmp filename
         self.target_file = self.machine.image_file
-        fp, self.machine.image_file = tempfile.mkstemp(dir=TEMP, prefix=self.machine.image, suffix=".qcow2")
+        fp, self.machine.image_file = tempfile.mkstemp(dir=tempdir, prefix=self.machine.image, suffix=".qcow2")
         os.close(fp)
 
     def bootstrap_system(self):

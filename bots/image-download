@@ -56,15 +56,13 @@ DEFAULT = [
 ]
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
-IMAGES = os.path.join(BOTS, "..", "bots", "images")
-DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 DEVNULL = open("/dev/null", "r+")
 EPOCH = "Thu, 1 Jan 1970 00:00:00 GMT"
 
 def find(name, stores, latest, quiet):
     found = [ ]
-    ca = os.path.join(BOTS, "images", "files", "ca.pem")
+    ca = os.path.join(testvm.IMAGES_DIR, "files", "ca.pem")
 
     for store in stores:
         url = urllib.parse.urlparse(store)
@@ -196,12 +194,13 @@ def download(dest, force, state, quiet, stores):
 
 # Calculate a place to put images where links are not committed in git
 def state_target(path):
-    os.makedirs(DATA, mode=0o775, exist_ok=True)
-    return os.path.join(DATA, path)
+    data_dir = testvm.get_images_data_dir()
+    os.makedirs(data_dir, mode=0o775, exist_ok=True)
+    return os.path.join(data_dir, path)
 
 # Calculate a place to put images where links are committed in git
 def committed_target(image):
-    link = os.path.join(IMAGES, image)
+    link = os.path.join(testvm.IMAGES_DIR, image)
     if not os.path.islink(link):
         raise RuntimeError("image link does not exist: " + image)
 
@@ -214,17 +213,17 @@ def committed_target(image):
         relative_dir = os.path.dirname(os.path.abspath(link))
         full_dest = os.path.join(relative_dir, dest)
 
-    dest = os.path.join(DATA, dest)
+    dest = os.path.join(testvm.get_images_data_dir(), dest)
 
     # We have the file but there is not valid link
     if os.path.exists(dest):
         try:
-            os.symlink(dest, os.path.join(IMAGES, os.readlink(link)))
+            os.symlink(dest, os.path.join(testvm.IMAGES_DIR, os.readlink(link)))
         except FileExistsError:
             pass
 
     # The image file in the images directory, may be same as dest
-    image_file = os.path.join(IMAGES, os.readlink(link))
+    image_file = os.path.join(testvm.IMAGES_DIR, os.readlink(link))
 
     # Double check that symlink in place but never make a cycle.
     if os.path.abspath(dest) != os.path.abspath(image_file):
@@ -253,8 +252,9 @@ def wait_lock(target):
         raise TimeoutError("timed out waiting for concurrent downloads of %s\n" % target)
 
 def download_images(image_list, force, quiet, state, store):
-    if not os.path.exists(DATA):
-        os.makedirs(DATA)
+    data_dir = testvm.get_images_data_dir()
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
 
     # A default set of images are all links in git.  These links have
     # no directory part.  Other links might exist, such as the
@@ -263,8 +263,8 @@ def download_images(image_list, force, quiet, state, store):
     if not image_list:
         image_list = []
         if not state:
-            for filename in os.listdir(IMAGES):
-                link = os.path.join(IMAGES, filename)
+            for filename in os.listdir(testvm.IMAGES_DIR):
+                link = os.path.join(testvm.IMAGES_DIR, filename)
                 if os.path.islink(link) and os.path.dirname(os.readlink(link)) == "":
                     image_list.append(filename)
 

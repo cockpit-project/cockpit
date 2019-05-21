@@ -90,6 +90,12 @@ You can set these environment variables to configure the test suite:
                    the Chrome Debug Protocol, on the given port. Don't use this
                    with parallel tests.
 
+In addition, you can also set the `cockpit.bots.images-data-dir` variable with
+`git config` to the location to store the (unprepared) virtual machine images.
+This takes precedence over `TEST_DATA`.  For example:
+
+    $ git config cockpit.bots.images-data-dir ~/.cockpit-bots/images
+
 ## Test machines and their images
 
 The code under test is executed in one or more dedicated virtual

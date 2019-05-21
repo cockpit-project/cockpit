@@ -561,8 +561,6 @@ AM_PATH_PYTHON([2.7])
 
 AC_SUBST(PAM_LIBS)
 
-AC_DEFINE([MAX_PACKET_SIZE], [65536], [Maximum size of packet messages])
-
 AC_OUTPUT([
 Makefile
 doc/guide/version

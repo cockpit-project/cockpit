@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import { vmId } from '../helpers.js';
 import { AddDiskAction } from './diskAdd.jsx';
 import VmDisksTab from './vmDisksTab.jsx';
-import DiskSourceCell from './vmDiskSourceCell.jsx';
+import { DiskSourceCell, DiskExtras } from './vmDiskColumns.jsx';
 
 class VmDisksTabLibvirt extends React.Component {
     componentWillMount() {
@@ -93,6 +93,14 @@ class VmDisksTabLibvirt extends React.Component {
 
             // ugly hack due to complexity, refactor if abstraction is really needed
             diskSourceCell: (<DiskSourceCell diskSource={disk.source} idPrefix={idPrefix} />),
+            diskExtras: (
+                (disk.driver.cache || disk.driver.io || disk.driver.discard || disk.driver.errorPolicy)
+                    ? <DiskExtras idPrefix={idPrefix}
+                                  cache={disk.driver.cache}
+                                  io={disk.driver.io}
+                                  discard={disk.driver.discard}
+                                  errorPolicy={disk.driver.errorPolicy} /> : null
+            ),
         };
     }
 

@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-const DiskSourceCell = ({ diskSource, idPrefix }) => {
+export const DiskSourceCell = ({ diskSource, idPrefix }) => {
     const addOptional = (chunks, value, type, descr) => {
         if (value) {
             chunks.push(
@@ -55,4 +55,32 @@ DiskSourceCell.propTypes = {
     idPrefix: PropTypes.string.isRequired,
 };
 
-export default DiskSourceCell;
+export const DiskExtras = ({ idPrefix, cache, io, discard, errorPolicy }) => {
+    const addOptional = (chunks, value, type, descr) => {
+        if (value) {
+            chunks.push(
+                <div className='ct-form-layout' key={descr}>
+                    <label htmlFor={`${idPrefix}-${type}`} className='control-label'>
+                        {descr}
+                    </label>
+                    <div id={`${idPrefix}-${type}`}>
+                        {value}
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    const chunks = [];
+    addOptional(chunks, cache, "cache", _("Cache"));
+
+    return chunks;
+};
+
+DiskExtras.propTypes = {
+    cache: PropTypes.string,
+    io: PropTypes.string,
+    discard: PropTypes.string,
+    errorPolicy: PropTypes.string,
+    idPrefix: PropTypes.string.isRequired,
+};

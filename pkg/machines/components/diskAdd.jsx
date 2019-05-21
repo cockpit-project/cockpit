@@ -26,6 +26,7 @@ import { units, convertToUnit, digitFilter, toFixedPrecision } from '../helpers.
 import { volumeCreateAndAttach, attachDisk, getVm, getAllStoragePools } from '../actions/provider-actions.js';
 
 import 'form-layout.less';
+import './diskAdd.css';
 
 const _ = cockpit.gettext;
 
@@ -208,6 +209,49 @@ const PoolRow = ({ idPrefix, onValueChanged, storagePoolName, vmStoragePools }) 
     );
 };
 
+class PerformanceOptions extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { expanded: false };
+    }
+
+    render() {
+        const cacheModes = ['default', 'none', 'writethrough', 'writeback', 'directsync', 'unsafe'];
+
+        return (
+            <React.Fragment>
+                <div className='expand-collapse-pf' id='expand-collapse-button'>
+                    <div className='expand-collapse-pf-link-container'>
+                        <button className='btn btn-link' onClick={() => this.setState({ expanded: !this.state.expanded })}>
+                            { this.state.expanded ? <span className='fa fa-angle-down' /> : <span className='fa fa-angle-right' /> }
+                            { this.state.expanded ? _("Hide Performance Options") : _("Show Performance Options")}
+                        </button>
+                        <span className="expand-collapse-pf-separator bordered" />
+                    </div>
+                </div>
+
+                {this.state.expanded && <React.Fragment>
+                    <label className='control-label' htmlFor='cache-mode'>
+                        {_("Cache")}
+                    </label>
+                    <Select.Select id={'cache-mode'}
+                        onChange={value => this.props.onValueChanged('cacheMode', value)}
+                        initial={this.props.cacheMode || cacheModes[0]}
+                        extraClass='form-control ct-form-layout-split'>
+                        {cacheModes.map(cacheMode => {
+                            return (
+                                <Select.SelectEntry data={cacheMode} key={cacheMode}>
+                                    {cacheMode}
+                                </Select.SelectEntry>
+                            );
+                        })}
+                    </Select.Select>
+                </React.Fragment>}
+            </React.Fragment>
+        );
+    }
+}
+
 const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools, provider, vm }) => {
     return (
         <React.Fragment>
@@ -233,6 +277,8 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                                  onValueChanged={onValueChanged}
                                  provider={provider}
                                  vm={vm} />
+                {provider.name == 'LibvirtDBus' && <PerformanceOptions cacheMode={dialogValues.cacheMode}
+                                    onValueChanged={onValueChanged} />}
             </React.Fragment>}
         </React.Fragment>
     );
@@ -261,6 +307,8 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                                  onValueChanged={onValueChanged}
                                  provider={provider}
                                  vm={vm} />
+                {provider.name == 'LibvirtDBus' && <PerformanceOptions cacheMode={dialogValues.cacheMode}
+                                    onValueChanged={onValueChanged} />}
             </React.Fragment>}
         </React.Fragment>
     );
@@ -390,7 +438,8 @@ class AddDiskModalBody extends React.Component {
                                                     permanent: this.state.permanent,
                                                     hotplug: this.state.hotplug,
                                                     vmName: vm.name,
-                                                    vmId: vm.id }))
+                                                    vmId: vm.id,
+                                                    cacheMode: this.state.cacheMode }))
                     .fail(exc => this.dialogErrorSet(_("Disk failed to be created"), exc.message))
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                         this.props.close();
@@ -407,7 +456,8 @@ class AddDiskModalBody extends React.Component {
                                      permanent: this.state.permanent,
                                      hotplug: this.state.hotplug,
                                      vmName: vm.name,
-                                     vmId: vm.id }))
+                                     vmId: vm.id,
+                                     cacheMode: this.state.cacheMode }))
                 .fail(exc => this.dialogErrorSet(_("Disk failed to be attached"), exc.message))
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     this.props.close();

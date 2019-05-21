@@ -26,6 +26,7 @@ MACHINE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 BOTS_DIR = os.path.dirname(MACHINE_DIR)
 BASE_DIR = os.path.dirname(BOTS_DIR)
 TEST_DIR = os.path.join(BASE_DIR, "test")
+GIT_DIR = os.path.join(BASE_DIR, ".git")
 
 IMAGES_DIR = os.path.join(BOTS_DIR, "images")
 SCRIPTS_DIR = os.path.join(IMAGES_DIR, "scripts")

@@ -192,7 +192,8 @@ LIBVIRT_DBUS_PROVIDER = {
         vmId,
         vmName,
         permanent,
-        hotplug
+        hotplug,
+        cacheMode,
     }) {
         let flags = Enum.VIR_DOMAIN_AFFECT_CURRENT;
         if (hotplug)
@@ -200,7 +201,7 @@ LIBVIRT_DBUS_PROVIDER = {
         if (permanent)
             flags |= Enum.VIR_DOMAIN_AFFECT_CONFIG;
 
-        let xmlDesc = getDiskXML(poolName, volumeName, format, target);
+        let xmlDesc = getDiskXML(poolName, volumeName, format, target, cacheMode);
 
         // Error handling is done from the calling side
         return () => call(connectionName, vmId, 'org.libvirt.Domain', 'AttachDevice', [xmlDesc, flags], TIMEOUT);
@@ -291,7 +292,8 @@ LIBVIRT_DBUS_PROVIDER = {
         vmId,
         vmName,
         permanent,
-        hotplug
+        hotplug,
+        cacheMode,
     }) {
         let volXmlDesc = getVolumeXML(volumeName, size, format, target);
 
@@ -300,7 +302,7 @@ LIBVIRT_DBUS_PROVIDER = {
                     return call(connectionName, storagePoolPath[0], 'org.libvirt.StoragePool', 'StorageVolCreateXML', [volXmlDesc, 0], TIMEOUT);
                 })
                 .then((volPath) => {
-                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug }));
+                    return dispatch(attachDisk({ connectionName, poolName, volumeName, format, target, vmId, permanent, hotplug, cacheMode }));
                 });
     },
 

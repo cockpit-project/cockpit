@@ -32,9 +32,9 @@ from machine_core.exceptions import Failure, RepeatableFailure
 from machine_core.machine_virtual import VirtMachine, VirtNetwork, get_build_image, get_test_image
 from machine_core.constants import BOTS_DIR, TEST_DIR, IMAGES_DIR, SCRIPTS_DIR, DEFAULT_IMAGE, TEST_OS_DEFAULT
 from machine_core.cli import cmd_cli
-from machine_core.directories import get_images_data_dir
+from machine_core.directories import get_images_data_dir, get_temp_dir
 
-__all__ = [Timeout, Machine, Failure, RepeatableFailure, VirtMachine, VirtNetwork, get_build_image, get_test_image, get_images_data_dir, BOTS_DIR, TEST_DIR, IMAGES_DIR, SCRIPTS_DIR, DEFAULT_IMAGE, TEST_OS_DEFAULT]
+__all__ = [Timeout, Machine, Failure, RepeatableFailure, VirtMachine, VirtNetwork, get_build_image, get_test_image, get_images_data_dir, get_temp_dir, BOTS_DIR, TEST_DIR, IMAGES_DIR, SCRIPTS_DIR, DEFAULT_IMAGE, TEST_OS_DEFAULT]
 
 # This can be used as helper program for tests not written in Python: Run given
 # image name until SIGTERM or SIGINT; the image must exist in test/images/;

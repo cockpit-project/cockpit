@@ -33,6 +33,7 @@ import time
 from .exceptions import Failure, RepeatableFailure
 from .machine import Machine
 from .constants import TEST_DIR, BOTS_DIR
+from .directories import get_temp_dir
 
 MEMORY_MB = 1024
 
@@ -321,7 +322,7 @@ class VirtMachine(Machine):
         Machine.__init__(self, image=image, **args)
 
         base_dir = os.path.dirname(BOTS_DIR)
-        self.run_dir = os.path.join(os.environ.get("TEST_DATA", base_dir), "tmp", "run")
+        self.run_dir = os.path.join(get_temp_dir(), "run")
 
         self.virt_connection = self._libvirt_connection(hypervisor = "qemu:///session")
 

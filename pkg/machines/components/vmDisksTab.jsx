@@ -56,11 +56,12 @@ const VmDiskCell = ({ value, id }) => {
 
 const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, provider, onAddErrorNotification }) => {
     const columnTitles = [_("Device")];
-    let renderCapacityUsed, renderReadOnly;
+    let renderCapacityUsed, renderReadOnly, renderAdditional;
 
     if (disks && disks.length > 0) {
         renderCapacityUsed = !!disks.find(disk => (!!disk.used));
         renderReadOnly = !!disks.find(disk => (typeof disk.readonly !== "undefined"));
+        renderAdditional = !!disks.find(disk => (!!disk.diskExtras));
 
         if (renderCapacity) {
             if (renderCapacityUsed) {
@@ -73,6 +74,8 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, pr
             columnTitles.push(_("Readonly"));
         }
         columnTitles.push(_("Source"));
+        if (renderAdditional)
+            columnTitles.push(_("Additional"));
         // An empty string header is needed for detach actions
         columnTitles.push("");
     }
@@ -100,6 +103,7 @@ const VmDisksTab = ({ idPrefix, vm, disks, actions, renderCapacity, dispatch, pr
                     }
 
                     columns.push(disk.diskSourceCell);
+                    columns.push(disk.diskExtras);
 
                     if (provider === 'LibvirtDBus') {
                         const removeDiskAction = RemoveDiskAction({

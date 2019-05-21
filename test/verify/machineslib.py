@@ -611,6 +611,11 @@ class TestMachines(NetworkCase):
         b.select_from_dropdown("#vm-subVmTest1-disks-adddisk-new-select-pool", "myPoolOne")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-name", "mydiskofpoolone_permanent")
         b.set_input_text("#vm-subVmTest1-disks-adddisk-new-size", "2") # keep GiB and qcow2 format
+        if self.provider == "libvirt-dbus":
+            b.click("div.modal-dialog button:contains(Show Performance Options)")
+            b.select_from_dropdown("div.modal-dialog #cache-mode", "writeback")
+        else:
+            b.wait_not_present("#div.modal-dialog #cache-mode")
         b.click("#vm-subVmTest1-disks-adddisk-dialog-add")
         b.wait_not_present("#vm-subVmTest1-test-disks-adddisk-dialog-modal-window")
         b.wait_in_text("#vm-subVmTest1-disks-vdd-bus", "virtio")
@@ -619,6 +624,7 @@ class TestMachines(NetworkCase):
         if self.provider == "libvirt-dbus":
             b.wait_in_text("#vm-subVmTest1-disks-vdd-source-volume",
                            "mydiskofpoolone_permanent")
+            b.wait_in_text("#vm-subVmTest1-disks-vdd-cache", "writeback")
         else:
             b.wait_in_text("#vm-subVmTest1-disks-vdd-source-file",
                            "mydiskofpoolone_permanent")

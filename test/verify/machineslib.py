@@ -232,7 +232,7 @@ class TestMachines(NetworkCase):
 
         if not self.created_pool:
             xml = POOL_XML.format(path="/var/lib/libvirt/images")
-            m.execute("echo \"{0}\" > /tmp/xml && virsh pool-create /tmp/xml".format(xml))
+            m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
             self.created_pool = True
 
         xml = VOLUME_XML.format(name=os.path.basename(img), image=img)
@@ -563,9 +563,9 @@ class TestMachines(NetworkCase):
 
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
-        m.execute("virsh pool-create-as default_tmp --type dir --target /mnt/default_tmp")
-        m.execute("virsh pool-create-as myPoolOne --type dir --target /mnt/vm_one")
-        m.execute("virsh pool-create-as myPoolTwo --type dir --target /mnt/vm_two")
+        m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp && virsh pool-start default_tmp")
+        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one && virsh pool-start myPoolOne")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two && virsh pool-start myPoolTwo")
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
@@ -694,6 +694,17 @@ class TestMachines(NetworkCase):
         b.wait_not_present("#vm-subVmTest1-disks-vdf-device")
         b.wait_present("#vm-subVmTest1-disks-vdd-device")
         b.wait_present("#vm-subVmTest1-disks-vde-device")
+
+        if self.provider == "libvirt-dbus":
+            # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
+            m.execute("virsh pool-destroy default_tmp && virsh pool-destroy myPoolOne && virsh pool-destroy myPoolTwo && virsh pool-destroy images")
+            b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
+            m.execute("virsh pool-undefine default_tmp && virsh pool-undefine myPoolOne && virsh pool-undefine myPoolTwo && virsh pool-undefine images")
+            b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
+            b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
+            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
+            b.click("label:contains(Use Existing)")
+            b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
 
     def testNetworks(self):
         b = self.browser

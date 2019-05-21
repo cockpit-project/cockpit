@@ -60,6 +60,8 @@
  *    when its output queue is too large
  */
 
+#define DEF_PACKET_SIZE  (64UL * 1024UL)
+
 enum {
   PROP_0,
   PROP_NAME,
@@ -310,9 +312,9 @@ dispatch_input (gint fd,
    */
   if (cond != G_IO_HUP)
     {
-      g_byte_array_set_size (self->priv->in_buffer, len + MAX_PACKET_SIZE);
+      g_byte_array_set_size (self->priv->in_buffer, len + DEF_PACKET_SIZE);
       g_debug ("%s: reading input %x", self->priv->name, cond);
-      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, MAX_PACKET_SIZE);
+      ret = read (self->priv->in_fd, self->priv->in_buffer->data + len, DEF_PACKET_SIZE);
 
       errn = errno;
       if (ret < 0)

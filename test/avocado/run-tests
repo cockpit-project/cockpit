@@ -269,13 +269,13 @@ def main():
         opts.tests += browser_tests
 
     # if we don't have a browser but are supposed to run selenium related tests, fail
-    if opts.browser is 'none':
+    if opts.browser == 'none':
         for t in browser_tests:
             if t in opts.tests:
                 sys.stderr.write("Unable to run test {0} because browser isn't set.\n".format(t))
                 return 1
 
-    if len(opts.tests) is 0:
+    if len(opts.tests) == 0:
         sys.stderr.write("No tests specified.\n")
         return 0
 

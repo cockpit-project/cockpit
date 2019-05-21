@@ -187,10 +187,11 @@ const PoolRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => 
                 {_("Pool")}
             </label>
             <Select.Select id={`${idPrefix}-select-pool`}
+                           enabled={Object.keys(vmStoragePools).length > 0}
                            onChange={value => onValueChanged('storagePoolName', value)}
-                           initial={dialogValues.storagePoolName}
+                           initial={dialogValues.storagePoolName || _("No Storage Pools available")}
                            extraClass="form-control">
-                {Object.getOwnPropertyNames(vmStoragePools)
+                {Object.keys(vmStoragePools).length > 0 ? Object.getOwnPropertyNames(vmStoragePools)
                         .sort((a, b) => a.localeCompare(b))
                         .map(poolName => {
                             return (
@@ -198,7 +199,10 @@ const PoolRow = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools }) => 
                                     {poolName}
                                 </Select.SelectEntry>
                             );
-                        })}
+                        })
+                    : [<Select.SelectEntry data='no-resource' key='no-resource'>
+                        {_("No Storage Pools available")}
+                    </Select.SelectEntry> ]}
             </Select.Select>
         </React.Fragment>
     );
@@ -212,11 +216,14 @@ const CreateNewDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePools,
                      dialogValues={dialogValues}
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
-            <hr />
-            <VolumeName idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
-            <VolumeDetails idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
-            <hr />
-            <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+            {Object.keys(vmStoragePools).length > 0 &&
+            <React.Fragment>
+                <hr />
+                <VolumeName idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
+                <VolumeDetails idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} />
+                <hr />
+                <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+            </React.Fragment>}
         </React.Fragment>
     );
 };
@@ -230,9 +237,12 @@ const UseExistingDisk = ({ idPrefix, onValueChanged, dialogValues, vmStoragePool
                      onValueChanged={onValueChanged}
                      vmStoragePools={vmStoragePools} />
             <hr />
-            <SelectExistingVolume idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} vmStoragePools={vmStoragePools} vmDisks={vm.disks} />
-            <hr />
-            <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+            {Object.keys(vmStoragePools).length > 0 &&
+            <React.Fragment>
+                <SelectExistingVolume idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} vmStoragePools={vmStoragePools} vmDisks={vm.disks} />
+                <hr />
+                <PermanentChange idPrefix={idPrefix} dialogValues={dialogValues} onValueChanged={onValueChanged} provider={provider} vm={vm} />
+            </React.Fragment>}
         </React.Fragment>
     );
 };
@@ -328,7 +338,8 @@ class AddDiskModalBody extends React.Component {
 
         if (key === 'mode' && value === USE_EXISTING) { // user moved to USE_EXISTING subtab
             const poolName = this.state.storagePoolName;
-            stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
+            if (poolName)
+                stateDelta.existingVolumeName = this.getDefaultVolumeName(poolName);
         }
 
         this.setState(stateDelta);
@@ -450,7 +461,7 @@ class AddDiskModalBody extends React.Component {
                     <Button id={`${idPrefix}-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id={`${idPrefix}-dialog-add`} bsStyle='primary' onClick={this.onAddClicked}>
+                    <Button id={`${idPrefix}-dialog-add`} bsStyle='primary' onClick={this.onAddClicked} disabled={Object.keys(vmStoragePools).length == 0}>
                         {_("Add")}
                     </Button>
                 </Modal.Footer>

@@ -76,7 +76,7 @@ class MachineBuilder:
         if not os.path.exists(self.machine.run_dir):
             os.makedirs(self.machine.run_dir, 0o750)
 
-        bootstrap_script = os.path.join(BOTS, "images", "scripts", "%s.bootstrap" % (self.machine.image, ))
+        bootstrap_script = os.path.join(testvm.SCRIPTS_DIR, "%s.bootstrap" % (self.machine.image, ))
 
 
         if os.path.isfile(bootstrap_script):
@@ -89,11 +89,11 @@ class MachineBuilder:
         self.machine.start()
         try:
             self.machine.wait_boot(timeout_sec=120)
-            self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib") ], "/var/lib/testvm")
+            self.machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
             if source:
                 self.machine.upload([source], "/var/tmp")
-            self.machine.upload([ os.path.join(BOTS, "images", "scripts", "lib", "base") ],
+            self.machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib", "base") ],
                                 "/var/tmp/cockpit-base")
 
             if "rhel" in self.machine.image:
@@ -139,7 +139,7 @@ class MachineBuilder:
         self.bootstrap_system()
 
         # gather the scripts, separated by reboots
-        script = os.path.join(BOTS, "images", "scripts", "%s.setup" % (self.machine.image, ))
+        script = os.path.join(testvm.SCRIPTS_DIR, "%s.setup" % (self.machine.image, ))
 
         if not os.path.exists(script):
             return
@@ -168,8 +168,7 @@ class MachineBuilder:
             raise testvm.Failure("Unable to verify that machine boot works.")
 
     def save(self):
-        data_dir = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
-        images_dir = os.path.join(BOTS, "images")
+        data_dir = testvm.get_images_data_dir()
 
         if not os.path.exists(data_dir):
             os.makedirs(data_dir, 0o750)
@@ -199,8 +198,8 @@ class MachineBuilder:
             os.unlink(self.target_file)
         os.symlink(name, self.target_file)
 
-        # Handle alternate TEST_DATA
-        image_file = os.path.join(images_dir, name)
+        # Handle alternate images data directory
+        image_file = os.path.join(testvm.IMAGES_DIR, name)
         if not os.path.exists(image_file):
             os.symlink(os.path.abspath(data_file), image_file)
 

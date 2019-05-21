@@ -35,9 +35,9 @@ import subprocess
 import sys
 import urllib.parse
 
+from machine import testvm
+
 BOTS = os.path.dirname(__file__)
-IMAGES = os.path.join(BOTS, "images")
-DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def upload(store, source):
     ca = os.path.join(BOTS, "images", "files", "ca.pem")
@@ -93,15 +93,16 @@ def main():
     parser.add_argument('image', nargs='*')
     args = parser.parse_args()
 
+    data_dir = testvm.get_images_data_dir()
     sources = []
     for image in args.image:
         if args.state:
-            source = os.path.join(DATA, image)
+            source = os.path.join(data_dir, image)
         else:
-            link = os.path.join(IMAGES, image)
+            link = os.path.join(testvm.IMAGES_DIR, image)
             if not os.path.islink(link):
                 parser.error("image link does not exist: " + image)
-            source = os.path.join(DATA, os.readlink(link))
+            source = os.path.join(data_dir, os.readlink(link))
         if not os.path.isfile(source):
             parser.error("image does not exist: " + image)
         sources.append(source)

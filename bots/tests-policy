@@ -42,7 +42,6 @@ except ImportError:
     get_test_image = lambda i: i
 
 BOTS = os.path.dirname(os.path.realpath(__file__))
-DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def main():
     script = os.path.basename(__file__)

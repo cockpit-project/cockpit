@@ -96,14 +96,14 @@ def main():
 
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
-    machine.upload([ os.path.join(BOTS, "images", "scripts", "lib") ], "/var/lib/testvm")
-    machine.upload([ os.path.join(BOTS, "images", "scripts", "%s.install" % machine.image) ], "/var/tmp")
+    machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib") ], "/var/lib/testvm")
+    machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image) ], "/var/tmp")
     machine.upload([ os.path.join(BASE, "containers") ], "/var/tmp")
 
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image):
     if "/" not in base_image:
-        base_image = os.path.join(BOTS, "images", base_image)
+        base_image = os.path.join(testvm.IMAGES_DIR, base_image)
     test_images = os.path.join(TEST, "images")
     if not os.path.exists(test_images):
         os.makedirs(test_images)

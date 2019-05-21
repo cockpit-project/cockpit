@@ -57,7 +57,7 @@ args.base_image = testvm.get_test_image(args.base_image)
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image, install_image):
     if "/" not in base_image:
-        base_image = os.path.join(BOTS, "images", base_image)
+        base_image = os.path.join(testvm.IMAGES_DIR, base_image)
     if "/" not in install_image:
         install_image = os.path.join(os.path.join(TEST, "images"), os.path.basename(install_image))
 

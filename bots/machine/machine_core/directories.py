@@ -2,7 +2,7 @@
 
 # This file is part of Cockpit.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2019 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -19,18 +19,13 @@
 
 import os
 
-# Images which are Atomic based
-ATOMIC_IMAGES = ["rhel-atomic", "fedora-atomic", "continuous-atomic"]
+from .constants import BOTS_DIR
 
-MACHINE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-BOTS_DIR = os.path.dirname(MACHINE_DIR)
-BASE_DIR = os.path.dirname(BOTS_DIR)
-TEST_DIR = os.path.join(BASE_DIR, "test")
+_images_data_dir = None
+def get_images_data_dir():
+    global _images_data_dir
 
-IMAGES_DIR = os.path.join(BOTS_DIR, "images")
-SCRIPTS_DIR = os.path.join(IMAGES_DIR, "scripts")
+    if _images_data_dir is None:
+        _images_data_dir = os.path.join(os.environ.get("TEST_DATA", BOTS_DIR), "images")
 
-DEFAULT_IDENTITY_FILE = os.path.join(MACHINE_DIR, "identity")
-
-TEST_OS_DEFAULT = "fedora-30"
-DEFAULT_IMAGE = os.environ.get("TEST_OS", TEST_OS_DEFAULT)
+    return _images_data_dir

@@ -37,11 +37,12 @@ sys.dont_write_bytecode = True
 
 import task
 
+from machines import testvm
+
 BOTS = os.path.dirname(os.path.realpath(__file__))
-DATA = os.path.join(os.environ.get("TEST_DATA", BOTS), "images")
 
 def run(url_or_file, verbose=False, dry=False, **kwargs):
-    # Default set of training data, retrieve it and use from DATA directory
+    # Default set of training data, retrieve it and use from data directory
     if not url_or_file:
         url_or_file = TRAINING_DATA
 
@@ -61,7 +62,7 @@ def run(url_or_file, verbose=False, dry=False, **kwargs):
     if "/" not in filename and not os.path.exists(filename):
         if not dry:
             subprocess.check_call([ os.path.join(BOTS, "image-download"), "--state", filename ])
-        filename = os.path.join(DATA, filename)
+        filename = os.path.join(testvm.get_images_data_dir(), filename)
     train(filename, url, verbose)
 
 # Does 'tail -F' on an HTTP URL

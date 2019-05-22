@@ -509,7 +509,7 @@ dispatch_connect (CockpitPipe *self)
       return TRUE;
     }
 
-  return TRUE;
+  return FALSE;
 }
 
 static gboolean

@@ -463,7 +463,6 @@ Requires: libpwquality
 Requires: /usr/bin/date
 Provides: cockpit-realmd = %{version}-%{release}
 Provides: cockpit-shell = %{version}-%{release}
-Obsoletes: cockpit-shell < 127
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
@@ -686,7 +685,6 @@ Requires: cockpit-bridge >= 138
 Requires: cockpit-system >= 138
 Requires: openssh-clients
 Provides: cockpit-test-assets = %{version}-%{release}
-Obsoletes: cockpit-test-assets < 132
 
 %description -n cockpit-tests
 This package contains tests and files used while testing Cockpit.

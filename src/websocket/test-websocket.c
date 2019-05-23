@@ -483,8 +483,8 @@ setup_pair (Test *test,
 
   create_iostream_pair (&ioc, &ios);
 
-  test->server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL, NULL, ios, NULL, NULL);
-  test->client =  web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, ioc);
+  test->server = web_socket_server_new_for_stream ("ws://127.0.0.1/unix", NULL, NULL, ios, NULL, NULL);
+  test->client =  web_socket_client_new_for_stream ("ws://127.0.0.1/unix", NULL, NULL, ioc);
 
   g_signal_connect (test->server, "error", G_CALLBACK (on_error_not_reached), NULL);
 
@@ -988,7 +988,7 @@ test_close_immediately (void)
   WebSocketConnection *client;
   gboolean close_event = FALSE;
 
-  client = web_socket_client_new ("ws://localhost/unix", NULL, NULL);
+  client = web_socket_client_new ("ws://127.0.0.1/unix", NULL, NULL);
   g_signal_connect (client, "close", G_CALLBACK (on_close_set_flag), &close_event);
   g_assert_cmpint (web_socket_connection_get_ready_state (client), ==, WEB_SOCKET_STATE_CONNECTING);
 
@@ -1114,7 +1114,7 @@ test_close_after_timeout (void)
   create_iostream_pair (&io_a, &io_b);
   thread = g_thread_new ("timeout-thread", handshake_then_timeout_server_thread, io_a);
 
-  client = web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io_b);
+  client = web_socket_client_new_for_stream ("ws://127.0.0.1/unix", NULL, NULL, io_b);
 
   g_signal_connect (client, "close", G_CALLBACK (on_close_set_flag), &close_event);
   g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
@@ -1173,7 +1173,7 @@ test_receive_fragmented (void)
   create_iostream_pair (&io_a, &io_b);
   thread = g_thread_new ("fragment-thread", send_fragments_server_thread, io_a);
 
-  client = web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io_b);
+  client = web_socket_client_new_for_stream ("ws://127.0.0.1/unix", NULL, NULL, io_b);
   g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
   g_signal_connect (client, "message", G_CALLBACK (on_text_message), &received);
 
@@ -1199,7 +1199,7 @@ client_thread (gpointer data)
   context = g_main_context_new ();
   g_main_context_push_thread_default (context);
 
-  client = web_socket_client_new_for_stream ("ws://localhost/unix", NULL, NULL, io);
+  client = web_socket_client_new_for_stream ("ws://127.0.0.1/unix", NULL, NULL, io);
   g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
 
   while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
@@ -1243,7 +1243,7 @@ test_handshake_with_buffer_and_headers (void)
   input = g_byte_array_new ();
   g_byte_array_append (input, (guchar *)buffer + (in1 + in2), count - (in1 + in2));
 
-  server = web_socket_server_new_for_stream ("ws://localhost/unix", NULL,
+  server = web_socket_server_new_for_stream ("ws://127.0.0.1/unix", NULL,
                                              NULL, ios, headers, input);
   g_signal_connect (server, "error", G_CALLBACK (on_error_not_reached), NULL);
 

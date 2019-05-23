@@ -174,7 +174,7 @@ QUnit.test("external channel websocket", function (assert) {
 
     var query = window.btoa(JSON.stringify({
         payload: "websocket-stream1",
-        address: "localhost",
+        address: "127.0.0.1",
         port: parseInt(window.location.port, 10),
         path: "/cockpit/echosocket/",
     }));

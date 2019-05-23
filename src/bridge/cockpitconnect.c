@@ -431,7 +431,7 @@ parse_address (CockpitChannel *channel,
       else
         {
           connectable = cockpit_loopback_new (port);
-          host = "localhost";
+          host = "127.0.0.1";
           local = TRUE;
         }
 

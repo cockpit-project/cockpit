@@ -172,6 +172,9 @@ if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "$IMAGE" == "centos-7" ]; then
     COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
+if [ "$IMAGE" = "rhel-7-7" ]; then
+    COCKPIT_DEPS="$COCKPIT_DEPS libvirt-dbus"
+fi
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ]; then
     # needed for composer testing
     TEST_PACKAGES="${TEST_PACKAGES} gcc-c++ lorax-composer"

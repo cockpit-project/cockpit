@@ -469,7 +469,7 @@ Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
 %if 0%{?rhel}
 Provides: cockpit-networkmanager = %{version}-%{release}
-Obsoletes: cockpit-networkmanager < 135
+Obsoletes: cockpit-networkmanager
 Requires: NetworkManager
 Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools

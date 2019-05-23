@@ -953,17 +953,16 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
         # Prepare a ramdisk with gpt partition table to test the disk storage pool type
-        ramdisk_prepare_cmd = ["mknod -m 660 /dev/ram0 b 1 1",
-                "chown root.disk /dev/ram0",
-                "parted /dev/ram0 mklabel gpt"]
-        m.execute(" && ".join(ramdisk_prepare_cmd))
+        m.add_disk("50M", serial="DISK1")
+        wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"))
+        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mklabel gpt")
 
         StoragePoolCreateDialog(
             self,
             name="my_disk_pool",
             pool_type="disk",
             target="/media/",
-            source={"source_path": "/dev/ram0", "format": "gpt"},
+            source={"source_path": "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1", "format": "gpt"},
         ).execute()
 
         # Debian and ubuntu images don't have open-iscsi already installed

@@ -1,10 +1,18 @@
 #!/bin/bash
 
+if [ "$1" = "--build" ]; then
+    BUILD_ONLY=1
+elif [ -n "$1" ]; then
+    echo 'Usage: run.sh [--build]' >&2
+    exit 1
+fi
+
 set -o pipefail
 set -eux
 
 export LANG=C.UTF-8
 export MAKEFLAGS="-j $(nproc)"
+
 
 # HACK: Something invoked by our build system is setting stdio to non-blocking.
 # Validate that this isn't the surrounding context. See more below.
@@ -49,6 +57,10 @@ fi
 ./autogen.sh --prefix=/usr --enable-strict --with-systemdunitdir=/tmp
 
 make V=1 all
+
+if [ -n "${BUILD_ONLY:-}" ]; then
+  exit 0
+fi
 
 # HACK: Before running the tests we need to make sure stdio is in blocking mode. We have
 # not yet been able to figure out what is putting it non-blocknig.

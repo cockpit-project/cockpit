@@ -201,11 +201,6 @@ rm -f %{buildroot}/%{_prefix}/%{__lib}/firewalld/services/cockpit.xml
 %endif
 install -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
-# On RHEL we don't yet show options for changing language
-%if 0%{?rhel}
-echo '{ "linguas": null }' > %{buildroot}%{_datadir}/cockpit/shell/override.json
-%endif
-
 # Build the package lists for resource packages
 echo '%dir %{_datadir}/cockpit/base1' > base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f >> base.list

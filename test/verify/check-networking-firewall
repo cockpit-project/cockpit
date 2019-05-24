@@ -428,7 +428,7 @@ class TestFirewall(NetworkCase):
         if m.image in ["debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-1804"]:
             interface = "eth0"
         # The public zone in these images are attached to both eth0 and eth1
-        elif m.image in ["fedora-atomic", "rhel-atomic"]:
+        elif m.image in ["fedora-atomic", "rhel-atomic", "continuous-atomic"]:
             interface = "docker0"
         else:
             interface = "eth1"

@@ -43,6 +43,13 @@ if not arg_attachments_dir:
 if not os.path.exists(arg_attachments_dir):
     os.makedirs(arg_attachments_dir)
 
+def prepare_kdump_test(machine):
+    # enable kernel kdump support
+    machine.execute("grubby --update-kernel DEFAULT --args='crashkernel=128M'")
+    machine.execute("systemctl enable kdump")
+    machine.execute("reboot")
+    machine.wait_reboot()
+
 
 def prepare_avocado_tests(machine):
     """ Upload all avocado related files and create the results directory
@@ -225,7 +232,12 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
             selenium.pull(selenium.image_file)
             selenium.start()
 
+        # apply all preparation instructions
         machine.wait_boot()
+        prepare_kdump_test(machine)
+        prepare_avocado_tests(machine)
+        prepare_machines_test_env(avocado_tests, machine)
+
         machine.set_address("10.111.113.1/20")
         machine.start_cockpit()
         test_timeout = 3600
@@ -243,9 +255,6 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
 
         if selenium:
             wait_for_selenium_running(machine, "10.111.112.10")
-
-        prepare_avocado_tests(machine)
-        prepare_machines_test_env(avocado_tests, machine)
 
         # Now actually run the tests
         selenium_address = "10.111.112.10" if selenium else ""
@@ -297,7 +306,9 @@ def main():
         "selenium-sosreport.py",
         "selenium-dashboard.py",
         "selenium-tuned.py",
-        "selenium-network.py"
+        "selenium-network.py",
+        "selenium-hwinfo.py",
+        "selenium-kdump.py",
     ]
     machines_tests = [
         "selenium-machines-basic.py",

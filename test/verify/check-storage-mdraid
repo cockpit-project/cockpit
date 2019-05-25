@@ -30,12 +30,6 @@ def info_field(name, image_name):
 
 class TestStorage(StorageCase):
 
-    def tearDown(self):
-        # HACK - for debugging https://github.com/cockpit-project/cockpit/issues/2924
-        print(self.machine.execute("parted -s /dev/md127 print || true"))
-        print(self.machine.execute("lsblk || true"))
-        MachineCase.tearDown(self)
-
     def wait_states(self, states):
         self.browser.wait_js_func("""(function(states) {
           var found = { };
@@ -54,9 +48,10 @@ class TestStorage(StorageCase):
         })""", states)
 
     def raid_add_disk(self, name):
-        self.dialog_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .panel-heading button'),
-                               expect=lambda: self.dialog_is_present('disks', name),
-                               values={"disks": {name: True}})
+        self.dialog_open_with_retry(trigger=lambda: self.browser.click('#detail-sidebar .panel-heading button'),
+                                    expect=lambda: self.dialog_is_present('disks', name))
+        self.dialog_set_val("disks", { name: True })
+        self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
         self.browser.click('#detail-sidebar tr:contains("%s") button' % name)
@@ -81,10 +76,11 @@ class TestStorage(StorageCase):
                 except Error as ex:
                     if not ex.msg.startswith('timeout'):
                         raise
-                    self.browser.wait_present(".modal-dialog")
-                    self.browser.wait_in_text(".modal-dialog", "Error stopping RAID array /dev/md127")
-                    self.browser.click(".modal-dialog div.modal-footer button.btn-default")
-                    self.browser.wait_not_present(".modal-dialog")
+                    print("Stopping failed, retrying...")
+                    if self.browser.is_present("#dialog"):
+                        self.browser.wait_in_text("#dialog", "Error stopping RAID array /dev/md127")
+                        self.dialog_cancel()
+                        self.dialog_wait_close()
                     do_click()
             else:
                 self.fail("Timed out waiting for array to get stopped")

@@ -348,7 +348,7 @@ class StorageCase(MachineCase):
     #   This is also done by repeatedly opening a dialog until all
     #   needed block devices are listed.
 
-    def dialog_with_retry(self, trigger, values, expect):
+    def dialog_open_with_retry(self, trigger, expect):
         def setup():
             trigger()
             self.dialog_wait_open()
@@ -363,6 +363,19 @@ class StorageCase(MachineCase):
             self.dialog_cancel()
             self.dialog_wait_close()
         self.retry(setup, check, teardown)
+
+    def dialog_apply_with_retry(self):
+        def step():
+            try:
+                self.dialog_apply()
+                self.dialog_wait_close()
+            except Error as ex:
+                return False
+            return True
+        self.browser.wait(step)
+
+    def dialog_with_retry(self, trigger, values, expect):
+        self.dialog_open_with_retry(trigger, expect)
         if values:
             for f in values:
                 self.dialog_set_val(f, values[f])

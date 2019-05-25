@@ -1,12 +1,12 @@
 #!/usr/bin/python3
+
+from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 import os
 import sys
 
 machine_test_dir = os.path.dirname(os.path.realpath(__file__))
 if machine_test_dir not in sys.path:
     sys.path.insert(1, machine_test_dir)
-
-from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 
 
 class TestHWinfo(SeleniumTest):

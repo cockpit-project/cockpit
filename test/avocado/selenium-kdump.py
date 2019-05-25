@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-import os
-import sys
-import time
-machine_test_dir = os.path.dirname(os.path.realpath(__file__))
-if machine_test_dir not in sys.path:
-    sys.path.insert(1, machine_test_dir)
 
 from selenium.webdriver.support.select import Select
 from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
+import os
+import sys
+
+machine_test_dir = os.path.dirname(os.path.realpath(__file__))
+if machine_test_dir not in sys.path:
+    sys.path.insert(1, machine_test_dir)
 
 
 class TestKdump(SeleniumTest):
@@ -19,7 +19,6 @@ class TestKdump(SeleniumTest):
 {}    *(rw,sync,no_root_squash)
     """.format(share)
     export_file = '/etc/exports'
-
 
     def requirements(self):
         execs = [

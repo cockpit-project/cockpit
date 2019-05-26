@@ -498,6 +498,19 @@ class TestMachines(NetworkCase):
         url_location = "/system/services#/{0}".format(libvirtServiceName)
         b.wait(lambda: url_location in b.eval_js("window.location.href"))
 
+        # Make sure that unpriviledged users can see the VM list when libvirtd is not running
+        m.execute("systemctl stop libvirtd.service")
+        if m.image == "debian-stable":
+            m.execute("useradd --shell /bin/bash nonadmin; echo nonadmin:foobar | chpasswd")
+        else:
+            m.execute("useradd nonadmin; echo nonadmin:foobar | chpasswd")
+        self.login_and_go("/machines", user="nonadmin", authorized=False)
+        b.wait_in_text("body", "Virtual Machines")
+        b.wait_in_text("#virtual-machines-listing thead tr td", "No VM is running")
+        b.logout()
+
+        self.allow_authorize_journal_messages()
+
     def testDisks(self):
         b = self.browser
         m = self.machine

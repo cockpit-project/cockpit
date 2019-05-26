@@ -29,6 +29,8 @@ import { CreateVmAction } from "./components/create-vm-dialog/createVmDialog.jsx
 import { AggregateStatusCards } from "./components/aggregateStatusCards.jsx";
 import { InlineNotification } from 'cockpit-components-inline-notification.jsx';
 
+var permission = cockpit.permission({ admin: true });
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -42,14 +44,21 @@ class App extends React.Component {
         this.onAddErrorNotification = this.onAddErrorNotification.bind(this);
         this.onDismissErrorNotification = this.onDismissErrorNotification.bind(this);
         this.onNavigate = () => this.setState({ path: cockpit.location.path });
+        this.onPermissionChanged = this.onPermissionChanged.bind(this);
     }
 
     componentDidMount() {
         cockpit.addEventListener("locationchanged", this.onNavigate);
+        permission.addEventListener("changed", this.onPermissionChanged);
     }
 
     componentWillUnmount() {
         cockpit.removeEventListener("locationchanged", this.onNavigate);
+        permission.removeEventListener("changed", this.onPermissionChanged);
+    }
+
+    onPermissionChanged() {
+        this.setState({ allowed: permission.allowed !== false });
     }
 
     /*
@@ -108,7 +117,8 @@ class App extends React.Component {
                 vms={vms} />
         );
 
-        if (systemInfo.libvirtService.activeState !== 'running') {
+        // Show libvirtSlate component if libvirtd is not running only to users that are allowed to start the service.
+        if (systemInfo.libvirtService.activeState !== 'running' && (this.state.allowed === undefined || this.state.allowed)) {
             return (<LibvirtSlate libvirtService={systemInfo.libvirtService} dispatch={dispatch} />);
         }
 

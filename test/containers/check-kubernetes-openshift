@@ -34,12 +34,14 @@ from testlib import *
 from testvm import VirtMachine
 
 class OCBrowser(Browser):
-    def login_and_go(self, path=None, user=None, host=None, authorized=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=None, urlroot=None):
         if user is None:
             user = self.default_user
         href = path
         if not href:
             href = "/"
+        if urlroot:
+            href = urlroot + href
         if host:
             href = "/@" + host + href
         self.open(href)

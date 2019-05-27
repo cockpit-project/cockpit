@@ -479,12 +479,14 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None):
         if user is None:
             user = self.default_user
         href = path
         if not href:
             href = "/"
+        if urlroot:
+            href = urlroot + href
         if host:
             href = "/@" + host + href
         self.open(href)
@@ -778,9 +780,9 @@ class MachineCase(unittest.TestCase):
             self.check_browser_errors()
         shutil.rmtree(self.tmpdir)
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
-        self.browser.login_and_go(path, user=user, host=host, authorized=authorized)
+        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, urlroot=urlroot)
 
     allow_core_dumps = False
 

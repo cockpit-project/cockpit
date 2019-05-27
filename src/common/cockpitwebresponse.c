@@ -69,6 +69,7 @@ struct _CockpitWebResponse {
   gchar *method;
   gchar *origin;
 
+  CockpitWebResponseFlags flags;
   CockpitCacheType cache_type;
 
   /* The output queue */
@@ -200,6 +201,8 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  * @path: the path resource or NULL
  * @query: the query string or NULL
  * @in_headers: input headers or NULL
+ * @flags: in #COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY mode, the origin is assumed to
+ *         be https://<host> even for a non-HTTPS connection.
  *
  * Create a new web response.
  *
@@ -214,7 +217,8 @@ cockpit_web_response_new (GIOStream *io,
                           const gchar *original_path,
                           const gchar *path,
                           const gchar *query,
-                          GHashTable *in_headers)
+                          GHashTable *in_headers,
+                          CockpitWebResponseFlags flags)
 {
   CockpitWebResponse *self;
   GOutputStream *out;
@@ -268,6 +272,7 @@ cockpit_web_response_new (GIOStream *io,
       host = g_hash_table_lookup (in_headers, "Host");
     }
 
+  self->flags = flags;
   protocol = cockpit_web_response_get_protocol (self, in_headers);
   if (protocol && host)
     self->origin = g_strdup_printf ("%s://%s", protocol, host);
@@ -1930,7 +1935,7 @@ const gchar *
 cockpit_web_response_get_protocol (CockpitWebResponse *self,
                                    GHashTable *headers)
 {
-  return cockpit_connection_get_protocol (self->io, headers);
+  return cockpit_connection_get_protocol (self->io, headers, self->flags & COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY);
 }
 
 static void
@@ -1941,7 +1946,8 @@ cockpit_web_response_flow_iface_init (CockpitFlowIface *iface)
 
 const gchar *
 cockpit_connection_get_protocol (GIOStream *connection,
-                                 GHashTable *headers)
+                                 GHashTable *headers,
+                                 gboolean for_tls_proxy)
 {
   const gchar *protocol = NULL;
   const gchar *protocol_header;
@@ -1957,5 +1963,5 @@ cockpit_connection_get_protocol (GIOStream *connection,
          protocol = g_hash_table_lookup (headers, protocol_header);
     }
 
-  return protocol ? protocol : "http";
+  return protocol ?: (for_tls_proxy ? "https" : "http");
 }

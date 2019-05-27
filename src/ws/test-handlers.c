@@ -124,7 +124,7 @@ setup (Test *test,
        gconstpointer path)
 {
   base_setup (test);
-  test->response = cockpit_web_response_new (test->io, path, path, NULL, NULL);
+  test->response = cockpit_web_response_new (test->io, path, path, NULL, NULL, COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect (test->response, "done",
                     G_CALLBACK (on_web_response_done_set_flag),
                     &test->response_done);
@@ -386,7 +386,7 @@ setup_default (Test *test,
   base_setup (test);
   test->response = cockpit_web_response_new (test->io,
                                             fixture->org_path ? fixture->org_path : fixture->path,
-                                            fixture->path, NULL, NULL);
+                                            fixture->path, NULL, NULL, COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect (test->response, "done",
                     G_CALLBACK (on_web_response_done_set_flag),
                     &test->response_done);
@@ -467,7 +467,7 @@ test_resource_checksum (Test *test,
   input = g_memory_input_stream_new ();
   io = mock_io_stream_new (input, output);
   path = "/cockpit/@localhost/checksum";
-  response = cockpit_web_response_new (io, path, path, NULL, NULL);
+  response = cockpit_web_response_new (io, path, path, NULL, NULL, COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect (response, "done", G_CALLBACK (on_web_response_done_set_flag), &response_done);
   g_assert (cockpit_handler_default (test->server, path, test->headers, response, &test->data));
 

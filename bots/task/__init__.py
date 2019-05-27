@@ -223,7 +223,7 @@ def finish(publishing, ret, name, context, issue):
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
-            "data": { "title": "[no-test] {0}".format(issue["title"]), "body": body }
+            "data": { "title": "{0}".format(issue["title"]), "body": body }
         } ]
 
         # Close the issue if it's not a pull request, successful, and all tasks done
@@ -454,10 +454,6 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests
         execute("git", "commit", "--amend", "-m", last_commit_m)
         (user, branch) = branch.split(":")
         push_branch(user, branch, True)
-
-        # If we don't want to run tests automatically, drop [no-test] from title after force push
-        if not run_tests:
-            pull = api.post("pulls/" + str(pull["number"]), {"title": kwargs["title"]}, accept=[ 422 ])
 
     return pull
 

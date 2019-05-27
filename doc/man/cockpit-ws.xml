@@ -164,8 +164,9 @@ getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n 
         <listitem>
           <para>
             Tell <command>cockpit-ws</command> that it is running behind a local reverse proxy that
-            does the TLS termination. Then Cockpit accepts only https:// origins, instead of http:
-            ones by default. However, if <literal>Origins</literal> is set in the
+            does the TLS termination. Then Cockpit puts https:// URLs into the default
+            <literal>Content-Security-Policy</literal>, and accepts only https:// origins, instead of
+            http: ones by default. However, if <literal>Origins</literal> is set in the
             <citerefentry>
               <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
             </citerefentry>

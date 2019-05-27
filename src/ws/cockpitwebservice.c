@@ -1326,12 +1326,12 @@ cockpit_web_service_create_socket (const gchar **protocols,
     }
   else
     {
-      protocol = cockpit_connection_get_protocol (io_stream, headers);
+      protocol = cockpit_connection_get_protocol (io_stream, headers, for_tls_proxy);
     }
 
   g_debug("cockpit_web_service_create_socket: host %s, protocol %s, for_tls_proxy %i", host, protocol, for_tls_proxy);
 
-  is_https = g_strcmp0 (protocol, "https") == 0 ||  for_tls_proxy;
+  is_https = g_strcmp0 (protocol, "https") == 0;
 
   url = g_strdup_printf ("%s://%s%s",
                          is_https ? "wss" : "ws",

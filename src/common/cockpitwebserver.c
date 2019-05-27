@@ -330,7 +330,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
     *orig_pos = '\0';
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (io_stream, original_path, path, pos, headers);
+  response = cockpit_web_response_new (io_stream, original_path, path, pos, headers,
+                                       (self->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
+                                         COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   cockpit_web_response_set_method (response, method);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
@@ -783,7 +785,9 @@ process_delayed_reply (CockpitRequest *request,
 
   g_assert (request->delayed_reply > 299);
 
-  response = cockpit_web_response_new (request->io, NULL, NULL, NULL, headers);
+  response = cockpit_web_response_new (request->io, NULL, NULL, NULL, headers,
+                                       (request->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
+                                         COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (request->web_server), (GClosureNotify)g_object_unref, 0);
 

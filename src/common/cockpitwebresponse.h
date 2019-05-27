@@ -33,6 +33,12 @@ G_BEGIN_DECLS
 #define COCKPIT_IS_WEB_RESPONSE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_RESPONSE))
 
 typedef enum {
+  COCKPIT_WEB_RESPONSE_NONE = 0,
+  COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY = 1 << 0,
+  COCKPIT_WEB_RESPONSE_MAX = 1 << 1
+} CockpitWebResponseFlags;
+
+typedef enum {
   COCKPIT_WEB_RESPONSE_READY = 1,
   COCKPIT_WEB_RESPONSE_QUEUING,
   COCKPIT_WEB_RESPONSE_COMPLETE,
@@ -60,7 +66,8 @@ CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,
                                                           const gchar *path,
                                                           const gchar *query,
-                                                          GHashTable *in_headers);
+                                                          GHashTable *in_headers,
+                                                          CockpitWebResponseFlags flags);
 void                  cockpit_web_response_set_method    (CockpitWebResponse *response,
                                                           const gchar *method);
 
@@ -158,7 +165,8 @@ gchar *      cockpit_web_response_security_policy        (const gchar *content_s
 
 
 const gchar *  cockpit_connection_get_protocol           (GIOStream *connection,
-                                                          GHashTable *headers);
+                                                          GHashTable *headers,
+                                                          gboolean for_tls_proxy);
 
 G_END_DECLS
 

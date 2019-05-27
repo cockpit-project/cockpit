@@ -51,6 +51,7 @@ typedef struct {
     const gchar *header;
     const gchar *value;
     CockpitCacheType cache;
+    gboolean for_tls_proxy;
 } TestFixture;
 
 static void
@@ -88,7 +89,8 @@ setup (TestCase *tc,
       g_hash_table_insert (headers, g_strdup (fixture->header), g_strdup (fixture->value));
     }
 
-  tc->response = cockpit_web_response_new (io, path, path, NULL, headers);
+  tc->response = cockpit_web_response_new (io, path, path, NULL, headers,
+                                           (fixture && fixture->for_tls_proxy) ? COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
 
   if (headers)
     g_hash_table_unref (headers);
@@ -1040,6 +1042,36 @@ test_connection_close (TestCase *tc,
                    STATIC_HEADERS "the content");
 }
 
+static const TestFixture fixture_origin_default = {
+  .header = "Host",
+  .value = "somemachine",
+  .for_tls_proxy = FALSE,
+};
+
+static const TestFixture fixture_origin_tls_proxy = {
+  .header = "Host",
+  .value = "somemachine",
+  .for_tls_proxy = TRUE,
+};
+
+static void
+test_origin (TestCase *tc,
+             gconstpointer data)
+{
+  const TestFixture *fixture = data;
+  GBytes *content;
+
+  if (fixture->for_tls_proxy)
+    g_assert_cmpstr (cockpit_web_response_get_origin (tc->response), ==, "https://somemachine");
+  else
+    g_assert_cmpstr (cockpit_web_response_get_origin (tc->response), ==, "http://somemachine");
+
+  content = g_bytes_new_static ("the content", 11);
+  cockpit_web_response_content (tc->response, NULL, content, NULL);
+  g_bytes_unref (content);
+  output_as_string (tc);
+}
+
 typedef struct {
     GHashTable *headers;
     GIOStream *io;
@@ -1079,7 +1111,7 @@ test_pop_path (TestPlain *tc,
   gchar *part;
   const gchar *start = "/cockpit/@localhost/another/test.html";
 
-  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, start);
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
 
@@ -1119,7 +1151,7 @@ test_pop_path_root (TestPlain *tc,
   CockpitWebResponse *response;
   gchar *part;
 
-  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
 
   part = cockpit_web_response_pop_path (response);
@@ -1138,7 +1170,7 @@ test_skip_path (TestPlain *tc,
   CockpitWebResponse *response;
   const gchar *start = "/cockpit/@localhost/another/test.html";
 
-  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, start, start, NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/cockpit/@localhost/another/test.html");
 
   g_assert (cockpit_web_response_skip_path (response) == TRUE);
@@ -1166,7 +1198,7 @@ test_skip_path_root (TestPlain *tc,
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
 
   g_assert (cockpit_web_response_skip_path (response) == FALSE);
@@ -1182,31 +1214,31 @@ test_removed_prefix (TestPlain *tc,
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/", "/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/");
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
   cockpit_web_response_abort (response);
   g_clear_object (&response);
 
-  response = cockpit_web_response_new (tc->io, "/path/", "/path/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/path/", "/path/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/path/");
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
   cockpit_web_response_abort (response);
   g_clear_object (&response);
 
-  response = cockpit_web_response_new (tc->io, "/path/path2/", "/path2/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/path/path2/", "/path2/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/path2/");
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, "/path");
   cockpit_web_response_abort (response);
   g_clear_object (&response);
 
-  response = cockpit_web_response_new (tc->io, "/mis/", "/match/", NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, "/mis/", "/match/", NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, "/match/");
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
   cockpit_web_response_abort (response);
   g_clear_object (&response);
 
-  response = cockpit_web_response_new (tc->io, NULL, NULL, NULL, tc->headers);
+  response = cockpit_web_response_new (tc->io, NULL, NULL, NULL, tc->headers, COCKPIT_WEB_RESPONSE_NONE);
   g_assert_cmpstr (cockpit_web_response_get_path (response), ==, NULL);
   g_assert_cmpstr (cockpit_web_response_get_url_root (response), ==, NULL);
   cockpit_web_response_abort (response);
@@ -1467,6 +1499,10 @@ main (int argc,
               setup, test_abort, teardown);
   g_test_add ("/web-response/connection-close", TestCase, &fixture_connection_close,
               setup, test_connection_close, teardown);
+  g_test_add ("/web-response/origin-default", TestCase, &fixture_origin_default,
+              setup, test_origin, teardown);
+  g_test_add ("/web-response/origin-tls-proxy", TestCase, &fixture_origin_tls_proxy,
+              setup, test_origin, teardown);
 
   g_test_add ("/web-response/cache-forever", TestCase, &cache_forever_fixture,
               setup, test_cache, teardown);

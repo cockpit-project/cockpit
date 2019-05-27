@@ -369,7 +369,7 @@ class StorageCase(MachineCase):
             try:
                 self.dialog_apply()
                 self.dialog_wait_close()
-            except Error as ex:
+            except Error:
                 return False
             return True
         self.browser.wait(step)

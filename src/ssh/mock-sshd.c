@@ -575,6 +575,12 @@ mock_ssh_server (const gchar *server_addr,
   ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_RSAKEY, SRCDIR "/src/ssh/mock_rsa_key");
   ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_DSAKEY, SRCDIR "/src/ssh/mock_dsa_key");
 
+  /* Known issue with recent libssh versions on 32bits: avoid using
+   * curve25519-sha256.  See https://bugs.libssh.org/T151
+   */
+  if (sizeof (void *) == 4)
+    ssh_options_set (state.session, SSH_OPTIONS_KEY_EXCHANGE, "ecdh-sha2-nistp256, diffie-hellman-group18-sha512, diffie-hellman-group16-sha512, diffie-hellman-group-exchange-sha256, diffie-hellman-group14-sha1, diffie-hellman-group1-sha1, diffie-hellman-group-exchange-sha1");
+
   if (ssh_bind_listen (sshbind) < 0)
     {
       g_critical ("couldn't listen on socket: %s", ssh_get_error (sshbind));

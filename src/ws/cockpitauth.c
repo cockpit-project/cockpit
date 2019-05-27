@@ -60,9 +60,6 @@ const gchar *cockpit_ws_ssh_program =
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
 
-/* Timeout of everything when noone is connected */
-guint cockpit_ws_process_idle = 90;
-
 /* The amount of time a spawned process has to complete authentication */
 guint cockpit_ws_auth_process_timeout = 30;
 guint cockpit_ws_auth_response_timeout = 60;
@@ -76,6 +73,29 @@ static guint sig__idling = 0;
 
 /* Tristate tracking whether gssapi works properly */
 static gint gssapi_available = -1;
+
+static guint
+get_process_idle (void)
+{
+  static guint seconds = 0;
+  if (seconds == 0) /* lazy initialization */
+    {
+      const char *val = g_getenv ("COCKPIT_WS_PROCESS_IDLE");
+
+      seconds = 90; /* default value */
+      if (val)
+        {
+          char *endptr;
+          gint64 x = g_ascii_strtoll (val, &endptr, 10);
+          if (*endptr == '\0' && x > 0 && x <= G_MAXUINT)
+            seconds = (guint) x;
+          else
+            g_warning ("Invalid value for COCKPIT_WS_PROCESS_IDLE, ignoring: %s", val);
+        }
+    }
+
+  return seconds;
+}
 
 G_DEFINE_TYPE (CockpitAuth, cockpit_auth, G_TYPE_OBJECT)
 
@@ -279,7 +299,7 @@ cockpit_auth_init (CockpitAuth *self)
   self->conversations = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                NULL, cockpit_session_unref);
 
-  self->timeout_tag = g_timeout_add_seconds (cockpit_ws_process_idle,
+  self->timeout_tag = g_timeout_add_seconds (get_process_idle (),
                                              on_process_timeout, self);
 
   self->startups = 0;
@@ -984,7 +1004,7 @@ on_web_service_idling (CockpitWebService *service,
   if (session->auth->timeout_tag)
     g_source_remove (session->auth->timeout_tag);
 
-  session->auth->timeout_tag = g_timeout_add_seconds (cockpit_ws_process_idle,
+  session->auth->timeout_tag = g_timeout_add_seconds (get_process_idle (),
                                                       on_process_timeout, session->auth);
 }
 

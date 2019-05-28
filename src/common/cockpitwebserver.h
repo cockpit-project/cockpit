@@ -33,19 +33,21 @@ typedef struct _CockpitWebServer CockpitWebServer;
 extern guint cockpit_webserver_request_timeout;
 extern gsize cockpit_webserver_request_maximum;
 
+typedef enum {
+  COCKPIT_WEB_SERVER_NONE = 0,
+  COCKPIT_WEB_SERVER_FOR_TLS_PROXY = 1 << 0,
+  COCKPIT_WEB_SERVER_FLAGS_MAX = 1 << 1
+} CockpitWebServerFlags;
+
+
 GType              cockpit_web_server_get_type      (void) G_GNUC_CONST;
 
 CockpitWebServer * cockpit_web_server_new           (const gchar *address,
                                                      gint port,
                                                      GTlsCertificate *certificate,
+                                                     CockpitWebServerFlags flags,
                                                      GCancellable *cancellable,
                                                      GError **error);
-
-CockpitWebServer * cockpit_web_server_new_for_tls_proxy (const gchar *address,
-                                                         gint port,
-                                                         GTlsCertificate *certificate,
-                                                         GCancellable *cancellable,
-                                                         GError **error);
 
 void               cockpit_web_server_start         (CockpitWebServer *self);
 
@@ -70,7 +72,7 @@ void               cockpit_web_server_set_redirect_tls     (CockpitWebServer *se
 
 gboolean           cockpit_web_server_get_redirect_tls     (CockpitWebServer *self);
 
-gboolean           cockpit_web_server_get_for_tls_proxy    (CockpitWebServer *self);
+CockpitWebServerFlags cockpit_web_server_get_flags         (CockpitWebServer *self);
 
 G_END_DECLS
 

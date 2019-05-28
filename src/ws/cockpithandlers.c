@@ -114,12 +114,14 @@ cockpit_handler_socket (CockpitWebServer *server,
     service = cockpit_auth_check_cookie (ws->auth, path, headers);
   if (service)
     {
-      cockpit_web_service_socket (service, path, io_stream, headers, input, cockpit_web_server_get_for_tls_proxy (server));
+      cockpit_web_service_socket (service, path, io_stream, headers, input,
+                                  cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
       g_object_unref (service);
     }
   else
     {
-      handle_noauth_socket (io_stream, path, headers, input, cockpit_web_server_get_for_tls_proxy (server));
+      handle_noauth_socket (io_stream, path, headers, input,
+                            cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
     }
 
   return TRUE;
@@ -212,7 +214,7 @@ cockpit_handler_external (CockpitWebServer *server,
       if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
         {
           cockpit_channel_socket_open (service, open, original_path, path, io_stream, headers, input,
-                                       cockpit_web_server_get_for_tls_proxy (server));
+                                       cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
         }
       else
         {

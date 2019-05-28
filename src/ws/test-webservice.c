@@ -147,7 +147,7 @@ setup_mock_webserver (TestCase *test,
   GBytes *password;
 
   /* Zero port makes server choose its own */
-  test->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
+  test->web_server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   g_assert_no_error (error);
 
   cockpit_web_server_start (test->web_server);

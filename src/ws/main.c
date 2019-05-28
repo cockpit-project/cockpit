@@ -202,22 +202,12 @@ main (int argc,
   login_po_html = g_strdup (DATADIR "/cockpit/static/login.po.html");
   data.login_po_html = (const gchar *)login_po_html;
 
-  if (opt_for_tls_proxy)
-    {
-      server = cockpit_web_server_new_for_tls_proxy (opt_address,
-                                                     opt_port,
-                                                     certificate,
-                                                     NULL,
-                                                     error);
-    }
-  else
-    {
-      server = cockpit_web_server_new (opt_address,
-                                       opt_port,
-                                       certificate,
-                                       NULL,
-                                       error);
-    }
+  server = cockpit_web_server_new (opt_address,
+                                   opt_port,
+                                   certificate,
+                                   opt_for_tls_proxy ? COCKPIT_WEB_SERVER_FOR_TLS_PROXY : COCKPIT_WEB_SERVER_NONE,
+                                   NULL,
+                                   error);
   if (server == NULL)
     {
       g_prefix_error (error, "Error starting web server: ");

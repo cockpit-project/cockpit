@@ -210,7 +210,7 @@ def run_avocado(avocado_tests, verbose, browser, download_logs, sit):
 
     if use_selenium:
         if 'edge' in browser:
-            windows = testvm.VirtMachine(image='windows-10', verbose=verbose, networking=network.host())
+            windows = testvm.VirtMachine(image='windows-10', memory_mb=4096, cpus=2, verbose=verbose, networking=network.host())
         else:
             selenium = testvm.VirtMachine(image="selenium", verbose=verbose, networking=network.host())
 

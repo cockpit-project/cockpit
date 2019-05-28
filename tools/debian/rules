@@ -17,32 +17,7 @@ endif
 %:
 	dh $@
 
-# Apply patches using git in order to support binary patches. Note that
-# we also reset mtimes since patches should be "complete" and include both
-# generated and source file changes.
-# Keep this in sync with tools/cockpit.spec.
-debian/git-patches-applied:
-	set -ex; if [ -d debian/git-patches ]; then \
-		git init; \
-		git config user.email "unused@example.com"; git config user.name "Unused"; \
-		git config core.autocrlf false; git config core.safecrlf false && git config gc.auto 0; \
-		git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"; \
-		git am --whitespace=nowarn debian/git-patches/*.patch; \
-		touch -r $$(git diff --name-only initial..HEAD) .git; \
-	fi
-	touch $@
-
-# unapply our git patches
-override_dh_clean:
-	if [ -d .git ] && [ -e debian/git-patches-applied ]; then \
-		git reset --hard initial; \
-		git clean -fdx; \
-		rm -rf .git; \
-	fi
-	rm -f debian/git-patches-applied
-	dh_clean
-
-override_dh_auto_configure: debian/git-patches-applied
+override_dh_auto_configure:
 	dh_auto_configure -- \
 		--with-networkmanager-needs-root=yes \
 		--with-cockpit-user=cockpit-ws \

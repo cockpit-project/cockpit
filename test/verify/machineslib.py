@@ -1451,7 +1451,11 @@ class TestMachines(NetworkCase):
             # The file is full of ANSI control characters in between every letter, filter them out
             wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
-            self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
+            self.browser.click("#vm-pxe-guest-delete")
+            self.browser.wait_present("#vm-pxe-guest-delete-modal-dialog")
+            self.browser.click("#vm-pxe-guest-delete-modal-dialog button:contains(Delete)")
+            self.browser.wait_not_present("#vm-pxe-guest-delete-modal-dialog")
+            self.browser.wait_not_present("tbody tr[data-row-id=vm-pxe-guest]")
 
             # Check that host network devices are appearing in the options for PXE boot sources
             createTest(TestMachines.VmDialog(self, sourceType='pxe',
@@ -1880,7 +1884,7 @@ class TestMachines(NetworkCase):
             elif (dialog.storage_pool == 'No Storage' and dialog.sourceType == 'file') or (dialog.sourceType == 'url' and dialog.start_vm):
                 b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
             else:
-                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+                b.wait_in_text("div.machines-disks table thead.listing-ct-empty tr td", "No disks defined for this VM")
 
             return self
 

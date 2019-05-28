@@ -663,6 +663,7 @@ server_ready (void)
   server_roots = cockpit_web_response_resolve_roots (roots);
   server = cockpit_web_server_new (NULL, server_port, /* TCP port to listen to */
                                    NULL, /* TLS cert */
+                                   COCKPIT_WEB_SERVER_NONE,
                                    NULL, /* GCancellable* */
                                    &error);
   if (server == NULL)

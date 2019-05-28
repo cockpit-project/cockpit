@@ -71,7 +71,7 @@ static void
 setup_general (TestGeneral *tt,
                gconstpointer host_fixture)
 {
-  tt->web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL);
+  tt->web_server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, NULL);
   cockpit_web_server_start (tt->web_server);
   tt->port = cockpit_web_server_get_port (tt->web_server);
   tt->transport = mock_transport_new ();
@@ -351,7 +351,7 @@ test_http_chunked (void)
   guint count;
   guint port;
 
-  web_server = cockpit_web_server_new (NULL, 0, NULL, NULL, NULL);
+  web_server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, NULL);
   g_assert (web_server);
   port = cockpit_web_server_get_port (web_server);
   g_signal_connect (web_server, "handle-resource::/",
@@ -486,7 +486,7 @@ setup_tls (TestTls *test,
                                                         SRCDIR "/src/bridge/mock-server.key", &error);
   g_assert_no_error (error);
 
-  test->web_server = cockpit_web_server_new (NULL, 0, test->certificate, NULL, &error);
+  test->web_server = cockpit_web_server_new (NULL, 0, test->certificate, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   g_assert_no_error (error);
 
   test->port = cockpit_web_server_get_port (test->web_server);

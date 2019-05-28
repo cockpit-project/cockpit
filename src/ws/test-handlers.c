@@ -93,7 +93,7 @@ base_setup (Test *test)
   const gchar *static_roots[] = { SRCDIR "/src/ws", SRCDIR "/src/branding/default", NULL };
   GError *error = NULL;
 
-  test->server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
+  test->server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   g_assert_no_error (error);
 
   cockpit_web_server_start (test->server);
@@ -778,7 +778,7 @@ test_socket_unauthenticated (void)
 
   make_io_streams (&io_a, &io_b);
 
-  server = cockpit_web_server_new (NULL, 0, NULL, NULL, &error);
+  server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   g_assert_no_error (error);
 
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,

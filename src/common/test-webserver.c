@@ -74,10 +74,12 @@ setup (TestCase *tc,
   else
     address = NULL;
 
-  if (fixture && fixture->for_tls_proxy)
-      tc->web_server = cockpit_web_server_new_for_tls_proxy (address, 0, cert, NULL, &error);
-  else
-      tc->web_server = cockpit_web_server_new (address, 0, cert, NULL, &error);
+  tc->web_server = cockpit_web_server_new (address,
+                                           0,
+                                           cert,
+                                           (fixture && fixture->for_tls_proxy) ? COCKPIT_WEB_SERVER_FOR_TLS_PROXY : COCKPIT_WEB_SERVER_NONE,
+                                           NULL,
+                                           &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
 
@@ -462,7 +464,7 @@ test_webserver_redirect_notls (TestCase *tc,
 
   SKIP_NO_HOSTPORT;
 
-  g_assert (!cockpit_web_server_get_for_tls_proxy (tc->web_server));
+  g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_NONE);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
@@ -852,7 +854,7 @@ test_bad_address (TestCase *tc,
   gint port;
 
   cockpit_expect_warning ("Couldn't parse IP address from: bad");
-  server = cockpit_web_server_new ("bad", 0, NULL, NULL, &error);
+  server = cockpit_web_server_new ("bad", 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
   cockpit_web_server_start (server);
 
   g_assert_no_error (error);
@@ -874,7 +876,7 @@ test_webserver_for_tls_proxy (TestCase *tc,
 
   SKIP_NO_HOSTPORT;
 
-  g_assert (cockpit_web_server_get_for_tls_proxy (tc->web_server));
+  g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);

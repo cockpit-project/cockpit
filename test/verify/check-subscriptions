@@ -244,7 +244,7 @@ class TestSubscriptions(MachineCase):
         b.click(product_selector)
         details_selector = "tr.listing-ct-panel:contains('Snowy OS Premium Architecture Bits')"
         b.wait_in_text(details_selector, "6050")
-        b.wait_not_in_text(details_selector, "Not Subscribed")
+        b.wait_in_text(details_selector, "Not Subscribed")
         # collapse again
         b.click(product_selector)
 

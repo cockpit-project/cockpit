@@ -75,7 +75,7 @@ setup (TestCase *tc,
     address = NULL;
 
   if (fixture && fixture->for_tls_proxy)
-      tc->web_server = cockpit_web_server_new_for_tls_proxy (address, 0, NULL, NULL, &error);
+      tc->web_server = cockpit_web_server_new_for_tls_proxy (address, 0, cert, NULL, &error);
   else
       tc->web_server = cockpit_web_server_new (address, 0, cert, NULL, &error);
   g_assert_no_error (error);
@@ -863,7 +863,6 @@ test_bad_address (TestCase *tc,
 }
 
 static const TestFixture fixture_for_tls_proxy = {
-    .cert_file = SRCDIR "/src/ws/mock_cert",
     .for_tls_proxy = TRUE
 };
 
@@ -877,7 +876,6 @@ test_webserver_for_tls_proxy (TestCase *tc,
 
   g_assert (cockpit_web_server_get_for_tls_proxy (tc->web_server));
 
-  /* should not redirect even with a certificate present */
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");

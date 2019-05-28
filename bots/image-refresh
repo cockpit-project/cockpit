@@ -133,7 +133,7 @@ def run(image, verbose=False, **kwargs):
 
     branch = task.branch(image, "images: Update {0} image".format(image), pathspec="bots/images", **kwargs)
     if branch:
-        pull = task.pull(branch, run_tests=False, **kwargs)
+        pull = task.pull(branch, **kwargs)
 
         # Trigger this pull request
         head = pull["head"]["sha"]
@@ -146,4 +146,4 @@ def run(image, verbose=False, **kwargs):
         task.label(pull, ["test-external"])
 
 if __name__ == '__main__':
-    task.main(function=run, title="Refresh image")
+    task.main(function=run, title="Refresh image", run_tests=False)

@@ -48,7 +48,6 @@ openssl \
 PackageKit \
 pcp \
 pcp-libs \
-podman \
 qemu \
 realmd \
 selinux-policy-targeted \
@@ -86,6 +85,7 @@ cryptsetup \
 clevis-luks \
 socat \
 tang \
+podman \
 libvirt-daemon-config-network \
 "
 
@@ -109,6 +109,10 @@ echo 'NETWORKING=yes' > /etc/sysconfig/network
 
 useradd -c Administrator -G wheel admin
 echo foobar | passwd --stdin admin
+
+if [ "${IMAGE%-i386}" != "$IMAGE" ]; then
+    TEST_PACKAGES="${TEST_PACKAGES/podman /}"
+fi
 
 if [ "${IMAGE%-testing}" != "$IMAGE" ]; then
     dnf config-manager --set-enabled updates-testing

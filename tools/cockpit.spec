@@ -116,7 +116,6 @@ BuildRequires: libxslt-devel
 BuildRequires: docbook-style-xsl
 BuildRequires: glib-networking
 BuildRequires: sed
-BuildRequires: git
 
 BuildRequires: glib2-devel >= 2.37.4
 BuildRequires: systemd-devel
@@ -157,20 +156,6 @@ Suggests: cockpit-selinux
 
 %prep
 %setup -q -n cockpit-%{version}
-
-# Apply patches using git in order to support binary patches. Note that
-# we also reset mtimes since patches should be "complete" and include both
-# generated and source file changes
-# Keep this in sync with tools/debian/rules.
-if [ -n "%{patches}" ]; then
-    git init
-    git config user.email "unused@example.com" && git config user.name "Unused"
-    git config core.autocrlf false && git config core.safecrlf false && git config gc.auto 0
-    git add -f . && git commit -a -q -m "Base" && git tag -a initial --message="initial"
-    git am --whitespace=nowarn %{patches}
-    touch -r $(git diff --name-only initial..HEAD) .git Makefile.in
-    rm -rf .git
-fi
 
 %build
 exec 2>&1

@@ -30,6 +30,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.select import Select
 import os
 import time
 from avocado import Test
@@ -248,6 +249,45 @@ This function is only for internal purposes:
         except WebDriverException as e:
             self.take_screenshot(fatal=False)
             raise SeleniumElementFailure('Unable to CHECKBOX element ({})'.format(e))
+
+    def _relocate_element(self, element):
+        try:
+            if element in self.element_wait_functions:
+                element = self.element_wait_functions[element]()
+        except (WebDriverException, SeleniumFailure):
+            pass
+        return element
+
+    def select(self, element, select_function, value=None):
+        failure = "Select: too many tries"
+        output = None
+        methods = [item for item in dir(Select) if not item.startswith("_")]
+        if select_function not in methods:
+            raise AttributeError(f"You used bad parameter for selected_function param, allowed are {methods}")
+        for _ in range(self.default_try):
+            try:
+                s1 = Select(element)
+                select_function = getattr(s1, select_function)
+                if value is None:
+                    output = select_function()
+                else:
+                    output = select_function(value)
+                failure = None
+                break
+            except WebDriverException as e:
+                failure = e
+            element = self._relocate_element(element)
+        if failure:
+            self.take_screenshot(fatal=False)
+            raise SeleniumElementFailure(f"Unable to Select in element {failure}")
+        return output
+
+    def select_by_text(self, element, value):
+        return self.select(element=element, select_function="select_by_visible_text", value=value)
+
+    def select_by_value(self, element, value):
+        return self.select(element=element, select_function="select_by_value", value=value)
+
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck, text_):
         """

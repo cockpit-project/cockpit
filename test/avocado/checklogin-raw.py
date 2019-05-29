@@ -23,7 +23,6 @@ import base64
 import time
 import subprocess
 
-from avocado import main
 from avocado import Test
 import sys
 import os
@@ -81,7 +80,3 @@ class checklogin_raw(Test):
                                  r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                  r"couldn't parse login input: Malformed input",
                                  r"couldn't parse login input: Authentication failed")
-
-
-if __name__ == "__main__":
-    main()

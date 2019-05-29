@@ -1,7 +1,6 @@
 import os
 from time import sleep
 from .timeoutlib import wait
-from selenium.webdriver.support.select import Select
 from .seleniumlib import SeleniumTest, clickable, text_in, invisible
 
 
@@ -213,39 +212,44 @@ class MachinesLib(SeleniumTest):
         self.wait_css('#create-vm-dialog')
 
         if connection == 'session':
-            Select(self.wait_css('#connection')).select_by_visible_text('QEMU/KVM User connection')
+            self.select_by_text(self.wait_css('#connection'), 'QEMU/KVM User connection')
 
         self.send_keys(self.wait_css('#vm-name'), name)
 
-        Select(self.wait_css('#source-type')).select_by_value(source_type)
+        self.select_by_value(self.wait_css('#source-type'), source_type)
 
         # If this option is pxe, do the same thing for the file, it will be add
         # in next cases
+        filename = source.rsplit("/", 1)[-1]
         if source_type == 'file' or source_type == 'pxe':
             self.send_keys(self.wait_css('#source-file > div > input'), source, ctrla=True)
-            # If there is no sleep, the input will not get the keys with a error
-            # All positions with sleep(1) have this problem
-            sleep(1)
+            # click on filename link if appear dialog window
+            element = self.wait_link(filename, fatal=False, overridetry=3, cond=clickable)
+            if element:
+                self.click(element)
         elif source_type == 'url':
             self.send_keys(self.wait_css('#source-url'), source)
         elif source_type == 'disk_image':
             self.send_keys(self.wait_css('#source-disk > div > input'), source, ctrla=True)
-            sleep(1)
+            # click on filename link if appear dialog window
+            element = self.wait_link(filename, fatal=False, overridetry=3, cond=clickable)
+            if element:
+                self.click(element)
 
         if os_vender != 'unspecified':
-            Select(self.wait_css('#vendor-select')).select_by_visible_text(os_vender)
+            self.select_by_text(self.wait_css('#vendor-select'))
 
         if os_vender != 'unspecified' and os != 'other':
-            Select(self.wait_css('#system-select')).select_by_visible_text(os)
+            self.select_by_text(self.wait_css('#system-select'), os)
 
         if mem_unit == 'M':
-            Select(self.wait_css('#memory-size-unit-select')).select_by_visible_text('MiB')
+            self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')
 
         self.send_keys(self.wait_css('#memory-size'), mem, clear=False, ctrla=True)
 
         if source_type != 'disk_image':
             if storage_unit == 'M':
-                Select(self.wait_css('#storage-size-unit-select')).select_by_visible_text('MiB')
+                self.select_by_text(self.wait_css('#storage-size-unit-select'), 'MiB')
             self.send_keys(self.wait_css('#storage-size'), storage, clear=False, ctrla=True)
 
         if immediately_start:
@@ -270,12 +274,12 @@ class MachinesLib(SeleniumTest):
         self.click(self.wait_css('#create-storage-pool', cond=clickable))
 
         if connection == 'session':
-            Select(self.wait_css('#storage-pool-dialog-connection')).select_by_value('session')
+            self.select_by_value(self.wait_css('#storage-pool-dialog-connection'), 'session')
 
         self.send_keys(self.wait_css('#storage-pool-dialog-name'), name)
 
         if type != 'dir':
-            Select(self.wait_css('#storage-pool-dialog-type')).select_by_value(type)
+            self.select_by_value(self.wait_css('#storage-pool-dialog-type'), type)
 
         self.send_keys(self.wait_css('#storage-pool-dialog-target > div > input'), target_path, ctrla=True)
         sleep(1)

@@ -19,7 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 from testlib_avocado import cockpit
-from avocado import main
 from avocado import Test
 import sys
 import os
@@ -101,7 +100,3 @@ class checklogin_basic(Test):
                                  r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*")
 
         c.tearDown()
-
-
-if __name__ == "__main__":
-    main()

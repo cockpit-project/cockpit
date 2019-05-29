@@ -370,7 +370,7 @@ LIBVIRT_DBUS_PROVIDER = {
             // We can't use Promise.all() here until cockpit is able to dispatch es2015 promises
             // https://github.com/cockpit-project/cockpit/issues/10956
             // eslint-disable-next-line cockpit/no-cockpit-all
-            return dispatch => cockpit.all(storageVolPromises)
+            return cockpit.all(storageVolPromises)
                     .then(() => {
                         return call(connectionName, objPath, 'org.libvirt.Domain', 'Undefine', [flags], TIMEOUT);
                     });

@@ -381,26 +381,24 @@ LIBVIRT_PROVIDER = {
     DELETE_VM ({ name, connectionName, options }) {
         logDebug(`${this.name}.DELETE_VM(${name}, ${JSON.stringify(options)}):`);
 
-        return dispatch => {
-            function destroy() {
-                return spawnVirshNoHandler({ connectionName, args: [ 'destroy', name ] });
-            }
+        function destroy() {
+            return spawnVirshNoHandler({ connectionName, args: [ 'destroy', name ] });
+        }
 
-            function undefine() {
-                let args = ['undefine', name, '--managed-save', '--nvram'];
-                if (options.storage) {
-                    args.push('--storage');
-                    args.push(options.storage.map(disk => disk.target).join(','));
-                }
-                return spawnVirshNoHandler({ connectionName, args });
+        function undefine() {
+            let args = ['undefine', name, '--managed-save', '--nvram'];
+            if (options.storage) {
+                args.push('--storage');
+                args.push(options.storage.map(disk => disk.target).join(','));
             }
+            return spawnVirshNoHandler({ connectionName, args });
+        }
 
-            if (options.destroy) {
-                return destroy().then(undefine);
-            } else {
-                return undefine();
-            }
-        };
+        if (options.destroy) {
+            return destroy().then(undefine);
+        } else {
+            return undefine();
+        }
     },
 
     CHANGE_NETWORK_STATE ({ name, networkMac, state, connectionName }) {

@@ -403,10 +403,11 @@ class TestMachinesDBus(machineslib.TestMachines):
 
         # Remove all Virtual Networks and confirm that trying to choose
         # Virtual Networks type for a NIC disables the save button
-        m.execute("virsh net-destroy test_network && virsh net-destroy default && virsh net-undefine test_network && virsh net-undefine default")
-        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
+        m.execute("virsh net-destroy test_network && virsh net-destroy default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
+        m.execute("virsh net-undefine test_network && virsh net-undefine default")
         b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
+        b.wait_in_text("#card-pf-networks .card-pf-aggregate-status-count", "0")
 
         # Remove the network interface
         m.execute("virsh detach-interface --persistent --type network --domain subVmTest1")

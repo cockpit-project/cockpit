@@ -1119,6 +1119,16 @@ class TestMachines(NetworkCase):
 
         runner.checkEnvIsEmpty()
 
+        # define default storage pool for system connection
+        cmds = [
+            "virsh pool-define-as default --type dir --target /var/lib/libvirt/images",
+            "virsh pool-start default"
+        ]
+        self.machine.execute(" && ".join(cmds))
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
+
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='file',
@@ -1157,13 +1167,6 @@ class TestMachines(NetworkCase):
                                                             location="invalid/url", storage_size=1,
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
-
-        # disk
-        checkDialogErrorTest(TestMachines.VmDialog(self, location=config.NOVELL_MOCKUP_ISO_PATH,
-                                                   storage_size=10000, storage_size_unit='GiB',
-                                                   os_vendor=config.NOVELL_VENDOR,
-                                                   os_name=config.NOVELL_NETWARE_6,
-                                                   start_vm=True), ["space"])
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
@@ -1209,6 +1212,16 @@ class TestMachines(NetworkCase):
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False,
                                          connection='session'))
+
+        # Try setting the storage size to value bigger than it's available
+        # The dialog should auto-adjust it to match the pool's available space
+        createTest(TestMachines.VmDialog(self, sourceType='file',
+                                         location=config.NOVELL_MOCKUP_ISO_PATH,
+                                         memory_size=100, memory_size_unit='MiB',
+                                         storage_size=100000, storage_size_unit='GiB',
+                                         os_vendor=config.APPLE_VENDOR,
+                                         os_name=config.MACOS_X_TIGER,
+                                         start_vm=False))
 
         # Try setting the memory to value bigger than it's available on the OS
         # The dialog should auto-adjust it to match the OS'es total memory
@@ -1663,7 +1676,15 @@ class TestMachines(NetworkCase):
                     b.wait_not_present("#storage-size")
                 else:
                     b.select_from_dropdown("#storage-size-unit-select", self.storage_size_unit)
-                    b.set_input_text("#storage-size", str(self.storage_size))
+                    b.set_input_text("#storage-size", str(self.storage_size), value_check=False)
+                    # helpblock will be missing if available storage size could not be calculated (no default storage pool found)
+                    # test images sometimes may not have default storage pool defined for session connection
+                    if self.connection != "session":
+                        help_block_line = b.text("#storage-size-helpblock")
+                        space_available = [int(s) for s in help_block_line.split() if s.isdigit()][0]
+                        # Write the final storage size back to self so that other function can read it
+                        self.storage_size = min(self.storage_size, space_available)
+                        b.wait_val("#storage-size", self.storage_size)
 
             b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
             b.select_from_dropdown("#system-select", self.os_name, substring=True)
@@ -1672,7 +1693,7 @@ class TestMachines(NetworkCase):
             # value according to the available total memory on the host
             b.select_from_dropdown("#memory-size-unit-select", self.memory_size_unit)
             b.set_input_text("#memory-size", str(self.memory_size), value_check=False)
-            help_block_line = b.text("label:contains(Memory) ~ .ct-validation-wrapper .help-block")
+            help_block_line = b.text("#memory-size-helpblock")
             host_total_memory = [int(s) for s in help_block_line.split() if s.isdigit()][0]
             # Write the final memory back to self so that other function can read it
             self.memory_size = min(self.memory_size, host_total_memory)

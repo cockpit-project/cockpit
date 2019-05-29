@@ -233,11 +233,7 @@ class PullTask(object):
             return "Downloading of additional images failed"
 
         # COMPAT: Create a legacy tmp/run directory to prevent races during testing
-        try:
-            os.makedirs(os.path.join(BASE, "test", "tmp", "run"))
-        except OSError as ex:
-            if ex.errno != errno.EEXIST:
-                raise
+        os.makedirs(os.path.join(BASE, "test", "tmp", "run"), exist_ok=True)
 
         # Now actually run the prepare tooling
         cmd = [ os.path.join(BOTS, "image-prepare") ]

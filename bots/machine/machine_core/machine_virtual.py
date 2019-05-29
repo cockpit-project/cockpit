@@ -355,11 +355,7 @@ class VirtMachine(Machine):
     def _start_qemu(self):
         self._cleanup()
 
-        try:
-            os.makedirs(self.run_dir, 0o750)
-        except OSError as ex:
-            if ex.errno != errno.EEXIST:
-                raise
+        os.makedirs(self.run_dir, 0o750, exist_ok=True)
 
         def execute(*args):
             self.message(*args)
@@ -615,11 +611,7 @@ class VirtMachine(Machine):
     def add_disk(self, size=None, serial=None, path=None, type='raw'):
         index = len(self._disks)
 
-        try:
-            os.makedirs(self.run_dir, 0o750)
-        except OSError as ex:
-            if ex.errno != errno.EEXIST:
-                raise
+        os.makedirs(self.run_dir, 0o750, exist_ok=True)
 
         if path:
             (unused, image) = tempfile.mkstemp(suffix='.qcow2', prefix=os.path.basename(path), dir=self.run_dir)

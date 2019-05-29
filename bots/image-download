@@ -253,8 +253,7 @@ def wait_lock(target):
 
 def download_images(image_list, force, quiet, state, store):
     data_dir = testvm.get_images_data_dir()
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
+    os.makedirs(data_dir, exist_ok=True)
 
     # A default set of images are all links in git.  These links have
     # no directory part.  Other links might exist, such as the

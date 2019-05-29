@@ -105,8 +105,7 @@ def prepare_install_image(base_image):
     if "/" not in base_image:
         base_image = os.path.join(testvm.IMAGES_DIR, base_image)
     test_images = os.path.join(TEST, "images")
-    if not os.path.exists(test_images):
-        os.makedirs(test_images)
+    os.makedirs(test_images, exist_ok=True)
     install_image = os.path.join(test_images, os.path.basename(base_image))
     base_image = os.path.realpath(testvm.get_test_image(base_image))
     qcow2_image = "{0}.qcow2".format(install_image)

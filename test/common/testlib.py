@@ -1377,8 +1377,8 @@ def test_main(options=None, suite=None, attachments=None, **kwargs):
     opts.address = getattr(opts, "address", None)
     opts.browser = getattr(opts, "browser", None)
     opts.attachments = os.environ.get("TEST_ATTACHMENTS", attachments)
-    if opts.attachments and not os.path.exists(opts.attachments):
-        os.makedirs(opts.attachments)
+    if opts.attachments:
+        os.makedirs(opts.attachments, exist_ok=True)
 
     import __main__
     if len(opts.tests) > 0:

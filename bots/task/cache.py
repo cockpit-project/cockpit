@@ -75,8 +75,7 @@ class Cache(object):
     # Write a resource to the cache in an atomic way
     def write(self, resource, contents):
         path = os.path.join(self.directory, urllib.parse.quote(resource, safe=''))
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
+        os.makedirs(self.directory, exist_ok=True)
         (fd, temp) = tempfile.mkstemp(dir=self.directory)
         with os.fdopen(fd, 'w') as fp:
             json.dump(contents, fp)

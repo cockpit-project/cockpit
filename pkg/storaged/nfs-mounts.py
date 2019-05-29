@@ -139,10 +139,6 @@ def monitor():
             process_fstab()
             report()
 
-def mkdir_if_necessary(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
 def rmdir_if_empty(path):
     try:
         os.rmdir(path)
@@ -153,7 +149,7 @@ def rmdir_if_empty(path):
 def update(entry, new_fields):
     old_fields = entry["fields"]
     if old_fields[1] != new_fields[1]:
-        mkdir_if_necessary(new_fields[1])
+        os.makedirs(new_fields[1], exist_ok=True)
     if entry["mounted"]:
         if (new_fields[0] == old_fields[0]
             and new_fields[1] == old_fields[1]
@@ -173,7 +169,7 @@ def update(entry, new_fields):
     modify_tab("/etc/fstab", lambda fields: new_fields if fields == old_fields else fields)
 
 def add(new_fields):
-    mkdir_if_necessary(new_fields[1])
+    os.makedirs(new_fields[1], exist_ok=True)
     mount({ "fields": new_fields })
     modify_tab("/etc/fstab", lambda fields: new_fields if fields is None else fields)
 
@@ -186,7 +182,7 @@ def remove(entry):
 
 def mount(entry):
     fields = entry["fields"]
-    mkdir_if_necessary(fields[1])
+    os.makedirs(fields[1], exist_ok=True)
     subprocess.check_call([ "mount",
                             "-t", fields[2],
                             "-o", fields[3],

@@ -40,8 +40,7 @@ avocado_results_dir = "/root/avocado_results"
 arg_attachments_dir = os.environ.get("TEST_ATTACHMENTS", None)
 if not arg_attachments_dir:
     arg_attachments_dir = os.getcwd()
-if not os.path.exists(arg_attachments_dir):
-    os.makedirs(arg_attachments_dir)
+os.makedirs(arg_attachments_dir, exist_ok=True)
 
 def prepare_kdump_test(machine):
     # enable kernel kdump support

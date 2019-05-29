@@ -118,17 +118,16 @@ main (int argc,
       char *argv[])
 {
   gint ret = 1;
+  g_autoptr(GOptionContext) context = NULL;
+  g_autoptr(GTlsCertificate) certificate = NULL;
+  g_autoptr(GError) error = NULL;
+  g_auto(GStrv) roots = NULL;
+  g_autofree gchar *cert_path = NULL;
+  g_autoptr(GMainLoop) loop = NULL;
+  g_autofree gchar *login_html = NULL;
+  g_autofree gchar *login_po_html = NULL;
   CockpitWebServer *server = NULL;
-  GOptionContext *context;
   CockpitHandlerData data;
-  GTlsCertificate *certificate = NULL;
-  GError *local_error = NULL;
-  GError **error = &local_error;
-  gchar **roots = NULL;
-  gchar *cert_path = NULL;
-  GMainLoop *loop = NULL;
-  gchar *login_html = NULL;
-  gchar *login_po_html = NULL;
   CockpitPipe *pipe = NULL;
   int outfd = -1;
 
@@ -146,11 +145,8 @@ main (int argc,
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, cmd_entries, NULL);
-
-  if (!g_option_context_parse (context, &argc, &argv, error))
-    {
-      goto out;
-    }
+  if (!g_option_context_parse (context, &argc, &argv, &error))
+    goto out;
 
   if (opt_version)
     {
@@ -182,9 +178,9 @@ main (int argc,
     }
   else
     {
-      cert_path = cockpit_certificate_locate (FALSE, error);
+      cert_path = cockpit_certificate_locate (FALSE, &error);
       if (cert_path != NULL)
-        certificate = cockpit_certificate_load (cert_path, error);
+        certificate = cockpit_certificate_load (cert_path, &error);
       if (certificate == NULL)
         goto out;
       g_info ("Using certificate: %s", cert_path);
@@ -207,10 +203,10 @@ main (int argc,
                                    certificate,
                                    opt_for_tls_proxy ? COCKPIT_WEB_SERVER_FOR_TLS_PROXY : COCKPIT_WEB_SERVER_NONE,
                                    NULL,
-                                   error);
+                                   &error);
   if (server == NULL)
     {
-      g_prefix_error (error, "Error starting web server: ");
+      g_prefix_error (&error, "Error starting web server: ");
       goto out;
     }
 
@@ -292,22 +288,12 @@ main (int argc,
 out:
   if (outfd >= 0)
     close (outfd);
-  if (loop)
-    g_main_loop_unref (loop);
-  if (local_error)
-    {
-      g_printerr ("cockpit-ws: %s\n", local_error->message);
-      g_error_free (local_error);
-    }
+  if (error)
+    g_printerr ("cockpit-ws: %s\n", error->message);
   g_clear_object (&server);
   g_clear_object (&data.auth);
   if (data.os_release)
     g_hash_table_unref (data.os_release);
-  g_clear_object (&certificate);
-  g_free (cert_path);
-  g_strfreev (roots);
-  g_free (login_po_html);
-  g_free (login_html);
   g_free (opt_address);
   g_free (opt_local_session);
   cockpit_conf_cleanup ();

@@ -466,7 +466,7 @@ def cockpit_tasks(api, update, branch_contexts, repo, pull_data, pull_number, sh
             for proj_repo in REPO_BRANCH_CONTEXT:
                 if proj_repo == "cockpit-project/cockpit":
                     continue
-                for context in REPO_BRANCH_CONTEXT[proj_repo]["master"]:
+                for context in REPO_BRANCH_CONTEXT[proj_repo].get("master", []):
                     repo_context = context + "@" + proj_repo
 
                     status = statuses.get(repo_context, {})

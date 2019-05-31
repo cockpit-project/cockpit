@@ -70,7 +70,7 @@ If you want to run all tests on pull request #1234 that has been
 opened by someone who is not in our white-list, run tests-trigger
 like so:
 
-    $ bots/github-trigger -f 1234
+    $ bots/tests-trigger -f 1234
 
 Of course, you should make sure that the pull request is proper and
 doesn't execute evil code during tests.

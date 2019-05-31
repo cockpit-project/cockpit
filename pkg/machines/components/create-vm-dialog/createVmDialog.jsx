@@ -430,7 +430,7 @@ class CreateVmModal extends React.Component {
         case 'source':
             this.setState({ [key]: value });
 
-            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && this.state.vendor == NOT_SPECIFIED && value != '' && value != undefined) {
+            if ((this.state.sourceType == URL_SOURCE || this.state.sourceType == LOCAL_INSTALL_MEDIA_SOURCE) && value != '' && value != undefined) {
                 // Clears the previously set timer.
                 clearTimeout(this.typingTimeout);
 

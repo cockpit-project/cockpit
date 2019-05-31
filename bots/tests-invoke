@@ -49,6 +49,7 @@ def main():
             action='store', help='Publish results centrally to a sink')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--pull-number', help="The number of the pull request to test")
+    parser.add_argument('--html-logs', action='store_true', help="Use log.html to prettify the raw logs")
     parser.add_argument('context', help="The context or type of integration tests to run")
     parser.add_argument('ref', nargs='?', help="The Git remote ref to pull")
     opts = parser.parse_args()
@@ -60,7 +61,7 @@ def main():
 
     try:
         task = PullTask(name, revision, opts.ref, opts.context, opts.rebase, opts.remote,
-                        test_project=test_project, github_revision=github_revision)
+                        test_project=test_project, github_revision=github_revision, html_logs=opts.html_logs)
         ret = task.run(opts)
     except RuntimeError as ex:
         ret = str(ex)
@@ -71,7 +72,7 @@ def main():
     return 0
 
 class PullTask(object):
-    def __init__(self, name, revision, ref, context, base, remote, test_project, github_revision):
+    def __init__(self, name, revision, ref, context, base, remote, test_project, github_revision, html_logs):
         self.name = name
         self.revision = revision
         self.ref = ref
@@ -80,6 +81,7 @@ class PullTask(object):
         self.remote = remote
         self.test_project = test_project
         self.github_revision = github_revision
+        self.html_logs = html_logs
 
         self.sink = None
         self.github_status_data = None
@@ -178,11 +180,15 @@ class PullTask(object):
             }
         }
 
-        if self.context.startswith("cockpit/"):
+        if self.html_logs:
+            # explicit request for html logs
+            status["link"] = "log.html"
+            status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/master/bots/task/log.html" ]
+        elif self.context.startswith("cockpit/"):
             # third-party project, link directly to text log
             status["link"] = "log"
         else:
-            # testing cockpit itself, use HTML log
+            # testing cockpit itself, use HTML log from current revision
             status["link"] = "log.html"
             status["extras"] = [ "https://raw.githubusercontent.com/cockpit-project/cockpit/{0}/bots/task/log.html".format(self.github_revision) ]
 

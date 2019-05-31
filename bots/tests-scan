@@ -103,6 +103,12 @@ REPO_BRANCH_CONTEXT = {
     }
 }
 
+# Random extra options for tests-invoke
+
+REPO_EXTRA_INVOKE_OPTIONS = {
+    'mvollmer/subscription-manager': [ "--html-logs" ]
+}
+
 # Label: should a PR trigger external tests
 LABEL_TEST_EXTERNAL = "test-external"
 
@@ -268,6 +274,9 @@ def tests_invoke(priority, name, number, revision, ref, context, base, repo, bot
 
     if repo != "cockpit-project/cockpit":
         cmd = cmd + " --remote=test"
+
+    if repo in REPO_EXTRA_INVOKE_OPTIONS:
+        cmd += " " + " ".join(REPO_EXTRA_INVOKE_OPTIONS[repo])
 
     cmd += " {context} {ref}"
     if bots_ref:

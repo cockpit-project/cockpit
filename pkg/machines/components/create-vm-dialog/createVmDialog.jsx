@@ -436,7 +436,6 @@ class CreateVmModal extends React.Component {
 
                 const onOsAutodetect = (os) => {
                     autodetectOS(os)
-                            .fail(ex => console.log("osinfo-detect command failed: ", ex.message))
                             .then(res => {
                                 const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
 
@@ -446,6 +445,12 @@ class CreateVmModal extends React.Component {
                                         os: osEntry[0].shortId
                                     });
                                 }
+                            }, ex => {
+                                console.log("osinfo-detect command failed: ", ex.message);
+                                this.setState({
+                                    vendor: NOT_SPECIFIED,
+                                    os: OTHER_OS_SHORT_ID,
+                                });
                             });
                 };
                 this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);

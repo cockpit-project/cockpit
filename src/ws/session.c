@@ -25,6 +25,7 @@
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
 #include <krb5/krb5.h>
+#include <fcntl.h>
 
 static char *last_txt_msg = NULL;
 static char *conversation = NULL;
@@ -525,7 +526,7 @@ out:
 static int
 session (char **env)
 {
-  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge", NULL };
+  char *argv[] = { NULL /* user's shell */, "-c", "exec cockpit-bridge >&3", NULL };
   gss_key_value_set_desc store;
   struct gss_key_value_element_struct element;
   OM_uint32 major, minor;
@@ -567,6 +568,12 @@ session (char **env)
     }
 
   debug ("executing cockpit-bridge through user shell %s", pwd->pw_shell);
+
+  /* connect our and cockpit-bridge's stdout via fd 3, to avoid stdout output
+   * from ~/.profile and friends to interfere with the protocol; route shell's
+   * stdout to its stderr, so that we can still see it in the logs */
+  if (dup2 (1, 3) < 0 || dup2 (2, 1) < 0)
+    err (1, "could not redirect user shell stdout");
 
   if (env)
     execvpe (argv[0], argv, env);

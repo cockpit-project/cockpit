@@ -132,6 +132,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.open("/system")
             b.wait_not_visible("#option-group")
 
+        if not m.atomic_image:
+            # login with user shell that prints some stdout/err noise
+            # having stdout output in ~/.bashrc confuses docker, so don't run on Atomic
+            m.execute("echo 'echo noise-rc-out; echo noise-rc-err >&2' >> ~admin/.bashrc")
+            m.execute("echo 'echo noise-profile-out; echo noise-profile-err >&2' >> ~admin/.profile")
+            login("admin", "foobar")
+            b.expect_load()
+            b.wait_present("#content")
+
         self.allow_journal_messages("Returning error-response ... with reason .*",
                                     "pam_unix\(cockpit:auth\): authentication failure; .*",
                                     "pam_unix\(cockpit:auth\): check pass; user unknown",

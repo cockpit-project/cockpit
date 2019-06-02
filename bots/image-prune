@@ -41,7 +41,7 @@ PRUNE_THRESHOLD_G = float(os.environ.get("PRUNE_THRESHOLD_G", 15))
 def enough_disk_space():
     """Check if available disk space in our data store is sufficient
     """
-    st = os.statvfs(DATA)
+    st = os.statvfs(testvm.get_images_data_dir())
     free = st.f_bavail * st.f_frsize / (1024*1024*1024)
     return free >= PRUNE_THRESHOLD_G;
 
@@ -144,13 +144,13 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
         target = os.readlink(path)
         if not os.path.isabs(target):
             targets.add(os.path.join(testvm.IMAGES_DIR, target))
-            targets.add(os.path.join(DATA, target))
+            targets.add(os.path.join(testvm.get_images_data_dir(), target))
         else:
             targets.add(target)
 
     expiry_threshold = now - IMAGE_EXPIRE * 86400
-    for filename in os.listdir(DATA):
-        path = os.path.join(DATA, filename)
+    for filename in os.listdir(testvm.get_images_data_dir()):
+        path = os.path.join(testvm.get_images_data_dir(), filename)
         if not force and (enough_disk_space() and os.lstat(path).st_mtime > expiry_threshold):
             continue
         if os.path.isfile(path) and (path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:

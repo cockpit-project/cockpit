@@ -92,8 +92,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # Login as admin
         b.open("/system")
         login("admin", "foobar")
-        with b.wait_timeout(10):
-            b.expect_load()
+        b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
@@ -228,8 +227,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 
-        with b.wait_timeout(10):
-            b.expect_load()
+        b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 
@@ -286,8 +284,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#conversation-input', '42')
         b.click('#login-button')
 
-        with b.wait_timeout(10):
-            b.expect_load()
+        b.expect_load()
         b.wait_present("#content")
         b.wait_text('#content-user-name', 'Administrator')
 

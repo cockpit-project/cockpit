@@ -191,6 +191,8 @@ if [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then
     # Install node for external Composer tests, they use our rhel-* images
     TEST_PACKAGES="${TEST_PACKAGES} nodejs"
     TEST_PACKAGES="${TEST_PACKAGES} subscription-manager-cockpit"
+    # Install insights-client for external subscription-manager tests
+    TEST_PACKAGES="${TEST_PACKAGES} insights-client"
 fi
 
 # in RHEL/CentOS 7, boom is shipped in a different package

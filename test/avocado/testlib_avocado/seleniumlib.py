@@ -263,7 +263,7 @@ This function is only for internal purposes:
         output = None
         methods = [item for item in dir(Select) if not item.startswith("_")]
         if select_function not in methods:
-            raise AttributeError(f"You used bad parameter for selected_function param, allowed are {methods}")
+            raise AttributeError("You used bad parameter for selected_function param, allowed are %s" % methods)
         for _ in range(self.default_try):
             try:
                 s1 = Select(element)
@@ -279,7 +279,7 @@ This function is only for internal purposes:
             element = self._relocate_element(element)
         if failure:
             self.take_screenshot(fatal=False)
-            raise SeleniumElementFailure(f"Unable to Select in element {failure}")
+            raise SeleniumElementFailure("Unable to Select in element %s" % failure)
         return output
 
     def select_by_text(self, element, value):
@@ -287,7 +287,6 @@ This function is only for internal purposes:
 
     def select_by_value(self, element, value):
         return self.select(element=element, select_function="select_by_value", value=value)
-
 
     def wait(self, method, text, baseelement, overridetry, fatal, cond, jscheck, text_):
         """

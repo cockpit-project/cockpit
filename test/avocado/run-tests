@@ -75,7 +75,7 @@ def tap_output(machine):
     for t in json_info['tests']:
         test_status = t['status']
         test_name_tmp = os.path.basename(t['id']).split(":", 1)
-        test_name = f"{test_name_tmp[0]} ({test_name_tmp[1]})"
+        test_name = test_name_tmp[0] + " " + test_name_tmp[1]
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
         test_fail_reason = str(t['fail_reason'])

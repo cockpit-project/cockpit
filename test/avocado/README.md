@@ -136,7 +136,7 @@ More concretely:
    stopped.
 
  * A test is a Python file in this directory modeled after
-   checkexample-foo.py.
+   example-check-foo.py.
 
  * Previously, we have combined multiple tests into one file, like
    check-storage, which has 12 tests in it.  Now we need to split them

@@ -1854,7 +1854,7 @@ class TestMachines(NetworkCase):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
                 else:
                     b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
-            elif (dialog.storage_pool == 'No Storage' and dialog.sourceType == 'file') or (dialog.sourceType == 'url' and dialog.start_vm):
+            elif dialog.start_vm and (((dialog.storage_pool == 'No Storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url'):
                 b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
             else:
                 b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")

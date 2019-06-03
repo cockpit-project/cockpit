@@ -28,7 +28,8 @@ df -Th /
 SKIP_REPO_FLAG="/root/.skip_repos"
 SUBSCRIBED=
 
-if [ "$IMAGE" != "rhel-8-0" ] && [ "$IMAGE" != "rhel-8-1" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
+# register images which use the CDN repo (not nightly)
+if [ "$IMAGE" = "rhel-7-6" ] && [ ! -f "$SKIP_REPO_FLAG" ]; then
     # Remove any internal files
     rm -f /etc/yum.repos.d/download.devel.redhat.com.repo
 
@@ -55,6 +56,8 @@ if [ ! -f "$SKIP_REPO_FLAG" ]; then
         yum-config-manager --enable rhel-7-server-extras-rpms
 
     elif [ "$IMAGE" = "rhel-7-7" ]; then
+        # disable all default repos
+        rm -f --verbose /etc/yum.repos.d/*.repo
 cat <<EOF > /etc/yum.repos.d/nightly.repo
 [EXTRAS-7.7-LATEST]
 name=rhel-extras-compose
@@ -68,8 +71,6 @@ baseurl=http://download.devel.redhat.com/nightly/latest-RHEL-7/compose/Server/x8
 enabled=1
 gpgcheck=0
 EOF
-        # disable all default repos as they don't exist yet
-        sed -i 's/enabled = 1/enabled = 0/' /etc/yum.repos.d/redhat.repo
         $YUM_INSTALL yum-utils
 
     elif [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then

@@ -152,6 +152,10 @@ function validateParams(vmParams) {
         validationFailed['source'] = _("Installation Source should not be empty");
     }
 
+    if (vmParams.memorySize === 0) {
+        validationFailed['memory'] = _("Memory must not be 0");
+    }
+
     return validationFailed;
 }
 
@@ -336,24 +340,30 @@ const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFail
     );
 };
 
-const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged }) => {
+const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, onValueChanged, validationFailed }) => {
+    const validationStateMemory = validationFailed.memory ? 'error' : undefined;
+
     return (
         <React.Fragment>
             <label htmlFor='memory-size' className='control-label'>
                 {_("Memory")}
             </label>
-            <FormGroup bsClass='ct-validation-wrapper' controlId='memory'>
+            <FormGroup validationState={validationStateMemory} bsClass='form-group ct-validation-wrapper' controlId='memory'>
                 <MemorySelectRow id='memory-size'
                     value={memorySize}
                     maxValue={nodeMaxMemory && convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)}
                     initialUnit={memorySizeUnit}
                     onValueChange={e => onValueChanged('memorySize', e.target.value)}
                     onUnitChange={value => onValueChanged('memorySizeUnit', value)} />
+                {validationStateMemory === "error" &&
+                <HelpBlock>
+                    <p className="text-danger">{validationFailed.memory}</p>
+                </HelpBlock> }
                 {nodeMaxMemory &&
                 <HelpBlock id="memory-size-helpblock">
                     {cockpit.format(
                         _("Up to $0 $1 available on the host"),
-                        Math.round(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
+                        Math.floor(convertToUnit(nodeMaxMemory, units.KiB, memorySizeUnit)),
                         memorySizeUnit,
                     )}
                 </HelpBlock>}
@@ -453,7 +463,8 @@ class CreateVmModal extends React.Component {
             vendor: NOT_SPECIFIED,
             vendors: prepareVendors(props.osInfoList),
             os: OTHER_OS_SHORT_ID,
-            memorySize: convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
+            memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
+                                 Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
             memorySizeUnit: units.GiB.name,
             storageSize: 10, // GiB
             storageSizeUnit: units.GiB.name,
@@ -539,7 +550,7 @@ class CreateVmModal extends React.Component {
         case 'memorySize':
             value = Math.min(
                 value,
-                Math.round(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
+                Math.floor(convertToUnit(this.props.nodeMaxMemory, units.KiB, this.state.memorySizeUnit))
             );
             this.setState({ [key]: value });
             break;
@@ -681,6 +692,7 @@ class CreateVmModal extends React.Component {
                     memorySizeUnit={this.state.memorySizeUnit}
                     nodeMaxMemory={nodeMaxMemory}
                     onValueChanged={this.onValueChanged}
+                    validationFailed={validationFailed}
                 />
 
                 <hr />

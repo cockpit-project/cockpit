@@ -1168,6 +1168,9 @@ class TestMachines(NetworkCase):
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
+        # memory
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1, memory_size=0), {"Memory": "Memory must not be 0"})
+
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_vendor=config.NOVELL_VENDOR,

@@ -44,10 +44,7 @@ class TestKdump(SeleniumTest):
         ]
 
         for exe in execs:
-            try:
-                self.machine.execute(exe)
-            except (RuntimeError, subprocess.CalledProcessError):
-                pass
+            self.machine.execute(exe)
 
     def setUp(self):
         super().setUp()

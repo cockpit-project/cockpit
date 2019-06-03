@@ -1,6 +1,5 @@
 import os
 from avocado import skipIf
-from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from testlib_avocado.seleniumlib import clickable, text_in, invisible
 from testlib_avocado.machineslib import MachinesLib
@@ -63,7 +62,7 @@ class MachinesNetworksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-network-1-edit-dialog'.format(name), cond=clickable))
         self.wait_css('#vm-{}-network-1-edit-dialog-modal-window'.format(name))
-        Select(self.wait_css('#vm-{}-network-1-select-model'.format(name))).select_by_index(1)
+        self.select(self.wait_css('#vm-{}-network-1-select-model'.format(name)), "select_by_index", 1)
         self.wait_text('Changes will take effect after shutting down the VM')
         self.click(self.wait_css('#vm-{}-network-1-edit-dialog-save'.format(name), cond=clickable))
 
@@ -88,7 +87,7 @@ class MachinesNetworksTestSuite(MachinesLib):
 
         self.click(self.wait_css('#vm-{}-network-1-edit-dialog'.format(name), cond=clickable))
         self.wait_css('#vm-{}-network-1-edit-dialog-modal-window'.format(name))
-        Select(self.wait_css('#vm-{}-network-1-select-model'.format(name))).select_by_index(1)
+        self.select(self.wait_css('#vm-{}-network-1-select-model'.format(name)), "select_by_index", 1)
         self.wait_text('Changes will take effect after shutting down the VM', cond=invisible)
         self.click(self.wait_css('#vm-{}-network-1-edit-dialog-save'.format(name), cond=clickable))
 

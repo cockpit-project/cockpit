@@ -42,12 +42,15 @@ if not arg_attachments_dir:
     arg_attachments_dir = os.getcwd()
 os.makedirs(arg_attachments_dir, exist_ok=True)
 
+
 def prepare_kdump_test(machine):
     # enable kernel kdump support
+    machine.execute("rpm -q nfs-utils || yum install -y nfs-utils", timeout=500)
     machine.execute("grubby --update-kernel DEFAULT --args='crashkernel=128M'")
-    machine.execute("systemctl enable kdump")
     machine.execute("reboot")
     machine.wait_reboot()
+    machine.execute("systemctl start kdump")
+    machine.execute("systemctl enable kdump")
 
 
 def prepare_avocado_tests(machine):
@@ -68,11 +71,14 @@ def tap_output(machine):
     print("\nTAP output -------------------------")
     print("1..%s" % len(json_info['tests']))
     counter = 1
+    counter_failed = 0
     for t in json_info['tests']:
         test_status = t['status']
-        test_name = os.path.basename(t['id'])
+        test_name_tmp = os.path.basename(t['id']).split(":", 1)
+        test_name = f"{test_name_tmp[0]} ({test_name_tmp[1]})"
         test_log = t['logfile']
         test_time_string = "duration: %ds" % t['time']
+        test_fail_reason = str(t['fail_reason'])
         print("# ----------------------------------------------------------------------")
         print("# %s %s" % (test_name, test_time_string))
         print("#")
@@ -84,13 +90,16 @@ def tap_output(machine):
         print("# TEST LOG END -------")
         if test_status == 'PASS':
             print("ok %s %s # %s" % (counter, test_name, test_time_string))
+        elif test_status == 'SKIP':
+            print("ok %s %s # %s # SKIP %s" % (counter, test_name, test_time_string, test_fail_reason))
         else:
-            print("not ok %s %s # %s" % (counter, test_name, test_time_string))
+            print("not ok %s %s # %s # %s" % (counter, test_name, test_time_string, test_fail_reason))
+            counter_failed += 1
         counter = counter + 1
-    if len(json_info['tests']) != json_info['pass']:
-        print("# %d TESTS FAILED duration: %ds" % (len(json_info['tests']) - json_info['pass'], json_info['time']))
+    if counter_failed > 0:
+        print("# %d TESTS FAILED duration: %ds" % (counter_failed, json_info['time']))
     else:
-        print("# TESTS PASSED duration: %ds" %  json_info['time'])
+        print("# TESTS PASSED duration: %ds" % json_info['time'])
 
 
 def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}, timeout=3600):
@@ -126,7 +135,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}, timeout
                 failed_tests = json.loads(failed_tests_info)
                 for t in failed_tests['tests']:
                     test_status = t['status']
-                    if test_status != 'PASS':
+                    if test_status not in ['PASS', 'SKIP']:
                         test_id, test_name = t['id'].split("-", 1)
                         if test_name.startswith(machine_test_dir + '/'):
                             test_name = test_name[(len(machine_test_dir) + 1):]
@@ -319,12 +328,12 @@ def main():
         "selenium-machines-usage.py",
         "selenium-machines-vcpu.py"
     ]
-
-    if opts.regular_tests:
-        opts.tests += regular_tests
-    if opts.selenium_tests:
-        opts.tests += browser_tests
-        opts.tests += machines_tests
+    if not opts.tests:
+        if opts.regular_tests:
+            opts.tests += regular_tests
+        if opts.selenium_tests:
+            opts.tests += browser_tests
+            opts.tests += machines_tests
 
     # if we don't have a browser but are supposed to run selenium related tests, fail
     if opts.browser == 'none':

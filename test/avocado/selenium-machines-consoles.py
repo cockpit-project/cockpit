@@ -56,7 +56,7 @@ class MachinesConsolesTestSuite(MachinesLib):
 
         # Open serial console
         self.click(self.wait_css('#vm-{}-consoles'.format(name), cond=clickable))
-        Select(self.wait_id('console-type-select')).select_by_visible_text('Serial Console')
+        self.select_by_text(self.wait_id('console-type-select'), 'Serial Console')
         self.wait_css('div.terminal canvas.xterm-text-layer')
         # Disconnect
         self.click(self.wait_css("#{}-serialconsole-disconnect".format(name), cond=clickable))

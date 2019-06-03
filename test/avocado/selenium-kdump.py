@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-from selenium.webdriver.support.select import Select
 from testlib_avocado.seleniumlib import SeleniumTest, clickable, visible
 import os
 import sys
+import subprocess
 
 machine_test_dir = os.path.dirname(os.path.realpath(__file__))
 if machine_test_dir not in sys.path:
@@ -23,7 +23,6 @@ class TestKdump(SeleniumTest):
     def requirements(self):
         execs = [
             # start NFS server
-            "sudo yum install -y nfs-utils || true",
             "sudo mkdir -p {}".format(self.share),
             "sudo chmod a+rwx {}".format(self.share),
             "echo '{}' | sudo tee {}".format(self.exporttab, self.export_file),
@@ -43,6 +42,7 @@ class TestKdump(SeleniumTest):
             "echo '' | sudo tee {}".format(self.export_file),
             "sudo rm -rf {}".format(self.share),
         ]
+
         for exe in execs:
             self.machine.execute(exe)
 
@@ -64,9 +64,9 @@ class TestKdump(SeleniumTest):
     def check_type(self, old_text, new_text, selector_item, textbox_dict):
         self.wait_text("Service is running", cond=visible)
         self.click(self.wait_text(old_text, cond=visible))
-        s1 = Select(self.wait_id("kdump-settings-location", cond=clickable, jscheck=True))
-        for _ in s1.options:
-            s1.select_by_visible_text(selector_item)
+        self.select_by_text(self.wait_id("kdump-settings-location",
+                                         cond=clickable, jscheck=True),
+                            selector_item)
         for textbox_key in textbox_dict:
             location = self.wait_id(textbox_key)
             self.send_keys(location, textbox_dict[textbox_key])

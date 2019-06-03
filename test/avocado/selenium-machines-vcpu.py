@@ -23,9 +23,9 @@ class MachinesOverviewTestSuite(MachinesLib):
         # set vcpu params
         self.send_keys(self.wait_css('#machines-vcpu-max-field'), maxnum, ctrla=True)
         self.send_keys(self.wait_css('#machines-vcpu-count-field'), count, ctrla=True)
-        Select(self.wait_id('socketsSelect')).select_by_visible_text(sockets)
-        Select(self.wait_id('coresSelect')).select_by_visible_text(cores)
-        Select(self.wait_id('threadsSelect')).select_by_visible_text(threads)
+        self.select_by_text(self.wait_id('socketsSelect'), sockets)
+        self.select_by_text(self.wait_id('coresSelect'), cores)
+        self.select_by_text(self.wait_id('threadsSelect'), threads)
         if vmstate == 'running':
             cond = visible
         else:

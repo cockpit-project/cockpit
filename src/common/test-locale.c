@@ -111,7 +111,7 @@ test_set_language (const gconstpointer data)
   /* Check if the locale is available on the test system */
   if (fixture->lang && !locale_available (fixture->lang))
     {
-      cockpit_test_skip ("locale not available");
+      g_test_skip ("locale not available");
       return;
     }
 

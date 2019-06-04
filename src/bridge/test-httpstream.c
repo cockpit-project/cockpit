@@ -125,7 +125,7 @@ test_host_header (TestGeneral *tt,
 
   if (tt->host == NULL)
     {
-      cockpit_test_skip ("Couldn't determine non local ip");
+      g_test_skip ("Couldn't determine non local ip");
       return;
     }
 

@@ -879,8 +879,7 @@ ensure_pcp_conf (CockpitChannel *channel)
       conf = confpath;
     }
 
-  if (access((const char *)conf, R_OK) < 0 ||
-      (fp = fopen(conf, "r")) == NULL)
+  if ((fp = fopen(conf, "r")) == NULL)
     {
       cockpit_channel_fail (channel, "internal-error", "could not access %s: %m", conf);
       res = FALSE;

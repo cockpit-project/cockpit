@@ -47,7 +47,7 @@ init_mock_pmda (void)
 {
   if (pmLoadNameSpace (SRCDIR "/src/bridge/mock-pmns") < 0)
     {
-      cockpit_test_skip ("No PCP\n");
+      g_test_skip ("No PCP\n");
       exit (0);
     }
 

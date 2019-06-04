@@ -282,7 +282,7 @@ test_authenticate (TestCase *test,
 
   if (!mock_kdc_available)
     {
-      cockpit_test_skip ("mock kdc not available to test against");
+      g_test_skip ("mock kdc not available to test against");
       return;
     }
 

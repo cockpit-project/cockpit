@@ -579,7 +579,7 @@ test_fail_access_denied (void)
 
   if (geteuid () == 0)
     {
-      cockpit_test_skip ("running as root");
+      g_test_skip ("running as root");
       return;
     }
 

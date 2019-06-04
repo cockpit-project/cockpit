@@ -42,7 +42,7 @@ typedef struct {
     gboolean for_tls_proxy;
 } TestFixture;
 
-#define SKIP_NO_HOSTPORT if (!tc->hostport) { cockpit_test_skip ("No non-loopback network interface available"); return; }
+#define SKIP_NO_HOSTPORT if (!tc->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
 
 static void
 setup (TestCase *tc,

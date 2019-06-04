@@ -664,7 +664,7 @@ test_write_infinite_nan (void)
   array = json_array_new ();
   json_array_add_double_element (array, 3.0); /* number */
   json_array_add_double_element (array, 1.0/0.0); /* INFINITY */
-  json_array_add_double_element (array, sqrt (-1)); /* NaN */
+  json_array_add_double_element (array, NAN); /* NaN */
 
   node = json_node_new (JSON_NODE_ARRAY);
   json_node_take_array (node, array);

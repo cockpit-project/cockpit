@@ -323,7 +323,7 @@ test_read_denied (TestCase *tc,
 
   if (geteuid () == 0)
     {
-      cockpit_test_skip ("running as root");
+      g_test_skip ("running as root");
       return;
     }
 
@@ -446,7 +446,7 @@ test_read_non_mmappable (TestCase *tc,
 
   if (g_strcmp0 (tag, "-") == 0)
     {
-      cockpit_test_skip ("No /sys/power/state");
+      g_test_skip ("No /sys/power/state");
       return;
     }
 
@@ -605,7 +605,7 @@ test_write_denied (TestCase *tc,
 
   if (geteuid () == 0)
     {
-      cockpit_test_skip ("running as root");
+      g_test_skip ("running as root");
       return;
     }
 

@@ -370,24 +370,6 @@ _cockpit_assert_strmatch_msg (const char *domain,
     }
 }
 
-/**
- * cockpit_test_skip()
- *
- * Can't call g_test_skip(). It's not available in
- * the GLib's we target. Call this instead.
- *
- * Same caveat applies. Must return from test, this
- * doesn't somehow jump out for you.
- */
-void
-cockpit_test_skip (const gchar *reason)
-{
-  if (g_test_verbose ())
-    g_print ("GTest: skipping: %s\n", reason);
-  else
-    g_print ("SKIP: %s ", reason);
-}
-
 void
 _cockpit_assert_json_eq_msg (const char *domain,
                              const char *file,

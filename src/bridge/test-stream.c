@@ -838,7 +838,7 @@ test_connect_loopback (TestConnect *tc,
 
   if (tc->skip_ipv6_loopback)
     {
-      cockpit_test_skip ("no loopback for ipv6 found");
+      g_test_skip ("no loopback for ipv6 found");
       return;
     }
 
@@ -950,7 +950,7 @@ test_fail_access_denied (void)
 
   if (geteuid () == 0)
     {
-      cockpit_test_skip ("running as root");
+      g_test_skip ("running as root");
       return;
     }
 

@@ -396,7 +396,7 @@ on_recv_multiple (CockpitTransport *transport,
                   gpointer user_data)
 {
   gint *state = user_data;
-  GBytes *check;
+  GBytes *check = NULL;
 
   if (channel == NULL)
     return FALSE;

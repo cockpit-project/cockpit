@@ -139,8 +139,8 @@ def run(image, verbose=False, **kwargs):
         task.label(pull, ["test-external"])
 
         # Trigger this pull request
-        head = pull["head"]["sha"]
         api = github.GitHub()
+        head = api.get("pulls/{}".format(pull["number"]))["head"]["sha"]
         for trigger in triggers:
             api.post("statuses/{0}".format(head), { "state": "pending", "context": trigger,
                 "description": github.NOT_TESTED_DIRECT })

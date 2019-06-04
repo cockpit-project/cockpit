@@ -269,7 +269,7 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = -Wl,--as-needed
 
 LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
-LOG_COMPILER = $(PYTHON) $(top_srcdir)/tools/tap-gtester
+LOG_COMPILER = sh -c '"$$0" "$$@" --tap' # For GLib < 2.62
 
 TEST_EXTENSIONS = .html .sh
 SH_LOG_DRIVER = $(LOG_DRIVER)
@@ -303,7 +303,7 @@ valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 	$(AM_V_GEN) cat $^ > $@
 
 check-memory: valgrind-suppressions
-	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
+	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		COCKPIT_SKIP_SLOW_TESTS=1 \
 		$(AM_MAKEFLAGS) check TESTS="$(filter-out tools/% bots/%,$(TESTS))"

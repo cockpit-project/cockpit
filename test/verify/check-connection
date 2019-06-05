@@ -175,7 +175,6 @@ class TestConnection(MachineCase):
         # RC4 should not work
         output = m.execute('! openssl s_client -connect 172.27.0.15:9090 -tls1_2 -cipher RC4 2>&1')
         self.assertNotIn("DONE", output)
-        # HACK: (NONE) cipher is a regression in Fedora 29 (https://bugzilla.redhat.com/show_bug.cgi?id=1629732)
         self.assertRegex(
             output, "no cipher match|no ciphers available|ssl handshake failure|Cipher is \(NONE\)")
 

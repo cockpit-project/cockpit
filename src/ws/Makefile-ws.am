@@ -35,7 +35,7 @@ dist/static/login.po.%.html: src/ws/%.po src/ws/po.empty.html
 	$(MV) $@.tmp $@
 
 staticfontsdir = $(staticdir)/fonts
-staticfonts_DATA = $(OPENSANS_FONTS)
+staticfonts_DATA = $(OPENSANS_FONTS) $(REDHATTEXT_FONTS) $(REDHATDISPLAY_FONTS)
 
 MAINTAINERCLEANFILES += \
 	dist/static/login.html \

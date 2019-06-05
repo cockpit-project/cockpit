@@ -131,7 +131,7 @@ class TestStorage(StorageCase):
 
     def testResizeLuks(self):
         # Only newer versions of UDisks support resizing encrypted block devices
-        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "fedora-29",
+        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1",
                                   "fedora-30", "fedora-testing", "fedora-i386", "debian-testing", "ubuntu-stable", "centos-7"]:
             self.checkResize("ext4", True,
                              can_shrink=True, shrink_needs_unmount=True,

@@ -63,7 +63,7 @@ def main():
                         help='container to test')
     opts = parser.parse_args()
     if not opts.container:
-        opts.container = 'kubernetes'
+        opts.container = 'bastion'
 
     if not os.path.isdir(os.path.abspath(os.path.join(testdir, "..", "containers", opts.container))):
         sys.stderr.write("Unable to run tests for unknown container {0}.\n".format(opts.container))

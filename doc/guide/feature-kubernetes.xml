@@ -9,22 +9,16 @@
     <ulink url="https://enterprise.openshift.com/">Openshift v3 cluster</ulink>. This
     functionality is in the Cockpit <emphasis>kubernetes</emphasis> package.</para>
 
-  <para>The dashboard can either be deployed on kubernetes as a
-    <ulink url="https://kubernetes.io/docs/user-guide/pods/">container in a pod</ulink> or used
-    via a normal authenticated Cockpit session. Cockpit communicates with Kubernetes via its
-    REST API.</para>
+  <para>The dashboard is part of a normal authenticated Cockpit session. Cockpit
+    communicates with Kubernetes via its REST API.</para>
 
-  <section id="feature-kubernetes-package">
-    <title>Used in a standard Cockpit session</title>
+  <para>Usually some form of authentication is necessary to access the Kubernetes REST API.
+    Like the <filename>kubectl</filename> and <filename>oc</filename> commands, Cockpit uses
+    the authentication and server information in the <code>~/.kube/config</code> file for
+    the logged in user.</para>
 
-    <para>When the Kubernetes dashboard is used in a standard Cockpit login session, usually some
-      form of authentication is necessary to access the Kubernetes REST API.
-      Like the <filename>kubectl</filename> and <filename>oc</filename> commands, Cockpit uses
-      the authentication and server information in the <code>~/.kube/config</code> file for
-      the logged in user.</para>
-
-    <para>If a user is able to use <code>kubectl</code> successfully when at their shell terminal,
-      then that same user will able to use Kubernetes dashboard when logged into Cockpit:</para>
+  <para>If a user is able to use <code>kubectl</code> successfully when at their shell terminal,
+    then that same user will able to use Kubernetes dashboard when logged into Cockpit:</para>
 
 <programlisting>
 $ <command>kubectl get pods</command>
@@ -33,63 +27,8 @@ docker-registry-1-l4pyh   1/1       Running   10         23d
 ...
 </programlisting>
 
-    <para>When running Openshift one can use the <code>oc login</code> command to configure the
-      <code>~/.kube/config</code> file correctly. This in turn allows Cockpit to use that
-      login information.</para>
-
-  </section>
-
-  <section id="feature-kubernetes-pod">
-    <title>Used as a Kubernetes Pod</title>
-
-    <para>The Kubernetes dashboard can be deployed as a pod on Kubernetes requiring users
-      to log in using the standard standard authentication configured for access to its API.</para>
-
-<programlisting>
-$ <command>wget https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/kubernetes-cockpit.json</command>
-$ <command>kubectl create -f kubernetes-cockpit.json</command>
-</programlisting>
-
-    <para>This pod can be used on kubernetes that is configured with basic authentication. By
-      default the pod tries to access the kubernetes API securely and expects that the kubernetes
-      API server has been deployed with a CA, certificate files and service account key. In order
-      to change this behavior, edit the <filename>kubernetes-cockpit.json</filename> and change the
-      <literal>KUBE_INSECURE</literal> environment variable to <literal>true</literal>.</para>
-
-    <para>You can retrieve the address where you can access the dashboard via:</para>
-
-<programlisting>
-$ <command>kubectl get service kubernetes-cockpit</command>
-</programlisting>
-
-  </section>
-
-  <section id="feature-openshift-pod">
-    <title>Used as an Openshift Pod</title>
-
-    <para>The Kubernetes dashboard can be deployed as a pod on Openshift, and use Openshift
-      OAuth authentication. Running software on Openshift requires forethought, planning and
-      configuration. In particular, in order to run the admin interface as a pod you need
-      to first decide the host name that it will be accessible at. This is the host name part
-      of its URL.</para>
-
-    <para>Next use the following commands to deploy the registry pod and service. You'll need
-      to have admin access to the Openshift cluster, as an OAuth client needs to be created.
-      Replace the <literal>XXX</literal> with the host name you want to make the registry
-      accessible at. In addition replace <literal>YYY</literal> with the host name of the
-      Openshift API server.</para>
-
-<programlisting>
-$ <command>wget https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/openshift-cockpit.template</command>
-$ <command>oc process -f openshift-cockpit.template -p COCKPIT_KUBE_URL=https://XXX -p OPENSHIFT_OAUTH_PROVIDER_URL=https://YYY:8443 | oc create -f -</command>
-</programlisting>
-
-    <para>You can retrieve the address where you can access the dashboard via:</para>
-
-<programlisting>
-$ <command>oc get service openshift-cockpit</command>
-</programlisting>
-
-  </section>
+  <para>When running Openshift one can use the <code>oc login</code> command to configure the
+    <code>~/.kube/config</code> file correctly. This in turn allows Cockpit to use that
+    login information.</para>
 
 </chapter>

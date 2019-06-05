@@ -23,9 +23,9 @@ MAX_PRIORITY = 9
 
 REPO_BRANCH_CONTEXT = {
     'cockpit-project/cockpit': {
-        'master': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
+        'master': ['avocado/fedora', 'container/bastion',
             'selenium/firefox', 'selenium/chrome', 'verify/centos-7', 'verify/debian-stable',
-            'verify/debian-testing', 'verify/fedora-29', 'verify/fedora-30', 'verify/fedora-atomic',
+            'verify/debian-testing', 'verify/fedora-30', 'verify/fedora-atomic',
             'verify/ubuntu-1804', 'verify/ubuntu-stable', 'verify/rhel-7-6-distropkg',
             'verify/rhel-7-7', 'verify/rhel-8-0-distropkg', 'verify/rhel-atomic', 'selenium/edge',
             'verify/rhel-8-1',
@@ -51,7 +51,7 @@ REPO_BRANCH_CONTEXT = {
     'cockpit-project/starter-kit': {
         'master': [
             'cockpit/centos-7',
-            'cockpit/fedora-29',
+            'cockpit/fedora-30',
         ],
     },
     'cockpit-project/cockpit-ostree': {
@@ -85,11 +85,11 @@ REPO_BRANCH_CONTEXT = {
     },
     'weldr/cockpit-composer': {
         'master': [
-            'cockpit/fedora-29/chrome',
-            'cockpit/fedora-29/firefox',
+            'cockpit/fedora-30/chrome',
+            'cockpit/fedora-30/firefox',
+            'cockpit/fedora-30/edge',
             'cockpit/rhel-7-7/firefox',
             'cockpit/rhel-8-1/chrome',
-            'cockpit/fedora-30/edge',
         ],
         'rhel-8.0': ['cockpit/rhel-8-0/chrome', 'cockpit/rhel-8-0/firefox', 'cockpit/rhel-8-0/edge'
         ],

@@ -138,11 +138,7 @@ def begin(publish, name, context, issue):
         number = issue["number"]
         identifier = "{0}-{1}-{2}".format(name, number, current)
         title = issue["title"]
-        # Multiple failures would duplicate [no-test] in the title
-        if "[no-test]" in title:
-            wip = "WIP: {0}: {1}".format(hostname, title)
-        else:
-            wip = "WIP: {0}: [no-test] {1}".format(hostname, title)
+        wip = "WIP: {0}: [no-test] {1}".format(hostname, title)
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
@@ -194,7 +190,7 @@ def begin(publish, name, context, issue):
 
     return publishing
 
-def finish(publishing, ret, name, context, issue, run_tests):
+def finish(publishing, ret, name, context, issue):
     if not publishing:
         return
 
@@ -224,15 +220,10 @@ def finish(publishing, ret, name, context, issue, run_tests):
         # The sink wants us to escape colons :S
         body = checklist.body.replace(':', '::')
 
-        # Multiple failures would duplicate [no-test] in the title
-        if run_tests or "[no-test]" in issue["title"]:
-            title = issue["title"]
-        else:
-            title = "[no-test] {0}".format(issue["title"])
         requests = [ {
             "method": "POST",
             "resource": api.qualify("issues/{0}".format(number)),
-            "data": { "title": title, "body": body }
+            "data": { "title": "{0}".format(issue["title"]), "body": body }
         } ]
 
         # Close the issue if it's not a pull request, successful, and all tasks done
@@ -259,7 +250,6 @@ def run(context, function, **kwargs):
     number = kwargs.get("issue", None)
     publish = kwargs.get("publish", "")
     name = kwargs["name"]
-    run_tests = kwargs.get("run_tests", True)
 
     issue = None
     if number:
@@ -286,7 +276,7 @@ def run(context, function, **kwargs):
     except:
         traceback.print_exc()
     finally:
-        finish(publishing, ret, name, context, issue, run_tests)
+        finish(publishing, ret, name, context, issue)
     return ret or 0
 
 # Check if the given files that match @pathspec are stale
@@ -415,11 +405,10 @@ def branch(context, message, pathspec=".", issue=None, branch=None, push=True, *
 
     return "{0}:{1}".format(user, branch)
 
-def pull(branch, body=None, issue=None, base="master", labels=['bot'], **kwargs):
+def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests=True, **kwargs):
     if "pull" in kwargs:
         return kwargs["pull"]
 
-    run_tests = kwargs.get("run_tests", True)
     data = {
         "head": branch,
         "base": base,

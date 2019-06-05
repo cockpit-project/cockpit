@@ -1,34 +1,22 @@
 @import url("gtk-doc.css");
 
+/* keep this in sync with node_modules/@redhat/redhat-font/webfonts/red-hat-font.css */
 @font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 300;
-  src: url('OpenSans-Light-webfont.woff') format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
+  font-family: "RedHatText";
+  src: url("./RedHatText-Regular.woff2") format("woff2");
+  /* Modern Browsers */
   font-style: normal;
   font-weight: 400;
-  src: url('OpenSans-Regular-webfont.woff') format('woff');
+  text-rendering: optimizeLegibility;
 }
+
 @font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 600;
-  src: url('OpenSans-Semibold-webfont.woff') format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
+  font-family: "RedHatText";
+  src: url("./RedHatText-Medium.woff2") format("woff2");
+  /* Modern Browsers */
   font-style: normal;
   font-weight: 700;
-  src: url('OpenSans-Bold-webfont.woff') format('woff');
-}
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: 800;
-  src: url('OpenSans-ExtraBold-webfont.woff') format('woff');
+  text-rendering: optimizeLegibility;
 }
 
 H1.guides {
@@ -46,7 +34,7 @@ H2.guides {
 DIV.guides {
 	margin-left: 20px;
 	margin-right: 20px;
-	font-family: 'Open Sans', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 	font-size: 11pt;
 }
 
@@ -57,7 +45,7 @@ DIV.guides > p {
 DIV.guides > A {
 	margin-left: 40px;
 	margin-right: 20px;
-	font-size: 13px;
+	font-size: 12px;
 	line-height: 200%;
         display: block;
 }
@@ -86,7 +74,7 @@ TABLE.navigation TH:first-child {
 
 .shortcuts a {
 	color: white !important;
-	font-family: 'Open Sans', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 }
 
 P.title {
@@ -130,7 +118,7 @@ DIV.index,
 DIV.footer,
 DIV.section,
 DIV.part {
-	font-family: 'Open Sans', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+	font-family: 'RedHatText', Verdana, Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
 	font-size: 11pt;
 	line-height: 160%;
 }
@@ -180,7 +168,7 @@ PRE.programlisting {
 }
 
 DIV.variablelist TABLE {
-	font-size: 11pt;
+	font-size: 13pt;
 	line-height: 150%;
         margin-left: 0px;
 }

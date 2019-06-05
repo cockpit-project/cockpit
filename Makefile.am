@@ -330,13 +330,41 @@ OPENSANS_FONTS = \
 	dist/fonts/OpenSans-SemiboldItalic-webfont.woff \
 	$(NULL)
 
-dist/fonts/%.woff:
+REDHATTEXT_FONTS = \
+	dist/fonts/RedHatText-Bold.woff2 \
+	dist/fonts/RedHatText-BoldItalic.woff2 \
+	dist/fonts/RedHatText-Italic.woff2 \
+	dist/fonts/RedHatText-Medium.woff2 \
+	dist/fonts/RedHatText-MediumItalic.woff2 \
+	dist/fonts/RedHatText-Regular.woff2 \
+	$(NULL)
+
+REDHATDISPLAY_FONTS = \
+	dist/fonts/RedHatDisplay-Black.woff2 \
+	dist/fonts/RedHatDisplay-BlackItalic.woff2 \
+	dist/fonts/RedHatDisplay-Bold.woff2 \
+	dist/fonts/RedHatDisplay-BoldItalic.woff2 \
+	dist/fonts/RedHatDisplay-Italic.woff2 \
+	dist/fonts/RedHatDisplay-Medium.woff2 \
+	dist/fonts/RedHatDisplay-MediumItalic.woff2 \
+	dist/fonts/RedHatDisplay-Regular.woff2 \
+	$(NULL)
+
+dist/fonts/OpenSans-%.woff:
 	$(V_COPY) $(MKDIR_P) $(dir $@) && \
 	cp -L $(subst dist/fonts,$(srcdir)/node_modules/patternfly/dist/fonts,$@) $@.tmp && $(MV) $@.tmp $@
 
-EXTRA_DIST += $(OPENSANS_FONTS)
+dist/fonts/RedHatText-%.woff2:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp -L $(subst dist/fonts,$(srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatText,$@) $@.tmp && $(MV) $@.tmp $@
 
-MAINTAINERCLEANFILES += $(OPENSANS_FONTS)
+dist/fonts/RedHatDisplay-%.woff2:
+	$(V_COPY) $(MKDIR_P) $(dir $@) && \
+	cp -L $(subst dist/fonts,$(srcdir)/node_modules/@redhat/redhat-font/webfonts/RedHatDisplay,$@) $@.tmp && $(MV) $@.tmp $@
+
+EXTRA_DIST += $(OPENSANS_FONTS) $(REDHATTEXT_FONTS) $(REDHATDISPLAY_FONTS)
+
+MAINTAINERCLEANFILES += $(OPENSANS_FONTS) $(REDHATTEXT_FONTS) $(REDHATDISPLAY_FONTS)
 
 if ENABLE_DOC
 

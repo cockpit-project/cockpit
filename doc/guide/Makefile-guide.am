@@ -65,7 +65,7 @@ GUIDE_XSLT = \
 	doc/guide/version-greater-or-equal.xsl \
 	$(NULL)
 
-GUIDE_FONTS = $(subst dist/fonts/,dist/guide/html/,$(OPENSANS_FONTS))
+GUIDE_FONTS = $(subst dist/fonts/,dist/guide/html/,$(REDHATTEXT_FONTS))
 
 EXTRA_DIST += \
 	$(GUIDE_DOCBOOK) \
@@ -92,7 +92,7 @@ MAINTAINERCLEANFILES += \
 	*.tmp \
 	$(NULL)
 
-dist/guide/html/%.woff: dist/fonts/%.woff
+dist/guide/html/%.woff2: dist/fonts/%.woff2
 	$(COPY_RULE)
 
 dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(man_MANS) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)

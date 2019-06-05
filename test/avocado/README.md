@@ -10,7 +10,7 @@ Libraries are accessible in [testlib_avocado module](./testlib_avocado).
 
 The default way to run avocado tests is to use the [testing images](https://github.com/cockpit-project/cockpit/blob/master/bots/images/) that CI uses and test cockpit installation inside a test VM.
 
-Currently, these tests run on Fedora 29. Other images don't have selenium and
+Currently, these tests run on Fedora 30. Other images don't have selenium and
 avocado installed.
 
 ``` bash

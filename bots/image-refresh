@@ -21,16 +21,19 @@
 import os
 import subprocess
 import sys
+import time
 
 import task
 from task import github, REDHAT_STORE
 
 TRIGGERS = {
     "centos-7": [
-        "verify/centos-7"
+        "verify/centos-7",
+        "cockpit/centos-7@cockpit-project/starter-kit",
     ],
     "continuous-atomic": [
-        "verify/continuous-atomic"
+        "verify/continuous-atomic",
+        "cockpit/continuous-atomic@cockpit-project/cockpit-ostree",
     ],
     "debian-testing": [
         "verify/debian-testing"
@@ -42,6 +45,7 @@ TRIGGERS = {
         "verify/fedora-29",
         "verify/fedora-atomic",
         "container/bastion",
+        "cockpit/fedora-29@cockpit-project/cockpit-podman",
     ],
     "fedora-30": [
         "verify/fedora-30",
@@ -49,9 +53,18 @@ TRIGGERS = {
         "selenium/firefox",
         "selenium/edge",
         "avocado/fedora",
+        "cockpit/fedora-30@cockpit-project/starter-kit",
+        "cockpit/fedora-30@cockpit-project/cockpit-podman",
+        "cockpit/fedora-30@weldr/lorax",
+        "cockpit/fedora-30/live-iso@weldr/lorax",
+        "cockpit/fedora-30/qcow2@weldr/lorax",
+        "cockpit/fedora-30/chrome@weldr/cockpit-composer",
+        "cockpit/fedora-30/firefox@weldr/cockpit-composer",
+        "cockpit/fedora-30/edge@weldr/cockpit-composer",
     ],
     "fedora-atomic": [
-        "verify/fedora-atomic"
+        "verify/fedora-atomic",
+        "cockpit/fedora-atomic@cockpit-project/cockpit-ostree",
     ],
     "fedora-testing": [
         "verify/fedora-testing"
@@ -83,15 +96,18 @@ TRIGGERS = {
     ],
     "rhel-7-7": [
         "verify/rhel-7-7",
+        "cockpit/rhel-7-7/firefox@weldr/cockpit-composer",
     ],
     "rhel-8-0": [
         "verify/rhel-8-0"
     ],
     "rhel-8-1": [
-        "verify/rhel-8-1"
+        "verify/rhel-8-1",
+        "cockpit/rhel-8-1/chrome@weldr/cockpit-composer",
     ],
     "rhel-atomic": [
-        "verify/rhel-atomic"
+        "verify/rhel-atomic",
+        "cockpit/rhel-atomic@cockpit-project/cockpit-ostree",
     ]
 }
 
@@ -133,15 +149,21 @@ def run(image, verbose=False, **kwargs):
     if branch:
         pull = task.pull(branch, run_tests=False, **kwargs)
 
-        # we want to validate all image refreshes with external projects
-        task.label(pull, ["test-external"])
-
         # Trigger this pull request
         api = github.GitHub()
-        head = api.get("pulls/{}".format(pull["number"]))["head"]["sha"]
+        head = pull["head"]["sha"]
         for trigger in triggers:
             api.post("statuses/{0}".format(head), { "state": "pending", "context": trigger,
                 "description": github.NOT_TESTED_DIRECT })
+
+        # Wait until all of the statuses are present so the no-test label can
+        # safely be removed by the task api
+        for retry in range(20):
+            if all(status in triggers for status in api.statuses(head).keys()):
+                break
+            time.sleep(3)
+        else:
+            raise RuntimeError("Failed to confirm the presence of all triggers")
 
 if __name__ == '__main__':
     task.main(function=run, title="Refresh image")

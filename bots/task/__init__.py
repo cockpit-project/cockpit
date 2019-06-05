@@ -455,6 +455,16 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests
         (user, branch) = branch.split(":")
         push_branch(user, branch, True)
 
+        # Make sure we return the updated pull data
+        for retry in range(20):
+            new_data = api.get("pulls/{}".format(pull["number"]))
+            if pull["head"]["sha"] != new_data["head"]["sha"]:
+                pull = new_data
+                break
+            time.sleep(3)
+        else:
+            raise RuntimeError("Failed to retrieve updated pull data after force pushing")
+
     return pull
 
 def label(issue, labels=['bot']):

@@ -214,10 +214,10 @@ class AvocadoTestSuite:
             self.tap.tap_item_header(test)
             status, cmd_output, duration = self._run_one_avocado_test(test)
             self.tap.tap_item_summary(test, cmd_output, duration)
+            if not status:
+                self.copy_artifacts()
         end_time = datetime.datetime.now()
         self.tap.tap_summary((end_time - start_time).seconds)
-        if not self.tap.get_status():
-            self.copy_artifacts()
         return self.tap.get_status()
 
     def copy_artifacts(self):

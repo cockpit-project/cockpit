@@ -64,9 +64,6 @@ class SeleniumTest(Test):
     """
 
     def setUp(self):
-        # ensure that setup phase passed, otherwise handle it in tearDown
-        # tierDown is called also in case setUp fail
-        self.error_setup = True
         selenium_hub = os.environ.get("HUB", "localhost")
         browser = os.environ.get("BROWSER", "firefox")
         guest_machine = os.environ.get("GUEST", "localhost")
@@ -124,8 +121,6 @@ class SeleniumTest(Test):
 
         connectwebpage()
 
-        self.error_setup = False
-
     def _get_screenshot_name(self, *args):
         sep = "-"
         if len(args) > 0:
@@ -161,9 +156,10 @@ class SeleniumTest(Test):
                 self.log.info(msg)
 
     def tearDown(self):
-        if self.error_setup:
-            # use time instead because this is not related to any test
-            self.take_screenshot(phase="tearDown", fatal=False)
+        # take screenshot everytime to ensure that if test fails there will be debugging info
+        # in case it assert in some condition, not directly inside elements
+        # and logic of when transfer images is up to scheduler
+        self.take_screenshot(phase="{}-tearDown".format(self.id()), fatal=False)
         try:
             self.driver.quit()
         except WebDriverException as e:

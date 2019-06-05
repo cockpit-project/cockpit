@@ -240,7 +240,10 @@ def tests_human(priority, name, number, revision, ref, context, base, repo, bots
     )
 
 def is_internal_context(context):
-    return "rhel" in context or "edge" in context
+    for pattern in ["rhel", "edge", "vmware", "openstack"]:
+        if pattern in context:
+            return True
+    return False
 
 # Prepare a test invocation command
 def tests_invoke(priority, name, number, revision, ref, context, base, repo, bots_ref, options):

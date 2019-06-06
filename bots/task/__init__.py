@@ -461,7 +461,7 @@ def pull(branch, body=None, issue=None, base="master", labels=['bot'], run_tests
             if pull["head"]["sha"] != new_data["head"]["sha"]:
                 pull = new_data
                 break
-            time.sleep(3)
+            time.sleep(6)
         else:
             raise RuntimeError("Failed to retrieve updated pull data after force pushing")
 

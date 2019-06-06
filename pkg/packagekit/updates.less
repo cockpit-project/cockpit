@@ -96,7 +96,6 @@ tr.listing-ct-item {
     }
     td.changelog {
         vertical-align: top;
-        text-align: left;
 
         * {
             display: inline;
@@ -108,10 +107,14 @@ tr.listing-ct-item {
         &, p {
             max-width: 60vw;
             margin-bottom: 0;  // counter-act <Markdown>
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
+    }
+
+    th:last-child,
+    td.changelog:last-child {
+        text-align: left;
     }
 }
 

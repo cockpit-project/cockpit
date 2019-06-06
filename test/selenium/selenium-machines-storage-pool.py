@@ -1,20 +1,21 @@
-import time
 import os
 from avocado import skipIf
 from testlib_avocado.machineslib import MachinesLib
-from testlib_avocado.seleniumlib import clickable, invisible
+from testlib_avocado.seleniumlib import clickable, invisible, text_in
 
 
 class MachinesStoragePoolTestSuite(MachinesLib):
     """
     :avocado: enable
-    :avocado: tags=machines_s
+    :avocado: tags=machines
     """
-    @skipIf(os.environ.get('HUB') == '10.111.112.10', "This case need a non-root user with the privilege of sudo")
+
     def testCheckStoragePool(self):
         self.wait_css('#card-pf-storage-pools')
-        self.wait_css('#card-pf-storage-pools .fa.fa-arrow-circle-o-up')
-        self.wait_css('#card-pf-storage-pools .fa.fa-arrow-circle-o-down')
+        cmd_active = int(self.machine.execute('virsh pool-list | awk \'NR>=3{if($0!="")print}\' | wc -l')) + int(
+            self.machine.execute('sudo virsh pool-list | awk \'NR>=3{if($0!="")print}\' | wc -l'))
+        self.wait_css('#card-pf-storage-pools > div > p > span:nth-child(1)', cond=text_in, text_=str(cmd_active))
+
         active = int(self.wait_css(
             '#card-pf-storage-pools > div > p > span:nth-child(1)').text)
         inactive = int(self.wait_css(
@@ -50,8 +51,8 @@ class MachinesStoragePoolTestSuite(MachinesLib):
         self.wait_css('#virtual-machines-listing')
 
     def testCreateDirStoragePool(self):
-        name = 'test_storage_pool{}'.format(str(time.time()).split('.')[0])
-        path = '/home/test{}'.format(str(time.time()).split('.')[0])
+        name = 'test_storage_pool_' + MachinesLib.random_string()
+        path = '/home/test_' + MachinesLib.random_string()
         self.machine.execute('sudo mkdir -p {}'.format(path))
 
         pool_name = self.create_storage_by_ui(name=name, target_path=path)
@@ -87,12 +88,14 @@ class MachinesStoragePoolTestSuite(MachinesLib):
     @skipIf(os.environ.get('NFS') is None,
             'Users should define an environment for NFS location')
     def testCreateNFSStoragePool(self):
-        name = 'test_nfs_storage_pool{}'.format(str(time.time()).split('.')[0])
-        path = '/home/test_nfs{}'.format(str(time.time()).split('.')[0])
+        name = 'test_nfs_storage_pool_' + MachinesLib.random_string()
+        self.storage_pool['pool'] = name
+
+        path = '/home/test_nfs_' + MachinesLib.random_string()
         self.machine.execute('sudo mkdir -p {}'.format(path))
 
         pool_name = self.create_storage_by_ui(
-            name=name, type='netfs', target_path=path,
+            name=name, storage_type='netfs', target_path=path,
             host=os.environ.get('NFS'), source_path='/home/nfs', start_up=False)
 
         info = self.wait_css(

@@ -20,34 +20,33 @@
 #ifndef COCKPIT_CONF_H__
 #define COCKPIT_CONF_H__
 
-#include <glib.h>
-
-G_BEGIN_DECLS
-
 #define COCKPIT_CONF_SSH_SECTION "Ssh-Login"
 
-const gchar *   cockpit_conf_string           (const gchar *section,
-                                               const gchar *field);
+#include <stdbool.h>
+#include <stdint.h>
+
+const char *   cockpit_conf_string           (const char *section,
+                                              const char *field);
 
 
-const gchar **  cockpit_conf_strv             (const gchar *section,
-                                               const gchar *field,
-                                               gchar delimiter);
+const char **  cockpit_conf_strv             (const char *section,
+                                              const char *field,
+                                              char delimiter);
 
-gboolean        cockpit_conf_bool             (const gchar *section,
-                                               const gchar *field,
-                                               gboolean defawlt);
+bool           cockpit_conf_bool             (const char *section,
+                                              const char *field,
+                                              bool defawlt);
 
-guint           cockpit_conf_guint            (const gchar *section,
-                                               const gchar *field,
-                                               guint default_value,
-                                               guint64 max,
-                                               guint64 min);
+unsigned       cockpit_conf_uint             (const char *section,
+                                              const char *field,
+                                              unsigned default_value,
+                                              unsigned max,
+                                              unsigned min);
 
-const gchar * const * cockpit_conf_get_dirs   (void);
+const char * const * cockpit_conf_get_dirs   (void);
 
-void            cockpit_conf_cleanup          (void);
+void           cockpit_conf_cleanup          (void);
 
-void            cockpit_conf_init             (void);
+void           cockpit_conf_init             (void);
 
 #endif /* COCKPIT_CONF_H__ */

@@ -86,26 +86,47 @@ test_get_guint (void)
 static void
 test_get_strvs (void)
 {
-  const gchar **comma = NULL;
-  const gchar **space = NULL;
-  const gchar **one = NULL;
+  const gchar **list = NULL;
 
   cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 
   g_assert_null (cockpit_conf_strv ("bad-section", "value", ' '));
   g_assert_null (cockpit_conf_strv ("Section1", "value", ' '));
 
-  one = cockpit_conf_strv ("Section2", "value1", ' ');
-  g_assert_cmpstr (one[0], ==, "string");
+  /* empty list */
+  list = cockpit_conf_strv ("Section2", "empty", ':');
+  g_assert_null (list[0]);
 
-  space = cockpit_conf_strv ("Section2", "value2", ' ');
-  g_assert_cmpstr (space[0], ==, "commas,");
-  g_assert_cmpstr (space[1], ==, "or");
-  g_assert_cmpstr (space[2], ==, "spaces");
+  /* list with one element */
+  list = cockpit_conf_strv ("Section2", "value1", ' ');
+  g_assert_cmpstr (list[0], ==, "string");
+  g_assert_null (list[1]);
 
-  comma = cockpit_conf_strv ("Section2", "value2", ',');
-  g_assert_cmpstr (comma[0], ==, "commas");
-  g_assert_cmpstr (comma[1], ==, " or spaces");
+  /* list with space separator */
+  list = cockpit_conf_strv ("Section2", "value2", ' ');
+  g_assert_cmpstr (list[0], ==, "commas,");
+  g_assert_cmpstr (list[1], ==, "or");
+  g_assert_cmpstr (list[2], ==, "spaces");
+  g_assert_null (list[3]);
+
+  /* list with comma separator */
+  list = cockpit_conf_strv ("Section2", "value3", ',');
+  g_assert_cmpstr (list[0], ==, "commas");
+  g_assert_cmpstr (list[1], ==, " or spaces");
+  g_assert_null (list[2]);
+
+  /* list with only a separator */
+  list = cockpit_conf_strv ("Section2", "emptystrv", ':');
+  g_assert_cmpstr (list[0], ==, "");
+  g_assert_cmpstr (list[1], ==, "");
+  g_assert_null (list[2]);
+
+  /* list with empty value in the middle */
+  list = cockpit_conf_strv ("Section2", "strvemptyitems", ':');
+  g_assert_cmpstr (list[0], ==, "one");
+  g_assert_cmpstr (list[1], ==, "");
+  g_assert_cmpstr (list[2], ==, "three");
+  g_assert_null (list[3]);
 
   cockpit_conf_cleanup ();
 }

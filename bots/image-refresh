@@ -161,7 +161,7 @@ def run(image, verbose=False, **kwargs):
         for retry in range(20):
             if all(status in triggers for status in api.statuses(head).keys()):
                 break
-            time.sleep(3)
+            time.sleep(6)
         else:
             raise RuntimeError("Failed to confirm the presence of all triggers")
 

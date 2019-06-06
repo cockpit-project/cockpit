@@ -3,16 +3,28 @@
 @import "./variables.less";
 
 table.listing-ct {
-    margin-top: @listing-ct-spacing;
     min-width: 65%;
+    font-size: var(--font-size-s);
+
+    + .listing-ct {
+        margin-top: @listing-ct-spacing * 2;
+    }
 }
 
 table.listing-ct > caption,
 table.listing-ct > thead h3 {
-    font-size: @font-size-h2;
-    padding: @listing-ct-padding 0px @listing-ct-padding;
-    font-weight: 300;
+    font-size: var(--pf-global--FontSize--2xl);
+    padding: 1rem 0;
+    font-weight: 400;
     margin-top: 0;
+    position: relative;
+
+    > .pull-right {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+    }
 }
 
 table.listing-ct > caption {
@@ -120,7 +132,7 @@ tbody:not(.open) > tr.listing-ct-item.listing-ct-nonavigate:hover td.listing-ct-
 }
 
 /* use hover color expanded rows even if navigation isn't available */
-tbody.open:hover > tr.listing-ct-item,
+tbody.open > tr.listing-ct-item:hover,
 tr.listing-ct-item.listing-ct-nonavigate:hover {
     background-color: @listing-ct-hover;
 }
@@ -144,20 +156,9 @@ tbody.open .listing-ct-toggle {
 .listing-ct > thead > tr > .listing-ct-toggle + th,
 .listing-ct-item > .listing-ct-toggle + td,
 .listing-ct-item > .listing-ct-toggle + th {
-    padding-left: @listing-ct-padding;
+    padding-left: @listing-ct-padding / 2;
     position: relative;
 }
-
-.listing-ct-item > .listing-ct-toggle:not(:empty) + th::before,
-.listing-ct-item > .listing-ct-toggle:not(:empty) + td::before {
-    border-left: 1px solid rgba(0, 0, 0, 0.18);
-    content: "";
-    height: @line-height-base * 1em;
-    left: -5px;
-    position: absolute;
-    top: @listing-ct-padding * 1.5;
-}
-
 
 td.listing-ct-toggle i {
     font-size: 17px;
@@ -433,12 +434,45 @@ tbody.active .listing-ct-head {
 }
 
 table.listing-ct tbody {
+    position: relative;
     transition: all 100ms ease-out;
-}
 
-table.listing-ct tbody.open {
-    transition: all 100ms ease-in;
-    box-shadow: 0 2px 6px rgba(3, 3, 3, 0.2);
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 300ms;
+    }
+
+    &::before {
+        border: 1px solid var(--color-border);
+    }
+
+    &::after {
+        right: auto;
+        width: 0;
+        background-color: var(--pf-global--active-color--100);
+    }
+
+    &.open {
+        transition: all 100ms ease-in;
+        box-shadow: 0 0.3125rem 0.625rem -0.25rem rgba(3,3,3, 0.25);
+
+        &::before,
+        &::after {
+            opacity: 1;
+        }
+
+        &::after {
+            width: 3px;
+        }
+    }
 }
 
 /* By default these are hidden */
@@ -447,6 +481,11 @@ tbody:not(.ssh-key-body) > tr.listing-ct-head,
 tbody > tr.listing-ct-panel,
 tbody > tr.listing-ct-body {
     display: none;
+
+    > td {
+        /* Compensate for the left-side blue highlight */
+        padding-left: 3px;
+    }
 }
 
 /* ... unless they are in the right state */

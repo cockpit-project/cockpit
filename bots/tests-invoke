@@ -279,7 +279,7 @@ class PullTask(object):
             message = "Tests passed"
             mark_passed()
         else:
-            message = "{0} tests failed".format(ret)
+            message = "Tests failed with code {0}".format(ret)
             mark_failed()
             ret = 0 # A failure, but not for this script
         sink.status["message"] = message

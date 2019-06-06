@@ -443,8 +443,8 @@ timeout_option (const gchar *name,
                 const gchar *type,
                 guint default_value)
 {
-  return cockpit_conf_guint (type, name, default_value,
-                             MAX_AUTH_TIMEOUT, MIN_AUTH_TIMEOUT);
+  return cockpit_conf_uint (type, name, default_value,
+                            MAX_AUTH_TIMEOUT, MIN_AUTH_TIMEOUT);
 }
 
 static const gchar *

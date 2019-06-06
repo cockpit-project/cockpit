@@ -68,18 +68,18 @@ test_get_bool (void)
 }
 
 static void
-test_get_guint (void)
+test_get_uint (void)
 {
   cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 
-  g_assert_cmpuint (cockpit_conf_guint ("bad-section", "value", 1, 999, 0), ==,  1);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "missing", 1, 999, 0), ==,  1);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "mixed", 10, 999, 0), ==,  10);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "value1", 10, 999, 0), ==,  10);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "toolarge", 10, 999, 0), ==,  10);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "one", 10, 999, 0), ==,  1);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "one", 1, 999, 2), ==,  2);
-  g_assert_cmpuint (cockpit_conf_guint ("Section2", "one", 1, 0, 0), ==,  0);
+  g_assert_cmpuint (cockpit_conf_uint ("bad-section", "value", 1, 999, 0), ==,  1);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "missing", 1, 999, 0), ==,  1);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "mixed", 10, 999, 0), ==,  10);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "value1", 10, 999, 0), ==,  10);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "toolarge", 10, 999, 0), ==,  10);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "one", 10, 999, 0), ==,  1);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "one", 1, 999, 2), ==,  2);
+  g_assert_cmpuint (cockpit_conf_uint ("Section2", "one", 1, 0, 0), ==,  0);
   cockpit_conf_cleanup ();
 }
 
@@ -157,7 +157,7 @@ main (int argc,
   cockpit_test_init (&argc, &argv);
 
   g_test_add_func ("/conf/test-bool", test_get_bool);
-  g_test_add_func ("/conf/test-guint", test_get_guint);
+  g_test_add_func ("/conf/test-uint", test_get_uint);
   g_test_add_func ("/conf/test-strings", test_get_strings);
   g_test_add_func ("/conf/test-strvs", test_get_strvs);
   g_test_add_func ("/conf/fail_load", test_fail_load);

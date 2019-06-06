@@ -20,283 +20,366 @@
 #include "config.h"
 
 #include "cockpitconf.h"
+#include "cockpitmemory.h"
 
-#include "cockpithash.h"
+#include <ctype.h>
+#include <err.h>
+#include <errno.h>
+#include <libgen.h>
+#include <limits.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "errno.h"
+/* #define DEBUG 1 */
+#if DEBUG
+#define debug(fmt, ...) (fprintf (stderr, "cockpitconf: " fmt "\n", ##__VA_ARGS__))
+#else
+#define debug(...)
+#endif
 
-static GHashTable *cockpit_conf = NULL;
-static GHashTable *cached_strvs = NULL;
 
-const gchar *cockpit_config_file = "cockpit.conf";
-const gchar *cockpit_config_dirs[] = { PACKAGE_SYSCONF_DIR, NULL };
+typedef struct Entry {
+  char *section;
+  char *key;
+  char *value;
+  char *strv_value; /* copy of value with all strv_delimiters replaced with \0 */
+  char strv_delimiter;
+  const char **strv_cache; /* value split by strv_delimiter; points into strv_value */
+  struct Entry *next;
+} Entry;
 
-static gboolean
-load_key_file (const gchar *file_path)
+static bool cockpit_conf_loaded = false;
+static Entry *cockpit_conf = NULL;
+
+const char *cockpit_config_file = "cockpit.conf";
+const char *cockpit_config_dirs[] = { PACKAGE_SYSCONF_DIR, NULL };
+
+/*
+ * some helper functions for safe memory allocation
+ */
+
+static void
+regcompx (regex_t *preg, const char *regex, int cflags)
 {
-  GKeyFile *key_file = NULL;
-  GHashTable *section;
-  GError *error = NULL;
-  gchar **groups;
-  gint i;
-  gint j;
-  gboolean ret = TRUE;
-
-  key_file = g_key_file_new ();
-
-  if (!g_key_file_load_from_file (key_file, file_path, G_KEY_FILE_NONE, &error))
+  int ret = regcomp (preg, regex, cflags);
+  if (ret != 0)
     {
-      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
-        goto out;
+      char err[1024];
+      regerror (ret, preg, err, sizeof (err));
+      fprintf (stderr, "failed to compile regular expression: %s\n", err);
+      abort ();
+    }
+}
 
-      g_message ("couldn't load configuration file: %s: %s", file_path, error->message);
-      ret = FALSE;
-      goto out;
+/* For optimization, this modifies string; the returned array has pointers into string
+ * The array itself gets allocated and must be freed after use. */
+static const char **
+strsplit (char *string, char delimiter)
+{
+  const char ** parts = reallocarrayx (NULL, 2, sizeof (char*));
+  char *cur = string;
+  bool done = false;
+  unsigned len = 0;
+
+  /* backwards compatible special case: a totally empty string gives [], while ":" splits into ["", ""] */
+  if (string && *string)
+    {
+      while (!done)
+        {
+          char *next_delim = strchr (cur, delimiter);
+
+          if (next_delim)
+            *next_delim = '\0';
+          else
+            done = true;
+
+          parts = reallocarrayx (parts, len + 2, sizeof (char*));
+          parts[len++] = cur;
+
+          if (next_delim)
+            cur = next_delim + 1;
+        }
     }
 
-  groups = g_key_file_get_groups (key_file, NULL);
-  for (i = 0; groups[i] != NULL; i++)
+  parts[len] = NULL;
+  return parts;
+}
+
+/*
+ * internal logic/helpers
+ */
+
+/* See https://developer.gnome.org/glib/stable/glib-Key-value-file-parser.html for the spec */
+static bool
+load_key_file (const char *file_path)
+{
+  FILE *f = NULL;
+  char *cur_section = NULL;
+  regex_t re_section, re_keyval, re_ignore;
+  char *line = NULL;
+  bool ret = true;
+  size_t line_size = 0;
+
+  cockpit_conf_loaded = true;
+
+  f = fopen (file_path, "r");
+  if (!f)
     {
-      gchar **keys;
-      section = g_hash_table_lookup (cockpit_conf, groups[i]);
-      if (section == NULL)
-        {
-          section = g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free, g_free);
-          g_hash_table_insert (cockpit_conf, g_strdup (groups[i]), section);
-        }
-
-      keys = g_key_file_get_keys (key_file, groups[i], NULL, &error);
-      g_return_val_if_fail (error == NULL, FALSE);
-
-      for (j = 0; keys[j] != NULL; j++)
-        {
-          gchar *value = g_key_file_get_value (key_file, groups[i], keys[j], &error);
-          g_return_val_if_fail (error == NULL, FALSE);
-          g_hash_table_insert (section, g_strdup (keys[j]), value);
-        }
-      g_strfreev (keys);
+      if (errno != ENOENT)
+        warnx ("couldn't load configuration file: %s: %m\n", file_path);
+      return false;
     }
-  g_strfreev (groups);
 
-  g_debug ("Loaded configuration from: %s", file_path);
+  regcompx (&re_section, "^[[:space:]]*\\[([^][[:cntrl:]]+)\\][[:space:]]*$", REG_EXTENDED|REG_NEWLINE);
+  regcompx (&re_keyval, "^[[:space:]]*([[:alnum:]-]+)[[:space:]]*=[[:space:]]*(.*)$", REG_EXTENDED|REG_NEWLINE);
+  regcompx (&re_ignore, "^[[:space:]]*(#.*)?$", REG_EXTENDED|REG_NOSUB);
 
-out:
-  g_clear_error (&error);
-  g_key_file_free (key_file);
+  for (;;)
+    {
+      /* getline returns with -1 and not setting errno on EOL */
+      errno = 0;
+      if (getline (&line, &line_size, f) < 0)
+        {
+          if (errno != 0)
+            {
+              perror ("failed to read line from config file");
+              abort ();
+            }
+          else
+            {
+              break; /* EOL */
+            }
+        }
+
+      /* maximum number of () matches that we want to capture from the above REs, + 1 for the entire string (group 0) */
+      const int MAX_MATCH = 3;
+      regmatch_t matches[MAX_MATCH];
+
+      if (regexec (&re_section, line, MAX_MATCH, matches, 0) == 0)
+        {
+          free (cur_section);
+          cur_section = strndupx (line + matches[1].rm_so, matches[1].rm_eo - matches[1].rm_so);
+        }
+
+      else if (regexec (&re_keyval, line, 3, matches, 0) == 0)
+        {
+          Entry *e;
+
+          if (!cur_section)
+            {
+              warnx ("%s: key=val line not in any section: %s", file_path, line);
+              ret = false;
+              break;
+            }
+
+          e = mallocx (sizeof (Entry));
+          e->section = strdupx (cur_section);
+          e->key = strndupx (line + matches[1].rm_so, matches[1].rm_eo - matches[1].rm_so);
+          e->value = strndupx (line + matches[2].rm_so, matches[2].rm_eo - matches[2].rm_so);
+          e->strv_value = NULL;
+          e->strv_cache = NULL;
+          /* prepend new Entry to cockpit_conf; that way, later values win over earlier ones in a forward search */
+          e->next = cockpit_conf;
+          cockpit_conf = e;
+        }
+
+      else if (regexec (&re_ignore, line, 0, NULL, 0) == 0)
+        {
+          /* comment or empty line */
+        }
+      else
+        {
+          warnx ("%s: invalid line: %s", file_path, line);
+          ret = false;
+          break;
+        }
+    }
+
+  free (line);
+  regfree (&re_section);
+  regfree (&re_keyval);
+  regfree (&re_ignore);
+  fclose (f);
+  free (cur_section);
+
+  if (ret)
+    debug ("Loaded configuration from: %s\n", file_path);
+  else
+    cockpit_conf_cleanup ();
+
   return ret;
 }
+
+static Entry*
+cockpit_conf_lookup (const char *section,
+                     const char *field)
+{
+  Entry *e;
+
+  if (section == NULL || field == NULL)
+    return NULL;
+
+  if (!cockpit_conf_loaded)
+    cockpit_conf_init ();
+
+  for (e = cockpit_conf; e; e = e->next)
+    {
+      /* that cockpit.conf has traditionally been case insensitive for section and key names */
+      if (strcasecmp (e->section, section) == 0 && strcasecmp (e->key, field) == 0)
+        break;
+    }
+
+  return e;
+}
+
+/*
+ * external API
+ */
 
 void
 cockpit_conf_init (void)
 {
-  const gchar *const *dirs;
-  gchar *file = NULL;
-  gchar *dir = NULL;
-
-  cockpit_conf = g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free,
-                                        (GDestroyNotify)g_hash_table_unref);
-  cached_strvs = g_hash_table_new_full (cockpit_str_case_hash, cockpit_str_case_equal, g_free,
-                                        (GDestroyNotify)g_strfreev);
-
-
   if (!cockpit_config_file)
     {
-      g_debug ("No configuration to load");
+      debug ("No configuration to load");
       return;
     }
 
-  dir = g_path_get_dirname (cockpit_config_file);
-  if (dir && g_strcmp0 (dir, ".") != 0)
+  if (strchr (cockpit_config_file, '/'))
     {
       load_key_file (cockpit_config_file);
     }
   else
     {
-      dirs = cockpit_conf_get_dirs ();
-      while (dirs && dirs[0])
-        {
-          file = g_build_filename (dirs[0], "cockpit", cockpit_config_file, NULL);
-          load_key_file (file);
-          g_free (file);
+      const char *const *dirs;
 
-          dirs++;
+      for (dirs = cockpit_conf_get_dirs (); *dirs; ++dirs)
+        {
+          char *file = NULL;
+          asprintfx (&file, "%s/cockpit/%s", *dirs, cockpit_config_file);
+          load_key_file (file);
+          free (file);
         }
     }
-
-  g_free (dir);
 }
-
 
 void
 cockpit_conf_cleanup (void)
 {
-  if (cockpit_conf)
+  Entry *e, *enext = NULL;
+
+  for (e = cockpit_conf; e; e = enext)
     {
-      g_hash_table_destroy (cockpit_conf);
-      cockpit_conf = NULL;
+      free (e->section);
+      free (e->key);
+      free (e->value);
+      free (e->strv_value);
+      free (e->strv_cache);
+      enext = e->next;
+      free (e);
     }
 
-  if (cached_strvs)
-    {
-      g_hash_table_destroy (cached_strvs);
-      cached_strvs = NULL;
-    }
+  cockpit_conf = NULL;
+  cockpit_conf_loaded = false;
 }
 
-
-static void
-ensure_cockpit_conf (void)
-{
-  if (cockpit_conf == NULL)
-    cockpit_conf_init ();
-}
-
-
-const gchar * const*
+const char * const *
 cockpit_conf_get_dirs (void)
 {
-  const gchar *env;
+  static const char ** system_config_dirs = NULL;
+  static bool initialized = false;
 
-  env = g_getenv ("XDG_CONFIG_DIRS");
-  if (env && env[0])
-    return g_get_system_config_dirs ();
-  else
-    return cockpit_config_dirs;
-}
-
-const gchar *
-cockpit_conf_string (const gchar *section,
-                     const gchar *field)
-{
-  GHashTable *sect = NULL;
-  ensure_cockpit_conf ();
-  sect = g_hash_table_lookup (cockpit_conf, section);
-  if (sect != NULL)
-    return g_hash_table_lookup (sect, field);
-
-  return NULL;
-}
-
-gboolean
-cockpit_conf_bool (const gchar *section,
-                   const gchar *field,
-                   gboolean defawlt)
-{
-  GHashTable *sect = NULL;
-  gchar *cmp = NULL;
-  const gchar *value;
-  gboolean ret = defawlt;
-
-  ensure_cockpit_conf ();
-  sect = g_hash_table_lookup (cockpit_conf, section);
-  if (sect != NULL)
+  if (!initialized)
     {
-      value = g_hash_table_lookup (sect, field);
-      if (value)
-        {
-          cmp = g_ascii_strdown (value, -1);
-          ret = g_strcmp0 (cmp, "yes") == 0 ||
-                g_strcmp0 (cmp, "true") == 0 ||
-                g_strcmp0 (cmp, "1") == 0;
-        }
+      char *env = getenv ("XDG_CONFIG_DIRS");
+
+      initialized = true;
+      if (env && env[0])
+        system_config_dirs = strsplit (strdup (env), ':');
     }
 
-  g_free (cmp);
-  return ret;
+  return (const char * const *) system_config_dirs ?: cockpit_config_dirs;
 }
 
-static const gchar **
-build_strv (const gchar *section,
-            const gchar *field,
-            gchar *delimiter)
+const char *
+cockpit_conf_string (const char *section,
+                     const char *field)
 {
-  const gchar *string = NULL;
-  const gchar **value = NULL;
-  gchar *stripped = NULL;
-  gchar **strv = NULL;
-
-  string = cockpit_conf_string (section, field);
-
-  if (string != NULL)
-    {
-      stripped = g_strstrip (g_strdup (string));
-      strv = g_strsplit (stripped, delimiter, -1);
-      if (strv)
-        {
-          guint n = g_strv_length (strv);
-          guint i;
-          value = g_new (const gchar *, n + 1);
-
-          for (i = 0; i < n; i++)
-            value[i] = g_strdup (strv[i]);
-
-          value[i] = NULL;
-          g_strfreev (strv);
-        }
-    }
-  g_free (stripped);
-  return value;
+  const Entry *entry = cockpit_conf_lookup (section, field);
+  return entry ? entry->value : NULL;
 }
 
-const gchar **
-cockpit_conf_strv (const gchar *section,
-                   const gchar *field,
-                   gchar delimiter)
+bool
+cockpit_conf_bool (const char *section,
+                   const char *field,
+                   bool defawlt)
 {
-  const gchar **value = NULL;
-  gchar *key = NULL;
-  gchar delm[2] = {delimiter, '\0'};
+  const char *value = cockpit_conf_string (section, field);
+  if (value)
+    return strcasecmp (value, "yes") == 0 || strcasecmp (value, "true") == 0 || strcmp (value, "1") == 0;
+  return defawlt;
+}
 
-  g_return_val_if_fail (section != NULL, NULL);
-  g_return_val_if_fail (field != NULL, NULL);
+const char **
+cockpit_conf_strv (const char *section,
+                   const char *field,
+                   char delimiter)
+{
+  Entry *entry = cockpit_conf_lookup (section, field);
 
-  ensure_cockpit_conf ();
-  key = g_strjoin (delm, section, field, NULL);
+  if (!entry || !entry->value)
+    return NULL;
 
-  if (!g_hash_table_contains (cached_strvs, key))
+  if (entry->strv_cache)
     {
-      value = build_strv (section, field, delm);
-      if (value)
-        g_hash_table_insert (cached_strvs, g_strdup (key), value);
+      if (delimiter != entry->strv_delimiter)
+        errx (1, "cockpitconf: Looking up strv with different delimiters is not supported");
     }
   else
     {
-      value = g_hash_table_lookup (cached_strvs, key);
+      /* strip off trailing whitespace (leading whitespace is already stripped by regexp) */
+      entry->strv_value = strdupx (entry->value);
+      for (char *c = entry->strv_value + strlen (entry->strv_value) - 1; c >= entry->strv_value && isspace (*c); --c)
+        *c = '\0';
+      entry->strv_cache = strsplit (entry->strv_value, delimiter);
+      entry->strv_delimiter = delimiter;
     }
 
-  g_free (key);
-  return value;
+  return entry->strv_cache;
 }
 
-guint
-cockpit_conf_guint (const gchar *section,
-                    const gchar *field,
-                    guint default_value,
-                    guint64 max,
-                    guint64 min)
+unsigned
+cockpit_conf_uint (const char *section,
+                   const char *field,
+                   unsigned default_value,
+                   unsigned max,
+                   unsigned min)
 {
-  guint val = default_value;
-  guint64 conf_val;
-  gchar *endptr = NULL;
+  unsigned val = default_value;
+  long long conf_val;
+  char *endptr = NULL;
 
-  const gchar* conf = cockpit_conf_string (section, field);
+  const char* conf = cockpit_conf_string (section, field);
   if (conf)
     {
-      conf_val = g_ascii_strtoull (conf, &endptr, 10);
-      if ((conf_val == G_MAXUINT64 || conf_val == 0) &&
+      errno = 0;
+      conf_val = strtoll (conf, &endptr, 10);
+      if ((conf_val == LLONG_MIN || conf_val == LLONG_MAX || conf_val == 0) &&
           (errno == ERANGE || errno == EINVAL))
         val = default_value;
       else if (endptr && endptr[0] != '\0')
         val = default_value;
-      else if (conf_val > max || conf_val > UINT_MAX)
-        val = (max > UINT_MAX) ? UINT_MAX : max;
+      else if (conf_val > max)
+        val = max;
       else if (conf_val < min)
         val = min;
       else
-        val = (guint)conf_val;
+        val = (unsigned)conf_val;
 
       if (conf_val != val)
-        g_message ("Invalid %s %s value '%s', setting to %u", section, field, conf, val);
+        warnx ("Invalid %s %s value '%s', setting to %u", section, field, conf, val);
     }
 
   return val;

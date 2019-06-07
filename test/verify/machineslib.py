@@ -1150,11 +1150,11 @@ class TestMachines(NetworkCase):
         # try to CREATE WITH DIALOG ERROR
 
         # name
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size='1'), {"Name": "Name should not be empty"})
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, "", storage_size=1), {"Name": "Name should not be empty"})
 
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
-                                                            location="invalid/url", storage_size='1',
+                                                            location="invalid/url", storage_size=1,
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
@@ -1166,7 +1166,7 @@ class TestMachines(NetworkCase):
                                                    start_vm=True), ["space"])
 
         # start vm
-        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size='1',
+        checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                             os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
@@ -1440,7 +1440,7 @@ class TestMachines(NetworkCase):
                                              start_vm=False))
 
             # When switching from PXE mode to anything else make sure that the source input is empty
-            checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size='1',
+            checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
                                                                 sourceType='pxe',
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',

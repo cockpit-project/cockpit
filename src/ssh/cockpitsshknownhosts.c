@@ -374,6 +374,11 @@ matches_hashed (const gchar *line,
 
   // Generate the sha1 hmac
   hmac = g_hmac_new (G_CHECKSUM_SHA1, (guchar *)copied, salt_length);
+  if (!hmac)
+    {
+      g_message ("unable to create SHA1 HMAC");
+      goto out;
+    }
   g_hmac_update (hmac, (guchar *)host, strlen (host));
   g_hmac_get_digest (hmac, generated_hash, &generated_length);
 

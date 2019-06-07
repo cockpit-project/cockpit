@@ -249,10 +249,10 @@ out:
   return ret;
 }
 
-static gchar *
-generate_temp_cert (const gchar *dir,
-                    GError **error)
+gchar *
+cockpit_certificate_create_selfsigned (GError **error)
 {
+  gchar *dir = NULL;
   gchar *cert_path = NULL;
   gchar *ca_path = NULL;
   gchar *tmp_key = NULL;
@@ -262,6 +262,7 @@ generate_temp_cert (const gchar *dir,
   gchar *key_data = NULL;
   gchar *ret = NULL;
 
+  dir = g_build_filename (cockpit_conf_get_dirs ()[0], "cockpit", "ws-certs.d", NULL);
   cert_path = g_build_filename (dir, "0-self-signed.cert", NULL);
 
   /* Create the CA cert with a .pem suffix so it's not automatically loaded */
@@ -332,6 +333,7 @@ out:
     g_unlink (tmp_pem);
   g_free (tmp_key);
   g_free (tmp_pem);
+  g_free (dir);
   return ret;
 }
 
@@ -381,8 +383,7 @@ out:
 }
 
 gchar *
-cockpit_certificate_locate (gboolean create_if_necessary,
-                            GError **error)
+cockpit_certificate_locate (GError **error)
 {
   const gchar * const* dirs = cockpit_conf_get_dirs ();
   GError *local_error = NULL;
@@ -411,20 +412,13 @@ cockpit_certificate_locate (gboolean create_if_necessary,
     }
 
   cert_dir = g_build_filename (dirs[0], "cockpit", "ws-certs.d", NULL);
-  if (create_if_necessary)
-    {
-      cert_path = generate_temp_cert (cert_dir, error);
-    }
-  else
-    {
-      cert_path = NULL;
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No certificate found in dir: %s", cert_dir);
-    }
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+               "No certificate found in dir: %s", cert_dir);
   g_free (cert_dir);
 
-  return cert_path;
+  return NULL;
 }
+
 
 /*
  * When running on GLib earlier than 2.44 we have to do our own

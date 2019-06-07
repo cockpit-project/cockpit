@@ -42,6 +42,44 @@ echo 'Core(s) per socket:  4'
 echo 'Socket(s):           1'
 """
 
+dmidecode = """#!/bin/sh
+[ "$1" = "-t" -a "$2" = "memory" ] || exit 1
+cat <<EOF
+# dmidecode 3.2
+Getting SMBIOS data from sysfs.
+SMBIOS 2.7 present.
+
+Handle 0x0008, DMI type 17, 34 bytes
+Memory Device
+	Total Width: 64 bits
+	Size: 8192 MB
+	Form Factor: SODIMM
+	Locator: ChannelA-DIMM0
+	Bank Locator: BANK 0
+	Type: DDR3
+	Speed: 1600 MT/s
+	Manufacturer: Samsung
+	Asset Tag: None
+	Rank: Unknown
+	Configured Memory Speed: 1600 MT/s
+
+Handle 0x0009, DMI type 17, 34 bytes
+Memory Device
+	Total Width: 64 bits
+	Size: 8192 MB
+	Form Factor: SODIMM
+	Locator: ChannelB-DIMM0
+	Bank Locator: BANK 2
+	Memory Technology: Awesome
+	Type: DDR3
+	Speed: 1600 MT/s
+	Manufacturer: Samsung
+	Asset Tag: None
+	Rank: 1
+	Configured Memory Speed: 1600 MT/s
+EOF
+"""
+
 def ssh_reconnect(machine, timeout_sec=120):
     start_time = time.time()
     error = None
@@ -352,6 +390,7 @@ class TestSystemInfo(MachineCase):
 
     def testHardwareInfo(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/system")
         b.wait_in_text('#system_information_hardware_text', "QEMU")
@@ -369,19 +408,23 @@ class TestSystemInfo(MachineCase):
         # BIOS date; just ensure it's from this century
         b.wait_in_text('#hwinfo .info-table-ct tbody:nth-of-type(2) tr:nth-of-type(3) td', "/20")
 
+        if m.image in ['rhel-8-0-distropkg']:
+            pci_selector = '#hwinfo'
+        else:
+            pci_selector = '#hwinfo #pci-listing'
         # PCI
-        b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
-        b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' .listing-ct caption', "PCI")
+        b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
 
         # sorted by device class by default; this makes some assumptions about QEMU devices
-        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
-        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(2)', "Bridge")
+        b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # sort by model
-        b.click('#hwinfo .listing-ct thead th:nth-of-type(3)')
-        b.wait_in_text('#hwinfo .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
-        b.wait_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
-        b.wait_not_in_text('#hwinfo .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
+        b.click(pci_selector + ' .listing-ct thead th:nth-of-type(3)')
+        b.wait_in_text(pci_selector + ' .listing-ct tbody:first-of-type td:nth-of-type(3)', "440FX")
+        b.wait_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(3)', "Virtio SCSI")
+        b.wait_not_in_text(pci_selector + ' .listing-ct tbody:last-of-type td:nth-of-type(2)', "Unclassified")
 
         # go back to system page
         b.click('.breadcrumb a')
@@ -408,10 +451,37 @@ class TestSystemInfo(MachineCase):
         self.assertNotIn('BIOS', b.text('#hwinfo .info-table-ct'))
 
         # PCI should be shown
-        b.wait_in_text('#hwinfo .listing-ct caption', "PCI")
-        b.wait_in_text('#hwinfo .listing-ct', "0000:00:00.0")
+        b.wait_in_text(pci_selector + ' .listing-ct caption', "PCI")
+        b.wait_in_text(pci_selector + ' .listing-ct', "0000:00:00.0")
 
         self.machine.execute("umount /sys/class/dmi")
+
+        # Memory details should be shown for generic QEMU memory
+        # demidecode not available on certain images
+        if m.image not in ['fedora-atomic']:
+            b.wait_in_text('#hwinfo #memory-listing .listing-ct caption', "Memory")
+            b.wait_in_text('#hwinfo #memory-listing .listing-ct', "DIMM 0")
+            b.wait_in_text('#hwinfo #memory-listing .listing-ct', "RAM")
+
+            # Test more specific memory data with a fake dmidecode
+            m.write('/tmp/dmidecode', dmidecode)
+            m.execute('chmod +x /tmp/dmidecode; mount -o bind /tmp/dmidecode $(which dmidecode)')
+            b.reload()
+            b.enter_page('/system/hwinfo')
+            # first DIMM has unknown technology and rank
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "ChannelA-DIMM0")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "DDR3")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "8 GB")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "Present")
+            b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(3)', "Unknown")
+            b.wait_text('#memory-listing tbody:nth-of-type(1) td:nth-of-type(7)', "Unknown")
+            b.wait_in_text('#memory-listing tbody:nth-of-type(1)', "1600 MT/s")
+            # second DIMM has known technology and rank
+            b.wait_in_text('#memory-listing tbody:nth-of-type(2)', "ChannelB-DIMM0")
+            b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(3)', "Awesome")
+            b.wait_text('#memory-listing tbody:nth-of-type(2) td:nth-of-type(7)', "Single Rank")
+
+            m.execute('umount $(which dmidecode)')
 
     @skipImage("Added in pull 11368", "rhel-8-0-distropkg")
     def testCPUSecurityMitigations(self):

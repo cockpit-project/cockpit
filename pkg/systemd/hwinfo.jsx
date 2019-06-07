@@ -240,6 +240,7 @@ class HardwareInfo extends React.Component {
 
     render() {
         let pci = null;
+        let memory = null;
 
         if (this.props.info.pci.length > 0) {
             let sortedPci = this.props.info.pci.concat();
@@ -249,6 +250,14 @@ class HardwareInfo extends React.Component {
                 <Listing title={ _("PCI") } columnTitles={ [ _("Class"), _("Model"), _("Vendor"), _("Slot") ] }
                          columnTitleClick={ index => this.setState({ sortBy: this.sortColumnFields[index] }) } >
                     { sortedPci.map(dev => <ListingRow key={dev.slot} columns={[ dev.cls, dev.model, dev.vendor, dev.slot ]} />) }
+                </Listing>
+            );
+        }
+
+        if (this.props.info.memory.length > 0) {
+            memory = (
+                <Listing title={ _("Memory") } columnTitles={ [_("ID"), _("Memory Technology"), _("Type"), _("Size"), _("State"), _("Rank"), _("Speed")]}>
+                    { this.props.info.memory.map(dimm => <ListingRow key={dimm.locator} columns={[dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]} />) }
                 </Listing>
             );
         }
@@ -265,7 +274,12 @@ class HardwareInfo extends React.Component {
                 <SystemInfo info={this.props.info.system}
                             onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
 
-                { pci }
+                <div id="pci-listing">
+                    { pci }
+                </div>
+                <div id="memory-listing">
+                    { memory }
+                </div>
             </div>
         );
     }

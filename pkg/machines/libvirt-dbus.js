@@ -1067,7 +1067,7 @@ function startEventMonitorDomains(connectionName, dispatch) {
             case 'MetadataChanged':
             case 'TrayChange':
             /* These signals imply possible changes in what we display, so re-read the state */
-                dispatch(getVm({ connectionName, id:path }));
+                dispatch(getVm({ connectionName, id:path, updateOnly: true }));
                 break;
 
             default:

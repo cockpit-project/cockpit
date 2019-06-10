@@ -796,6 +796,9 @@ export function parseStoragePoolDumpxml(connectionName, storagePoolXml, id_overw
     result['type'] = storagePoolElem.getAttribute('type');
     result['name'] = storagePoolElem.getElementsByTagName('name')[0].childNodes[0].nodeValue;
     result['id'] = id_overwrite || storagePoolElem.getElementsByTagName('uuid')[0].childNodes[0].nodeValue;
+    result['capacity'] = storagePoolElem.getElementsByTagName('capacity')[0].childNodes[0].nodeValue;
+    result['available'] = storagePoolElem.getElementsByTagName('available')[0].childNodes[0].nodeValue;
+    result['allocation'] = storagePoolElem.getElementsByTagName('allocation')[0].childNodes[0].nodeValue;
 
     // Fetch path property if target is contained for this type of pool
     if (['dir', 'fs', 'netfs', 'logical', 'disk', 'iscsi', 'scsi', 'mpath', 'zfs'].indexOf(result.type) > -1) {

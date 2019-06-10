@@ -622,13 +622,6 @@ LIBVIRT_DBUS_PROVIDER = {
                         if ("Autostart" in resultProps[0])
                             props.autostart = resultProps[0].Autostart.v.v;
 
-                        return call(connectionName, objPath, 'org.libvirt.StoragePool', 'GetInfo', [], TIMEOUT);
-                    })
-                    .then(poolInfo => {
-                        props.capacity = poolInfo[0][1];
-                        props.allocation = poolInfo[0][2];
-                        props.available = poolInfo[0][3];
-
                         dispatch(updateOrAddStoragePool(Object.assign({}, dumpxmlParams, props), updateOnly));
                         if (props.active)
                             dispatch(getStorageVolumes({ connectionName, poolName: dumpxmlParams.name }));

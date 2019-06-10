@@ -1274,6 +1274,63 @@ class TestMachines(NetworkCase):
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
+        virtInstallVersion = self.machine.execute("virt-install --version")
+        if virtInstallVersion >= "2":
+            self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
+
+            # Test detection of ISO file in URL
+            cmds = [
+                # Generate certificate for https server
+                "cd /tmp",
+                "openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost' -nodes -config /tmp/min-openssl-config.cnf",
+                "cat cert.pem key.pem > server.pem"
+            ]
+            if self.machine.image.startswith("ubuntu") or self.machine.image.startswith("debian"):
+                cmds += [
+                    "cp /tmp/cert.pem /usr/local/share/ca-certificates/cert.crt",
+                    "update-ca-certificates"
+                ]
+            else:
+                cmds += [
+                    "cp /tmp/cert.pem /etc/pki/ca-trust/source/anchors/cert.pem",
+                    "update-ca-trust"
+                ]
+            self.machine.execute(" && ".join(cmds))
+
+            # Run https server with range option support. QEMU uses range option
+            # see: https://lists.gnu.org/archive/html/qemu-devel/2013-06/msg02661.html
+            # or
+            # https://github.com/qemu/qemu/blob/master/block/curl.c
+            #
+            # and on certain distribution supports only https (not http)
+            # see: block-drv-ro-whitelist option in qemu-kvm.spec for certain distribution
+            server = self.machine.spawn("cd /var/lib/libvirt && python3 /tmp/mock-range-server.py /tmp/server.pem", "httpsserver")
+
+            createTest(TestMachines.VmDialog(self, sourceType='url',
+                                             location=config.ISO_URL,
+                                             memory_size=256, memory_size_unit='MiB',
+                                             storage_size=0, storage_size_unit='MiB',
+                                             os_vendor=config.UNSPECIFIED_VENDOR,
+                                             os_name=config.OTHER_OS,
+                                             start_vm=True))
+
+            # This functionality works on debian only because of extra dep.
+            # Check error is returned if dependency is missing
+            if self.machine.image.startswith("debian"):
+                # remove package
+                self.machine.execute("dpkg -P qemu-block-extra")
+                checkDialogErrorTest(TestMachines.VmDialog(self, sourceType='url',
+                                                           location=config.ISO_URL,
+                                                           memory_size=256, memory_size_unit='MiB',
+                                                           storage_size=0, storage_size_unit='MiB',
+                                                           os_vendor=config.UNSPECIFIED_VENDOR,
+                                                           os_name=config.OTHER_OS,
+                                                           start_vm=True), ["qemu", "protocol"])
+
+            self.addCleanup(self.machine.execute, "kill {0}".format(server))
+            # End of test detection of ISO file in URL
+
+        # test PXE Source
         if self.provider == "libvirt-dbus":
             # test PXE Source
             self.machine.execute("virsh net-destroy default && virsh net-undefine default")
@@ -1422,6 +1479,7 @@ class TestMachines(NetworkCase):
         VALID_DISK_IMAGE_PATH = '/var/lib/libvirt/images/example.img'
         NOVELL_MOCKUP_ISO_PATH = '/var/lib/libvirt/novell.iso'  # libvirt in ubuntu-1604 does not accept /tmp
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
+        ISO_URL = 'https://localhost:8000/novell.iso'
 
         UNSPECIFIED_VENDOR = 'Unspecified'
         OTHER_OS = 'Other OS'
@@ -1478,9 +1536,6 @@ class TestMachines(NetworkCase):
                 self.name = 'subVmTestCreate' + str(TestMachines.VmDialog.vmId)
             else:
                 self.name = name
-
-            if sourceType == 'url' and start_vm:
-                raise Exception("cannot start vm because url specified (no connection available in this test)")
 
             self.browser = test_obj.browser
             self.machine = test_obj.machine
@@ -1795,7 +1850,7 @@ class TestMachines(NetworkCase):
                     b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
                 else:
                     b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
-            elif dialog.storage_pool == 'No Storage' and dialog.sourceType == 'file':
+            elif (dialog.storage_pool == 'No Storage' and dialog.sourceType == 'file') or (dialog.sourceType == 'url' and dialog.start_vm):
                 b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
             else:
                 b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")

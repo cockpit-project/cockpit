@@ -2983,7 +2983,7 @@ PageNetworkInterface.prototype = {
             }
 
             $('#network-interface-slaves thead th:first-child')
-                    .text(cs.type == "bond" ? _("Members") : _("Ports"));
+                    .text(cs.type == "bond" ? _("Interfaces") : _("Ports"));
 
             con.Slaves.forEach(function (slave_con) {
                 slave_con.Interfaces.forEach(function(iface) {

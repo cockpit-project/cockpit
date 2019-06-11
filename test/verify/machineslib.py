@@ -725,7 +725,7 @@ class TestMachines(NetworkCase):
             b.click("label:contains(Use Existing)")
             b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")
 
-    def testNetworks(self):
+    def testVmNICs(self):
         b = self.browser
         m = self.machine
 

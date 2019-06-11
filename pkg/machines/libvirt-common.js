@@ -841,7 +841,7 @@ export function parseStorageVolumeDumpxml(connectionName, storageVolumeXml, id_o
     const physicalElem = storageVolumeElem.getElementsByTagName('physical')[0];
     const physical = physicalElem ? physicalElem.childNodes[0].nodeValue : NaN;
     const formatElem = storageVolumeElem.getElementsByTagName('format')[0];
-    const format = formatElem.getAttribute('type');
+    const format = formatElem ? formatElem.getAttribute('type') : undefined;
     return {
         connectionName,
         name,

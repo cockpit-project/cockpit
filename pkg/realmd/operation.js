@@ -60,8 +60,7 @@ function instance(realmd, mode, realm, button) {
     var timeout = null;
     $("#realms-op-address").on("keyup change", function() {
         if ($("#realms-op-address").val() != checked) {
-            // keep something in the line to avoid subsequent lines jumping around
-            $(".realms-op-address-error").html("&nbsp;");
+            $(".realms-op-address-error").empty();
             $(".realms-op-address-spinner").hide();
             $("#realms-op-address").parent()
                     .removeClass("has-success has-error");

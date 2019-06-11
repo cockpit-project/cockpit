@@ -24,6 +24,7 @@
 #include "common/cockpitconf.h"
 #include "common/cockpitlog.h"
 #include "common/cockpitmemory.h"
+#include "common/cockpitwebcertificate.h"
 
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
@@ -337,88 +338,18 @@ out:
   return ret;
 }
 
-static gint
-ptr_strcmp (const gchar **a,
-            const gchar **b)
-{
-  return g_strcmp0 (*a, *b);
-}
-
-static gchar *
-load_cert_from_dir (const gchar *dir_name,
-                    GError **error)
-{
-  gchar *ret = NULL;
-  GDir *dir;
-  const gchar *name;
-  GPtrArray *p;
-
-  p = g_ptr_array_new ();
-
-  dir = g_dir_open (dir_name, 0, error);
-  if (dir == NULL)
-    goto out;
-
-  while ((name = g_dir_read_name (dir)) != NULL)
-    {
-      if (!g_str_has_suffix (name, ".cert"))
-        continue;
-      g_ptr_array_add (p, g_strdup_printf ("%s/%s", dir_name, name));
-    }
-
-  g_ptr_array_sort (p, (GCompareFunc)ptr_strcmp);
-
-  if (p->len > 0)
-    {
-      ret = p->pdata[p->len - 1];
-      p->pdata[p->len - 1] = NULL;
-    }
-
-out:
-  if (dir != NULL)
-    g_dir_close (dir);
-  g_ptr_array_foreach (p, (GFunc)g_free, NULL);
-  g_ptr_array_free (p, TRUE);
-  return ret;
-}
-
 gchar *
-cockpit_certificate_locate (GError **error)
+cockpit_certificate_locate_gerror (GError **error)
 {
-  const gchar * const* dirs = cockpit_conf_get_dirs ();
-  GError *local_error = NULL;
-  gchar *cert_dir;
-  gchar *cert_path;
-  gint i;
-
-  for (i = 0; dirs[i]; i++)
+  gchar *error_str = NULL;
+  gchar *path = cockpit_certificate_locate (&error_str);
+  if (error_str)
     {
-      cert_dir = g_build_filename (dirs[i], "cockpit", "ws-certs.d", NULL);
-      cert_path = load_cert_from_dir (cert_dir, &local_error);
-
-      if (local_error != NULL)
-        {
-          g_propagate_prefixed_error (error, local_error,
-                                      "Error loading certificates from %s: ",
-                                      cert_dir);
-          g_free (cert_dir);
-          return NULL;
-        }
-
-      g_free (cert_dir);
-
-      if (cert_path)
-        return cert_path;
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, error_str);
+      g_free (error_str);
     }
-
-  cert_dir = g_build_filename (dirs[0], "cockpit", "ws-certs.d", NULL);
-  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-               "No certificate found in dir: %s", cert_dir);
-  g_free (cert_dir);
-
-  return NULL;
+  return path;
 }
-
 
 /*
  * When running on GLib earlier than 2.44 we have to do our own

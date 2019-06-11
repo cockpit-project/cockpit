@@ -43,7 +43,7 @@ locate_certificate (void)
   GError *error = NULL;
   int ret = 1;
 
-  path = cockpit_certificate_locate (&error);
+  path = cockpit_certificate_locate_gerror (&error);
   if (path != NULL)
     certificate = cockpit_certificate_load (path, &error);
 
@@ -154,7 +154,7 @@ ensure_certificate (const gchar *user,
   gchar *path = NULL;
   gint ret = 1;
 
-  path = cockpit_certificate_locate (&error);
+  path = cockpit_certificate_locate_gerror (&error);
   if (path == NULL && g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
     {
       /* no certificate? create a self-signed one */

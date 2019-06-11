@@ -190,12 +190,12 @@ static const TestFixture fixture_bad_file2 = {
 };
 
 static const TestFixture fixture_invalid1= {
-  .expected_message = "*: No PEM-encoded private key found",
+  .expected_message = "*: Required key not available",
   .files = invalid_files1
 };
 
 static const TestFixture fixture_invalid2 = {
-  .expected_message = "*: No PEM-encoded private key found",
+  .expected_message = "*: Required key not available",
   .files = invalid_files2
 };
 

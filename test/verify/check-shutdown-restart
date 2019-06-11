@@ -56,8 +56,8 @@ class TestShutdownRestart(MachineCase):
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
-        b.wait_present("#shutdown-group button.btn-danger.disabled")
-        b.wait_present("#shutdown-group button.btn-default.disabled")
+        b.wait_present("#shutdown-group button[data-action=restart].disabled")
+        b.wait_present("#shutdown-group button.dropdown-toggle.disabled")
         b.wait_not_present("#shutdown-group button:not(.disabled)")
 
         b.logout()
@@ -70,7 +70,7 @@ class TestShutdownRestart(MachineCase):
         time.sleep(2)
 
         # shutdown button should be enabled and working
-        b.click("#shutdown-group button.btn-danger")
+        b.click("#shutdown-group button[data-action=restart][data-stable=yes]")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -94,7 +94,7 @@ class TestShutdownRestart(MachineCase):
         self.login_and_go("/system")
 
         # Reboot
-        b.click("#shutdown-group button.btn-danger")
+        b.click("#shutdown-group button[data-action=restart]")
         b.wait_popup("shutdown-dialog")
         b.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
         b.click("#shutdown-dialog .dropdown button")
@@ -134,7 +134,7 @@ class TestShutdownRestart(MachineCase):
             b2.wait_text("#system_information_hostname_button", "machine1")
 
             # Check auto reconnect on restart
-            b2.click("#shutdown-group button.btn-danger")
+            b2.click("#shutdown-group button[data-action=restart][data-stable=yes]")
             b2.wait_popup("shutdown-dialog")
             b2.wait_in_text("#shutdown-dialog .btn-danger", 'Restart')
             b2.click("#shutdown-dialog .dropdown button")

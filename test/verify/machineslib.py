@@ -738,10 +738,19 @@ class TestMachines(NetworkCase):
         b.click("tbody tr[data-row-id=vm-subVmTest1] th") # click on the row header
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
+        # Wait for the dynamic IP address to be assigned before logging in
+        # If the IP will change or get assigned after fetching the domain data the user will not see any
+        # changes until they refresh the page, since there is not any signal associated with this change
+        wait(lambda: "1" in self.machine.execute("virsh domifaddr subVmTest1  | grep 192.168.122. | wc -l"), delay=3)
         b.click("#vm-subVmTest1-networks") # open the "Networks" subtab
 
         b.wait_in_text("#vm-subVmTest1-network-1-type", "network")
         b.wait_in_text("#vm-subVmTest1-network-1-source", "default")
+
+        if self.provider == "libvirt-dbus":
+            b.wait_in_text("#vm-subVmTest1-network-1-ipaddress", "192.168.122.")
+        else:
+            b.wait_not_present("#vm-subVmTest1-network-1-ipaddress")
 
         b.wait_in_text("#vm-subVmTest1-network-1-state", "up")
 

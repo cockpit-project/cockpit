@@ -17,21 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <glib.h>
-#include <gio/gio.h>
+#ifndef __COCKPIT_WEBCERTIFICATE_H__
+#define __COCKPIT_WEBCERTIFICATE_H__
 
-#ifndef __COCKPIT_CERTIFICATE_H__
-#define __COCKPIT_CERTIFICATE_H__
+char *  cockpit_certificate_locate   (char **error);
 
-G_BEGIN_DECLS
-
-gchar *             cockpit_certificate_locate_gerror      (GError **error);
-
-gchar *             cockpit_certificate_create_selfsigned  (GError **error);
-
-GTlsCertificate *   cockpit_certificate_load     (const gchar *path,
-                                                  GError **error);
-
-G_END_DECLS
-
-#endif /* __COCKPIT_CERTIFICATE_H__ */
+#endif /* __COCKPIT_WEBCERTIFICATE_H__ */

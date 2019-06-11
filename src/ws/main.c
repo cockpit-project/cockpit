@@ -178,7 +178,7 @@ main (int argc,
     }
   else
     {
-      cert_path = cockpit_certificate_locate (&error);
+      cert_path = cockpit_certificate_locate_gerror (&error);
       if (cert_path != NULL)
         certificate = cockpit_certificate_load (cert_path, &error);
       if (certificate == NULL)

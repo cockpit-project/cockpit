@@ -114,6 +114,7 @@ const Enum = {
     VIR_DOMAIN_AFFECT_CURRENT: 0,
     VIR_DOMAIN_AFFECT_LIVE: 1,
     VIR_DOMAIN_AFFECT_CONFIG: 2,
+    VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE: 0,
     VIR_DOMAIN_UNDEFINE_MANAGED_SAVE: 1,
     VIR_DOMAIN_UNDEFINE_SNAPSHOTS_METADATA: 2,
     VIR_DOMAIN_UNDEFINE_NVRAM: 4,
@@ -1310,6 +1311,11 @@ export function storageVolumeDelete(connectionName, poolName, volName) {
     return call(connectionName, '/org/libvirt/QEMU', 'org.libvirt.Connect', 'StoragePoolLookupByName', [poolName], TIMEOUT)
             .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StoragePool', 'StorageVolLookupByName', [volName], TIMEOUT))
             .then(objPath => call(connectionName, objPath[0], 'org.libvirt.StorageVol', 'Delete', [0], TIMEOUT));
+}
+
+export function vmInterfaceAddresses(connectionName, objPath) {
+    // 'lease' source will work only for those domains which take IP address from libvirt spawned dnsmasq (i.e. have <interface type='network'/>)
+    return call(connectionName, objPath, 'org.libvirt.Domain', 'InterfaceAddresses', [Enum.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE, 0], TIMEOUT);
 }
 
 export default LIBVIRT_DBUS_PROVIDER;

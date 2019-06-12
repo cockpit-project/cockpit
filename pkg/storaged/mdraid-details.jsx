@@ -127,12 +127,11 @@ class MDRaidSidebar extends React.Component {
             return (
                 <tr key={block.path}>
                     <td className="storage-icon">
-                        <div><img src="images/storage-disk.png" /></div>
+                        <img src="images/storage-disk.png" />
                     </td>
                     <td>
                         {slot || "-"} <StorageBlockNavLink client={client} block={block} />
-                        <br />
-                        <span className="state">{states}</span>
+                        <div className="state">{states}</div>
                     </td>
                     { dynamic_members
                         ? <td className="storage-action">

@@ -104,26 +104,24 @@ export class OverviewSidePanelRow extends React.Component {
                 onClick={this.props.go ? go : null} className={this.props.highlight ? "highlight-ct" : ""}>
                 <td className="storage-icon">
                     { this.props.kind !== false
-                        ? <div><img src={"images/storage-" + (this.props.kind || "disk") + ".png"} /></div>
+                        ? <img src={"images/storage-" + (this.props.kind || "disk") + ".png"} />
                         : null
                     }
                 </td>
-                <td className="row">
-                    <span className="col-md-12 storage-disk-name">{this.props.name}</span>
-                    <br />
-                    <span className="col-md-12 col-lg-5 storage-disk-size">{this.props.detail}</span>
+                <td className="row storage-disk-info">
+                    <h3 className="storage-disk-name">{this.props.name}</h3>
+                    <div className="storage-disk-size">{this.props.detail}</div>
                     { this.props.stats
-                        ? <span className="col-md-12 col-lg-7">
-                            <span>R: {fmt_rate(this.props.stats[0])}</span>
+                        ? <div className="storage-disk-rates">
+                            <div className="storage-disk-rate-read"><abbr title="read">R</abbr>: {fmt_rate(this.props.stats[0])}</div>
                             { "\n" }
-                            <span className="rate-gap" />
                             { "\n" }
-                            <span>W: {fmt_rate(this.props.stats[1])}</span>
-                        </span>
+                            <div className="storage-disk-rate-write"><abbr title="write">W</abbr>: {fmt_rate(this.props.stats[1])}</div>
+                        </div>
                         : null
                     }
                 </td>
-                <td className="storage-icon">
+                <td className="storage-icon storage-disk-extended">
                     { this.props.actions || job_spinner || warning_triangle }
                 </td>
             </tr>
@@ -141,8 +139,8 @@ export class Overview extends React.Component {
         var client = this.props.client;
 
         return (
-            <div>
-                <div className="col-md-8 col-lg-9 page-ct">
+            <div className="container-fluid">
+                <div className="col-md-8 col-lg-9">
                     <StoragePlots client={client} onHover={(dev) => this.setState({ highlight: dev })} />
                     <br />
                     <FilesystemsPanel client={client} />
@@ -150,7 +148,7 @@ export class Overview extends React.Component {
                     <JobsPanel client={client} />
                     <StorageLogsPanel />
                 </div>
-                <div className="col-md-4 col-lg-3 storage-sidebar page-ct">
+                <div className="col-md-4 col-lg-3 storage-sidebar">
                     <MDRaidsPanel client={client} />
                     <VGroupsPanel client={client} />
                     <VDOsPanel client={client} />

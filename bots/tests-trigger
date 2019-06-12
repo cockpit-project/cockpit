@@ -38,8 +38,9 @@ def trigger_pull(api, opts):
         if current_status not in ["empty", "error", "failure"]:
             # allow changing if manual testing required, otherwise "pending" state indicates that testing is in progress
             manual_testing = current_status == "pending" and status.get("description", None) == github.NO_TESTING
-            # also allow override with --force
-            if not (manual_testing or opts.force):
+            queued = current_status == "pending" and status.get("description", None) == github.NOT_TESTED_DIRECT
+            # also allow override with --force or --requeue
+            if not (manual_testing or opts.force) and not (queued and opts.requeue):
                 if not all:
                     sys.stderr.write("{0}: isn't in triggerable state (is: {1})\n".format(context, status["state"]))
                     ret = 1
@@ -62,6 +63,8 @@ def main():
                         help='Force setting the status even if the program logic thinks it shouldn''t be done')
     parser.add_argument('-a', '--allow', action='store_true', dest='allow',
                         help="Allow triggering for users that aren't whitelisted")
+    parser.add_argument('--requeue', action="store_true",
+                        help='Re-queue pending test requests (workaround for occasionally ignored webhook events)')
     parser.add_argument('--repo', help="The repository to trigger the robots in", default=None)
     parser.add_argument('pull', help='The pull request to trigger')
     parser.add_argument('context', nargs='*', help='The github task context(s) to trigger')

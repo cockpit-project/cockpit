@@ -110,6 +110,7 @@ BuildRequires: intltool
 BuildRequires: libssh-devel >= 0.7.1
 %endif
 BuildRequires: openssl-devel
+BuildRequires: gnutls-devel
 BuildRequires: zlib-devel
 BuildRequires: krb5-devel
 BuildRequires: libxslt-devel

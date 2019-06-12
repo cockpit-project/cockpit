@@ -78,15 +78,13 @@ class MachineBuilder:
         else:
             raise testvm.Failure("Unsupported OS %s: %s not found." % (self.machine.image, bootstrap_script))
 
-    def run_setup_script(self, script, source):
+    def run_setup_script(self, script):
         """Prepare a test image further by running some commands in it."""
         self.machine.start()
         try:
             self.machine.wait_boot(timeout_sec=120)
             self.machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib") ], "/var/lib/testvm")
             self.machine.upload([script], "/var/tmp/SETUP")
-            if source:
-                self.machine.upload([source], "/var/tmp")
             self.machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib", "base") ],
                                 "/var/tmp/cockpit-base")
 
@@ -94,10 +92,9 @@ class MachineBuilder:
                 self.machine.upload([ os.path.expanduser("~/.rhel") ], "/root/")
 
             env = {
-                "TEST_OS": self.machine.image
+                "TEST_OS": self.machine.image,
+                "DO_BUILD": "0" if args.no_build else "1",
             }
-            if source:
-                env["TEST_SOURCE"] = os.path.join("/var/tmp", os.path.basename(source))
             self.machine.message("run setup script on guest")
 
             try:
@@ -139,11 +136,7 @@ class MachineBuilder:
             return
 
         self.machine.message("Running setup script %s" % (script))
-        if args.no_build:
-            source = None
-        else:
-            source = subprocess.check_output([ os.path.join(BOTS, "make-source") ], universal_newlines=True).strip()
-        self.run_setup_script(script, source)
+        self.run_setup_script(script)
 
         tries_left = 3
         successfully_booted = False

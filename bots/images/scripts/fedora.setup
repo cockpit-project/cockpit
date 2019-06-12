@@ -147,8 +147,6 @@ if [ "${IMAGE%-testing}" != "$IMAGE" ]; then
     echo "config_opts['yum.conf'] += '[updates-testing]\nenabled=1'" >>/etc/mock/default.cfg
 fi
 
-srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
-
 # HACK - mock --installdeps is broken, it seems that it forgets to
 # copy the source rpm to a location that dnf can actually access.  A
 # workaround is to pass "--no-bootstrap-chroot".
@@ -157,7 +155,7 @@ srpm=$(/var/lib/testvm/make-srpm $TEST_SOURCE)
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1447627
 
-su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose --installdeps \"$PWD/$srpm\""
+su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh)"
 su builder -c "/usr/bin/mock --install --verbose rpmlint"
 
 # HACK: docker falls over regularly, print its log if it does

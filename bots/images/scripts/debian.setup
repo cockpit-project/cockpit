@@ -111,7 +111,7 @@ eatmydata apt-get -y install $TEST_PACKAGES $COCKPIT_DEPS $IPA_CLIENT_PACKAGES
 
 # extract control files and adjust them for our release, so that we can parse the build deps
 mkdir -p /tmp/out
-tar -C /tmp/out --strip-components=1 --wildcards -xf "$TEST_SOURCE" '*/debian/'
+curl -L https://github.com/cockpit-project/cockpit/archive/master.tar.gz | tar -C /tmp/out --strip-components=1 --wildcards -zxf - '*/debian/'
 /tmp/out/tools/debian/adjust-for-release $(lsb_release -sc)
 
 # Disable build-dep installation for the real builds

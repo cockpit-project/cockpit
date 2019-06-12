@@ -250,9 +250,16 @@ $(function() {
 
         /* uncheck add-all-capabilities button by default */
         $('#add-all-capabilities').prop('checked', false);
+        $('#add-all-capabilities').prop('disabled', false);
 
         /* uncheck drop-all-capabilities button by default */
         $('#drop-all-capabilities').prop('checked', false);
+        $('#drop-all-capabilities').prop('disabled', false);
+
+        /* uncheck claim-capabilities button by default */
+        $('#claim-capabilities').prop('checked', false);
+        $('#claim-capabilities').prop('disabled', false);
+        $('#select-claimed-capabilities').hide();
 
         /* delete any old capabilities claiming entries */
         var capabilities_claiming = $('#select-claimed-capabilities');

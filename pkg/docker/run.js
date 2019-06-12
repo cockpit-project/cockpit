@@ -35,6 +35,7 @@ $(function() {
     var cpu_slider = new util.CpuSlider($("#containers-run-image-cpu"), 2, 1000000);
 
     var container_names = [];
+    var capabilities_keys = [];
     var image = null;
 
     (function() {
@@ -68,6 +69,18 @@ $(function() {
             if ($(this).prop('checked')) {
                 if (items.children().length === 0)
                     erenderer();
+                items.show();
+            } else {
+                items.hide();
+            }
+        });
+
+        var crenderer = capabilities_renderer();
+        $('#claim-capabilities').on('change', function() {
+            var items = $('#select-claimed-capabilities');
+            if ($(this).prop('checked')) {
+                if (items.children().length === 0)
+                    crenderer();
                 items.show();
             } else {
                 items.hide();
@@ -234,6 +247,43 @@ $(function() {
         } else {
             $('#claim-envvars').prop('checked', false);
         }
+
+        /* uncheck add-all-capabilities button by default */
+        $('#add-all-capabilities').prop('checked', false);
+
+        /* uncheck drop-all-capabilities button by default */
+        $('#drop-all-capabilities').prop('checked', false);
+
+        /* delete any old capabilities claiming entries */
+        var capabilities_claiming = $('#select-claimed-capabilities');
+        capabilities_claiming.empty();
+
+        function parse_capabilities(string) {
+            string = string.substring(
+                string.lastIndexOf("Bounding set") + 14,
+                string.lastIndexOf("\nSecurebits")
+            );
+            capabilities_keys = string.split(",");
+            for (var i = 0; i < capabilities_keys.length; i++) {
+                capabilities_keys[i] = capabilities_keys[i].replace(/cap_/g, '').toUpperCase();
+            }
+        }
+
+        var process = cockpit.spawn(["capsh", "--print"]);
+        process.stream(function(data) {
+            parse_capabilities(data);
+        });
+
+        if (capabilities_claiming.children().length > 0) {
+            $('#claim-capabilities').prop('checked', true);
+            /* make sure the capabilities are visible */
+            capabilities_claiming.show();
+        } else {
+            $('#claim-capabilities').prop('checked', false);
+        }
+
+        /* uncheck containers-run-privileged button by default */
+        $('#containers-run-privileged').prop('checked', false);
 
         var restart_policy_select_button = $('#restart-policy-select > button span.pull-left');
         restart_policy_select_button.text(_("No"));
@@ -549,6 +599,76 @@ $(function() {
         return render;
     }
 
+    /* Uncheck and disable whole capabilities section */
+    $("#containers-run-privileged").click(function() {
+        if ($('#containers-run-privileged').prop('checked')) {
+            $('#add-all-capabilities').prop('checked', false);
+            $('#add-all-capabilities').prop('disabled', true);
+            $('#drop-all-capabilities').prop('checked', false);
+            $('#drop-all-capabilities').prop('disabled', true);
+            $('#claim-capabilities').prop('checked', false);
+            $('#claim-capabilities').prop('disabled', true);
+            $('#select-claimed-capabilities').hide();
+        } else {
+            $('#add-all-capabilities').prop('disabled', false);
+            $('#drop-all-capabilities').prop('disabled', false);
+            $('#claim-capabilities').prop('disabled', false);
+        }
+    });
+
+    $("#add-all-capabilities").click(function() {
+        if ($('#add-all-capabilities').prop('checked'))
+            $('#drop-all-capabilities').prop('disabled', true);
+        else
+            $('#drop-all-capabilities').prop('disabled', false);
+    });
+
+    $("#drop-all-capabilities").click(function() {
+        if ($('#drop-all-capabilities').prop('checked'))
+            $('#add-all-capabilities').prop('disabled', true);
+        else
+            $('#add-all-capabilities').prop('disabled', false);
+    });
+
+    function capabilities_renderer() {
+        var template = $("#capabilities-claim-tmpl").html();
+        mustache.parse(template);
+
+        function add_row() {
+            render();
+        }
+
+        function remove_row(e) {
+            var parent = $(e.target).closest("form");
+            parent.remove();
+            var children = $('#select-claimed-capabilities').children();
+            if (children.length === 0)
+                $("#claim-capabilities").attr("checked", false);
+            else
+                children.find("input[duplicate]").trigger("change");
+        }
+
+        function render(capabilities) {
+            var row = $(mustache.render(template, {
+                capabilities: capabilities_keys,
+                claim_capability_label: _("cap."),
+            }));
+            row.children("button.fa-plus").on('click', add_row);
+            row.children("button.pficon-close").on('click', remove_row);
+            var capability_option = row.find("div .capability-option");
+            capability_option.find('a').on('click', function() {
+                capability_option.find("button span").text($(this).text());
+            });
+            var capability_select = row.find("div .claim-capability");
+            capability_select.find('a').on('click', function() {
+                capability_select.find("button span").text($(this).text());
+            });
+            $("#select-claimed-capabilities").append(row);
+        }
+
+        return render;
+    }
+
     function link_renderer() {
         var template = $("#container-link-tmpl").html();
         mustache.parse(template);
@@ -601,6 +721,8 @@ $(function() {
         var links = [];
         var exposed_ports = { };
         var claimed_envvars = [ ];
+        var claimed_add_capabilities = [ ];
+        var claimed_drop_capabilities = [ ];
         if ($('#expose-ports').prop('checked')) {
             $('#select-exposed-ports').children('form')
                     .each(function() {
@@ -675,6 +797,34 @@ $(function() {
                     });
         }
 
+        if ($("#add-all-capabilities").prop('checked'))
+            claimed_add_capabilities.push("ALL");
+        else if ($("#drop-all-capabilities").prop('checked'))
+            claimed_drop_capabilities.push("ALL");
+
+        if ($("#claim-capabilities").prop('checked')) {
+            $("#select-claimed-capabilities form").each(function() {
+                var element = $(this).find('button span')
+                        .map(function(idx, elem) {
+                            return $(elem).text();
+                        })
+                        .get();
+                var capability_option = element[0];
+                var capability_key = element[1];
+
+                switch (capability_option) {
+                case 'Add':
+                    claimed_add_capabilities.push(capability_key);
+                    break;
+                case 'Drop':
+                    claimed_drop_capabilities.push(capability_key);
+                    break;
+                default:
+                    break;
+                }
+            });
+        }
+
         if ($("#link-containers").prop('checked')) {
             $("#select-linked-containers form").each(function() {
                 var element = $(this);
@@ -686,6 +836,7 @@ $(function() {
         }
 
         var tty = $("#containers-run-image-with-terminal").prop('checked');
+        var privileged = $("#containers-run-privileged").prop('checked');
         var img_name = null;
         if (image.ActualRepoTags && image.ActualRepoTags.length > 0) {
             img_name = image.ActualRepoTags[0];
@@ -711,6 +862,9 @@ $(function() {
                 "PortBindings": port_bindings,
                 "Binds": volume_bindings,
                 "Links": links,
+                "CapAdd": claimed_add_capabilities,
+                "CapDrop": claimed_drop_capabilities,
+                "Privileged": privileged,
                 "RestartPolicy": {
                     "Name": $("#restart-policy-select > button span.pull-left").data('name'),
                     "MaximumRetryCount": parseInt($("#restart-policy-retries").val(), 10) || 0

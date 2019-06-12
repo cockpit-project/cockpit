@@ -396,6 +396,40 @@
     </form>
   </script>
 
+  <script id="capabilities-claim-tmpl" type="x-template/mustache">
+    <form class="form-inline">
+      <button type="button" class="btn btn-default fa fa-plus"></button>
+      <button type="button" class="btn btn-default pficon-close"></button>
+      <div class="form-group">
+        <div class="btn-group dropdown capability-option">
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+            <span translatable="yes">Add</span>
+            <div class="caret"></div>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a tabindex="0" value="Add" translate>Add</a></li>
+            <li><a tabindex="0" value="Drop" translate>Drop</a></li>
+          </ul>
+        </div>
+        <div class="btn-group dropdown claim-capability">
+          <label>{{claim_capability_label}}</label>
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+              <span><span translatable="yes">cap.</span></span>
+              <div class="caret"></div>
+          </button>
+          <ul class="dropdown-menu">
+              {{#capabilities}}<li><a tabindex="0" value="{{.}}">{{.}}</a></li>{{/capabilities}}
+          </ul>
+      </div>
+      <div hidden>
+        <span class="help-block"></span>
+      </div>
+      <div hidden>
+        <span class="help-block"></span>
+      </div>
+    </form>
+  </script>
+
   <script id="container-link-tmpl" type="x-template/mustache">
     <form class="form-inline dialog-wrapper">
       <button type="button" class="btn btn-default fa fa-plus"></button>
@@ -510,6 +544,37 @@
                     <span translatable="yes">Expose container ports</span>
                   </label>
                   <div id="select-exposed-ports" class="containers-run-portmapping containers-run-inline">
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="containers-run-privileged" translatable="yes">Privileged</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" id="containers-run-privileged" checked="false"/>
+                    <span translatable="yes">Enable</span>
+                </label>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="add-all-capabilities" translatable="yes">Capabilities</label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="add-all-capabilities" id="add-all-capabilities" checked="false"/>
+                    <span translatable="yes">Add ALL</span>
+                    <input type="checkbox" name="drop-all-capabilities" id="drop-all-capabilities" checked="false"/>
+                    <span translatable="yes">Drop ALL</span>
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="control-label" for="claim-capabilities" translatable="yes"></label></td>
+                <td colspan="4">
+                  <label>
+                    <input type="checkbox" name="claim-capabilities" id="claim-capabilities" checked="false"/>
+                    <span translatable="yes">Choose specific Linux capabilities</span>
+                  </label>
+                  <div id="select-claimed-capabilities" class="containers-run-capabilitiesclaim containers-run-inline">
                   </div>
                 </td>
               </tr>

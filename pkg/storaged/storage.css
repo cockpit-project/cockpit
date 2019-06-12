@@ -112,10 +112,6 @@
     text-overflow: ellipsis;
 }
 
-#storage .storage-sidebar .table td img {
-    margin-top: 8px;
-}
-
 #storage_raids .row span,
 #storage_vgs .row span,
 #storage_drives .row span {
@@ -137,6 +133,31 @@
 #storage .storage-sidebar .storage-disk-name {
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+#drives .table td {
+    vertical-align: top;
+}
+
+.storage-disk-info {
+    font-size: var(--pf-global--FontSize--sm);
+}
+
+.storage-disk-info h3 {
+    font-size: var(--pf-global--FontSize--md);
+    margin: 0;
+    padding: 0;
+}
+
+.storage-disk-rates {
+    display: flex;
+    justify-content: space-between;
+}
+
+.storage-disk-rate-read,
+.storage-disk-rate-write {
+    font-size: var(--pf-global--FontSize--xs);
+    width: calc(50% - 0.5rem);
 }
 
 @media (min-width: 768px) {

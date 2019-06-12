@@ -27,7 +27,7 @@ class StorageTestSuite(SeleniumTest):
         self.wait_id('storage-detail')
         self.wait_text(other_discname, element="div")
         self.wait_text("Capacity", element="label")
-        self.wait_text("1000 MiB", element="div")
+        self.wait_text("1000 MiB", element="span")
         self.click(self.wait_link('Storage', cond=clickable))
         self.wait_xpath("//*[@data-testkey='%s']" % other_shortname)
         self.mainframe()

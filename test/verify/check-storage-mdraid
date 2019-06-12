@@ -37,7 +37,7 @@ class TestStorage(StorageCase):
           for (i = 0; i < trs.length; ++i) {
             var cell = trs[i].querySelector('td:nth-child(2)');
             var name = cell.querySelector('a').textContent;
-            var state = cell.querySelector('span.state').textContent;
+            var state = cell.querySelector('.state').textContent;
             found[name] = state;
           };
           for (s in states) {

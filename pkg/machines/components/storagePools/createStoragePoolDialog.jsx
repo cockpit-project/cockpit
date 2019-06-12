@@ -197,7 +197,7 @@ const StoragePoolInitiatorRow = ({ onValueChanged, dialogValues }) => {
 const StoragePoolSourceRow = ({ onValueChanged, dialogValues }) => {
     let validationState;
     let placeholder;
-    const diskPoolSourceFormatTypes = ['dos', 'dvh', 'gpt', 'mac', 'bsd', 'pc98', 'sun', 'lvm2'];
+    const diskPoolSourceFormatTypes = ['dos', 'dvh', 'gpt', 'mac', 'bsd', 'pc98', 'sun'];
 
     if (dialogValues.type == 'netfs') {
         validationState = dialogValues.source.dir.length == 0 && dialogValues.validationFailed.source ? 'error' : undefined;

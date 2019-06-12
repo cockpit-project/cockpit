@@ -404,6 +404,143 @@ CMD ["/bin/sh"]
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
+    def testPrivileged(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker || systemctl start docker-latest")
+
+        self.login_and_go("/docker")
+        b.wait_in_text("#containers-images", "busybox:latest")
+
+        # Select to view all running containers
+        b.set_val("#containers-containers-filter", "all")
+
+        # Create an updated image
+        m.execute("mkdir /var/tmp/container-probe")
+        m.execute("""echo -e '
+FROM busybox
+CMD ["/bin/sh"]
+' > /var/tmp/container-probe/Dockerfile""")
+        image_name = "test/container-probe"
+        m.execute("docker build -t %s /var/tmp/container-probe" % (image_name))
+        m.execute("rm -rf /var/tmp/container-probe")
+
+        # Wait for it to appear
+        b.wait_in_text("#containers-images", image_name)
+
+        # Run it and add privileged flag via the ui
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE5")
+        b.set_val("#containers-run-image-command", "/bin/sh")
+        b.click("#containers-run-privileged")
+        b.click("#containers-run-image-run")
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE5")
+
+        # Check privileged status
+        info = json.loads(m.execute('docker inspect PROBE5'))
+        self.assertEqual(info[0]["HostConfig"]["Privileged"], True)
+
+        # Run another container without privileged flag via the ui
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE6")
+        b.set_val("#containers-run-image-command", "/bin/sh")
+        b.click("#containers-run-image-run")
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE6")
+
+        # Check output of the probe
+        b.click('#containers-containers tr:contains("PROBE6")')
+        b.wait_visible("#container-details")
+
+        # Check privileged status
+        info = json.loads(m.execute('docker inspect PROBE6'))
+        self.assertEqual(info[0]["HostConfig"]["Privileged"], False)
+
+        self.allow_journal_messages('.*denied.*name_connect.*docker.*')
+
+    def testCapabilities(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("systemctl start docker || systemctl start docker-latest")
+
+        self.login_and_go("/docker")
+        b.wait_in_text("#containers-images", "busybox:latest")
+
+        # Select to view all running containers
+        b.set_val("#containers-containers-filter", "all")
+
+        # Create an updated image
+        m.execute("mkdir /var/tmp/container-probe")
+        m.execute("""echo -e '
+FROM busybox
+CMD ["/bin/sh"]
+' > /var/tmp/container-probe/Dockerfile""")
+        image_name = "test/container-probe"
+        m.execute("docker build -t %s /var/tmp/container-probe" % (image_name))
+        m.execute("rm -rf /var/tmp/container-probe")
+
+        # Wait for it to appear
+        b.wait_in_text("#containers-images", image_name)
+
+        # Run it and add/drop set of capabilities
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE7")
+        b.set_val("#containers-run-image-command", "/bin/sh")
+
+        # add ALL capabilities and drop specific one
+        b.click("#add-all-capabilities")
+        b.click("claim-capabilities")
+        b.wait_visible("#select-claimed-capabilities:parent")
+        b.click("#select-claimed-capabilities form:last-child .capability-option button")
+        b.click("#select-claimed-capabilities form:last-child .capability-option a[value='Drop']")
+        b.wait_in_text("#select-claimed-capabilities form:last-child .capability-option button", "Drop")
+        b.click("#select-claimed-capabilities form:last-child .claim-capability button")
+        b.click("#select-claimed-capabilities form:last-child .claim-capability a[value='CHOWN']")
+        b.wait_in_text("#select-claimed-capabilities form:last-child .capability-option button", "CHOWN")
+
+        b.click("#containers-run-image-run")
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE7")
+
+        # Check added/dropped capabilities
+        info = json.loads(m.execute('docker inspect PROBE7'))
+        self.assertEqual(info[0]["HostConfig"]["CapAdd"], "ALL")
+        self.assertEqual(info[0]["HostConfig"]["CapDrop"], "CHOWN")
+
+        # Run aonther container with different add/drop set of capabilities
+        b.click("#containers-images tr:contains(\"%s\") button.fa-play" % (image_name))
+        b.wait_popup("containers_run_image_dialog")
+        b.set_val("#containers-run-image-name", "PROBE8")
+        b.set_val("#containers-run-image-command", "/bin/sh")
+
+        # drop ALL capabilities and add specific one
+        b.click("#drop-all-capabilities")
+        b.click("claim-capabilities")
+        b.wait_visible("#select-claimed-capabilities:parent")
+        b.click("#select-claimed-capabilities form:last-child .capability-option button")
+        b.click("#select-claimed-capabilities form:last-child .capability-option a[value='Add']")
+        b.wait_in_text("#select-claimed-capabilities form:last-child .capability-option button", "Add")
+        b.click("#select-claimed-capabilities form:last-child .claim-capability button")
+        b.click("#select-claimed-capabilities form:last-child .claim-capability a[value='MKNOD']")
+        b.wait_in_text("#select-claimed-capabilities form:last-child .capability-option button", "MKNOD")
+
+        b.click("#containers-run-image-run")
+        b.wait_popdown("containers_run_image_dialog")
+        b.wait_in_text("#containers-containers", "PROBE8")
+
+        # Check added/dropped capabilities
+        info = json.loads(m.execute('docker inspect PROBE8'))
+        self.assertEqual(info[0]["HostConfig"]["CapAdd"], "MKNOD")
+        self.assertEqual(info[0]["HostConfig"]["CapDrop"], "ALL")
+
+        self.allow_journal_messages('.*denied.*name_connect.*docker.*')
+
     @skipImage("No Cockpit on Atomic with Docker stopped", "fedora-atomic")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     def testFailure(self):

@@ -37,6 +37,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 @media (max-width: 1200px) {
@@ -110,6 +111,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: top;
 }
 
 #storage_raids .row span,
@@ -135,18 +137,18 @@
     text-overflow: ellipsis;
 }
 
-#drives .table td {
-    vertical-align: top;
-}
-
 .storage-disk-info {
-    font-size: var(--pf-global--FontSize--sm);
+    font-size: var(--pf-global--FontSize--xs);
 }
 
 .storage-disk-info h3 {
-    font-size: var(--pf-global--FontSize--md);
+    font-size: var(--pf-global--FontSize--sm);
     margin: 0;
     padding: 0;
+}
+
+.storage-disk-size {
+    margin: 0.125rem 0 0.25rem;
 }
 
 .storage-disk-rates {
@@ -156,7 +158,6 @@
 
 .storage-disk-rate-read,
 .storage-disk-rate-write {
-    font-size: var(--pf-global--FontSize--xs);
     width: calc(50% - 0.5rem);
 }
 
@@ -329,6 +330,7 @@ span.rate-gap {
 
 div.progress {
     width: 100%;
+    height: var(--font-size-xs);
 }
 
 #detail-header div.progress {
@@ -513,7 +515,6 @@ td.vgroup-action {
 .tab-actions {
     float: right;
     margin-top: -15px;
-    margin-right: -15px;
 }
 
 .tab-actions button {

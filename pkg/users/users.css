@@ -64,18 +64,23 @@
     cursor: pointer;
 }
 
-#account-authorized-keys-list div.comment {
-    width: 250px;
+#account-authorized-keys-list > .list-group-item {
+    display: flex;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    align-items: center;
+}
 
-    white-space: nowrap;
+#account-authorized-keys-list > .list-group-item > .action {
+}
+
+#account-authorized-keys-list .comment {
+    flex: auto;
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
 }
 
-#account-authorized-keys-list div.fingerprint {
-    width: -moz-calc(100% - 30px - 260px);
-    width: -webkit-calc(100% - 30px - 260px);
+#account-authorized-keys-list .fingerprint {
     width: calc(100% - 30px - 260px);
 
     white-space: nowrap;
@@ -84,7 +89,7 @@
     display: inline-block;
 }
 
-#account-authorized-keys-list div.action {
+#account-authorized-keys-list .action {
     float: right;
     width: 28px;
 }

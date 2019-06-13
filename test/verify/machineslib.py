@@ -1228,6 +1228,13 @@ class TestMachines(NetworkCase):
                 runner.deleteVm(dialog) \
                       .checkEnvIsEmpty()
 
+        def createThenInstallTest(dialog):
+            runner.tryCreateThenInstall(dialog) \
+                  .assertScriptFinished() \
+                  .assertDomainDefined(dialog.name, dialog.connection) \
+                  .deleteVm(dialog) \
+                  .checkEnvIsEmpty()
+
         def installWithErrorTest(dialog):
             runner.tryInstallWithError(dialog) \
                 .assertScriptFinished() \
@@ -1990,27 +1997,29 @@ class TestMachines(NetworkCase):
                 b.wait_present("#vm-{0}-memory".format(name))
                 b.wait_present("#vm-{0}-vcpus".format(name))
 
-            # check memory
-            b.click("#vm-{0}-usage".format(name))
-            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", dialog.getMemoryText())
+            self.assertCorrectConfiguration(dialog)
 
-            # check disks
-            b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
+            return self
 
-            # Test disk got imported/created
-            if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
-                b.wait_present("#vm-{0}-disks-vda-device".format(name))
-                b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
-            # New volume was created or existing volume was already chosen as destination
-            elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["No Storage", "Create New Volume"]:
-                if b.is_present("#vm-{0}-disks-vda-device".format(name)):
-                    b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
-                else:
-                    b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
-            elif dialog.start_vm and (((dialog.storage_pool == 'No Storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url'):
-                b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
-            else:
-                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+        def tryCreateThenInstall(self, dialog):
+            b = self.browser
+            dialog.start_vm = False
+            name = dialog.name
+
+            dialog.open() \
+                .fill() \
+                .create()
+
+            b.wait_in_text("#vm-{0}-row".format(name), name)
+            b.click("#vm-{0}-install".format(name))
+            b.wait_present("li.active #vm-{0}-consoles".format(name))
+
+            self.assertCorrectConfiguration(dialog)
+
+            # unfinished install script runs indefinitelly, so we need to force it off
+            b.click("#vm-{0}-off-caret".format(name))
+            b.click("#vm-{0}-forceOff".format(name))
+            b.wait_in_text("#vm-{0}-state".format(name), "shut off")
 
             return self
 
@@ -2056,6 +2065,33 @@ class TestMachines(NetworkCase):
                 return False
             except subprocess.CalledProcessError as e:
                 return hasattr(e, 'returncode') and e.returncode == 1
+
+        def assertCorrectConfiguration(self, dialog):
+            b = self.browser
+            name = dialog.name
+
+            # check memory
+            b.click("#vm-{0}-usage".format(name))
+            b.wait_in_text("tbody.open .listing-ct-body td:nth-child(1) .usage-donut-caption", dialog.getMemoryText())
+
+            # check disks
+            b.click("#vm-{0}-disks".format(name)) # open the "Disks" subtab
+
+            # Test disk got imported/created
+            if dialog.sourceType == 'disk_image' or dialog.sourceTypeSecondChoice == 'disk_image':
+                b.wait_present("#vm-{0}-disks-vda-device".format(name))
+                b.wait_in_text("#vm-{0}-disks-vda-source-file".format(name), dialog.location)
+            # New volume was created or existing volume was already chosen as destination
+            elif (dialog.storage_size is not None and dialog.storage_size > 0) or dialog.storage_pool not in ["No Storage", "Create New Volume"]:
+                if b.is_present("#vm-{0}-disks-vda-device".format(name)):
+                    b.wait_in_text("#vm-{0}-disks-vda-device".format(name), "disk")
+                else:
+                    b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "disk")
+            elif dialog.start_vm and (((dialog.storage_pool == 'No Storage' or dialog.storage_size == 0) and dialog.sourceType == 'file') or dialog.sourceType == 'url'):
+                b.wait_in_text("#vm-{0}-disks-hda-device".format(name), "cdrom")
+            else:
+                b.wait_in_text("tbody tr td div.listing-ct-body", "No disks defined")
+            return self
 
         def assertScriptFinished(self):
             with self.browser.wait_timeout(20):

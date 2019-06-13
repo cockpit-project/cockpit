@@ -43,6 +43,9 @@ class VmNetworkTab extends React.Component {
         if (this.props.config.provider.name != 'LibvirtDBus')
             return;
 
+        if (this.props.vm.state != 'running' && this.props.vm.state != 'paused')
+            return;
+
         // Load the interface addresses list when the tab mounts
         vmInterfaceAddresses(this.props.vm.connectionName, this.props.vm.id)
                 .then(ifaces => {

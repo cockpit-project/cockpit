@@ -35,6 +35,11 @@ table.systemd-unit-relationship-table td:first-child {
   flex: auto;
 }
 
+#services .filter-group {
+  display: flex;
+  align-items: start;
+}
+
 #services .nav-tabs > li:not([tabindex]),
 #services .nav-tabs:before,
 #services .nav-tabs:after {
@@ -139,7 +144,6 @@ table.systemd-unit-relationship-table td:first-child {
 
   #services .filter-group {
     margin-top: 1rem;
-    display: flex;
   }
 
   #services .content-header-actions > button {
@@ -167,8 +171,6 @@ table.systemd-unit-relationship-table td:first-child {
 
 #services-dropdown {
   margin-left: 0.5rem;
-  width: 12em;
-  padding: 0;
 }
 
 #service-type {

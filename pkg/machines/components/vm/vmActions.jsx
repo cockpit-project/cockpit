@@ -87,14 +87,14 @@ const VmActions = ({ vm, config, dispatch, onStart, onInstall, onReboot, onForce
 
     let run = null;
     if (config.provider.canRun(state, hasInstallPhase)) {
-        run = (<button key='action-run' className="btn btn-default btn-danger" onClick={mouseClick(onStart)} id={`${id}-run`}>
+        run = (<button key='action-run' className="btn btn-default" onClick={mouseClick(onStart)} id={`${id}-run`}>
             {_("Run")}
         </button>);
     }
 
     let install = null;
     if (config.provider.canInstall(state, hasInstallPhase)) {
-        install = (<button key='action-install' className="btn btn-default btn-danger" onClick={mouseClick(onInstall)} id={`${id}-install`}>
+        install = (<button key='action-install' className="btn btn-default" onClick={mouseClick(onInstall)} id={`${id}-install`}>
             {_("Install")}
         </button>);
     }

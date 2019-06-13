@@ -1,3 +1,7 @@
+.panel .table {
+    font-size: var(--font-size-s);
+}
+
 /* Panels don't draw borders between them */
 .panel > .table > tbody:first-child td {
     border-top: 1px solid rgb(221, 221, 221);
@@ -139,7 +143,8 @@
 /* Override patternfly to fit buttons and such */
 .table > thead > tr > th,
 .table > tbody > tr > td {
-    padding: 8px;
+    padding: 0.5rem;
+    vertical-align: baseline;
 }
 
 /* Override the heavy patternfly headers */
@@ -151,12 +156,12 @@
 /* Make things line up */
 .table tbody tr > :first-child,
 .table thead tr > :first-child {
-    padding-left: 1.5rem;
+    padding-left: 1rem;
 }
 
 .table tbody tr > :last-child,
 .table thead tr > :last-child {
-    padding-right: 1.5rem;
+    padding-right: 1rem;
 }
 
 .info-table-ct > tbody > tr > th,
@@ -211,10 +216,14 @@
 }
 
 .form-table-ct td:first-child {
+    font-size: var(--pf-global--FontSize--sm);
+    margin-top: calc(var(--pf-global--FontSize--md) - var(--pf-global--FontSize--sm));
+    vertical-align: baseline;
     text-align: right;
     white-space: nowrap;
-    font-weight: 600;
     width: 5px; /* will be expanded by nowrap */
+    padding-right: 1rem;
+    min-height: 2.25rem;
 }
 
 

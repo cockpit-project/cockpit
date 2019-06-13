@@ -27,7 +27,11 @@
 
     .list-group {
         border: none;
-        margin: 10px 0;
+        margin: 1rem 0;
+
+        + .list-group {
+            margin-top: 1.5rem;
+        }
     }
 
     .list-group-item {
@@ -97,13 +101,13 @@
     }
 
     .dropdown-toggle:after {
-        background: linear-gradient(to bottom, var(--color-ct-nav-sub), rgba(57, 63, 68, 0));
+        background: var(--color-ct-nav-cover-up);
         margin-top: 1px;
         bottom: -2rem; // Move down by the same size as the height
     }
 
     &:after {
-        background: linear-gradient(to top, var(--color-ct-nav-sub), rgba(57, 63, 68, 0));
+        background: var(--color-ct-nav-cover-down);
         bottom: 0;
         height: 4rem;
     }
@@ -125,10 +129,6 @@
     -webkit-flex: none;
     flex: none;
 
-    .dropdown-toggle span {
-        font-size: 14px;
-    }
-
     &:after {
         content: "";
         position: absolute;
@@ -137,7 +137,7 @@
         right: 0;
         bottom: 0;
         height: 1px;
-        background: var(--color-gray-11);
+        background: var(--color-border);
     }
 }
 
@@ -443,7 +443,9 @@
 
     .navbar-header {
         grid-area: header;
-        background: var(--color-ct-nav);
+        background: var(--color-ct-nav-main);
+        border: 1px solid var(--color-ct-nav-main-border);
+        border-width: 1px 0 0 !important; /* PF sets border-bottom */
     }
 
     .navbar-collapse {
@@ -528,6 +530,10 @@
 
             &.active {
                 z-index: 2;
+
+                &, &:hover {
+                    border-color: var(--color-ct-nav-main-active);
+                }
 
                 a {
                     background: var(--color-ct-nav-sub) !important;
@@ -641,13 +647,13 @@
 
             &:after {
                 font-family: FontAwesome;
-                content: "\f106";
+                content: "\f0d7";
                 position: absolute;
-                font-size: 1.75rem;
+                font-size: 1rem;
                 position: absolute;
-                bottom: 0.25rem;
-                right: -1.5rem;
-                color: var(--color-button-text);
+                bottom: 0.25em;
+                right: -1em;
+                color: var(--color-ct-nav-main-active-text);
                 opacity: 0.5;
                 transition: all 300ms;
             }
@@ -656,7 +662,7 @@
         &.menu-visible .pficon-container-node {
             &:after {
                 transform: scale(1, -1);
-                bottom: 0.25ex;
+                bottom: 0.125em;
                 opacity: 0.75;
             }
         }

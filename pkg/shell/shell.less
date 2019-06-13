@@ -147,7 +147,7 @@ html.index-page body {
 
 #dashboard-toolbar > div.ct-select,
 #dashboard-toolbar > div.dropdown {
-    display: inline-block;
+    display: inline-flex;
 }
 
 #dashboard-toolbar .dropdown-toggle span {
@@ -172,7 +172,14 @@ html.index-page body {
 }
 
 .show-zoom-controls .zoom-controls {
-    display: block;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 0.5rem;
+    align-items: stretch;
+}
+
+.show-zoom-controls > .dropdown {
+    display: inline-flex;
 }
 
 .show-zoom-cursor .zoomable-plot {
@@ -190,14 +197,19 @@ html.index-page body {
 }
 
 #host-edit-color-popover .popover-content {
-    width: 220px;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+#host-edit-color-popover .popover-content > div {
+    display: flex;
 }
 
 #host-edit-color-popover .color-cell {
     display: inline-block;
-    width: 25px;
-    height: 25px;
-    margin: 2px;
+    width: 2rem;
+    height: 2rem;
+    margin: 1px;
 }
 
 #host-edit-avatar {
@@ -257,10 +269,10 @@ html.index-page body {
 /* navbar styles */
 
 .navbar-pf .navbar-toggle {
-    color: white;
-    font-size: 17px;
-    padding: 3px 10px;
-    line-height: 1;
+    color: var(--color-ct-nav-main-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .navbar-primary .btn-group {
@@ -268,7 +280,7 @@ html.index-page body {
 }
 
 .navbar-primary .btn-group .btn {
-    background-image:  linear-gradient(to bottom, #1D1D1D 0%, #030303 100%);
+    background-image:  linear-gradient(to bottom, #151515 0%, #030303 100%);
     padding: 5px 20px;
     color: var(--color-button-text);
     border-color: var(--color-gray-12);
@@ -307,7 +319,8 @@ html.index-page body {
 }
 
 .navbar-header .navbar-brand {
-    padding: 15px 0 15px 10px;
+    font-size: var(--pf-global--FontSize--xl);
+    padding: 1.25rem;
 }
 
 @media (max-width: 767px) {
@@ -330,9 +343,9 @@ html.index-page body {
 
     .dropdown-menu {
         width: unit(@sidebar-width-full, px);
-        top: 6rem;
+        top: 4rem;
         /* Align to arrow: 50% width + button padding + arrow width */
-        right: ~"calc(-50% + 15px + 10px)";
+        right: ~"calc(-50% + 3rem + 10px)";
         left: auto;
         overflow: visible;
         padding: 0;
@@ -343,10 +356,9 @@ html.index-page body {
             position: relative;
 
             > .form-control-feedback {
-                color: var(--color-ct-list-border);
-                margin: 11px;
-                padding: 0.5em 0 0;
-                left: 0;
+                color: var(--color-subtle-copy);
+                left: 10px;
+                top: 1rem
             }
         }
 
@@ -400,13 +412,14 @@ html.index-page body {
         padding: 0 15px;
         margin: 0;
         line-height: 64px;
-        color: inherit;
+        color: var(--color-ct-nav-text);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         display: flex;
         align-items: center;
         text-decoration: none;
+        font-size: 1rem;
 
         img, b {
             flex: none;
@@ -423,21 +436,29 @@ html.index-page body {
         }
 
         &:hover {
-            background: rgba(77, 82, 88, 0.5);
+            background: var(--color-ct-nav-hover);
+            color: var(--color-ct-nav-hover-text);
         }
     }
 
+    .dropdown-menu:before,
     .dropdown-menu:after {
         border: 10px solid transparent;
         border-top-width: 0;
         border-bottom-color: var(--color-bg);
-        top: -10px;
+        top: -8px;
         content: '';
         height: 0;
         left: 50%;
         margin: 0 0 0 -5px;
         position: absolute;
         width: 0;
+        z-index: 10;
+    }
+
+    .dropdown-menu:after {
+        border-bottom-color: var(--color-border);
+        top: -10px;
     }
 
     input {
@@ -799,7 +820,7 @@ iframe.container-frame {
 }
 
 #machine-spinner {
-    margin: 10px;
+    margin: 1rem;
 }
 
 .spinner-white {
@@ -829,10 +850,6 @@ iframe.container-frame {
     color: var(--color-gray-1);
 }
 
-.navbar-pf .navbar-utility {
-    font-size: 13px;
-}
-
 /***
 Disclaimer: Fixing the navbar dropdown requires consideration of CSS
 specificity. As PatternFly is super-specific, we either had to use
@@ -845,11 +862,30 @@ It is less bad than using !important, at least.
 #topnav {
     .fa,
     .pficon {
-        /* Normalize the icons in the navbar */
-        line-height: inherit;
-        margin-right: 5px;
+        align-items: center;
+        border-radius: 50%;
+        display: inline-flex;
+        font-size: 1rem;
+        justify-content: center;
+        margin-right: 0.5rem;
         padding-right: 0;
         position: static;
+        vertical-align: middle;
+        height: 2rem;
+    }
+
+    .pficon-user {
+        width: 2rem;
+        font-size: 2rem;
+        background: #fff;
+        color: #bbb;
+        overflow: hidden;
+
+        &::before {
+            font-size: 80%;
+            position: relative;
+            top: 8%;
+        }
     }
 }
 @media (min-width: 768px) {
@@ -857,16 +893,29 @@ It is less bad than using !important, at least.
     #topnav {
         .navbar-utility > li > a,
         .navbar-utility > li > span {
-            line-height: 50px;
+            line-height: 2rem;
+            padding: 1rem;
+            font-size: var(--pf-global--FontSize--md);
             margin: 0;
-            padding: 0 10px;
-            font-size: 13px;
+            color: var(--pf-global--Color--light-100) !important;
+            /* Force better text rendering for dark bg */
+            text-shadow: 0 0;
         }
-    }
 
-    #machine-spinner {
-        /* Vertical alignment is a hack here. (50px - 24px) / 2 = 13px */
-        margin-top: 13px;
+        .credential-unlocked {
+            /* AAA contrast: simulate #a1a1a1 on #151515 */
+            opacity: 0.6;
+        }
+
+        .navbar-utility .dropdown-menu {
+            /* Expand to user's name */
+            min-width: 100%;
+        }
+
+        .fa,
+        .pficon {
+            vertical-align: bottom;
+        }
     }
 }
 @media (max-width: 767px) {
@@ -883,6 +932,10 @@ It is less bad than using !important, at least.
             /* Make menu items a consistent, touch-friendly size */
             padding: 0 40px;
             line-height: 54px;
+        }
+
+        .fa-bars {
+            margin: 0;
         }
     }
 }

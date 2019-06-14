@@ -54,7 +54,7 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
         { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices } },
         { name: usageTabName, renderer: VmUsageTab, data: { vm, onUsageStartPolling, onUsageStopPolling }, presence: 'onlyActive' },
         { name: disksTabName, renderer: VmDisksTab, data: { vm, config, storagePools, onUsageStartPolling, onUsageStopPolling, dispatch, onAddErrorNotification }, presence: 'onlyActive' },
-        { name: networkTabName, renderer: VmNetworkTab, data: { vm, dispatch, config, hostDevices, networks, onAddErrorNotification } },
+        { name: networkTabName, renderer: VmNetworkTab, presence: 'onlyActive', data: { vm, dispatch, config, hostDevices, networks, onAddErrorNotification } },
         { name: consolesTabName, renderer: Consoles, data: { vm, config, dispatch } },
     ];
 

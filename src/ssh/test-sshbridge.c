@@ -268,7 +268,7 @@ setup (TestCase *tc,
   tc->home_ssh_dir = g_build_filename (tc->home_dir, ".ssh", NULL);
   g_assert (tc->home_ssh_dir != NULL);
 
-  if (fixture && fixture->knownhosts_home)
+  if (fixture->knownhosts_home)
     {
       gchar *content;
 
@@ -287,7 +287,7 @@ setup (TestCase *tc,
     }
 
 #if LIBSSH_085
-  if (fixture && fixture->test_home_ssh_config)
+  if (fixture->test_home_ssh_config)
     {
       gchar *content;
       gchar **host_port;
@@ -312,7 +312,7 @@ setup (TestCase *tc,
     }
 #endif
 
-  if (fixture && fixture->knownhosts_sssd)
+  if (fixture->knownhosts_sssd)
     {
       g_assert (fixture->knownhosts_sssd_host != NULL);
       env = g_environ_setenv (env, "COCKPIT_MOCK_SSS_KNOWN_HOSTS_HOST",

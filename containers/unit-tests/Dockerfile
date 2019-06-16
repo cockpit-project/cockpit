@@ -6,7 +6,7 @@ ARG arch=amd64
 # we must do cross-builds on i386 as phantomjs is not available for i386
 ARG _crossdeps="libglib2.0-dev libgudev-1.0-dev libjson-glib-dev libkeyutils-dev liblvm2-dev libnm-glib-dev \
     libpam0g-dev libpcp3-dev libpcp-import1-dev libpcp-pmda3-dev libpolkit-agent-1-dev libpolkit-gobject-1-dev \
-    libssh-dev libsystemd-dev libkrb5-dev \
+    libssh-dev libsystemd-dev libkrb5-dev libgnutls28-dev \
     glib-networking glib-networking-dbg libc6-dbg libglib2.0-0-dbg pkg-config"
 
 # HACK: Avoid libssh security update, it breaks keyboard-interactive (https://bugs.debian.org/913870)

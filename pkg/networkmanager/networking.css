@@ -268,22 +268,23 @@ h1 .onoff-ct {
     }
 }
 
+#add-zone-dialog .add-zone-zones legend {
+    all: unset;
+    color: var(--color-subtle-copy);
+    display: block;
+    font: inherit;
+    /* Align with label padding */
+    line-height: 3;
+    padding: 0 0.5rem;
+    font-size: var(--pf-global--FontSize--sm);
+}
+
 #add-zone-dialog .add-zone-zones {
     display: flex;
     flex-flow: row wrap;
     align-items: last baseline;
     /* Compensate for bottom fieldset padding */
     margin-bottom: -1rem;
-}
-
-#add-zone-dialog .add-zone-zones legend {
-    all: unset;
-    color: var(--color-subtle-copy);
-    display: block;
-    font: inherit;
-    line-height: 26px;
-    /* Align with label padding */
-    padding-left: 0.5rem;
 }
 
 #add-zone-dialog .add-zone-zones > fieldset {
@@ -307,6 +308,8 @@ h1 .onoff-ct {
 .add-zone-zones-firewalld input {
     position: relative;
     z-index: 2;
+    width: 16px;
+    height: 16px;
 }
 
 /* Add lines behind the radio buttons */
@@ -314,7 +317,7 @@ h1 .onoff-ct {
     border-bottom: 1px solid #d1d1d1;
     content: "";
     position: absolute;
-    top: 1em;
+    top: 8px;
     right: 0;
     left: 0;
 }
@@ -333,11 +336,16 @@ form.horizontal fieldset {
     flex-direction: row;
 }
 
+#add-zone-description-readonly {
+    padding: 0.5rem 0 0;
+    color: var(--color-subtle-copy);
+}
+
 .add-zone-interfaces {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
     grid-gap: 0 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 0 0;
     /* 70px seems to be minimum UI padding width */
     /* This is needed for iPhone SE sizes, but does not affect other sizes */
     /* Needs !important to override specificity of "100%" */

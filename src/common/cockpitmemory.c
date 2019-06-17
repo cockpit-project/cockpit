@@ -122,6 +122,16 @@ asprintfx (char **strp,
   return r;
 }
 
+void*
+reallocx (void *ptr,
+          size_t size)
+{
+  void *r = realloc (ptr, size);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory");
+  return r;
+}
+
 /* this is like reallocarray(3), but this does not yet exist everywhere; plus
  * abort() on ENOMEM */
 void*

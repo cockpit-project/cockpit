@@ -34,21 +34,102 @@ import VmOverviewTab from '../vmOverviewTabLibvirt.jsx';
 import VmActions from './vmActions.jsx';
 import StateIcon from './stateIcon.jsx';
 import VmUsageTab from './vmUsageTab.jsx';
+import {
+    shutdownVm,
+    pauseVm,
+    resumeVm,
+    forceVmOff,
+    forceRebootVm,
+    rebootVm,
+    sendNMI,
+    startVm,
+    installVm,
+    usageStartPolling,
+    usageStopPolling,
+} from "../../actions/provider-actions.js";
 
 const _ = cockpit.gettext;
 
-/** One VM in the list (a row)
- */
-const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutdown, onPause, onResume, onForceoff, onReboot, onForceReboot,
-              onUsageStartPolling, onUsageStopPolling, onSendNMI, dispatch, networks, nodeDevices, resourceHasError, onAddErrorNotification }) => {
-    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
-    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
+export const getVmListingActions = ({ vm, config, dispatch }) => {
+    const onStart = () => dispatch(startVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to start"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onInstall = () => dispatch(installVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to get installed"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onReboot = () => dispatch(rebootVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to Reboot"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onForceReboot = () => dispatch(forceRebootVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to force Reboot"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onShutdown = () => dispatch(shutdownVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to shutdown"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onPause = () => dispatch(pauseVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to pause"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onResume = () => dispatch(resumeVm(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to resume"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onForceoff = () => dispatch(forceVmOff(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to force shutdown"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
+    const onSendNMI = () => dispatch(sendNMI(vm)).catch(ex => {
+        this.props.onAddErrorNotification({
+            text: cockpit.format(_("VM $0 failed to send NMI"), vm.name),
+            detail: ex.message, resourceId: vm.id,
+        });
+    });
 
+    return VmActions({
+        vm,
+        config,
+        dispatch,
+        onStart,
+        onInstall,
+        onReboot,
+        onForceReboot,
+        onShutdown,
+        onPause,
+        onResume,
+        onForceoff,
+        onSendNMI,
+    });
+};
+
+export const getVmTabRenderers = ({ vm, config, hostDevices, storagePools, dispatch, networks, nodeDevices, onAddErrorNotification }) => {
     const overviewTabName = (<div id={`${vmId(vm.name)}-overview`}>{_("Overview")}</div>);
     const usageTabName = (<div id={`${vmId(vm.name)}-usage`}>{_("Usage")}</div>);
     const disksTabName = (<div id={`${vmId(vm.name)}-disks`}>{_("Disks")}</div>);
     const networkTabName = (<div id={`${vmId(vm.name)}-networks`}>{_("Network Interfaces")}</div>);
     const consolesTabName = (<div id={`${vmId(vm.name)}-consoles`}>{_("Consoles")}</div>);
+    const onUsageStartPolling = () => dispatch(usageStartPolling(vm));
+    const onUsageStopPolling = () => dispatch(usageStopPolling(vm));
 
     let tabRenderers = [
         { name: overviewTabName, renderer: VmOverviewTab, data: { vm, config, dispatch, nodeDevices } },
@@ -73,12 +154,21 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
             }
         ));
     }
-
     let initiallyActiveTab = null;
     if (vm.ui.initiallyOpenedConsoleTab) {
         initiallyActiveTab = tabRenderers.map((o) => o.name).indexOf(consolesTabName);
     }
 
+    return { tabRenderers, initiallyActiveTab };
+};
+
+/** One VM in the list (a row)
+ */
+export const Vm = ({ vm, config, hostDevices, storagePools, dispatch, networks, nodeDevices, resourceHasError, onAddErrorNotification }) => {
+    const stateAlert = resourceHasError[vm.id] ? <span className='pficon-warning-triangle-o machines-status-alert' /> : null;
+    const stateIcon = (<StateIcon state={vm.state} config={config} valueId={`${vmId(vm.name)}-state`} extra={stateAlert} />);
+    const vmTabs = getVmTabRenderers({ vm, config, hostDevices, storagePools, dispatch, networks, nodeDevices, resourceHasError, onAddErrorNotification });
+    const vmListingActions = getVmListingActions({ vm, config, dispatch });
     const name = (<span id={`${vmId(vm.name)}-row`}>{vm.name}</span>);
     let extraClasses = [];
 
@@ -94,22 +184,10 @@ const Vm = ({ vm, config, hostDevices, storagePools, onStart, onInstall, onShutd
             stateIcon,
         ]}
         initiallyExpanded={vm.ui.initiallyExpanded}
-        initiallyActiveTab={initiallyActiveTab}
-        tabRenderers={tabRenderers}
-        listingActions={VmActions({
-            vm,
-            config,
-            dispatch,
-            onStart,
-            onInstall,
-            onReboot,
-            onForceReboot,
-            onShutdown,
-            onPause,
-            onResume,
-            onForceoff,
-            onSendNMI,
-        })} />);
+        initiallyActiveTab={vmTabs.initiallyActiveTab}
+        tabRenderers={vmTabs.tabRenderers}
+        navigateToItem={() => cockpit.location.go(['vms', vm.uuid])}
+        listingActions={vmListingActions} />);
 };
 
 Vm.propTypes = {
@@ -117,16 +195,6 @@ Vm.propTypes = {
     config: PropTypes.object.isRequired,
     storagePools: PropTypes.array.isRequired,
     hostDevices: PropTypes.object.isRequired,
-    onStart: PropTypes.func.isRequired,
-    onShutdown: PropTypes.func.isRequired,
-    onPause: PropTypes.func.isRequired,
-    onResume: PropTypes.func.isRequired,
-    onForceoff: PropTypes.func.isRequired,
-    onReboot: PropTypes.func.isRequired,
-    onForceReboot: PropTypes.func.isRequired,
-    onUsageStartPolling: PropTypes.func.isRequired,
-    onUsageStopPolling: PropTypes.func.isRequired,
-    onSendNMI: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     networks: PropTypes.array.isRequired,
     resourceHasError: PropTypes.object.isRequired,

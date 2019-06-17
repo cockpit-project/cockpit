@@ -188,7 +188,8 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
     const metadataElem = getSingleOptionalElem(domainElem, "metadata");
 
     const name = domainElem.getElementsByTagName("name")[0].childNodes[0].nodeValue;
-    const id = id_overwrite || domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
+    const uuid = domainElem.getElementsByTagName("uuid")[0].childNodes[0].nodeValue;
+    const id = id_overwrite || uuid;
     const osType = osTypeElem.nodeValue;
     const osBoot = parseDumpxmlForOsBoot(osBootElems);
     const arch = osTypeElem.getAttribute("arch");
@@ -224,6 +225,7 @@ export function parseDumpxml(dispatch, connectionName, domXml, id_overwrite) {
         connectionName,
         name,
         id,
+        uuid,
         osType,
         osBoot,
         arch,

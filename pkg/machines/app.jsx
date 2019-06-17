@@ -126,7 +126,7 @@ class App extends React.Component {
 
         return (
             <div>
-                { config.provider.name === 'LibvirtDBus' && pathVms &&
+                { config.provider.name === 'LibvirtDBus' && pathVms && path.length < 2 &&
                 <AggregateStatusCards networks={networks} storagePools={storagePools} />
                 }
                 {Object.keys(this.state.notifications).length > 0 &&

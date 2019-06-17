@@ -122,7 +122,7 @@ static void
 setup (TestCase *tc,
        gconstpointer data)
 {
-  tc->auth = cockpit_auth_new (TRUE);
+  tc->auth = cockpit_auth_new (TRUE, COCKPIT_AUTH_NONE);
   setup_mock_sshd (tc);
 }
 

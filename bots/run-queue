@@ -26,11 +26,64 @@ import ssl
 import subprocess
 import sys
 import time
+import logging
+import pipes
 
 import pika
 from task import redhat_network
 
+logging.basicConfig(level=logging.INFO)
 
+# Returns a command to execute and the delivery tag needed to ack the message
+def consume_webhook_queue(channel, amqp):
+    # interpret payload
+    # call tests-scan or issue-scan appropriately
+    method_frame, header_frame, body = channel.basic_get(queue='webhook')
+    if not method_frame:
+        return None, None
+
+    body = json.loads(body)
+    event = body['event']
+    request = body['request']
+    if event == 'pull_request':
+        pull_request = request['pull_request']
+        repo = pull_request['base']['repo']['full_name']
+        cmd = ['bots/tests-scan', '--pull-data', json.dumps(pull_request), '--amqp', amqp]
+    elif event == 'status':
+        repo = request['repository']['full_name']
+        sha = request['sha']
+        context = pipes.quote(request['context'])
+        cmd = ['bots/tests-scan', '--sha', sha, '--amqp', amqp, '--context', context]
+    else:
+        logging.error('Unkown event type in the webhook queue')
+        return None, None
+
+    # HACK: the cockpit repo itself is treated as a special case in tests-scan, in
+    # order to avoid complexity avoid supplying the repo option for now
+    if repo != 'cockpit-project/cockpit':
+        cmd += ['--repo', repo]
+    return cmd, method_frame.delivery_tag
+
+# Returns a command to execute and the delivery tag needed to ack the message
+def consume_task_queue(channel, amqp, declare_public_result, declare_rhel_result):
+    queue='public'
+    if redhat_network():
+        # Try the rhel queue if the public queue is empty
+        if declare_public_result.method.message_count == 0:
+            queue = 'rhel'
+            # If both are non-empty, shuffle
+        elif declare_rhel_result.method.message_count > 0:
+            queue = ['public', 'rhel'][random.randrange(2)]
+
+    method_frame, header_frame, body = channel.basic_get(queue=queue)
+    if not method_frame:
+        return None, None
+
+    body = json.loads(body)
+    return body['command'], method_frame.delivery_tag
+
+# Consume from the webhook queue and republish to the task queue via *-scan
+# Consume from the task queue (endpoint)
 def main():
     parser = argparse.ArgumentParser(description='Bot: read a single test command from the queue and execute it')
     parser.add_argument('--amqp', default='localhost:5671',
@@ -56,41 +109,34 @@ def main():
     channel = connection.channel()
 
     try:
-        declare_public_result = channel.queue_declare(queue='public', passive=True, auto_delete=False)
-        declare_rhel_result = channel.queue_declare(queue='rhel', passive=True, auto_delete=False)
+        declare_webhook_result = channel.queue_declare(queue='webhook', passive=True, auto_delete=False)
     except pika.exceptions.ChannelClosed:
-        print("One of the queues doesn't exist")
         return 1
 
-    queue='public'
-    if redhat_network():
-        # Try the rhel queue if the public queue is empty
-        if declare_public_result.method.message_count == 0:
-            queue = 'rhel'
-        # If both are non-empty, shuffle
-        elif declare_rhel_result.method.message_count > 0:
-            queue = ['public', 'rhel'][random.randrange(2)]
+    arguments = {
+        "x-max-priority": MAX_PRIORITY
+    }
+    declare_public_result = channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
+    declare_rhel_result = channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
 
-    # Get one item from the queue if present
-    method_frame, header_frame, body = channel.basic_get(queue=queue)
-    if method_frame:
-        ret = 0
-        body = json.loads(body)
-        sys.stderr.write("Consuming {0} task:\n{1}\n".format(body['type'],json.dumps(body, indent=2, sort_keys=True)))
-        sys.stderr.flush()
-        p = subprocess.Popen(body['command'], shell=True)
-        while p.poll() is None:
-            connection.process_data_events()
-            time.sleep(3)
 
-        if p.returncode in [0, 2]:
-            channel.basic_ack(method_frame.delivery_tag)
-    else:
-        # nothing in queue, no work done
-        ret = 1
+    cmd, delivery_tag = consume_webhook_queue(channel, opts.amqp)
+    if not cmd:
+        cmd, delivery_tag = consume_task_queue(channel, opts.amqp, declare_public_result, declare_rhel_result)
+    if not cmd:
+        logging.info("All queues are empty")
+        return 1
+
+    logging.info("Consuming message with command: {0}\n".format(' '.join(cmd) if type(cmd) is list else cmd))
+    p = subprocess.Popen(cmd, shell=type(cmd) is str)
+    while p.poll() is None:
+        connection.process_data_events()
+        time.sleep(3)
+    if p.returncode in [0, 2]:
+        channel.basic_ack(delivery_tag)
 
     connection.close()
-    return ret
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

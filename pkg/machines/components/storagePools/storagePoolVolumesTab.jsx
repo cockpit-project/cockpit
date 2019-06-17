@@ -97,8 +97,23 @@ export class StoragePoolVolumesTab extends React.Component {
                                 header: true,
                             }
                         ];
+                        const vmUsingVolumeList = isVolumeUsed[volume.name].map(vmName => ({ name: vmName, id: vms.find(vm => vm.name == vmName).uuid }));
+
                         columns.push(
-                            { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>{(isVolumeUsed[volume.name] || []).join(', ')}</div>), }
+                            { name: (
+                                <div id={`${storagePoolIdPrefix}-volume-${volume.name}-usedby`}>
+                                    {(vmUsingVolumeList || [])
+                                            .map(vm => {
+                                                return (<a onClick={() => cockpit.location.go(['vms', vm.id])}> {vm.name} </a>);
+                                            })
+                                            .reduce((result, item) => {
+                                                if (result.length != 0)
+                                                    return [result, ', ', item];
+                                                else
+                                                    return [item]
+                                            }, [])}
+                                </div>),
+                            }
                         );
                         columns.push(
                             { name: (<div id={`${storagePoolIdPrefix}-volume-${volume.name}-size`}>{`${allocation} / ${capacity} GB`}</div>), }

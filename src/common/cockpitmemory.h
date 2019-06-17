@@ -36,6 +36,9 @@ __attribute__((__format__ (__printf__, 2, 3)))
 int      asprintfx                       (char **strp,
                                           const char *fmt, ...);
 
+void*    reallocx                        (void *ptr,
+                                          size_t size);
+
 void*    reallocarrayx                   (void *ptr,
                                           size_t nmemb,
                                           size_t size);

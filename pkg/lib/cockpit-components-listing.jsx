@@ -55,15 +55,12 @@ export class ListingRow extends React.Component {
         super(props);
         this.state = {
             expanded: this.props.initiallyExpanded, // show expanded view if true, otherwise one line compact
-            activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
-            loadedTabs: {}, // which tabs were already loaded - this is important for 'loadOnDemand' setting
             // contains tab indices
             selected: this.props.selected, // whether the current row is selected
         };
         this.handleNavigateClick = this.handleNavigateClick.bind(this);
         this.handleExpandClick = this.handleExpandClick.bind(this);
         this.handleSelectClick = this.handleSelectClick.bind(this);
-        this.handleTabClick = this.handleTabClick.bind(this);
     }
 
     handleNavigateClick(e) {
@@ -80,27 +77,6 @@ export class ListingRow extends React.Component {
 
         let willBeExpanded = !this.state.expanded && this.props.tabRenderers.length > 0;
         this.setState({ expanded: willBeExpanded });
-
-        let loadedTabs = {};
-        // unload all tabs if not expanded
-        if (willBeExpanded) {
-            // see if we should preload some tabs
-            let tabIdx;
-            let tabPresence;
-            for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
-                if ('presence' in this.props.tabRenderers[tabIdx])
-                    tabPresence = this.props.tabRenderers[tabIdx].presence;
-                else
-                    tabPresence = 'default';
-                // the active tab is covered by separate logic
-                if (tabPresence == 'always')
-                    loadedTabs[tabIdx] = true;
-            }
-            // ensure the active tab is loaded
-            loadedTabs[this.state.activeTab] = true;
-        }
-
-        this.setState({ loadedTabs: loadedTabs });
 
         this.props.expandChanged && this.props.expandChanged(willBeExpanded);
 
@@ -126,31 +102,7 @@ export class ListingRow extends React.Component {
         e.stopPropagation();
     }
 
-    handleTabClick(tabIdx, e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        let prevTab = this.state.activeTab;
-        let prevTabPresence = 'default';
-        let loadedTabs = this.state.loadedTabs;
-        if (prevTab !== tabIdx) {
-            // see if we need to unload the previous tab
-            if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
-                prevTabPresence = this.props.tabRenderers[prevTab].presence;
-
-            if (prevTabPresence == 'onlyActive')
-                delete loadedTabs[prevTab];
-
-            // ensure the new tab is loaded and update state
-            loadedTabs[tabIdx] = true;
-            this.setState({ loadedTabs: loadedTabs, activeTab: tabIdx });
-        }
-        e.stopPropagation();
-        e.preventDefault();
-    }
-
     render() {
-        let self = this;
         // only enable navigation if a function is provided and the row isn't expanded (prevent accidental navigation)
         let allowNavigate = !!this.props.navigateToItem && !this.state.expanded;
 
@@ -216,58 +168,15 @@ export class ListingRow extends React.Component {
         );
 
         if (this.state.expanded) {
-            let links = this.props.tabRenderers.map((itm, idx) => {
-                return (
-                    <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
-                        <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
-                    </li>
-                );
-            });
-            let tabs = [];
-            let tabIdx;
-            let Renderer;
-            let rendererData;
-            let row;
-
-            if (this.state.activeTab >= this.props.tabRenderers.length)
-                this.state.activeTab = this.props.tabRenderers.length - 1;
-
-            for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
-                Renderer = this.props.tabRenderers[tabIdx].renderer;
-                rendererData = this.props.tabRenderers[tabIdx].data;
-                if (tabIdx !== this.state.activeTab && !(tabIdx in this.state.loadedTabs))
-                    continue;
-                row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...rendererData} />;
-                if (tabIdx === this.state.activeTab)
-                    tabs.push(<div className="listing-ct-body" key={tabIdx}>{row}</div>);
-                else
-                    tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
-            }
-
-            let listingDetail;
-            if ('listingDetail' in this.props) {
-                listingDetail = (
-                    <span className="listing-ct-caption">
-                        {this.props.listingDetail}
-                    </span>
-                );
-            }
-
             return (
                 <tbody className="open">
                     {listingItem}
                     <tr className="listing-ct-panel">
-                        <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0) }>
-                            <div className="listing-ct-head">
-                                <div className="listing-ct-actions">
-                                    {listingDetail}
-                                    {this.props.listingActions}
-                                </div>
-                                <ul className="nav nav-tabs nav-tabs-pf">
-                                    {links}
-                                </ul>
-                            </div>
-                            {tabs}
+                        <td colSpan={headerEntries.length + (expandToggle ? 1 : 0) + (this.props.addCheckbox ? 1 : 0)}>
+                            <TabView tabRenderers={this.props.tabRenderers}
+                                     initiallyActiveTab={this.props.initiallyActiveTab}
+                                     listingDetail={this.props.listingDetail}
+                                     listingActions={this.props.listingActions} />
                         </td>
                     </tr>
                 </tbody>
@@ -381,4 +290,135 @@ Listing.propTypes = {
         ])),
     columnTitleClick: PropTypes.func,
     actions: PropTypes.node
+};
+
+/* Implements a PatternFly 'Basic Tab' pattern
+ * Properties:
+ * tabRenderers optional: list of tab renderers for inline expansion, array of objects with
+ *     - name tab name (has to be unique in the entry, used as react key)
+ *     - renderer react component
+ *     - data render data passed to the tab renderer
+ *     - presence 'always', 'onlyActive', 'loadOnDemand', default: 'loadOnDemand'
+ *         - 'always' once a row is expanded, this tab is always rendered, but invisible if not active
+ *         - 'onlyActive' the tab is only rendered when active
+ *         - 'loadOnDemand' the tab is first rendered when it becomes active, then follows 'always' behavior
+ * listingDetail optional: text rendered next to action buttons, similar style to the tab headers
+ * listingActions optional: buttons that are presented as actions for the expanded item
+ * initiallyActiveTab optional: index of the initially active tab - defaults to first tab
+ */
+export class TabView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            activeTab: this.props.initiallyActiveTab ? this.props.initiallyActiveTab : 0, // currently active tab in expanded mode, defaults to first tab
+            loadedTabs: {}, // which tabs were already loaded - this is important for 'loadOnDemand' setting
+        };
+
+        this.handleTabClick = this.handleTabClick.bind(this);
+    }
+
+    handleTabClick(tabIdx, e) {
+        // only consider primary mouse button
+        if (!e || e.button !== 0)
+            return;
+        let prevTab = this.state.activeTab;
+        let prevTabPresence = 'default';
+        let loadedTabs = this.state.loadedTabs;
+        if (prevTab !== tabIdx) {
+            // see if we need to unload the previous tab
+            if (this.props.tabRenderers[prevTab] && 'presence' in this.props.tabRenderers[prevTab])
+                prevTabPresence = this.props.tabRenderers[prevTab].presence;
+
+            if (prevTabPresence == 'onlyActive')
+                delete loadedTabs[prevTab];
+
+            // ensure the new tab is loaded and update state
+            loadedTabs[tabIdx] = true;
+            this.setState({ loadedTabs: loadedTabs, activeTab: tabIdx });
+        }
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    componentWillMount() {
+        let loadedTabs = {};
+        // unload all tabs if not expanded
+        // see if we should preload some tabs
+        let tabIdx;
+        let tabPresence;
+        for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
+            if ('presence' in this.props.tabRenderers[tabIdx])
+                tabPresence = this.props.tabRenderers[tabIdx].presence;
+            else
+                tabPresence = 'default';
+            // the active tab is covered by separate logic
+            if (tabPresence == 'always')
+                loadedTabs[tabIdx] = true;
+        }
+        // ensure the active tab is loaded
+        loadedTabs[this.state.activeTab] = true;
+
+        this.setState({ loadedTabs: loadedTabs });
+    }
+
+    render() {
+        let self = this;
+        let links = this.props.tabRenderers.map((itm, idx) => {
+            return (
+                <li key={idx} className={ (idx === self.state.activeTab) ? "active" : ""} >
+                    <a href="#" tabIndex="0" onClick={ self.handleTabClick.bind(self, idx) }>{itm.name}</a>
+                </li>
+            );
+        });
+        let tabs = [];
+        let tabIdx;
+        let Renderer;
+        let rendererData;
+        let row;
+
+        if (this.state.activeTab >= this.props.tabRenderers.length)
+            this.state.activeTab = this.props.tabRenderers.length - 1;
+
+        for (tabIdx = 0; tabIdx < this.props.tabRenderers.length; tabIdx++) {
+            Renderer = this.props.tabRenderers[tabIdx].renderer;
+            rendererData = this.props.tabRenderers[tabIdx].data;
+            if (tabIdx !== this.state.activeTab && !(tabIdx in this.state.loadedTabs))
+                continue;
+            row = <Renderer key={ this.props.tabRenderers[tabIdx].name } hidden={ (tabIdx !== this.state.activeTab) } {...rendererData} />;
+            if (tabIdx === this.state.activeTab)
+                tabs.push(<div className="listing-ct-body" key={tabIdx}>{row}</div>);
+            else
+                tabs.push(<div className="listing-ct-body" key={tabIdx} hidden>{row}</div>);
+        }
+
+        let listingDetail;
+        if ('listingDetail' in this.props && this.props.listingDetail != undefined) {
+            listingDetail = (
+                <span className="listing-ct-caption">
+                    {this.props.listingDetail}
+                </span>
+            );
+        }
+
+        return (
+            <React.Fragment>
+                <div className="listing-ct-head">
+                    <div className="listing-ct-actions">
+                        {listingDetail}
+                        {this.props.listingActions}
+                    </div>
+                    <ul className="nav nav-tabs nav-tabs-pf">
+                        {links}
+                    </ul>
+                </div>
+                {tabs}
+            </React.Fragment>
+        );
+    }
+}
+TabView.propTypes = {
+    tabRenderers: PropTypes.array,
+    listingDetail: PropTypes.node,
+    listingActions: PropTypes.node,
+    initiallyActiveTab: PropTypes.number,
 };

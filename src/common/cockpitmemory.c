@@ -21,7 +21,12 @@
 
 #include "cockpitmemory.h"
 
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 int      cockpit_secmem_drain = 0;
 
@@ -62,4 +67,77 @@ cockpit_memory_clear (void * data,
       cockpit_secmem_drain |= *vp;
       *(vp++) = 0xAA;
     }
+}
+
+static void
+abort_errno (const char *msg)
+{
+  perror (msg);
+  abort ();
+}
+
+void*
+mallocx (size_t size)
+{
+  void *r = malloc (size);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory");
+  return r;
+}
+
+char*
+strdupx (const char *s)
+{
+  char *r = strdup (s);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory for strdup");
+  return r;
+}
+
+char*
+strndupx (const char *s,
+         size_t n)
+{
+  char *r = strndup (s, n);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory for strndup");
+  return r;
+}
+
+int
+asprintfx (char **strp,
+           const char *fmt, ...)
+{
+  va_list args;
+  int r;
+
+  va_start (args, fmt);
+  r = vasprintf (strp, fmt, args);
+  va_end (args);
+  if (r < 0)
+    {
+      fprintf (stderr, "Cannot allocate memory for asprintf\n");
+      abort ();
+    }
+  return r;
+}
+
+/* this is like reallocarray(3), but this does not yet exist everywhere; plus
+ * abort() on ENOMEM */
+void*
+reallocarrayx (void *ptr,
+               size_t nmemb,
+               size_t size)
+{
+  void *r;
+
+  if (nmemb >= SIZE_MAX / size)
+    {
+      fprintf (stderr, "reallocarr: overflow (nmemb %zu)\n", nmemb);
+      abort ();
+    }
+  r = realloc (ptr, nmemb * size);
+  if (r == NULL)
+    abort_errno ("failed to allocate memory for realloc");
+  return r;
 }

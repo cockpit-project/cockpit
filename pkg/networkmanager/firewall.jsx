@@ -723,9 +723,9 @@ class ActivateZoneModal extends React.Component {
                         </div>
 
                         <label htmlFor="add-zone-description-readonly" className="control-label">{ _("Description") }</label>
-                        <div id="add-zone-description-readonly">
+                        <p id="add-zone-description-readonly">
                             { (this.state.zone && firewall.zones[this.state.zone].description) || _("No description available") }
-                        </div>
+                        </p>
 
                         <label htmlFor="add-zone-services-readonly" className="control-label">{ _("Included services") }</label>
                         <div id="add-zone-services-readonly">

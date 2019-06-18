@@ -43,7 +43,6 @@ typedef struct _CockpitPipePrivate CockpitPipePrivate;
 
 struct _CockpitPipe {
   GObject parent_instance;
-  CockpitPipePrivate *priv;
 };
 
 struct _CockpitPipeClass {

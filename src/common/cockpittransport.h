@@ -37,7 +37,6 @@ typedef struct _CockpitTransportPrivate CockpitTransportPrivate;
 
 struct _CockpitTransport {
   GObject parent;
-  CockpitTransportPrivate *priv;
 };
 
 struct _CockpitTransportClass

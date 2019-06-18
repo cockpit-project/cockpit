@@ -52,18 +52,17 @@ enum {
 
 static guint signals[NUM_SIGNALS];
 
-G_DEFINE_ABSTRACT_TYPE (CockpitTransport, cockpit_transport, G_TYPE_OBJECT);
+typedef struct {
+  GHashTable *freeze;
+  GQueue *frozen;
+} CockpitTransportPrivate;
 
-struct _CockpitTransportPrivate {
-    GHashTable *freeze;
-    GQueue *frozen;
-};
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (CockpitTransport, cockpit_transport, G_TYPE_OBJECT,
+                                  G_ADD_PRIVATE (CockpitTransport));
 
 static void
 cockpit_transport_init (CockpitTransport *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_TRANSPORT,
-                                            CockpitTransportPrivate);
 }
 
 static void
@@ -82,12 +81,13 @@ maybe_freeze_message (CockpitTransport *self,
                       JsonObject *control,
                       GBytes *data)
 {
+  CockpitTransportPrivate *priv = cockpit_transport_get_instance_private (self);
   FrozenMessage *frozen = NULL;
 
-  if (self->priv->freeze && channel)
+  if (priv->freeze && channel)
     {
       /* Note that we dig out the real value for the channel */
-      channel = g_hash_table_lookup (self->priv->freeze, channel);
+      channel = g_hash_table_lookup (priv->freeze, channel);
       if (channel)
         {
           frozen = g_slice_new0 (FrozenMessage);
@@ -95,9 +95,9 @@ maybe_freeze_message (CockpitTransport *self,
           frozen->data = g_bytes_ref (data);
           if (control)
             frozen->control = json_object_ref (control);
-          if (!self->priv->frozen)
-            self->priv->frozen = g_queue_new ();
-          g_queue_push_tail (self->priv->frozen, frozen);
+          if (!priv->frozen)
+            priv->frozen = g_queue_new ();
+          g_queue_push_tail (priv->frozen, frozen);
           return TRUE;
         }
     }
@@ -167,11 +167,12 @@ static void
 cockpit_transport_finalize (GObject *object)
 {
   CockpitTransport *self = COCKPIT_TRANSPORT (object);
+  CockpitTransportPrivate *priv = cockpit_transport_get_instance_private (self);
 
-  if (self->priv->freeze)
-    g_hash_table_destroy (self->priv->freeze);
-  if (self->priv->frozen)
-    g_queue_free_full (self->priv->frozen, frozen_message_free);
+  if (priv->freeze)
+    g_hash_table_destroy (priv->freeze);
+  if (priv->frozen)
+    g_queue_free_full (priv->frozen, frozen_message_free);
 
   G_OBJECT_CLASS (cockpit_transport_parent_class)->finalize (object);
 }
@@ -208,8 +209,6 @@ cockpit_transport_class_init (CockpitTransportClass *klass)
                                   G_STRUCT_OFFSET (CockpitTransportClass, closed),
                                   NULL, NULL, g_cclosure_marshal_generic,
                                   G_TYPE_NONE, 1, G_TYPE_STRING);
-
-  g_type_class_add_private (klass, sizeof (CockpitTransportPrivate));
 }
 
 void
@@ -289,18 +288,21 @@ void
 cockpit_transport_freeze (CockpitTransport *self,
                           const gchar *channel)
 {
+  CockpitTransportPrivate *priv = cockpit_transport_get_instance_private (self);
+
   g_return_if_fail (COCKPIT_IS_TRANSPORT (self));
   g_return_if_fail (channel != NULL);
 
-  if (!self->priv->freeze)
-    self->priv->freeze = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  g_hash_table_add (self->priv->freeze, g_strdup (channel));
+  if (!priv->freeze)
+    priv->freeze = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  g_hash_table_add (priv->freeze, g_strdup (channel));
 }
 
 void
 cockpit_transport_thaw (CockpitTransport *self,
                         const gchar *channel)
 {
+  CockpitTransportPrivate *priv = cockpit_transport_get_instance_private (self);
   FrozenMessage *frozen;
   const gchar *command;
   gchar *stolen = NULL;
@@ -309,12 +311,12 @@ cockpit_transport_thaw (CockpitTransport *self,
   g_return_if_fail (COCKPIT_IS_TRANSPORT (self));
   g_return_if_fail (channel != NULL);
 
-  if (self->priv->freeze)
-    stolen = g_hash_table_lookup (self->priv->freeze, channel);
+  if (priv->freeze)
+    stolen = g_hash_table_lookup (priv->freeze, channel);
   if (stolen)
-    g_hash_table_steal (self->priv->freeze, channel);
+    g_hash_table_steal (priv->freeze, channel);
 
-  for (l = self->priv->frozen ? self->priv->frozen->head : NULL; l != NULL; )
+  for (l = priv->frozen ? priv->frozen->head : NULL; l != NULL; )
     {
       frozen = l->data;
       flush = (stolen == frozen->channel) ? l : NULL;
@@ -332,7 +334,7 @@ cockpit_transport_thaw (CockpitTransport *self,
             {
               cockpit_transport_emit_recv (self, stolen, frozen->data);
             }
-          g_queue_delete_link (self->priv->frozen, flush);
+          g_queue_delete_link (priv->frozen, flush);
           frozen_message_free (frozen);
         }
     }

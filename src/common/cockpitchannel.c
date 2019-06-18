@@ -71,7 +71,7 @@
 /* Allow up to 1MB of data to be sent without ack */
 #define  CHANNEL_FLOW_WINDOW       (2L * 1024L * 1024L)
 
-struct _CockpitChannelPrivate {
+typedef struct {
     gulong recv_sig;
     gulong close_sig;
     gulong control_sig;
@@ -118,7 +118,7 @@ struct _CockpitChannelPrivate {
     CockpitFlow *pressure;
     gulong pressure_sig;
     GQueue *throttled;
-};
+} CockpitChannelPrivate;
 
 enum {
     PROP_0,
@@ -133,14 +133,16 @@ static guint cockpit_channel_sig_closed;
 static void    cockpit_channel_flow_iface_init     (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_channel_flow_iface_init));
+                         G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_channel_flow_iface_init)
+                         G_ADD_PRIVATE (CockpitChannel));
 
 static gboolean
 on_idle_prepare (gpointer data)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (data);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   g_object_ref (self);
-  self->priv->prepare_tag = 0;
+  priv->prepare_tag = 0;
   cockpit_channel_prepare (self);
   g_object_unref (self);
   return FALSE;
@@ -149,20 +151,20 @@ on_idle_prepare (gpointer data)
 static void
 cockpit_channel_init (CockpitChannel *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_CHANNEL,
-                                            CockpitChannelPrivate);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
-  self->priv->out_sequence = 0;
-  self->priv->out_window = CHANNEL_FLOW_WINDOW;
+  priv->out_sequence = 0;
+  priv->out_window = CHANNEL_FLOW_WINDOW;
 }
 
 static void
 process_recv (CockpitChannel *self,
               GBytes *payload)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   CockpitChannelClass *klass;
 
-  if (self->priv->received_done)
+  if (priv->received_done)
     {
       cockpit_channel_fail (self, "protocol-error", "channel received message after done");
     }
@@ -181,8 +183,9 @@ on_transport_recv (CockpitTransport *transport,
                    gpointer user_data)
 {
   CockpitChannel *self = user_data;
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
-  if (g_strcmp0 (channel_id, self->priv->id) != 0)
+  if (g_strcmp0 (channel_id, priv->id) != 0)
     return FALSE;
 
   process_recv (self, data);
@@ -193,20 +196,21 @@ static gboolean
 process_ping (CockpitChannel *self,
               JsonObject *ping)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   GBytes *payload;
 
-  if (self->priv->throttled)
+  if (priv->throttled)
     {
-      g_debug ("%s: received ping while throttled", self->priv->id);
-      g_queue_push_tail (self->priv->throttled, json_object_ref (ping));
+      g_debug ("%s: received ping while throttled", priv->id);
+      g_queue_push_tail (priv->throttled, json_object_ref (ping));
       return FALSE;
     }
   else
     {
-      g_debug ("%s: replying to ping with pong", self->priv->id);
+      g_debug ("%s: replying to ping with pong", priv->id);
       json_object_set_string_member (ping, "command", "pong");
       payload = cockpit_json_write_bytes (ping);
-      cockpit_transport_send (self->priv->transport, NULL, payload);
+      cockpit_transport_send (priv->transport, NULL, payload);
       g_bytes_unref (payload);
       return TRUE;
     }
@@ -216,31 +220,32 @@ static void
 process_pong (CockpitChannel *self,
               JsonObject *pong)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   gint64 sequence;
 
-  if (!self->priv->flow_control)
+  if (!priv->flow_control)
     return;
 
   if (!cockpit_json_get_int (pong, "sequence", -1, &sequence))
     {
-      g_message ("%s: received invalid \"pong\" \"sequence\" field", self->priv->id);
+      g_message ("%s: received invalid \"pong\" \"sequence\" field", priv->id);
       sequence = -1;
     }
 
-  g_debug ("%s: received pong with sequence: %" G_GINT64_FORMAT, self->priv->id, sequence);
-  if (sequence > self->priv->out_window + (CHANNEL_FLOW_WINDOW * 10))
+  g_debug ("%s: received pong with sequence: %" G_GINT64_FORMAT, priv->id, sequence);
+  if (sequence > priv->out_window + (CHANNEL_FLOW_WINDOW * 10))
     {
       g_message ("%s: received a flow control ack with a suspiciously large sequence: %" G_GINT64_FORMAT,
-                 self->priv->id, sequence);
+                 priv->id, sequence);
     }
 
-  if (sequence >= self->priv->out_window)
+  if (sequence >= priv->out_window)
     {
       /* Up to this point has been confirmed received */
-      self->priv->out_window = sequence + CHANNEL_FLOW_WINDOW;
+      priv->out_window = sequence + CHANNEL_FLOW_WINDOW;
 
       /* If our sent bytes are within the window, no longer under pressure */
-      if (self->priv->out_sequence <= self->priv->out_window)
+      if (priv->out_sequence <= priv->out_window)
         cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
     }
 }
@@ -250,12 +255,13 @@ process_control (CockpitChannel *self,
                  const gchar *command,
                  JsonObject *options)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   CockpitChannelClass *klass;
   const gchar *problem;
 
   if (g_str_equal (command, "close"))
     {
-      g_debug ("close channel %s", self->priv->id);
+      g_debug ("close channel %s", priv->id);
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
         problem = NULL;
       cockpit_channel_close (self, problem);
@@ -274,10 +280,10 @@ process_control (CockpitChannel *self,
     }
   else if (g_str_equal (command, "done"))
     {
-      if (self->priv->received_done)
+      if (priv->received_done)
         cockpit_channel_fail (self, "protocol-error", "channel received second done");
       else
-        self->priv->received_done = TRUE;
+        priv->received_done = TRUE;
     }
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
@@ -294,8 +300,9 @@ on_transport_control (CockpitTransport *transport,
                       gpointer user_data)
 {
   CockpitChannel *self = user_data;
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
-  if (g_strcmp0 (channel_id, self->priv->id) != 0)
+  if (g_strcmp0 (channel_id, priv->id) != 0)
     return FALSE;
 
   process_control (self, command, options);
@@ -308,10 +315,11 @@ on_transport_closed (CockpitTransport *transport,
                      gpointer user_data)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (user_data);
-  self->priv->transport_closed = TRUE;
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+  priv->transport_closed = TRUE;
   if (problem == NULL)
     problem = "disconnected";
-  if (!self->priv->emitted_close)
+  if (!priv->emitted_close)
     cockpit_channel_close (self, problem);
 }
 
@@ -320,47 +328,48 @@ cockpit_channel_actual_send (CockpitChannel *self,
                              GBytes *payload,
                              gboolean trust_is_utf8)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   GBytes *validated = NULL;
   guint64 out_sequence;
   JsonObject *ping;
   gsize size;
 
-  g_return_if_fail (self->priv->out_buffer == NULL);
-  g_return_if_fail (self->priv->buffer_timeout == 0);
+  g_return_if_fail (priv->out_buffer == NULL);
+  g_return_if_fail (priv->buffer_timeout == 0);
 
   if (!trust_is_utf8)
     {
-      if (!self->priv->binary_ok)
+      if (!priv->binary_ok)
          payload = validated = cockpit_unicode_force_utf8 (payload);
     }
 
-  cockpit_transport_send (self->priv->transport, self->priv->id, payload);
+  cockpit_transport_send (priv->transport, priv->id, payload);
 
   /* A wraparound of our gint64 size? */
-  if (self->priv->flow_control)
+  if (priv->flow_control)
     {
       size = g_bytes_get_size (payload);
-      g_return_if_fail (G_MAXINT64 - size > self->priv->out_sequence);
+      g_return_if_fail (G_MAXINT64 - size > priv->out_sequence);
 
       /* How many bytes have been sent (queued) */
-      out_sequence = self->priv->out_sequence + size;
+      out_sequence = priv->out_sequence + size;
 
       /* Every CHANNEL_FLOW_PING bytes we send a ping */
-      if (out_sequence / CHANNEL_FLOW_PING != self->priv->out_sequence / CHANNEL_FLOW_PING)
+      if (out_sequence / CHANNEL_FLOW_PING != priv->out_sequence / CHANNEL_FLOW_PING)
         {
           ping = json_object_new ();
           json_object_set_int_member (ping, "sequence", out_sequence);
           cockpit_channel_control (self, "ping", ping);
-          g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, self->priv->id, out_sequence);
+          g_debug ("%s: sending ping with sequence: %" G_GINT64_FORMAT, priv->id, out_sequence);
           json_object_unref (ping);
         }
 
       /* If we've sent more than the window, apply back pressure */
-      self->priv->out_sequence = out_sequence;
-      if (self->priv->out_sequence > self->priv->out_window)
+      priv->out_sequence = out_sequence;
+      if (priv->out_sequence > priv->out_window)
         {
           g_debug ("%s: sent too much data without acknowledgement, emitting back pressure until %"
-                   G_GINT64_FORMAT, self->priv->id, self->priv->out_window);
+                   G_GINT64_FORMAT, priv->id, priv->out_window);
           cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
         }
     }
@@ -373,14 +382,15 @@ static gboolean
 flush_buffer (gpointer user_data)
 {
   CockpitChannel *self = user_data;
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   GBytes *payload;
 
-  if (self->priv->out_buffer)
+  if (priv->out_buffer)
    {
-      payload = g_bytes_ref (self->priv->out_buffer);
-      g_bytes_unref (self->priv->out_buffer);
-      self->priv->out_buffer = NULL;
-      self->priv->buffer_timeout = 0;
+      payload = g_bytes_ref (priv->out_buffer);
+      g_bytes_unref (priv->out_buffer);
+      priv->out_buffer = NULL;
+      priv->buffer_timeout = 0;
 
       cockpit_channel_actual_send (self, payload, FALSE);
       g_bytes_unref (payload);
@@ -393,23 +403,24 @@ static void
 cockpit_channel_constructed (GObject *object)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->constructed (object);
 
-  g_return_if_fail (self->priv->id != NULL);
-  g_return_if_fail (self->priv->transport != NULL);
+  g_return_if_fail (priv->id != NULL);
+  g_return_if_fail (priv->transport != NULL);
 
-  self->priv->capabilities = NULL;
-  self->priv->recv_sig = g_signal_connect (self->priv->transport, "recv",
+  priv->capabilities = NULL;
+  priv->recv_sig = g_signal_connect (priv->transport, "recv",
                                            G_CALLBACK (on_transport_recv), self);
-  self->priv->control_sig = g_signal_connect (self->priv->transport, "control",
+  priv->control_sig = g_signal_connect (priv->transport, "control",
                                               G_CALLBACK (on_transport_control), self);
-  self->priv->close_sig = g_signal_connect (self->priv->transport, "closed",
+  priv->close_sig = g_signal_connect (priv->transport, "closed",
                                             G_CALLBACK (on_transport_closed), self);
 
   /* Freeze this channel's messages until ready */
-  cockpit_transport_freeze (self->priv->transport, self->priv->id);
-  self->priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
+  cockpit_transport_freeze (priv->transport, priv->id);
+  priv->prepare_tag = g_idle_add_full (G_PRIORITY_HIGH, on_idle_prepare, self, NULL);
 }
 
 
@@ -429,9 +440,10 @@ strv_contains (gchar **strv,
 }
 
 static gboolean
-cockpit_channel_ensure_capable (CockpitChannel *channel,
+cockpit_channel_ensure_capable (CockpitChannel *self,
                                 JsonObject *options)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   gchar **capabilities = NULL;
   JsonObject *close_options = NULL; // owned by channel
   gboolean missing = FALSE;
@@ -441,7 +453,7 @@ cockpit_channel_ensure_capable (CockpitChannel *channel,
 
   if (!cockpit_json_get_strv (options, "capabilities", NULL, &capabilities))
     {
-      cockpit_channel_fail (channel, "protocol-error", "got invalid capabilities field in open message");
+      cockpit_channel_fail (self, "protocol-error", "got invalid capabilities field in open message");
       goto out;
     }
 
@@ -454,10 +466,9 @@ cockpit_channel_ensure_capable (CockpitChannel *channel,
   len = g_strv_length (capabilities);
   for (i = 0; i < len; i++)
     {
-      if (channel->priv->capabilities == NULL ||
-          !strv_contains(channel->priv->capabilities, capabilities[i]))
+      if (priv->capabilities == NULL || !strv_contains(priv->capabilities, capabilities[i]))
         {
-          g_message ("%s: unsupported capability required: %s", channel->priv->id, capabilities[i]);
+          g_message ("%s: unsupported capability required: %s", priv->id, capabilities[i]);
           missing = TRUE;
         }
     }
@@ -466,16 +477,16 @@ cockpit_channel_ensure_capable (CockpitChannel *channel,
     {
       JsonArray *arr = json_array_new (); // owned by closed options
 
-      if (channel->priv->capabilities != NULL)
+      if (priv->capabilities != NULL)
         {
-          len = g_strv_length (channel->priv->capabilities);
+          len = g_strv_length (priv->capabilities);
           for (i = 0; i < len; i++)
-            json_array_add_string_element (arr, channel->priv->capabilities[i]);
+            json_array_add_string_element (arr, priv->capabilities[i]);
         }
 
-      close_options = cockpit_channel_close_options (channel);
+      close_options = cockpit_channel_close_options (self);
       json_object_set_array_member (close_options, "capabilities", arr);
-      cockpit_channel_close (channel, "not-supported");
+      cockpit_channel_close (self, "not-supported");
     }
 
   ret = !missing;
@@ -486,9 +497,9 @@ out:
 }
 
 static void
-cockpit_channel_real_prepare (CockpitChannel *channel)
+cockpit_channel_real_prepare (CockpitChannel *self)
 {
-  CockpitChannel *self = COCKPIT_CHANNEL (channel);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   JsonObject *options;
   const gchar *binary;
 
@@ -497,9 +508,9 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
   if (!cockpit_channel_ensure_capable (self, options))
     return;
 
-  if (G_OBJECT_TYPE (channel) == COCKPIT_TYPE_CHANNEL)
+  if (G_OBJECT_TYPE (self) == COCKPIT_TYPE_CHANNEL)
     {
-      cockpit_channel_close (channel, "not-supported");
+      cockpit_channel_close (self, "not-supported");
       return;
     }
 
@@ -509,7 +520,7 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
     }
   else if (binary != NULL)
     {
-      self->priv->binary_ok = TRUE;
+      priv->binary_ok = TRUE;
       if (!g_str_equal (binary, "raw"))
         {
           cockpit_channel_fail (self, "protocol-error",
@@ -522,7 +533,7 @@ cockpit_channel_real_prepare (CockpitChannel *channel)
    * cockpit-ws participants have been upgraded sufficiently. The default when we're
    * on the channel creation side is to handle flow control.
    */
-  if (!cockpit_json_get_bool (options, "flow-control", FALSE, &self->priv->flow_control))
+  if (!cockpit_json_get_bool (options, "flow-control", FALSE, &priv->flow_control))
     {
       cockpit_channel_fail (self, "protocol-error", "channel has invalid \"flow-control\" option");
     }
@@ -535,14 +546,15 @@ cockpit_channel_get_property (GObject *object,
                               GParamSpec *pspec)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_TRANSPORT:
-      g_value_set_object (value, self->priv->transport);
+      g_value_set_object (value, priv->transport);
       break;
     case PROP_ID:
-      g_value_set_string (value, self->priv->id);
+      g_value_set_string (value, priv->id);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -557,21 +569,22 @@ cockpit_channel_set_property (GObject *object,
                               GParamSpec *pspec)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_TRANSPORT:
-      self->priv->transport = g_value_dup_object (value);
+      priv->transport = g_value_dup_object (value);
       break;
     case PROP_ID:
-      self->priv->id = g_value_dup_string (value);
+      priv->id = g_value_dup_string (value);
       break;
     case PROP_OPTIONS:
-      self->priv->open_options = g_value_dup_boxed (value);
+      priv->open_options = g_value_dup_boxed (value);
       break;
     case PROP_CAPABILITIES:
-      g_return_if_fail (self->priv->capabilities == NULL);
-      self->priv->capabilities = g_value_dup_boxed (value);
+      g_return_if_fail (priv->capabilities == NULL);
+      priv->capabilities = g_value_dup_boxed (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -583,45 +596,46 @@ static void
 cockpit_channel_dispose (GObject *object)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
   /*
    * This object was destroyed before going to the main loop
    * no need to wait until later before we fire various signals.
    */
-  if (self->priv->prepare_tag)
+  if (priv->prepare_tag)
     {
-      g_source_remove (self->priv->prepare_tag);
-      self->priv->prepare_tag = 0;
+      g_source_remove (priv->prepare_tag);
+      priv->prepare_tag = 0;
     }
 
-  if (self->priv->recv_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
-  self->priv->recv_sig = 0;
+  if (priv->recv_sig)
+    g_signal_handler_disconnect (priv->transport, priv->recv_sig);
+  priv->recv_sig = 0;
 
-  if (self->priv->control_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->control_sig);
-  self->priv->control_sig = 0;
+  if (priv->control_sig)
+    g_signal_handler_disconnect (priv->transport, priv->control_sig);
+  priv->control_sig = 0;
 
-  if (self->priv->close_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->close_sig);
-  self->priv->close_sig = 0;
+  if (priv->close_sig)
+    g_signal_handler_disconnect (priv->transport, priv->close_sig);
+  priv->close_sig = 0;
 
-  if (!self->priv->emitted_close)
+  if (!priv->emitted_close)
     cockpit_channel_close (self, "terminated");
 
-  if (self->priv->buffer_timeout)
-    g_source_remove(self->priv->buffer_timeout);
-  self->priv->buffer_timeout = 0;
+  if (priv->buffer_timeout)
+    g_source_remove(priv->buffer_timeout);
+  priv->buffer_timeout = 0;
 
-  if (self->priv->out_buffer)
-    g_bytes_unref (self->priv->out_buffer);
-  self->priv->out_buffer = NULL;
+  if (priv->out_buffer)
+    g_bytes_unref (priv->out_buffer);
+  priv->out_buffer = NULL;
 
   cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
-  g_assert (self->priv->pressure == NULL);
-  if (self->priv->throttled)
-    g_queue_free_full (self->priv->throttled, (GDestroyNotify)json_object_unref);
-  self->priv->throttled = NULL;
+  g_assert (priv->pressure == NULL);
+  if (priv->throttled)
+    g_queue_free_full (priv->throttled, (GDestroyNotify)json_object_unref);
+  priv->throttled = NULL;
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->dispose (object);
 }
@@ -630,15 +644,16 @@ static void
 cockpit_channel_finalize (GObject *object)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (object);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
-  g_object_unref (self->priv->transport);
-  if (self->priv->open_options)
-    json_object_unref (self->priv->open_options);
-  if (self->priv->close_options)
-    json_object_unref (self->priv->close_options);
+  g_object_unref (priv->transport);
+  if (priv->open_options)
+    json_object_unref (priv->open_options);
+  if (priv->close_options)
+    json_object_unref (priv->close_options);
 
-  g_strfreev (self->priv->capabilities);
-  g_free (self->priv->id);
+  g_strfreev (priv->capabilities);
+  g_free (priv->id);
 
   G_OBJECT_CLASS (cockpit_channel_parent_class)->finalize (object);
 }
@@ -647,22 +662,23 @@ static void
 cockpit_channel_real_close (CockpitChannel *self,
                             const gchar *problem)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   JsonObject *object;
   GBytes *message;
 
-  if (self->priv->sent_close)
+  if (priv->sent_close)
     return;
 
-  self->priv->sent_close = TRUE;
+  priv->sent_close = TRUE;
 
-  if (!self->priv->transport_closed)
+  if (!priv->transport_closed)
     {
       flush_buffer (self);
 
-      if (self->priv->close_options)
+      if (priv->close_options)
         {
-          object = self->priv->close_options;
-          self->priv->close_options = NULL;
+          object = priv->close_options;
+          priv->close_options = NULL;
         }
       else
         {
@@ -670,14 +686,14 @@ cockpit_channel_real_close (CockpitChannel *self,
         }
 
       json_object_set_string_member (object, "command", "close");
-      json_object_set_string_member (object, "channel", self->priv->id);
+      json_object_set_string_member (object, "channel", priv->id);
       if (problem)
         json_object_set_string_member (object, "problem", problem);
 
       message = cockpit_json_write_bytes (object);
       json_object_unref (object);
 
-      cockpit_transport_send (self->priv->transport, NULL, message);
+      cockpit_transport_send (priv->transport, NULL, message);
       g_bytes_unref (message);
     }
 
@@ -751,8 +767,6 @@ cockpit_channel_class_init (CockpitChannelClass *klass)
   cockpit_channel_sig_closed = g_signal_new ("closed", COCKPIT_TYPE_CHANNEL, G_SIGNAL_RUN_LAST,
                                              G_STRUCT_OFFSET (CockpitChannelClass, closed),
                                              NULL, NULL, NULL, G_TYPE_NONE, 1, G_TYPE_STRING);
-
-  g_type_class_add_private (klass, sizeof (CockpitChannelPrivate));
 }
 
 /**
@@ -776,26 +790,27 @@ void
 cockpit_channel_close (CockpitChannel *self,
                        const gchar *problem)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   CockpitChannelClass *klass;
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
 
   /* No further messages should be received */
-  if (self->priv->recv_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->recv_sig);
-  self->priv->recv_sig = 0;
+  if (priv->recv_sig)
+    g_signal_handler_disconnect (priv->transport, priv->recv_sig);
+  priv->recv_sig = 0;
 
-  if (self->priv->control_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->control_sig);
-  self->priv->control_sig = 0;
+  if (priv->control_sig)
+    g_signal_handler_disconnect (priv->transport, priv->control_sig);
+  priv->control_sig = 0;
 
-  if (self->priv->close_sig)
-    g_signal_handler_disconnect (self->priv->transport, self->priv->close_sig);
-  self->priv->close_sig = 0;
+  if (priv->close_sig)
+    g_signal_handler_disconnect (priv->transport, priv->close_sig);
+  priv->close_sig = 0;
 
   klass = COCKPIT_CHANNEL_GET_CLASS (self);
   g_assert (klass->close != NULL);
-  self->priv->emitted_close = TRUE;
+  priv->emitted_close = TRUE;
   (klass->close) (self, problem);
 }
 
@@ -816,6 +831,7 @@ cockpit_channel_fail (CockpitChannel *self,
                       const gchar *format,
                       ...)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   JsonObject *options;
   gchar *message;
   va_list va;
@@ -830,7 +846,7 @@ cockpit_channel_fail (CockpitChannel *self,
   options = cockpit_channel_close_options (self);
   if (!json_object_has_member (options, "message"))
     json_object_set_string_member (options, "message", message);
-  g_message ("%s: %s", self->priv->id, message);
+  g_message ("%s: %s", priv->id, message);
   g_free (message);
 
   cockpit_channel_close (self, problem);
@@ -856,9 +872,11 @@ void
 cockpit_channel_ready (CockpitChannel *self,
                        JsonObject *message)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+
   g_object_ref (self);
 
-  cockpit_transport_thaw (self->priv->transport, self->priv->id);
+  cockpit_transport_thaw (priv->transport, priv->id);
   cockpit_channel_control (self, "ready", message);
 
   g_object_unref (self);
@@ -880,19 +898,20 @@ cockpit_channel_send (CockpitChannel *self,
                       GBytes *payload,
                       gboolean trust_is_utf8)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   const guint8 *data;
   gsize length;
   GBytes *send_data = payload;
   GByteArray *combined;
 
-  if (self->priv->buffer_timeout)
-    g_source_remove(self->priv->buffer_timeout);
-  self->priv->buffer_timeout = 0;
+  if (priv->buffer_timeout)
+    g_source_remove(priv->buffer_timeout);
+  priv->buffer_timeout = 0;
 
-  if (self->priv->out_buffer)
+  if (priv->out_buffer)
     {
-      combined = g_bytes_unref_to_array (self->priv->out_buffer);
-      self->priv->out_buffer = NULL;
+      combined = g_bytes_unref_to_array (priv->out_buffer);
+      priv->out_buffer = NULL;
 
       data = g_bytes_get_data (payload, &length);
       g_byte_array_append (combined, data, length);
@@ -901,16 +920,16 @@ cockpit_channel_send (CockpitChannel *self,
       trust_is_utf8 = FALSE;
     }
 
-  if (!trust_is_utf8 && !self->priv->binary_ok)
+  if (!trust_is_utf8 && !priv->binary_ok)
     {
       if (cockpit_unicode_has_incomplete_ending (send_data))
         {
-          self->priv->out_buffer = g_bytes_ref (send_data);
-          self->priv->buffer_timeout = g_timeout_add (500, flush_buffer, self);
+          priv->out_buffer = g_bytes_ref (send_data);
+          priv->buffer_timeout = g_timeout_add (500, flush_buffer, self);
         }
     }
 
-  if (!self->priv->buffer_timeout)
+  if (!priv->buffer_timeout)
     cockpit_channel_actual_send (self, send_data, trust_is_utf8);
 
   if (send_data != payload)
@@ -928,8 +947,10 @@ cockpit_channel_send (CockpitChannel *self,
 JsonObject *
 cockpit_channel_get_options (CockpitChannel *self)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-  return self->priv->open_options;
+  return priv->open_options;
 }
 
 /**
@@ -943,8 +964,10 @@ cockpit_channel_get_options (CockpitChannel *self)
 CockpitTransport *
 cockpit_channel_get_transport (CockpitChannel *self)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-  return self->priv->transport;
+  return priv->transport;
 }
 
 /**
@@ -958,10 +981,12 @@ cockpit_channel_get_transport (CockpitChannel *self)
 JsonObject *
 cockpit_channel_close_options (CockpitChannel *self)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-  if (!self->priv->close_options)
-    self->priv->close_options = json_object_new ();
-  return self->priv->close_options;
+  if (!priv->close_options)
+    priv->close_options = json_object_new ();
+  return priv->close_options;
 }
 
 /**
@@ -975,8 +1000,10 @@ cockpit_channel_close_options (CockpitChannel *self)
 const gchar *
 cockpit_channel_get_id (CockpitChannel *self)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
+
   g_return_val_if_fail (COCKPIT_IS_CHANNEL (self), NULL);
-  return self->priv->id;
+  return priv->id;
 }
 
 /**
@@ -992,21 +1019,22 @@ cockpit_channel_get_id (CockpitChannel *self)
 void
 cockpit_channel_prepare (CockpitChannel *self)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   CockpitChannelClass *klass;
 
   g_return_if_fail (COCKPIT_IS_CHANNEL (self));
 
-  if (self->priv->prepared)
+  if (priv->prepared)
     return;
 
-  if (self->priv->prepare_tag)
+  if (priv->prepare_tag)
     {
-      g_source_remove (self->priv->prepare_tag);
-      self->priv->prepare_tag = 0;
+      g_source_remove (priv->prepare_tag);
+      priv->prepare_tag = 0;
     }
 
-  self->priv->prepared = TRUE;
-  if (!self->priv->emitted_close)
+  priv->prepared = TRUE;
+  if (!priv->emitted_close)
     {
       klass = COCKPIT_CHANNEL_GET_CLASS (self);
       g_assert (klass->prepare);
@@ -1033,6 +1061,7 @@ cockpit_channel_control (CockpitChannel *self,
                          const gchar *command,
                          JsonObject *options)
 {
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   JsonObject *object;
   GBytes *message;
   const gchar *problem;
@@ -1043,18 +1072,18 @@ cockpit_channel_control (CockpitChannel *self,
 
   if (g_str_equal (command, "done"))
     {
-      g_return_if_fail (self->priv->sent_done == FALSE);
-      self->priv->sent_done = TRUE;
+      g_return_if_fail (priv->sent_done == FALSE);
+      priv->sent_done = TRUE;
     }
 
   /* If closing save the close options
    * and let close send the message */
   else if (g_str_equal (command, "close"))
     {
-      if (!self->priv->close_options)
+      if (!priv->close_options)
         {
           /* Ref for close_options, freed in parent */
-          self->priv->close_options = json_object_ref (options);
+          priv->close_options = json_object_ref (options);
         }
 
       if (!cockpit_json_get_string (options, "problem", NULL, &problem))
@@ -1072,12 +1101,12 @@ cockpit_channel_control (CockpitChannel *self,
     object = json_object_new ();
 
   json_object_set_string_member (object, "command", command);
-  json_object_set_string_member (object, "channel", self->priv->id);
+  json_object_set_string_member (object, "channel", priv->id);
 
   message = cockpit_json_write_bytes (object);
   json_object_unref (object);
 
-  cockpit_transport_send (self->priv->transport, NULL, message);
+  cockpit_transport_send (priv->transport, NULL, message);
   g_bytes_unref (message);
 
 out:
@@ -1090,18 +1119,19 @@ on_throttle_pressure (GObject *object,
                       gpointer user_data)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (user_data);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
   GQueue *throttled;
   JsonObject *ping;
 
   if (throttle)
     {
-      if (!self->priv->throttled)
-        self->priv->throttled = g_queue_new ();
+      if (!priv->throttled)
+        priv->throttled = g_queue_new ();
     }
   else
     {
-      throttled = self->priv->throttled;
-      self->priv->throttled = NULL;
+      throttled = priv->throttled;
+      priv->throttled = NULL;
       while (throttled)
         {
           ping = g_queue_pop_head (throttled);
@@ -1125,19 +1155,20 @@ cockpit_channel_throttle (CockpitFlow *flow,
                           CockpitFlow *controlling)
 {
   CockpitChannel *self = COCKPIT_CHANNEL (flow);
+  CockpitChannelPrivate *priv = cockpit_channel_get_instance_private (self);
 
-  if (self->priv->pressure)
+  if (priv->pressure)
     {
-      g_signal_handler_disconnect (self->priv->pressure, self->priv->pressure_sig);
-      g_object_remove_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
-      self->priv->pressure = NULL;
+      g_signal_handler_disconnect (priv->pressure, priv->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (priv->pressure), (gpointer *)&priv->pressure);
+      priv->pressure = NULL;
     }
 
   if (controlling)
     {
-      self->priv->pressure = controlling;
-      g_object_add_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
-      self->priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+      priv->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (priv->pressure), (gpointer *)&priv->pressure);
+      priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
     }
 }
 

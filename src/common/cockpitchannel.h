@@ -40,7 +40,6 @@ typedef struct _CockpitChannelPrivate CockpitChannelPrivate;
 struct _CockpitChannel
 {
   GObject parent;
-  CockpitChannelPrivate *priv;
 };
 
 struct _CockpitChannelClass

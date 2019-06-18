@@ -52,10 +52,6 @@ struct _CockpitPipeTransport {
   gulong close_sig;
 };
 
-struct _CockpitPipeTransportClass {
-  CockpitTransportClass parent_class;
-};
-
 enum {
     PROP_0,
     PROP_NAME,

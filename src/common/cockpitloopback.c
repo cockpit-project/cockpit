@@ -26,10 +26,6 @@ struct _CockpitLoopback {
   GQueue addresses;
 };
 
-struct _CockpitLoopbackClass {
-  GSocketAddressEnumeratorClass parent_class;
-};
-
 static void cockpit_loopback_connectable_iface (GSocketConnectableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitLoopback, cockpit_loopback, G_TYPE_SOCKET_ADDRESS_ENUMERATOR,

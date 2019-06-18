@@ -25,12 +25,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_FLOW             (cockpit_flow_get_type ())
-#define COCKPIT_FLOW(inst)            (G_TYPE_CHECK_INSTANCE_CAST ((inst), COCKPIT_TYPE_FLOW, CockpitFlow))
-#define COCKPIT_IS_FLOW(inst)         (G_TYPE_CHECK_INSTANCE_TYPE ((inst), COCKPIT_TYPE_FLOW))
-#define COCKPIT_FLOW_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_FLOW, CockpitFlowInterface))
-
-typedef struct _CockpitFlow CockpitFlow;
-typedef struct _CockpitFlowInterface CockpitFlowInterface;
+G_DECLARE_INTERFACE(CockpitFlow, cockpit_flow, COCKPIT, FLOW, GObject)
 
 struct _CockpitFlowInterface {
   GTypeInterface parent_iface;
@@ -38,8 +33,6 @@ struct _CockpitFlowInterface {
   void       (* throttle)         (CockpitFlow *flow,
                                    CockpitFlow *controlling);
 };
-
-GType               cockpit_flow_get_type        (void) G_GNUC_CONST;
 
 void                cockpit_flow_throttle        (CockpitFlow *flow,
                                                   CockpitFlow *controller);

@@ -25,12 +25,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_INJECT         (cockpit_web_inject_get_type ())
-#define COCKPIT_WEB_INJECT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_INJECT, CockpitWebInject))
-#define COCKPIT_IS_WEB_INJECT(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_INJECT))
-
-typedef struct _CockpitWebInject CockpitWebInject;
-
-GType               cockpit_web_inject_get_type     (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE(CockpitWebInject, cockpit_web_inject, COCKPIT, WEB_INJECT, GObject)
 
 CockpitWebFilter *  cockpit_web_inject_new          (const gchar *marker,
                                                      GBytes *inject,

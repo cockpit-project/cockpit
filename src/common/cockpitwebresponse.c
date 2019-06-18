@@ -91,10 +91,6 @@ struct _CockpitWebResponse {
   GList *filters;
 };
 
-typedef struct {
-  GObjectClass parent;
-} CockpitWebResponseClass;
-
 /* A megabyte is when we start to consider queue full enough */
 #define QUEUE_PRESSURE 1024UL * 1024UL
 

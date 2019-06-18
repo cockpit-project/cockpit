@@ -26,18 +26,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_TRANSPORT            (cockpit_transport_get_type ())
-#define COCKPIT_TRANSPORT(o)              (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_TRANSPORT, CockpitTransport))
-#define COCKPIT_IS_TRANSPORT(o)           (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_TRANSPORT))
-#define COCKPIT_TRANSPORT_CLASS(k)        (G_TYPE_CHECK_CLASS_CAST((k), COCKPIT_TYPE_TRANSPORT, CockpitTransportClass))
-#define COCKPIT_TRANSPORT_GET_CLASS(o)    (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_TRANSPORT, CockpitTransportClass))
-
-typedef struct _CockpitTransport        CockpitTransport;
-typedef struct _CockpitTransportClass   CockpitTransportClass;
-typedef struct _CockpitTransportPrivate CockpitTransportPrivate;
-
-struct _CockpitTransport {
-  GObject parent;
-};
+G_DECLARE_DERIVABLE_TYPE(CockpitTransport, cockpit_transport, COCKPIT, TRANSPORT, GObject)
 
 struct _CockpitTransportClass
 {
@@ -73,8 +62,6 @@ struct _CockpitTransportClass
   void        (* close)       (CockpitTransport *transport,
                                const gchar *problem);
 };
-
-GType       cockpit_transport_get_type       (void) G_GNUC_CONST;
 
 void        cockpit_transport_send           (CockpitTransport *transport,
                                               const gchar *channel,

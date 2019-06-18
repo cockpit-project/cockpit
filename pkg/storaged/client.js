@@ -171,10 +171,6 @@ client.swap_sizes = instance_sampler([ { name: "swapdev.length" },
     { name: "swapdev.free" },
 ], "direct");
 
-client.blockdev_io = instance_sampler([ { name: "block.device.read", derive: "rate" },
-    { name: "block.device.written", derive: "rate" }
-]);
-
 /* Derived indices.
  */
 

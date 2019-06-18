@@ -27,12 +27,12 @@ G_BEGIN_DECLS
 #define COCKPIT_TYPE_SAMPLES            (cockpit_samples_get_type ())
 #define COCKPIT_SAMPLES(inst)            (G_TYPE_CHECK_INSTANCE_CAST ((inst), COCKPIT_TYPE_SAMPLES, CockpitSamples))
 #define COCKPIT_IS_SAMPLES(inst)         (G_TYPE_CHECK_INSTANCE_TYPE ((inst), COCKPIT_TYPE_SAMPLES))
-#define COCKPIT_SAMPLES_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_SAMPLES, CockpitSamplesIface))
+#define COCKPIT_SAMPLES_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_SAMPLES, CockpitSamplesInterface))
 
 typedef struct _CockpitSamples CockpitSamples;
-typedef struct _CockpitSamplesIface CockpitSamplesIface;
+typedef struct _CockpitSamplesInterface CockpitSamplesInterface;
 
-struct _CockpitSamplesIface {
+struct _CockpitSamplesInterface {
   GTypeInterface parent_iface;
 
   void       (* sample)           (CockpitSamples *samples,

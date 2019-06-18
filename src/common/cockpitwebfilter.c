@@ -27,11 +27,10 @@
  * A filter used to filter the output of a CockpitWebResponse.
  */
 
-typedef CockpitWebFilterIface CockpitWebFilterInterface;
 G_DEFINE_INTERFACE (CockpitWebFilter, cockpit_web_filter, 0);
 
 static void
-cockpit_web_filter_default_init (CockpitWebFilterIface *iface)
+cockpit_web_filter_default_init (CockpitWebFilterInterface *iface)
 {
 
 }
@@ -54,7 +53,7 @@ cockpit_web_filter_push (CockpitWebFilter *filter,
                          void (* function) (gpointer, GBytes *),
                          gpointer data)
 {
-  CockpitWebFilterIface *iface;
+  CockpitWebFilterInterface *iface;
 
   iface = COCKPIT_WEB_FILTER_GET_IFACE (filter);
   g_return_if_fail (iface != NULL);

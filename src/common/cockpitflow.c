@@ -34,13 +34,12 @@
 
 #include "cockpitflow.h"
 
-typedef CockpitFlowIface CockpitFlowInterface;
 G_DEFINE_INTERFACE (CockpitFlow, cockpit_flow, 0);
 
 static guint cockpit_flow_signal_pressure = 0;
 
 static void
-cockpit_flow_default_init (CockpitFlowIface *iface)
+cockpit_flow_default_init (CockpitFlowInterface *iface)
 {
   /**
    * CockpitFlow::pressure:
@@ -67,7 +66,7 @@ void
 cockpit_flow_throttle (CockpitFlow *flow,
                        CockpitFlow *controlling)
 {
-  CockpitFlowIface *iface;
+  CockpitFlowInterface *iface;
 
   g_return_if_fail (COCKPIT_IS_FLOW (flow));
   g_return_if_fail (controlling == NULL || COCKPIT_IS_FLOW (controlling));

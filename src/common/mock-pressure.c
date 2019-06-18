@@ -24,7 +24,7 @@
 typedef GObject MockPressure;
 typedef GObjectClass MockPressureClass;
 
-static void   mock_pressure_flow_iface_init   (CockpitFlowIface *iface);
+static void   mock_pressure_flow_iface_init   (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MockPressure, mock_pressure, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, mock_pressure_flow_iface_init));
@@ -42,7 +42,7 @@ mock_pressure_class_init (MockPressureClass *klass)
 }
 
 static void
-mock_pressure_flow_iface_init (CockpitFlowIface *iface)
+mock_pressure_flow_iface_init (CockpitFlowInterface *iface)
 {
   /* No implementation */
 }

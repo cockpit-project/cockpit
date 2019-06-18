@@ -41,7 +41,7 @@
  * A #CockpitMetrics channel that pulls data from internal sources
  */
 
-static void cockpit_samples_interface_init (CockpitSamplesIface *iface);
+static void cockpit_samples_interface_init (CockpitSamplesInterface *iface);
 
 #define COCKPIT_INTERNAL_METRICS(o) \
   (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_INTERNAL_METRICS, CockpitInternalMetrics))
@@ -557,7 +557,7 @@ cockpit_internal_metrics_class_init (CockpitInternalMetricsClass *klass)
 }
 
 static void
-cockpit_samples_interface_init (CockpitSamplesIface *iface)
+cockpit_samples_interface_init (CockpitSamplesInterface *iface)
 {
   iface->sample = cockpit_internal_metrics_sample;
 }

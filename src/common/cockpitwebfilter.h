@@ -27,12 +27,12 @@ G_BEGIN_DECLS
 #define COCKPIT_TYPE_WEB_FILTER            (cockpit_web_filter_get_type ())
 #define COCKPIT_WEB_FILTER(inst)            (G_TYPE_CHECK_INSTANCE_CAST ((inst), COCKPIT_TYPE_WEB_FILTER, CockpitWebFilter))
 #define COCKPIT_IS_WEB_FILTER(inst)         (G_TYPE_CHECK_INSTANCE_TYPE ((inst), COCKPIT_TYPE_WEB_FILTER))
-#define COCKPIT_WEB_FILTER_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_WEB_FILTER, CockpitWebFilterIface))
+#define COCKPIT_WEB_FILTER_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), COCKPIT_TYPE_WEB_FILTER, CockpitWebFilterInterface))
 
 typedef struct _CockpitWebFilter CockpitWebFilter;
-typedef struct _CockpitWebFilterIface CockpitWebFilterIface;
+typedef struct _CockpitWebFilterInterface CockpitWebFilterInterface;
 
-struct _CockpitWebFilterIface {
+struct _CockpitWebFilterInterface {
   GTypeInterface parent_iface;
 
   void       (* push)            (CockpitWebFilter *filter,

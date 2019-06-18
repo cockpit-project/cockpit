@@ -47,7 +47,7 @@ typedef struct _CockpitInjectClass {
   GObjectClass parent_class;
 } CockpitWebInjectClass;
 
-static void cockpit_web_filter_inject_iface (CockpitWebFilterIface *iface);
+static void cockpit_web_filter_inject_iface (CockpitWebFilterInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitWebInject, cockpit_web_inject, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_WEB_FILTER, cockpit_web_filter_inject_iface)
@@ -187,7 +187,7 @@ cockpit_web_inject_push (CockpitWebFilter *filter,
 }
 
 static void
-cockpit_web_filter_inject_iface (CockpitWebFilterIface *iface)
+cockpit_web_filter_inject_iface (CockpitWebFilterInterface *iface)
 {
   iface->push = cockpit_web_inject_push;
 }

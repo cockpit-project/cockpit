@@ -138,7 +138,7 @@ static void  set_problem_from_errno (CockpitPipe *self,
 static void  cockpit_pipe_throttle  (CockpitFlow *flow,
                                      CockpitFlow *controlling);
 
-static void  cockpit_pipe_flow_iface_init (CockpitFlowIface *iface);
+static void  cockpit_pipe_flow_iface_init (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitPipe, cockpit_pipe, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_pipe_flow_iface_init));
@@ -1708,7 +1708,7 @@ cockpit_pipe_throttle (CockpitFlow *flow,
 }
 
 static void
-cockpit_pipe_flow_iface_init (CockpitFlowIface *iface)
+cockpit_pipe_flow_iface_init (CockpitFlowInterface *iface)
 {
   iface->throttle = cockpit_pipe_throttle;
 }

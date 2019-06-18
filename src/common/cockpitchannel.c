@@ -130,7 +130,7 @@ enum {
 
 static guint cockpit_channel_sig_closed;
 
-static void    cockpit_channel_flow_iface_init     (CockpitFlowIface *iface);
+static void    cockpit_channel_flow_iface_init     (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitChannel, cockpit_channel, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_channel_flow_iface_init));
@@ -1142,7 +1142,7 @@ cockpit_channel_throttle (CockpitFlow *flow,
 }
 
 static void
-cockpit_channel_flow_iface_init (CockpitFlowIface *iface)
+cockpit_channel_flow_iface_init (CockpitFlowInterface *iface)
 {
   iface->throttle = cockpit_channel_throttle;
 }

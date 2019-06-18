@@ -89,7 +89,7 @@ static void  start_input         (CockpitPacketChannel *self);
 
 static void  start_output        (CockpitPacketChannel *self);
 
-static void  cockpit_packet_channel_flow_iface (CockpitFlowIface *iface);
+static void  cockpit_packet_channel_flow_iface (CockpitFlowInterface *iface);
 
 #define COCKPIT_PACKET_CHANNEL(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PACKET_CHANNEL, \
                                    CockpitPacketChannel))
@@ -548,7 +548,7 @@ cockpit_packet_channel_throttle (CockpitFlow *flow,
 }
 
 static void
-cockpit_packet_channel_flow_iface (CockpitFlowIface *iface)
+cockpit_packet_channel_flow_iface (CockpitFlowInterface *iface)
 {
   iface->throttle = cockpit_packet_channel_throttle;
 }

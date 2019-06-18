@@ -85,7 +85,7 @@ static guint cockpit_stream_sig_rejected_cert;
 
 static void  cockpit_close_later (CockpitStream *self);
 
-static void  cockpit_stream_flow_iface_init (CockpitFlowIface *iface);
+static void  cockpit_stream_flow_iface_init (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitStream, cockpit_stream, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_stream_flow_iface_init));
@@ -1051,7 +1051,7 @@ cockpit_stream_throttle (CockpitFlow *flow,
 }
 
 static void
-cockpit_stream_flow_iface_init (CockpitFlowIface *iface)
+cockpit_stream_flow_iface_init (CockpitFlowInterface *iface)
 {
   iface->throttle = cockpit_stream_throttle;
 }

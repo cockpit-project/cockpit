@@ -21,11 +21,10 @@
 
 #include "cockpitsamples.h"
 
-typedef CockpitSamplesIface CockpitSamplesInterface;
 G_DEFINE_INTERFACE (CockpitSamples, cockpit_samples, 0);
 
 static void
-cockpit_samples_default_init (CockpitSamplesIface *iface)
+cockpit_samples_default_init (CockpitSamplesInterface *iface)
 {
 
 }
@@ -36,7 +35,7 @@ cockpit_samples_sample (CockpitSamples *self,
                         const gchar *instance,
                         gint64 value)
 {
-  CockpitSamplesIface *iface;
+  CockpitSamplesInterface *iface;
 
   iface = COCKPIT_SAMPLES_GET_IFACE (self);
   g_return_if_fail (iface != NULL);

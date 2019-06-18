@@ -156,7 +156,7 @@ struct _WebSocketConnectionPrivate
 /* The queue size above which we consider applying back pressure */
 #define QUEUE_PRESSURE       1UL * 1024UL * 1024UL /* 1 megabyte */
 
-static void    web_socket_connection_flow_iface_init        (CockpitFlowIface *iface);
+static void    web_socket_connection_flow_iface_init        (CockpitFlowInterface *iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (WebSocketConnection, web_socket_connection, G_TYPE_OBJECT,
                                   G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, web_socket_connection_flow_iface_init));
@@ -1915,7 +1915,7 @@ _web_socket_connection_get_main_context (WebSocketConnection *self)
 }
 
 static void
-web_socket_connection_flow_iface_init (CockpitFlowIface *iface)
+web_socket_connection_flow_iface_init (CockpitFlowInterface *iface)
 {
   iface->throttle = web_socket_connection_throttle;
 }

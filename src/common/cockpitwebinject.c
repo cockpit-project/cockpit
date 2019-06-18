@@ -43,10 +43,6 @@ struct _CockpitWebInject {
   guint injected;
 };
 
-typedef struct _CockpitInjectClass {
-  GObjectClass parent_class;
-} CockpitWebInjectClass;
-
 static void cockpit_web_filter_inject_iface (CockpitWebFilterInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitWebInject, cockpit_web_inject, G_TYPE_OBJECT,

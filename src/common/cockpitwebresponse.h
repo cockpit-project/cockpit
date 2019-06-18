@@ -29,8 +29,7 @@ G_BEGIN_DECLS
 #define COCKPIT_RESOURCE_PACKAGE_VALID "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
 
 #define COCKPIT_TYPE_WEB_RESPONSE         (cockpit_web_response_get_type ())
-#define COCKPIT_WEB_RESPONSE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_RESPONSE, CockpitWebResponse))
-#define COCKPIT_IS_WEB_RESPONSE(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_RESPONSE))
+G_DECLARE_FINAL_TYPE(CockpitWebResponse, cockpit_web_response, COCKPIT, WEB_RESPONSE, GObject)
 
 typedef enum {
   COCKPIT_WEB_RESPONSE_NONE = 0,
@@ -59,8 +58,6 @@ typedef struct _CockpitWebResponse        CockpitWebResponse;
 extern const gchar *  cockpit_web_exception_escape_root;
 
 extern const gchar *  cockpit_web_failure_resource;
-
-GType                 cockpit_web_response_get_type      (void) G_GNUC_CONST;
 
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,

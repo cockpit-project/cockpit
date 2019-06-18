@@ -42,8 +42,6 @@ gboolean cockpit_webserver_want_certificate = FALSE;
 guint cockpit_webserver_request_timeout = 30;
 gsize cockpit_webserver_request_maximum = 4096;
 
-typedef struct _CockpitWebServerClass CockpitWebServerClass;
-
 struct _CockpitWebServer {
   GObject parent_instance;
 
@@ -61,10 +59,6 @@ struct _CockpitWebServer {
   GSocketService *socket_service;
   GMainContext *main_context;
   GHashTable *requests;
-};
-
-struct _CockpitWebServerClass {
-  GObjectClass parent_class;
 };
 
 enum

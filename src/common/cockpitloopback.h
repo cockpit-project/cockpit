@@ -25,13 +25,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_LOOPBACK         (cockpit_loopback_get_type ())
-#define COCKPIT_LOOPBACK(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_LOOPBACK, CockpitLoopback))
-#define COCKPIT_IS_LOOPBACK(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_LOOPBACK))
-
-typedef struct _CockpitLoopback        CockpitLoopback;
-typedef struct _CockpitLoopbackClass   CockpitLoopbackClass;
-
-GType                 cockpit_loopback_get_type     (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE(CockpitLoopback, cockpit_loopback, COCKPIT, LOOPBACK, GSocketAddressEnumerator)
 
 GSocketConnectable *  cockpit_loopback_new          (guint16 port);
 

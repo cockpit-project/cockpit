@@ -25,10 +25,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
-#define COCKPIT_WEB_SERVER(o)    (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_WEB_SERVER, CockpitWebServer))
-#define COCKPIT_IS_WEB_SERVER(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_WEB_SERVER))
-
-typedef struct _CockpitWebServer CockpitWebServer;
+G_DECLARE_FINAL_TYPE(CockpitWebServer, cockpit_web_server, COCKPIT, WEB_SERVER, GObject)
 
 extern guint cockpit_webserver_request_timeout;
 extern gsize cockpit_webserver_request_maximum;
@@ -39,8 +36,6 @@ typedef enum {
   COCKPIT_WEB_SERVER_FLAGS_MAX = 1 << 1
 } CockpitWebServerFlags;
 
-
-GType              cockpit_web_server_get_type      (void) G_GNUC_CONST;
 
 CockpitWebServer * cockpit_web_server_new           (const gchar *address,
                                                      gint port,

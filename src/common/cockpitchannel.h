@@ -28,19 +28,7 @@
 G_BEGIN_DECLS
 
 #define COCKPIT_TYPE_CHANNEL            (cockpit_channel_get_type ())
-#define COCKPIT_CHANNEL(o)              (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_CHANNEL, CockpitChannel))
-#define COCKPIT_IS_CHANNEL(o)           (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_CHANNEL))
-#define COCKPIT_CHANNEL_CLASS(k)        (G_TYPE_CHECK_CLASS_CAST((k), COCKPIT_TYPE_CHANNEL, CockpitChannelClass))
-#define COCKPIT_CHANNEL_GET_CLASS(o)    (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_CHANNEL, CockpitChannelClass))
-
-typedef struct _CockpitChannel        CockpitChannel;
-typedef struct _CockpitChannelClass   CockpitChannelClass;
-typedef struct _CockpitChannelPrivate CockpitChannelPrivate;
-
-struct _CockpitChannel
-{
-  GObject parent;
-};
+G_DECLARE_DERIVABLE_TYPE(CockpitChannel, cockpit_channel, COCKPIT, CHANNEL, GObject)
 
 struct _CockpitChannelClass
 {
@@ -65,8 +53,6 @@ struct _CockpitChannelClass
   void        (* close)       (CockpitChannel *channel,
                                const gchar *problem);
 };
-
-GType               cockpit_channel_get_type          (void) G_GNUC_CONST;
 
 void                cockpit_channel_prepare           (CockpitChannel *self);
 

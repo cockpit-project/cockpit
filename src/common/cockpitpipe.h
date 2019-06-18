@@ -32,18 +32,7 @@ typedef enum {
 } CockpitPipeFlags;
 
 #define COCKPIT_TYPE_PIPE         (cockpit_pipe_get_type ())
-#define COCKPIT_PIPE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_PIPE, CockpitPipe))
-#define COCKPIT_IS_PIPE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_PIPE))
-#define COCKPIT_PIPE_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), COCKPIT_TYPE_PIPE, CockpitPipeClass))
-#define COCKPIT_PIPE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_PIPE, CockpitPipeClass))
-
-typedef struct _CockpitPipe        CockpitPipe;
-typedef struct _CockpitPipeClass   CockpitPipeClass;
-typedef struct _CockpitPipePrivate CockpitPipePrivate;
-
-struct _CockpitPipe {
-  GObject parent_instance;
-};
+G_DECLARE_DERIVABLE_TYPE(CockpitPipe, cockpit_pipe, COCKPIT, PIPE, GObject)
 
 struct _CockpitPipeClass {
   GObjectClass parent_class;
@@ -57,8 +46,6 @@ struct _CockpitPipeClass {
   void        (* close)       (CockpitPipe *pipe,
                                const gchar *problem);
 };
-
-GType              cockpit_pipe_get_type     (void) G_GNUC_CONST;
 
 CockpitPipe *      cockpit_pipe_new          (const gchar *name,
                                               gint in_fd,

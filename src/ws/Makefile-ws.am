@@ -250,12 +250,14 @@ GDBUS_CODEGEN_GENERATED = \
 	src/ws/mock-dbus-tests.c \
 	$(NULL)
 
+# FIXME: --header/--body and --output are only available from GLib 2.56.
+# just use --generate-c-code and a bit of dependency ugliness for now
 GDBUS_CODEGEN_INVOCATION = \
 	$(AM_V_GEN) gdbus-codegen \
 	--interface-prefix com.redhat.Cockpit.DBusTests \
 	--c-namespace Test \
 	--c-generate-object-manager \
-	--output $@ \
+	--generate-c-code src/ws/mock-dbus-tests \
 	$(GDBUS_CODEGEN_XML)
 
 BUILT_SOURCES += $(GDBUS_CODEGEN_GENERATED)
@@ -263,10 +265,10 @@ CLEANFILES += $(GDBUS_CODEGEN_GENERATED)
 EXTRA_DIST += $(GDBUS_CODEGEN_XML)
 
 src/ws/mock-dbus-tests.h: $(GDBUS_CODEGEN_XML)
-	$(GDBUS_CODEGEN_INVOCATION) --header
+	$(GDBUS_CODEGEN_INVOCATION)
 
-src/ws/mock-dbus-tests.c: $(GDBUS_CODEGEN_XML)
-	$(GDBUS_CODEGEN_INVOCATION) --body
+src/ws/mock-dbus-tests.c: $(GDBUS_CODEGEN_XML) src/ws/mock-dbus-tests.h
+	$(GDBUS_CODEGEN_INVOCATION)
 
 test_server_SOURCES = \
 	src/ws/mock-service.c \

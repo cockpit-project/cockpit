@@ -20,8 +20,6 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { fmt_rate } from "./utils.js";
-
 import { StoragePlots } from "./plot.jsx";
 
 import { FilesystemsPanel } from "./fsys-panel.jsx";
@@ -111,15 +109,6 @@ export class OverviewSidePanelRow extends React.Component {
                 <td className="row storage-disk-info">
                     <h3 className="storage-disk-name">{this.props.name}</h3>
                     <div className="storage-disk-size">{this.props.detail}</div>
-                    { this.props.stats
-                        ? <div className="storage-disk-rates">
-                            <div className="storage-disk-rate-read"><abbr title="read">R</abbr>: {fmt_rate(this.props.stats[0])}</div>
-                            { "\n" }
-                            { "\n" }
-                            <div className="storage-disk-rate-write"><abbr title="write">W</abbr>: {fmt_rate(this.props.stats[1])}</div>
-                        </div>
-                        : null
-                    }
                 </td>
                 <td className="storage-icon storage-disk-extended">
                     { this.props.actions || job_spinner || warning_triangle }

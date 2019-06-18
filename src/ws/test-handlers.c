@@ -101,7 +101,7 @@ base_setup (Test *test)
   /* Other test->data fields are fine NULL */
   memset (&test->data, 0, sizeof (test->data));
 
-  test->auth = cockpit_auth_new (FALSE);
+  test->auth = cockpit_auth_new (FALSE, COCKPIT_AUTH_NONE);
   test->roots = cockpit_web_response_resolve_roots (static_roots);
   test->login_html = g_strdup(SRCDIR "/src/ws/login.html");
 

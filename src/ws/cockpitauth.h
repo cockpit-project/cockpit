@@ -31,6 +31,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+  COCKPIT_AUTH_NONE = 0,
+  COCKPIT_AUTH_FOR_TLS_PROXY = 1 << 0,
+} CockpitAuthFlags;
+
 #define MAX_AUTH_TIMEOUT 900
 #define MIN_AUTH_TIMEOUT 1
 
@@ -47,6 +52,7 @@ struct _CockpitAuth
 {
   GObject parent_instance;
 
+  CockpitAuthFlags flags;
   GBytes *key;
   GHashTable *sessions;
   GHashTable *conversations;
@@ -67,7 +73,7 @@ struct _CockpitAuthClass
 
 GType           cockpit_auth_get_type        (void) G_GNUC_CONST;
 
-CockpitAuth *   cockpit_auth_new             (gboolean login_loopback);
+CockpitAuth *   cockpit_auth_new             (gboolean login_loopback, CockpitAuthFlags flags);
 
 gchar *         cockpit_auth_nonce           (CockpitAuth *self);
 

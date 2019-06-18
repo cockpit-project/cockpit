@@ -189,7 +189,7 @@ main (int argc,
   loop = g_main_loop_new (NULL, FALSE);
 
   data.os_release = cockpit_system_load_os_release ();
-  data.auth = cockpit_auth_new (opt_local_ssh);
+  data.auth = cockpit_auth_new (opt_local_ssh, opt_for_tls_proxy ? COCKPIT_AUTH_FOR_TLS_PROXY : COCKPIT_AUTH_NONE);
   roots = setup_static_roots (data.os_release);
 
   data.branding_roots = (const gchar **)roots;

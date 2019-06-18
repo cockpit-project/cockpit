@@ -1550,7 +1550,10 @@ cockpit_auth_login_finish (CockpitAuth *self,
 
       if (headers)
         {
-          force_secure = connection ? !G_IS_SOCKET_CONNECTION (connection) : TRUE;
+          if (self->flags & COCKPIT_AUTH_FOR_TLS_PROXY)
+            force_secure = TRUE;
+          else
+            force_secure = connection ? !G_IS_SOCKET_CONNECTION (connection) : TRUE;
           cookie_name = application_cookie_name (cockpit_creds_get_application (creds));
           cookie_b64 = g_base64_encode ((guint8 *)session->cookie, strlen (session->cookie));
           header = g_strdup_printf ("%s=%s; Path=/; %s HttpOnly",
@@ -1583,12 +1586,14 @@ out:
 }
 
 CockpitAuth *
-cockpit_auth_new (gboolean login_loopback)
+cockpit_auth_new (gboolean login_loopback,
+                  CockpitAuthFlags flags)
 {
   CockpitAuth *self = g_object_new (COCKPIT_TYPE_AUTH, NULL);
   const gchar *max_startups_conf;
   gint count = 0;
 
+  self->flags = flags;
   self->login_loopback = login_loopback;
 
   if (cockpit_ws_max_startups == NULL)

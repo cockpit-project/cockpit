@@ -1,12 +1,3 @@
-mock-dbus-tests:
-	gdbus-codegen \
-		--interface-prefix com.redhat.Cockpit.DBusTests \
-		--c-namespace Test \
-		--c-generate-object-manager \
-		--generate-c-code $(srcdir)/src/common/mock-dbus-tests \
-		$(srcdir)/src/common/com.redhat.Cockpit.DBusTests.xml \
-		$(NULL)
-
 src/common/cockpitassets.h: src/common/cockpitassets.gresource.xml
 	@$(MKDIR_P) $(dir $@)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-header --sourcedir=$(dir $<) $<
@@ -25,7 +16,6 @@ CLEANFILES += $(COCKPIT_ASSETS)
 EXTRA_DIST += \
 	src/common/mock-content \
 	src/common/mock-stderr \
-	src/common/com.redhat.Cockpit.DBusTests.xml \
 	src/common/cockpitassets.gresource.xml \
 	src/common/fail.html \
 	$(test_locale_PO) \
@@ -92,10 +82,6 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebserver.c \
 	src/common/cockpitconf.h \
 	src/common/cockpitconf.c \
-	src/common/mock-dbus-tests.c \
-	src/common/mock-dbus-tests.h \
-	src/common/mock-service.c \
-	src/common/mock-service.h \
 	$(NULL)
 
 nodist_libcockpit_common_a_SOURCES = \

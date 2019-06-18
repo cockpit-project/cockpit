@@ -27,9 +27,10 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
-#include "common/mock-service.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebinject.h"
+
+#include "ws/mock-service.h"
 
 #include <gio/gio.h>
 #include <glib-unix.h>

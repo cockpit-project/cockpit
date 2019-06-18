@@ -21,7 +21,8 @@
 
 #include "mock-service.h"
 #include "mock-dbus-tests.h"
-#include "cockpitunixfd.h"
+
+#include "common/cockpitunixfd.h"
 
 #include <gio/gio.h>
 #include <gio/gunixfdlist.h>

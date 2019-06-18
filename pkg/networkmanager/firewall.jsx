@@ -234,7 +234,7 @@ class AddServicesModal extends React.Component {
         p.then(() => this.props.close())
                 .catch(error => {
                     this.setState({
-                        dialogError: _("Failed to add service"),
+                        dialogError: this.state.custom ? _("Failed to add port") : _("Failed to add service"),
                         dialogErrorDetail: error.name + ": " + error.message,
                     });
                 });

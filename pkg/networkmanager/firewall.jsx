@@ -485,31 +485,33 @@ class AddServicesModal extends React.Component {
                             { this.state.custom ||
                                 <React.Fragment>
                                     { services ? (
-                                        <fieldset className="ct-form-layout">
-                                            <label htmlFor="filter-services-input" className="control-label">
-                                                {_("Filter Services")}
-                                            </label>
-                                            <SearchInput id="filter-services-input"
-                                                value={this.state.filter}
-                                                className="form-control"
-                                                onChange={this.onFilterChanged} />
-                                            <ListView className="list-group dialog-list-ct ct-form-layout-full">
-                                                {
-                                                    services.map(s => (
-                                                        <ListView.Item key={s.id}
-                                                                       className="list-group-item"
-                                                                       checkboxInput={ <input data-id={s.id}
-                                                                                              id={"firewall-service-" + s.id}
-                                                                                              type="checkbox"
-                                                                                              checked={this.state.selected.has(s.id)}
-                                                                                              onChange={this.onToggleService} /> }
-                                                                       stacked
-                                                                       heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
-                                                                       description={ renderPorts(s.ports) }>
-                                                        </ListView.Item>
-                                                    ))
-                                                }
-                                            </ListView>
+                                        <fieldset>
+                                            <div className="ct-form-layout">
+                                                <label htmlFor="filter-services-input" className="control-label">
+                                                    {_("Filter Services")}
+                                                </label>
+                                                <SearchInput id="filter-services-input"
+                                                    value={this.state.filter}
+                                                    className="form-control"
+                                                    onChange={this.onFilterChanged} />
+                                                <ListView className="list-group dialog-list-ct ct-form-layout-full">
+                                                    {
+                                                        services.map(s => (
+                                                            <ListView.Item key={s.id}
+                                                                        className="list-group-item"
+                                                                        checkboxInput={ <input data-id={s.id}
+                                                                                                id={"firewall-service-" + s.id}
+                                                                                                type="checkbox"
+                                                                                                checked={this.state.selected.has(s.id)}
+                                                                                                onChange={this.onToggleService} /> }
+                                                                        stacked
+                                                                        heading={ <label htmlFor={"firewall-service-" + s.id}>{s.name}</label> }
+                                                                        description={ renderPorts(s.ports) }>
+                                                            </ListView.Item>
+                                                        ))
+                                                    }
+                                                </ListView>
+                                            </div>
                                         </fieldset>
                                     ) : (
                                         <div className="spinner spinner-lg" />

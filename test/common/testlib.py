@@ -109,7 +109,7 @@ class Browser:
     def title(self):
         return self.cdp.eval('document.title')
 
-    def open(self, href, cookie=None):
+    def open(self, href, cookie=None, tls=False):
         """
         Load a page into the browser.
 
@@ -122,7 +122,8 @@ class Browser:
           Error: When a timeout occurs waiting for the page to load.
         """
         if href.startswith("/"):
-            href = "http://%s:%s%s" % (self.address, self.port, href)
+            schema = tls and "https" or "http"
+            href = "%s://%s:%s%s" % (schema, self.address, self.port, href)
 
         if cookie:
             self.cdp.invoke("Network.setCookie", **cookie)
@@ -479,7 +480,7 @@ class Browser:
         else:
             self.click(sel + ' button:first-child')
 
-    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None):
+    def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
         if user is None:
             user = self.default_user
         href = path
@@ -489,7 +490,7 @@ class Browser:
             href = urlroot + href
         if host:
             href = "/@" + host + href
-        self.open(href)
+        self.open(href, tls=tls)
         self.wait_visible("#login")
         self.set_val('#login-user-input', user)
         self.set_val('#login-password-input', self.password)
@@ -782,7 +783,7 @@ class MachineCase(unittest.TestCase):
 
     def login_and_go(self, path=None, user=None, host=None, authorized=True, urlroot=None, tls=False):
         self.machine.start_cockpit(host, tls=tls)
-        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, urlroot=urlroot)
+        self.browser.login_and_go(path, user=user, host=host, authorized=authorized, urlroot=urlroot, tls=tls)
 
     allow_core_dumps = False
 

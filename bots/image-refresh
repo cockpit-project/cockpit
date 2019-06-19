@@ -28,11 +28,9 @@ from task import github, REDHAT_STORE
 
 TRIGGERS = {
     "centos-7": [
-        "verify/centos-7",
         "cockpit/centos-7@cockpit-project/starter-kit",
     ],
     "continuous-atomic": [
-        "verify/continuous-atomic",
         "cockpit/continuous-atomic@cockpit-project/cockpit-ostree",
     ],
     "debian-testing": [
@@ -88,13 +86,7 @@ TRIGGERS = {
         "verify/ubuntu-1804",
         "verify/debian-stable"
     ],
-    "rhel-7-6": [
-        "verify/rhel-7-6",
-        "verify/rhel-7-6-distropkg",
-        "verify/rhel-atomic"  # builds in rhel-7-6
-    ],
     "rhel-7-7": [
-        "verify/rhel-7-7",
         "cockpit/rhel-7-7/firefox@weldr/cockpit-composer",
     ],
     "rhel-8-0": [
@@ -106,7 +98,6 @@ TRIGGERS = {
         "cockpit/rhel-8-1@cockpit-project/cockpit-podman",
     ],
     "rhel-atomic": [
-        "verify/rhel-atomic",
         "cockpit/rhel-atomic@cockpit-project/cockpit-ostree",
     ]
 }

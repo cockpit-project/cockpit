@@ -241,7 +241,7 @@ class PullTask(object):
         os.makedirs(os.path.join(BASE, "test", "tmp", "run"), exist_ok=True)
 
         # Now actually run the prepare tooling
-        cmd = [ os.path.join(BOTS, "image-prepare") ]
+        cmd = [ os.path.join(BASE, "test", "image-prepare") ]
         if prefix == "image" or prefix == "container":
             cmd += [ "--containers" ]
         cmd += [ "--verbose" ]

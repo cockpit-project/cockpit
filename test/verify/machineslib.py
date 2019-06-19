@@ -683,6 +683,29 @@ class TestMachines(NetworkCase):
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
+        # Prepare an iscsi pool
+        # Debian and ubuntu images don't have open-iscsi already installed
+        # FIXME: Add open-iscsi to debian and ubuntu images
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # Preparations for testing ISCSI pools
+
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+            # Increase the iSCSI timeouts for heavy load during our testing
+            m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+            # Setup a iSCSI target
+            m.execute("""
+                      targetcli /backstores/ramdisk create test 50M
+                      targetcli /iscsi create %(tgt)s
+                      targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+                      targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+                      """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
+            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
+
         self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
@@ -766,6 +789,16 @@ class TestMachines(NetworkCase):
             expected_target='vdh',
         ).execute()
 
+        if "debian" not in m.image and "ubuntu" not in m.image:
+            # ISCSI driver does not support virStorageVolCreate API
+            VMAddDiskDialog(
+                self,
+                pool_name='iscsi-pool',
+                volume_name='unit:0:0:0',
+                expected_target='vdi',
+                use_existing_volume='True',
+            ).execute()
+
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
@@ -779,10 +812,13 @@ class TestMachines(NetworkCase):
 
         if self.provider == "libvirt-dbus":
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
-            for pool in ['default_tmp', 'myPoolOne', 'myPoolTwo', 'images', 'nfs-pool']:
+            active_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --name").split('\n'))
+            print(active_pools)
+            for pool in active_pools:
                 m.execute("virsh pool-destroy {0}".format(pool))
             b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
-            for pool in ['default_tmp', 'myPoolOne', 'myPoolTwo', 'images', 'nfs-pool']:
+            inactive_pools = filter(lambda pool: pool != '', m.execute("virsh pool-list --inactive --name").split('\n'))
+            for pool in inactive_pools:
                 m.execute("virsh pool-undefine {0}".format(pool))
             b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
             b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog

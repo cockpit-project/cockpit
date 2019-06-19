@@ -22,20 +22,20 @@ import os
 import sys
 import subprocess
 
+from machine import testvm
+
 BOTS = os.path.abspath(os.path.dirname(__file__))
 BASE = os.path.normpath(os.path.join(BOTS, ".."))
 TEST = os.path.join(BASE, "test")
 os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
-from machine import testvm
-
 networking = None
+
 
 def main():
     parser = argparse.ArgumentParser(
-            description='Prepare testing environment, download images and build and install cockpit',
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
-        )
+        description='Prepare testing environment, download images and build and install cockpit',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if install script fails')
     parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
@@ -72,9 +72,9 @@ def main():
     # Make sure any images are downloaded
     try:
         if not args.address and not os.path.exists(base_image):
-            subprocess.check_call([ "image-download", base_image])
+            subprocess.check_call(["image-download", base_image])
         if build_image and not os.path.exists(build_image):
-            subprocess.check_call([ "image-download", build_image])
+            subprocess.check_call(["image-download", build_image])
     except OSError as ex:
         if ex.errno != errno.ENOENT:
             raise
@@ -94,11 +94,13 @@ def main():
 
     return 0
 
+
 def upload_scripts(machine, args):
     machine.execute("rm -rf /var/lib/testvm")
-    machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "lib") ], "/var/lib/testvm")
-    machine.upload([ os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image) ], "/var/tmp")
-    machine.upload([ os.path.join(BASE, "containers") ], "/var/tmp")
+    machine.upload([os.path.join(testvm.SCRIPTS_DIR, "lib")], "/var/lib/testvm")
+    machine.upload([os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image)], "/var/tmp")
+    machine.upload([os.path.join(BASE, "containers")], "/var/tmp")
+
 
 # Create the necessary layered image for the build/install
 def prepare_install_image(base_image):
@@ -109,12 +111,14 @@ def prepare_install_image(base_image):
     install_image = os.path.join(test_images, os.path.basename(base_image))
     base_image = os.path.realpath(testvm.get_test_image(base_image))
     qcow2_image = "{0}.qcow2".format(install_image)
-    subprocess.check_call([ "qemu-img", "create", "-q", "-f", "qcow2",
-        "-o", "backing_file={0},backing_fmt=qcow2".format(base_image), qcow2_image ])
+    subprocess.check_call(["qemu-img", "create", "-q", "-f", "qcow2",
+                           "-o", "backing_file={0},backing_fmt=qcow2".format(base_image),
+                           qcow2_image])
     if os.path.lexists(install_image):
         os.unlink(install_image)
     os.symlink(os.path.basename(qcow2_image), install_image)
     return install_image
+
 
 def run_install_script(machine, do_build, do_install, skips, arg, args):
     install = do_install
@@ -129,22 +133,23 @@ def run_install_script(machine, do_build, do_install, skips, arg, args):
 
     skip_args = [" --skip '%s'" % skip for skip in skips]
     cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
-                                                         " --verbose" if args.verbose else "",
-                                                         " --quick" if args.quick else "",
-                                                         " --build" if do_build else "",
-                                                         " --install" if do_install else "",
-                                                         " ".join(skip_args),
-                                                         " '%s'" % arg if arg else "")
+                                                     " --verbose" if args.verbose else "",
+                                                     " --quick" if args.quick else "",
+                                                     " --build" if do_build else "",
+                                                     " --install" if do_install else "",
+                                                     " ".join(skip_args),
+                                                     " '%s'" % arg if arg else "")
     machine.execute(cmd, timeout=1800)
 
     if install and args.containers:
         machine.execute("/var/lib/testvm/containers.install", timeout=900)
 
+
 def build_and_install(build_image, build_results, skips, args):
     """Build and maybe install Cockpit into a test image"""
     build_image = prepare_install_image(build_image)
     machine = testvm.VirtMachine(verbose=args.verbose, image=build_image,
-            memory_mb=2048, cpus=4, maintain=True, networking=networking)
+                                 memory_mb=2048, cpus=4, maintain=True, networking=networking)
     completed = False
 
     # While the machine is booting, make a tarball
@@ -152,7 +157,7 @@ def build_and_install(build_image, build_results, skips, args):
     env = os.environ.copy()
     if os.path.basename(build_image) == "fedora-30":
         env["NODE_ENV"] = "development"
-    source = subprocess.check_output([ os.path.join(BOTS, "make-source") ],
+    source = subprocess.check_output([os.path.join(BOTS, "make-source")],
                                      universal_newlines=True, env=env).strip()
     machine.start()
     completed = False
@@ -160,7 +165,7 @@ def build_and_install(build_image, build_results, skips, args):
     try:
         machine.wait_boot()
         upload_scripts(machine, args=args)
-        machine.upload([ source ], "/var/tmp")
+        machine.upload([source], "/var/tmp")
         run_install_script(machine, True, True, skips, os.path.basename(source), args)
         completed = True
     finally:
@@ -169,11 +174,12 @@ def build_and_install(build_image, build_results, skips, args):
             input("Press RET to continue... ")
         try:
             if os.path.exists(build_results):
-                subprocess.check_call([ "rm", "-rf", build_results ])
+                subprocess.check_call(["rm", "-rf", build_results])
             os.makedirs(build_results)
             machine.download("/var/tmp/build-results/*", build_results)
         finally:
             machine.stop()
+
 
 def only_install(image, build_results, skips, args, address):
     """Install Cockpit into a test image"""
@@ -189,9 +195,9 @@ def only_install(image, build_results, skips, args, address):
     try:
         if started:
             machine.wait_boot()
-        upload_scripts(machine,args=args)
-        machine.execute("rm -rf /var/tmp/build-results");
-        machine.upload([ build_results ], "/var/tmp/build-results")
+        upload_scripts(machine, args=args)
+        machine.execute("rm -rf /var/tmp/build-results")
+        machine.upload([build_results], "/var/tmp/build-results")
         run_install_script(machine, False, True, skips, None, args)
         completed = True
     finally:
@@ -200,6 +206,7 @@ def only_install(image, build_results, skips, args, address):
             input("Press RET to continue... ")
         if started:
             machine.stop()
+
 
 if __name__ == "__main__":
     sys.exit(main())

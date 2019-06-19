@@ -308,7 +308,7 @@ image. This image cannot be freely distributed for licensing reasons.
 Make sure you have the ```virt-viewer``` package installed on your Linux
 machine. And then run the following from the Cockpit checkout directory:
 
-    $ test/vm-run --network windows-10
+    $ bots/vm-run --network windows-10
 
 If the image is not yet downloaded, it'll take a while to download and
 you'll see progress on the command line. A screen will pop up and

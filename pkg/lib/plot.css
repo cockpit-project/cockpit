@@ -1,10 +1,10 @@
 .plot-unit {
     display:      inline-block;
-    width:        28px;
-    font-size:    smaller;
+    min-width:    1.5rem;
+    font-size:    var(--pf-global--FontSize--xs);
     text-align:   right;
     color:        var(--color-gray-9);
-    margin-right: 7px;
+    margin-right: 0.5rem;
 }
 
 .plot-title {
@@ -12,29 +12,50 @@
 }
 
 .flot-y-axis .flot-tick-label {
-    width: 28px;
-    margin-right: 7px;
+    width: 1.5rem;
+    margin-right: 0.5rem;
 }
 
 .flot-x-axis .flot-tick-label {
-    margin-top: 3px;
+    margin-top: 0.25rem;
 }
 
-.zoom-controls {
-    visibility: hidden;
-}
-
-.show-zoom-controls .zoom-controls {
-    visibility: visible;
+.flot-tick-label {
+    font-size: var(--pf-global--FontSize--xs);
 }
 
 .show-zoom-cursor .zoomable-plot {
     cursor: ew-resize;
 }
 
+.zoom-controls {
+    display: none;
+}
+
+/* Grid up the zoom controls */
+.show-zoom-controls .zoom-controls,
 .standard-zoom-controls {
-    text-align:    right;       /* on the right */
-    margin-bottom: -15px;       /* overlapping with the title */
-    z-index:       1;           /* but on top of it */
-    position:      relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 0.5rem;
+    justify-content: end;
+    margin: 0 0 0.5rem 0;
+    position: relative;
+    /* Put size constraints on the first column, the dropdown */
+    grid-template-columns: minmax(9rem, max-content);
+}
+
+/* Make the dropdown take up space vertically */
+.zoom-controls > .dropdown,
+.standard-zoom-controls > .dropdown {
+    display: inline-flex;
+}
+
+/* Make the custom dropdown button properly stretchy */
+.zoom-controls > .dropdown > .btn,
+.standard-zoom-controls > .dropdown > .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }

@@ -21,132 +21,9 @@
 
 #include "cockpitdbusinternal.h"
 
-#include <gio/gunixinputstream.h>
-#include <gio/gunixoutputstream.h>
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
-
-typedef struct {
-  GIOStream parent;
-  gint fd;
-  GInputStream *input_stream;
-  GOutputStream *output_stream;
-} UnixIOStream;
-
-typedef struct _GIOStreamClass UnixIOStreamClass;
-
-GType unix_io_stream_get_type (void);
-
-G_DEFINE_TYPE (UnixIOStream, unix_io_stream, G_TYPE_IO_STREAM)
-
-static void
-unix_io_stream_finalize (GObject *object)
-{
-  UnixIOStream *self = (UnixIOStream *)object;
-
-  /* strictly speaking we should unref these in dispose, but
-   * g_io_stream_dispose() wants them to still exist
-   */
-  g_clear_object (&self->input_stream);
-  g_clear_object (&self->output_stream);
-
-  G_OBJECT_CLASS (unix_io_stream_parent_class)->finalize (object);
-}
-
-static void
-unix_io_stream_init (UnixIOStream *stream)
-{
-}
-
-static GInputStream *
-unix_io_stream_get_input_stream (GIOStream *stream)
-{
-  UnixIOStream *self = (UnixIOStream *)stream;
-  return self->input_stream;
-}
-
-static GOutputStream *
-unix_io_stream_get_output_stream (GIOStream *stream)
-{
-  UnixIOStream *self = (UnixIOStream *)stream;
-  return self->output_stream;
-}
-
-static gboolean
-unix_io_stream_close (GIOStream *stream,
-                      GCancellable *cancellable,
-                      GError **error)
-{
-  UnixIOStream *self = (UnixIOStream *)stream;
-  gboolean ret;
-
-  ret = g_input_stream_close (self->input_stream, cancellable, error);
-  if (!g_output_stream_close (self->output_stream, cancellable, ret ? error : NULL))
-    ret = FALSE;
-
-  close (self->fd);
-  return ret;
-}
-
-static void
-unix_io_stream_close_async (GIOStream *stream,
-                            int io_priority,
-                            GCancellable *cancellable,
-                            GAsyncReadyCallback callback,
-                            gpointer user_data)
-{
-  GSimpleAsyncResult *res;
-  GError *error = NULL;
-
-  res = g_simple_async_result_new (G_OBJECT (stream), callback, user_data,
-                                   unix_io_stream_close_async);
-  if (!unix_io_stream_close (stream, cancellable, &error))
-    g_simple_async_result_take_error (res, error);
-
-  g_simple_async_result_complete_in_idle (res);
-  g_object_unref (res);
-}
-
-static gboolean
-unix_io_stream_close_finish (GIOStream *stream,
-                             GAsyncResult *result,
-                             GError **error)
-{
-  if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (result), error))
-    return FALSE;
-  return TRUE;
-}
-
-static void
-unix_io_stream_class_init (UnixIOStreamClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GIOStreamClass *stream_class = G_IO_STREAM_CLASS (klass);
-
-  gobject_class->finalize = unix_io_stream_finalize;
-
-  stream_class->get_input_stream  = unix_io_stream_get_input_stream;
-  stream_class->get_output_stream = unix_io_stream_get_output_stream;
-  stream_class->close_fn = unix_io_stream_close;
-  stream_class->close_async = unix_io_stream_close_async;
-  stream_class->close_finish = unix_io_stream_close_finish;
-}
-
-static GIOStream *
-unix_io_stream_new (gint fd)
-{
-  UnixIOStream *self;
-
-  self = g_object_new (unix_io_stream_get_type (), NULL);
-  self->input_stream = g_unix_input_stream_new (fd, FALSE);
-  self->output_stream = g_unix_output_stream_new (fd, FALSE);
-  self->fd = fd;
-  return G_IO_STREAM (self);
-}
-
-/* ------------------------------------------------------------------------- */
 
 static GDBusConnection *the_server = NULL;
 static GDBusConnection *the_client = NULL;
@@ -180,6 +57,18 @@ on_complete_get_result (GObject *source,
   GAsyncResult **ret = user_data;
   g_assert (*ret == NULL);
   *ret = g_object_ref (result);
+}
+
+static GIOStream *
+create_io_stream_for_unix_socket (gint fd)
+{
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GSocket) socket;
+
+  socket = g_socket_new_from_fd (fd, &error);
+  g_assert_no_error (error);
+
+  return G_IO_STREAM (g_socket_connection_factory_create_connection (socket));
 }
 
 void
@@ -218,7 +107,7 @@ cockpit_dbus_internal_startup (gboolean interact)
       return;
     }
 
-  io = unix_io_stream_new (fds[0]);
+  io = create_io_stream_for_unix_socket (fds[0]);
   guid = g_dbus_generate_guid ();
   g_dbus_connection_new (io, guid,
                          G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_SERVER |
@@ -226,7 +115,7 @@ cockpit_dbus_internal_startup (gboolean interact)
                          NULL, NULL, on_complete_get_result, &rserver);
   g_object_unref (io);
 
-  io = unix_io_stream_new (fds[1]);
+  io = create_io_stream_for_unix_socket (fds[1]);
   g_dbus_connection_new (io, NULL, G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT,
                          NULL, NULL, on_complete_get_result, &rclient);
   g_object_unref (io);

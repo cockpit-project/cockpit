@@ -33,8 +33,6 @@ class TestTuned(MachineCase):
         m = self.machine
 
         recommended_profile = "virtual-guest"
-        if m.image == "rhel-atomic":
-            recommended_profile = "atomic-guest"
 
         # Stop tuned in case it is running by default, as on RHEL.
 

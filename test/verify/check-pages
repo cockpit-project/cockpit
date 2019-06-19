@@ -61,7 +61,7 @@ OnCalendar=daily
 
         # On Atomic no locales other than en_US are supported on the host itself
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ["continuous-atomic", "fedora-atomic", "rhel-atomic"]:
+        elif m.image in ["fedora-atomic"]:
             self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
         # login so that we have a cookie.
@@ -98,7 +98,7 @@ OnCalendar=daily
         b.switch_to_top()
         b.click("a[href='/system/services']")
         b.enter_page("/system/services")
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             b.wait_present("#services-list-enabled")
         else:
             b.wait_present("#services-list")
@@ -156,7 +156,7 @@ OnCalendar=daily
         # Systemd timer localization
         b.go("/system/services")
         b.enter_page("/system/services")
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
             b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')
@@ -284,7 +284,7 @@ OnCalendar=daily
 
         # On Atomic no locales other than en_US are supported on the host itself
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1186757
-        elif m.image in ['continuous-atomic', 'fedora-atomic', 'rhel-atomic']:
+        elif m.image in ['fedora-atomic']:
             self.allow_journal_messages('invalid or unusable locale: pt_BR.UTF-8')
 
         self.login_and_go('/system')
@@ -308,7 +308,7 @@ OnCalendar=daily
         # Systemd timer localization
         b.go('/system/services')
         b.enter_page('/system/services')
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             b.click('#services-filter button[data-pattern=\'\\\.timer\$\']')
         else:
             b.click('#services-filter li[data-pattern=\'\\\.timer\$\']')
@@ -446,8 +446,7 @@ OnCalendar=daily
         b.key_press(" ")
         b.wait_text(".file-autocomplete-ct .dropdown-menu", "dir1/file1.txtother")
 
-    @skipImage("No PCP available on Atomic", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-    @skipImage("No PCP available on Debian 9", "debian-stable")
+    @skipImage("No PCP available", "fedora-atomic", "debian-stable")
     def testPlots(self):
         b = self.browser
         m = self.machine

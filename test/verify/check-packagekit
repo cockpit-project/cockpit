@@ -38,7 +38,7 @@ done
 """
 
 
-@skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("Image uses OSTree", "fedora-atomic")
 class TestUpdates(PackageCase):
 
     def setUp(self):
@@ -640,8 +640,8 @@ class TestUpdates(PackageCase):
         self.assertEqual(b.attr("#system_information_updates_icon", "class"), "")
 
 
-@skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
-@skipImage("No subscriptions", "centos-7", "debian-stable", "debian-testing",
+@skipImage("Image uses OSTree", "fedora-atomic")
+@skipImage("No subscriptions", "debian-stable", "debian-testing",
            "fedora-30", "fedora-i386", "fedora-testing", "ubuntu-1804", "ubuntu-stable")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
@@ -774,7 +774,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.assertIn("fa-bug", b.attr("#system_information_updates_icon", "class"))
 
 
-@skipImage("Image uses OSTree", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("Image uses OSTree", "fedora-atomic")
 class TestAutoUpdates(PackageCase):
 
     def setUp(self):
@@ -998,8 +998,7 @@ class TestAutoUpdates(PackageCase):
             # on-demand installation isn't supported
             self.assertFalse(b.is_present('#automatic'))
 
-    @skipImage("No supported auto update backend", "centos-7", "debian-stable", "debian-testing",
-               "ubuntu-1804", "ubuntu-stable", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7")
+    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-1804", "ubuntu-stable")
     def testInstall(self):
         b = self.browser
         m = self.machine

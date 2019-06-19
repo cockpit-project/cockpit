@@ -71,7 +71,7 @@ class TestNetworking(NetworkCase):
         self.toggle_onoff(".panel-heading:contains('tbond')")
         b.wait_in_text("tr:contains('Status')", "Inactive")
         # changed in PR #11769
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             self.assertNotIn("disabled",
                              b.attr(".panel-heading:contains('tbond') .btn:contains('On')", "class"))
         else:

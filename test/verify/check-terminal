@@ -40,11 +40,11 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         self.login_and_go("/system/terminal")
 
         blank_state = ''
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             blank_state = 'Blank line'
 
         def line_sel(i):
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 return '.terminal div:nth-child(%d)' % i
             else:
                 return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
@@ -98,7 +98,7 @@ PROMPT_COMMAND='printf "\\033]0;%s@%s:%s\\007" "${USER}" "${HOSTNAME%%.*}" "${PW
         self.assertNotIn('admin', b.text(line_sel(n + 1)))
 
         # Fixed in PR #11148
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             return
 
         def select_line(sel, width):

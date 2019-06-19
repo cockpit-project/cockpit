@@ -14,7 +14,7 @@ Currently, these tests run on Fedora 30. Other images don't have selenium and
 avocado installed.
 
 ``` bash
-$ bots/image-prepare fedora-30 # Install code to test
+$ test/image-prepare fedora-30 # Install code to test
 ```
 
 Run the [run-tests script](https://github.com/cockpit-project/cockpit/blob/master/test/avocado/run-tests) changing the parameters accordingly for selenium vs pure avocado tests.

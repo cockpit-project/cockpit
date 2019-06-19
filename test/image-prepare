@@ -22,11 +22,14 @@ import os
 import sys
 import subprocess
 
-from machine import testvm
+from verify import parent
+import testvm
 
-BOTS = os.path.abspath(os.path.dirname(__file__))
-BASE = os.path.normpath(os.path.join(BOTS, ".."))
-TEST = os.path.join(BASE, "test")
+parent  # pyflakes
+
+TEST = os.path.abspath(os.path.dirname(__file__))
+BASE = os.path.normpath(os.path.join(TEST, ".."))
+BOTS = os.path.join(BASE, "bots")
 os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
 
 networking = None

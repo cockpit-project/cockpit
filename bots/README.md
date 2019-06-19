@@ -6,8 +6,8 @@ releasing Cockpit and more.
 
 ## Images
 
-In order to test Cockpit it is staged into an operating system
-image. These images are tracked in the ```bots/images``` directory.
+In order to test Cockpit-related projects, they are staged into an operating
+system image. These images are tracked in the ```bots/images``` directory.
 
 These well known image names are expected to contain no ```.```
 characters and have no file name extension.
@@ -17,7 +17,10 @@ For managing these images:
  * image-download: Download test images
  * image-upload: Upload test images
  * image-create: Create test machine images
+ * image-customize: Generic tool to install packages, upload files, or run
+   commands in a test machine image
  * image-prepare: Build and install Cockpit packages into a test machine image
+   (specific to the cockpit project itself, thus it is in test/, not bots/)
 
 For debugging the images:
 

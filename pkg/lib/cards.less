@@ -1,19 +1,33 @@
 @import "variables.less";
 
+:root {
+  --cards-hybrid-gutter-y: 1.5rem;
+  --cards-hybrid-gutter-x: 2rem;
+  --cards-hybrid-min: 22rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --cards-hybrid-gutter-y: 1rem;
+    --cards-hybrid-gutter-x: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  :root {
+    --cards-hybrid-min: 15rem;
+  }
+}
+
 /* Organize cards in a grid instead of BootStrap */
 .grid-cards-ct {
   display: grid;
-  grid-gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
-  padding: 20px;
+  grid-gap: var(--cards-hybrid-gutter-y) var(--cards-hybrid-gutter-x);
+  grid-template-columns: repeat(auto-fit, minmax(var(--cards-hybrid-min), 1fr));
+  padding: var(--cards-hybrid-gutter-y) var(--cards-hybrid-gutter-x);
 
   > div {
     /* No funky negative margins are needed for grid */
     margin: 0;
-  }
-
-  &:first-child {
-    margin-top: ;
   }
 }
 
@@ -31,8 +45,8 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    justify-content: space-between;
     padding: 0;
+    max-width: calc(100vw - var(--cards-hybrid-gutter-x));
   }
 
   .card-pf-title,
@@ -43,20 +57,18 @@
   .card-pf-title,
   .card-pf-title a {
     display: flex;
-    align-items: baseline;
+    align-items: center;
   }
 
   .card-pf-title {
     flex: auto;
-    padding: 20px;
-    line-height: 16px; /* Same as icon */
+    padding: 1rem 0 1rem 1rem;
+    font-size: var(--pf-global--FontSize--md);
 
     a {
       color: @color-pf-blue-400 !important;
       margin: -20px;
       padding: 20px;
-      text-align: left;
-      width: 100%;
 
       &:hover {
         text-decoration: none;
@@ -71,7 +83,6 @@
     .fa {
       margin-right: 1rem
     }
-
   }
 
   .card-pf-body {
@@ -82,5 +93,28 @@
   .card-pf-aggregate-status-count {
     color: inherit;
     padding: 0 .5rem 0;
+    font-size: var(--pf-global--FontSize--xl);
+    font-weight: 600;
+  }
+
+  .card-pf-aggregate-status-notifications {
+    font-size: var(--pf-global--FontSize--md);
+    font-weight: 600;
+    margin: 0;
+
+    .pficon,
+    .fa {
+      font-size: 1.25em;
+      margin-right: 0.5rem;
+      position: relative;
+      /* Shove down from the top the (.25em difference) / 2 */
+      top: 0.125em;
+      vertical-align: top;
+    }
+  }
+
+  .card-pf-aggregate-status-notification + .card-pf-aggregate-status-notification {
+    margin-left: 1rem;
+    padding-left: 1rem;
   }
 }

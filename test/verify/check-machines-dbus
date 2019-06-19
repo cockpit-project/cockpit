@@ -752,6 +752,12 @@ class TestMachinesDBus(machineslib.TestMachines):
         m.execute("virsh detach-disk --config --target vdd subVmTest1".format(diskXML))
         b.wait_in_text("#pool-myPoolTwo-{0}-volume-VolumeOne-usedby".format(connectionName), "")
 
+        # Check activate button when pool activation is pending
+        m.execute("virsh pool-define-as mypool --type netfs --source-host 127.0.0.10 --source-path /mnt/pool --target /mnt/pool")
+        b.click("tbody tr[data-row-id=pool-mypool-system] th") # click on the row header
+        b.click("#activate-pool-mypool-system")
+        b.wait_present("#activate-pool-mypool-system:disabled")
+
     def testStoragePoolsCreate(self):
         b = self.browser
         m = self.machine

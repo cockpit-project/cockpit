@@ -18,7 +18,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tooltip, UtilizationBar } from 'patternfly-react';
+import { Button, Tooltip, OverlayTrigger, UtilizationBar } from 'patternfly-react';
 
 import { ListingRow } from 'cockpit-components-listing.jsx';
 import {
@@ -124,6 +124,7 @@ StoragePool.propTypes = {
 class StoragePoolActions extends React.Component {
     constructor() {
         super();
+        this.state = { operationInProgress: false };
         this.onActivate = this.onActivate.bind(this);
         this.onDeactivate = this.onDeactivate.bind(this);
     }
@@ -131,42 +132,61 @@ class StoragePoolActions extends React.Component {
     onActivate() {
         const storagePool = this.props.storagePool;
 
+        this.setState({ operationInProgress: true });
         storagePoolActivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
                     this.props.onAddErrorNotification({
                         text: cockpit.format(_("Storage Pool $0 failed to get activated"), storagePool.name),
                         detail: exc.message, resourceId: storagePool.id,
                     });
-                });
+                })
+                .always(() => this.setState({ operationInProgress: false }));
     }
 
     onDeactivate() {
         const storagePool = this.props.storagePool;
 
+        this.setState({ operationInProgress: true });
         storagePoolDeactivate(storagePool.connectionName, storagePool.id)
                 .fail(exc => {
                     this.props.onAddErrorNotification({
                         text: cockpit.format(_("Storage Pool $0 failed to get deactivated"), storagePool.name),
                         detail: exc.message, resourceId: storagePool.id,
                     });
-                });
+                })
+                .always(() => this.setState({ operationInProgress: false }));
     }
 
     render() {
         const { storagePool } = this.props;
         const id = storagePoolId(storagePool.name, storagePool.connectionName);
+        let deactivateButton = (
+            <Button id={`deactivate-${id}`} disabled={this.state.operationInProgress} onClick={this.onDeactivate}>
+                {_("Deactivate")}
+            </Button>
+        );
+        let activateButton = (
+            <Button id={`activate-${id}`} disabled={this.state.operationInProgress} onClick={this.onActivate}>
+                {_("Activate")}
+            </Button>
+        );
+        if (this.state.operationInProgress) {
+            deactivateButton = (
+                <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
+                    {deactivateButton}
+                </OverlayTrigger>
+            );
+            activateButton = (
+                <OverlayTrigger overlay={ <Tooltip id="tip-in-progress">{_("Operation is in progress")}</Tooltip> } placement="top">
+                    {activateButton}
+                </OverlayTrigger>
+            );
+        }
 
         return (
             <React.Fragment>
-                { storagePool.active &&
-                <Button id={`deactivate-${id}`} onClick={this.onDeactivate}>
-                    {_("Deactivate")}
-                </Button> }
-                { !storagePool.active &&
-                <Button id={`activate-${id}`} onClick={this.onActivate}>
-                    {_("Activate")}
-                </Button>
-                }
+                { storagePool.active && deactivateButton }
+                { !storagePool.active && activateButton }
                 <StoragePoolDelete storagePool={storagePool} />
             </React.Fragment>
         );

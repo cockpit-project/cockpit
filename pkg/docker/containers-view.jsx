@@ -103,7 +103,7 @@ export class ContainerHeader extends React.Component {
 
     render() {
         return (
-            <div>
+            <React.Fragment>
                 <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
                     <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>
                     <Select.SelectEntry data='running'>{_("Images and running containers")}</Select.SelectEntry>
@@ -114,7 +114,7 @@ export class ContainerHeader extends React.Component {
                        className="form-control"
                        placeholder={_("Type to filter…")}
                        onChange={this.handleFilterTextChange} />
-            </div>
+            </React.Fragment>
         );
     }
 }

@@ -119,7 +119,7 @@
 
   <!-- CONTAINER DETAILS -->
 
-  <div id="container-details" class="container-fluid" hidden>
+  <div id="container-details" hidden>
     <div class="content-filter">
       <h3>
         <i class="fa fa-cube fa-fw"></i>
@@ -127,111 +127,113 @@
       </h3>
       <a tabindex="0" translatable="yes">Show all containers</a>
     </div>
-    <div class="panel-default panel">
-      <div class="panel-heading">
-        <div class="pull-right">
-          <button class="btn btn-default" id="container-details-start" translate>Start</button>
-          <button class="btn btn-default" id="container-details-stop" translate>Stop</button>
-          <button class="btn btn-default" id="container-details-restart" translate>Restart</button>
-          <button class="btn btn-danger" id="container-details-delete" translate>Delete</button>
-          <button class="btn btn-default" id="container-details-commit"
-                  data-toggle="modal" data-target="#container-commit-dialog" translate>Commit</button>
-          <div class="spinner" hidden></div>
+    <div class="container-fluid">
+      <div class="panel-default panel">
+        <div class="panel-heading">
+          <span translate>Container:</span>
+          <span id="container-details-names"></span>
+          <div class="pull-right">
+            <button class="btn btn-default" id="container-details-start" translate>Start</button>
+            <button class="btn btn-default" id="container-details-stop" translate>Stop</button>
+            <button class="btn btn-default" id="container-details-restart" translate>Restart</button>
+            <button class="btn btn-danger" id="container-details-delete" translate>Delete</button>
+            <button class="btn btn-default" id="container-details-commit"
+                    data-toggle="modal" data-target="#container-commit-dialog" translate>Commit</button>
+            <div class="spinner spinner-sm" hidden></div>
+          </div>
         </div>
-        <span translate>Container:</span>
-        <span id="container-details-names"></span>
-      </div>
-      <div class="panel-body">
-        <table class="info-table-ct">
-          <tbody>
-            <tr>
-              <td translate>Id:</td>
-              <td colspan="3" id="container-details-id"></td>
-            </tr>
-            <tr>
-              <td translate>Created:</td>
-              <td colspan="3" id="container-details-created"></td>
-            </tr>
-            <tr>
-              <td translate>Image:</td>
-              <td colspan="3">
-              <div id="container-details-image"></div>
-              <div id="container-details-image-id"></div>
-              </td>
-            </tr>
-            <tr>
-              <td translate>Command:</td>
-              <td colspan="3" id="container-details-command"></td>
-            </tr>
-            <tr>
-              <td translate>State:</td>
-              <td colspan="3" id="container-details-state"></td>
-            </tr>
-            <tr>
-              <td translate>Restart Policy:</td>
-              <td colspan="3" id="container-details-restart-policy"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">IP Address:</td>
-              <td colspan="3" id="container-details-ipaddr"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">IP Prefix Length:</td>
-              <td colspan="3" id="container-details-ipprefixlen"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">Gateway:</td>
-              <td colspan="3" id="container-details-gateway"></td>
-            </tr>
-            <tr>
-              <td translatable="yes">MAC Address:</td>
-              <td colspan="3" id="container-details-macaddr"></td>
-            </tr>
-            <tr id="container-details-ports-row" hidden>
-              <td translate>Ports:</td>
-              <td colspan="3" id="container-details-ports"></td>
-            </tr>
-            <tr id="container-details-links-row" hidden>
-              <td translate>Links:</td>
-              <td colspan="3" id="container-details-links"></td>
-            </tr>
-            <tr id="container-details-volumes-row" hidden>
-              <td translate>Volumes:</td>
-              <td colspan="3" id="container-details-volumes"></td>
-            </tr>
-            <tr>
-              <td>&nbsp;</td>
-              <td>
-                <!-- hidden bar-row to help set a minimum limit for memory -->
-                <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
-              </td>
-            </tr>
-            <tr id="container-details-memory-row" class="interactive" hidden>
-              <td translate>Memory usage:</td>
-              <td colspan="2" id="container-details-memory">
-                <div class="bar-row" graph="container-details"></div>
-              </td>
-              <td class="shrink resource-value" id="container-details-memory-text"></td>
-            </tr>
-            <tr id="container-details-cpu-row" class="interactive" hidden>
-              <td translate>CPU usage:</td>
-              <td colspan="2">
-                <span class="cpu-usage"></span>
-              </td>
-              <td class="shrink resource-value">
-                <span class="cpu-shares"></span>
-              </td>
-            </tr>
-            <tr id="container-details-resource-row" hidden>
-              <td></td>
-              <td>
-                <button class="btn btn-default resource-button" data-toggle="modal"
-                        data-target="#container-resources-dialog" translate>Change resource limits</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div id="container-terminal" hidden></div>
+        <div class="panel-body">
+          <table class="info-table-ct">
+            <tbody>
+              <tr>
+                <td translate>Id:</td>
+                <td colspan="3" id="container-details-id"></td>
+              </tr>
+              <tr>
+                <td translate>Created:</td>
+                <td colspan="3" id="container-details-created"></td>
+              </tr>
+              <tr>
+                <td translate>Image:</td>
+                <td colspan="3">
+                <div id="container-details-image"></div>
+                <div id="container-details-image-id"></div>
+                </td>
+              </tr>
+              <tr>
+                <td translate>Command:</td>
+                <td colspan="3" id="container-details-command"></td>
+              </tr>
+              <tr>
+                <td translate>State:</td>
+                <td colspan="3" id="container-details-state"></td>
+              </tr>
+              <tr>
+                <td translate>Restart Policy:</td>
+                <td colspan="3" id="container-details-restart-policy"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">IP Address:</td>
+                <td colspan="3" id="container-details-ipaddr"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">IP Prefix Length:</td>
+                <td colspan="3" id="container-details-ipprefixlen"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">Gateway:</td>
+                <td colspan="3" id="container-details-gateway"></td>
+              </tr>
+              <tr>
+                <td translatable="yes">MAC Address:</td>
+                <td colspan="3" id="container-details-macaddr"></td>
+              </tr>
+              <tr id="container-details-ports-row" hidden>
+                <td translate>Ports:</td>
+                <td colspan="3" id="container-details-ports"></td>
+              </tr>
+              <tr id="container-details-links-row" hidden>
+                <td translate>Links:</td>
+                <td colspan="3" id="container-details-links"></td>
+              </tr>
+              <tr id="container-details-volumes-row" hidden>
+                <td translate>Volumes:</td>
+                <td colspan="3" id="container-details-volumes"></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+                <td>
+                  <!-- hidden bar-row to help set a minimum limit for memory -->
+                  <div class="bar-row hidden" graph="container-details" value="0/100000000"></div>
+                </td>
+              </tr>
+              <tr id="container-details-memory-row" class="interactive" hidden>
+                <td translate>Memory usage:</td>
+                <td colspan="2" id="container-details-memory">
+                  <div class="bar-row" graph="container-details"></div>
+                </td>
+                <td class="shrink resource-value" id="container-details-memory-text"></td>
+              </tr>
+              <tr id="container-details-cpu-row" class="interactive" hidden>
+                <td translate>CPU usage:</td>
+                <td colspan="2">
+                  <span class="cpu-usage"></span>
+                </td>
+                <td class="shrink resource-value">
+                  <span class="cpu-shares"></span>
+                </td>
+              </tr>
+              <tr id="container-details-resource-row" hidden>
+                <td></td>
+                <td>
+                  <button class="btn btn-default resource-button" data-toggle="modal"
+                          data-target="#container-resources-dialog" translate>Change resource limits</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="container-terminal" hidden></div>
+        </div>
       </div>
     </div>
   </div>
@@ -240,24 +242,24 @@
 
   <div id="image-details" hidden>
     <div class="content-filter">
-      <div class="listing-ct-actions" id="image-details-buttons">
-        <button class="btn btn-default" id="image-details-run"
-            data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
-        <button  title="Delete" translate="title" id="image-details-delete"
-            class="btn btn-danger btn-delete pficon pficon-delete"></button>
-        <div class="spinner" hidden></div>
-      </div>
       <h3>
         <i class="pficon pficon-image"></i>
         <span></span>
       </h3>
       <a tabindex="0" translatable="yes">Show all images</a>
+      <div class="content-filter-actions" id="image-details-buttons">
+        <button  title="Delete" translate="title" id="image-details-delete"
+            class="btn btn-danger btn-delete pficon pficon-delete"></button>
+        <button class="btn btn-default" id="image-details-run"
+            data-toggle="modal" data-target="#containers_run_image_dialog" translate>Run</button>
+        <div class="spinner" hidden></div>
+      </div>
     </div>
 
     <div class="content">
     </div>
 
-    <div class="listing-ct-inline image-details-used">
+    <div class="listing-ct-inline image-details-used container-fluid">
       <div><!-- TODO: This tag is a hack until below code is migrated to React --></div>
       <h3 translate>Used by Containers</h3>
       <div class="panel panel-default" id="image-details-containers">
@@ -317,7 +319,7 @@
   <script id="port-expose-tmpl" type="x-template/mustache">
     <form class="form-inline dialog-wrapper">
       <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon-close"></button>
+      <button type="button" class="btn btn-default pficon pficon-close"></button>
       <div class="form-group">
         <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
       </div>
@@ -343,7 +345,7 @@
   <script id="volume-mount-tmpl" type="x-template/mustache">
     <form class="form-inline">
       <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon-close"></button>
+      <button type="button" class="btn btn-default pficon pficon-close"></button>
       <div class="form-group">
         <input type="text" name="container" class="form-control" placeholder="{{placeholder}}">
       </div>
@@ -376,7 +378,7 @@
   <script id="envvar-claim-tmpl" type="x-template/mustache">
     <form class="form-inline">
       <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon-close"></button>
+      <button type="button" class="btn btn-default pficon pficon-close"></button>
       <div class="form-group">
         <label>{{envvar_key_label}}</label>
         <input type="text" name="envvar_key" class="form-control" placeholder="{{placeholder}}">
@@ -397,7 +399,7 @@
   <script id="container-link-tmpl" type="x-template/mustache">
     <form class="form-inline dialog-wrapper">
       <button type="button" class="btn btn-default fa fa-plus"></button>
-      <button type="button" class="btn btn-default pficon-close"></button>
+      <button type="button" class="btn btn-default pficon pficon-close"></button>
       <div class="form-group">
           <div class="btn-group dropdown link-container">
               <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
@@ -419,7 +421,7 @@
   <div class="modal" id="containers_run_image_dialog"
        tabindex="-1" role="dialog"
        data-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title" translate>Run Image</h4>
@@ -595,7 +597,7 @@
         <div class="modal-footer">
           <input type="text" id="containers-search-tag" class="form-control" disabled="disabled" placeholder="Tag" />
           <button class="btn btn-default" translatable="yes" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-default" translatable="yes" disabled="disabled" id="containers-search-download">Download</button>
+          <button class="btn btn-primary" translatable="yes" disabled="disabled" id="containers-search-download">Download</button>
         </div>
       </div>
     </div>
@@ -791,3 +793,4 @@
   </div>
 
 </body>
+</html>

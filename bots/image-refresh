@@ -124,7 +124,7 @@ def run(image, verbose=False, **kwargs):
     store = STORES.get(image, None)
 
     # Cleanup any extraneous disk usage elsewhere
-    subprocess.check_call([ os.path.join(BASE, "test", "vm-reset") ])
+    subprocess.check_call([ os.path.join(BOTS, "vm-reset") ])
 
     cmd = [ os.path.join(BOTS, "image-create"), "--verbose", "--upload" ]
     if store:

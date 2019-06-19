@@ -309,7 +309,8 @@ LIBVIRT_PROVIDER = {
         logDebug(`${this.name}.CREATE_AND_ATTACH_VOLUME("`, connectionName, '", "', poolName, '", "', volumeName, '", "', size, '", "', format, '", "', target, '", "', vmName, '"');
         const connection = VMS_CONFIG.Virsh.connections[connectionName].params.join(' ');
         // Workaround: The "grep" part of the command bellow is a workaround for old version of virsh (1.3.1 , ubuntu-1604), since the "virsh -q vol-create-as" produces extra line there
-        const command = `(virsh ${connection} -q vol-create-as ${poolName} ${volumeName} --capacity ${size}M --format ${format} && virsh ${connection} -q vol-path ${volumeName} --pool ${poolName}) | grep -v 'Vol ${volumeName} created'`;
+        const formatArg = format ? `--format ${format}` : '';
+        const command = `(virsh ${connection} -q vol-create-as ${poolName} ${volumeName} --capacity ${size}M ${formatArg} && virsh ${connection} -q vol-path ${volumeName} --pool ${poolName}) | grep -v 'Vol ${volumeName} created'`;
         logDebug('CREATE_AND_ATTACH_VOLUME command: ', command);
         return dispatch => cockpit.script(command, null, { err: "message", environ: ['LC_ALL=en_US.UTF-8'] })
                 .then(() => {

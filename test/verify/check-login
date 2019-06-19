@@ -52,11 +52,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         def login(user, password):
             b.wait_visible("#login")
             b.wait_visible("#login-user-input")
-            if m.image not in ["rhel-7-6-distropkg"]:
-                b.wait_not_visible("#unsupported-browser")
-            else:
-                # old cockpit versions don't have that element at all
-                self.assertFalse(b.is_present("#unsupported-browser"))
+            b.wait_not_visible("#unsupported-browser")
             b.wait_not_present("#login-button:disabled")
             # :focus selector doesn't work in phantomjs
             b.wait_js_cond("document.activeElement.getAttribute('id') === 'login-user-input'")
@@ -335,7 +331,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("cockpit-system too old", "rhel-7-6-distropkg")
     def testUnsupportedBrowser(self):
         m = self.machine
         b = self.browser

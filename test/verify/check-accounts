@@ -24,7 +24,7 @@ import parent
 from testlib import *
 
 
-@skipImage("Don't run upstream tests against distro packages", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+@skipImage("Don't run upstream tests against distro packages", "rhel-8-0-distropkg")
 class TestAccounts(MachineCase):
 
     def testBasic(self):

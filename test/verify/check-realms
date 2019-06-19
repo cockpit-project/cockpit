@@ -56,7 +56,7 @@ done
 """
 
 
-@skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No realmd available", "fedora-atomic")
 @skipImage("No freeipa available", "debian-stable")
 class TestRealms(MachineCase):
     provision = {
@@ -67,7 +67,7 @@ class TestRealms(MachineCase):
     def setUp(self):
         super().setUp()
         # classes converted to IDs in PR #11022
-        if self.machine.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if self.machine.image in ["rhel-8-0-distropkg"]:
             self.op_address = ".realms-op-address"
             self.op_admin = ".realms-op-admin"
             self.op_admin_password = ".realms-op-admin-password"
@@ -105,7 +105,7 @@ class TestRealms(MachineCase):
         b.wait_popup("realms-op")
         with b.wait_timeout(180):
             b.set_val(self.op_address, "cockpit.lan")
-            if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image not in ["rhel-8-0-distropkg"]:
                 # changed in PR #11022
                 b.wait_text(".realms-op-address-error", "Contacted domain")
             b.wait_attr(self.op_admin, "placeholder", 'e.g. "admin"')
@@ -119,7 +119,7 @@ class TestRealms(MachineCase):
             wait_number_domains(1)
 
         # when joined to a domain, changing the hostname is fatal, so should be disabled
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             # fixed in Cockpit 186
             b.wait_present("#system_information_hostname_button[disabled]")
             b.mouse("#system_information_hostname_button", "mouseover")
@@ -206,7 +206,7 @@ class TestRealms(MachineCase):
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             b.wait_text("#realms-op-info-domain", "cockpit.lan")
             b.wait_text("#realms-op-info-login-format", "username@cockpit.lan")
             b.wait_text("#realms-op-info-server-sw", "ipa")
@@ -251,7 +251,7 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "NOPE")
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             # changed in PR #11022
             b.wait_text(".realms-op-address-error", "Domain NOPE could not be contacted")
             b.wait_not_visible(".realms-op-address-spinner")
@@ -304,7 +304,7 @@ class TestRealms(MachineCase):
         b.wait_in_text("#system-info-domain a", "cockpit.lan")
 
         # Show domain information (PR #11096)
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             b.click("#system-info-domain a")
             b.wait_popup("realms-op")
             b.wait_text("#realms-op-info-domain", "cockpit.lan")
@@ -347,11 +347,7 @@ class TestRealms(MachineCase):
 
         # Disable sssd support in realmd
 
-        realmd_distro_conf = "/usr/lib/realmd/realmd-distro.conf"
-        if m.image.startswith("rhel-7") or m.image.startswith("centos-7"):
-            realmd_distro_conf = "/usr/lib64/realmd/realmd-distro.conf"
-
-        m.execute("echo -e '[providers]\nsssd = no\n' >>%s" % realmd_distro_conf)
+        m.execute("echo -e '[providers]\nsssd = no\n' >> /usr/lib/realmd/realmd-distro.conf")
 
         m.execute("hostnamectl set-hostname x0.cockpit.lan")
         self.login_and_go("/system")
@@ -365,7 +361,7 @@ class TestRealms(MachineCase):
         b.click("#system-info-domain a")
         b.wait_popup("realms-op")
         b.set_val(self.op_address, "cockpit.lan")
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             # changed in PR #11022
             b.wait_in_text(".realms-op-address-error", "Domain cockpit.lan is not supported")
         else:
@@ -430,7 +426,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipImage("No realmd available", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("No realmd available", "fedora-atomic")
 @skipImage("No freeipa available", "debian-stable")
 class TestKerberos(MachineCase):
     provision = {
@@ -492,13 +488,13 @@ class TestKerberos(MachineCase):
         b.focus(".terminal")
 
         def line_sel(i):
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 return '.terminal div:nth-child(%d)' % i
             else:
                 return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
 
         def wait_prompt(b, line):
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ''})", line_sel(line))
             else:
                 b.wait_js_func("(function (sel) { return ph_text(sel).trim() != 'Blank line'})", line_sel(line))
@@ -564,8 +560,7 @@ class TestKerberos(MachineCase):
         self.allow_restart_journal_messages()
 
 
-@skipImage("cockpit-system doesn't have the install-on-demand feature", "rhel-7-6-distropkg")
-@skipImage("Package (un)install does not work on Atomic", "continuous-atomic", "fedora-atomic", "rhel-atomic")
+@skipImage("Package (un)install does not work on Atomic", "fedora-atomic")
 class TestPackageInstall(packagelib.PackageCase):
 
     def testInstall(self):

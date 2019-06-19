@@ -407,7 +407,7 @@ CMD ["/bin/sh"]
 
         self.allow_journal_messages('.*denied.*name_connect.*docker.*')
 
-    @skipImage("No Cockpit on Atomic with Docker stopped", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    @skipImage("No Cockpit on Atomic with Docker stopped", "fedora-atomic")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     def testFailure(self):
         b = self.browser
@@ -548,10 +548,9 @@ CMD ["/bin/sh"]
         # This should be updated
         b.wait_in_text("#container-details-cpu-row", "1024 shares")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7")
     @skipImage("No cockpit-docker on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testContainerProblems(self):
         b = self.browser
         m = self.machine
@@ -591,8 +590,8 @@ CMD ["/bin/sh"]
         b.wait_in_text("#journal-entry-fields", "abrtd.service")
 
 
-@skipImage("Skip on systems without atomic and ones with missing deps", "centos-7", "debian-stable",
-           "debian-testing", "ubuntu-1804", "ubuntu-stable", "rhel-atomic", "fedora-atomic", "fedora-i386")
+@skipImage("Skip on systems without atomic and ones with missing deps", "debian-stable",
+           "debian-testing", "ubuntu-1804", "ubuntu-stable", "fedora-atomic", "fedora-i386")
 @skipImage("No docker packaged", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
 @skipPackage("cockpit-docker")
 class TestAtomicScan(MachineCase):

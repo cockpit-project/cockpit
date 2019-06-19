@@ -60,7 +60,7 @@ class TestActivePages(MachineCase):
         b.focus(".terminal")
 
         def line_sel(i):
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 return '.terminal div:nth-child(%d)' % i
             else:
                 return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i

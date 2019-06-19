@@ -108,7 +108,7 @@ Unit=test.service
             b.wait_in_text(svc_sel(service), state)
 
         def wait_service_in_panel(service, title):
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # Changed in #11241
+            if m.image in ["rhel-8-0-distropkg"]: # Changed in #11241
                 b.wait_in_text(".panel:contains('%s') .panel-heading" % service, title)
             else:
                 wait_service_state(service, title)
@@ -206,7 +206,7 @@ Unit=test.service
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
         # Test searching and filtering
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # Introduced in #11241
+        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #11241
             return
 
         def wait_service_present(service):
@@ -318,7 +318,7 @@ WantedBy=default.target
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2020-01-01 15:30:00'")
         self.login_and_go("/system/services")
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # Introduced in #11280
+        if m.image not in ["rhel-8-0-distropkg"]: # Introduced in #11280
             b.wait_not_visible("#loading-fallback")
         b.click('#services-filter :nth-child(4)')
         b.wait_visible("#create-timer")
@@ -707,7 +707,6 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         b.wait_js_cond('window.location.hash === "#/test-b.service"')
         wait_relationship("After", "test-a.service")
 
-    @skipImage("Don't run upstream tests against distro packages", "rhel-7-6-distropkg")
     def testNotFound(self):
         m = self.machine
         b = self.browser

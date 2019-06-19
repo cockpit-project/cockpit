@@ -78,7 +78,7 @@ class TestKdump(MachineCase):
 
         def assertActive(active):
             # changed in PR #11769
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
             else:
                 b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
@@ -89,13 +89,9 @@ class TestKdump(MachineCase):
             assertActive(True)
         else:
             # right now we have no memory reserved
-            if m.image in ["rhel-7-5-distropkg", "rhel-7-6-distropkg"]:
-                # Old cockpit-system versions used custom Tooltip component
-                b.wait_in_text("#app", "No memory reserved.")
-            else:
-                b.mouse("#app span.popover-ct-kdump", "mouseover")
-                b.wait_in_text("div.tooltip", "No memory reserved.")
-                b.mouse("#app span.popover-ct-kdump", "mouseout")
+            b.mouse("#app span.popover-ct-kdump", "mouseover")
+            b.wait_in_text("div.tooltip", "No memory reserved.")
+            b.mouse("#app span.popover-ct-kdump", "mouseout")
             # service should indicate an error and the button should be off
             b.wait_in_text("#app", "Service has an error")
             assertActive(False)
@@ -108,7 +104,7 @@ class TestKdump(MachineCase):
         b.wait_visible("#app")
         self.enableLocalSsh()
 
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             # minimal nfs validation
             settingsLink = "a:contains('locally in /var/crash')"
             b.click(settingsLink)
@@ -149,7 +145,7 @@ class TestKdump(MachineCase):
         b.wait_in_text("#app", "Service is running")
 
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1536327
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             return
 
         # try to change the path to a directory that doesn't exist

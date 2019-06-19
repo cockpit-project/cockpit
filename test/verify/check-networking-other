@@ -25,7 +25,6 @@ from testlib import *
 
 class TestNetworking(NetworkCase):
 
-    @skipImage("No 'tun' support", "rhel-atomic")
     def testOther(self):
         b = self.browser
         m = self.machine

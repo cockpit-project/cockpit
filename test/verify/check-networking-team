@@ -37,12 +37,7 @@ class TestNetworking(NetworkCase):
 
         self.login_and_go("/network")
 
-        can_add_teams = m.image not in ["continuous-atomic", "rhel-atomic"]
-
         b.wait_attr("#networking-add-team", "data-test-stable", "yes")
-        if not can_add_teams:
-            b.wait_not_visible("#networking-add-team")
-            return
 
         iface1 = self.add_iface()
         iface2 = self.add_iface()
@@ -91,7 +86,6 @@ class TestNetworking(NetworkCase):
         self.allow_journal_messages(".*Connection reset by peer.*",
                                     "connection unexpectedly closed by peer")
 
-    @skipImage("No teams", "continuous-atomic", "rhel-atomic")
     def testTeamActive(self):
         b = self.browser
 

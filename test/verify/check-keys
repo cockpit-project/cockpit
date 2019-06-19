@@ -160,14 +160,14 @@ class TestKeys(MachineCase):
 
         def assertKeyState(selector, enabled):
             # changed in PR #11769
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 b.wait_present("%s .btn.active:contains('%s')" % (selector, enabled and "On" or "Off"))
             else:
                 b.wait_present("%s input%s" % (selector, enabled and ":checked" or ":not(:checked)"))
 
         def toggleKeyState(selector, on_area=False):
             # changed in PR #11769
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 # old On/Off button only accepts half of the widget area
                 b.click(selector + " .btn:contains('%s') span" % (on_area and "On" or "Off"))
             else:

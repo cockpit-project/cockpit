@@ -26,13 +26,7 @@ class TestJournal(MachineCase):
 
     def setUp(self):
         super(TestJournal, self).setUp()
-
-        if self.machine.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "centos-7", "rhel-atomic", "continuous-atomic"]:
-            self.python = "python"
-            self.crash_fn = "posix_kill"
-        else:
-            self.python = "python3"
-            self.crash_fn = "os_kill"
+        self.crash_fn = "os_kill"
 
     def select_from_dropdown(self, browser, selector, value, click=True):
         button_text_selector = "{0} button span:nth-of-type(1)".format(selector)
@@ -282,7 +276,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         n = ""
         # In older version there was bug which showed messages two times
         # Fixed in #11672
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             n = "2"
         b.click('#journal-load-earlier')
         wait_log_lines([expected_date,
@@ -292,7 +286,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
                         ])
 
         # Check selecting of services
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # Introduced in #8347 and #11675
+        if m.image in ["rhel-8-0-distropkg"]: # Introduced in #8347 and #11675
             return
 
         b.go("#/?start=previous-boot&tag=check-journal")
@@ -324,8 +318,7 @@ ExecStart=/bin/sh -c 'for s in $(seq 10); do echo SLOW; sleep 0.1; done; sleep 1
         b = self.browser
         m = self.machine
 
-        m.execute(self.python +
-                  """ -c '
+        m.execute("""python3 -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
@@ -350,8 +343,7 @@ s.send(b"MESSAGE=Hello \\01 World\\nPRIORITY=3\\nFOO=bar\\nBIN=a\\01b\\02c\\03\\
         b = self.browser
         m = self.machine
 
-        m.execute(self.python +
-                  """ -c '
+        m.execute("""python3 -c '
 import socket
 s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 s.connect("/run/systemd/journal/socket")
@@ -365,7 +357,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         b.wait_text("#journal-entry-message", "[no data]")
 
-    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1665421", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+    @skipImage("https://bugzilla.redhat.com/show_bug.cgi?id=1665421", "rhel-8-0-distropkg")
     def testLogLevel(self):
 
         b = self.browser
@@ -394,10 +386,9 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_present(journal_line_selector.format("INFO_MESSAGE"))
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testAbrtSegv(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -405,7 +396,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; " + self.python + " -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
 
@@ -435,10 +426,9 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         sel += " .panel-body:contains('signal: 11  executable: ')"
         b.wait_present(sel)
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testAbrtDelete(self):
         self.allow_core_dumps = True
         b = self.browser
@@ -446,7 +436,7 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
 
         self.login_and_go("/system/logs")
 
-        m.execute("ulimit -c unlimited; " + self.python + " -c 'import os; os.kill(os.getpid(), 11)' || true")
+        m.execute("ulimit -c unlimited; python3 -c 'import os; os.kill(os.getpid(), 11)' || true")
 
         sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('crashed in %s')" % self.crash_fn
         b.click(sel)
@@ -467,10 +457,9 @@ s.send(b"PRIORITY=3\\nFOO=bar\\n")'
         b.wait_present("#journal-entry-message:contains('crashed in %s')" % self.crash_fn)
         b.wait_not_present("#journal-entry-fields .nav")
 
-    @skipImage("Newer version of ABRT required", "centos-7", "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7")
     @skipImage("ABRT does not work on i386", "fedora-i386")
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-1804", "rhel-atomic", "fedora-atomic", "continuous-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
+               "ubuntu-1804", "fedora-atomic", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testAbrtReport(self):
         self.allow_core_dumps = True
         # The testing server is located at verify/files/mock-faf-server.py

@@ -24,23 +24,13 @@ from testlib import *
 
 
 @skipImage("UDisks doesn't have support for iSCSI", "debian-stable",
-           "ubuntu-1804", "ubuntu-stable", "debian-testing", "centos-7")
+           "ubuntu-1804", "ubuntu-stable", "debian-testing")
 class TestStorage(StorageCase):
 
     def testISCSI(self):
         m = self.machine
         b = self.browser
         b.wait_timeout(120)
-
-        # rhel-7 is missing the iSCSI session API
-        if m.image in ["rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7"]:
-            self.login_and_go("/storage")
-            # The optional parts of the UI have been configured
-            # properly before the page is shown, so we can now
-            # reliably check for the visibility of the iSCSI panel.
-            # It won't show up later asynchronously.
-            b.wait_not_present("#iscsi-sessions")
-            return
 
         target_iqn = "iqn.2015-09.cockpit.lan"
         initiator_iqn = "iqn.2015-10.cockpit.lan"

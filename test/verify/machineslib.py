@@ -676,6 +676,13 @@ class TestMachines(NetworkCase):
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_permanent --capacity 1G --format qcow2")
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
+        # Prepare a local NFS pool
+        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        m.execute("systemctl restart nfs-server")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        # And create a volume on it in order to test use existing volume dialog
+        m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
+
         self.startVm("subVmTest1")
 
         self.login_and_go("/machines")
@@ -740,6 +747,25 @@ class TestMachines(NetworkCase):
             expected_target='vdf',
         ).open().add_disk().verify_disk_added()
 
+        VMAddDiskDialog(
+            self,
+            pool_name='nfs-pool',
+            volume_name='nfs-volume-0',
+            use_existing_volume=True,
+            volume_size=1,
+            volume_size_unit='MiB',
+            expected_target='vdg',
+        ).execute()
+
+        VMAddDiskDialog(
+            self,
+            pool_name='nfs-pool',
+            volume_name='nfs-volume-1',
+            volume_size=1,
+            volume_size_unit='MiB',
+            expected_target='vdh',
+        ).execute()
+
         # shut off
         b.click("#vm-subVmTest1-off-caret")
         b.click("#vm-subVmTest1-forceOff")
@@ -753,9 +779,11 @@ class TestMachines(NetworkCase):
 
         if self.provider == "libvirt-dbus":
             # Undefine all Storage Pools and  confirm that the Add Disk dialog is disabled
-            m.execute("virsh pool-destroy default_tmp && virsh pool-destroy myPoolOne && virsh pool-destroy myPoolTwo && virsh pool-destroy images")
+            for pool in ['default_tmp', 'myPoolOne', 'myPoolTwo', 'images', 'nfs-pool']:
+                m.execute("virsh pool-destroy {0}".format(pool))
             b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(1)", "0")
-            m.execute("virsh pool-undefine default_tmp && virsh pool-undefine myPoolOne && virsh pool-undefine myPoolTwo && virsh pool-undefine images")
+            for pool in ['default_tmp', 'myPoolOne', 'myPoolTwo', 'images', 'nfs-pool']:
+                m.execute("virsh pool-undefine {0}".format(pool))
             b.wait_in_text("#card-pf-storage-pools .card-pf-aggregate-status-notification:nth-of-type(2)", "0")
             b.click("#vm-subVmTest1-disks-adddisk") # radio button label in modal dialog
             b.wait_present("#vm-subVmTest1-disks-adddisk-dialog-add:disabled")

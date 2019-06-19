@@ -23,8 +23,9 @@ import subprocess
 import sys
 import re
 
-from verify import parent
-import testvm
+from machine import testvm
+
+BOTS = os.path.abspath(os.path.dirname(__file__))
 
 NETWORK_SCRIPT=b"""
     set -ex
@@ -108,7 +109,7 @@ try:
         kubeconfig = os.path.join(os.path.expanduser("~"), ".kube", "config")
         if not os.path.lexists(kubeconfig):
             d = os.path.dirname(kubeconfig)
-            src = os.path.abspath(os.path.join(parent.BOTS_DIR, "images", "files", "openshift.kubeconfig"))
+            src = os.path.abspath(os.path.join(BOTS, "images", "files", "openshift.kubeconfig"))
             os.makedirs(d, exist_ok=True)
             sys.stderr.write("image-run: linking kubeconfig into ~/.kube/config\n")
             os.symlink(src, kubeconfig)
@@ -116,7 +117,7 @@ try:
     # Check that image is downloaded
     if not os.path.exists(machine.image_file):
         try:
-            ret = subprocess.call([ os.path.join(parent.BOTS_DIR, "image-download"), args.image])
+            ret = subprocess.call([ os.path.join(BOTS, "image-download"), args.image])
         except OSError as ex:
             if ex.errno != errno.ENOENT:
                 raise

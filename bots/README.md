@@ -24,7 +24,9 @@ For managing these images:
 
 For debugging the images:
 
- * test/vm-run: Run a test machine image
+ * bots/vm-run: Run a test machine image
+ * bots/vm-reset: Remove all overlays from image-customize, image-prepare, etc
+   from test/images/
 
 In case of `qemu-system-x86_64: -netdev bridge,br=cockpit1,id=bridge0: bridge helper failed`
 error, please [allow][1] `qemu-bridge-helper` to access the bridge settings.

@@ -9,7 +9,7 @@ Kubernetes or Openshift. You'll see a "Cluster" tab listed in Cockpit.
 There's a test instance of Openshift (and also Kubernetes) that's you
 can run using the following command:
 
-    $ test/vm-run openshift
+    $ bots/vm-run openshift
 
 To then access that it run the following in another terminal:
 

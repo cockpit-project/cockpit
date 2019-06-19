@@ -24,11 +24,11 @@ MAX_PRIORITY = 9
 REPO_BRANCH_CONTEXT = {
     'cockpit-project/cockpit': {
         'master': ['avocado/fedora', 'container/bastion',
-            'selenium/firefox', 'selenium/chrome', 'verify/centos-7', 'verify/debian-stable',
-            'verify/debian-testing', 'verify/fedora-30', 'verify/fedora-atomic',
-            'verify/ubuntu-1804', 'verify/ubuntu-stable', 'verify/rhel-7-6-distropkg',
-            'verify/rhel-7-7', 'verify/rhel-8-0-distropkg', 'verify/rhel-atomic', 'selenium/edge',
-            'verify/rhel-8-1',
+            'selenium/firefox', 'selenium/chrome', 'selenium/edge',
+            'verify/debian-stable', 'verify/debian-testing',
+            'verify/ubuntu-1804', 'verify/ubuntu-stable',
+            'verify/fedora-30', 'verify/fedora-atomic',
+            'verify/rhel-8-0-distropkg', 'verify/rhel-8-1',
         ],
         'rhel-7.6': ['avocado/fedora', 'container/kubernetes', 'container/bastion',
             'selenium/firefox', 'selenium/chrome', 'verify/rhel-7-6',
@@ -45,7 +45,7 @@ REPO_BRANCH_CONTEXT = {
         'rhel-8.1': ['verify/rhel-8-1',
         ],
         # These can be triggered manually with bots/tests-trigger
-        '_manual': ['verify/continuous-atomic', 'verify/fedora-i386', 'verify/fedora-testing',
+        '_manual': ['verify/fedora-i386', 'verify/fedora-testing',
         ],
     },
     'cockpit-project/starter-kit': {

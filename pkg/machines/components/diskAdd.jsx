@@ -404,6 +404,7 @@ class AddDiskModalBody extends React.Component {
             target: availableTarget,
             permanent: !provider.isRunning(vm.state), // default true for a down VM; for a running domain, the disk is attached tentatively only
             hotplug: provider.isRunning(vm.state), // must be kept false for a down VM; the value is not being changed by user
+            addDiskInProgress: false,
         };
     }
 
@@ -449,6 +450,7 @@ class AddDiskModalBody extends React.Component {
                 return this.dialogErrorSet(_("Please enter new volume size"));
             }
 
+            this.setState({ addDiskInProgress: true });
             // create new disk
             return dispatch(volumeCreateAndAttach({ connectionName: vm.connectionName,
                                                     poolName: this.state.storagePoolName,
@@ -461,7 +463,10 @@ class AddDiskModalBody extends React.Component {
                                                     vmName: vm.name,
                                                     vmId: vm.id,
                                                     cacheMode: this.state.cacheMode }))
-                    .fail(exc => this.dialogErrorSet(_("Disk failed to be created"), exc.message))
+                    .fail(exc => {
+                        this.setState({ addDiskInProgress: false });
+                        this.dialogErrorSet(_("Disk failed to be created"), exc.message);
+                    })
                     .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                         this.props.close();
                         return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
@@ -479,7 +484,10 @@ class AddDiskModalBody extends React.Component {
                                      vmName: vm.name,
                                      vmId: vm.id,
                                      cacheMode: this.state.cacheMode }))
-                .fail(exc => this.dialogErrorSet(_("Disk failed to be attached"), exc.message))
+                .fail(exc => {
+                    this.setState({ addDiskInProgress: false });
+                    this.dialogErrorSet(_("Disk failed to be attached"), exc.message);
+                })
                 .then(() => { // force reload of VM data, events are not reliable (i.e. for a down VM)
                     this.props.close();
                     return dispatch(getVm({ connectionName: vm.connectionName, name: vm.name, id: vm.id }));
@@ -547,10 +555,11 @@ class AddDiskModalBody extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    {this.state.addDiskInProgress && <div className="spinner spinner-sm pull-left" />}
                     <Button id={`${idPrefix}-dialog-cancel`} bsStyle='default' className='btn-cancel' onClick={this.props.close}>
                         {_("Cancel")}
                     </Button>
-                    <Button id={`${idPrefix}-dialog-add`} bsStyle='primary' onClick={this.onAddClicked} disabled={storagePools.length == 0}>
+                    <Button id={`${idPrefix}-dialog-add`} bsStyle='primary' disabled={this.state.addDiskInProgress || storagePools.length == 0} onClick={this.onAddClicked}>
                         {_("Add")}
                     </Button>
                 </Modal.Footer>

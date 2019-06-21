@@ -63,6 +63,7 @@ def get_refs(open_pull_requests=True, offline=False):
         if offline:
             raise Exception("Unable to consider open pull requests when in offline mode")
         for p in github.GitHub().pulls():
+            subprocess.call(["git", "fetch", "origin", "pull/{0}/head".format(p["number"])])
             refs["pull request #{} ({})".format(p["number"], p["title"])] = p["head"]["sha"]
 
     git_cmd = "show-ref" if offline else "ls-remote"

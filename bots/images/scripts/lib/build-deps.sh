@@ -2,13 +2,9 @@
 
 set -eu
 
-# The sed command strips the BuildRequires label and version specifiers. It also
-# adds quotes to packages with brackets in their name.
+# Download cockpit.spec, replace `npm-version` macro and then query all build requires
 curl -s https://raw.githubusercontent.com/cockpit-project/cockpit/master/tools/cockpit.spec |
-    sed -n '/^BuildRequires:/ {
-        s/^[^ ]*: //;
-        s/[ ]*>=.*$//;
-        s/%{.*}//;
-        s/\([^ ]*(.*)[^ ]*\)/"\1"/;
-        p}' |
+    sed 's/%{npm-version:.*}/0/' |
+    rpmspec -D "$1" --buildrequires --query /dev/stdin |
+    sed 's/.*/"&"/' |
     tr '\n' ' '

@@ -273,7 +273,9 @@ EOF
     fi
 
     useradd -c Builder -G mock builder
-    su builder -c "/usr/bin/mock --verbose -i $(/var/lib/testvm/build-deps.sh)"
+    opsys=$(cut -d '-' -f 1 <<< "$IMAGE")
+    version=$(cut -d '-' -f 2 <<< "$IMAGE")
+    su builder -c "/usr/bin/mock --verbose -i $(/var/lib/testvm/build-deps.sh "$opsys $version")"
     su builder -c "/usr/bin/mock --install --verbose rpmlint"
 fi
 

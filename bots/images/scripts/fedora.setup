@@ -155,7 +155,9 @@ fi
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=1447627
 
-su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh)"
+opsys=$(cut -d '-' -f 1 <<< "$IMAGE")
+version=$(cut -d '-' -f 2 <<< "$IMAGE")
+su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh "$opsys $version")"
 su builder -c "/usr/bin/mock --install --verbose rpmlint"
 
 # HACK: docker falls over regularly, print its log if it does

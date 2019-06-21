@@ -40,7 +40,10 @@ class Sink(object):
 
         # Start a gzip and cat processes
         self.ssh = subprocess.Popen([
-            "ssh", "-o", "ServerAliveInterval=30", host, "--",
+            "ssh",
+            # HACK: fix sink host keys and knownhosts on our infra
+            "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-o", "CheckHostIP=no",
+            "-o", "ServerAliveInterval=30", host, "--",
             "python", "sink", identifier
         ], stdin=subprocess.PIPE)
 

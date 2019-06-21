@@ -273,7 +273,7 @@ EOF
     fi
 
     useradd -c Builder -G mock builder
-    su builder -c "/usr/bin/mock --no-bootstrap-chroot --verbose -i $(/var/lib/testvm/build-deps.sh)"
+    su builder -c "/usr/bin/mock --verbose -i $(/var/lib/testvm/build-deps.sh)"
     su builder -c "/usr/bin/mock --install --verbose rpmlint"
 fi
 

@@ -684,7 +684,7 @@ Requires: cockpit-system >= %{required_base}
 %if 0%{?rhel} == 7
 Requires: libvirt
 %else
-Requires: (libvirt-daemon-kvm or libvirt)
+Requires: libvirt-daemon-kvm
 %endif
 Requires: libvirt-client
 %if 0%{?fedora} || 0%{?rhel} >= 8
@@ -713,7 +713,7 @@ Requires: cockpit-system >= %{required_base}
 %if 0%{?rhel} == 7
 Requires: libvirt
 %else
-Requires: (libvirt-daemon-kvm or libvirt)
+Requires: libvirt-daemon-kvm
 %endif
 Requires: libvirt-client
 

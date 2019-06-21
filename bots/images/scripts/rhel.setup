@@ -120,6 +120,7 @@ json-glib \
 kexec-tools \
 libssh \
 libvirt-client \
+libvirt-daemon-kvm \
 NetworkManager-team \
 openssl \
 PackageKit \
@@ -170,7 +171,6 @@ if [ "$IMAGE" = "centos-7" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/redhat-logos/}"
 fi
 if [ "${IMAGE#rhel-7}" != "$IMAGE" ] || [ "$IMAGE" == "centos-7" ]; then
-    COCKPIT_DEPS="$COCKPIT_DEPS libvirt"
     COCKPIT_DEPS="$COCKPIT_DEPS kubernetes-client"
 fi
 if [ "$IMAGE" = "rhel-7-7" ]; then
@@ -187,7 +187,7 @@ if [ "${IMAGE#rhel-8*}" != "$IMAGE" ]; then
     COCKPIT_DEPS="${COCKPIT_DEPS/atomic /}"
     COCKPIT_DEPS="${COCKPIT_DEPS/docker /}"
     COCKPIT_DEPS="${COCKPIT_DEPS} podman"
-    COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-daemon-kvm libvirt-dbus"
+    COCKPIT_DEPS="${COCKPIT_DEPS} libvirt-dbus"
     TEST_PACKAGES="${TEST_PACKAGES} libvirt-daemon-config-network"
     # Install node for external Composer tests, they use our rhel-* images
     TEST_PACKAGES="${TEST_PACKAGES} nodejs"

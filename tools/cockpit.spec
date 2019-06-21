@@ -552,7 +552,7 @@ BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
-Requires: (libvirt-daemon-kvm or libvirt)
+Requires: libvirt-daemon-kvm
 Requires: libvirt-client
 Requires: libvirt-dbus >= 1.2.0
 # Optional components

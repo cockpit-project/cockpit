@@ -154,7 +154,7 @@ def prune_images(force, dryrun, quiet=False, open_pull_requests=True, offline=Fa
         path = os.path.join(testvm.get_images_data_dir(), filename)
         if not force and (enough_disk_space() and os.lstat(path).st_mtime > expiry_threshold):
             continue
-        if os.path.isfile(path) and (path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial")) and path not in targets:
+        if os.path.isfile(path) and (path.endswith(".xz") or path.endswith(".qcow2") or path.endswith(".partial")) and filename not in targets:
             if not quiet or dryrun:
                 sys.stderr.write("Pruning {0}\n".format(filename))
             if not dryrun:

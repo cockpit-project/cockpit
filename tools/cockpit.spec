@@ -680,11 +680,7 @@ BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-system >= %{required_base}
-%if 0%{?rhel} == 7
-Requires: libvirt
-%else
-Requires: (libvirt-daemon-kvm or libvirt)
-%endif
+Requires: libvirt-daemon-kvm
 Requires: libvirt-client
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Requires: libvirt-dbus >= 1.2.0

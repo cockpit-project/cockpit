@@ -157,7 +157,6 @@ WEBPACK_PACKAGES = \
 	kubernetes \
 	machines \
 	networkmanager \
-	ovirt \
 	pcp \
 	packagekit \
 	playground \

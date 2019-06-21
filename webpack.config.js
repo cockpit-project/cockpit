@@ -47,12 +47,6 @@ var info = {
             "networkmanager/firewall.jsx"
         ],
 
-
-        "ovirt/ovirt": [
-            "ovirt/index.js",
-            "ovirt/ovirt.less",
-        ],
-
         "playground/exception": [
             "playground/exception.js",
         ],
@@ -200,8 +194,6 @@ var info = {
         "networkmanager/index.html",
         "networkmanager/firewall.html",
         "networkmanager/manifest.json",
-
-        "ovirt/index.html",
 
         "packagekit/index.html",
 

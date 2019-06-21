@@ -13,14 +13,6 @@ playground_DATA = \
 dist/playground/extra.de.po: pkg/playground/extra.de.po
 	$(COPY_RULE)
 
-ovirtdir = $(pkgdatadir)/ovirt
-ovirt_DATA = \
-	dist/ovirt/install.sh \
-	$(NULL)
-
-dist/ovirt/install.sh: pkg/ovirt/install.sh
-	$(COPY_RULE)
-
 metainfodir = ${datarootdir}/metainfo
 metainfo_DATA = pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml \
 		pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
@@ -37,10 +29,8 @@ EXTRA_DIST += \
 	pkg/playground/extra.de.po \
 	pkg/users/mock \
 	pkg/lib/qunit-template.html \
-	pkg/ovirt/install.sh \
 	$(playground_DATA) \
 	$(pkg_TESTS) \
-	$(ovirt_DATA) \
 	$(metainfo_DATA) \
 	$(pixmaps_DATA) \
 	$(NULL)

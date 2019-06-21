@@ -42,7 +42,6 @@ class Vnc extends React.Component {
             return;
         }
 
-        // consoleDetail can be retrieved asynchronously (like in pkg/ovirt flow)
         const { consoleDetail } = props;
         if (!consoleDetail) {
             logDebug('Vnc component: console detail not yet provided');

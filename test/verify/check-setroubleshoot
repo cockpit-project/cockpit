@@ -54,11 +54,9 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 """
 
 
-@skipImage("DBus API of setroubleshoot too old", "centos-7")
 class TestSelinux(MachineCase):
 
-    @skipImage("No setroubleshoot", "continuous-atomic", "debian-stable", "debian-testing",
-               "fedora-atomic", "rhel-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
     def testTroubleshootAlerts(self):
         b = self.browser
 
@@ -143,8 +141,7 @@ class TestSelinux(MachineCase):
         b.click(row_selector + " button.pficon-delete")
         b.wait_not_present(row_selector)
 
-    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing",
-               "continuous-atomic", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-atomic", "ubuntu-1804", "ubuntu-stable")
     def testEnforcingToggle(self):
         b = self.browser
         m = self.machine
@@ -162,7 +159,7 @@ class TestSelinux(MachineCase):
 
         def assertEnforce(active):
             # changed in PR #11769
-            if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+            if m.image in ["rhel-8-0-distropkg"]:
                 b.wait_in_text("div.btn-onoff-ct label.active", active and "On" or "Off")
             else:
                 b.wait_present(".onoff-ct input" + (active and ":checked" or ":not(:checked)"))
@@ -173,7 +170,7 @@ class TestSelinux(MachineCase):
 
         # now set to permissive using the ui button
         # changed in PR #11769
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image in ["rhel-8-0-distropkg"]:
             b.click("div.btn-onoff-ct label.active span")
         else:
             b.click(".onoff-ct input")

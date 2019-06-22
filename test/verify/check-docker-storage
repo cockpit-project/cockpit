@@ -31,14 +31,8 @@ non_manageable_images = [
     "ubuntu-stable"
 ]
 
-rootfs_not_in_volume_group_images = [
-    "centos-7",
-]
-
-
 def can_manage(machine):
-    return (machine.image not in non_manageable_images and
-            machine.image not in rootfs_not_in_volume_group_images)
+    return machine.image not in non_manageable_images
 
 
 @skipImage("No cockpit-docker on i386", "fedora-i386")

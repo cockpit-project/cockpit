@@ -119,14 +119,14 @@ class NetworkCase(MachineCase):
 
     def wait_onoff(self, sel, val):
         # PR #11769 changes On/Off implementation
-        if self.machine.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if self.machine.image in ["rhel-8-0-distropkg"]:
             self.browser.wait_present(sel + " label.active:contains('%s')" % ("On" if val else "Off"))
         else:
             self.browser.wait_present(sel + " input" + (":checked" if val else ":not(:checked)"))
 
     def toggle_onoff(self, sel):
         # PR #11769 changes On/Off implementation
-        if self.machine.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if self.machine.image in ["rhel-8-0-distropkg"]:
             self.browser.click(sel + " label:not(.active)")
         else:
             self.browser.click(sel + " input")

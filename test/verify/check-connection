@@ -104,9 +104,7 @@ class TestConnection(MachineCase):
         # deleted cookie after logout should not be marked as secure, it's not https
         cookie = b.cookie("cockpit")
         self.assertEqual(cookie["value"], "deleted")
-        if m.image != "rhel-7-6-distropkg":
-            # fixed in PR #10766
-            self.assertTrue(cookie["httpOnly"])
+        self.assertTrue(cookie["httpOnly"])
         self.assertFalse(cookie["secure"])
 
         if not m.atomic_image:  # cannot write to /usr on Atomics, and cockpit-session is in a container
@@ -126,11 +124,7 @@ class TestConnection(MachineCase):
             b.set_val("#login-password-input", "foobar")
             b.click('#login-button')
             b.wait_visible('#login-fatal-message')
-            if m.image not in ["rhel-7-6-distropkg"]:
-                b.wait_text('#login-fatal-message', "The cockpit package is not installed")
-            else:
-                # cockpit-ws < 184 had an unspecific error message
-                b.wait_in_text('#login-fatal-message', "Internal error")
+            b.wait_text('#login-fatal-message', "The cockpit package is not installed")
             m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
 
         # Reauthorization can fail due to disconnects above
@@ -220,7 +214,7 @@ class TestConnection(MachineCase):
         b.logout()
         cookie = b.cookie("cockpit")
         self.assertEqual(cookie["value"], "deleted")
-        if m.image not in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]:
+        if m.image not in ["rhel-8-0-distropkg"]:
             # fixed in PR #10766
             self.assertTrue(cookie["httpOnly"])
             # fixed in PR #11279
@@ -253,20 +247,18 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @skipImage("Atomic doesn't use socket", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    @skipImage("Atomic doesn't use socket", "fedora-atomic")
     def testSocket(self):
         m = self.machine
 
-        if m.image not in ["rhel-7-6-distropkg"]:
-            self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
-            self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
+        self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit()
 
-        if m.image not in ["rhel-7-6-distropkg"]:
-            self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit.issue"))
-            self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn("9090", m.execute("cat /etc/issue.d/cockpit.issue"))
+        self.assertIn("9090", m.execute("cat /etc/motd.d/cockpit"))
 
         m.execute("systemctl stop cockpit.socket")
 
@@ -275,20 +267,16 @@ class TestConnection(MachineCase):
         m.execute(
             'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
 
-        # cockpit-ws from base package
-        if m.image not in ["rhel-7-6-distropkg"]:
-            self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
-            self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertNotIn("443", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn("systemctl", m.execute("cat /etc/issue.d/cockpit.issue"))
+        self.assertIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("443", m.execute("cat /etc/motd.d/cockpit"))
         m.start_cockpit(tls=True)
 
-        # cockpit-ws from base package
-        if m.image not in ["rhel-7-6-distropkg"]:
-            self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
-            self.assertIn("443", m.execute("cat /etc/issue.d/cockpit.issue"))
-            self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("systemctl", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertNotIn("9090", m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn("443", m.execute("cat /etc/issue.d/cockpit.issue"))
+        self.assertIn("443", m.execute("cat /etc/motd.d/cockpit"))
 
         output = m.execute('curl -k https://localhost 2>&1 || true')
         self.assertIn('Loading...', output)
@@ -298,7 +286,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
-    @skipImage("Atomic doesn't have cockpit-ws", "fedora-atomic", "rhel-atomic", "continuous-atomic")
+    @skipImage("Atomic doesn't have cockpit-ws", "fedora-atomic")
     def testCommandline(self):
         m = self.machine
         m.execute(
@@ -376,8 +364,7 @@ class TestConnection(MachineCase):
         # This fails when flow control is not present
         self.assertLess(rss, 200000)
 
-    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-    @skipImage("Added in 184", "rhel-7-6-distropkg")
+    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic")
     def testLocalSession(self):
         m = self.machine
 
@@ -411,9 +398,8 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic", "rhel-atomic", "continuous-atomic")
-    @skipImage("Kernel does not allow user namespaces", "centos-7", "rhel-7-6", "rhel-7-7", "debian-stable", "debian-testing")
-    @skipImage("Simple paths added in PR #11701", "rhel-7-6-distropkg")
+    @skipImage("Atomic doesn't have cockpit-ws installed", "fedora-atomic")
+    @skipImage("Kernel does not allow user namespaces", "debian-stable", "debian-testing")
     def testCockpitDesktop(self):
         cases = [(['/cockpit/@localhost/system/index.html', 'system', 'system/index', 'system/'],
                   ['id="system_machine_id"', 'data-action="shutdown"']
@@ -449,8 +435,8 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("missing socat", "fedora-atomic", "rhel-atomic", "continuous-atomic", "centos-7")
-    @skipImage("Added in PR #11813", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+    @skipImage("missing socat", "fedora-atomic")
+    @skipImage("Added in PR #11813", "rhel-8-0-distropkg")
     def testReverseTlsProxy(self):
         m = self.machine
         b = self.browser

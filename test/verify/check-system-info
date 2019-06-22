@@ -273,8 +273,7 @@ class TestSystemInfo(MachineCase):
         b.mouse('#systime-tooltip', 'mouseout')
         b.wait_not_present('#systime-tooltip ~ div.tooltip')
 
-    @skipImage("No NTP servers config", "centos-7", "continuous-atomic",
-               "rhel-7-6", "rhel-7-6-distropkg", "rhel-7-7", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1", "rhel-atomic")
+    @skipImage("No NTP servers config", "rhel-8-0", "rhel-8-0-distropkg", "rhel-8-1")
     def testTimeServers(self):
         m = self.machine
         b = self.browser
@@ -389,7 +388,7 @@ class TestSystemInfo(MachineCase):
         b.enter_page("/system")
 
         # now pretend this is a system without DMI; fixed in PR #11005
-        if self.machine.image in ['rhel-7-6-distropkg', 'rhel-8-0-distropkg']:
+        if self.machine.image in ['rhel-8-0-distropkg']:
             return
 
         b.logout()
@@ -414,7 +413,7 @@ class TestSystemInfo(MachineCase):
 
         self.machine.execute("umount /sys/class/dmi")
 
-    @skipImage("Added in pull 11368", "rhel-7-6-distropkg", "rhel-8-0-distropkg")
+    @skipImage("Added in pull 11368", "rhel-8-0-distropkg")
     def testCPUSecurityMitigations(self):
         b = self.browser
         m = self.machine
@@ -571,10 +570,7 @@ class TestPcp(packagelib.PackageCase):
         # the offer to install it should be visible
         self.login_and_go("/system")
         b.wait_not_visible("#server-pmlogger-switch")
-        if m.image in ["rhel-7-6-distropkg"]:
-            b.wait_in_text("#system-information-enable-pcp-link", "Enable persistent metrics…")
-        else:
-            b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics…")
+        b.wait_in_text("#system-information-enable-pcp-link", "Enable stored metrics…")
         b.click("#system-information-enable-pcp-link")
         b.wait_present("#cockpit_modal_dialog .modal-footer button.btn-primary:not([disabled])")
         b.click("#cockpit_modal_dialog .modal-footer button.btn-primary")
@@ -583,7 +579,7 @@ class TestPcp(packagelib.PackageCase):
         b.wait_visible("#server-pmlogger-switch")
         b.wait_not_visible("#system-information-enable-pcp-link")
 
-        if m.image in ["rhel-7-6-distropkg", "rhel-8-0-distropkg"]: # PR #11224
+        if m.image in ["rhel-8-0-distropkg"]: # PR #11224
             return
 
         # Turn stored metrics on

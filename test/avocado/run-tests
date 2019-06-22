@@ -133,14 +133,15 @@ class AvocadoTestSuite:
         self.machine_avocado.set_address("%s/20" % self.ipaddr_avocado)
         if not self.machine_cockpit:
             self.machine_cockpit = self.machine_avocado
+        self._upload_library()
+        self._cockpit_prepare()
 
+
+    def _cockpit_prepare(self):
         self.machine_cockpit.wait_boot()
         self.machine_cockpit.set_address("%s/20" % self.ipaddr_cockpit)
         self.machine_cockpit.start_cockpit()
         self.machine_cockpit.execute("systemctl enable cockpit.socket")
-
-
-        self._upload_library()
         self._add_test_user()
 
     def cleanup(self):
@@ -236,13 +237,16 @@ class SeleniumTestSuite(AvocadoTestSuite):
 
     def __init__(self, browser, **kwargs):
         super().__init__(**kwargs)
-        self._prepare_kdump_test()
-        self._prepare_selenium()
-        self._prepare_machines_test_env()
         self.env["HUB"] = self.ipaddr_selenium
         self.env["GUEST"] = self.ipaddr_cockpit
         self.env["BROWSER"] = browser
+        self._prepare_selenium()
         self.wait_for_selenium_running(self.ipaddr_selenium)
+
+    def _cockpit_prepare(self):
+        super()._cockpit_prepare()
+        self._prepare_kdump_test()
+        self._prepare_machines_test_env()
 
     def cleanup(self):
         super().cleanup()
@@ -300,18 +304,26 @@ class SeleniumTestSuite(AvocadoTestSuite):
         self.machine_selenium.upload(["avocado/selenium_start.sh"], "/root")
         self.machine_selenium.execute(command="/root/selenium_start.sh")
 
+    def _restart_grid_and_cockpit(self):
+        own_print("RESTARTING selenium grid and run test again")
+        own_print("-------------------------------------------")
+        # restart also cockpit machine to have clean env, because
+        # some test could break the machine
+        self.machine_selenium.kill()
+        self.machine_cockpit.kill()
+        self.machine_cockpit.start()
+        self._prepare_selenium()
+        self.wait_for_selenium_running(self.ipaddr_selenium)
+        self._cockpit_prepare()
+        self.selenium_grid_restarts -= 1
+
     def _run_one_avocado_test(self, test):
         status, cmd_output, duration = super()._run_one_avocado_test(test)
         if self.selenium_grid_restarts and not status:
             # restart test again if it lost selenium grid location
             if ("urlopen error [Errno 113] No route to host" in cmd_output) or\
                     (("Terminated" in cmd_output) and ("Running 'kill" in cmd_output)):
-                own_print("RESTARTING selenium grid and run test again")
-                own_print("-------------------------------------------")
-                self.machine_selenium.kill()
-                self._prepare_selenium()
-                self.wait_for_selenium_running(self.ipaddr_selenium)
-                self.selenium_grid_restarts -= 1
+                self._restart_grid_and_cockpit()
                 status, cmd_output, duration = super()._run_one_avocado_test(test)
         return status, cmd_output, duration
 
@@ -323,7 +335,6 @@ class SeleniumWinTestSuite(SeleniumTestSuite):
             self.machine_selenium = testvm.VirtMachine(image='windows-10', verbose=self.verbose, networking=self.network.host())
             self.machine_selenium.pull(self.machine_selenium.image_file)
         self.machine_selenium.start()
-
 
 
 def main():

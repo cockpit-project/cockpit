@@ -54,8 +54,6 @@ for line in fileinput.input(sys.argv[1], inplace=True):
         curpkg = line.split()[-1]
         if curpkg.startswith('cockpit-'):
             curpkg = curpkg[8:]
-        if curpkg == "machines-ovirt":
-            curpkg = "ovirt"
         pkg_base_dep = None
     elif "%{required_base}" in line:
         assert curpkg, "spec file uses %{required_base} outside of %package stanza"

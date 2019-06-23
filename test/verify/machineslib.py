@@ -176,12 +176,7 @@ class TestMachines(NetworkCase):
         MachineCase.setUp(self)
         self.startLibvirt()
 
-        # enforce use of cockpit-machines instead of cockpit-machines-ovirt
         m = self.machine
-        m.execute(
-            "sed -i 's/\"priority\".*$/\"priority\": 100,/' {0}".format("/usr/share/cockpit/machines/manifest.json"))
-        m.execute(
-            "[ ! -e {0} ] || sed -i 's/\"priority\".*$/\"priority\": 0,/' {0}".format("/usr/share/cockpit/ovirt/manifest.json"))
         # we don't have configuration to open the firewall for local libvirt machines, so just stop firewalld
         m.execute("systemctl stop firewalld; systemctl try-restart libvirtd")
 

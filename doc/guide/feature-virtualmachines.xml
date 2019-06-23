@@ -37,17 +37,7 @@
     <section id="feature-virtualmachines-extending">
         <title>Extensions</title>
         <para>
-            Base package <emphasis>cockpit-machines</emphasis> for management of virtual machines is based on Libvirt and
-            can be farther extended for features of higher level management applications (like oVirt) via concept
-            of providers (i.e. <link linkend="feature-ovirtvirtualmachines">oVirt Virtual Machines</link>).
-        </para>
-        <para>
-            Both <emphasis>cockpit-machines-ovirt</emphasis> and <emphasis>cockpit-machines</emphasis> RPM packages can be
-            installed together but only one of them can be loaded at a time depending on the <emphasis>priority</emphasis>
-            attribute set in <emphasis>manifest.json</emphasis> files.
-        </para>
-        <para>
-            By default, <emphasis>cockpit-machines-ovirt</emphasis> takes precedence over <emphasis>cockpit-machines</emphasis>.
+            Base package <emphasis>cockpit-machines</emphasis> for management of virtual machines is based on Libvirt.
         </para>
         <para>
             New features for <emphasis>cockpit-machines</emphasis> should be only implemented for the componenent

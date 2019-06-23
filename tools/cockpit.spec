@@ -63,11 +63,6 @@
 %endif
 %endif
 
-# cockpit-machines-ovirt is RHEL 7 only
-%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
-%define build_ovirt 1
-%endif
-
 %if 0%{?rhel} >= 8
 %global go_scl_prefix go-toolset-7-
 %else
@@ -256,14 +251,6 @@ find %{buildroot}%{_datadir}/cockpit/apps -type f >> packagekit.list
 echo '%dir %{_datadir}/cockpit/machines' > machines.list
 find %{buildroot}%{_datadir}/cockpit/machines -type f >> machines.list
 
-%if 0%{?build_ovirt}
-echo '%dir %{_datadir}/cockpit/ovirt' > ovirt.list
-find %{buildroot}%{_datadir}/cockpit/ovirt -type f >> ovirt.list
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/ovirt
-touch ovirt.list
-%endif
-
 echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 
@@ -321,7 +308,7 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard docker kubernetes machines ovirt packagekit pcp playground storaged; do
+for pkg in apps dashboard docker kubernetes machines packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
@@ -702,27 +689,6 @@ If "virt-install" is installed, you can also create new virtual machines.
 
 %files -n cockpit-machines -f machines.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
-
-%if 0%{?build_ovirt}
-
-%package -n cockpit-machines-ovirt
-BuildArch: noarch
-Summary: Cockpit user interface for oVirt virtual machines
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-%if 0%{?rhel} == 7
-Requires: libvirt
-%else
-Requires: (libvirt-daemon-kvm or libvirt)
-%endif
-Requires: libvirt-client
-
-%description -n cockpit-machines-ovirt
-The Cockpit components for managing oVirt virtual machines.
-
-%files -n cockpit-machines-ovirt -f ovirt.list
-
-%endif
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

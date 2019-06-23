@@ -460,7 +460,6 @@ Requires: subscription-manager >= 1.13
 Provides: bundled(js-jquery) = %{npm-version:jquery}
 Provides: bundled(js-moment) = %{npm-version:moment}
 Provides: bundled(nodejs-flot) = %{npm-version:jquery-flot}
-Provides: bundled(nodejs-promise) = %{npm-version:promise}
 Provides: bundled(xstatic-bootstrap-datepicker-common) = %{npm-version:bootstrap-datepicker}
 Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
 

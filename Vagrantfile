@@ -48,7 +48,6 @@ Vagrant.configure(2) do |config|
             etcd \
             firewalld \
             git \
-            kubernetes \
             NetworkManager \
             pcp \
             qemu \

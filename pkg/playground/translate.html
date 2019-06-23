@@ -167,44 +167,6 @@
         <ul>
             <li>Extraction of single quoted strings.</li>
         </ul>
-
-        <hr>
-
-        <h2>Angular Translations</h2>
-
-        <p>In Angular use these forms:<p>
-
-        <p>
-            <code>&lt;span translate&gt;Ready&lt;/span&gt;</code>
-            = <span translate id="angular-translate">Ready</span>
-        </p>
-
-        <p>
-            <code>&lt;span translate translate-context="verb"&gt;Ready&lt;/span&gt;</code>
-            = <span translate translate-context="verb" id="angular-context">Ready</span>
-        </p>
-
-        <p>
-            <code>&lt;span translate&gt;Delete '{{ name }}'&lt;/span&gt;</code>
-            = <span translate ng-init="name='Marmalade'"id="angular-interpolate">Delete '{{ name }}'</span>
-        </p>
-
-        <!--
-        <p ng-init="count=5" >
-            <code>&lt;span translate translate-n="count"
-                translate-plural="{&zwj;{count}} hours"&gt;{&zwj;{count}} hour&lt;/span&gt;</code>
-            = <span translate translate-n="count" translate-plural="{{count}} hours"
-                id="angular-plural">1 hour</span>
-        </p>
-        -->
-
-        <p>When translating Angular we <b>not support</b>:<p>
-        <ul>
-            <li>The <code>translatable</code> attribute.</li>
-            <li>The <code>translate="attr"</code> translating of attribute values.</li>
-            <li>The <code>{{value|translate}}</code> filter, even though documented on angular-gettext.</li>
-            <li>The <code>&lt;translate&gt;</code> element</li>
-        </ul>
     </div>
     <script src="translate.js"></script>
     <!-- Bring in initial translations -->

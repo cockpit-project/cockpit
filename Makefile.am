@@ -154,7 +154,6 @@ WEBPACK_PACKAGES = \
 	dashboard \
 	docker \
 	kdump \
-	kubernetes \
 	machines \
 	networkmanager \
 	pcp \

@@ -1,53 +1,6 @@
 
 noinst_LIBRARIES += \
-	libcockpit-stub.a \
 	libcockpit-bridge.a \
-	$(NULL)
-
-libcockpit_stub_a_SOURCES = \
-	src/bridge/cockpitconnect.c \
-	src/bridge/cockpitconnect.h \
-	src/bridge/cockpitdbuscache.c \
-	src/bridge/cockpitdbuscache.h \
-	src/bridge/cockpitdbusinternal.h \
-	src/bridge/cockpitdbusinternal.c \
-	src/bridge/cockpitdbusjson.c \
-	src/bridge/cockpitdbusjson.h \
-	src/bridge/cockpitdbusprocess.c \
-	src/bridge/cockpitdbusmeta.c \
-	src/bridge/cockpitdbusmeta.h \
-	src/bridge/cockpitdbusrules.c \
-	src/bridge/cockpitdbusrules.h \
-	src/bridge/cockpitechochannel.c \
-	src/bridge/cockpitechochannel.h \
-	src/bridge/cockpitpipechannel.c \
-	src/bridge/cockpitpipechannel.h \
-	src/bridge/cockpithttpstream.c \
-	src/bridge/cockpithttpstream.h \
-	src/bridge/cockpitinteracttransport.c \
-	src/bridge/cockpitinteracttransport.h \
-	src/bridge/cockpitpackages.c \
-	src/bridge/cockpitpackages.h \
-	src/bridge/cockpitpacketchannel.c \
-	src/bridge/cockpitpacketchannel.h \
-	src/bridge/cockpitpaths.c \
-	src/bridge/cockpitpaths.h \
-	src/bridge/cockpitpeer.c \
-	src/bridge/cockpitpeer.h \
-	src/bridge/cockpitnullchannel.c \
-	src/bridge/cockpitnullchannel.h \
-	src/bridge/cockpitrouter.c \
-	src/bridge/cockpitrouter.h \
-	src/bridge/cockpitstream.c \
-	src/bridge/cockpitstream.h \
-	src/bridge/cockpitwebsocketstream.c \
-	src/bridge/cockpitwebsocketstream.h \
-	$(NULL)
-
-libcockpit_stub_a_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
-	$(COCKPIT_CFLAGS) \
 	$(NULL)
 
 libcockpit_bridge_METRICS = \
@@ -76,19 +29,54 @@ libcockpit_bridge_METRICS = \
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitconnect.c \
 	src/bridge/cockpitconnect.h \
+	src/bridge/cockpitdbuscache.c \
+	src/bridge/cockpitdbuscache.h \
+	src/bridge/cockpitdbusinternal.c \
+	src/bridge/cockpitdbusinternal.h \
+	src/bridge/cockpitdbusjson.c \
+	src/bridge/cockpitdbusjson.h \
+	src/bridge/cockpitdbusmachines.c \
+	src/bridge/cockpitdbusmeta.c \
+	src/bridge/cockpitdbusmeta.h \
+	src/bridge/cockpitdbusprocess.c \
+	src/bridge/cockpitdbusrules.c \
+	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitdbussetup.c \
 	src/bridge/cockpitdbususer.c \
-	src/bridge/cockpitdbusmachines.c \
-	src/bridge/cockpitpolkitagent.c \
-	src/bridge/cockpitpolkitagent.h \
+	src/bridge/cockpitechochannel.c \
+	src/bridge/cockpitechochannel.h \
+	src/bridge/cockpitfslist.c \
+	src/bridge/cockpitfslist.h \
 	src/bridge/cockpitfsread.c \
 	src/bridge/cockpitfsread.h \
 	src/bridge/cockpitfsreplace.c \
 	src/bridge/cockpitfsreplace.h \
 	src/bridge/cockpitfswatch.c \
 	src/bridge/cockpitfswatch.h \
-	src/bridge/cockpitfslist.c \
-	src/bridge/cockpitfslist.h \
+	src/bridge/cockpithttpstream.c \
+	src/bridge/cockpithttpstream.h \
+	src/bridge/cockpitinteracttransport.c \
+	src/bridge/cockpitinteracttransport.h \
+	src/bridge/cockpitnullchannel.c \
+	src/bridge/cockpitnullchannel.h \
+	src/bridge/cockpitpackages.c \
+	src/bridge/cockpitpackages.h \
+	src/bridge/cockpitpacketchannel.c \
+	src/bridge/cockpitpacketchannel.h \
+	src/bridge/cockpitpaths.c \
+	src/bridge/cockpitpaths.h \
+	src/bridge/cockpitpeer.c \
+	src/bridge/cockpitpeer.h \
+	src/bridge/cockpitpipechannel.c \
+	src/bridge/cockpitpipechannel.h \
+	src/bridge/cockpitpolkitagent.c \
+	src/bridge/cockpitpolkitagent.h \
+	src/bridge/cockpitrouter.c \
+	src/bridge/cockpitrouter.h \
+	src/bridge/cockpitstream.c \
+	src/bridge/cockpitstream.h \
+	src/bridge/cockpitwebsocketstream.c \
+	src/bridge/cockpitwebsocketstream.h \
 	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
@@ -98,16 +86,8 @@ libcockpit_bridge_a_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 
-libcockpit_stub_LIBS = \
-	libcockpit-stub.a \
-	libcockpit-common.a \
-	libwebsocket.a \
-	$(COCKPIT_LIBS) \
-	$(NULL)
-
 libcockpit_bridge_LIBS = \
 	libcockpit-bridge.a \
-	libcockpit-stub.a \
 	libcockpit-common.a \
 	libwebsocket.a \
 	$(COCKPIT_BRIDGE_LIBS) \
@@ -134,16 +114,6 @@ cockpit_askpass_CFLAGS = \
 	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 cockpit_askpass_LDADD = $(libcockpit_bridge_LIBS)
-
-libexec_PROGRAMS += cockpit-stub
-
-cockpit_stub_SOURCES = src/bridge/stub.c
-cockpit_stub_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
-	$(COCKPIT_CFLAGS) \
-	$(NULL)
-cockpit_stub_LDADD = $(libcockpit_stub_LIBS)
 
 EXTRA_DIST += \
 	src/bridge/cockpit.pam.insecure \

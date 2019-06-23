@@ -37,8 +37,6 @@ def template_licenses(template):
 def module_license(moddir):
     '''Return License: short name for given module'''
 
-    mod = os.path.basename(moddir)
-
     # First check if package.json has a "license" field
     try:
         with open(os.path.join(moddir, 'package.json'), encoding='UTF-8') as f:
@@ -48,9 +46,6 @@ def module_license(moddir):
             if l == 'MPL 2.0':
                 # https://github.com/novnc/noVNC/pull/819
                 return 'MPL-2.0'
-            if l == 'LGPL 2+':
-                # https://github.com/kubernetes-ui/container-terminal/pull/32
-                return 'LGPL-2.1'
             return l
     except (IOError, KeyError):
         pass
@@ -66,12 +61,6 @@ def module_license(moddir):
             return 'MIT'
     except IndexError:
         pass
-
-    # missing licenses
-    if mod == 'kubernetes-object-describer' or mod == 'object-describer':
-        # upstream says "same as what we use for origin and origin-web-console which is Apache"
-        # https://github.com/kubernetes-ui/object-describer/issues/31
-        return 'Apache-2.0'
 
     raise SystemError('Could not determine license from %s' % moddir)
 

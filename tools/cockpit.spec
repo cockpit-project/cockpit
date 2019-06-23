@@ -56,19 +56,6 @@
 %define build_subscriptions 1
 %endif
 
-# cockpit-kubernetes is RHEL 7 64 bit only
-%if 0%{?rhel} >= 7 && 0%{?rhel} < 8
-%ifarch aarch64 x86_64 ppc64le s390x
-%define build_kubernetes 1
-%endif
-%endif
-
-%if 0%{?rhel} >= 8
-%global go_scl_prefix go-toolset-7-
-%else
-%global go_scl_prefix %{nil}
-%endif
-
 %if 0%{?rhel} >= 7
 %define vdo_on_demand 1
 %endif
@@ -145,9 +132,6 @@ Recommends: cockpit-packagekit
 Recommends: subscription-manager-cockpit
 %endif
 Suggests: cockpit-pcp
-%if 0%{?build_kubernetes}
-Suggests: cockpit-kubernetes
-%endif
 Suggests: cockpit-selinux
 %endif
 
@@ -270,21 +254,6 @@ rm -rf %{buildroot}/%{_datadir}/cockpit/docker
 touch docker.list
 %endif
 
-%if 0%{?build_kubernetes}
-%if %{defined wip}
-%else
-rm %{buildroot}/%{_datadir}/cockpit/kubernetes/override.json
-%endif
-echo '%dir %{_datadir}/cockpit/kubernetes' > kubernetes.list
-find %{buildroot}%{_datadir}/cockpit/kubernetes -type f >> kubernetes.list
-%else
-rm -rf %{buildroot}/%{_datadir}/cockpit/kubernetes
-rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth
-rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-launch
-rm %{buildroot}/%{_libexecdir}/cockpit-stub
-touch kubernetes.list
-%endif
-
 # when not building basic packages, remove their files
 %if 0%{?build_basic} == 0
 for pkg in base1 branding motd kdump networkmanager realmd selinux shell sosreport ssh static systemd tuned users; do
@@ -308,15 +277,13 @@ rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps dashboard docker kubernetes machines packagekit pcp playground storaged; do
+for pkg in apps dashboard docker machines packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
 rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets %{buildroot}/%{_sysconfdir}/cockpit/cockpit.conf
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
-# files from -kubernetes
-rm -f %{buildroot}/%{_libexecdir}/cockpit-kube-auth %{buildroot}/%{_libexecdir}/cockpit-kube-launch %{buildroot}/%{_libexecdir}/cockpit-stub
 # files from -machines
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-machines.metainfo.xml
 # files from -storaged
@@ -752,32 +719,6 @@ This package is not yet complete.
 %files -n cockpit-docker -f docker.list
 
 %endif
-%endif
-
-%if 0%{?build_kubernetes}
-
-%package -n cockpit-kubernetes
-Summary: Cockpit user interface for Kubernetes cluster
-Requires: /usr/bin/kubectl
-# Requires: Needs newer localization support
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
-BuildRequires: %{go_scl_prefix}golang-bin
-BuildRequires: %{go_scl_prefix}golang-src
-Provides: cockpit-stub = %{version}-%{release}
-
-%description -n cockpit-kubernetes
-The Cockpit components for visualizing and configuring a Kubernetes
-cluster. Installed on the Kubernetes master. This package is not yet complete.
-
-%if 0%{?rhel} >= 8
-%enable_gotoolset7
-%endif
-
-%files -n cockpit-kubernetes -f kubernetes.list
-%{_libexecdir}/cockpit-kube-auth
-%{_libexecdir}/cockpit-kube-launch
-%{_libexecdir}/cockpit-stub
 %endif
 
 %package -n cockpit-packagekit

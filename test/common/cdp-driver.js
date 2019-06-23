@@ -91,12 +91,6 @@ function setupLogging(client) {
 
         process.stderr.write(details.description || JSON.stringify(details) + "\n");
 
-        // ignore c3 crashes (https://github.com/c3js/c3/issues/2187)
-        if (details.exception && details.exception.description &&
-            details.exception.description.indexOf("TypeError: Cannot read property 'data_types' of null") >= 0 &&
-            details.exception.description.indexOf("/kubernetes.js") >= 0)
-            return;
-
         unhandledExceptions.push(details.exception.message ||
                                  details.exception.description ||
                                  details.exception.value ||

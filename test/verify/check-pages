@@ -206,11 +206,6 @@ OnCalendar=daily
         self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
         self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
 
-        # Angular
-        self.assertEqual(b.text("#angular-translate"), "Bereit")
-        self.assertEqual(b.text("#angular-context"), "Bereiten")
-        self.assertEqual(b.text("#angular-interpolate"), u"'Marmalade' löschen!!!")
-
         # Log out and check that login page is translated now
         b.logout()
         b.wait_visible('#password-group')
@@ -352,11 +347,6 @@ OnCalendar=daily
         self.assertEqual(b.text('#ngettext-disks-2'), u'$0 discos não encontrados')
         self.assertEqual(b.text('#ngettext-context-disks-1'), u'$0 disco não encontrado')
         self.assertEqual(b.text('#ngettext-context-disks-2'), u'$0 discos não encontrados')
-
-        # Angular
-        self.assertEqual(b.text('#angular-translate'), 'Pronto')
-        self.assertEqual(b.text('#angular-context'), 'Pronto')
-        self.assertEqual(b.text('#angular-interpolate'), 'Deletar \'Marmalade\'')
 
         # Log out and check that login page is translated now
         b.logout()

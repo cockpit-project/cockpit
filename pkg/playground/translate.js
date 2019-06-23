@@ -1,8 +1,6 @@
 import $ from "jquery";
 import cockpit from "cockpit";
 import { mustache } from "mustache";
-import angular from 'angular';
-import 'angular-gettext/dist/angular-gettext.js';
 
 const _ = cockpit.gettext;
 var C_ = cockpit.gettext;
@@ -42,13 +40,7 @@ $(function () {
     $("#mustache-output").empty()
             .append(output);
 
-    var module = angular.module('playgroundTranslate', [ 'gettext' ]);
-
-    module.run(["$rootScope", function($rootScope) {
-        cockpit.transport.wait(function() {
-            $rootScope.$digest();
-            $("body").show();
-        });
-    }]);
-    angular.bootstrap(document, ['playgroundTranslate']);
+    cockpit.transport.wait(function() {
+        $("body").show();
+    });
 });

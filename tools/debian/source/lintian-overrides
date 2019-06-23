@@ -2,8 +2,6 @@
 cockpit source: source-is-missing node_modules/*
 # dist/ is (pre-)built by webpack from pkg/ and node_modules, see webpack.config.js
 cockpit source: source-is-missing dist/*.js*
-# false-positive heuristics, this is actual source
-cockpit source: source-is-missing pkg/kubernetes/scripts/test-images.js line length*
 # pkg/machines/include is symlink to node_components/noVNC/include and content is meant as downloadable resource at runtime
 cockpit source: source-is-missing pkg/machines/include/*
 # We prefer a newer debhelper which merged dh-systemd

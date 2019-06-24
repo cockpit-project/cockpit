@@ -53,7 +53,6 @@ class TestDocker(MachineCase):
 
     def del_container_from_details(self, container_name):
         b = self.browser
-        b.wait_visible("#container-details-delete:not([disabled])")
         b.click("#container-details-delete")
         with b.wait_timeout(20):
             try:
@@ -177,7 +176,6 @@ class TestDocker(MachineCase):
         b.click("#container-details-start")
         self.wait_for_message("%s\n%s" % (message, message))
         b.call_js_func("ph_count_check", ".console-ct pre", 1)
-        b.wait_present("#container-details-stop:not([disabled])")
         b.click("#container-details-stop")
         b.wait_in_text("#container-details-state", "Exited")
 

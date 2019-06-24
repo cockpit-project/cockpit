@@ -148,12 +148,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_popup('troubleshoot-dialog')
 
         b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog', "Fingerprint")
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-available")
         b.wait_not_present("#login-diff-password")
         b.wait_present("#login-custom-user")
@@ -199,7 +197,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_popup('troubleshoot-dialog')
 
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_visible("#login-available")
         b.wait_visible("#login-custom-user")
         self.assertEqual(b.attr("#login-custom-user", "placeholder"), "admin")

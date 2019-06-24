@@ -57,7 +57,6 @@ def fix_bridge(m):
 
 
 def check_failed_state(b, expected_title):
-    b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
     b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
     b.wait_in_text('#troubleshoot-dialog h4', expected_title)
     b.click("#troubleshoot-dialog .btn-default")
@@ -69,7 +68,6 @@ def start_machine_troubleshoot(b, new=False, known_host=False):
     b.click('#machine-troubleshoot')
     b.wait_popup('troubleshoot-dialog')
     if (new):
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
         b.click('#troubleshoot-dialog .btn-primary')
 
@@ -708,7 +706,6 @@ class TestMultiMachine(MachineCase):
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
         start_machine_troubleshoot(b, True, True)
-        b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
         b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
         b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
         b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
@@ -721,7 +718,6 @@ class TestMultiMachine(MachineCase):
         break_hostkey(m1, "10.111.113.2", filename="/home/admin/.ssh/known_hosts")
 
         start_machine_troubleshoot(b, True, True)
-        b.wait_present("#troubleshoot-dialog .btn-default:not([disabled])")
         b.wait_in_text('#troubleshoot-dialog .btn-default', "Close")
         b.wait_in_text('#troubleshoot-dialog h4', "Incorrect Host Key")
         b.wait_in_text("#troubleshoot-dialog", "10.111.113.2")
@@ -759,7 +755,6 @@ class TestMultiMachine(MachineCase):
         b.click("#machine-reconnect")
         start_machine_troubleshoot(b)
         b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
-        b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
         b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
         b.click('#troubleshoot-dialog .btn-primary')
         b.wait_popdown('troubleshoot-dialog')
@@ -843,7 +838,6 @@ class TestMultiMachine(MachineCase):
         # Using libssh's knownhosts api port is taken into account when verifying a host
         if m1.image not in ['debian-stable', 'ubuntu-1804']:
             b.wait_in_text('#troubleshoot-dialog h4', "Unknown Host Key")
-            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b.wait_in_text('#troubleshoot-dialog .btn-primary', "Connect")
             b.click('#troubleshoot-dialog .btn-primary')
         b.wait_in_text('#troubleshoot-dialog h4', "Log in to")

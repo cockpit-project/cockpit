@@ -111,7 +111,6 @@ class TestDockerStorage(MachineCase):
             b.wait_visible("#machine-troubleshoot")
             b.click('#machine-troubleshoot')
             b.wait_popup('troubleshoot-dialog')
-            b.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b.wait_text('#troubleshoot-dialog .btn-primary', "Add")
             b.click('#troubleshoot-dialog .btn-primary')
             b.wait_in_text('#troubleshoot-dialog', "Fingerprint")

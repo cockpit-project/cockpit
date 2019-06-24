@@ -125,7 +125,6 @@ class TestShutdownRestart(MachineCase):
             b2.wait_visible("#machine-troubleshoot")
             b2.click('#machine-troubleshoot')
             b2.wait_popup('troubleshoot-dialog')
-            b2.wait_present("#troubleshoot-dialog .btn-primary:not([disabled])")
             b2.wait_text('#troubleshoot-dialog .btn-primary', "Add")
             b2.click('#troubleshoot-dialog .btn-primary')
             b2.wait_in_text('#troubleshoot-dialog', "Fingerprint")

@@ -1568,7 +1568,6 @@ class TestMachines(NetworkCase):
         def open(self):
             b = self.browser
 
-            b.wait_present("#create-new-vm:not([disabled])")
             b.click("#create-new-vm")
             b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")

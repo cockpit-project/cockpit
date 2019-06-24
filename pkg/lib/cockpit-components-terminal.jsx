@@ -116,7 +116,7 @@ export class Terminal extends React.Component {
             rows: this.props.rows || 25,
             screenKeys: true,
             cursorBlink: true,
-            fontSize: 12,
+            fontSize: 16,
             fontFamily: 'Menlo, Monaco, Consolas, monospace',
             screenReaderMode: true
         });

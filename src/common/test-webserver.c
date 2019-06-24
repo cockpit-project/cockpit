@@ -865,6 +865,7 @@ test_bad_address (TestCase *tc,
 }
 
 static const TestFixture fixture_for_tls_proxy = {
+    .local_only = TRUE,
     .for_tls_proxy = TRUE
 };
 
@@ -874,12 +875,10 @@ test_webserver_for_tls_proxy (TestCase *tc,
 {
   gchar *resp;
 
-  SKIP_NO_HOSTPORT;
-
   g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
-  resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }

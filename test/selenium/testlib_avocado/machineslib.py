@@ -236,11 +236,8 @@ class MachinesLib(SeleniumTest):
             if element:
                 self.click(element)
 
-        if os_vender != 'unspecified':
-            self.select_by_text(self.wait_css('#vendor-select'))
-
-        if os_vender != 'unspecified' and os != 'other':
-            self.select_by_text(self.wait_css('#system-select'), os)
+        if os != 'other':
+            self.send_keys(self.wait_css("label:contains('Operating System') + div > div > div > input"), os)
 
         if mem_unit == 'M':
             self.select_by_text(self.wait_css('#memory-size-unit-select'), 'MiB')

@@ -33,9 +33,6 @@
 
 #include "cockpitsshrelay.h"
 #include "cockpitsshoptions.h"
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-#include "cockpitsshknownhosts.h"
-#endif
 
 #include <libssh/libssh.h>
 #include <libssh/callbacks.h>
@@ -555,9 +552,6 @@ session_has_known_host_in_file (const gchar *file,
                                 const gchar *host,
                                 const guint port)
 {
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-  shim_set_knownhosts_file (file ?: data->user_known_hosts);
-#endif
   /* HACK: https://bugs.libssh.org/T108 */
   if (!file)
     g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_SSH_DIR, NULL) == 0);
@@ -750,19 +744,6 @@ verify_knownhost (CockpitSshData *data,
 #endif
       ssh_clean_pubkey_hash (&hash);
     }
-
-  /* the shim implementation of ssh_session_export_known_hosts_entry manipulates
-   *  the knownhosts file, so set it again
-   */
-#if !HAVE_DECL_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY
-  if (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS,
-                       data->ssh_options->knownhosts_file) != 0)
-    {
-      g_warning ("Couldn't set knownhosts file location");
-      ret = "internal-error";
-      goto done;
-    }
-#endif
 
   state = ssh_session_is_known_server (data->session);
   if (state == SSH_KNOWN_HOSTS_OK)

@@ -152,7 +152,6 @@ else
 fi
 
 AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
-AM_CONDITIONAL(HAVE_SSH_SESSION_HAS_KNOWN_HOSTS_ENTRY, test "$ac_cv_have_decl_ssh_session_has_known_hosts_entry" = "yes")
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,

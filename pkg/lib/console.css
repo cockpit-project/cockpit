@@ -5,14 +5,14 @@
     font-family: Menlo, Monaco, Consolas, monospace;
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 10px;
+    font-size: var(--pf-global--FontSize--md);
     text-align: center;
     line-height: normal;
 }
 
 @media (min-width: 568px) {
     .console-ct {
-        font-size: 12px;
+        font-size: var(--pf-global--FontSize--sm);
     }
 }
 
@@ -32,13 +32,8 @@
 .console-ct > .terminal {
     color: var(--color-gray-1);
     text-align: left;
-    outline: medium none;
     background-color: black;
     padding: 10px;
-    border-top: 1px solid black;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
 }
 
 .terminal .terminal-cursor {

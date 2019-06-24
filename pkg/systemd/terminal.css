@@ -4,15 +4,36 @@ html, body {
 
 .console-ct-container {
     height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+}
+
+.console-ct-container .panel-body,
+.console-ct-container .console-ct {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.console-ct-container .panel-heading {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.xterm-accessibility {
+    /* Allow for scrollbar clicking */
+    /* (scrollbars are 18px or less across common OSes) */
+    right: 18px !important;
 }
 
 .console-ct-container .panel-body {
     padding: 0;
-    position: fixed;
-    top: 44px; /* panel-heading in cockpit.css */
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
+    position: relative;
+}
+
+.console-ct-container .console-ct {
+    position: absolute;
 }
 
 .black-theme {
@@ -36,11 +57,24 @@ html, body {
 }
 
 .terminal-group {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: 1fr repeat(3, auto);
+    align-content: center;
+    align-items: baseline;
 }
 
-#theme-select {
+@media (min-width: 640px) {
+    .terminal-group {
+        min-height: 4rem;
+    }
+}
+
+.terminal-group > .btn {
+    align-self: stretch;
+}
+
+.theme-select {
     margin-left: 5px;
     margin-right: 5px;
     width: auto;

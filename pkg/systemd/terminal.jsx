@@ -90,22 +90,21 @@ const _ = cockpit.gettext;
                 <div className="console-ct-container">
                     <div className="panel-heading terminal-group">
                         <tt className="terminal-title">{this.state.title}</tt>
-                        <div>
-                            <label className="control-label" htmlFor="theme-select">{ _("Appearance:") }</label>
-                            <Select onChange={ this.onThemeChanged }
-                                    id="theme-select"
-                                    initial={ this.state.theme }>
-                                <SelectEntry data='black-theme'>{ _("Black") }</SelectEntry>
-                                <SelectEntry data='dark-theme'>{ _("Dark") }</SelectEntry>
-                                <SelectEntry data='light-theme'>{ _("Light") }</SelectEntry>
-                                <SelectEntry data='white-theme'>{ _("White") }</SelectEntry>
-                            </Select>
-                            <button ref="resetButton"
-                                 className="btn btn-default"
-                                 onClick={ this.onResetClick }>{ _("Reset") }</button>
-                        </div>
+                        <label className="control-label" htmlFor="theme-select">{_("Appearance:")}</label>
+                        <Select onChange={this.onThemeChanged}
+                            id="theme-select"
+                            className="theme-select"
+                            initial={this.state.theme}>
+                            <SelectEntry data='black-theme'>{_("Black")}</SelectEntry>
+                            <SelectEntry data='dark-theme'>{_("Dark")}</SelectEntry>
+                            <SelectEntry data='light-theme'>{_("Light")}</SelectEntry>
+                            <SelectEntry data='white-theme'>{_("White")}</SelectEntry>
+                        </Select>
+                        <button ref="resetButton"
+                            className="btn btn-default terminal-reset"
+                            onClick={this.onResetClick}>{_("Reset")}</button>
                     </div>
-                    <div className={ "panel-body " + this.state.theme }>
+                    <div className={"panel-body " + this.state.theme}>
                         {terminal}
                     </div>
                 </div>

@@ -486,7 +486,7 @@ test_webserver_noredirect_localhost (TestCase *tc,
   g_assert (cockpit_web_server_get_flags (tc->web_server) == COCKPIT_WEB_SERVER_REDIRECT_TLS);
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
-  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: localhost\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -516,6 +516,46 @@ test_webserver_noredirect_override (TestCase *tc,
 
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+}
+
+static const TestFixture fixture_proxy_redirect = {
+    .local_only = TRUE,
+    .server_flags = COCKPIT_WEB_SERVER_REDIRECT_TLS | COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY,
+};
+
+static void
+test_webserver_proxy_redirect (TestCase *tc,
+                               gconstpointer data)
+{
+  gchar *resp;
+
+  /* request from remote host gets redirected */
+  g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: test\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 301 *\r\nLocation: https://*");
+  g_free (resp);
+
+  /* request from localhost doesn't redirect */
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: [::1]\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+
+  /* hostname:port variants of localhost */
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: localhost:1234\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: 127.0.0.1:1234\r\n\r\n", NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
+  g_free (resp);
+
+  resp = perform_http_request (tc->localport, "GET /shell/index.html HTTP/1.0\r\nHost: [::1]:1234\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
@@ -936,6 +976,8 @@ main (int argc,
               setup, test_webserver_noredirect_exception, teardown);
   g_test_add ("/web-server/no-redirect-override", TestCase, &fixture_with_cert,
               setup, test_webserver_noredirect_override, teardown);
+  g_test_add ("/web-server/proxy-redirect", TestCase, &fixture_proxy_redirect,
+              setup, test_webserver_proxy_redirect, teardown);
 
   g_test_add ("/web-server/handle-resource", TestCase, NULL,
               setup, test_handle_resource, teardown);

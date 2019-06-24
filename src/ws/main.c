@@ -207,7 +207,7 @@ main (int argc,
 
   if (opt_for_tls_proxy)
     server_flags |= COCKPIT_WEB_SERVER_FOR_TLS_PROXY;
-  if (!cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE))
+  if (!opt_no_tls && !cockpit_conf_bool ("WebService", "AllowUnencrypted", FALSE))
     server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS;
 
   server = cockpit_web_server_new (opt_address,

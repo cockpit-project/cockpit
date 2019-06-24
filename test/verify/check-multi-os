@@ -53,7 +53,6 @@ def new_add_machine(b, address):
     b.set_val('#add-machine-address', address)
 
     b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-    b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
     b.click('#dashboard_setup_server_dialog .btn-primary')
     b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
     b.click('#dashboard_setup_server_dialog .btn-primary')

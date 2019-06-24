@@ -209,14 +209,14 @@ class Browser:
         self.call_js_func('ph_mouse', selector, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
     def click(self, selector):
-        self.mouse(selector, "click", 0, 0, 0)
+        self.mouse(selector + ":not([disabled])", "click", 0, 0, 0)
 
     def val(self, selector):
         self.wait_visible(selector)
         return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector, val):
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
@@ -228,19 +228,19 @@ class Browser:
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
-        self.wait_present(selector)
+        self.wait_present(selector + ':not([disabled])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def set_checked(self, selector, val):
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector):
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_focus', selector)
 
     def blur(self, selector):
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
         self.call_js_func('ph_blur', selector)
 
     def key_press(self, keys, modifiers=0):
@@ -260,7 +260,7 @@ class Browser:
     def select_from_dropdown(self, selector, value, substring=False):
         # This is a backwards compat helper method; new code should use .set_val()
 
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
 
         # translate text value into <option value=".."> ID
         text_selector = "{0} option[data-value{1}='{2}']".format(selector, substring and "*" or "", value)
@@ -287,7 +287,7 @@ class Browser:
         spinner_selector = "{0} .spinner".format(selector)
         file_item_selector_template = "{0} ul li a:contains({1})"
 
-        self.wait_visible(selector)
+        self.wait_visible(selector + ':not([disabled])')
 
         for path_part in filter(None, location.split('/')):
             self.wait_not_present(spinner_selector)

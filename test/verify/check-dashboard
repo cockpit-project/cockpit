@@ -67,7 +67,6 @@ class DashBoardHelpers:
 
     def add_machine_finish(self, b, known_host=False):
         b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.click('#dashboard_setup_server_dialog .btn-primary')
         if not known_host:
             b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
@@ -266,7 +265,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.wait_popup('dashboard_setup_server_dialog')
         b.set_val('#add-machine-address', "10.111.113.2")
         b.wait_text('#dashboard_setup_server_dialog .btn-primary', "Add")
-        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.click('#dashboard_setup_server_dialog .btn-primary')
         b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
         b.click('#dashboard_setup_server_dialog .btn-primary')
@@ -284,7 +282,6 @@ class TestDashboardSetup(MachineCase, DashBoardHelpers):
         b.set_val('#sync-username', "root")
         b.set_val('#sync-password', "notthepassword")
         b.click('#dashboard_setup_server_dialog .btn-primary')
-        b.wait_present("#dashboard_setup_server_dialog .btn-primary:not([disabled])")
         b.wait_text('#dashboard_setup_server_dialog .dialog-error', "Login failed")
         b.set_val('#sync-password', "foobar")
 

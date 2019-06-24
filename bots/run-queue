@@ -108,14 +108,10 @@ def main():
         credentials=pika.credentials.ExternalCredentials()))
     channel = connection.channel()
 
-    try:
-        declare_webhook_result = channel.queue_declare(queue='webhook', passive=True, auto_delete=False)
-    except pika.exceptions.ChannelClosed:
-        return 1
-
     arguments = {
         "x-max-priority": MAX_PRIORITY
     }
+    declare_webhook_result = channel.queue_declare(queue='webhook', auto_delete=False)
     declare_public_result = channel.queue_declare(queue='public', arguments=arguments, auto_delete=False)
     declare_rhel_result = channel.queue_declare(queue='rhel', arguments=arguments, auto_delete=False)
 

@@ -317,7 +317,11 @@ class AccountList extends React.Component {
         for (i in this.props.accounts)
             items.push(React.createElement(AccountItem, Object.assign({ "key": this.props.accounts[i].name },
                                                                       this.props.accounts[i])));
-        return React.createElement('div', null, items);
+        return (
+            <React.Fragment>
+                {items}
+            </React.Fragment>
+        );
     }
 }
 AccountList.displayName = 'AccountList';

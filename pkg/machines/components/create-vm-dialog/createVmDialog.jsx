@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip } from 'patternfly-react';
+import { Button, FormGroup, HelpBlock, Modal, OverlayTrigger, Tooltip, TypeAheadSelect } from 'patternfly-react';
 
 import cockpit from 'cockpit';
 import { MachinesConnectionSelector } from '../machinesConnectionSelector.jsx';
@@ -44,11 +44,12 @@ import {
 
 import {
     autodetectOS,
-    NOT_SPECIFIED,
-    OTHER_OS_SHORT_ID,
-    DIVIDER_FAMILY,
-    prepareVendors,
+    compareDates,
+    correctSpecialCases,
+    filterReleaseEolDates,
     getOSStringRepresentation,
+    OTHER_OS_SHORT_ID,
+    OTHER_OS,
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
 
@@ -125,8 +126,8 @@ function validateParams(vmParams) {
     // If we select installation media from URL force the user to select
     // OS, since virt-install will not detect the OS, in case we don't choose
     // to start the guest immediately.
-    if (vmParams.vendor == NOT_SPECIFIED && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
-        validationFailed['vendor'] = _("You need to select the most closely matching OS vendor and Operating System");
+    if ((vmParams.os == undefined || vmParams.os.name == 'Other OS') && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
+        validationFailed['os'] = _("You need to select the most closely matching Operating System");
 
     let source = vmParams.source ? vmParams.source.trim() : null;
 
@@ -156,14 +157,13 @@ function validateParams(vmParams) {
     if (vmParams.memorySize === 0) {
         validationFailed['memory'] = _("Memory must not be 0");
     } else {
-        const osObj = vmParams.osInfoList.find(osElem => osElem.shortId == vmParams.os);
-        if (osObj &&
-            osObj['minimumResources']['ram'] &&
-            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < osObj['minimumResources']['ram'])) {
+        if (vmParams.os &&
+            vmParams.os['minimumResources']['ram'] &&
+            (convertToUnit(vmParams.memorySize, vmParams.memorySizeUnit, units.B) < vmParams.os['minimumResources']['ram'])) {
             validationFailed['memory'] = (
                 cockpit.format(
                     _("The selected Operating System has minimum memory requirement of $0 $1"),
-                    convertToUnit(osObj['minimumResources']['ram'], units.B, vmParams.memorySizeUnit),
+                    convertToUnit(vmParams.os['minimumResources']['ram'], units.B, vmParams.memorySizeUnit),
                     vmParams.memorySizeUnit)
             );
         }
@@ -296,66 +296,74 @@ const SourceRow = ({ connectionName, source, sourceType, networks, nodeDevices, 
     );
 };
 
-const OSRow = ({ vendor, osInfoList, os, vendors, onValueChanged, validationFailed }) => {
-    const validationStateOsVendor = validationFailed.vendor ? 'error' : undefined;
-    const familyList = vendors.familyList;
-    const familyMap = vendors.familyMap;
-    const vendorMap = vendors.vendorMap;
-    const vendorSelectEntries = [];
+class OSRow extends React.Component {
+    constructor(props) {
+        super(props);
+        const IGNORE_VENDORS = ['ALTLinux', 'Mandriva', 'GNOME Project'];
+        const osInfoListExt = this.props.osInfoList
+                .map(os => correctSpecialCases(os))
+                .filter(os => filterReleaseEolDates(os) && !IGNORE_VENDORS.find(vendor => vendor == os.vendor))
+                .sort((a, b) => {
+                    if (a.vendor == b.vendor)
+                        if (a.releaseDate || b.releaseDate)
+                            return compareDates(a.releaseDate, b.releaseDate, true) > 0;
+                        else
+                            return a.version < b.version;
+                    else
+                        return getOSStringRepresentation(a).toLowerCase() > getOSStringRepresentation(b).toLowerCase();
+                });
 
-    if (familyMap[DIVIDER_FAMILY]) {
-        vendorSelectEntries.push((
-            <Select.SelectEntry data={NOT_SPECIFIED} key={NOT_SPECIFIED}>{_(NOT_SPECIFIED)}</Select.SelectEntry>));
-        vendorSelectEntries.push((<Select.SelectDivider key='divider' />));
+        osInfoListExt.push({
+            'shortId': OTHER_OS_SHORT_ID,
+            'name': OTHER_OS,
+            'version': null,
+        });
+
+        this.state = {
+            typeAheadKey: Math.random(),
+            osEntries: osInfoListExt,
+        };
     }
 
-    familyList.forEach(({ family, vendors }) => {
-        if (family === DIVIDER_FAMILY) {
-            return;
-        }
+    render() {
+        const { os, onValueChanged, isLoading, validationFailed } = this.props;
+        const validationStateOS = validationFailed.os ? 'error' : undefined;
 
-        vendorSelectEntries.push(
-            <optgroup key={family} label={family}>
-                { vendors.map(vendor => <Select.SelectEntry data={vendor} key={vendor}>{vendor}</Select.SelectEntry>) }
-            </optgroup>);
-    });
-
-    const osEntries = (
-        vendorMap[vendor]
-                .map(os => (
-                    <Select.SelectEntry data={os.shortId} key={os.shortId}>
-                        {getOSStringRepresentation(os)}
-                    </Select.SelectEntry>))
-    );
-
-    return (
-        <React.Fragment>
-            <label className="control-label" htmlFor="vendor-select">
-                {_("OS Vendor")}
-            </label>
-            <FormGroup validationState={validationStateOsVendor} bsClass='form-group ct-validation-wrapper'>
-                <Select.Select id="vendor-select"
-                    initial={vendor}
-                    onChange={value => onValueChanged('vendor', value)}>
-                    {vendorSelectEntries}
-                </Select.Select>
-                { validationFailed.vendor && vendor == NOT_SPECIFIED &&
-                <HelpBlock>
-                    <p className="text-danger">{validationFailed.vendor}</p>
-                </HelpBlock> }
-            </FormGroup>
-
-            <label className="control-label" htmlFor="vendor-select">
-                {_("Operating System")}
-            </label>
-            <Select.StatelessSelect id="system-select"
-                selected={os}
-                onChange={value => onValueChanged('os', value)}>
-                {osEntries}
-            </Select.StatelessSelect>
-        </React.Fragment>
-    );
-};
+        return (
+            <React.Fragment>
+                <label className="control-label" htmlFor='os-select'>
+                    {_("Operating System")}
+                </label>
+                <FormGroup validationState={validationStateOS} bsClass='form-group ct-validation-wrapper'>
+                    <TypeAheadSelect
+                        key={this.state.typeAheadKey}
+                        id='os-select'
+                        selected={os != undefined ? [getOSStringRepresentation(os)] : []}
+                        isLoading={isLoading}
+                        placeholder={_("Choose an operating system")}
+                        paginate={false}
+                        maxResults={500}
+                        onKeyDown={ev => {
+                            ev.persist();
+                            ev.nativeEvent.stopImmediatePropagation();
+                            ev.stopPropagation();
+                        }}
+                        onChange={value => value[0] && onValueChanged('os', this.state.osEntries.find(os => getOSStringRepresentation(os) == value[0].displayName))}
+                        onBlur={() => {
+                            if (!this.state.osEntries.find(os => getOSStringRepresentation(os) == os)) {
+                                this.setState({ typeAheadKey: Math.random() });
+                            }
+                        }}
+                        options={this.state.osEntries.map(os => getOSStringRepresentation(os))} />
+                    { validationFailed.os && os == undefined &&
+                    <HelpBlock>
+                        <p className="text-danger">{validationFailed.os}</p>
+                    </HelpBlock> }
+                </FormGroup>
+            </React.Fragment>
+        );
+    }
+}
 
 const MemoryRow = ({ memorySize, memorySizeUnit, nodeMaxMemory, recommendedMemory, onValueChanged, validationFailed }) => {
     const validationStateMemory = validationFailed.memory ? 'error' : undefined;
@@ -480,9 +488,7 @@ class CreateVmModal extends React.Component {
             connectionName: LIBVIRT_SYSTEM_CONNECTION,
             sourceType: LOCAL_INSTALL_MEDIA_SOURCE,
             source: '',
-            vendor: NOT_SPECIFIED,
-            vendors: prepareVendors(props.osInfoList),
-            os: OTHER_OS_SHORT_ID,
+            os: undefined,
             memorySize: Math.min(convertToUnit(1024, units.MiB, units.GiB), // tied to Unit
                                  Math.floor(convertToUnit(props.nodeMaxMemory, units.KiB, units.GiB))),
             memorySizeUnit: units.GiB.name,
@@ -498,21 +504,6 @@ class CreateVmModal extends React.Component {
 
     onValueChanged(key, value) {
         switch (key) {
-        case 'vmName': {
-            this.setState({ [key]: value });
-            break;
-        }
-        case 'vendor': {
-            const os = this.state.vendors.vendorMap[value][0].shortId;
-            this.setState({
-                [key]: value,
-                os,
-            });
-            break;
-        }
-        case 'os':
-            this.setState({ [key]: value });
-            break;
         case 'source':
             this.setState({ [key]: value });
 
@@ -521,17 +512,23 @@ class CreateVmModal extends React.Component {
                 clearTimeout(this.typingTimeout);
 
                 const onOsAutodetect = (os) => {
+                    this.setState({ autodetectOSInProgress: true });
                     autodetectOS(os)
                             .then(res => {
                                 const osEntry = this.props.osInfoList.filter(osEntry => osEntry.id == res);
 
                                 if (osEntry && osEntry[0]) {
                                     this.setState({
-                                        vendor: osEntry[0].vendor,
-                                        os: osEntry[0].shortId
+                                        os: osEntry[0],
+                                        autodetectOSInProgress: false,
                                     });
                                 }
-                            }, ex => console.log("osinfo-detect command failed: ", ex.message));
+                            }, ex => {
+                                console.log("osinfo-detect command failed: ", ex.message);
+                                this.setState({
+                                    autodetectOSInProgress: false,
+                                });
+                            });
                 };
                 this.typingTimeout = setTimeout(() => onOsAutodetect(value), 250);
             }
@@ -611,6 +608,7 @@ class CreateVmModal extends React.Component {
             }
             break;
         default:
+            this.setState({ [key]: value });
             break;
         }
     }
@@ -631,7 +629,7 @@ class CreateVmModal extends React.Component {
                 vmName: this.state.vmName,
                 source: this.state.source,
                 sourceType: this.state.sourceType,
-                os: this.state.os,
+                os: this.state.os.shortId,
                 memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
                 storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
                 storagePool: this.state.storagePool,
@@ -656,10 +654,9 @@ class CreateVmModal extends React.Component {
     render() {
         const { nodeMaxMemory, nodeDevices, networks, osInfoList, loggedUser, providerName, storagePools, vms } = this.props;
         const validationFailed = this.state.validate && validateParams({ ...this.state, osInfoList });
-        const osObj = osInfoList.find(osElem => osElem.shortId == this.state.os);
         let recommendedMemory;
-        if (osObj && osObj['recommendedResources']['ram'])
-            recommendedMemory = convertToUnit(osObj['recommendedResources']['ram'], units.B, this.state.memorySizeUnit);
+        if (this.state.os && this.state.os['recommendedResources']['ram'])
+            recommendedMemory = convertToUnit(this.state.os['recommendedResources']['ram'], units.B, this.state.memorySizeUnit);
 
         const dialogBody = (
             <form className="ct-form">
@@ -719,11 +716,10 @@ class CreateVmModal extends React.Component {
                 <hr />
 
                 <OSRow
-                    vendor={this.state.vendor}
-                    vendors={this.state.vendors}
                     os={this.state.os}
-                    osInfoList={osInfoList}
+                    osInfoList={this.props.osInfoList}
                     onValueChanged={this.onValueChanged}
+                    isLoading={this.state.autodetectOSInProgress}
                     validationFailed={validationFailed} />
 
                 <hr />

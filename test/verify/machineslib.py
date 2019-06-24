@@ -1212,12 +1212,6 @@ class TestMachines(NetworkCase):
         self.login_and_go("/machines")
         self.browser.wait_in_text("body", "Virtual Machines")
 
-        def checkVendorsLoadedInUi(dialog):
-            dialog.open()
-            self.browser.wait_present("#vendor-select")
-            self.browser.wait_present("#vendor-select option[value='%s']" % dialog.os_vendor)
-            dialog.cancel()
-
         def cancelDialogTest(dialog):
             dialog.open() \
                 .fill() \
@@ -1227,7 +1221,7 @@ class TestMachines(NetworkCase):
 
         def checkFilteredOsTest(dialog):
             dialog.open() \
-                .checkOsOrVendorFiltered() \
+                .checkOsFiltered() \
                 .cancel(True)
             runner.assertScriptFinished() \
                 .checkEnvIsEmpty()
@@ -1282,11 +1276,6 @@ class TestMachines(NetworkCase):
                 .deleteVm(dialog) \
                 .checkEnvIsEmpty()
 
-        # wait for os and vendors to load.
-        runner.assertOsInfoQueryFinished()
-        rhDialog = TestMachines.VmDialog(self, "loadVendors", os_vendor=config.REDHAT_VENDOR)
-        checkVendorsLoadedInUi(rhDialog)
-
         runner.checkEnvIsEmpty()
 
         # define default storage pool for system connection
@@ -1299,13 +1288,17 @@ class TestMachines(NetworkCase):
         self.browser.enter_page('/machines')
         self.browser.wait_in_text("body", "Virtual Machines")
 
+        createTest(TestMachines.VmDialog(self, sourceType='url',
+                                         location=config.VALID_URL,
+                                         storage_size=1,
+                                         os_name=config.NOVELL_NETWARE_4))
+
         # test just the DIALOG CREATION and cancel
         print("    *\n    * validation errors and ui info/warn messages expected:\n    * ")
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='file',
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
                                                memory_size=1, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
-                                               os_vendor=config.UNSPECIFIED_VENDOR,
                                                os_name=config.OTHER_OS,
                                                start_vm=True))
 
@@ -1313,19 +1306,15 @@ class TestMachines(NetworkCase):
                                                location=config.VALID_URL,
                                                memory_size=256, memory_size_unit='MiB',
                                                storage_size=0, storage_size_unit='MiB',
-                                               os_vendor=config.NOVELL_VENDOR,
                                                os_name=config.NOVELL_NETWARE_4,
                                                start_vm=False))
 
         # check if older os are filtered
-        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.REDHAT_VENDOR,
-                                                  storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.REDHAT_RHEL_4_7_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.MANDRIVA_FILTERED_VENDOR,
-                                                  storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MANDRIVA_2011_FILTERED_OS))
 
-        checkFilteredOsTest(TestMachines.VmDialog(self, os_vendor=config.MAGEIA_VENDOR,
-                                                  storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
+        checkFilteredOsTest(TestMachines.VmDialog(self, storage_size=1, os_name=config.MAGEIA_3_FILTERED_OS))
 
         # try to CREATE WITH DIALOG ERROR
 
@@ -1335,7 +1324,6 @@ class TestMachines(NetworkCase):
         # location
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url',
                                                             location="invalid/url", storage_size=1,
-                                                            os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_4), {"Source": "Source should start with"})
 
         # memory
@@ -1343,36 +1331,30 @@ class TestMachines(NetworkCase):
 
         # memory
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_vendor=config.FEDORA_VENDOR,
                                                             os_name=config.FEDORA_28,
                                                             memory_size=256, memory_size_unit='MiB'), {"Memory": "minimum memory requirement of 1024 MiB"})
 
         # start vm
         checkDialogFormValidationTest(TestMachines.VmDialog(self, storage_size=1,
-                                                            os_vendor=config.NOVELL_VENDOR,
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
-        # disallow UNSPECIFIED_VENDOR in case of URL installation media and start_vm=False
+        # disallow OTHER_OS in case of URL installation media and start_vm=False
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
-                                                            os_vendor=config.UNSPECIFIED_VENDOR,
                                                             storage_size=100, storage_size_unit='MiB',
                                                             os_name=config.OTHER_OS, start_vm=False),
-                                      {"OS Vendor": "You need to select the most closely matching OS vendor and Operating System"})
+                                      {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          storage_size=1,
-                                         memory_size=512, memory_size_unit='MiB',
-                                         os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_VISTA))
 
         createTest(TestMachines.VmDialog(self, sourceType='url',
                                          location=config.VALID_URL,
                                          memory_size=512, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_vendor=config.MICROSOFT_VENDOR,
                                          os_name=config.MICROSOFT_XP_OS,
                                          start_vm=False))
 
@@ -1380,15 +1362,12 @@ class TestMachines(NetworkCase):
                                          location=config.VALID_URL,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=100, storage_size_unit='MiB',
-                                         os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False))
-
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
-                                         os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False,
                                          connection='session'))
@@ -1399,7 +1378,6 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100, memory_size_unit='MiB',
                                          storage_size=100000, storage_size_unit='GiB',
-                                         os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False))
 
@@ -1409,7 +1387,6 @@ class TestMachines(NetworkCase):
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=100000, memory_size_unit='MiB',
                                          storage_size=0, storage_size_unit='MiB',
-                                         os_vendor=config.APPLE_VENDOR,
                                          os_name=config.MACOS_X_TIGER,
                                          start_vm=False))
 
@@ -1417,7 +1394,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_vendor=config.OPENBSD_VENDOR,
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=False))
 
@@ -1434,7 +1410,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='disk_image',
                                          location=config.VALID_DISK_IMAGE_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_vendor=config.OPENBSD_VENDOR,
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=True))
         # End of tests for import existing disk as installation option
@@ -1456,7 +1431,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=50, memory_size_unit='MiB',
-                                         os_vendor=config.NOVELL_VENDOR,
                                          os_name=config.NOVELL_NETWARE_6,
                                          storage_pool="tmpPool",
                                          storage_volume="vmTmpDestination.qcow2",
@@ -1466,7 +1440,6 @@ class TestMachines(NetworkCase):
         createTest(TestMachines.VmDialog(self, sourceType='file',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=50, memory_size_unit='MiB',
-                                         os_vendor=config.NOVELL_VENDOR,
                                          os_name=config.NOVELL_NETWARE_6,
                                          storage_pool="No Storage",
                                          start_vm=True,))
@@ -1552,7 +1525,6 @@ class TestMachines(NetworkCase):
                                              location=config.ISO_URL,
                                              memory_size=256, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_vendor=config.UNSPECIFIED_VENDOR,
                                              os_name=config.OTHER_OS,
                                              start_vm=True))
 
@@ -1565,7 +1537,6 @@ class TestMachines(NetworkCase):
                                                            location=config.ISO_URL,
                                                            memory_size=256, memory_size_unit='MiB',
                                                            storage_size=0, storage_size_unit='MiB',
-                                                           os_vendor=config.UNSPECIFIED_VENDOR,
                                                            os_name=config.OTHER_OS,
                                                            start_vm=True), ["qemu", "protocol"])
 
@@ -1616,7 +1587,6 @@ class TestMachines(NetworkCase):
                                              location="Virtual Network pxe-nat: NAT",
                                              memory_size=50, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_vendor=config.NOVELL_VENDOR,
                                              os_name=config.NOVELL_NETWARE_6,
                                              start_vm=True, delete=False))
 
@@ -1672,7 +1642,6 @@ class TestMachines(NetworkCase):
                                              location="Host Device {0}: macvtap".format(iface),
                                              memory_size=50, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_vendor=config.NOVELL_VENDOR,
                                              os_name=config.NOVELL_NETWARE_6,
                                              start_vm=False))
 
@@ -1681,7 +1650,6 @@ class TestMachines(NetworkCase):
                                                                 sourceType='pxe',
                                                                 location="Host Device {0}: macvtap".format(iface),
                                                                 sourceTypeSecondChoice='url',
-                                                                os_vendor=config.NOVELL_VENDOR,
                                                                 os_name=config.NOVELL_NETWARE_6, start_vm=False),
                                           {"Source": "Installation Source should not be empty"})
 
@@ -1691,7 +1659,6 @@ class TestMachines(NetworkCase):
                                          sourceTypeSecondChoice='disk_image',
                                          location=config.NOVELL_MOCKUP_ISO_PATH,
                                          memory_size=256, memory_size_unit='MiB',
-                                         os_vendor=config.OPENBSD_VENDOR,
                                          os_name=config.OPENBSD_5_4,
                                          start_vm=False))
 
@@ -1731,38 +1698,29 @@ class TestMachines(NetworkCase):
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://localhost:8000/novell.iso'
 
-        UNSPECIFIED_VENDOR = 'Unspecified'
         OTHER_OS = 'Other OS'
 
-        NOVELL_VENDOR = 'Novell'
         NOVELL_NETWARE_4 = 'Novell Netware 4'
         NOVELL_NETWARE_5 = 'Novell Netware 5'
         NOVELL_NETWARE_6 = 'Novell Netware 6'
 
-        OPENBSD_VENDOR = 'OpenBSD Project'
         OPENBSD_5_4 = 'OpenBSD 5.4'
 
-        MICROSOFT_VENDOR = 'Microsoft Corporation'
         MICROSOFT_MILLENNIUM_OS = 'Microsoft Windows Millennium Edition'
         MICROSOFT_XP_OS = 'Microsoft Windows XP'
         MICROSOFT_VISTA = 'Microsoft Windows Vista'
         MICROSOFT_10_OS = 'Microsoft Windows 10'
 
-        APPLE_VENDOR = 'Apple Inc.'
         MACOS_X_TIGER = 'MacOS X Tiger'
         MACOS_X_LEOPARD = 'MacOS X Leopard'
 
         # LINUX can be filtered if 3 years old
-        REDHAT_VENDOR = 'Red Hat, Inc'
         REDHAT_RHEL_4_7_FILTERED_OS = 'Red Hat Enterprise Linux 4.9'
 
-        FEDORA_VENDOR = 'Fedora Project'
         FEDORA_28 = 'Fedora 28'
 
-        MANDRIVA_FILTERED_VENDOR = 'Mandriva'
         MANDRIVA_2011_FILTERED_OS = 'Mandriva Linux 2011'
 
-        MAGEIA_VENDOR = 'Mageia'
         MAGEIA_3_FILTERED_OS = 'Mageia 3'
 
         LIBVIRT_CONNECTION = {
@@ -1776,7 +1734,6 @@ class TestMachines(NetworkCase):
                      sourceType='file', sourceTypeSecondChoice=None, location='',
                      memory_size=256, memory_size_unit='MiB',
                      storage_size=None, storage_size_unit='GiB',
-                     os_vendor=None,
                      os_name=None,
                      storage_pool='Create New Volume', storage_volume='',
                      start_vm=False,
@@ -1801,7 +1758,6 @@ class TestMachines(NetworkCase):
             self.memory_size_unit = memory_size_unit
             self.storage_size = storage_size
             self.storage_size_unit = storage_size_unit
-            self.os_vendor = os_vendor if os_vendor else TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR
             self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
             self.start_vm = start_vm
             self.storage_pool = storage_pool
@@ -1821,48 +1777,29 @@ class TestMachines(NetworkCase):
             b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
-            if self.os_name != TestMachines.TestCreateConfig.OTHER_OS and self.os_vendor != TestMachines.TestCreateConfig.UNSPECIFIED_VENDOR:
-                # check if there is os and vendor present in osinfo-query because it can be filtered out in the UI
-                query_result = '{0}|{1}'.format(self.os_name, self.os_vendor)
+            if self.os_name != TestMachines.TestCreateConfig.OTHER_OS:
+                # check if there is os present in osinfo-query because it can be filtered out in the UI
+                query_result = '{0}'.format(self.os_name)
                 # throws exception if grep fails
                 self.machine.execute(
-                    "osinfo-query os --fields=name,vendor | tail -n +3 | sed -e 's/\s*|\s*/|/g; s/^\s*//g; s/\s*$//g' | grep '{0}'".format(
+                    "osinfo-query os --fields=name | tail -n +3 | sed -e 's/\s*|\s*/|/g; s/^\s*//g; s/\s*$//g' | grep '{0}'".format(
                         query_result))
 
             return self
 
-        def checkOsOrVendorFiltered(self):
+        def checkOsFiltered(self):
             b = self.browser
 
-            vendor_selector = "#vendor-select"
-            vendor_item_selector = "#vendor-select option[data-value*='{0}']".format(self.os_vendor)
-
-            b.wait_visible(vendor_selector)
-            if b.val(vendor_selector) != self.os_vendor:
-                try:
-                    with b.wait_timeout(1):
-                        b.wait_present(vendor_item_selector)
-                except Error:
-                    # vendor not found which is ok
-                    return self
-                b.set_val(vendor_selector, self.os_vendor)
-            b.wait_in_text(vendor_selector, self.os_vendor)
-            # vendor successfully found
-
-            system_selector = "#system-select"
-            system_item_selector = "#system-select option[data-value*='{0}']".format(self.os_name)
-
-            b.wait_visible(system_selector)
+            b.focus("label:contains('Operating System') + div > div > div > input")
+            b.key_press(self.os_name)
+            b.key_press("\t")
             try:
                 with b.wait_timeout(1):
-                    b.wait_visible(system_item_selector)
+                    b.wait_in_text("#os-select li a", "No matches found")
+                return self
+            except AssertionError:
                 # os found which is not ok
                 raise AssertionError("{0} was not filtered".format(self.os_name))
-            except AssertionError:
-                raise
-            except Error:
-                # os not found which is ok
-                return self
 
         def checkPXENotAvailableSession(self):
             self.browser.select_from_dropdown("#connection", self.connectionText)
@@ -1922,8 +1859,9 @@ class TestMachines(NetworkCase):
                         self.storage_size = min(self.storage_size, space_available)
                         b.wait_val("#storage-size", self.storage_size)
 
-            b.select_from_dropdown("#vendor-select", self.os_vendor, substring=True)
-            b.select_from_dropdown("#system-select", self.os_name, substring=True)
+            b.focus("label:contains('Operating System') + div > div > div > input")
+            b.key_press(self.os_name)
+            b.key_press("\t")
 
             # First select the unit so that UI will auto-adjust the memory input
             # value according to the available total memory on the host

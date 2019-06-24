@@ -36,16 +36,14 @@ def main():
     except ValueError:
         parser.error('Please format --amqp as host:port')
 
+    context = ssl.create_default_context(cafile='/run/secrets/webhook/ca.pem')
+    context.load_cert_chain(keyfile='/run/secrets/webhook/amqp-client.key',
+        certfile='/run/secrets/webhook/amqp-client.pem')
+    context.check_hostname = False
     connection = pika.BlockingConnection(pika.ConnectionParameters(
         host=host,
         port=int(port),
-        ssl=True,
-        ssl_options=pika.SSLOptions(
-            ssl_version=ssl.PROTOCOL_TLSv1_2,
-            cafile='/run/secrets/webhook/ca.pem',
-            keyfile='/run/secrets/webhook/amqp-client.key',
-            certfile='/run/secrets/webhook/amqp-client.pem',
-            server_hostname=host),
+        ssl_options=pika.SSLOptions(context, server_hostname=host),
         credentials=pika.credentials.ExternalCredentials()))
     channel = connection.channel()
 

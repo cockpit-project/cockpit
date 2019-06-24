@@ -40,6 +40,7 @@ typedef struct {
     gboolean local_only;
     gboolean inet_only;
     gboolean for_tls_proxy;
+    gboolean redirect_tls;
 } TestFixture;
 
 #define SKIP_NO_HOSTPORT if (!tc->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
@@ -82,6 +83,8 @@ setup (TestCase *tc,
                                            &error);
   g_assert_no_error (error);
   g_clear_object (&cert);
+
+  cockpit_web_server_set_redirect_tls (tc->web_server, fixture ? fixture->redirect_tls : FALSE);
 
   cockpit_web_server_start (tc->web_server);
 
@@ -456,6 +459,11 @@ static const TestFixture fixture_with_cert = {
     .cert_file = SRCDIR "/src/ws/mock_cert"
 };
 
+static const TestFixture fixture_with_cert_redirect = {
+    .redirect_tls = TRUE,
+    .cert_file = SRCDIR "/src/ws/mock_cert"
+};
+
 static void
 test_webserver_redirect_notls (TestCase *tc,
                                gconstpointer data)
@@ -507,7 +515,6 @@ test_webserver_noredirect_override (TestCase *tc,
 
   SKIP_NO_HOSTPORT;
 
-  cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   resp = perform_http_request (tc->hostport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
@@ -813,7 +820,6 @@ test_address (TestCase *tc,
   gchar *resp = NULL;
   const TestFixture *fix = data;
 
-  cockpit_web_server_set_redirect_tls (tc->web_server, FALSE);
   g_signal_connect (tc->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
   if (fix->local_only)
     {
@@ -923,11 +929,11 @@ main (int argc,
   g_test_add ("/web-server/not-found", TestCase, NULL,
               setup, test_webserver_not_found, teardown);
 
-  g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert,
+  g_test_add ("/web-server/redirect-notls", TestCase, &fixture_with_cert_redirect,
               setup, test_webserver_redirect_notls, teardown);
-  g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert,
+  g_test_add ("/web-server/no-redirect-localhost", TestCase, &fixture_with_cert_redirect,
               setup, test_webserver_noredirect_localhost, teardown);
-  g_test_add ("/web-server/no-redirect-exception", TestCase, &fixture_with_cert,
+  g_test_add ("/web-server/no-redirect-exception", TestCase, &fixture_with_cert_redirect,
               setup, test_webserver_noredirect_exception, teardown);
   g_test_add ("/web-server/no-redirect-override", TestCase, &fixture_with_cert,
               setup, test_webserver_noredirect_override, teardown);

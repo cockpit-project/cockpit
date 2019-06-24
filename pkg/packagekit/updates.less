@@ -157,13 +157,24 @@ div.changelog {
 }
 
 tr.security.listing-ct-item {
-    background-color: var(--color-ct-list-critical-bg) !important;  /* keep red background when expanded */
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
+
+    &, tbody.open > & {
+        background-color: var(--color-ct-list-critical-bg) !important; /* keep red background when expanded */
+        border-top: 1px solid var(--color-ct-list-critical-border);
+        border-bottom: 1px solid var(--color-ct-list-critical-border);
+
+        &:focus,
+        &:focus-within,
+        &:hover {
+            background-color: var(--color-ct-list-critical-bg-hover) !important;
+            border-top-color: var(--color-ct-list-critical-bg-hover);
+            border-bottom-color: var(--color-ct-list-critical-bg-hover);
+        }
+    }
 
     @media screen and (min-width: 641px) {
         td.version:hover .truncating {
-            background: linear-gradient(to left, rgba(251, 240, 240, 0), var(--color-ct-list-critical-bg) 3em);
+            background: linear-gradient(to left, rgba(251, 240, 240, 0), var(--color-ct-list-critical-bg-hover) 3em);
         }
     }
 }

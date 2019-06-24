@@ -1,43 +1,61 @@
 @import "/page.css";
 @import "/table.css";
 
-.cockpit-account {
-    width: 250px;
-    height: 70px;
-    background: var(--color-bg);
-    margin-top: 15px;
-    margin-right: 15px;
-    border: 1px solid #ddd;
-    display: inline-block;
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+#accounts-list {
+    --ct-account-pic-size: 3rem;
+    display: grid;
+    align-items: stretch;
+    grid-gap: 0.5rem;
+    margin: 2rem 0 0;
+    grid-template-columns: repeat(auto-fit, minmax(calc(8rem + var(--ct-account-pic-size)), 1fr));
 }
 
-.cockpit-account:hover {
+@media (max-width: 640px) {
+    #accounts-list {
+        --ct-account-pic-size: 0rem;
+    }
+}
+
+.cockpit-account {
+    align-content: center;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+    display: grid;
+    grid-template: "pic name"
+                   "pic account";
+    grid-template-columns: var(--ct-account-pic-size) 1fr;
+    grid-gap: 0 0.25rem;
+    min-height: 4rem;
+    padding: 0.5rem;
+}
+
+.cockpit-account:hover,
+.cockpit-account:focus-within {
     background-color: var(--color-link-hover-bg);
     cursor: pointer;
 }
 
 .cockpit-account > .cockpit-account-pic {
-    width: 48px;
-    height: 48px;
-    font-size: 48px;
+    font-size: var(--ct-account-pic-size);
     color: #bebebe;
-    margin: 10px;
-    float: left;
+    grid-area: pic;
 }
 
 .cockpit-account > .cockpit-account-real-name {
-    padding-top: 10px;
     font-weight: bold;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    min-height: 30px;
+    grid-area: name;
 }
 
 .cockpit-account > .cockpit-account-user-name {
     overflow: hidden;
     text-overflow: ellipsis;
+    grid-area: account;
+    /* We're using an underline on focus and focus-within above for focus indication */
+    outline: none;
 }
 
 .account-details .info-table-ct th,

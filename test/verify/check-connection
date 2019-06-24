@@ -436,8 +436,8 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
     @skipImage("missing socat", "fedora-atomic")
-    @skipImage("Added in PR #11813", "rhel-8-0-distropkg")
-    def testReverseTlsProxy(self):
+    @skipImage("Added in PR #11813 and #12141", "rhel-8-0-distropkg")
+    def testReverseProxy(self):
         m = self.machine
         b = self.browser
 
@@ -445,10 +445,13 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         m.upload(["../src/bridge/mock-server.crt", "../src/bridge/mock-server.key"], "/tmp")
         m.spawn("socat OPENSSL-LISTEN:9090,reuseaddr,fork,cert=/tmp/mock-server.crt,"
                 "key=/tmp/mock-server.key,verify=0 TCP:localhost:9099",
-                "socat.log")
+                "socat-tls.log")
+
+        # and another proxy for plain http
+        m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
-        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-ws" % self.ws_executable,
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
@@ -469,8 +472,12 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
 
         wait(lambda: "received request from bad Origin" in m.execute("journalctl -b -t cockpit-ws"))
 
-        # sanity check: HTTP does not work
+        # sanity check: unencrypted http through SSL proxy does not work
         m.execute("! curl http://localhost:9090")
+
+        # does not redirect to https (through plain http proxy)
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
 
         m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
         # this page failure is reeally noisy
@@ -510,6 +517,18 @@ G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local
         # should have https:// URLs in Content-Security-Policy
         out = m.execute("curl --insecure --head https://localhost:9090/")
         self.assertIn("Content-Security-Policy: connect-src 'self' https://localhost:9090 wss://localhost:9090;", out)
+
+        # sanity check: does not redirect to https (through plain http proxy) -- this isn't a supported mode, though!
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
+
+        # ws with --proxy-tls-redirect redirects non-localhost to https
+        m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
+        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-ws" % self.ws_executable,
+                "ws-proxy-tls-redirect.log")
+        m.wait_for_cockpit_running(tls=True)
+        self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))
+        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
 
 
 if __name__ == '__main__':

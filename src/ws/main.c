@@ -54,7 +54,7 @@ static GOptionEntry cmd_entries[] = {
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", "ADDRESS"},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"for-tls-proxy", 0, 0, G_OPTION_ARG_NONE, &opt_for_tls_proxy,
-      "Act behind a https-terminating proxy: accept only https:// origins by default; implies --no-tls",
+      "Act behind a https-terminating proxy: accept only https:// origins by default",
       NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {"local-session", 0, 0, G_OPTION_ARG_STRING, &opt_local_session,
@@ -147,6 +147,13 @@ main (int argc,
   g_option_context_add_main_entries (context, cmd_entries, NULL);
   if (!g_option_context_parse (context, &argc, &argv, &error))
     goto out;
+
+  /* check mutually exclusive options */
+  if (opt_for_tls_proxy && opt_no_tls)
+    {
+      g_printerr ("--for-tls-proxy and --no-tls are mutually exclusive");
+      goto out;
+    }
 
   if (opt_version)
     {

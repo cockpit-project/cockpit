@@ -1738,6 +1738,8 @@ class TestMachines(NetworkCase):
                 if (error_msg):
                     b.wait_in_text(error_location, error_msg)
 
+            b.wait_present(".modal-footer button:contains(Create):disabled")
+
             return self
 
         def createAndExpectError(self, errors):

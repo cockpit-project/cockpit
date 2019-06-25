@@ -718,7 +718,9 @@ class CreateVmModal extends React.Component {
                     <Button bsStyle='default' className='btn-cancel' onClick={ this.props.close }>
                         {_("Cancel")}
                     </Button>
-                    <Button bsStyle='primary' onClick={this.onCreateClicked}>
+                    <Button bsStyle='primary'
+                            disabled={Object.getOwnPropertyNames(validationFailed).length > 0}
+                            onClick={this.onCreateClicked}>
                         {_("Create")}
                     </Button>
                 </Modal.Footer>

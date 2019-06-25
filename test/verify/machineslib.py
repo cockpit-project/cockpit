@@ -37,6 +37,30 @@ def readFile(name):
     return content
 
 
+# Preparations for physical disk storage pool
+def prepareDisk(m):
+    m.add_disk("50M", serial="DISK1")
+    wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"))
+    m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mklabel gpt")
+
+
+# Preparations for iscsi storage pool
+def prepareStorageDeviceOnISCSI(m, target_iqn, orig_iqn=None):
+    if orig_iqn is None:
+        orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
+
+    # Increase the iSCSI timeouts for heavy load during our testing
+    m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
+
+    # Setup a iSCSI target
+    m.execute("""
+              targetcli /backstores/ramdisk create test 50M
+              targetcli /iscsi create %(tgt)s
+              targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
+              targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
+              """ % {"tgt": target_iqn, "ini": orig_iqn})
+
+
 SPICE_XML = """
     <video>
       <model type='vga' heads='1' primary='yes'/>
@@ -700,18 +724,7 @@ class TestMachines(NetworkCase):
             # Preparations for testing ISCSI pools
 
             target_iqn = "iqn.2019-09.cockpit.lan"
-            orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-
-            # Increase the iSCSI timeouts for heavy load during our testing
-            m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
-
-            # Setup a iSCSI target
-            m.execute("""
-                      targetcli /backstores/ramdisk create test 50M
-                      targetcli /iscsi create %(tgt)s
-                      targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
-                      targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
-                      """ % {"tgt": target_iqn, "ini": orig_iqn})
+            prepareStorageDeviceOnISCSI(m, target_iqn)
 
             m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
             wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
@@ -1423,6 +1436,51 @@ class TestMachines(NetworkCase):
                                          storage_pool="No Storage",
                                          start_vm=True,))
 
+        # Test create VM with disk of type "block"
+        prepareDisk(self.machine)
+        cmds = [
+            "virsh pool-define-as poolDisk disk - - /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 - /tmp/poolDiskImages",
+            "virsh pool-build poolDisk --overwrite",
+            "virsh pool-start poolDisk",
+            "virsh vol-create-as poolDisk sda1 1024"
+        ]
+        self.machine.execute(" && ".join(cmds))
+
+        self.browser.reload()
+        self.browser.enter_page('/machines')
+        self.browser.wait_in_text("body", "Virtual Machines")
+
+        # Check choosing existing volume as destination storage
+        createThenInstallTest(TestMachines.VmDialog(self, sourceType='file',
+                                                    location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                    memory_size=50, memory_size_unit='MiB',
+                                                    storage_pool="poolDisk",
+                                                    storage_volume="sda1"))
+
+        if "debian" not in self.machine.image and "ubuntu" not in self.machine.image:
+            # Test create VM with disk of type "network"
+            target_iqn = "iqn.2019-09.cockpit.lan"
+            prepareStorageDeviceOnISCSI(self.machine, target_iqn)
+
+            cmds = [
+                "virsh pool-define-as --name poolIscsi --type iscsi --source-host 127.0.0.1 --source-dev {0} --target /dev/disk/by-path/".format(target_iqn),
+                "virsh pool-build poolIscsi",
+                "virsh pool-start poolIscsi",
+                "virsh pool-refresh poolIscsi", # pool-start takes too long, libvirt's pool-refresh might not catch all volumes, so we do pool-refresh separately
+            ]
+            self.machine.execute(" && ".join(cmds))
+
+            self.browser.reload()
+            self.browser.enter_page('/machines')
+            self.browser.wait_in_text("body", "Virtual Machines")
+
+            # Check choosing existing volume as destination storage
+            createThenInstallTest(TestMachines.VmDialog(self, sourceType='file',
+                                                        location=config.NOVELL_MOCKUP_ISO_PATH,
+                                                        memory_size=50, memory_size_unit='MiB',
+                                                        storage_pool="poolIscsi",
+                                                        storage_volume="unit:0:0:0"))
+
         virtInstallVersion = self.machine.execute("virt-install --version")
         if virtInstallVersion >= "2":
             self.machine.upload(["verify/files/min-openssl-config.cnf", "verify/files/mock-range-server.py"], "/tmp/")
@@ -1611,6 +1669,9 @@ class TestMachines(NetworkCase):
         self.allow_journal_messages('.*connection.*')
         self.allow_journal_messages('.*Connection.*')
         self.allow_journal_messages('.*session closed.*')
+
+        self.allow_browser_errors("Failed when connecting: Connection closed")
+        self.allow_browser_errors("Tried changing state of a disconnected RFB object")
 
         # Deleting a running guest will disconnect the serial console
         self.allow_browser_errors("Disconnection timed out.")

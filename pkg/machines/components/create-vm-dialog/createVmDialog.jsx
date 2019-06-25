@@ -48,8 +48,6 @@ import {
     correctSpecialCases,
     filterReleaseEolDates,
     getOSStringRepresentation,
-    OTHER_OS_SHORT_ID,
-    OTHER_OS,
 } from "./createVmDialogUtils.js";
 import MemorySelectRow from '../memorySelectRow.jsx';
 
@@ -126,7 +124,7 @@ function validateParams(vmParams) {
     // If we select installation media from URL force the user to select
     // OS, since virt-install will not detect the OS, in case we don't choose
     // to start the guest immediately.
-    if ((vmParams.os == undefined || vmParams.os.name == 'Other OS') && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
+    if (vmParams.os == undefined && vmParams.sourceType == URL_SOURCE && !vmParams.startVm)
         validationFailed['os'] = _("You need to select the most closely matching Operating System");
 
     let source = vmParams.source ? vmParams.source.trim() : null;
@@ -312,12 +310,6 @@ class OSRow extends React.Component {
                     else
                         return getOSStringRepresentation(a).toLowerCase() > getOSStringRepresentation(b).toLowerCase();
                 });
-
-        osInfoListExt.push({
-            'shortId': OTHER_OS_SHORT_ID,
-            'name': OTHER_OS,
-            'version': null,
-        });
 
         this.state = {
             typeAheadKey: Math.random(),
@@ -629,7 +621,7 @@ class CreateVmModal extends React.Component {
                 vmName: this.state.vmName,
                 source: this.state.source,
                 sourceType: this.state.sourceType,
-                os: this.state.os.shortId,
+                os: this.state.os ? this.state.os.shortId : 'auto',
                 memorySize: convertToUnit(this.state.memorySize, this.state.memorySizeUnit, units.MiB),
                 storageSize: convertToUnit(this.state.storageSize, this.state.storageSizeUnit, units.GiB),
                 storagePool: this.state.storagePool,

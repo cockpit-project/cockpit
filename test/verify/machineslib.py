@@ -1299,7 +1299,6 @@ class TestMachines(NetworkCase):
                                                location=config.NOVELL_MOCKUP_ISO_PATH,
                                                memory_size=1, memory_size_unit='MiB',
                                                storage_size=12500, storage_size_unit='GiB',
-                                               os_name=config.OTHER_OS,
                                                start_vm=True))
 
         cancelDialogTest(TestMachines.VmDialog(self, sourceType='url',
@@ -1339,10 +1338,10 @@ class TestMachines(NetworkCase):
                                                             os_name=config.NOVELL_NETWARE_6, start_vm=True),
                                       {"Source": "Installation Source should not be empty"})
 
-        # disallow OTHER_OS in case of URL installation media and start_vm=False
+        # disallow empty OS in case of URL installation media and start_vm=False
         checkDialogFormValidationTest(TestMachines.VmDialog(self, sourceType='url', location=config.VALID_URL,
                                                             storage_size=100, storage_size_unit='MiB',
-                                                            os_name=config.OTHER_OS, start_vm=False),
+                                                            start_vm=False),
                                       {"Operating System": "You need to select the most closely matching Operating System"})
 
         # try to CREATE few machines
@@ -1525,7 +1524,6 @@ class TestMachines(NetworkCase):
                                              location=config.ISO_URL,
                                              memory_size=256, memory_size_unit='MiB',
                                              storage_size=0, storage_size_unit='MiB',
-                                             os_name=config.OTHER_OS,
                                              start_vm=True))
 
             # This functionality works on debian only because of extra dep.
@@ -1537,7 +1535,6 @@ class TestMachines(NetworkCase):
                                                            location=config.ISO_URL,
                                                            memory_size=256, memory_size_unit='MiB',
                                                            storage_size=0, storage_size_unit='MiB',
-                                                           os_name=config.OTHER_OS,
                                                            start_vm=True), ["qemu", "protocol"])
 
             self.addCleanup(self.machine.execute, "kill {0}".format(server))
@@ -1698,8 +1695,6 @@ class TestMachines(NetworkCase):
         NOT_EXISTENT_PATH = '/tmp/not-existent.iso'
         ISO_URL = 'https://localhost:8000/novell.iso'
 
-        OTHER_OS = 'Other OS'
-
         NOVELL_NETWARE_4 = 'Novell Netware 4'
         NOVELL_NETWARE_5 = 'Novell Netware 5'
         NOVELL_NETWARE_6 = 'Novell Netware 6'
@@ -1758,7 +1753,7 @@ class TestMachines(NetworkCase):
             self.memory_size_unit = memory_size_unit
             self.storage_size = storage_size
             self.storage_size_unit = storage_size_unit
-            self.os_name = os_name if os_name else TestMachines.TestCreateConfig.OTHER_OS
+            self.os_name = os_name
             self.start_vm = start_vm
             self.storage_pool = storage_pool
             self.storage_volume = storage_volume
@@ -1777,7 +1772,7 @@ class TestMachines(NetworkCase):
             b.wait_present("#create-vm-dialog")
             b.wait_in_text(".modal-dialog .modal-header .modal-title", "Create New Virtual Machine")
 
-            if self.os_name != TestMachines.TestCreateConfig.OTHER_OS:
+            if self.os_name is not None:
                 # check if there is os present in osinfo-query because it can be filtered out in the UI
                 query_result = '{0}'.format(self.os_name)
                 # throws exception if grep fails
@@ -1859,9 +1854,10 @@ class TestMachines(NetworkCase):
                         self.storage_size = min(self.storage_size, space_available)
                         b.wait_val("#storage-size", self.storage_size)
 
-            b.focus("label:contains('Operating System') + div > div > div > input")
-            b.key_press(self.os_name)
-            b.key_press("\t")
+            if self.os_name:
+                b.focus("label:contains('Operating System') + div > div > div > input")
+                b.key_press(self.os_name)
+                b.key_press("\t")
 
             # First select the unit so that UI will auto-adjust the memory input
             # value according to the available total memory on the host

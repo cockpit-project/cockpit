@@ -1010,9 +1010,7 @@ class TestMachinesDBus(machineslib.TestMachines):
         ).execute()
 
         # Prepare a ramdisk with gpt partition table to test the disk storage pool type
-        m.add_disk("50M", serial="DISK1")
-        wait(lambda: m.execute("ls -l /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1"))
-        m.execute("parted /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 mklabel gpt")
+        machineslib.prepareDisk(m)
 
         StoragePoolCreateDialog(
             self,
@@ -1029,17 +1027,7 @@ class TestMachinesDBus(machineslib.TestMachines):
 
             target_iqn = "iqn.2019-09.cockpit.lan"
             orig_iqn = m.execute("sed </etc/iscsi/initiatorname.iscsi -e 's/^.*=//'").rstrip()
-
-            # Increase the iSCSI timeouts for heavy load during our testing
-            m.execute("""sed -i 's|^\(node\..*log.*_timeout = \).*|\\1 60|' /etc/iscsi/iscsid.conf""")
-
-            # Setup a iSCSI target
-            m.execute("""
-                      targetcli /backstores/ramdisk create test 50M
-                      targetcli /iscsi create %(tgt)s
-                      targetcli /iscsi/%(tgt)s/tpg1/luns create /backstores/ramdisk/test
-                      targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
-                      """ % {"tgt": target_iqn, "ini": orig_iqn})
+            machineslib.prepareStorageDeviceOnISCSI(m, target_iqn, orig_iqn)
 
             StoragePoolCreateDialog(
                 self,

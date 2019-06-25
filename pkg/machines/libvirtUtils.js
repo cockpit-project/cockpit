@@ -53,7 +53,15 @@ export function prepareDisplaysParam(displays) {
 export function prepareDisksParam(disks) {
     const isVolume = (disk) => disk.source.volume && disk.source.pool;
     const getVolume = (disk) => isVolume(disk) ? `${disk.source.pool}/${disk.source.volume}` : null;
-    const getPath = (disk) => isVolume(disk) ? null : disk.source.file;
+    const getPath = (disk) => {
+        // see: https://libvirt.org/formatdomain.html#elementsDisks -> source
+        switch (disk.type) {
+        case "file": return disk.source.file;
+        case "block": return disk.source.dev;
+        case "network": return disk.source.protocol;
+        default: return null; // type volume (doesn't have path) and type dir (unsupported)
+        }
+    };
 
     return prepareParams(disks, disk => {
         return {
